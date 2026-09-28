@@ -103,6 +103,31 @@ REGISTRY: tuple[SemanticType, ...] = (
         ocr_whitelist="0123456789",
     ),
 
+    # --- parts of a date or an ID, before the whole-value rules ---
+    # A month box named `birth_dt_mm` matched `_dt` and was typed `date`;
+    # on 526EZ that was 79 of 328 fields, every one a generation-time
+    # contradiction (RESULTS.md, gt_shape_mismatch). Parts are strings
+    # with their own shape; the whole-value rules stay for whole values.
+    SemanticType(
+        name="date_month", matches=("_mm", "_month"), whole_names=("mm", "month"),
+        pattern=r"^\d{1,2}$", ocr_whitelist="0123456789",
+    ),
+    SemanticType(
+        name="date_day", matches=("_dd", "_day"), whole_names=("dd", "day"),
+        pattern=r"^\d{1,2}$", ocr_whitelist="0123456789",
+    ),
+    SemanticType(
+        name="date_year", matches=("_yyyy", "_yy"), whole_names=("yyyy", "yy"),
+        pattern=r"^\d{2,4}$", ocr_whitelist="0123456789",
+    ),
+    SemanticType(
+        name="id_part",
+        matches=("_part1", "_part2", "_part3", "_part4", "_part_1", "_part_2",
+                 "_part_3", "_first_three", "_second_two", "_last_four",
+                 "_first3", "_middle2", "_last4"),
+        pattern=r"^\d{1,5}$", ocr_whitelist="0123456789",
+    ),
+
     # --- dates ---
     SemanticType(
         name="birth_date",
@@ -292,7 +317,9 @@ def enrich_field(label: str, widget_type: str) -> dict:
             "type": "string"
         }
     spec: dict = {"type": st.bpt_type, "semantic_type": st.name}
-    if st.pattern:
+    # `pattern` is only valid on `type: string` (spec §5.6); the registry
+    # keeps canonical shapes for date/number types as documentation.
+    if st.pattern and st.bpt_type == "string":
         spec["pattern"] = st.pattern
     return spec
 
