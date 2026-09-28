@@ -145,8 +145,10 @@ draws values from the blueprint (no API; `petey/synth/local.py`), the default mu
 **blind** (page image with numbered boxes + ids and control types only; `python -m petey.synth.generate <pdf>
 --dry-run DIR` shows the payload), and the meaning-based arm `--methods native,petey:pymupdf|image` is
 `petey/extract_llm.py` (field names/types/descriptions over the page text or images, never the widget layer).
-Batch: `run_all --gen-model local` over the 132 blueprints whose source is survey-ready; first 76 all ran,
-2-40 s each (results in runs/run_all_local.json, gitignored).
+Batch: `run_all --gen-model local` over the 132 blueprints whose source is survey-ready: **132/132 ran in 13 min**,
+no API (runs/run_all_local.json, gitignored). Totals over 17,048 fields — intact: 16,929 agree / 27 differ / 92 miss
+(99.3%); one flat case each: 16,074 / 603 / 371 (94.3%); 93 forms fully clean on intact. This is the extraction-mechanics
+baseline; the blueprint-quality numbers below need VLM ground truth.
 
 **How much the validation step is worth — measured on two forms with real (blind) VLM ground truth.**
 
