@@ -237,3 +237,16 @@ are in the text layer on 129 of 132 filled forms; the exceptions are 21-526EZ, M
 Publisher tooltips and radio captions in `description` are what a name-based reader was missing; the
 remaining 39 unlocatable are mostly the repeated veteran/claimant sections. The 71 candidates with 27 swaps
 are `correct.py`'s input.
+
+## Library-wide meaning arm and method_delta (2026-09-28, `eval/meaning_arm_all.py`, in-repo `petey:pymupdf`)
+Over the runs with cached VLM ground truth (a mix of pre- and post-retype blueprint copies; the pass does not
+change names). 54 forms scored on the first pass (6 failed: 4 without ground truth, 2 hit the since-removed
+400-field skip); text mode is invalid on 526EZ, MA 1 and VA 760 (see the correction above) — 526EZ is included
+in image mode. `method_delta`: **1,518 raw disagreements across 48 forms, 589 candidate defects (143 swaps),
+399 unlocatable, 159 substring, 131 boolean**. Worst: CBP 7501 76, CRA T1 58, f1065 50, CA 540 29, AO 040A 28.
+`correct.py` dry run over the same runs: 35 forms analysed, 3 closed cycles (the only
+shape it will apply) and 123 open chains, most marked contradicted and escalated — on 526EZ every
+chain is the repeated veteran/claimant section, where the by-name reader picks the first copy. So the swap
+class that correct.py can fix losslessly is small in this library; the bulk of the 589 candidates are
+under-specified names on repeated sections and table rows, which is a naming-convention question (row/copy
+prefixes) rather than a rebind.
