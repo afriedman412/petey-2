@@ -39,6 +39,7 @@ from petey.synth.local import widget_limits
 PART_TYPES = {"date_month", "date_day", "date_year", "id_part"}
 NARROW_PT = 28.0
 WIDE_PT = 120.0
+_SEPARATORS = re.compile(r"\\[-. ()]|\(\??\)|[-. ]|\\\(|\\\)")
 _MONTH_YEAR = re.compile(r"\b(?:MM\s*/\s*YYYY|month\s*(?:/|and|&)\s*year|MM/YY)\b", re.I)
 
 try:
@@ -103,13 +104,23 @@ def retype_blueprint(bp: dict, limits: dict[str, dict]) -> collections.Counter:
             # value the name describes (veteran_ssn with maxlen 3).
             if _min_width(spec["pattern"]) > maxlen:
                 digits = bool(re.search(r"\\d", spec["pattern"]))
-                spec["pattern"] = rf"^\d{{1,{maxlen}}}$" if digits else rf"^.{{1,{maxlen}}}$"
-                if digits:
-                    spec["semantic_type"] = "id_part"
+                bare = _SEPARATORS.sub("", spec["pattern"])
+                if bare != spec["pattern"] and 0 < _min_width(bare) <= maxlen:
+                    # The whole value fits once the separators go: an SSN
+                    # in a 9-cell comb box. Same meaning, no dashes.
+                    spec["pattern"] = bare
+                    note.append(f"separators_dropped_by_maxlen:{maxlen}")
+                    changes["separators_dropped_by_maxlen"] += 1
                 else:
-                    spec.pop("semantic_type", None)
-                note.append(f"part_by_maxlen:{maxlen}")
-                changes["part_by_maxlen"] += 1
+                    spec["pattern"] = rf"^\d{{1,{maxlen}}}$" if digits else rf"^.{{1,{maxlen}}}$"
+                    if st is not None and st.name in PART_TYPES:
+                        spec["semantic_type"] = st.name
+                    elif digits:
+                        spec["semantic_type"] = "id_part"
+                    else:
+                        spec.pop("semantic_type", None)
+                    note.append(f"part_by_maxlen:{maxlen}")
+                    changes["part_by_maxlen"] += 1
         width = float(lim.get("width") or 0)
         if ftype == "string" and spec.get("pattern") and width >= WIDE_PT and not maxlen:
             # A 2-5 character shape (state code, ZIP) declared on a box wide

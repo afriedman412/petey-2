@@ -39,11 +39,11 @@ REGISTRY: tuple[SemanticType, ...] = (
     # contradiction (RESULTS.md, gt_shape_mismatch). Parts are strings
     # with their own shape; the whole-value rules stay for whole values.
     SemanticType(
-        name="date_month", matches=("_mm", "_month"), whole_names=("mm", "month"),
+        name="date_month", matches=("_mm",), whole_names=("mm", "month"),
         pattern=r"^\d{1,2}$", ocr_whitelist="0123456789",
     ),
     SemanticType(
-        name="date_day", matches=("_dd", "_day"), whole_names=("dd", "day"),
+        name="date_day", matches=("_dd",), whole_names=("dd", "day"),
         pattern=r"^\d{1,2}$", ocr_whitelist="0123456789",
     ),
     SemanticType(

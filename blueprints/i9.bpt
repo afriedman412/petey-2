@@ -133,8 +133,8 @@ fields:
     - pattern_dropped
   employee_ssn:
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,9}$
+    semantic_type: ssn
+    pattern: ^\d{3}\d{2}\d{4}$
     widget:
       page: 1
       rect:
@@ -145,7 +145,7 @@ fields:
       widget_type: text
       path: US Social Security Number
     x_petey_retype:
-    - part_by_maxlen:9
+    - separators_dropped_by_maxlen:9
   employee_email_address_txt:
     type: string
     semantic_type: email
@@ -517,8 +517,8 @@ fields:
       widget_type: checkbox
       path: CB_Alt
   first_day_of_employment_dt:
-    type: string
-    semantic_type: date_day
+    type: date
+    semantic_type: iso_date
     widget:
       page: 1
       rect:
@@ -528,10 +528,8 @@ fields:
       - 680.7080078125
       widget_type: text
       path: FirstDayEmployed mmddyyyy
-    pattern: ^\d{1,2}$
     x_petey_retype:
     - pattern_dropped
-    - part_by_name:date_day
   employer_representative_last_first_name_title:
     type: string
     semantic_type: first_name

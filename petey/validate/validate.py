@@ -439,7 +439,7 @@ def main() -> int:
     ap.add_argument("--label-model", type=str, default=None,
                     help="override model for auto_label. Default: --model. "
                          "'none' emits a geometry-only draft with no API.")
-    ap.add_argument("--datalab-max-fields", type=int, default=400,
+    ap.add_argument("--datalab-max-fields", type=int, default=0,
                     help="skip datalab method on forms exceeding this "
                          "field count (Petey LLM output-token-truncates "
                          "on large forms). 0 to disable.")
