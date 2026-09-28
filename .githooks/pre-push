@@ -1,0 +1,32 @@
+#!/bin/sh
+# Nothing is pushed directly to main. Work lands on dev, then reaches main
+# through a merged pull request (which happens on GitHub, not via a local push).
+#
+# Installed by `make hooks`, which points core.hooksPath at .githooks/.
+# Emergency bypass: PETEY_ALLOW_MAIN_PUSH=1 git push origin main
+
+PROTECTED="main"
+
+if [ "$PETEY_ALLOW_MAIN_PUSH" = "1" ]; then
+	echo "pre-push: PETEY_ALLOW_MAIN_PUSH=1 set, allowing push to $PROTECTED." >&2
+	exit 0
+fi
+
+while read -r _local_ref _local_sha remote_ref _remote_sha; do
+	case "$remote_ref" in
+	"refs/heads/$PROTECTED")
+		echo >&2
+		echo "pre-push: refusing to push directly to '$PROTECTED'." >&2
+		echo >&2
+		echo "  Push dev instead, then open a PR:" >&2
+		echo "    git push origin dev" >&2
+		echo "    gh pr create --base $PROTECTED --head dev" >&2
+		echo >&2
+		echo "  Merge the PR on GitHub, then: git checkout $PROTECTED && git pull" >&2
+		echo >&2
+		exit 1
+		;;
+	esac
+done
+
+exit 0

@@ -64,3 +64,9 @@ format:
 
 guni:
 	gunicorn -w 4 -b 0.0.0.0:5000 app:app
+
+.PHONY: hooks
+
+hooks:
+	git config core.hooksPath .githooks
+	@echo "Hooks installed. Direct pushes to main are now blocked."

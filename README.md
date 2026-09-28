@@ -45,3 +45,20 @@ The recall gain generalizes; precision does not yet. See `docs/RESULTS.md`.
 ## Evaluation protocol
 Test forms are scored once, before any diagnosis. Anything diagnosed from them moves them into development, and the
 next batch becomes the test set. Changes are single, named, and justified by structure, not by a score.
+
+## Branching
+`main` is release state; `dev` is where work lands. Nothing is pushed directly to `main` — it advances only through
+a pull request merged on GitHub.
+
+```
+make hooks                                  # once per clone: installs the pre-push guard
+git checkout dev && git push origin dev     # work lands here
+gh pr create --base main --head dev         # then merge the PR on GitHub
+git checkout main && git pull               # bring the merge back down
+```
+
+The guard is `.githooks/pre-push`, activated by `make hooks` setting `core.hooksPath`. It is not automatic on a
+fresh clone, so run `make hooks` after cloning. To override it in an emergency:
+`PETEY_ALLOW_MAIN_PUSH=1 git push origin main`.
+
+GitHub-side branch protection would be the stronger guard, but it needs GitHub Pro on a private repo.
