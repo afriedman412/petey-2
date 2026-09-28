@@ -44,4 +44,14 @@ def resolve_form_id(name: str, db: Path | str = DB) -> Optional[str]:
     if name in aliases:
         return aliases[name]
     n = norm(name)
-    return nf.get(n) or na.get(n)
+    hit = nf.get(n) or na.get(n)
+    if hit:
+        return hit
+    # The older registry named state-agency forms without the state (`rrc_h_12`);
+    # the identifier writes `tx_rrc_h_12`. Bridge that only when an agency token
+    # remains after the state code, never for a bare number (il_1040 is not 1040).
+    m = re.match(r"^[a-z]{2}_([a-z]{3,}_.+)$", name)
+    if m:
+        n2 = norm(m.group(1))
+        return nf.get(n2) or na.get(n2)
+    return None

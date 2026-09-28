@@ -37,3 +37,39 @@ its height; small boxes penalised for text only when a word is centred inside.
 | all 45 | 0.58/0.58 | 0.74/0.62 | 0.76/0.61 |
 Biggest moves: PIT-RES 0.44/0.38 -> 1.00/0.54; IT-201 0.39/0.56 -> 0.79/0.73 (the old cents-box category, fixed by the
 suffix rule without being used to design it). Small precision dips (0.03-0.05) on SS-4, GA-500, 1040, IL-1040, T1.
+
+## True flat copies (23 twins, scored 2026-09-28 with pipeline v2.1)
+The corpus holds both a print copy and a fillable copy of 23 forms (22 Texas RRC, 1 IAIABC); same page size, page-1 word
+Jaccard >= 0.8. The fillable twin's widgets are exact ground truth for the flat copy — no self-flattening. `eval/twins.py`.
+
+| form | flat copy | gt | pred | R50 | P50 |
+|---|---|---:|---:|---:|---:|
+| tx_rrc_w_1 (addendum) | form-w-1-field-addendum.pdf | 93 | 99 | 0.98 | 0.92 |
+| w_3 | w-3p.pdf | 177 | 219 | 0.98 | 0.79 |
+| tx_rrc_wh_2 | formwh2p.pdf | 191 | 218 | 0.97 | 0.85 |
+| tx_rrc_w_3x | w-3x.pdf | 25 | 34 | 0.92 | 0.68 |
+| tx_rrc_wh_3 | formwh3p.pdf | 75 | 98 | 0.88 | 0.67 |
+| tx_rrc_ep_3 | ep-3-pdf.pdf | 43 | 46 | 0.86 | 0.80 |
+| tx_rrc_p_5 (LC) | p-5-lc.pdf | 20 | 18 | 0.85 | 0.94 |
+| tx_rrc_h_7 | h-7p.pdf | 50 | 48 | 0.84 | 0.88 |
+| tx_rrc_w_1h | form-w-1h.pdf | 66 | 66 | 0.82 | 0.82 |
+| tx_rrc_ep_4 | ep-4-pdf.pdf | 52 | 58 | 0.75 | 0.67 |
+| tx_rrc_w_1d | form-w-1d.pdf | 49 | 50 | 0.73 | 0.72 |
+| tx_rrc_wh_1 | wh-1p.pdf | 18 | 26 | 0.72 | 0.50 |
+| tx_rrc_cf_1 | cf-1-06-09-14-final.pdf | 27 | 21 | 0.70 | 0.90 |
+| tx_rrc_h_8 | h-8p.pdf | 33 | 31 | 0.58 | 0.61 |
+| tx_rrc_p_12 | p-12p.pdf | 70 | 72 | 0.51 | 0.50 |
+| tx_rrc_cf_2 | cf-2-final-04-2014.pdf | 31 | 23 | 0.48 | 0.65 |
+| tx_rrc_w_15 | w-15-08-04-2014-final.pdf | 252 | 138 | 0.45 | 0.83 |
+| tx_rrc_h_12 | h-12p.pdf | 74 | 67 | 0.42 | 0.46 |
+| tx_rrc_ps_79 | ps-79p.pdf | 40 | 15 | 0.23 | 0.60 |
+| p_15 | formp15p.pdf | 15 | 3 | 0.20 | 1.00 |
+| tx_rrc_p_5 | form-p5.pdf | 95 | 55 | 0.16 | 0.27 |
+| tx_rrc_p_6 | p-6p.pdf | 90 | 51 | 0.12 | 0.22 |
+| iaiabc_ia_1 | IA1 First Report of Injury.pdf | 91 | 144 | 0.07 | 0.04 |
+| **micro** | | **1677** | | **0.63** | **0.66** |
+
+Against the same code's 0.76 / 0.61 on self-flattened development forms: recall is lower on real print copies, precision
+slightly higher. The spread is the finding — six forms at or above 0.85 recall, six at or below 0.23. Diagnose the bottom
+six per the protocol (they are now development forms); the `sibling` geometry source makes the number moot for these 23
+in production, but the 104 flat forms with no fillable twin depend on it.

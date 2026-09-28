@@ -4,7 +4,7 @@
   forms          issuer / jurisdiction filled where NULL; omb_number only when every PDF of the form agrees;
                  title only on forms this run creates. Edition is per document and stays in identities.
   aliases        canonical id -> form_id
-  source_pdfs    form_id + status=identified, only for rows that were unidentified (exclusions are kept)
+  source_pdfs    form_id where missing (an exclusion is not an unknown identity); status=identified only for unidentified rows
   new forms      created (status=planned) ONLY for number-based identities; name-derived ones stay unidentified
   external_refs  source=sensible: Sensible configs whose stem resolves to a registry form
 
@@ -86,8 +86,9 @@ def main() -> int:
         if r["canonical"] != fid:
             R.add_alias(conn, r["canonical"], fid); c["alias"] += 1
         c["source_pdf_linked"] += conn.execute(
-            "UPDATE source_pdfs SET form_id=?, status='identified' WHERE sha256=? AND status='unidentified'",
+            "UPDATE source_pdfs SET form_id=? WHERE sha256=? AND (form_id IS NULL OR form_id='')",
             (fid, r["sha256"])).rowcount
+        conn.execute("UPDATE source_pdfs SET status='identified' WHERE sha256=? AND status='unidentified'", (r["sha256"],))
     if not a.dry_run:
         for fid, ombs in omb_by_form.items():
             if len(ombs) == 1:
