@@ -138,3 +138,33 @@ labeler had already folded the others into `category` fields with `widgets`, whe
 `rule_violation` is a new verdict count. Checks: a deliberately violating case (two relationship boxes held) is
 caught, the compliant case is clean, and the saved f1040 case rescores with identical per-field verdicts and
 `rule_violation: 0`.
+
+## The loop, wired end to end in this repo (2026-09-28, late)
+`validate` runs label -> generate -> fill -> extract -> score with everything in-repo: `--gen-model local`
+draws values from the blueprint (no API; `petey/synth/local.py`), the default multimodal generator runs
+**blind** (page image with numbered boxes + ids and control types only; `python -m petey.synth.generate <pdf>
+--dry-run DIR` shows the payload), and the meaning-based arm `--methods native,petey:pymupdf|image` is
+`petey/extract_llm.py` (field names/types/descriptions over the page text or images, never the widget layer).
+Batch: `run_all --gen-model local` over the 132 blueprints whose source is survey-ready; first 76 all ran,
+2-40 s each (results in runs/run_all_local.json, gitignored).
+
+**How much the validation step is worth — measured on two forms with real (blind) VLM ground truth.**
+
+| | W-9 (23 fields) | 21-526EZ (328 fields) |
+|---|---:|---:|
+| native, intact: agree | 23 | 326 |
+| native, flat: agree / differ / miss | 23 / 0 / 0 | 216 / 49 / 63 |
+| local-generator, flat: agree / differ / miss | 23 / 0 / 0 | 255 / 12 / 61 |
+| VLM value contradicts the blueprint's declared type/pattern | 0 | **108** (79 date parts typed `date`, 28 pattern, 1 name) |
+| meaning arm (`petey:pymupdf`), intact: agree / differ / miss | 23 / 0 / 0 | **133 / 129 / 66** |
+
+Reading: the intact native score is the same whether the values come from the VLM or from the blueprint
+itself (326 vs 325) — it validates fill and read-back by path, nothing about the blueprint. The blueprint
+signal is in the VLM's label-grounded values (108 of 328 fields on 526EZ contradict what the blueprint
+declares) and in the meaning arm's disagreement (195 of 328). Of the 195: fields bound to the wrong box
+(`va_file_number_2` holds the last name; `current_mailing_address_line_1_txt` is the email box), part
+fields named as wholes (`telephone_number` holds an area code), radio groups whose `values` are ordinals
+(`0`/`1`) no name-based reader can resolve (the XFA captions under `x_petey_xfa.choices` would), and
+repeated sections (veteran vs claimant SSN) where the name alone cannot pick the copy — the
+"under-specified name" cause in `s2_meaning.py`. On the W-9 the meaning arm only loses flattened
+checkboxes to the text-layer parser (3), which is what `petey:image` is for.
