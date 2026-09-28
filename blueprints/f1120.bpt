@@ -16,7 +16,6 @@ fields:
   tax_yr_begin_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -26,10 +25,11 @@ fields:
       - 59.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].PgHeader[0].f1_1[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_yr_end_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -39,10 +39,12 @@ fields:
       - 59.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].PgHeader[0].f1_2[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_yr_end_yr:
     type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 1
       rect:
@@ -52,6 +54,8 @@ fields:
       - 59.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].PgHeader[0].f1_3[0]
+    x_petey_retype:
+    - part_by_maxlen:2
   corporation_nm:
     type: string
     semantic_type: person_name
@@ -215,7 +219,6 @@ fields:
   date_incorporated_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -225,6 +228,8 @@ fields:
       - 120.00201416015625
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_12[0]
+    x_petey_retype:
+    - pattern_dropped
   total_assets_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -2732,8 +2737,6 @@ fields:
       path: topmostSubform[0].Page4[0].f4_31[0]
   foreign_owner_country_cd:
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
     widget:
       page: 4
       rect:
@@ -2743,6 +2746,8 @@ fields:
       - 630.0
       widget_type: text
       path: topmostSubform[0].Page4[0].f4_32[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=216
   form_5472_attached_cnt:
     type: integer
     semantic_type: count

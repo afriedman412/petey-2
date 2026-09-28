@@ -272,7 +272,6 @@ fields:
   importer_birth_dt:
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -283,10 +282,11 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportersDateOfBirth[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   importer_arrival_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -297,6 +297,8 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportersDateOfArrival[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   importer_port_of_arrival_nm:
     type: string
     semantic_type: person_name
@@ -339,7 +341,6 @@ fields:
   shipment_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -350,6 +351,8 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportedBelongingsDate[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   vessel_carrier_nm:
     type: string
     semantic_type: person_name
@@ -430,7 +433,6 @@ fields:
   importer_last_departure_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -441,10 +443,11 @@ fields:
       widget_type: text
       path: F[0].P1[0].DateOfImportersLast[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   travel_orders_issued_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -455,6 +458,8 @@ fields:
       widget_type: text
       path: F[0].P1[0].DateOrdersIssued[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   length_of_time_yr:
     type: string
     semantic_type: year
@@ -536,7 +541,6 @@ fields:
   carrier_agent_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -547,6 +551,8 @@ fields:
       widget_type: text
       path: F[0].P2[0].Date[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   declarant_signature_txt:
     type: string
     semantic_type: text
@@ -563,7 +569,6 @@ fields:
   declarant_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -574,6 +579,8 @@ fields:
       widget_type: text
       path: F[0].P2[0].DateFreeEntrySignature[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   cbp_official_signature_txt:
     type: string
     semantic_type: text
@@ -590,7 +597,6 @@ fields:
   cbp_official_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -601,6 +607,8 @@ fields:
       widget_type: text
       path: F[0].P2[0].DateOfSignature[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   article_1_item_number_txt:
     type: string
     semantic_type: text
@@ -1070,9 +1078,7 @@ fields:
       path: F[0].P2[0].SignatureOfAgentPrint[1]
     label_source: llm
   agent_sign_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 2
       rect:
@@ -1083,6 +1089,10 @@ fields:
       widget_type: text
       path: F[0].P2[0].SignatureOfAgentPrint[2]
     label_source: llm
+    pattern: ^\d{1,3}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=3,width=42
   residency_status:
     type: category
     values:

@@ -413,8 +413,6 @@ fields:
     label_source: llm
   state_of_txt:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -425,6 +423,8 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].Stateof[0]
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=125
   name_of_individual_making_statement_nm:
     type: string
     semantic_type: person_name
@@ -456,7 +456,6 @@ fields:
   signed_sworn_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -467,10 +466,11 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].dateAffirmed[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   commission_expiration_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -483,3 +483,5 @@ fields:
     description: Commission Expiration Date
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped

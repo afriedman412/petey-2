@@ -14,7 +14,6 @@ fields:
   tax_yr_beginning_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -24,10 +23,11 @@ fields:
       - 119.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].p1-t1[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_yr_ending_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -37,10 +37,12 @@ fields:
       - 119.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].p1-t2[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_yr_ending_yr:
     type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 1
       rect:
@@ -50,6 +52,8 @@ fields:
       - 119.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].p1-t3[0]
+    x_petey_retype:
+    - part_by_maxlen:2
   address_change_ind:
     type: boolean
     semantic_type: indicator
@@ -160,8 +164,6 @@ fields:
       path: topmostSubform[0].Page1[0].LineC[0].p1-t6[0]
   city_state_country_zip_txt:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -171,10 +173,12 @@ fields:
       - 192.00201416015625
       widget_type: text
       path: topmostSubform[0].Page1[0].LineC[0].p1-t7[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=313
   ein:
     type: string
-    semantic_type: ein
-    pattern: ^\d{2}-\d{7}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -184,6 +188,8 @@ fields:
       - 144.00299072265625
       widget_type: text
       path: topmostSubform[0].Page1[0].p1-t9[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   telephone_num:
     type: string
     semantic_type: phone

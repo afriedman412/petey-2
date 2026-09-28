@@ -123,7 +123,6 @@ fields:
   effective_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -134,6 +133,8 @@ fields:
       widget_type: text
       path: effective date
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   purpose_change_operator_ind:
     type: boolean
     semantic_type: indicator
@@ -1013,7 +1014,6 @@ fields:
   previous_operator_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -1024,10 +1024,12 @@ fields:
       widget_type: text
       path: date
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   previous_operator_phone:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,11}$
     widget:
       page: 1
       rect:
@@ -1038,6 +1040,8 @@ fields:
       widget_type: text
       path: phone num
     label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:11
   current_operator_print_nm:
     type: string
     semantic_type: person_name
@@ -1106,7 +1110,6 @@ fields:
   current_operator_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -1117,10 +1120,12 @@ fields:
       widget_type: text
       path: date2
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   current_operator_phone:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,11}$
     widget:
       page: 1
       rect:
@@ -1131,6 +1136,8 @@ fields:
       widget_type: text
       path: phone2
     label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:11
   classification:
     type: category
     values:

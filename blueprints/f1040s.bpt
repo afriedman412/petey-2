@@ -14,7 +14,6 @@ fields:
   tax_year_beginning_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -24,10 +23,11 @@ fields:
       - 65.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_01[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_year_ending_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -37,10 +37,12 @@ fields:
       - 65.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_02[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_year_ending_yr:
     type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 1
       rect:
@@ -50,6 +52,8 @@ fields:
       - 65.9990234375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_03[0]
+    x_petey_retype:
+    - part_by_maxlen:2
   filed_pursuant_section_301_9100_2_ind:
     type: boolean
     semantic_type: indicator
@@ -99,9 +103,8 @@ fields:
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].c1_3[0]
   deceased_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 1
       rect:
@@ -111,10 +114,13 @@ fields:
       - 77.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_05[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   deceased_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 1
       rect:
@@ -124,10 +130,13 @@ fields:
       - 77.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_06[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   deceased_dt_yyyy:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_year
     widget:
       page: 1
       rect:
@@ -137,10 +146,13 @@ fields:
       - 77.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_07[0]
+    pattern: ^\d{2,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_year
   spouse_deceased_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 1
       rect:
@@ -150,10 +162,13 @@ fields:
       - 77.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_08[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   spouse_deceased_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 1
       rect:
@@ -163,10 +178,13 @@ fields:
       - 77.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_09[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   spouse_deceased_dt_yyyy:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_year
     widget:
       page: 1
       rect:
@@ -176,6 +194,10 @@ fields:
       - 77.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_10[0]
+    pattern: ^\d{2,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_year
   other_ind:
     type: boolean
     semantic_type: indicator
@@ -251,8 +273,8 @@ fields:
       path: topmostSubform[0].Page1[0].f1_15[0]
   spouse_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -262,6 +284,8 @@ fields:
       - 114.0009765625
       widget_type: text
       path: topmostSubform[0].Page1[0].YourSocial[0].f1_16[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   home_address_line_1_txt:
     type: string
     semantic_type: street_address
@@ -376,8 +400,6 @@ fields:
       path: topmostSubform[0].Page1[0].Address[0].f1_25[0]
   home_address_state_abbreviation_cd_2:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -387,6 +409,8 @@ fields:
       - 234.0
       widget_type: text
       path: topmostSubform[0].Page1[0].Address[0].f1_26[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=142
   home_address_zip_cd_2:
     type: string
     semantic_type: zip
@@ -618,8 +642,8 @@ fields:
       path: topmostSubform[0].Page1[0].Table_Dependents[0].Row2[0].f1_38[0]
   dependent_1_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -629,10 +653,12 @@ fields:
       - 431.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_39[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   dependent_2_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -642,10 +668,12 @@ fields:
       - 431.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_40[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   dependent_3_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -655,10 +683,12 @@ fields:
       - 431.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_41[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   dependent_4_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -668,6 +698,8 @@ fields:
       - 431.99700927734375
       widget_type: text
       path: topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_42[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   dependent_1_relationship_txt:
     type: string
     semantic_type: text
@@ -1894,8 +1926,8 @@ fields:
       path: topmostSubform[0].Page3[0].f3_05[0]
   former_spouse_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 3
       rect:
@@ -1905,6 +1937,8 @@ fields:
       - 180.0
       widget_type: text
       path: topmostSubform[0].Page3[0].SSN_ReadOrder[0].f3_06[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   earned_income_credit_amt:
     type: number
     semantic_type: money_whole_dollar

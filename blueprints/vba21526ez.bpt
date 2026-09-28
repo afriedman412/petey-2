@@ -74,8 +74,8 @@ fields:
       path: F[0].Page_10[0].Veteran_Service_Member_Middle_Initial[0]
   ssn_part1:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 9
       rect:
@@ -85,10 +85,12 @@ fields:
       - 323.6600036621094
       widget_type: text
       path: F[0].Page_10[0].SocialSecurityNumber_FirstThreeNumbers[0]
+    x_petey_retype:
+    - part_by_maxlen:3
   ssn_part2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 9
       rect:
@@ -98,10 +100,12 @@ fields:
       - 322.9309997558594
       widget_type: text
       path: F[0].Page_10[0].SocialSecurityNumber_SecondTwoNumbers[0]
+    x_petey_retype:
+    - part_by_maxlen:2
   ssn_part3:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 9
       rect:
@@ -111,10 +115,11 @@ fields:
       - 323.6600036621094
       widget_type: text
       path: F[0].Page_10[0].SocialSecurityNumber_LastFourNumbers[0]
+    x_petey_retype:
+    - part_by_maxlen:4
   birth_dt_mm:
-    type: date
-    semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 9
       rect:
@@ -124,10 +129,13 @@ fields:
       - 357.8970031738281
       widget_type: text
       path: F[0].Page_10[0].Date_Of_Birth_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   birth_dt_dd:
-    type: date
-    semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 9
       rect:
@@ -137,10 +145,13 @@ fields:
       - 357.8970031738281
       widget_type: text
       path: F[0].Page_10[0].Date_Of_Birth_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   birth_dt_yyyy:
-    type: date
-    semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_year
     widget:
       page: 9
       rect:
@@ -150,6 +161,10 @@ fields:
       - 357.8970031738281
       widget_type: text
       path: F[0].Page_10[0].Date_Of_Birth_Year[0]
+    pattern: ^\d{2,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_year
   current_mailing_address_line_1_txt_2:
     type: string
     semantic_type: street_address
@@ -227,8 +242,8 @@ fields:
       path: F[0].Page_10[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]
   current_mailing_postal_cd:
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 9
       rect:
@@ -238,6 +253,8 @@ fields:
       - 481.74798583984375
       widget_type: text
       path: F[0].Page_10[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]
+    x_petey_retype:
+    - part_by_maxlen:4
   new_address_line_1_txt:
     type: string
     semantic_type: street_address
@@ -315,8 +332,8 @@ fields:
       path: F[0].Page_10[0].New_Address_ZIPOrPostalCode_FirstFiveNumbers[0]
   new_address_postal_cd:
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 9
       rect:
@@ -326,6 +343,8 @@ fields:
       - 697.3880004882812
       widget_type: text
       path: F[0].Page_10[0].New_Address_ZIPOrPostalCode_LastFourNumbers[0]
+    x_petey_retype:
+    - part_by_maxlen:4
   service_number_dod_id:
     type: string
     widget:
@@ -338,9 +357,8 @@ fields:
       widget_type: text
       path: F[0].Page_10[0].Veterans_Service_Number_If_Applicable[0]
   bdd_release_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 9
       rect:
@@ -350,10 +368,13 @@ fields:
       - 403.5369873046875
       widget_type: text
       path: F[0].Page_10[0].BDD_Claims_Only__Provide_The_Date_Or_Anticipated_Date_Of_Release_From_Active_Duty_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   bdd_release_dt_yyyy:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_year
     widget:
       page: 9
       rect:
@@ -363,10 +384,13 @@ fields:
       - 403.5369873046875
       widget_type: text
       path: F[0].Page_10[0].BDD_Claims_Only_Provide_The_Date_Or_Anticipated_Date_Of_Release_From_Active_Duty_Year[0]
+    pattern: ^\d{2,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_year
   address_begin_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 9
       rect:
@@ -376,10 +400,13 @@ fields:
       - 748.9340209960938
       widget_type: text
       path: F[0].Page_10[0].Beginning_Date_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   address_begin_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 9
       rect:
@@ -389,10 +416,12 @@ fields:
       - 748.9340209960938
       widget_type: text
       path: F[0].Page_10[0].Beginning_Date_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   address_begin_dt_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 9
       rect:
@@ -402,10 +431,13 @@ fields:
       - 748.9340209960938
       widget_type: text
       path: F[0].Page_10[0].Beginning_Date_Year[0]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   address_end_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 9
       rect:
@@ -415,10 +447,13 @@ fields:
       - 749.3280029296875
       widget_type: text
       path: F[0].Page_10[0].Ending_Date_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   address_end_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 9
       rect:
@@ -428,10 +463,12 @@ fields:
       - 748.6589965820312
       widget_type: text
       path: F[0].Page_10[0].Ending_Date_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   address_end_dt_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 9
       rect:
@@ -441,6 +478,10 @@ fields:
       - 748.8150024414062
       widget_type: text
       path: F[0].Page_10[0].Ending_Date_Year[0]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   va_employee_ind:
     type: boolean
     semantic_type: indicator
@@ -455,8 +496,8 @@ fields:
       path: F[0].Page_10[0].Current_VA_Employee_Check_Box[0]
   telephone_area_cd:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 9
       rect:
@@ -466,10 +507,12 @@ fields:
       - 390.7049865722656
       widget_type: text
       path: F[0].Page_10[0].Daytime_Phone_Number_Area_Code[0]
+    x_petey_retype:
+    - part_by_maxlen:3
   telephone_number:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 9
       rect:
@@ -479,10 +522,12 @@ fields:
       - 390.7049865722656
       widget_type: text
       path: F[0].Page_10[0].Telephone_Middle_Three_Numbers[0]
+    x_petey_retype:
+    - part_by_maxlen:3
   telephone_extension:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 9
       rect:
@@ -492,10 +537,11 @@ fields:
       - 391.4079895019531
       widget_type: text
       path: F[0].Page_10[0].Telephone_Last_Four_Numbers[0]
+    x_petey_retype:
+    - part_by_maxlen:4
   bdd_release_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 9
       rect:
@@ -505,6 +551,10 @@ fields:
       - 403.5369873046875
       widget_type: text
       path: F[0].Page_10[0].BDD_Claims_Only__Provide_The_Date_Or_Anticipated_Date_Of_Release_From_Active_Duty_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   international_phone_number:
     type: string
     semantic_type: phone
@@ -573,8 +623,8 @@ fields:
       path: F[0].Page_10[0].Email_Address_Optional[1]
   veteran_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 10
       rect:
@@ -584,6 +634,8 @@ fields:
       - 28.5560302734375
       widget_type: text
       path: F[0].#subform[9].SocialSecurityNumber_FirstThreeNumbers[0]
+    x_petey_retype:
+    - part_by_maxlen:3
   currently_homeless_ind:
     type: category
     values:
@@ -625,8 +677,8 @@ fields:
       path: F[0].#subform[9].Telephone_Number_Area_Code[0]
   point_of_contact_phone_nbr:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 10
       rect:
@@ -636,10 +688,12 @@ fields:
       - 250.95697021484375
       widget_type: text
       path: F[0].#subform[9].Telephone_Middle_Three_Numbers[0]
+    x_petey_retype:
+    - part_by_maxlen:3
   point_of_contact_intl_phone_nbr:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 10
       rect:
@@ -649,6 +703,8 @@ fields:
       - 252.3599853515625
       widget_type: text
       path: F[0].#subform[9].Telephone_Last_Four_Numbers[0]
+    x_petey_retype:
+    - part_by_maxlen:4
   point_of_contact_intl_phone_full_nbr:
     type: string
     semantic_type: phone
@@ -691,9 +747,7 @@ fields:
       widget_type: radiobutton
       path: F[0].#subform[9].RadioButtonList2[3]
   gulf_war_service_from_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -703,10 +757,12 @@ fields:
       - 388.5419921875
       widget_type: text
       path: F[0].#subform[9].From_Date_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=2,width=33
   gulf_war_service_to_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -716,6 +772,10 @@ fields:
       - 388.5419921875
       widget_type: text
       path: F[0].#subform[9].From_Date_Year[0]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   herbicide_locations_served_ind:
     type: category
     values:
@@ -767,9 +827,7 @@ fields:
       widget_type: text
       path: F[0].#subform[9].POINT_OF_CONTACT[0]
   herbicide_service_to_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -779,10 +837,12 @@ fields:
       - 388.5419921875
       widget_type: text
       path: F[0].#subform[9].To_Date_Year[0]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   herbicide_service_from_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -792,10 +852,12 @@ fields:
       - 388.5419921875
       widget_type: text
       path: F[0].#subform[9].To_Date_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=2,width=33
   exposure_service_from_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -805,10 +867,12 @@ fields:
       - 492.4460144042969
       widget_type: text
       path: F[0].#subform[9].From_Date_Month[1]
+    pattern: ^(?:\d{1,2}[/\-]\d{4}|\d{4}[/\-]\d{1,2})$
+    x_petey_retype:
+    - pattern_dropped
+    - month_year_by_tooltip
   exposure_service_to_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -818,10 +882,12 @@ fields:
       - 492.4460144042969
       widget_type: text
       path: F[0].#subform[9].From_Date_Year[1]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   exposure_service_to_dt_2:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -831,10 +897,12 @@ fields:
       - 492.4460144042969
       widget_type: text
       path: F[0].#subform[9].To_Date_Year[1]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   exposure_service_from_dt_2:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -844,10 +912,12 @@ fields:
       - 492.4460144042969
       widget_type: text
       path: F[0].#subform[9].To_Date_Month[1]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=2,width=33
   exposure_from_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -857,10 +927,12 @@ fields:
       - 588.2860107421875
       widget_type: text
       path: F[0].#subform[9].From_Date_Month[2]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=2,width=33
   exposure_to_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -870,10 +942,12 @@ fields:
       - 588.2860107421875
       widget_type: text
       path: F[0].#subform[9].From_Date_Year[2]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   exposure_to_dt_2:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -883,10 +957,12 @@ fields:
       - 588.781982421875
       widget_type: text
       path: F[0].#subform[9].To_Date_Year[2]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=67
   exposure_from_dt_2:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 10
       rect:
@@ -896,6 +972,10 @@ fields:
       - 588.2860107421875
       widget_type: text
       path: F[0].#subform[9].To_Date_Month[2]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=2,width=33
   living_situation_14b_other_specify_txt:
     type: string
     semantic_type: text
@@ -934,8 +1014,8 @@ fields:
       path: F[0].#subform[9].Other_Specify[0]
   veteran_ssn_part1:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 11
       rect:
@@ -945,10 +1025,12 @@ fields:
       - 33.2449951171875
       widget_type: text
       path: F[0].#subform[10].SocialSecurityNumber_FirstThreeNumbers[1]
+    x_petey_retype:
+    - part_by_maxlen:3
   veteran_ssn_part2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 11
       rect:
@@ -958,10 +1040,12 @@ fields:
       - 33.2449951171875
       widget_type: text
       path: F[0].#subform[10].SocialSecurityNumber_SecondTwoNumbers[1]
+    x_petey_retype:
+    - part_by_maxlen:2
   veteran_ssn_part3:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 11
       rect:
@@ -971,6 +1055,8 @@ fields:
       - 32.6810302734375
       widget_type: text
       path: F[0].#subform[10].SocialSecurityNumber_LastFourNumbers[1]
+    x_petey_retype:
+    - part_by_maxlen:4
   disability_1_current_nm:
     type: string
     semantic_type: person_name
@@ -1010,7 +1096,6 @@ fields:
   disability_1_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1020,10 +1105,11 @@ fields:
       - 117.16998291015625
       widget_type: text
       path: F[0].#subform[10].Date_Disability_Began_Or_Worsened[0]
+    x_petey_retype:
+    - pattern_dropped
   disability_2_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1033,10 +1119,11 @@ fields:
       - 140.8170166015625
       widget_type: text
       path: F[0].#subform[10].Date12[0]
+    x_petey_retype:
+    - pattern_dropped
   disability_3_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1046,10 +1133,11 @@ fields:
       - 164.98199462890625
       widget_type: text
       path: F[0].#subform[10].Date12[1]
+    x_petey_retype:
+    - pattern_dropped
   disability_4_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1059,10 +1147,11 @@ fields:
       - 188.6090087890625
       widget_type: text
       path: F[0].#subform[10].Date12[2]
+    x_petey_retype:
+    - pattern_dropped
   disability_5_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1072,10 +1161,11 @@ fields:
       - 212.77099609375
       widget_type: text
       path: F[0].#subform[10].Date12[3]
+    x_petey_retype:
+    - pattern_dropped
   disability_6_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1085,10 +1175,11 @@ fields:
       - 235.9019775390625
       widget_type: text
       path: F[0].#subform[10].Date12[4]
+    x_petey_retype:
+    - pattern_dropped
   disability_7_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1098,10 +1189,11 @@ fields:
       - 261.4219970703125
       widget_type: text
       path: F[0].#subform[10].Date12[5]
+    x_petey_retype:
+    - pattern_dropped
   disability_8_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1111,10 +1203,11 @@ fields:
       - 283.1759948730469
       widget_type: text
       path: F[0].#subform[10].Date12[6]
+    x_petey_retype:
+    - pattern_dropped
   disability_9_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1124,10 +1217,11 @@ fields:
       - 308.39300537109375
       widget_type: text
       path: F[0].#subform[10].Date12[7]
+    x_petey_retype:
+    - pattern_dropped
   disability_10_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1137,10 +1231,11 @@ fields:
       - 331.50299072265625
       widget_type: text
       path: F[0].#subform[10].Date12[8]
+    x_petey_retype:
+    - pattern_dropped
   disability_11_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1150,10 +1245,11 @@ fields:
       - 356.2019958496094
       widget_type: text
       path: F[0].#subform[10].Date12[9]
+    x_petey_retype:
+    - pattern_dropped
   disability_12_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1163,10 +1259,11 @@ fields:
       - 379.8280029296875
       widget_type: text
       path: F[0].#subform[10].Date12[10]
+    x_petey_retype:
+    - pattern_dropped
   disability_13_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1176,10 +1273,11 @@ fields:
       - 406.09698486328125
       widget_type: text
       path: F[0].#subform[10].Date12[11]
+    x_petey_retype:
+    - pattern_dropped
   disability_14_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1189,10 +1287,11 @@ fields:
       - 428.156005859375
       widget_type: text
       path: F[0].#subform[10].Date12[12]
+    x_petey_retype:
+    - pattern_dropped
   disability_15_approximate_onset_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 11
       rect:
@@ -1202,6 +1301,8 @@ fields:
       - 454.635009765625
       widget_type: text
       path: F[0].#subform[10].Date12[13]
+    x_petey_retype:
+    - pattern_dropped
   disability_2_current_nm:
     type: string
     semantic_type: person_name
@@ -1743,9 +1844,7 @@ fields:
       widget_type: checkbox
       path: F[0].#subform[10].Check_Box_Do_Not_Have_Date_s[2]
   treatment_facility_1_treatment_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 11
       rect:
@@ -1755,10 +1854,13 @@ fields:
       - 558.9920043945312
       widget_type: text
       path: F[0].#subform[10].Date_Of_Treatment_Year[0]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=57
   treatment_facility_1_treatment_dt_month:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 11
       rect:
@@ -1768,10 +1870,12 @@ fields:
       - 558.9920043945312
       widget_type: text
       path: F[0].#subform[10].Date_Of_Treatment_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   treatment_facility_2_treatment_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 11
       rect:
@@ -1781,10 +1885,13 @@ fields:
       - 592.1909790039062
       widget_type: text
       path: F[0].#subform[10].Date_Of_Treatment_Year[1]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=57
   treatment_facility_3_treatment_dt_month:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 11
       rect:
@@ -1794,10 +1901,12 @@ fields:
       - 626.2210083007812
       widget_type: text
       path: F[0].#subform[10].Date_Of_Treatment_Month[1]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   treatment_facility_3_treatment_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 11
       rect:
@@ -1807,10 +1916,13 @@ fields:
       - 626.2210083007812
       widget_type: text
       path: F[0].#subform[10].Date_Of_Treatment_Year[2]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=57
   treatment_facility_2_treatment_dt_month:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 11
       rect:
@@ -1820,6 +1932,10 @@ fields:
       - 592.1909790039062
       widget_type: text
       path: F[0].#subform[10].Date_Of_Treatment_Month[2]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   treatment_facility_3_disability_and_facility_nm:
     type: string
     semantic_type: person_name
@@ -1858,8 +1974,8 @@ fields:
       path: F[0].#subform[10].Enter_Disability_Treated_And_Name_And_Location_Of_Treatment_Facility[2]
   veteran_ssn_part1_2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 12
       rect:
@@ -1869,10 +1985,12 @@ fields:
       - 28.958984375
       widget_type: text
       path: F[0].#subform[11].SocialSecurityNumber_FirstThreeNumbers[2]
+    x_petey_retype:
+    - part_by_maxlen:3
   veteran_ssn_part2_2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 12
       rect:
@@ -1882,10 +2000,12 @@ fields:
       - 29.4520263671875
       widget_type: text
       path: F[0].#subform[11].SocialSecurityNumber_SecondTwoNumbers[2]
+    x_petey_retype:
+    - part_by_maxlen:2
   veteran_ssn_part3_2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 12
       rect:
@@ -1895,6 +2015,8 @@ fields:
       - 28.96197509765625
       widget_type: text
       path: F[0].#subform[11].SocialSecurityNumber_LastFourNumbers[2]
+    x_petey_retype:
+    - part_by_maxlen:4
   other_name_served_under_txt:
     type: string
     semantic_type: person_name
@@ -2013,9 +2135,8 @@ fields:
       widget_type: text
       path: F[0].#subform[11].ObligationTermOfService_Year[1]
   activation_dt_month:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 12
       rect:
@@ -2025,10 +2146,13 @@ fields:
       - 401.5870056152344
       widget_type: text
       path: F[0].#subform[11].DateOfActivation_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   activation_dt_day:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 12
       rect:
@@ -2038,10 +2162,12 @@ fields:
       - 401.5870056152344
       widget_type: text
       path: F[0].#subform[11].DateOfActivation_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   activation_dt_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 12
       rect:
@@ -2051,10 +2177,13 @@ fields:
       - 401.5870056152344
       widget_type: text
       path: F[0].#subform[11].DateOfActivation_Year[0]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=68
   anticipated_separation_dt_month:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 12
       rect:
@@ -2064,10 +2193,13 @@ fields:
       - 401.5870056152344
       widget_type: text
       path: F[0].#subform[11].AnticipatedSeparationDate_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   anticipated_separation_dt_day:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 12
       rect:
@@ -2077,10 +2209,12 @@ fields:
       - 401.5870056152344
       widget_type: text
       path: F[0].#subform[11].AnticipatedSeparationDate_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   anticipated_separation_dt_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 12
       rect:
@@ -2090,6 +2224,10 @@ fields:
       - 401.74798583984375
       widget_type: text
       path: F[0].#subform[11].AnticipatedSeparationDate_Year[0]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=68
   pow_confinement_from_month:
     type: string
     widget:
@@ -2677,9 +2815,8 @@ fields:
       widget_type: checkbox
       path: F[0].#subform[12].ICertifyThatIDoNotHaveAnAccountWithAFinancialInstitutionOrCertifiedPaymentAgent[0]
   separation_pay_received_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 13
       rect:
@@ -2689,10 +2826,13 @@ fields:
       - 153.64599609375
       widget_type: text
       path: F[0].#subform[12].DatePaymentReceived_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   separation_pay_received_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 13
       rect:
@@ -2702,10 +2842,13 @@ fields:
       - 153.64599609375
       widget_type: text
       path: F[0].#subform[12].DatePaymentReceived_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   separation_pay_received_dt_yyyy:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_year
     widget:
       page: 13
       rect:
@@ -2715,6 +2858,10 @@ fields:
       - 153.64599609375
       widget_type: text
       path: F[0].#subform[12].DatePaymentReceived_Year[0]
+    pattern: ^\d{2,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_year
   separation_pay_amount_dollars:
     type: number
     semantic_type: money_whole_dollar
@@ -2741,8 +2888,8 @@ fields:
       path: F[0].#subform[12].Amount_Received_First_Three_Digits[0]
   veteran_ssn_1:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 13
       rect:
@@ -2752,10 +2899,12 @@ fields:
       - 27.56097412109375
       widget_type: text
       path: F[0].#subform[12].SocialSecurityNumber_FirstThreeNumbers[3]
+    x_petey_retype:
+    - part_by_maxlen:3
   veteran_ssn_2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 13
       rect:
@@ -2765,10 +2914,12 @@ fields:
       - 28.05499267578125
       widget_type: text
       path: F[0].#subform[12].SocialSecurityNumber_SecondTwoNumbers[3]
+    x_petey_retype:
+    - part_by_maxlen:2
   veteran_ssn_3:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 13
       rect:
@@ -2778,6 +2929,8 @@ fields:
       - 27.56402587890625
       widget_type: text
       path: F[0].#subform[12].SocialSecurityNumber_LastFourNumbers[3]
+    x_petey_retype:
+    - part_by_maxlen:4
   received_separation_pay_ind:
     type: category
     values:
@@ -2807,9 +2960,8 @@ fields:
       widget_type: radiobutton
       path: F[0].#subform[12].RadioButtonList[14]
   veteran_signature_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 13
       rect:
@@ -2819,10 +2971,13 @@ fields:
       - 648.1530151367188
       widget_type: text
       path: F[0].#subform[12].Date_Signed_Month[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   veteran_signature_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 13
       rect:
@@ -2832,10 +2987,13 @@ fields:
       - 648.1530151367188
       widget_type: text
       path: F[0].#subform[12].Date_Signed_Day[0]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   veteran_signature_dt_yyyy:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_year
     widget:
       page: 13
       rect:
@@ -2845,6 +3003,10 @@ fields:
       - 648.52099609375
       widget_type: text
       path: F[0].#subform[12].Date_Signed_Year[0]
+    pattern: ^\d{2,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_year
   veteran_servicemember_signature:
     type: string
     widget:
@@ -2913,9 +3075,7 @@ fields:
       widget_type: radiobutton
       path: F[0].#subform[12].RadioButtonList[15]
   poa_signature_dt_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 14
       rect:
@@ -2925,10 +3085,13 @@ fields:
       - 374.64599609375
       widget_type: text
       path: F[0].#subform[13].Date_Signed_Year[1]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=66
   poa_signature_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 14
       rect:
@@ -2938,10 +3101,13 @@ fields:
       - 374.64599609375
       widget_type: text
       path: F[0].#subform[13].Date_Signed_Day[1]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   poa_signature_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 14
       rect:
@@ -2951,10 +3117,13 @@ fields:
       - 374.64599609375
       widget_type: text
       path: F[0].#subform[13].Date_Signed_Month[1]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   alternate_signer_signature_dt_mm:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_month
     widget:
       page: 14
       rect:
@@ -2964,10 +3133,13 @@ fields:
       - 259.031982421875
       widget_type: text
       path: F[0].#subform[13].Date_Signed_Month[2]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_month
   alternate_signer_signature_dt_dd:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 14
       rect:
@@ -2977,10 +3149,12 @@ fields:
       - 259.031982421875
       widget_type: text
       path: F[0].#subform[13].Date_Signed_Day[2]
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   alternate_signer_signature_dt_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 14
       rect:
@@ -2990,6 +3164,10 @@ fields:
       - 259.031982421875
       widget_type: text
       path: F[0].#subform[13].Date_Signed_Year[2]
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=4,width=66
   alternate_signer_signature:
     type: string
     widget:
@@ -3014,8 +3192,8 @@ fields:
       path: F[0].#subform[13].Digital_Signature[2]
   veteran_ssn_4:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 14
       rect:
@@ -3025,10 +3203,12 @@ fields:
       - 43.39300537109375
       widget_type: text
       path: F[0].#subform[13].SocialSecurityNumber_FirstThreeNumbers[4]
+    x_petey_retype:
+    - part_by_maxlen:3
   veteran_ssn_2_2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 14
       rect:
@@ -3038,10 +3218,12 @@ fields:
       - 43.885986328125
       widget_type: text
       path: F[0].#subform[13].SocialSecurityNumber_SecondTwoNumbers[4]
+    x_petey_retype:
+    - part_by_maxlen:2
   veteran_ssn_3_2:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 14
       rect:
@@ -3051,10 +3233,12 @@ fields:
       - 43.9849853515625
       widget_type: text
       path: F[0].#subform[13].SocialSecurityNumber_LastFourNumbers[4]
+    x_petey_retype:
+    - part_by_maxlen:4
   veteran_ssn_part1_3:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 15
       rect:
@@ -3064,10 +3248,12 @@ fields:
       - 48.0360107421875
       widget_type: text
       path: F[0].#subform[14].SocialSecurityNumber_FirstThreeNumbers[5]
+    x_petey_retype:
+    - part_by_maxlen:3
   veteran_ssn_part2_3:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 15
       rect:
@@ -3077,10 +3263,12 @@ fields:
       - 48.52899169921875
       widget_type: text
       path: F[0].#subform[14].SocialSecurityNumber_SecondTwoNumbers[5]
+    x_petey_retype:
+    - part_by_maxlen:2
   veteran_ssn_part3_3:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 15
       rect:
@@ -3090,6 +3278,8 @@ fields:
       - 48.03900146484375
       widget_type: text
       path: F[0].#subform[14].SocialSecurityNumber_LastFourNumbers[5]
+    x_petey_retype:
+    - part_by_maxlen:4
   disability_1_nm:
     type: string
     semantic_type: person_name
@@ -3129,7 +3319,6 @@ fields:
   disability_1_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3139,10 +3328,11 @@ fields:
       - 254.3389892578125
       widget_type: text
       path: F[0].#subform[14].Date_Disability_Began_Or_Worsened[1]
+    x_petey_retype:
+    - pattern_dropped
   disability_2_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3152,10 +3342,11 @@ fields:
       - 277.9849853515625
       widget_type: text
       path: F[0].#subform[14].Date12[14]
+    x_petey_retype:
+    - pattern_dropped
   disability_3_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3165,10 +3356,11 @@ fields:
       - 302.1510009765625
       widget_type: text
       path: F[0].#subform[14].Date12[15]
+    x_petey_retype:
+    - pattern_dropped
   disability_4_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3178,10 +3370,11 @@ fields:
       - 325.7770080566406
       widget_type: text
       path: F[0].#subform[14].Date12[16]
+    x_petey_retype:
+    - pattern_dropped
   disability_5_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3191,10 +3384,11 @@ fields:
       - 349.94000244140625
       widget_type: text
       path: F[0].#subform[14].Date12[17]
+    x_petey_retype:
+    - pattern_dropped
   disability_6_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3204,10 +3398,11 @@ fields:
       - 373.0710144042969
       widget_type: text
       path: F[0].#subform[14].Date12[18]
+    x_petey_retype:
+    - pattern_dropped
   disability_7_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3217,10 +3412,11 @@ fields:
       - 398.59100341796875
       widget_type: text
       path: F[0].#subform[14].Date12[19]
+    x_petey_retype:
+    - pattern_dropped
   disability_8_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3230,10 +3426,11 @@ fields:
       - 420.343994140625
       widget_type: text
       path: F[0].#subform[14].Date12[20]
+    x_petey_retype:
+    - pattern_dropped
   disability_9_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3243,10 +3440,11 @@ fields:
       - 445.5610046386719
       widget_type: text
       path: F[0].#subform[14].Date12[21]
+    x_petey_retype:
+    - pattern_dropped
   disability_10_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3256,10 +3454,11 @@ fields:
       - 468.6719970703125
       widget_type: text
       path: F[0].#subform[14].Date12[22]
+    x_petey_retype:
+    - pattern_dropped
   disability_11_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3269,10 +3468,11 @@ fields:
       - 493.3699951171875
       widget_type: text
       path: F[0].#subform[14].Date12[23]
+    x_petey_retype:
+    - pattern_dropped
   disability_12_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3282,10 +3482,11 @@ fields:
       - 516.9970092773438
       widget_type: text
       path: F[0].#subform[14].Date12[24]
+    x_petey_retype:
+    - pattern_dropped
   disability_13_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3295,10 +3496,11 @@ fields:
       - 543.2680053710938
       widget_type: text
       path: F[0].#subform[14].Date12[25]
+    x_petey_retype:
+    - pattern_dropped
   disability_14_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3308,10 +3510,11 @@ fields:
       - 565.3250122070312
       widget_type: text
       path: F[0].#subform[14].Date12[26]
+    x_petey_retype:
+    - pattern_dropped
   disability_15_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3321,6 +3524,8 @@ fields:
       - 591.802978515625
       widget_type: text
       path: F[0].#subform[14].Date12[27]
+    x_petey_retype:
+    - pattern_dropped
   disability_2_nm:
     type: string
     semantic_type: person_name
@@ -3828,7 +4033,6 @@ fields:
   disability_16_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3838,10 +4042,11 @@ fields:
       - 619.0239868164062
       widget_type: text
       path: F[0].#subform[14].Date12[28]
+    x_petey_retype:
+    - pattern_dropped
   disability_17_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3851,10 +4056,11 @@ fields:
       - 642.6480102539062
       widget_type: text
       path: F[0].#subform[14].Date12[29]
+    x_petey_retype:
+    - pattern_dropped
   disability_18_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3864,10 +4070,11 @@ fields:
       - 668.9169921875
       widget_type: text
       path: F[0].#subform[14].Date12[30]
+    x_petey_retype:
+    - pattern_dropped
   disability_19_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3877,10 +4084,11 @@ fields:
       - 690.9760131835938
       widget_type: text
       path: F[0].#subform[14].Date12[31]
+    x_petey_retype:
+    - pattern_dropped
   disability_20_approximate_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 15
       rect:
@@ -3890,6 +4098,8 @@ fields:
       - 717.45703125
       widget_type: text
       path: F[0].#subform[14].Date12[32]
+    x_petey_retype:
+    - pattern_dropped
   disability_16_nm:
     type: string
     semantic_type: person_name

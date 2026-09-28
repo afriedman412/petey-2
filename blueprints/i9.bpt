@@ -120,7 +120,6 @@ fields:
   date_of_birth_dt:
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -130,10 +129,12 @@ fields:
       - 238.35601806640625
       widget_type: text
       path: Date of Birth mmddyyyy
+    x_petey_retype:
+    - pattern_dropped
   employee_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -143,6 +144,8 @@ fields:
       - 238.56097412109375
       widget_type: text
       path: US Social Security Number
+    x_petey_retype:
+    - part_by_maxlen:9
   employee_email_address_txt:
     type: string
     semantic_type: email
@@ -184,7 +187,6 @@ fields:
   alien_work_authorization_expiration_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -194,6 +196,8 @@ fields:
       - 307.885986328125
       widget_type: text
       path: Exp Date mmddyyyy
+    x_petey_retype:
+    - pattern_dropped
   uscis_a_number:
     type: string
     widget:
@@ -242,7 +246,6 @@ fields:
   employee_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -252,6 +255,8 @@ fields:
       - 371.1960144042969
       widget_type: text
       path: Today's Date mmddyyy
+    x_petey_retype:
+    - pattern_dropped
   list_a_document_title_1:
     type: string
     widget:
@@ -288,7 +293,6 @@ fields:
   list_a_expiration_dt_1:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -298,6 +302,8 @@ fields:
       - 503.2799987792969
       widget_type: text
       path: Expiration Date if any
+    x_petey_retype:
+    - pattern_dropped
   list_a_document_title_2:
     type: string
     widget:
@@ -334,7 +340,6 @@ fields:
   list_a_expiration_dt_2:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -344,6 +349,8 @@ fields:
       - 575.52001953125
       widget_type: text
       path: List A.  Document 2. Expiration Date (if any)
+    x_petey_retype:
+    - pattern_dropped
   list_a_document_title_3:
     type: string
     widget:
@@ -380,7 +387,6 @@ fields:
   list_a_expiration_dt_3:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -390,6 +396,8 @@ fields:
       - 647.760009765625
       widget_type: text
       path: Document Number if any_3
+    x_petey_retype:
+    - pattern_dropped
   list_b_document_title:
     type: string
     widget:
@@ -426,7 +434,6 @@ fields:
   list_b_expiration_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -436,6 +443,8 @@ fields:
       - 503.1109924316406
       widget_type: text
       path: List B Expiration Date 1
+    x_petey_retype:
+    - pattern_dropped
   list_c_document_title:
     type: string
     widget:
@@ -472,7 +481,6 @@ fields:
   list_c_expiration_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -482,6 +490,8 @@ fields:
       - 503.1109924316406
       widget_type: text
       path: List C Expiration Date 1
+    x_petey_retype:
+    - pattern_dropped
   additional_information_txt:
     type: string
     semantic_type: text
@@ -507,9 +517,8 @@ fields:
       widget_type: checkbox
       path: CB_Alt
   first_day_of_employment_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
+    semantic_type: date_day
     widget:
       page: 1
       rect:
@@ -519,6 +528,10 @@ fields:
       - 680.7080078125
       widget_type: text
       path: FirstDayEmployed mmddyyyy
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - part_by_name:date_day
   employer_representative_last_first_name_title:
     type: string
     semantic_type: first_name
@@ -545,7 +558,6 @@ fields:
   employer_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -555,6 +567,8 @@ fields:
       - 712.3607788085938
       widget_type: text
       path: S2 Todays Date mmddyyyy
+    x_petey_retype:
+    - pattern_dropped
   employer_business_name:
     type: string
     semantic_type: business_name
@@ -569,8 +583,6 @@ fields:
       path: Employers Business or Org Name
   employer_business_address_city_state_zip_txt:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -580,6 +592,8 @@ fields:
       - 738.9647827148438
       widget_type: text
       path: Employers Business or Org Address
+    x_petey_retype:
+    - wide_widget_short_pattern:width=329
   employee_last_nm_2:
     type: string
     semantic_type: last_name
@@ -629,7 +643,6 @@ fields:
   preparer_1_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -639,6 +652,8 @@ fields:
       - 251.20098876953125
       widget_type: text
       path: Sig Date mmddyyyy 0
+    x_petey_retype:
+    - pattern_dropped
   preparer_1_last_nm:
     type: string
     semantic_type: last_name
@@ -738,7 +753,6 @@ fields:
   preparer_2_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -748,6 +762,8 @@ fields:
       - 376.9200134277344
       widget_type: text
       path: Sig Date mmddyyyy 1
+    x_petey_retype:
+    - pattern_dropped
   preparer_2_last_nm:
     type: string
     semantic_type: last_name
@@ -835,7 +851,6 @@ fields:
   preparer_3_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -845,6 +860,8 @@ fields:
       - 503.20098876953125
       widget_type: text
       path: Sig Date mmddyyyy 2
+    x_petey_retype:
+    - pattern_dropped
   preparer_3_last_nm:
     type: string
     semantic_type: last_name
@@ -944,7 +961,6 @@ fields:
   preparer_4_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -954,6 +970,8 @@ fields:
       - 629.2000122070312
       widget_type: text
       path: Sig Date mmddyyyy 3
+    x_petey_retype:
+    - pattern_dropped
   preparer_4_last_nm:
     type: string
     semantic_type: last_name
@@ -1077,7 +1095,6 @@ fields:
   rehire_dt_1:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1087,6 +1104,8 @@ fields:
       - 235.2650146484375
       widget_type: text
       path: Date of Rehire 0
+    x_petey_retype:
+    - pattern_dropped
   new_last_nm_1:
     type: string
     semantic_type: last_name
@@ -1147,7 +1166,6 @@ fields:
   reverification_document_expiration_dt_1:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1157,6 +1175,8 @@ fields:
       - 282.93798828125
       widget_type: text
       path: Expiration Date 0
+    x_petey_retype:
+    - pattern_dropped
   employer_or_authorized_representative_nm_1:
     type: string
     semantic_type: person_name
@@ -1183,7 +1203,6 @@ fields:
   todays_dt_1:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1193,6 +1212,8 @@ fields:
       - 341.10699462890625
       widget_type: text
       path: Todays Date 0
+    x_petey_retype:
+    - pattern_dropped
   additional_information_1:
     type: string
     widget:
@@ -1219,7 +1240,6 @@ fields:
   rehire_dt_2:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1229,6 +1249,8 @@ fields:
       - 421.2650146484375
       widget_type: text
       path: Date of Rehire 1
+    x_petey_retype:
+    - pattern_dropped
   new_last_nm_2:
     type: string
     semantic_type: last_name
@@ -1278,7 +1300,6 @@ fields:
   reverification_document_expiration_dt_2:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1288,6 +1309,8 @@ fields:
       - 469.2669982910156
       widget_type: text
       path: Expiration Date 1
+    x_petey_retype:
+    - pattern_dropped
   employer_or_authorized_representative_nm_2:
     type: string
     semantic_type: person_name
@@ -1314,7 +1337,6 @@ fields:
   todays_dt_2:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1324,6 +1346,8 @@ fields:
       - 526.4500122070312
       widget_type: text
       path: Todays Date 1
+    x_petey_retype:
+    - pattern_dropped
   additional_information_2:
     type: string
     widget:
@@ -1350,7 +1374,6 @@ fields:
   rehire_dt_3:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1360,6 +1383,8 @@ fields:
       - 606.93798828125
       widget_type: text
       path: Date of Rehire 2
+    x_petey_retype:
+    - pattern_dropped
   new_last_nm_3:
     type: string
     semantic_type: last_name
@@ -1420,7 +1445,6 @@ fields:
   reverification_document_expiration_dt_3:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1430,6 +1454,8 @@ fields:
       - 655.35400390625
       widget_type: text
       path: Expiration Date 2
+    x_petey_retype:
+    - pattern_dropped
   employer_or_authorized_representative_nm_3:
     type: string
     semantic_type: person_name
@@ -1456,7 +1482,6 @@ fields:
   todays_dt_3:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1466,6 +1491,8 @@ fields:
       - 712.760009765625
       widget_type: text
       path: Todays Date 2
+    x_petey_retype:
+    - pattern_dropped
   additional_information_3:
     type: string
     widget:

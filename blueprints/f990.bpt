@@ -22,7 +22,6 @@ fields:
   tax_year_begin_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -32,10 +31,11 @@ fields:
       - 107.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_1[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_year_end_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -45,10 +45,12 @@ fields:
       - 107.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_2[0]
+    x_petey_retype:
+    - pattern_dropped
   tax_year_end_yr:
     type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 1
       rect:
@@ -58,6 +60,8 @@ fields:
       - 107.0
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_3[0]
+    x_petey_retype:
+    - part_by_maxlen:2
   address_change_ind:
     type: boolean
     semantic_type: indicator
@@ -180,8 +184,6 @@ fields:
       path: topmostSubform[0].Page1[0].LineC[0].f1_7[0]
   city_state_country_zip_cd:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -191,6 +193,8 @@ fields:
       - 180.0
       widget_type: text
       path: topmostSubform[0].Page1[0].LineC[0].f1_8[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=327
   ein:
     type: string
     semantic_type: ein

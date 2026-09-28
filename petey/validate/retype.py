@@ -38,12 +38,22 @@ from petey.synth.local import widget_limits
 
 PART_TYPES = {"date_month", "date_day", "date_year", "id_part"}
 NARROW_PT = 28.0
+WIDE_PT = 120.0
 _MONTH_YEAR = re.compile(r"\b(?:MM\s*/\s*YYYY|month\s*(?:/|and|&)\s*year|MM/YY)\b", re.I)
 
 try:
     import re._parser as _sre
 except ImportError:  # pragma: no cover
     import sre_parse as _sre  # type: ignore
+
+
+def _max_width(pattern: str) -> int:
+    """Longest string the regex can match (0 if unbounded or unparsable)."""
+    try:
+        w = _sre.parse(pattern).getwidth()[1]
+        return int(w) if w < _sre.MAXREPEAT else 0
+    except Exception:
+        return 0
 
 
 def _min_width(pattern: str) -> int:
@@ -100,6 +110,17 @@ def retype_blueprint(bp: dict, limits: dict[str, dict]) -> collections.Counter:
                     spec.pop("semantic_type", None)
                 note.append(f"part_by_maxlen:{maxlen}")
                 changes["part_by_maxlen"] += 1
+        width = float(lim.get("width") or 0)
+        if ftype == "string" and spec.get("pattern") and width >= WIDE_PT and not maxlen:
+            # A 2-5 character shape (state code, ZIP) declared on a box wide
+            # enough for a sentence: the name's token matched (`_state` in
+            # `city_state_zip`) but the box says the value is longer.
+            wmax = _max_width(spec["pattern"])
+            if 0 < wmax <= 5:
+                spec.pop("pattern")
+                spec.pop("semantic_type", None)
+                note.append(f"wide_widget_short_pattern:width={width:.0f}")
+                changes["wide_widget_short_pattern"] += 1
         if st is not None and st.name in PART_TYPES and ftype in ("date", "number", "integer"):
             spec["type"] = "string"
             spec["semantic_type"] = st.name

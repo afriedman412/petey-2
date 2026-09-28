@@ -380,8 +380,8 @@ fields:
       path: form1[0].Page2[0].Line17a_CountryOfBirth[0]
   ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 2
       rect:
@@ -391,6 +391,8 @@ fields:
       - 275.99798583984375
       widget_type: text
       path: form1[0].Page2[0].Line12b_SSN[0]
+    x_petey_retype:
+    - part_by_maxlen:9
   mailing_address_unit_flr_ind:
     type: boolean
     semantic_type: indicator
@@ -637,7 +639,6 @@ fields:
   last_arrival_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -647,10 +648,11 @@ fields:
       - 527.9979858398438
       widget_type: text
       path: form1[0].Page3[0].Line21_DateOfLastEntry[0]
+    x_petey_retype:
+    - pattern_dropped
   passport_expiration_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -660,10 +662,10 @@ fields:
       - 491.99200439453125
       widget_type: text
       path: form1[0].Page3[0].Line20e_ExpDate[0]
+    x_petey_retype:
+    - pattern_dropped
   passport_issuing_country_cd:
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
     widget:
       page: 3
       rect:
@@ -673,6 +675,8 @@ fields:
       - 455.9949951171875
       widget_type: text
       path: form1[0].Page3[0].Line20d_CountryOfIssuance[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=234
   most_recent_passport_number_txt:
     type: string
     semantic_type: text
@@ -818,7 +822,6 @@ fields:
   birth_dt:
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -828,10 +831,10 @@ fields:
       - 263.9990234375
       widget_type: text
       path: form1[0].Page3[0].Line19_DOB[0]
+    x_petey_retype:
+    - pattern_dropped
   birth_country_cd:
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
     widget:
       page: 3
       rect:
@@ -841,6 +844,8 @@ fields:
       - 240.0040283203125
       widget_type: text
       path: form1[0].Page3[0].Line18c_CountryOfBirth[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=234
   birth_city_nm:
     type: string
     semantic_type: city
@@ -855,8 +860,6 @@ fields:
       path: form1[0].Page3[0].Line18a_CityTownOfBirth[0]
   birth_state_province_txt:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 3
       rect:
@@ -866,6 +869,8 @@ fields:
       - 204.0040283203125
       widget_type: text
       path: form1[0].Page3[0].Line18b_CityTownOfBirth[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=234
   eligibility_category_part1_cd:
     type: string
     widget:
@@ -998,7 +1003,6 @@ fields:
   applicant_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1008,6 +1012,8 @@ fields:
       - 486.0
       widget_type: text
       path: form1[0].Page4[0].Pt3Line7b_DateofSignature[0]
+    x_petey_retype:
+    - pattern_dropped
   applicant_signature:
     type: string
     widget:
@@ -1021,8 +1027,8 @@ fields:
       path: form1[0].Page4[0].Pt3Line7a_Signature[0]
   applicant_daytime_telephone_number_txt:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 4
       rect:
@@ -1032,10 +1038,12 @@ fields:
       - 456.0010070800781
       widget_type: text
       path: form1[0].Page4[0].Pt3Line3_DaytimePhoneNumber1[0]
+    x_petey_retype:
+    - part_by_maxlen:10
   applicant_mobile_telephone_number_txt:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 4
       rect:
@@ -1045,6 +1053,8 @@ fields:
       - 491.99798583984375
       widget_type: text
       path: form1[0].Page4[0].Pt3Line4_MobileNumber1[0]
+    x_petey_retype:
+    - part_by_maxlen:10
   applicant_email_address_txt:
     type: string
     semantic_type: email
@@ -1108,8 +1118,8 @@ fields:
       path: form1[0].Page4[0].Pt4Line1a_InterpreterFamilyName[0]
   interpreter_daytime_phone_number:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 5
       rect:
@@ -1119,6 +1129,8 @@ fields:
       - 365.99798583984375
       widget_type: text
       path: form1[0].Page5[0].Pt4Line4_InterpreterDaytimeTelephone[0]
+    x_petey_retype:
+    - part_by_maxlen:10
   interpreter_email_address:
     type: string
     semantic_type: email
@@ -1134,8 +1146,8 @@ fields:
       path: form1[0].Page5[0].Pt4Line6_Email[0]
   interpreter_mobile_phone_number:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 5
       rect:
@@ -1145,6 +1157,8 @@ fields:
       - 401.99798583984375
       widget_type: text
       path: form1[0].Page5[0].Pt4Line5_MobileNumber[0]
+    x_petey_retype:
+    - part_by_maxlen:10
   interpreter_fluent_language:
     type: string
     widget:
@@ -1304,8 +1318,6 @@ fields:
       path: form1[0].Page5[0].Pt6Line3d_State[0]
   preparer_country_cd:
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
     widget:
       page: 5
       rect:
@@ -1315,6 +1327,8 @@ fields:
       - 468.0
       widget_type: text
       path: form1[0].Page5[0].Pt6Line3h_Country[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=234
   preparer_province:
     type: string
     widget:
@@ -1328,8 +1342,8 @@ fields:
       path: form1[0].Page5[0].Pt6Line3f_Province[0]
   preparer_mobile_phone_number:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 5
       rect:
@@ -1339,10 +1353,12 @@ fields:
       - 569.9990234375
       widget_type: text
       path: form1[0].Page5[0].Pt5Line5_PreparerFaxNumber[0]
+    x_petey_retype:
+    - part_by_maxlen:10
   preparer_daytime_phone_number:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 5
       rect:
@@ -1352,6 +1368,8 @@ fields:
       - 533.9990234375
       widget_type: text
       path: form1[0].Page5[0].Pt5Line4_DaytimePhoneNumber1[0]
+    x_petey_retype:
+    - part_by_maxlen:10
   preparer_email_address:
     type: string
     semantic_type: email
@@ -1477,8 +1495,6 @@ fields:
       path: form1[0].Page5[0].Pt5Line3d_State[0]
   interpreter_country_cd:
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
     widget:
       page: 5
       rect:
@@ -1488,6 +1504,8 @@ fields:
       - 299.9989929199219
       widget_type: text
       path: form1[0].Page5[0].Pt5Line3h_Country[0]
+    x_petey_retype:
+    - wide_widget_short_pattern:width=234
   interpreter_province:
     type: string
     widget:
@@ -1502,7 +1520,6 @@ fields:
   interpreter_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 5
       rect:
@@ -1512,6 +1529,8 @@ fields:
       - 677.9990234375
       widget_type: text
       path: form1[0].Page5[0].Pt4Line6b_DateofSignature[0]
+    x_petey_retype:
+    - pattern_dropped
   interpreter_signature:
     type: string
     widget:
@@ -1585,7 +1604,6 @@ fields:
   preparer_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -1595,6 +1613,8 @@ fields:
       - 534.0050048828125
       widget_type: text
       path: form1[0].Page6[0].Pt5Line8b_DateofSignature[0]
+    x_petey_retype:
+    - pattern_dropped
   part6_item3a_page_number:
     type: string
     widget:

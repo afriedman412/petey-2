@@ -48,8 +48,8 @@ fields:
       path: taxpayer's last name
   taxpayer_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -59,6 +59,8 @@ fields:
       - 105.8709716796875
       widget_type: text
       path: taxpayer's social security number
+    x_petey_retype:
+    - part_by_maxlen:9
   spouse_first_nm:
     type: string
     semantic_type: first_name
@@ -96,8 +98,8 @@ fields:
       path: spouse's last name
   spouse_ssn:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 1
       rect:
@@ -107,6 +109,8 @@ fields:
       - 142.76898193359375
       widget_type: text
       path: spouse's social security number
+    x_petey_retype:
+    - part_by_maxlen:9
   mailing_address_line_1_txt:
     type: string
     semantic_type: street_address
@@ -160,8 +164,6 @@ fields:
       path: zip
   foreign_province_state_county_txt:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -171,10 +173,10 @@ fields:
       - 222.97698974609375
       widget_type: text
       path: Foreign province, state, or county
+    x_petey_retype:
+    - wide_widget_short_pattern:width=254
   foreign_country_cd:
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -184,6 +186,8 @@ fields:
       - 222.83197021484375
       widget_type: text
       path: Foreign contry (or country code)
+    x_petey_retype:
+    - wide_widget_short_pattern:width=179
   foreign_postal_cd:
     type: string
     semantic_type: zip
@@ -224,7 +228,6 @@ fields:
   jurisdiction_change_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -234,6 +237,8 @@ fields:
       - 247.5989990234375
       widget_type: text
       path: date of other jurisdiction change
+    x_petey_retype:
+    - pattern_dropped
   federal_amendment_ind:
     type: boolean
     semantic_type: indicator
@@ -333,7 +338,6 @@ fields:
   taxpayer_date_of_death_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -343,6 +347,8 @@ fields:
       - 317.7659912109375
       widget_type: text
       path: deceased taxpayer date of death
+    x_petey_retype:
+    - pattern_dropped
   spouse_deceased_ind:
     type: boolean
     semantic_type: indicator
@@ -358,7 +364,6 @@ fields:
   spouse_date_of_death_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -368,6 +373,8 @@ fields:
       - 317.7659912109375
       widget_type: text
       path: deceased spouse date of death
+    x_petey_retype:
+    - pattern_dropped
   under_age_18_taxpayer_ind:
     type: boolean
     semantic_type: indicator
@@ -752,7 +759,6 @@ fields:
   taxpayer_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -762,10 +768,11 @@ fields:
       - 704.5830078125
       widget_type: text
       path: date of signature
+    x_petey_retype:
+    - pattern_dropped
   spouse_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -775,6 +782,8 @@ fields:
       - 705.430419921875
       widget_type: text
       path: date of spouse's signature
+    x_petey_retype:
+    - pattern_dropped
   taxpayer_email_address_txt:
     type: string
     semantic_type: email
@@ -790,8 +799,8 @@ fields:
       path: taxpayer email address
   taxpayer_phone_txt:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 1
       rect:
@@ -801,6 +810,8 @@ fields:
       - 728.529296875
       widget_type: text
       path: taxpayer phone number
+    x_petey_retype:
+    - part_by_maxlen:10
   wages_salaries_tips_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1952,8 +1963,8 @@ fields:
       path: Print Paid Preparer’S Name
   paid_preparer_ssn_or_ptin:
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,9}$
     widget:
       page: 4
       rect:
@@ -1964,10 +1975,12 @@ fields:
       widget_type: text
       path: Paid Preparer's Social Security number or Preparer's Tax Identification
         number
+    x_petey_retype:
+    - part_by_maxlen:9
   paid_preparer_phone:
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,10}$
     widget:
       page: 4
       rect:
@@ -1977,10 +1990,11 @@ fields:
       - 626.2030029296875
       widget_type: text
       path: Paid Preparer's phone number
+    x_petey_retype:
+    - part_by_maxlen:10
   paid_preparer_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1990,6 +2004,8 @@ fields:
       - 625.2879638671875
       widget_type: text
       path: Date of return
+    x_petey_retype:
+    - pattern_dropped
   paid_preparer_ein:
     type: string
     semantic_type: ein

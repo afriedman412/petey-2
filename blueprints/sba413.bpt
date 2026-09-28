@@ -62,8 +62,6 @@ fields:
       path: Home Phone xxx-xxx-xxxx
   city_state_zip_cd:
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 2
       rect:
@@ -73,6 +71,8 @@ fields:
       - 134.03997802734375
       widget_type: text
       path: City, State, & Zip Code
+    x_petey_retype:
+    - wide_widget_short_pattern:width=453
   applicant_business_name:
     type: string
     semantic_type: business_name
@@ -100,7 +100,6 @@ fields:
   information_current_as_of_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -110,6 +109,8 @@ fields:
       - 225.3790283203125
       widget_type: text
       path: This information is current as of month/day/year
+    x_petey_retype:
+    - pattern_dropped
   cash_on_hand_and_in_banks_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -907,7 +908,6 @@ fields:
   stocks_bonds_quotation_exchange_dt_1:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -917,6 +917,8 @@ fields:
       - 267.5999755859375
       widget_type: text
       path: Date of QuotationExchangeRow1
+    x_petey_retype:
+    - pattern_dropped
   stocks_bonds_total_value_1_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -978,7 +980,6 @@ fields:
   stocks_bonds_quotation_exchange_dt_2:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -988,6 +989,8 @@ fields:
       - 285.6000061035156
       widget_type: text
       path: Date of QuotationExchangeRow2
+    x_petey_retype:
+    - pattern_dropped
   stocks_bonds_total_value_2_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1049,7 +1052,6 @@ fields:
   stocks_bonds_quotation_exchange_dt_3:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -1059,6 +1061,8 @@ fields:
       - 303.6000061035156
       widget_type: text
       path: Date of QuotationExchangeRow3
+    x_petey_retype:
+    - pattern_dropped
   stocks_bonds_total_value_3_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1120,7 +1124,6 @@ fields:
   stocks_bonds_quotation_exchange_dt_4:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -1130,6 +1133,8 @@ fields:
       - 317.3999938964844
       widget_type: text
       path: Date of QuotationExchangeRow4
+    x_petey_retype:
+    - pattern_dropped
   stocks_bonds_total_value_4_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1214,7 +1219,6 @@ fields:
   real_estate_property_a_purchased_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -1224,10 +1228,11 @@ fields:
       - 451.67999267578125
       widget_type: text
       path: Property ADate Purchased_es_:date
+    x_petey_retype:
+    - pattern_dropped
   real_estate_property_b_purchased_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -1237,10 +1242,11 @@ fields:
       - 451.67999267578125
       widget_type: text
       path: Property BDate Purchased_es_:date
+    x_petey_retype:
+    - pattern_dropped
   real_estate_property_c_purchased_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -1250,6 +1256,8 @@ fields:
       - 451.67999267578125
       widget_type: text
       path: Property CDate Purchased_es_:date
+    x_petey_retype:
+    - pattern_dropped
   real_estate_property_a_original_cost_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1434,8 +1442,8 @@ fields:
       widget_type: text
       path: Property CMortgage Balance
   real_estate_property_a_payment_per_month_yr_amt:
-    type: number
-    semantic_type: money_whole_dollar
+    type: string
+    semantic_type: date_month
     widget:
       page: 3
       rect:
@@ -1445,9 +1453,12 @@ fields:
       - 591.3599853515625
       widget_type: text
       path: Property AAmount of Payment per MonthYear
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - part_by_name:date_month
   real_estate_property_b_payment_per_month_yr_amt:
-    type: number
-    semantic_type: money_whole_dollar
+    type: string
+    semantic_type: date_month
     widget:
       page: 3
       rect:
@@ -1457,9 +1468,12 @@ fields:
       - 591.3599853515625
       widget_type: text
       path: Property BAmount of Payment per MonthYear
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - part_by_name:date_month
   real_estate_property_c_payment_per_month_yr_amt:
-    type: number
-    semantic_type: money_whole_dollar
+    type: string
+    semantic_type: date_month
     widget:
       page: 3
       rect:
@@ -1469,6 +1483,9 @@ fields:
       - 591.3599853515625
       widget_type: text
       path: Property CAmount of Payment per MonthYear
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - part_by_name:date_month
   real_estate_property_a_mortgage_status:
     type: string
     widget:
@@ -1569,7 +1586,6 @@ fields:
   signature_1_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1579,6 +1595,8 @@ fields:
       - 583.0800170898438
       widget_type: text
       path: Date
+    x_petey_retype:
+    - pattern_dropped
   print_name_1_nm:
     type: string
     semantic_type: person_name
@@ -1619,7 +1637,6 @@ fields:
   signature_2_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 4
       rect:
@@ -1629,6 +1646,8 @@ fields:
       - 644.9550170898438
       widget_type: text
       path: Date2
+    x_petey_retype:
+    - pattern_dropped
   print_name_2_nm:
     type: string
     semantic_type: person_name

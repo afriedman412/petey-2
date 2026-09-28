@@ -72,7 +72,6 @@ fields:
   lender_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -83,6 +82,8 @@ fields:
       widget_type: text
       path: Date_1
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   lender_number_txt:
     type: string
     semantic_type: text
@@ -131,7 +132,6 @@ fields:
   applicant_employment_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -144,6 +144,8 @@ fields:
     description: Applicant's Date of Employment
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   present_position_txt:
     type: string
     semantic_type: text
@@ -254,9 +256,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   base_pay_year_to_date_thru_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 1
       rect:
@@ -269,10 +269,12 @@ fields:
     description: Year To Date_Base Pay Thru Year
     x_petey_description_source: tooltip
     label_source: llm
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=0,width=22
   year_to_date_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    type: string
     widget:
       page: 1
       rect:
@@ -285,6 +287,10 @@ fields:
     description: Year last two digits
     x_petey_description_source: tooltip
     label_source: llm
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=0,width=8
   base_pay_year_to_date_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -688,7 +694,6 @@ fields:
   next_pay_increase_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -701,6 +706,8 @@ fields:
     description: Date of Applicant's next pay increase
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   next_pay_increase_projected_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -719,7 +726,6 @@ fields:
   last_pay_increase_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -732,6 +738,8 @@ fields:
     description: Date of applicant's last increase
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   last_pay_increase_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -766,7 +774,6 @@ fields:
   date_hired_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -777,10 +784,11 @@ fields:
       widget_type: text
       path: Date Hired
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   date_terminated_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -793,6 +801,8 @@ fields:
     description: Date Terminated
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   termination_base_salary_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -908,7 +918,6 @@ fields:
   employer_signature_dt:
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -919,6 +928,8 @@ fields:
       widget_type: text
       path: Date
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   employer_printed_nm:
     type: string
     semantic_type: person_name
