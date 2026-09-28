@@ -275,6 +275,7 @@ def widget_limits(blank_pdf: Optional[Path]) -> dict[str, dict]:
                     "maxlen": int(w.text_maxlen or 0),
                     "comb": bool((w.field_flags or 0) & _COMB_FLAG),
                     "width": float(w.rect.width),
+                    "tooltip": (w.field_label or "").strip(),
                 }
     finally:
         doc.close()

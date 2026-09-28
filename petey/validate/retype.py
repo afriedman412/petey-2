@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import re
 from pathlib import Path
 from typing import Optional
 
@@ -37,6 +38,20 @@ from petey.synth.local import widget_limits
 
 PART_TYPES = {"date_month", "date_day", "date_year", "id_part"}
 NARROW_PT = 28.0
+_MONTH_YEAR = re.compile(r"\b(?:MM\s*/\s*YYYY|month\s*(?:/|and|&)\s*year|MM/YY)\b", re.I)
+
+try:
+    import re._parser as _sre
+except ImportError:  # pragma: no cover
+    import sre_parse as _sre  # type: ignore
+
+
+def _min_width(pattern: str) -> int:
+    """Shortest string the regex can match (0 if unparsable)."""
+    try:
+        return int(_sre.parse(pattern).getwidth()[0])
+    except Exception:
+        return 0
 
 
 def resolve_blank(bp: dict) -> Optional[Path]:
@@ -70,6 +85,21 @@ def retype_blueprint(bp: dict, limits: dict[str, dict]) -> collections.Counter:
             continue
 
         st = lookup(name, widget_type=wt)
+        lim = limits.get(widget.get("path") or "") or {}
+        maxlen = int(lim.get("maxlen") or 0)
+        if ftype == "string" and spec.get("pattern") and maxlen:
+            # The box holds `maxlen` characters; if no string that short
+            # can match the declared pattern, the box is a PART of the
+            # value the name describes (veteran_ssn with maxlen 3).
+            if _min_width(spec["pattern"]) > maxlen:
+                digits = bool(re.search(r"\\d", spec["pattern"]))
+                spec["pattern"] = rf"^\d{{1,{maxlen}}}$" if digits else rf"^.{{1,{maxlen}}}$"
+                if digits:
+                    spec["semantic_type"] = "id_part"
+                else:
+                    spec.pop("semantic_type", None)
+                note.append(f"part_by_maxlen:{maxlen}")
+                changes["part_by_maxlen"] += 1
         if st is not None and st.name in PART_TYPES and ftype in ("date", "number", "integer"):
             spec["type"] = "string"
             spec["semantic_type"] = st.name
@@ -77,9 +107,15 @@ def retype_blueprint(bp: dict, limits: dict[str, dict]) -> collections.Counter:
                 spec["pattern"] = st.pattern
             note.append(f"part_by_name:{st.name}")
             changes[f"part_by_name:{ftype}->string"] += 1
+        elif ftype == "date" and _MONTH_YEAR.search(
+                (spec.get("description") or "") + " " + (lim.get("tooltip") or "")):
+            # The publisher's own tooltip says month/year: not a date.
+            spec["type"] = "string"
+            spec.pop("semantic_type", None)
+            spec["pattern"] = r"^(?:\d{1,2}[/\-]\d{4}|\d{4}[/\-]\d{1,2})$"
+            note.append("month_year_by_tooltip")
+            changes["date_month_year->string"] += 1
         elif ftype == "date":
-            lim = limits.get(widget.get("path") or "") or {}
-            maxlen = int(lim.get("maxlen") or 0)
             width = float(lim.get("width") or 0)
             if 0 < maxlen <= 4 or (width and width < NARROW_PT):
                 n = maxlen if maxlen else 4
