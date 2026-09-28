@@ -107,6 +107,8 @@ def refine(cell,words,t):
     top_space=cell.y1-lb.y1; right_space=cell.x1-lb.x1
     if lb.y0-cell.y0<cell.height*0.4 and top_space>=6: return pymupdf.Rect(cell.x0,lb.y1,cell.x1,cell.y1),'label_top'
     if right_space>=12: return pymupdf.Rect(lb.x1+1,cell.y0,cell.x1,cell.y1),'label_left'
+    left_space=lb.x0-cell.x0
+    if left_space>=12: return pymupdf.Rect(cell.x0,cell.y0,lb.x0-1,cell.y1),'suffix_right'   # ".00", "%", units printed at the right end
     return cell,'label_fills'
 
 def lattice_fields(doc):

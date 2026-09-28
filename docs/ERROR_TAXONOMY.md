@@ -15,7 +15,9 @@
 | dropout ink | MA Form 1, VA 760, GA-500 | light colour above ink threshold | partly (contrast cells, vector path) |
 | zebra vs blocked gray | UB-04 vs 1065 | same gray, different role | zebra detector (runs >= 3 bands) |
 | raster pages | CMS-1500 | lattice is vector-only | open (raster lattice prototype exists) |
-| cents boxes | IT-201 | ".00" box read as checkbox | open, looks form-specific |
+| suffix text in a cell (".00", "%") | PIT-RES, IT-201 | cell discarded as all-label | suffix rule, field to the left (fixed, v2.1) |
 | row extent | 8949 | full cell vs lower band | convention question |
 | no printed cue | GA-500 | nothing to see | out of scope |
 | non-form pages / covered lines | SA100 p1 | illustration geometry, lines under white shapes | open |
+| underline inside a taller cell | DO-41 | treated as the cell border | border only if cell ~ underline height (fixed, v2.1) |
+| checkbox next to a label | DO-41, CT-W4 | label edge counted as text inside | centred-word test for small boxes (fixed, v2.1) |

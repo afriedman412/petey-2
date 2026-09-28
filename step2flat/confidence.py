@@ -10,6 +10,7 @@ TIER = {                          # how reliable each cue type is as evidence of
     'lat:lattice:empty': 0.60,    # empty lattice cell
     'lat:lattice:label_top': 0.55,
     'lat:lattice:label_left': 0.45,
+    'lat:lattice:suffix_right': 0.55,   # entry area left of a printed suffix (".00", "%")
     'fz:underline': 0.35,         # underline; mostly cell borders when inside the lattice
     'lat:lattice:box': 0.30,
 }
@@ -26,11 +27,17 @@ def mark_outside(rows):
     for r in rows:
         if r['src'] != 'fz:underline': continue
         R = r['rect']; cx, cy = (R[0] + R[2]) / 2, (R[1] + R[3]) / 2
-        r['outside'] = not any(q['page'] == r['page'] and q['rect'][0] <= cx <= q['rect'][2] and q['rect'][1] - 2 <= cy <= q['rect'][3] + 2 for q in lat)
+        h = R[3] - R[1]
+        # an underline inside a lattice cell is that cell's bottom border only if the cell is about the underline's height;
+        # inside a taller cell (label above, line below) it is a real field
+        r['outside'] = not any(q['page'] == r['page'] and q['rect'][0] <= cx <= q['rect'][2] and q['rect'][1] - 2 <= cy <= q['rect'][3] + 2
+                               and (q['rect'][3] - q['rect'][1]) <= 1.6 * h for q in lat)
 
 def score_field(r):
     f = r['f']; s = TIER.get(r['src'], 0.3); why = [r['src']]
-    if f['tcov'] > 0.3 or f['nwords'] > 6: s -= TEXT_FILLED; why.append('text_filled')
+    small_box = f['square'] > 0 or r['kind'] in ('checkbox', 'radio')
+    # a tiny box is 'text filled' only if a word is centred inside it; a neighbouring label touching its edge doesn't count
+    if (f['nwords'] > 0 if small_box else (f['tcov'] > 0.3 or f['nwords'] > 6)): s -= TEXT_FILLED; why.append('text_filled')
     if f['gray']: s -= BLOCKED_GRAY; why.append('blocked_gray')
     if f['boldin'] and f['nwords'] > 0: s -= HEADER; why.append('header')
     if f['hmode'] <= 1.5: s += HEIGHT_MATCH; why.append('height_match')

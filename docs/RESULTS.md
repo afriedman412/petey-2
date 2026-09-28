@@ -25,3 +25,15 @@ Fresh (8 forms): frozen 0.79/0.79, pipeline v2 0.82/0.79 (optimistic: three fixe
 - ~84% of widgets fall inside a recovered lattice cell; closure takes 1065 from 51% to 95%.
 - Few text styles per form (top 4 sizes cover 97% of text), but font size does not predict field size across forms.
 - Field heights cluster within a form; underline heights match confident-field clusters on only 2/11 forms.
+
+## v2.1 (three diagnosed fixes from the test set) — all 45 forms are now development forms
+Fixes: right-end suffix text (".00", "%") -> field to its left; an underline is a cell border only if the cell is about
+its height; small boxes penalised for text only when a word is centred inside.
+| set | frozen | v2 | v2.1 |
+|---|---|---|---|
+| dev (28) | 0.55/0.56 | 0.73/0.61 | 0.75/0.60 |
+| fresh (8) | 0.79/0.79 | 0.82/0.79 | 0.83/0.78 |
+| former test (9; fixes came from these, so optimistic) | 0.66/0.63 | 0.77/0.60 | 0.88/0.62 |
+| all 45 | 0.58/0.58 | 0.74/0.62 | 0.76/0.61 |
+Biggest moves: PIT-RES 0.44/0.38 -> 1.00/0.54; IT-201 0.39/0.56 -> 0.79/0.73 (the old cents-box category, fixed by the
+suffix rule without being used to design it). Small precision dips (0.03-0.05) on SS-4, GA-500, 1040, IL-1040, T1.
