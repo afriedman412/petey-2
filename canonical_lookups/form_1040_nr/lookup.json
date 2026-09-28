@@ -1,0 +1,599 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1040_nr",
+    "form_root": "IRS1040NR"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040NR.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:41:19+00:00",
+  "blueprint": {
+    "path": "blueprints/form_1040_nr.bpt",
+    "name": "form_1040_nr"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The tax year is a form-level attribute (TaxYr or TaxPeriodEndDt) on the filing header, not a leaf element within IRS1040NR; no matching candidate exists in the closed list."
+    },
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The filer's name is carried in the ReturnHeader (PersonNm or BusinessNameLine1Txt), not in any IRS1040NR body element in the candidate list."
+    },
+    "taxpayer_tin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The primary TIN (SSN/ITIN/EIN) lives in the ReturnHeader, not in any IRS1040NR body element in the candidate list."
+    },
+    "address_in_home_country": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Blueprint bundles street, city, province, postal code, and country into one string; canonical schema splits these across AddressLine1Txt/AddressLine2Txt/CityNm/ProvinceOrStateNm/ForeignPostalCd/CountryCd under SeparateMailingAddress/ForeignAddress (idx 101-106) \u2014 but those elements are under SeparateMailingAddress, not the primary filer foreign address block, and the blueprint should be split into at least 6 fields."
+    },
+    "us_mailing_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "SeparateMailingAddress/USAddress/AddressLine1Txt",
+      "confidence": "medium",
+      "rationale": "AddressLine1Txt under SeparateMailingAddress/USAddress best matches the U.S. street address line; blueprint should also surface AddressLine2Txt (idx 108) separately."
+    },
+    "city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Blueprint bundles city, state abbreviation, and ZIP into one string; canonical splits into CityNm (idx 109), StateAbbreviationCd (idx 110), and ZIPCd (idx 111) \u2014 blueprint should be refactored into three separate fields."
+    },
+    "country_of_citizenship": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Country of citizenship is not represented by any element in the closed candidate list for IRS1040NR body elements."
+    },
+    "country_of_residence": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Country of residence for tax purposes is not represented by any element in the closed candidate list."
+    },
+    "visa_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Visa type is not represented by any element in the closed candidate list."
+    },
+    "alien_registration_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Alien registration number is not represented by any element in the closed candidate list."
+    },
+    "date_of_birth": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Date of birth is typically a ReturnHeader or Schedule OI element; no matching candidate exists in the closed list."
+    },
+    "residency_termination_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Residency termination date is not represented by any element in the closed candidate list."
+    },
+    "filing_status": {
+      "canonical": "IndividualReturnFilingStatusCd",
+      "xpath": "IndividualReturnFilingStatusCd",
+      "confidence": "high",
+      "rationale": "IndividualReturnFilingStatusCd directly encodes the filing status checkbox selection."
+    },
+    "spouse_name": {
+      "canonical": "SpouseNm",
+      "xpath": "SpouseNm",
+      "confidence": "high",
+      "rationale": "SpouseNm maps directly to the spouse name line."
+    },
+    "spouse_tin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Spouse TIN (SSN/ITIN) is not represented by any element in the closed candidate list."
+    },
+    "exempt_individual_status": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Exempt individual classification checkbox is not represented by any element in the closed candidate list."
+    },
+    "number_of_days_in_us": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Number of days present in the U.S. on page 1 is not represented by any element in the closed candidate list (Schedule OI day counts are different fields)."
+    },
+    "wages_salaries_tips": {
+      "canonical": "WagesSalariesAndTipsAmt",
+      "xpath": "WagesSalariesAndTipsAmt",
+      "confidence": "high",
+      "rationale": "WagesSalariesAndTipsAmt directly corresponds to the wages, salaries, tips effectively connected income line."
+    },
+    "taxable_interest": {
+      "canonical": "TaxableInterestAmt",
+      "xpath": "TaxableInterestAmt",
+      "confidence": "high",
+      "rationale": "TaxableInterestAmt maps to the taxable interest line in the effectively connected income section."
+    },
+    "ordinary_dividends": {
+      "canonical": "OrdinaryDividendsAmt",
+      "xpath": "OrdinaryDividendsAmt",
+      "confidence": "high",
+      "rationale": "OrdinaryDividendsAmt maps to the ordinary dividends line in the income section."
+    },
+    "qualified_dividends": {
+      "canonical": "QualifiedDividendsAmt",
+      "xpath": "QualifiedDividendsAmt",
+      "confidence": "high",
+      "rationale": "QualifiedDividendsAmt maps to the qualified dividends sub-line."
+    },
+    "taxable_refunds": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxable refunds of state/local income taxes is not represented by any element in the closed candidate list."
+    },
+    "business_income_loss": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Business income or loss (Schedule C equivalent) is not represented by any element in the closed candidate list."
+    },
+    "capital_gain_loss": {
+      "canonical": "CapitalGainLossAmt",
+      "xpath": "CapitalGainLossAmt",
+      "confidence": "high",
+      "rationale": "CapitalGainLossAmt maps to the net capital gain or loss line in the income section."
+    },
+    "other_gains_losses": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Other gains or losses from Form 4797 is not represented by any element in the closed candidate list."
+    },
+    "ira_distributions_taxable": {
+      "canonical": "TaxableIRAAmt",
+      "xpath": "TaxableIRAAmt",
+      "confidence": "high",
+      "rationale": "TaxableIRAAmt maps to the taxable amount of IRA distributions line."
+    },
+    "pensions_annuities_taxable": {
+      "canonical": "TotalTaxablePensionsAmt",
+      "xpath": "TotalTaxablePensionsAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxablePensionsAmt maps to the taxable amount of pensions and annuities line."
+    },
+    "rental_royalty_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Rental/royalty/partnership/S-corp income from Schedule E is not represented by any element in the closed candidate list."
+    },
+    "farm_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Farm income or loss from Schedule F is not represented by any element in the closed candidate list."
+    },
+    "unemployment_compensation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Unemployment compensation is not represented by any element in the closed candidate list."
+    },
+    "other_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Other effectively connected income (catch-all line) is not represented by any single element in the closed candidate list; TotalAdditionalIncomeAmt (idx 138) is a subtotal, not the line itself."
+    },
+    "total_effectively_connected_income": {
+      "canonical": "TotalECIAmt",
+      "xpath": "TotalECIAmt",
+      "confidence": "high",
+      "rationale": "TotalECIAmt maps to the total effectively connected income subtotal line."
+    },
+    "educator_expenses": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Educator expenses deduction is not represented by any element in the closed candidate list."
+    },
+    "student_loan_interest_deduction": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Student loan interest deduction is not represented by any element in the closed candidate list."
+    },
+    "self_employed_sep_simple_plans": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "SEP/SIMPLE/qualified plans deduction is not represented by any element in the closed candidate list."
+    },
+    "self_employed_health_insurance": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Self-employed health insurance deduction is not represented by any element in the closed candidate list."
+    },
+    "ira_deduction": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "IRA deduction is not represented by any element in the closed candidate list."
+    },
+    "total_adjustments": {
+      "canonical": "TotalAdjustmentsAmt",
+      "xpath": "TotalAdjustmentsAmt",
+      "confidence": "high",
+      "rationale": "TotalAdjustmentsAmt maps directly to the total adjustments to income line."
+    },
+    "adjusted_gross_income": {
+      "canonical": "AdjustedGrossIncomeAmt",
+      "xpath": "AdjustedGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "AdjustedGrossIncomeAmt maps directly to the AGI line."
+    },
+    "itemized_deductions": {
+      "canonical": "TotalItemizedDeductionsAmt",
+      "xpath": "TotalItemizedDeductionsAmt",
+      "confidence": "high",
+      "rationale": "TotalItemizedDeductionsAmt maps to the itemized deductions total from Schedule A."
+    },
+    "qualified_business_income_deduction": {
+      "canonical": "QualifiedBusinessIncomeDedAmt",
+      "xpath": "QualifiedBusinessIncomeDedAmt",
+      "confidence": "high",
+      "rationale": "QualifiedBusinessIncomeDedAmt maps to the Section 199A QBI deduction line."
+    },
+    "total_deductions": {
+      "canonical": "TotalDeductionAmt",
+      "xpath": "TotalDeductionAmt",
+      "confidence": "high",
+      "rationale": "TotalDeductionAmt maps to the total deductions line."
+    },
+    "taxable_income": {
+      "canonical": "TaxableIncomeAmt",
+      "xpath": "TaxableIncomeAmt",
+      "confidence": "high",
+      "rationale": "TaxableIncomeAmt maps directly to the taxable income line."
+    },
+    "tax_from_tax_table_or_computation": {
+      "canonical": "TaxAmt",
+      "xpath": "TaxAmt",
+      "confidence": "high",
+      "rationale": "TaxAmt maps to the computed income tax on effectively connected taxable income line."
+    },
+    "alternative_minimum_tax": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Alternative minimum tax from Form 6251 is not represented by any element in the closed candidate list."
+    },
+    "net_investment_income_tax": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Net investment income tax from Form 8960 is not represented by any element in the closed candidate list."
+    },
+    "additional_medicare_tax": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Additional Medicare tax from Form 8959 is not represented by any element in the closed candidate list."
+    },
+    "tax_on_income_not_effectively_connected": {
+      "canonical": "IncomeNotUSBusinessTaxAmt",
+      "xpath": "IncomeNotUSBusinessTaxAmt",
+      "confidence": "high",
+      "rationale": "IncomeNotUSBusinessTaxAmt maps to the tax on non-effectively-connected (FDAP) income at flat rate."
+    },
+    "total_tax": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxAmt maps directly to the total tax line."
+    },
+    "child_tax_credit": {
+      "canonical": "CTCODCAmt",
+      "xpath": "CTCODCAmt",
+      "confidence": "medium",
+      "rationale": "CTCODCAmt represents the combined child tax credit / credit for other dependents, which is the closest match to the child tax credit line."
+    },
+    "education_credits": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Education credits from Form 8863 are not represented by any element in the closed candidate list."
+    },
+    "foreign_tax_credit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign tax credit from Form 1116 is not represented by any element in the closed candidate list."
+    },
+    "general_business_credit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "General business credit from Form 3800 is not represented by any element in the closed candidate list."
+    },
+    "retirement_savings_contribution_credit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Retirement savings contribution credit from Form 8880 is not represented by any element in the closed candidate list."
+    },
+    "total_credits": {
+      "canonical": "TotalCreditsAmt",
+      "xpath": "TotalCreditsAmt",
+      "confidence": "high",
+      "rationale": "TotalCreditsAmt maps directly to the total credits line."
+    },
+    "other_taxes": {
+      "canonical": "OtherTaxAmtInd",
+      "xpath": "OtherTaxAmtInd",
+      "confidence": "medium",
+      "rationale": "OtherTaxAmtInd is the closest indicator for other taxes; however the repeating group OtherTaxAmtGrp/OtherTaxAmt (idx 70) may be more appropriate \u2014 blueprint should be refactored to handle a repeating group rather than a single scalar."
+    },
+    "federal_income_tax_withheld": {
+      "canonical": "WithholdingTaxAmt",
+      "xpath": "WithholdingTaxAmt",
+      "confidence": "high",
+      "rationale": "WithholdingTaxAmt maps to the total federal income tax withheld line aggregating W-2, 1042-S, and 1099 withholding."
+    },
+    "estimated_tax_payments": {
+      "canonical": "EstimatedTaxPaymentsAmt",
+      "xpath": "EstimatedTaxPaymentsAmt",
+      "confidence": "high",
+      "rationale": "EstimatedTaxPaymentsAmt maps to the estimated tax payments line."
+    },
+    "earned_income_credit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Earned income credit is not represented by any element in the closed candidate list."
+    },
+    "additional_child_tax_credit": {
+      "canonical": "AdditionalChildTaxCreditAmt",
+      "xpath": "AdditionalChildTaxCreditAmt",
+      "confidence": "high",
+      "rationale": "AdditionalChildTaxCreditAmt maps to the additional child tax credit line from Schedule 8812."
+    },
+    "american_opportunity_credit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Refundable American opportunity credit from Form 8863 is not represented by any element in the closed candidate list."
+    },
+    "other_payments_credits": {
+      "canonical": "TotalOtherPaymentsRfdblCrAmt",
+      "xpath": "TotalOtherPaymentsRfdblCrAmt",
+      "confidence": "high",
+      "rationale": "TotalOtherPaymentsRfdblCrAmt maps to the other refundable credits and payments line."
+    },
+    "total_payments": {
+      "canonical": "TotalPaymentsAmt",
+      "xpath": "TotalPaymentsAmt",
+      "confidence": "high",
+      "rationale": "TotalPaymentsAmt maps directly to the total payments line."
+    },
+    "overpayment": {
+      "canonical": "OverpaidAmt",
+      "xpath": "OverpaidAmt",
+      "confidence": "high",
+      "rationale": "OverpaidAmt maps to the overpayment line."
+    },
+    "refund_amount": {
+      "canonical": "RefundAmt",
+      "xpath": "RefundAmt",
+      "confidence": "high",
+      "rationale": "RefundAmt maps to the refund line (amount to be refunded)."
+    },
+    "amount_applied_to_next_year": {
+      "canonical": "AppliedToEsTaxAmt",
+      "xpath": "AppliedToEsTaxAmt",
+      "confidence": "high",
+      "rationale": "AppliedToEsTaxAmt maps to the amount applied to next year's estimated tax."
+    },
+    "amount_owed": {
+      "canonical": "OwedAmt",
+      "xpath": "OwedAmt",
+      "confidence": "high",
+      "rationale": "OwedAmt maps to the amount you owe (balance due) line."
+    },
+    "estimated_tax_penalty": {
+      "canonical": "EsPenaltyAmt",
+      "xpath": "EsPenaltyAmt",
+      "confidence": "high",
+      "rationale": "EsPenaltyAmt maps to the estimated tax underpayment penalty line."
+    },
+    "routing_number": {
+      "canonical": "RoutingTransitNum",
+      "xpath": "RoutingTransitNum",
+      "confidence": "high",
+      "rationale": "RoutingTransitNum maps to the bank routing number for direct deposit."
+    },
+    "account_number": {
+      "canonical": "DepositorAccountNum",
+      "xpath": "DepositorAccountNum",
+      "confidence": "high",
+      "rationale": "DepositorAccountNum maps to the bank account number for direct deposit."
+    },
+    "account_type": {
+      "canonical": "BankAccountTypeCd",
+      "xpath": "BankAccountTypeCd",
+      "confidence": "high",
+      "rationale": "BankAccountTypeCd maps to the checking/savings account type checkbox."
+    },
+    "third_party_designee": {
+      "canonical": "ThirdPartyDesigneeInd",
+      "xpath": "ThirdPartyDesigneeInd",
+      "confidence": "high",
+      "rationale": "ThirdPartyDesigneeInd maps to the yes/no third-party designee checkbox."
+    },
+    "third_party_designee_name": {
+      "canonical": "ThirdPartyDesigneeNm",
+      "xpath": "ThirdPartyDesigneeNm",
+      "confidence": "high",
+      "rationale": "ThirdPartyDesigneeNm maps to the third-party designee name field."
+    },
+    "third_party_designee_phone": {
+      "canonical": "ThirdPartyDesigneePhoneNum",
+      "xpath": "ThirdPartyDesigneePhoneNum",
+      "confidence": "high",
+      "rationale": "ThirdPartyDesigneePhoneNum maps to the third-party designee phone number field."
+    },
+    "occupation_in_us": {
+      "canonical": "PrimaryOccupationTxt",
+      "xpath": "PrimaryOccupationTxt",
+      "confidence": "high",
+      "rationale": "PrimaryOccupationTxt maps to the occupation line in the signature section."
+    },
+    "preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer name is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer PTIN is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer self-employed checkbox is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm name is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm EIN is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm address is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "preparer_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer phone number is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "preparer_signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer signature date is in the ReturnHeader/Preparer section, not in any IRS1040NR body element in the candidate list."
+    },
+    "schedule_oi_days_present_current_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI day counts are on a separate schedule attachment, not represented by any element in the IRS1040NR body candidate list."
+    },
+    "schedule_oi_days_present_prior_year_1": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI prior-year-1 day count is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_days_present_prior_year_2": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI prior-year-2 day count is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_income_exempt_treaty": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI treaty exemption yes/no indicator is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_treaty_country": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI treaty country name is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_treaty_article": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI treaty article number is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_treaty_exempt_amount": {
+      "canonical": "TreatyTaxExemptUSIncomeAmt",
+      "xpath": "TreatyTaxExemptUSIncomeAmt",
+      "confidence": "medium",
+      "rationale": "TreatyTaxExemptUSIncomeAmt is the closest match to the dollar amount of income exempt under a treaty, though it may be a body-level aggregate rather than the Schedule OI line specifically."
+    },
+    "schedule_oi_type_of_exempt_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Description of the type of treaty-exempt income on Schedule OI is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_student_or_apprentice": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI student/apprentice checkbox is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_teacher_researcher": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI teacher/researcher checkbox is not represented by any element in the closed candidate list."
+    },
+    "schedule_oi_occupation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule OI occupation line is not represented by any element in the closed candidate list."
+    },
+    "owns_foreign_financial_account": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign financial account FBAR question on Schedule OI is not represented by any element in the closed candidate list."
+    },
+    "foreign_financial_account_country": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign financial account country on Schedule OI is not represented by any element in the closed candidate list."
+    },
+    "fdap_income_items": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "FDAP income is represented as a repeating schedule (page 4) not directly captured by any single element in the closed candidate list; blueprint's array structure also structurally mismatches any single scalar candidate."
+    }
+  }
+}

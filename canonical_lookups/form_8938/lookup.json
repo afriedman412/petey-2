@@ -1,0 +1,197 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_8938",
+    "form_root": "IRS8938"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS8938.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:19:31+00:00",
+  "blueprint": {
+    "path": "blueprints/form_8938.bpt",
+    "name": "form_8938"
+  },
+  "fields": {
+    "filer_name": {
+      "canonical": "PersonNm",
+      "xpath": "SpecifiedIndivOrPersonInfo/PersonNm",
+      "confidence": "low",
+      "rationale": "No dedicated filer name element exists at the form root; PersonNm under SpecifiedIndivOrPersonInfo is the closest name field, but it refers to the specified individual/entity, not the top-of-form filer name \u2014 blueprint should be mapped to a header-level name element not present in this candidate list."
+    },
+    "filer_tin": {
+      "canonical": "SSN",
+      "xpath": "SpecifiedIndivOrPersonInfo/SSN",
+      "confidence": "low",
+      "rationale": "No dedicated top-of-form TIN element exists at the form root; SSN under SpecifiedIndivOrPersonInfo is the closest, but it refers to the specified individual context, not the filer header TIN \u2014 blueprint should map to a header-level SSN/ITIN element not present in this candidate list."
+    },
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr maps directly to the tax year indicated on the form header."
+    },
+    "foreign_deposit_custodial_accounts": {
+      "canonical": "ForeignFinclAccountGrp",
+      "xpath": "ForeignFinclAccountGrp",
+      "confidence": "medium",
+      "rationale": "ForeignFinclAccountGrp is the repeating group element for Part I foreign deposit/custodial accounts; blueprint bundles multiple accounts as an array matching this repeating group."
+    },
+    "part_i_total_maximum_value": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No single canonical element represents the combined total maximum value of all Part I accounts; MaxAllFrgnDepositAcctValueAmt and MaxAllFrgnCstdAcctValueAmt are separate, and no combined Part I total element exists in the candidate list \u2014 blueprint should split into two fields: max_all_foreign_deposit_acct_value and max_all_foreign_custodial_acct_value."
+    },
+    "other_foreign_assets": {
+      "canonical": "OtherForeignAssetGrp",
+      "xpath": "OtherForeignAssetGrp",
+      "confidence": "medium",
+      "rationale": "OtherForeignAssetGrp is the repeating group element for Part II other specified foreign financial assets."
+    },
+    "part_ii_total_maximum_value": {
+      "canonical": "MaxAllFrgnAssetValueAmt",
+      "xpath": "MaxAllFrgnAssetValueAmt",
+      "confidence": "high",
+      "rationale": "MaxAllFrgnAssetValueAmt captures the total maximum value of all other foreign assets in Part II."
+    },
+    "interest_income": {
+      "canonical": "ReportedOnFormOrScheduleAmt",
+      "xpath": "ForeignFinclAccountSumGrp/InterestSumGrp/ReportedOnFormOrScheduleAmt",
+      "confidence": "medium",
+      "rationale": "ReportedOnFormOrScheduleAmt under ForeignFinclAccountSumGrp/InterestSumGrp matches interest income reported for foreign financial accounts; however the blueprint does not distinguish FFA vs OFA summary \u2014 closest match given Part III context."
+    },
+    "interest_income_form_and_line": {
+      "canonical": "WhereReportedFormAndLineTxt",
+      "xpath": "ForeignFinclAccountSumGrp/InterestSumGrp/WhereReportedFormAndLineTxt",
+      "confidence": "medium",
+      "rationale": "WhereReportedFormAndLineTxt under ForeignFinclAccountSumGrp/InterestSumGrp matches the form and line reference for interest income reporting location."
+    },
+    "dividend_income": {
+      "canonical": "ReportedOnFormOrScheduleAmt",
+      "xpath": "ForeignFinclAccountSumGrp/DividendSumGrp/ReportedOnFormOrScheduleAmt",
+      "confidence": "medium",
+      "rationale": "ReportedOnFormOrScheduleAmt under ForeignFinclAccountSumGrp/DividendSumGrp matches dividend income reported for Part III."
+    },
+    "dividend_income_form_and_line": {
+      "canonical": "WhereReportedFormAndLineTxt",
+      "xpath": "ForeignFinclAccountSumGrp/DividendSumGrp/WhereReportedFormAndLineTxt",
+      "confidence": "medium",
+      "rationale": "WhereReportedFormAndLineTxt under ForeignFinclAccountSumGrp/DividendSumGrp matches the form and line reference for dividend income."
+    },
+    "royalty_income": {
+      "canonical": "ReportedOnFormOrScheduleAmt",
+      "xpath": "ForeignFinclAccountSumGrp/RoyaltySumGrp/ReportedOnFormOrScheduleAmt",
+      "confidence": "medium",
+      "rationale": "ReportedOnFormOrScheduleAmt under ForeignFinclAccountSumGrp/RoyaltySumGrp matches royalty income reported for Part III."
+    },
+    "royalty_income_form_and_line": {
+      "canonical": "WhereReportedFormAndLineTxt",
+      "xpath": "ForeignFinclAccountSumGrp/RoyaltySumGrp/WhereReportedFormAndLineTxt",
+      "confidence": "medium",
+      "rationale": "WhereReportedFormAndLineTxt under ForeignFinclAccountSumGrp/RoyaltySumGrp matches the form and line reference for royalty income."
+    },
+    "other_income": {
+      "canonical": "ReportedOnFormOrScheduleAmt",
+      "xpath": "ForeignFinclAccountSumGrp/OtherIncomeSumGrp/ReportedOnFormOrScheduleAmt",
+      "confidence": "medium",
+      "rationale": "ReportedOnFormOrScheduleAmt under ForeignFinclAccountSumGrp/OtherIncomeSumGrp matches other income reported for Part III."
+    },
+    "other_income_form_and_line": {
+      "canonical": "WhereReportedFormAndLineTxt",
+      "xpath": "ForeignFinclAccountSumGrp/OtherIncomeSumGrp/WhereReportedFormAndLineTxt",
+      "confidence": "medium",
+      "rationale": "WhereReportedFormAndLineTxt under ForeignFinclAccountSumGrp/OtherIncomeSumGrp matches the form and line reference for other income."
+    },
+    "gains_losses": {
+      "canonical": "ReportedOnFormOrScheduleAmt",
+      "xpath": "ForeignFinclAccountSumGrp/GainLossSumGrp/ReportedOnFormOrScheduleAmt",
+      "confidence": "medium",
+      "rationale": "ReportedOnFormOrScheduleAmt under ForeignFinclAccountSumGrp/GainLossSumGrp matches net gains or losses reported for Part III."
+    },
+    "gains_losses_form_and_line": {
+      "canonical": "WhereReportedFormAndLineTxt",
+      "xpath": "ForeignFinclAccountSumGrp/GainLossSumGrp/WhereReportedFormAndLineTxt",
+      "confidence": "medium",
+      "rationale": "WhereReportedFormAndLineTxt under ForeignFinclAccountSumGrp/GainLossSumGrp matches the form and line reference for gains or losses."
+    },
+    "deductions": {
+      "canonical": "ReportedOnFormOrScheduleAmt",
+      "xpath": "ForeignFinclAccountSumGrp/DeductionSumGrp/ReportedOnFormOrScheduleAmt",
+      "confidence": "medium",
+      "rationale": "ReportedOnFormOrScheduleAmt under ForeignFinclAccountSumGrp/DeductionSumGrp matches deductions reported for Part III."
+    },
+    "deductions_form_and_line": {
+      "canonical": "WhereReportedFormAndLineTxt",
+      "xpath": "ForeignFinclAccountSumGrp/DeductionSumGrp/WhereReportedFormAndLineTxt",
+      "confidence": "medium",
+      "rationale": "WhereReportedFormAndLineTxt under ForeignFinclAccountSumGrp/DeductionSumGrp matches the form and line reference for deductions."
+    },
+    "credits": {
+      "canonical": "ReportedOnFormOrScheduleAmt",
+      "xpath": "ForeignFinclAccountSumGrp/CreditSumGrp/ReportedOnFormOrScheduleAmt",
+      "confidence": "medium",
+      "rationale": "ReportedOnFormOrScheduleAmt under ForeignFinclAccountSumGrp/CreditSumGrp matches credits reported for Part III."
+    },
+    "credits_form_and_line": {
+      "canonical": "WhereReportedFormAndLineTxt",
+      "xpath": "ForeignFinclAccountSumGrp/CreditSumGrp/WhereReportedFormAndLineTxt",
+      "confidence": "medium",
+      "rationale": "WhereReportedFormAndLineTxt under ForeignFinclAccountSumGrp/CreditSumGrp matches the form and line reference for credits."
+    },
+    "form_3520_filed": {
+      "canonical": "Form3520Cnt",
+      "xpath": "Form3520Cnt",
+      "confidence": "high",
+      "rationale": "Form3520Cnt corresponds to Part IV line 8 tracking of Form 3520 filings; blueprint uses boolean while canonical uses count, but this is the closest match."
+    },
+    "form_3520_a_filed": {
+      "canonical": "Form3520ACnt",
+      "xpath": "Form3520ACnt",
+      "confidence": "high",
+      "rationale": "Form3520ACnt corresponds to Part IV line 9 tracking of Form 3520-A filings."
+    },
+    "form_5471_filed": {
+      "canonical": "Form5471Cnt",
+      "xpath": "Form5471Cnt",
+      "confidence": "high",
+      "rationale": "Form5471Cnt corresponds to Part IV line 10 tracking of Form 5471 filings."
+    },
+    "form_8621_filed": {
+      "canonical": "Form8621Cnt",
+      "xpath": "Form8621Cnt",
+      "confidence": "high",
+      "rationale": "Form8621Cnt corresponds to Part IV line 11 tracking of Form 8621 filings."
+    },
+    "form_8865_filed": {
+      "canonical": "Form8865Cnt",
+      "xpath": "Form8865Cnt",
+      "confidence": "high",
+      "rationale": "Form8865Cnt corresponds to Part IV line 12 tracking of Form 8865 filings."
+    },
+    "form_8891_filed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No Form8891Cnt or equivalent element exists in the candidate list; Form 8891 was obsoleted and removed from the MeF schema, so there is no canonical element to match."
+    },
+    "total_assets_maximum_value": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No single canonical element represents the combined Part I plus Part II aggregate maximum value; the schema splits this into separate deposit, custodial, and other asset maximum amounts \u2014 blueprint should split into the individual component fields."
+    },
+    "filing_status": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No filing status element exists in the IRS8938 candidate list; filing status is on the primary return (Form 1040) and not captured in the 8938 schema."
+    },
+    "lives_abroad": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No lives-abroad or bona-fide-residence indicator element exists in the IRS8938 candidate list; this threshold qualifier is not represented in the schema."
+    }
+  }
+}

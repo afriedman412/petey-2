@@ -1,0 +1,185 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1099_div",
+    "form_root": "IRS1099DIV"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099DIV.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:17:32+00:00",
+  "blueprint": {
+    "path": "blueprints/1099_div.bpt",
+    "name": "form_1099_div"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr directly corresponds to the calendar year printed in the form header."
+    },
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "BusinessNameLine1Txt under PayerName is the primary payer name line; blueprint bundles both name lines into one string but this is the closest single-field match \u2014 blueprint should split into BusinessNameLine1Txt and BusinessNameLine2Txt if a second line exists."
+    },
+    "payer_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street, city, state, and ZIP into one string; canonical schema splits payer address into PayerUSAddress (with sub-elements) or PayerForeignAddress \u2014 blueprint should be refactored into separate address component fields."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN directly maps to the payer's taxpayer identification number labeled 'PAYER'S TIN'."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly corresponds to the 'RECIPIENT'S name' field on the form."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN maps to the recipient's identification number; the schema uses RecipientSSN for this field (also covers ITINs/EINs in practice)."
+    },
+    "recipient_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street, city, state, and ZIP into one string; canonical schema splits into RecipientUSAddress or RecipientForeignAddress sub-elements \u2014 blueprint should be refactored into separate address component fields."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum directly corresponds to the 'Account number' box on the form."
+    },
+    "fatca_filing_requirement": {
+      "canonical": "FATCAFilingRequirementInd",
+      "xpath": "FATCAFilingRequirementInd",
+      "confidence": "high",
+      "rationale": "FATCAFilingRequirementInd directly corresponds to the 'FATCA filing requirement' checkbox."
+    },
+    "box_1a_total_ordinary_dividends": {
+      "canonical": "TotalOrdinaryDividendsAmt",
+      "xpath": "TotalOrdinaryDividendsAmt",
+      "confidence": "high",
+      "rationale": "TotalOrdinaryDividendsAmt directly maps to Box 1a \u2014 Total ordinary dividends."
+    },
+    "box_1b_qualified_dividends": {
+      "canonical": "QualifiedDividendsAmt",
+      "xpath": "QualifiedDividendsAmt",
+      "confidence": "high",
+      "rationale": "QualifiedDividendsAmt directly maps to Box 1b \u2014 Qualified dividends."
+    },
+    "box_2a_total_capital_gain_distr": {
+      "canonical": "TotalCapitalDistributionsAmt",
+      "xpath": "TotalCapitalDistributionsAmt",
+      "confidence": "high",
+      "rationale": "TotalCapitalDistributionsAmt directly maps to Box 2a \u2014 Total capital gain distributions."
+    },
+    "box_2b_unrecap_sec_1250_gain": {
+      "canonical": "UnrecapturedSection1250GainAmt",
+      "xpath": "UnrecapturedSection1250GainAmt",
+      "confidence": "high",
+      "rationale": "UnrecapturedSection1250GainAmt directly maps to Box 2b \u2014 Unrecaptured Section 1250 gain."
+    },
+    "box_2c_section_1202_gain": {
+      "canonical": "CapitalGainSect1202Amt",
+      "xpath": "CapitalGainSect1202Amt",
+      "confidence": "high",
+      "rationale": "CapitalGainSect1202Amt directly maps to Box 2c \u2014 Section 1202 gain."
+    },
+    "box_2d_collectibles_28_pct_gain": {
+      "canonical": "Collectibles28PercentGainAmt",
+      "xpath": "Collectibles28PercentGainAmt",
+      "confidence": "high",
+      "rationale": "Collectibles28PercentGainAmt directly maps to Box 2d \u2014 Collectibles (28%) gain."
+    },
+    "box_2e_section_897_ordinary_dividends": {
+      "canonical": "Section897OrdinaryDividendsAmt",
+      "xpath": "Section897OrdinaryDividendsAmt",
+      "confidence": "high",
+      "rationale": "Section897OrdinaryDividendsAmt directly maps to Box 2e \u2014 Section 897 ordinary dividends."
+    },
+    "box_2f_section_897_capital_gain": {
+      "canonical": "Section897CapitalGainAmt",
+      "xpath": "Section897CapitalGainAmt",
+      "confidence": "high",
+      "rationale": "Section897CapitalGainAmt directly maps to Box 2f \u2014 Section 897 capital gain."
+    },
+    "box_3_nondividend_distributions": {
+      "canonical": "NondividendDistributionsAmt",
+      "xpath": "NondividendDistributionsAmt",
+      "confidence": "high",
+      "rationale": "NondividendDistributionsAmt directly maps to Box 3 \u2014 Nondividend distributions."
+    },
+    "box_4_federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt directly maps to Box 4 \u2014 Federal income tax withheld."
+    },
+    "box_5_section_199a_dividends": {
+      "canonical": "Section199ADividendsAmt",
+      "xpath": "Section199ADividendsAmt",
+      "confidence": "high",
+      "rationale": "Section199ADividendsAmt directly maps to Box 5 \u2014 Section 199A dividends."
+    },
+    "box_6_investment_expenses": {
+      "canonical": "InvestmentExpenseAmt",
+      "xpath": "InvestmentExpenseAmt",
+      "confidence": "high",
+      "rationale": "InvestmentExpenseAmt directly maps to Box 6 \u2014 Investment expenses."
+    },
+    "box_7_foreign_tax_paid": {
+      "canonical": "ForeignTaxesPaidAmt",
+      "xpath": "ForeignTaxesPaidAmt",
+      "confidence": "high",
+      "rationale": "ForeignTaxesPaidAmt directly maps to Box 7 \u2014 Foreign tax paid."
+    },
+    "box_8_foreign_country_or_us_possession": {
+      "canonical": "ForeignCountryOrUSPossessionCd",
+      "xpath": "ForeignCountryOrUSPossessionCd",
+      "confidence": "high",
+      "rationale": "ForeignCountryOrUSPossessionCd directly maps to Box 8 \u2014 Foreign country or U.S. possession."
+    },
+    "box_9_cash_liquidation_distributions": {
+      "canonical": "CashLiquidationDistriAmt",
+      "xpath": "CashLiquidationDistriAmt",
+      "confidence": "high",
+      "rationale": "CashLiquidationDistriAmt directly maps to Box 9 \u2014 Cash liquidation distributions."
+    },
+    "box_10_noncash_liquidation_distributions": {
+      "canonical": "NoncashLiquidationDistriAmt",
+      "xpath": "NoncashLiquidationDistriAmt",
+      "confidence": "high",
+      "rationale": "NoncashLiquidationDistriAmt directly maps to Box 10 \u2014 Noncash liquidation distributions."
+    },
+    "box_11_exempt_interest_dividends": {
+      "canonical": "ExemptInterestDividendsAmt",
+      "xpath": "ExemptInterestDividendsAmt",
+      "confidence": "high",
+      "rationale": "ExemptInterestDividendsAmt directly maps to Box 11 \u2014 Exempt-interest dividends."
+    },
+    "box_12_specified_private_activity_bond_interest_dividends": {
+      "canonical": "PrivateActivityBondIntDivAmt",
+      "xpath": "PrivateActivityBondIntDivAmt",
+      "confidence": "high",
+      "rationale": "PrivateActivityBondIntDivAmt directly maps to Box 12 \u2014 Specified private activity bond interest dividends."
+    },
+    "state_tax_withheld": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint models state withholding as an array of objects; canonical schema uses Form1099DIVStateLocalTaxGrp (idx 11) as a repeating group containing StateAbbreviationCd, StateIdNum, StateTaxWithheldAmt, LocalAbbreviationCdTxt, LocalTaxWithheldAmt, and LocalityNm \u2014 blueprint should be refactored into an array of structured objects each containing those six sub-fields mapped to indices 15\u201317 and 12\u201314."
+    }
+  }
+}

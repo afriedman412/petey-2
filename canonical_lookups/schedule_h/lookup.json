@@ -1,0 +1,197 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_h",
+    "form_root": "IRS1040ScheduleH"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleH.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:09:18+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_h.bpt",
+    "name": "schedule_h"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": "HouseholdEmployerNm",
+      "xpath": "HouseholdEmployerNm",
+      "confidence": "high",
+      "rationale": "HouseholdEmployerNm maps directly to the household employer's name printed at the top of Schedule H."
+    },
+    "taxpayer_ssn": {
+      "canonical": "SSN",
+      "xpath": "SSN",
+      "confidence": "high",
+      "rationale": "SSN maps to the taxpayer's Social Security number in the top identifier block of Schedule H."
+    },
+    "employer_ein": {
+      "canonical": "EmployerEIN",
+      "xpath": "EmployerEIN",
+      "confidence": "high",
+      "rationale": "EmployerEIN maps to the Employer Identification Number shown in the top identifier block."
+    },
+    "cash_wages_paid_over_threshold": {
+      "canonical": "HsldEmplPdCashWageOverLmtCYInd",
+      "xpath": "HsldEmplPdCashWageOverLmtCYInd",
+      "confidence": "high",
+      "rationale": "HsldEmplPdCashWageOverLmtCYInd is the indicator for whether cash wages over the threshold were paid in the current year, matching Part I Line A."
+    },
+    "ss_wages": {
+      "canonical": "SocialSecurityTaxCashWagesAmt",
+      "xpath": "SocialSecurityTaxCashWagesAmt",
+      "confidence": "high",
+      "rationale": "SocialSecurityTaxCashWagesAmt maps to Part I Line 1, total cash wages subject to Social Security tax."
+    },
+    "ss_tax_withheld_employee": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate specifically represents the employee's share of Social Security tax withheld (Line 2); SocialSecurityTaxAmt appears to represent the combined/employer share rather than the employee withholding amount alone \u2014 cannot match without ambiguity."
+    },
+    "ss_tax_employer": {
+      "canonical": "SocialSecurityTaxAmt",
+      "xpath": "SocialSecurityTaxAmt",
+      "confidence": "medium",
+      "rationale": "SocialSecurityTaxAmt is the closest match for the employer share of Social Security tax (Line 3), though the schema may bundle both shares; best available candidate."
+    },
+    "medicare_wages": {
+      "canonical": "MedicareTaxCashWagesAmt",
+      "xpath": "MedicareTaxCashWagesAmt",
+      "confidence": "high",
+      "rationale": "MedicareTaxCashWagesAmt maps to Part I Line 4, total cash wages subject to Medicare tax."
+    },
+    "medicare_tax_withheld_employee": {
+      "canonical": "MedicareTaxWithheldAmt",
+      "xpath": "MedicareTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "MedicareTaxWithheldAmt maps to Part I Line 5, employee Medicare tax withheld."
+    },
+    "medicare_tax_employer": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate specifically represents the employer share of Medicare tax (Line 6) separately from the withheld employee amount; the schema does not appear to split this value out."
+    },
+    "additional_medicare_tax_withheld": {
+      "canonical": "AddnlMedicareTaxWithholdingAmt",
+      "xpath": "AddnlMedicareTaxWithholdingAmt",
+      "confidence": "high",
+      "rationale": "AddnlMedicareTaxWithholdingAmt maps directly to Part I Line 7, Additional Medicare Tax withheld."
+    },
+    "total_ss_medicare_tax": {
+      "canonical": "TotSocSecMedcrAndFedIncmTaxAmt",
+      "xpath": "TotSocSecMedcrAndFedIncmTaxAmt",
+      "confidence": "high",
+      "rationale": "TotSocSecMedcrAndFedIncmTaxAmt maps to Part I Line 8, total Social Security and Medicare taxes."
+    },
+    "federal_income_tax_withheld_part_i": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt maps to Part I Line 9, federal income tax withheld from household employee wages."
+    },
+    "total_taxes_before_adjustment": {
+      "canonical": "TotMedcrTaxCashWagesAddnlWhAmt",
+      "xpath": "TotMedcrTaxCashWagesAddnlWhAmt",
+      "confidence": "high",
+      "rationale": "TotMedcrTaxCashWagesAddnlWhAmt maps to Part I Line 10, total taxes before adjustments (Lines 8 plus 9)."
+    },
+    "advance_eic_payments": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the canonical list corresponds to advance EIC payments (Line 11); this field has been removed from recent Schedule H revisions and is not present in the MeF schema."
+    },
+    "net_taxes_part_i": {
+      "canonical": "CombinedFUTATaxPlusNetTaxesAmt",
+      "xpath": "CombinedFUTATaxPlusNetTaxesAmt",
+      "confidence": "medium",
+      "rationale": "CombinedFUTATaxPlusNetTaxesAmt is the closest available candidate for the net household employment taxes from Part I (Line 12), though it may combine FUTA; best available match."
+    },
+    "futa_cash_wages_over_threshold": {
+      "canonical": "HsldEmplPdTotCashWageAnyQtrInd",
+      "xpath": "HsldEmplPdTotCashWageAnyQtrInd",
+      "confidence": "high",
+      "rationale": "HsldEmplPdTotCashWageAnyQtrInd is the indicator for whether total cash wages of $1,000 or more were paid in any quarter, matching Part II Line B."
+    },
+    "futa_state": {
+      "canonical": "StateCd",
+      "xpath": "UnemplFundSingleStateGroup/StateCd",
+      "confidence": "medium",
+      "rationale": "StateCd under UnemplFundSingleStateGroup maps to Part II Line C, the single state to which SUTA was paid."
+    },
+    "futa_state_contributions_paid": {
+      "canonical": "UnemplPaidOnlyOneStateInd",
+      "xpath": "UnemplPaidOnlyOneStateInd",
+      "confidence": "medium",
+      "rationale": "UnemplPaidOnlyOneStateInd is the closest indicator for whether state unemployment contributions were paid, corresponding to the Part II state payment checkbox."
+    },
+    "futa_state_contributions_on_time": {
+      "canonical": "PayAllStateUnemplContriInd",
+      "xpath": "PayAllStateUnemplContriInd",
+      "confidence": "high",
+      "rationale": "PayAllStateUnemplContriInd maps to the Part II checkbox for whether all state unemployment contributions were paid on time."
+    },
+    "total_futa_wages": {
+      "canonical": "TotalCashWagesSubjFUTATaxAmt",
+      "xpath": "UnemplFundSingleStateGroup/TotalCashWagesSubjFUTATaxAmt",
+      "confidence": "medium",
+      "rationale": "TotalCashWagesSubjFUTATaxAmt under UnemplFundSingleStateGroup maps to Part II Line 13, total FUTA wages for a single-state filer."
+    },
+    "futa_tax_before_adjustments": {
+      "canonical": "FUTATaxAmt",
+      "xpath": "UnemplFundSingleStateGroup/FUTATaxAmt",
+      "confidence": "medium",
+      "rationale": "FUTATaxAmt under UnemplFundSingleStateGroup maps to Part II Line 14, FUTA tax before adjustments for a single-state filer."
+    },
+    "maximum_futa_credit": {
+      "canonical": "FUTATaxCreditMaxAllowedAmt",
+      "xpath": "UnemplFundMultiStateGroup/FUTATaxCreditMaxAllowedAmt",
+      "confidence": "high",
+      "rationale": "FUTATaxCreditMaxAllowedAmt maps to Part II Line 15, maximum allowable FUTA credit."
+    },
+    "futa_credit_reduction_amount": {
+      "canonical": "TotalUnemplAdditionalTaxCrAmt",
+      "xpath": "UnemplFundMultiStateGroup/TotalUnemplAdditionalTaxCrAmt",
+      "confidence": "high",
+      "rationale": "TotalUnemplAdditionalTaxCrAmt under UnemplFundMultiStateGroup maps to Part II Line 16, credit reduction amount from the FUTA Credit Reduction worksheet."
+    },
+    "futa_credit": {
+      "canonical": "TentativeFUTACreditAmt",
+      "xpath": "UnemplFundMultiStateGroup/TentativeFUTACreditAmt",
+      "confidence": "high",
+      "rationale": "TentativeFUTACreditAmt maps to Part II Line 17, allowable FUTA credit after reduction."
+    },
+    "net_futa_tax": {
+      "canonical": "FUTATaxAmt",
+      "xpath": "UnemplFundMultiStateGroup/FUTATaxAmt",
+      "confidence": "medium",
+      "rationale": "FUTATaxAmt under UnemplFundMultiStateGroup maps to Part II Line 18, net FUTA tax after credit."
+    },
+    "credit_reduction_states": {
+      "canonical": "UnemploymentStateTaxGroup",
+      "xpath": "UnemplFundMultiStateGroup/UnemploymentStateTaxGroup",
+      "confidence": "high",
+      "rationale": "UnemploymentStateTaxGroup is the repeating group element containing per-state credit reduction rows in the FUTA Credit Reduction worksheet."
+    },
+    "federal_income_tax_withheld_required": {
+      "canonical": "HsldEmplFedIncmTaxWithheldInd",
+      "xpath": "HsldEmplFedIncmTaxWithheldInd",
+      "confidence": "high",
+      "rationale": "HsldEmplFedIncmTaxWithheldInd maps to Part III Line D checkbox, whether federal income tax withholding was elected."
+    },
+    "federal_income_tax_withheld_part_iii": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The schema does not appear to have a separate element for Part III Line 19 federal income tax withheld distinct from the Part I Line 9 FederalIncomeTaxWithheldAmt; the blueprint should clarify whether these map to the same canonical element or if the schema merges them."
+    },
+    "total_household_employment_taxes": {
+      "canonical": "TotalTaxHouseholdEmplCalcAmt",
+      "xpath": "TotalTaxHouseholdEmplCalcAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxHouseholdEmplCalcAmt maps to Part IV total household employment taxes carried to Schedule 2 of Form 1040."
+    }
+  }
+}

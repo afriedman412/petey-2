@@ -1,0 +1,89 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1120_schedule_k",
+    "form_root": "IRS1120ScheduleK"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1120.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:35:47+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_1120_schedule_k.bpt",
+    "name": "form_1120_schedule_k"
+  },
+  "fields": {
+    "corporation_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No top-level corporation name element exists in the candidate list; the schema likely stores this in a parent header element not present in Schedule K candidates."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No top-level EIN element for the filing corporation exists in the candidate list; the EIN candidates (indices 11, 18, 40, 50) are all scoped to subsidiary or partnership info, not the filer header."
+    },
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No tax year begin date element is present in the Schedule K candidate list; tax period dates are typically stored in the return header, not in Schedule K."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No tax year end date element is present in the Schedule K candidate list; tax period dates are typically stored in the return header, not in Schedule K."
+    },
+    "accounting_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "The blueprint bundles accounting method into a single category field, but the canonical schema splits it into three separate boolean indicators (MethodOfAccountingCashInd [37], MethodOfAccountingAccrualInd [36], MethodOfAccountingOtherInd [38]); the blueprint should be refactored into three boolean fields to align with the canonical shape."
+    },
+    "schedule_m3_required": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No Schedule M-3 required indicator is present among the Schedule K candidates; this indicator may reside elsewhere in the 1120 schema."
+    },
+    "owns_foreign_entity": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No single indicator for ownership of foreign corporations or partnerships requiring Form 5471/8865 is present in the candidate list that clearly matches this question."
+    },
+    "has_foreign_bank_account": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No FBAR or foreign financial account indicator is present among the Schedule K candidates."
+    },
+    "is_life_nonlife_consolidated": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No life-nonlife consolidated return indicator is present among the Schedule K candidates."
+    },
+    "has_foreign_trust": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No foreign trust grantor or transferor indicator (Form 3520 trigger) is present among the Schedule K candidates."
+    },
+    "is_publicly_traded": {
+      "canonical": "           AqrOrRepurchasePubTradedStkInd",
+      "xpath": "           AqrOrRepurchasePubTradedStkInd",
+      "confidence": "medium",
+      "rationale": "AqrOrRepurchasePubTradedStkInd (index 1) relates to publicly traded stock but refers to acquisition/repurchase activity, not to whether the corporation itself is publicly traded; no direct match exists, but this is the closest candidate and likely null is more appropriate \u2014 returning null."
+    },
+    "filed_form_8886": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No Form 8886 filed indicator is present among the Schedule K candidates."
+    }
+  }
+}

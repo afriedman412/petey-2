@@ -1,0 +1,215 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_8832",
+    "form_root": "IRS8832"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS8832.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:50+00:00",
+  "blueprint": {
+    "path": "blueprints/form_8832.bpt",
+    "name": "form_8832"
+  },
+  "fields": {
+    "entity_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "EntityName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "EntityName/BusinessNameLine1Txt maps to the primary legal name of the entity making the election at the top of the form."
+    },
+    "employer_identification_number": {
+      "canonical": "EntityEIN",
+      "xpath": "EntityEIN",
+      "confidence": "high",
+      "rationale": "EntityEIN is the canonical element for the EIN of the entity making the election, distinct from parent or owner EINs."
+    },
+    "entity_address_line1": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "USAddress/AddressLine1Txt",
+      "confidence": "high",
+      "rationale": "USAddress/AddressLine1Txt maps to the street address of the entity's domestic mailing address."
+    },
+    "entity_address_line2": {
+      "canonical": "AddressLine2Txt",
+      "xpath": "USAddress/AddressLine2Txt",
+      "confidence": "high",
+      "rationale": "USAddress/AddressLine2Txt maps to the second address line of the entity's domestic mailing address."
+    },
+    "entity_city": {
+      "canonical": "CityNm",
+      "xpath": "USAddress/CityNm",
+      "confidence": "high",
+      "rationale": "USAddress/CityNm maps to the city of the entity's domestic mailing address."
+    },
+    "entity_state": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "USAddress/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "USAddress/StateAbbreviationCd maps to the two-letter state code of the entity's domestic mailing address."
+    },
+    "entity_zip": {
+      "canonical": "ZIPCd",
+      "xpath": "USAddress/ZIPCd",
+      "confidence": "high",
+      "rationale": "USAddress/ZIPCd maps to the ZIP code of the entity's domestic mailing address."
+    },
+    "entity_country": {
+      "canonical": "CountryCd",
+      "xpath": "ForeignAddress/CountryCd",
+      "confidence": "medium",
+      "rationale": "ForeignAddress/CountryCd maps to the country for entities with a foreign mailing address; however the blueprint bundles domestic and foreign addresses \u2014 the canonical schema splits them into USAddress vs ForeignAddress groups, so this field only applies when the entity has a foreign address."
+    },
+    "foreign_country_of_organization": {
+      "canonical": "OrganizationCountryCd",
+      "xpath": "OrganizationCountryCd",
+      "confidence": "high",
+      "rationale": "OrganizationCountryCd directly represents the country under whose laws the foreign eligible entity is organized."
+    },
+    "election_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The blueprint bundles 'initial classification' vs 'change of classification' into one category field, but the canonical schema splits these into two separate boolean indicators (InitialClassificationInd and ChangeInCurrentClsfInd); the blueprint should be refactored into two boolean fields to align with the canonical shape."
+    },
+    "requested_classification": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The blueprint uses a single category field for the elected classification, but the canonical schema represents each option as a separate boolean indicator (USAssocTxblAsACorpInd, USEntityAsAPrtshpInd, USEntityOwnerDsrgdSepEntityInd, ForeignEntityTxblAsACorpInd, ForeignPartnershipInd, FrgnOwnerDsrgdSepEntityInd); the blueprint should be refactored into six boolean fields."
+    },
+    "single_owner_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "OwnerName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "OwnerName/BusinessNameLine1Txt maps to the name of the single owner when the entity elects disregarded status."
+    },
+    "single_owner_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The blueprint bundles SSN and EIN into one field, but the canonical schema provides two separate elements (SSN and EIN); the blueprint should be refactored into two fields to match the canonical split."
+    },
+    "single_owner_id_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema implicitly encodes owner ID type by using separate SSN vs EIN elements rather than a type indicator field; no standalone type indicator candidate exists, so this blueprint field has no direct match."
+    },
+    "election_effective_date": {
+      "canonical": "ElectionEffectiveDt",
+      "xpath": "ElectionEffectiveDt",
+      "confidence": "high",
+      "rationale": "ElectionEffectiveDt directly maps to the requested effective date of the classification election."
+    },
+    "more_than_one_owner": {
+      "canonical": "MultipleOwnerYesOrNoInd",
+      "xpath": "MultipleOwnerYesOrNoInd",
+      "confidence": "high",
+      "rationale": "MultipleOwnerYesOrNoInd maps to the checkbox indicating whether the entity has more than one owner."
+    },
+    "consenting_owners": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The consent/signature block is not represented as a structured repeating element in the canonical MeF schema for Form 8832; no matching candidate exists."
+    },
+    "part_ii_applicable": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "There is no standalone boolean indicator for whether Part II is applicable in the canonical schema; late election relief is indicated indirectly via LateClsfReliefRevProc200941Ind or LateClsfReliefRevProc201032Ind, so the blueprint field has no direct single match."
+    },
+    "late_election_relief_entity_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema does not have a separate entity name element under Part II late election relief; the top-level EntityName is reused, so no distinct candidate matches this blueprint field."
+    },
+    "late_election_relief_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema does not expose a distinct EIN element specifically for Part II late election relief separate from the top-level EntityEIN; no candidate matches."
+    },
+    "late_election_relief_requested_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No distinct late-election-relief effective date element exists in the candidate list separate from ElectionEffectiveDt; no unambiguous match can be made."
+    },
+    "late_election_relief_reason": {
+      "canonical": "LateFiledEntyClsElectnExplnTxt",
+      "xpath": "LateFiledEntyClsElectnExplnTxt",
+      "confidence": "high",
+      "rationale": "LateFiledEntyClsElectnExplnTxt maps to the free-form explanation for why the entity failed to file the election on a timely basis in Part II."
+    },
+    "preparer_name": {
+      "canonical": "ContactPersonNm",
+      "xpath": "ContactPersonNm",
+      "confidence": "medium",
+      "rationale": "ContactPersonNm is the closest available candidate for a person's name on the form; however, if it strictly represents an entity contact rather than a paid preparer, there may be a mismatch \u2014 the canonical schema appears to lack a dedicated paid-preparer name element."
+    },
+    "preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No PTIN element exists in the candidate list for Form 8832; the canonical schema does not expose a paid-preparer PTIN field."
+    },
+    "preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No self-employed checkbox indicator for the paid preparer exists among the canonical candidates."
+    },
+    "preparer_signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No paid preparer signature date element exists in the candidate list for Form 8832."
+    },
+    "preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm name element exists among the canonical candidates for Form 8832."
+    },
+    "preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm EIN element exists among the canonical candidates for Form 8832."
+    },
+    "preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm address element exists among the canonical candidates; the canonical schema does not expose paid preparer firm address fields for this form."
+    },
+    "preparer_firm_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm city element exists among the canonical candidates for Form 8832."
+    },
+    "preparer_firm_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm state element exists among the canonical candidates for Form 8832."
+    },
+    "preparer_firm_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm ZIP element exists among the canonical candidates for Form 8832."
+    },
+    "preparer_phone": {
+      "canonical": "ContactPersonPhoneNum",
+      "xpath": "ContactPersonPhoneNum",
+      "confidence": "medium",
+      "rationale": "ContactPersonPhoneNum is the closest phone number candidate, though it may represent the entity contact rather than a paid preparer phone; no dedicated paid-preparer phone element exists in the candidate list."
+    }
+  }
+}

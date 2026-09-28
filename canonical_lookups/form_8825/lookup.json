@@ -1,0 +1,65 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "8825",
+    "form_root": "IRS8825"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS8825.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-24T21:11:45+00:00",
+  "blueprint": {
+    "path": "blueprints/form_8825.bpt",
+    "name": "form_8825"
+  },
+  "fields": {
+    "entity_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "IdentifyPartnershipEstateTrGrp/BusinessName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "BusinessNameLine1Txt under IdentifyPartnershipEstateTrGrp matches the entity name shown at the top of the form; only line 1 is needed for the primary name."
+    },
+    "ein": {
+      "canonical": "EIN",
+      "xpath": "IdentifyPartnershipEstateTrGrp/EIN",
+      "confidence": "high",
+      "rationale": "EIN under IdentifyPartnershipEstateTrGrp directly corresponds to the Employer Identification Number field at the top of the form."
+    },
+    "properties": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint declares a single array covering all property columns A\u2013H, but the canonical schema splits this into repeated RentalAddressGrp and RentalIncomeExpensesGrp elements per property \u2014 blueprint should be refactored into individual per-property objects each containing address, fair rental days, personal use days, gross rents, and all expense line items aligned to the canonical groups."
+    },
+    "total_rental_real_estate_income": {
+      "canonical": "TotalRentalRealEstateIncomeAmt",
+      "xpath": "TotalRentalRealEstateIncomeAmt",
+      "confidence": "high",
+      "rationale": "TotalRentalRealEstateIncomeAmt at the form root matches Line 20a total rental real estate income summed across all properties."
+    },
+    "total_rental_real_estate_expenses": {
+      "canonical": "TotalExpensesAmt",
+      "xpath": "TotalExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalExpensesAmt at the form root (xpath TotalExpensesAmt, idx 34) matches Line 20b total rental real estate expenses across all properties, as distinct from the per-property TotalExpensesAmt inside RentalIncomeExpensesGrp."
+    },
+    "net_gain_loss_form_4797": {
+      "canonical": "NetGainLossFrom4797Amt",
+      "xpath": "NetGainLossFrom4797Amt",
+      "confidence": "high",
+      "rationale": "NetGainLossFrom4797Amt directly matches Line 21 net gain (loss) from Form 4797."
+    },
+    "net_income_loss_from_partnerships": {
+      "canonical": "NetIncomeLossAmt",
+      "xpath": "NetIncomeLossAmt",
+      "confidence": "medium",
+      "rationale": "NetIncomeLossAmt at the form root is the closest match for Line 22a net income (loss) from rental real estate activities from partnerships/estates/trusts, though the name is somewhat generic."
+    },
+    "net_rental_real_estate_income_loss": {
+      "canonical": "RealEstateNetIncomeLossAmt",
+      "xpath": "RealEstateNetIncomeLossAmt",
+      "confidence": "high",
+      "rationale": "RealEstateNetIncomeLossAmt matches Line 23 net rental real estate income (loss) combined result entered on Schedule K."
+    }
+  }
+}

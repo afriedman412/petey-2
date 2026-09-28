@@ -1,0 +1,119 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_5471_schedule_i",
+    "form_root": "IRS5471ScheduleI"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS5471.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:44:47+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_5471_schedule_i.bpt",
+    "name": "form_5471_schedule_i"
+  },
+  "fields": {
+    "filer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint references the filer's name from page 1 header, but candidates only contain shareholder name fields (ShareholderPersonNm, BusinessNameLine1Txt) which are distinct from the top-of-page filer name; no exact match exists."
+    },
+    "filer_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint references the top-of-page filer identifying number; ShareholderEIN/ShareholderSSN refer to the U.S. shareholder section, not the page-1 filer header \u2014 no exact structural match."
+    },
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No date element for the annual accounting period beginning date appears in the candidate list."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No date element for the annual accounting period ending date appears in the candidate list."
+    },
+    "schedule_i_subpart_f_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint line 1 is the filer's pro-rata share of total Subpart F income; no single rolled-up total Subpart F amount element exists in the candidate list \u2014 the schema splits this across multiple sub-lines (1a\u20131h)."
+    },
+    "schedule_i_section_956_amount": {
+      "canonical": "EarningsInvestedInUSPropAmt",
+      "xpath": "EarningsInvestedInUSPropAmt",
+      "confidence": "high",
+      "rationale": "EarningsInvestedInUSPropAmt row label 'Earnings invested in U.S. property' corresponds to Schedule I line 2 (section 956 amount)."
+    },
+    "schedule_i_section_956a_amount": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element corresponds to a section 956A amount on Schedule I."
+    },
+    "schedule_i_section_1248_dividend": {
+      "canonical": "FactoringIncomeAmt",
+      "xpath": "FactoringIncomeAmt",
+      "confidence": "medium",
+      "rationale": "FactoringIncomeAmt is labeled line 4; however the blueprint describes line 4 as section 1248 dividends, not factoring income \u2014 these are different line items on different versions of the form, so this is not a reliable match; returning null is safer."
+    },
+    "schedule_i_section_964e_gain": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element corresponds to a section 964(e) gain amount on Schedule I line 5."
+    },
+    "schedule_i_total_inclusions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element represents the total Schedule I inclusion amount (sum of lines 1\u20135)."
+    },
+    "tested_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule I-1 GILTI tested income is not represented in the candidate list, which covers Schedule I elements only."
+    },
+    "tested_loss": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule I-1 GILTI tested loss is not represented in the candidate list."
+    },
+    "qbai": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule I-1 QBAI element is not present in the candidate list."
+    },
+    "tested_interest_expense": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule I-1 tested interest expense element is not present in the candidate list."
+    },
+    "tested_interest_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule I-1 tested interest income element is not present in the candidate list."
+    },
+    "net_deemed_tangible_return": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule I-1 net deemed tangible income return element is not present in the candidate list."
+    },
+    "gilti_inclusion": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule I-1 GILTI inclusion amount element is not present in the candidate list."
+    }
+  }
+}

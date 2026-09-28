@@ -1,0 +1,509 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1041",
+    "form_root": "IRS1041"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1041.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:41:09+00:00",
+  "blueprint": {
+    "path": "blueprints/form_1041.bpt",
+    "name": "form_1041"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Tax year is a header-level attribute not represented as a discrete leaf element in the candidate list; no matching canonical element exists."
+    },
+    "fiscal_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Fiscal year begin date is a header field not present as a leaf element in the candidate list."
+    },
+    "fiscal_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Fiscal year end date is a header field not present as a leaf element in the candidate list."
+    },
+    "entity_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The estate or trust name is a header element not present among the candidate leaf elements provided."
+    },
+    "employer_identification_number": {
+      "canonical": "TrustEIN",
+      "xpath": "TrustEIN",
+      "confidence": "medium",
+      "rationale": "TrustEIN is the closest canonical element for the EIN of the estate or trust; estates would use an analogous field not separately listed, so this is the best available match."
+    },
+    "fiduciary_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Fiduciary name is a header element not present among the candidate leaf elements provided."
+    },
+    "fiduciary_title": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Fiduciary title is a header element not present among the candidate leaf elements provided."
+    },
+    "fiduciary_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street/city/state/zip into one string; canonical schema splits into multiple address sub-elements not present in this candidate list \u2014 blueprint should split into AddressLine1Txt, CityNm, StateAbbreviationCd, and ZIPCd fields."
+    },
+    "date_entity_created": {
+      "canonical": "EstateOrTrustCreateDt",
+      "xpath": "EstateOrTrustCreateDt",
+      "confidence": "high",
+      "rationale": "EstateOrTrustCreateDt directly maps to the date the estate or trust was created, as entered in the header block."
+    },
+    "entity_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Entity type is a category captured by multiple indicator checkboxes (DecedentsEstateInd, SimpleTrustInd, ComplexTrustInd, etc.) rather than a single canonical element; the blueprint should be refactored into separate boolean fields per entity type."
+    },
+    "initial_return": {
+      "canonical": "InitialReturnInd",
+      "xpath": "InitialReturnInd",
+      "confidence": "high",
+      "rationale": "InitialReturnInd directly corresponds to the 'Initial return' checkbox on Form 1041."
+    },
+    "final_return": {
+      "canonical": "FutureFilingNotRequiredInd",
+      "xpath": "FutureFilingNotRequiredInd",
+      "confidence": "high",
+      "rationale": "FutureFilingNotRequiredInd corresponds to the 'Final return' checkbox indicating no future filing is required."
+    },
+    "amended_return": {
+      "canonical": "AmendedReturnInd",
+      "xpath": "AmendedReturnInd",
+      "confidence": "high",
+      "rationale": "AmendedReturnInd directly corresponds to the 'Amended return' checkbox on Form 1041."
+    },
+    "change_in_fiduciary": {
+      "canonical": "FiduciaryChangeInd",
+      "xpath": "FiduciaryChangeInd",
+      "confidence": "high",
+      "rationale": "FiduciaryChangeInd directly corresponds to the checkbox indicating a change in fiduciary during the tax year."
+    },
+    "name_change": {
+      "canonical": "TrustNameChangeInd",
+      "xpath": "TrustNameChangeInd",
+      "confidence": "high",
+      "rationale": "TrustNameChangeInd corresponds to the name change checkbox; FiduciaryNameChangeInd (idx 52) refers to fiduciary name change, so TrustNameChangeInd is the correct entity-level match."
+    },
+    "address_change": {
+      "canonical": "FiduciaryAddressChangeInd",
+      "xpath": "FiduciaryAddressChangeInd",
+      "confidence": "high",
+      "rationale": "FiduciaryAddressChangeInd directly corresponds to the address change checkbox on Form 1041."
+    },
+    "number_of_k1s": {
+      "canonical": "ScheduleK1AttachedCnt",
+      "xpath": "ScheduleK1AttachedCnt",
+      "confidence": "high",
+      "rationale": "ScheduleK1AttachedCnt directly represents the count of Schedule K-1s attached to the return."
+    },
+    "interest_income": {
+      "canonical": "TaxableInterestAmt",
+      "xpath": "TaxableInterestAmt",
+      "confidence": "high",
+      "rationale": "TaxableInterestAmt corresponds to taxable interest income reported on Line 1 of Part I."
+    },
+    "ordinary_dividends": {
+      "canonical": "OrdinaryDividendsAmt",
+      "xpath": "OrdinaryDividendsAmt",
+      "confidence": "high",
+      "rationale": "OrdinaryDividendsAmt corresponds to ordinary dividends reported on Line 2a of Part I."
+    },
+    "qualified_dividends": {
+      "canonical": "QlfyDividendsEstateTrustAmt",
+      "xpath": "QlfyDividendsEstateTrustAmt",
+      "confidence": "high",
+      "rationale": "QlfyDividendsEstateTrustAmt corresponds to qualified dividends reported on Line 2b of Part I."
+    },
+    "business_income_loss": {
+      "canonical": "NetProfitOrLossAmt",
+      "xpath": "NetProfitOrLossAmt",
+      "confidence": "high",
+      "rationale": "NetProfitOrLossAmt corresponds to net business income or loss from Schedule C reported on Line 3 of Part I."
+    },
+    "capital_gain_loss": {
+      "canonical": "CapitalGainLossAmt",
+      "xpath": "CapitalGainLossAmt",
+      "confidence": "high",
+      "rationale": "CapitalGainLossAmt corresponds to net capital gain or loss from Schedule D reported on Line 4 of Part I."
+    },
+    "rents_royalties_partnerships": {
+      "canonical": "NetRentalIncomeOrLossAmt",
+      "xpath": "NetRentalIncomeOrLossAmt",
+      "confidence": "high",
+      "rationale": "NetRentalIncomeOrLossAmt corresponds to income or loss from rents, royalties, partnerships, etc. reported on Line 5 of Part I."
+    },
+    "farm_income_loss": {
+      "canonical": "NetFarmProfitLossAmt",
+      "xpath": "NetFarmProfitLossAmt",
+      "confidence": "high",
+      "rationale": "NetFarmProfitLossAmt corresponds to net farm income or loss from Schedule F reported on Line 6 of Part I."
+    },
+    "ordinary_gain_loss": {
+      "canonical": "TotalOrdinaryGainLossAmt",
+      "xpath": "TotalOrdinaryGainLossAmt",
+      "confidence": "high",
+      "rationale": "TotalOrdinaryGainLossAmt corresponds to ordinary gain or loss from Form 4797 reported on Line 7 of Part I."
+    },
+    "other_income": {
+      "canonical": "TotalOtherIncomeAmt",
+      "xpath": "TotalOtherIncomeAmt",
+      "confidence": "high",
+      "rationale": "TotalOtherIncomeAmt corresponds to other income reported on Line 8 of Part I."
+    },
+    "total_income": {
+      "canonical": "TotalIncomeAmt",
+      "xpath": "TotalIncomeAmt",
+      "confidence": "high",
+      "rationale": "TotalIncomeAmt corresponds to total income on Line 9 of Part I, the sum of lines 1 through 8."
+    },
+    "interest_expense": {
+      "canonical": "InterestAmt",
+      "xpath": "InterestAmt",
+      "confidence": "high",
+      "rationale": "InterestAmt corresponds to interest expense deducted on Line 10 of Part II."
+    },
+    "taxes": {
+      "canonical": "TaxesAmt",
+      "xpath": "TaxesAmt",
+      "confidence": "high",
+      "rationale": "TaxesAmt corresponds to taxes deducted on Line 11 of Part II."
+    },
+    "fiduciary_fees": {
+      "canonical": "FiduciaryFeesAmt",
+      "xpath": "FiduciaryFeesAmt",
+      "confidence": "high",
+      "rationale": "FiduciaryFeesAmt directly corresponds to fiduciary fees deducted on Line 12 of Part II."
+    },
+    "charitable_deduction": {
+      "canonical": "CharitableDeductionsAmt",
+      "xpath": "CharitableDeductionsAmt",
+      "confidence": "high",
+      "rationale": "CharitableDeductionsAmt corresponds to the charitable deduction from Schedule A reported on Line 13 of Part II."
+    },
+    "attorney_accountant_fees": {
+      "canonical": "TaxPreparationFeesAmt",
+      "xpath": "TaxPreparationFeesAmt",
+      "confidence": "high",
+      "rationale": "TaxPreparationFeesAmt corresponds to attorney, accountant, and return preparer fees deducted on Line 14 of Part II."
+    },
+    "other_deductions": {
+      "canonical": "OtherDeductionsAmt",
+      "xpath": "OtherDeductionsAmt",
+      "confidence": "high",
+      "rationale": "OtherDeductionsAmt corresponds to other deductions not subject to the 2% floor reported on Line 15a of Part II."
+    },
+    "allowable_miscellaneous_deductions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element specifically represents allowable miscellaneous itemized deductions subject to the 2% floor (Line 15b); no matching canonical element found."
+    },
+    "total_deductions": {
+      "canonical": "TotalDeductionAmt",
+      "xpath": "TotalDeductionAmt",
+      "confidence": "high",
+      "rationale": "TotalDeductionAmt corresponds to total deductions reported on Line 16 of Part II."
+    },
+    "adjusted_total_income": {
+      "canonical": "AdjustedTotalIncomeAmt",
+      "xpath": "AdjustedTotalIncomeAmt",
+      "confidence": "high",
+      "rationale": "AdjustedTotalIncomeAmt corresponds to adjusted total income or loss reported on Line 17 of Part II."
+    },
+    "income_distribution_deduction": {
+      "canonical": "IncomeDistributionDeductionAmt",
+      "xpath": "IncomeDistributionDeductionAmt",
+      "confidence": "high",
+      "rationale": "IncomeDistributionDeductionAmt corresponds to the income distribution deduction from Schedule B reported on Line 18 of Part II."
+    },
+    "estate_tax_deduction": {
+      "canonical": "EstateTaxDeductionAmt",
+      "xpath": "EstateTaxDeductionAmt",
+      "confidence": "high",
+      "rationale": "EstateTaxDeductionAmt corresponds to the estate tax deduction reported on Line 19 of Part II."
+    },
+    "exemption": {
+      "canonical": "ExemptionAmt",
+      "xpath": "ExemptionAmt",
+      "confidence": "high",
+      "rationale": "ExemptionAmt corresponds to the exemption amount reported on Line 20 of Part II."
+    },
+    "taxable_income": {
+      "canonical": "TaxableIncomeAmt",
+      "xpath": "TaxableIncomeAmt",
+      "confidence": "high",
+      "rationale": "TaxableIncomeAmt corresponds to taxable income reported on Line 21 of Part II."
+    },
+    "schedule_g_tax_on_taxable_income": {
+      "canonical": "TaxAmt",
+      "xpath": "TaxAmt",
+      "confidence": "high",
+      "rationale": "TaxAmt corresponds to tax computed on taxable income reported on Line 1a of Schedule G."
+    },
+    "alternative_minimum_tax": {
+      "canonical": "AlternativeMinimumTaxAmt",
+      "xpath": "AlternativeMinimumTaxAmt",
+      "confidence": "high",
+      "rationale": "AlternativeMinimumTaxAmt corresponds to the alternative minimum tax from Schedule I reported on Line 1b of Schedule G."
+    },
+    "net_investment_income_tax": {
+      "canonical": "EstTrustNetInvstIncomeTaxAmt",
+      "xpath": "EstTrustNetInvstIncomeTaxAmt",
+      "confidence": "high",
+      "rationale": "EstTrustNetInvstIncomeTaxAmt corresponds to the Net Investment Income Tax from Form 8960 reported in Schedule G."
+    },
+    "household_employment_taxes": {
+      "canonical": "HouseholdEmploymentTaxAmt",
+      "xpath": "HouseholdEmploymentTaxAmt",
+      "confidence": "high",
+      "rationale": "HouseholdEmploymentTaxAmt corresponds to household employment taxes from Schedule H reported in Schedule G."
+    },
+    "other_taxes_schedule_g": {
+      "canonical": "OtherTaxDueAmt",
+      "xpath": "OtherTaxDueAmt",
+      "confidence": "high",
+      "rationale": "OtherTaxDueAmt corresponds to other taxes in Schedule G including recapture taxes and lump-sum distribution taxes."
+    },
+    "total_credits": {
+      "canonical": "TotalCreditsAmt",
+      "xpath": "TotalCreditsAmt",
+      "confidence": "high",
+      "rationale": "TotalCreditsAmt corresponds to total credits claimed in Schedule G against the gross tax."
+    },
+    "total_tax": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxAmt corresponds to total tax from Schedule G after all credits and additions."
+    },
+    "payments_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt corresponds to federal income tax withheld at source on the withholding payments line."
+    },
+    "estimated_tax_payments": {
+      "canonical": "EstimatedTaxPaymentsAmt",
+      "xpath": "EstimatedTaxPaymentsAmt",
+      "confidence": "high",
+      "rationale": "EstimatedTaxPaymentsAmt corresponds to estimated tax payments made during the year."
+    },
+    "tax_paid_with_extension": {
+      "canonical": "ExtsnRequestIncomeTaxPaidAmt",
+      "xpath": "ExtsnRequestIncomeTaxPaidAmt",
+      "confidence": "high",
+      "rationale": "ExtsnRequestIncomeTaxPaidAmt corresponds to tax paid with Form 7004 (extension request)."
+    },
+    "other_payments_credits": {
+      "canonical": "OtherCreditsPaymentsAmt",
+      "xpath": "OtherCreditsPaymentsAmt",
+      "confidence": "high",
+      "rationale": "OtherCreditsPaymentsAmt corresponds to other payments and refundable credits not listed separately."
+    },
+    "total_payments": {
+      "canonical": "TotalPaymentsAmt",
+      "xpath": "TotalPaymentsAmt",
+      "confidence": "high",
+      "rationale": "TotalPaymentsAmt corresponds to the total of all payments and credits applied against the tax liability."
+    },
+    "estimated_tax_penalty": {
+      "canonical": "EstimatedPenaltyAmt",
+      "xpath": "EstimatedPenaltyAmt",
+      "confidence": "high",
+      "rationale": "EstimatedPenaltyAmt corresponds to the estimated tax underpayment penalty line."
+    },
+    "tax_due": {
+      "canonical": "TaxDueAmt",
+      "xpath": "TaxDueAmt",
+      "confidence": "high",
+      "rationale": "TaxDueAmt at the root xpath (idx 120) corresponds to the balance of tax owed shown on the 'Tax due' line, distinct from idx 46 which is nested under F1041TotalTaxGrp."
+    },
+    "overpayment": {
+      "canonical": "OverpaymentAmt",
+      "xpath": "OverpaymentAmt",
+      "confidence": "high",
+      "rationale": "OverpaymentAmt corresponds to the overpayment amount when total payments exceed total tax liability."
+    },
+    "overpayment_credited_to_next_year": {
+      "canonical": "AppliedToEsTaxAmt",
+      "xpath": "AppliedToEsTaxAmt",
+      "confidence": "high",
+      "rationale": "AppliedToEsTaxAmt corresponds to the portion of overpayment credited to the following year's estimated tax."
+    },
+    "overpayment_refunded": {
+      "canonical": "RefundAmt",
+      "xpath": "RefundAmt",
+      "confidence": "high",
+      "rationale": "RefundAmt corresponds to the portion of overpayment to be refunded to the estate or trust."
+    },
+    "schedule_b_accounting_income": {
+      "canonical": "AccountingIncomeAmt",
+      "xpath": "AccountingIncomeAmt",
+      "confidence": "high",
+      "rationale": "AccountingIncomeAmt corresponds to accounting income entered on Line 1 of Schedule B."
+    },
+    "schedule_b_distributable_net_income": {
+      "canonical": "DistributableNetIncomeAmt",
+      "xpath": "DistributableNetIncomeAmt",
+      "confidence": "high",
+      "rationale": "DistributableNetIncomeAmt corresponds to distributable net income (DNI) computed on Schedule B."
+    },
+    "schedule_b_income_required_to_distribute": {
+      "canonical": "FirstTierDistributionAmt",
+      "xpath": "FirstTierDistributionAmt",
+      "confidence": "high",
+      "rationale": "FirstTierDistributionAmt corresponds to income required to be distributed currently (first-tier distributions) on Line 9 of Schedule B."
+    },
+    "schedule_b_other_amounts_paid": {
+      "canonical": "SecondTierDistributionAmt",
+      "xpath": "SecondTierDistributionAmt",
+      "confidence": "high",
+      "rationale": "SecondTierDistributionAmt corresponds to other amounts paid or credited (second-tier distributions) on Line 10 of Schedule B."
+    },
+    "schedule_b_total_distributions": {
+      "canonical": "TotalDistributionAmt",
+      "xpath": "TotalDistributionAmt",
+      "confidence": "high",
+      "rationale": "TotalDistributionAmt corresponds to total distributions on Line 11 of Schedule B."
+    },
+    "schedule_b_tax_exempt_income_allocated": {
+      "canonical": "TaxExemptIncomeAmt",
+      "xpath": "TaxExemptIncomeAmt",
+      "confidence": "high",
+      "rationale": "TaxExemptIncomeAmt corresponds to tax-exempt income included in distributions on Line 12 of Schedule B."
+    },
+    "schedule_b_tentative_income_distribution_deduction": {
+      "canonical": "TentativeIncmDistriDedAmt",
+      "xpath": "TentativeIncmDistriDedAmt",
+      "confidence": "high",
+      "rationale": "TentativeIncmDistriDedAmt corresponds to the tentative income distribution deduction on Line 13 of Schedule B."
+    },
+    "schedule_b_income_distribution_deduction": {
+      "canonical": "SchBAdjustedTotalIncomeAmt",
+      "xpath": "SchBAdjustedTotalIncomeAmt",
+      "confidence": "high",
+      "rationale": "SchBAdjustedTotalIncomeAmt best represents the final Schedule B income distribution deduction figure that flows to Part II Line 18."
+    },
+    "section_645_election": {
+      "canonical": "Section645ElectionInd",
+      "xpath": "Section645ElectionInd",
+      "confidence": "high",
+      "rationale": "Section645ElectionInd directly corresponds to the Section 645 election indicator."
+    },
+    "foreign_account": {
+      "canonical": "ForeignAccountsQuestionInd",
+      "xpath": "ForeignAccountsQuestionInd",
+      "confidence": "high",
+      "rationale": "ForeignAccountsQuestionInd corresponds to the foreign account question in the Other Information section."
+    },
+    "foreign_trust": {
+      "canonical": "ForeignTrustInd",
+      "xpath": "ForeignTrustInd",
+      "confidence": "high",
+      "rationale": "ForeignTrustInd corresponds to the foreign trust question in the Other Information section."
+    },
+    "form_1041_t_filed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element represents whether Form 1041-T was filed to allocate estimated tax payments to beneficiaries; no matching canonical element found."
+    },
+    "third_party_designee": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element represents the third-party designee Yes/No checkbox; no matching canonical element found."
+    },
+    "third_party_designee_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element represents the third-party designee name; no matching canonical element found."
+    },
+    "third_party_designee_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element represents the third-party designee phone number; no matching canonical element found."
+    },
+    "third_party_pin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element represents the third-party designee PIN; no matching canonical element found."
+    },
+    "preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Paid preparer name is not present among the candidate leaf elements provided."
+    },
+    "preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer PTIN is not present among the candidate leaf elements provided."
+    },
+    "preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer self-employed checkbox is not present among the candidate leaf elements provided."
+    },
+    "preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer firm name is not present among the candidate leaf elements provided."
+    },
+    "preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer firm EIN is not present among the candidate leaf elements provided."
+    },
+    "preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer firm address is not present among the candidate leaf elements provided."
+    },
+    "preparer_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer phone is not present among the candidate leaf elements provided."
+    },
+    "preparer_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer signature date is not present among the candidate leaf elements provided."
+    },
+    "beneficiaries": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles beneficiary K-1 data into an array; canonical schema represents this through separate Schedule K-1 forms not exposed as leaf elements in this Form 1041 candidate list \u2014 blueprint should reference the attached K-1 schema separately."
+    }
+  }
+}

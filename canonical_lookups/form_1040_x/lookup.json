@@ -1,0 +1,515 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1040_x",
+    "form_root": "IRS1040X"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040X.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:21:55+00:00",
+  "blueprint": {
+    "path": "blueprints/form_1040_x.bpt",
+    "name": "form_1040x"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": "AmendedReturnForCalendarYrCd",
+      "xpath": "AmendedReturnForCalendarYrCd",
+      "confidence": "high",
+      "rationale": "AmendedReturnForCalendarYrCd holds the calendar year code for the amended return, matching the tax year field."
+    },
+    "form_revision_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element exists for the form's own revision/print date; this is metadata about the form version, not a data field in the MeF schema."
+    },
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The primary taxpayer name is not a standalone leaf element in the candidate list; it would reside in a taxpayer identity group not exposed here."
+    },
+    "spouse_name": {
+      "canonical": "SpouseNm",
+      "xpath": "SpouseNm",
+      "confidence": "high",
+      "rationale": "SpouseNm directly captures the spouse's name as printed on the form."
+    },
+    "taxpayer_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Primary taxpayer SSN is not present as a standalone candidate element in this list; it belongs to a taxpayer identity group not represented here."
+    },
+    "spouse_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Spouse SSN is not present as a standalone candidate element in this list."
+    },
+    "home_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No street address element appears in the candidate list; address data is not exposed as a leaf element here."
+    },
+    "city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No city/state/ZIP element appears in the candidate list."
+    },
+    "foreign_country": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No foreign country element appears in the candidate list."
+    },
+    "foreign_province_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No foreign province/state element appears in the candidate list."
+    },
+    "foreign_postal_code": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No foreign postal code element appears in the candidate list."
+    },
+    "phone_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No phone number element appears in the candidate list."
+    },
+    "filing_status_original": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "IndividualReturnFilingStatusCd (idx 42) exists but represents a single filing status code; the schema does not split original vs. amended into separate elements here, so neither column can be cleanly mapped without ambiguity."
+    },
+    "filing_status_amended": {
+      "canonical": "IndividualReturnFilingStatusCd",
+      "xpath": "IndividualReturnFilingStatusCd",
+      "confidence": "medium",
+      "rationale": "IndividualReturnFilingStatusCd is the best available match for the corrected/amended filing status, though the schema may not split original vs. corrected columns."
+    },
+    "filing_status_changed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No boolean indicator for filing status change exists in the candidate list."
+    },
+    "qualifying_person_name": {
+      "canonical": "PersonFirstNm",
+      "xpath": "QualifyingPersonName/PersonFirstNm",
+      "confidence": "medium",
+      "rationale": "PersonFirstNm under QualifyingPersonName xpath is the closest match for the qualifying person's name used for HOH/QSS status; last name is at idx 96 but blueprint bundles first+last into one string \u2014 blueprint should split into PersonFirstNm + PersonLastNm."
+    },
+    "amended_return_original_form_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No element for the original form type checkbox (1040, 1040-SR, 1040-NR, etc.) appears in the candidate list."
+    },
+    "dependents_changed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No boolean indicator for whether dependents changed appears in the candidate list."
+    },
+    "dependents": {
+      "canonical": "DependentDetail",
+      "xpath": "DependentDetail",
+      "confidence": "medium",
+      "rationale": "DependentDetail (idx 22) is the repeating group element that contains all per-dependent sub-elements; blueprint's array aligns with this group."
+    },
+    "adjusted_gross_income_col_a": {
+      "canonical": "AdjustedGrossIncomeAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/AdjustedGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/AdjustedGrossIncomeAmt (idx 67) corresponds to Column A (original/as previously adjusted) for AGI."
+    },
+    "adjusted_gross_income_col_b": {
+      "canonical": "AdjustedGrossIncomeAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/AdjustedGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/AdjustedGrossIncomeAmt (idx 47) corresponds to Column B (net change) for AGI."
+    },
+    "adjusted_gross_income_col_c": {
+      "canonical": "AdjustedGrossIncomeAmt",
+      "xpath": "CorrectNumberOrAmountGrp/AdjustedGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/AdjustedGrossIncomeAmt (idx 6) corresponds to Column C (corrected amount) for AGI."
+    },
+    "itemized_or_standard_deduction_col_a": {
+      "canonical": "TotalItemizedOrStandardDedAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/TotalItemizedOrStandardDedAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/TotalItemizedOrStandardDedAmt (idx 80) is Column A for itemized/standard deduction."
+    },
+    "itemized_or_standard_deduction_col_b": {
+      "canonical": "TotalItemizedOrStandardDedAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/TotalItemizedOrStandardDedAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/TotalItemizedOrStandardDedAmt (idx 60) is Column B (net change) for itemized/standard deduction."
+    },
+    "itemized_or_standard_deduction_col_c": {
+      "canonical": "TotalItemizedOrStandardDedAmt",
+      "xpath": "CorrectNumberOrAmountGrp/TotalItemizedOrStandardDedAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/TotalItemizedOrStandardDedAmt (idx 19) is Column C (corrected) for itemized/standard deduction."
+    },
+    "deduction_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No checkbox element distinguishing standard vs. itemized deduction type appears in the candidate list."
+    },
+    "exemption_or_qbi_deduction_col_a": {
+      "canonical": "QualifiedBusinessIncomeDedAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/QualifiedBusinessIncomeDedAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/QualifiedBusinessIncomeDedAmt (idx 74) is Column A for the QBI/exemption deduction line."
+    },
+    "exemption_or_qbi_deduction_col_b": {
+      "canonical": "QualifiedBusinessIncomeDedAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/QualifiedBusinessIncomeDedAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/QualifiedBusinessIncomeDedAmt (idx 54) is Column B (net change) for QBI/exemption deduction."
+    },
+    "exemption_or_qbi_deduction_col_c": {
+      "canonical": "QualifiedBusinessIncomeDedAmt",
+      "xpath": "CorrectNumberOrAmountGrp/QualifiedBusinessIncomeDedAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/QualifiedBusinessIncomeDedAmt (idx 13) is Column C (corrected) for QBI/exemption deduction."
+    },
+    "taxable_income_col_a": {
+      "canonical": "TaxableIncomeAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/TaxableIncomeAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/TaxableIncomeAmt (idx 78) is Column A for taxable income."
+    },
+    "taxable_income_col_b": {
+      "canonical": "TaxableIncomeAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/TaxableIncomeAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/TaxableIncomeAmt (idx 58) is Column B (net change) for taxable income."
+    },
+    "taxable_income_col_c": {
+      "canonical": "TaxableIncomeAmt",
+      "xpath": "CorrectNumberOrAmountGrp/TaxableIncomeAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/TaxableIncomeAmt (idx 17) is Column C (corrected) for taxable income."
+    },
+    "tax_col_a": {
+      "canonical": "TaxAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/TaxAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/TaxAmt (idx 76) is Column A for income tax."
+    },
+    "tax_col_b": {
+      "canonical": "TaxAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/TaxAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/TaxAmt (idx 56) is Column B (net change) for income tax."
+    },
+    "tax_col_c": {
+      "canonical": "TaxAmt",
+      "xpath": "CorrectNumberOrAmountGrp/TaxAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/TaxAmt (idx 15) is Column C (corrected) for income tax."
+    },
+    "credits_col_a": {
+      "canonical": "TotalNonrefundableCreditsAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/TotalNonrefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/TotalNonrefundableCreditsAmt (idx 81) is Column A for total nonrefundable credits."
+    },
+    "credits_col_b": {
+      "canonical": "TotalNonrefundableCreditsAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/TotalNonrefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/TotalNonrefundableCreditsAmt (idx 61) is Column B (net change) for nonrefundable credits."
+    },
+    "credits_col_c": {
+      "canonical": "TotalNonrefundableCreditsAmt",
+      "xpath": "CorrectNumberOrAmountGrp/TotalNonrefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/TotalNonrefundableCreditsAmt (idx 20) is Column C (corrected) for nonrefundable credits."
+    },
+    "tax_after_credits_col_a": {
+      "canonical": "TaxLessCreditsAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/TaxLessCreditsAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/TaxLessCreditsAmt (idx 77) is Column A for tax after credits (tax minus nonrefundable credits)."
+    },
+    "tax_after_credits_col_b": {
+      "canonical": "TaxLessCreditsAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/TaxLessCreditsAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/TaxLessCreditsAmt (idx 57) is Column B (net change) for tax after credits."
+    },
+    "tax_after_credits_col_c": {
+      "canonical": "TaxLessCreditsAmt",
+      "xpath": "CorrectNumberOrAmountGrp/TaxLessCreditsAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/TaxLessCreditsAmt (idx 16) is Column C (corrected) for tax after credits."
+    },
+    "other_taxes_col_a": {
+      "canonical": "OtherTaxesAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/OtherTaxesAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/OtherTaxesAmt (idx 73) is Column A for other taxes."
+    },
+    "other_taxes_col_b": {
+      "canonical": "OtherTaxesAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/OtherTaxesAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/OtherTaxesAmt (idx 53) is Column B (net change) for other taxes."
+    },
+    "other_taxes_col_c": {
+      "canonical": "OtherTaxesAmt",
+      "xpath": "CorrectNumberOrAmountGrp/OtherTaxesAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/OtherTaxesAmt (idx 12) is Column C (corrected) for other taxes."
+    },
+    "total_tax_col_a": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/TotalTaxAmt (idx 82) is Column A for total tax."
+    },
+    "total_tax_col_b": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/TotalTaxAmt (idx 62) is Column B (net change) for total tax."
+    },
+    "total_tax_col_c": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "CorrectNumberOrAmountGrp/TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/TotalTaxAmt (idx 21) is Column C (corrected) for total tax."
+    },
+    "federal_income_tax_withheld_col_a": {
+      "canonical": "FedIncmExSocSecRRTAWthldTxAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/FedIncmExSocSecRRTAWthldTxAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/FedIncmExSocSecRRTAWthldTxAmt (idx 71) is Column A for federal income tax withheld."
+    },
+    "federal_income_tax_withheld_col_b": {
+      "canonical": "FedIncmExSocSecRRTAWthldTxAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/FedIncmExSocSecRRTAWthldTxAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/FedIncmExSocSecRRTAWthldTxAmt (idx 51) is Column B (net change) for federal income tax withheld."
+    },
+    "federal_income_tax_withheld_col_c": {
+      "canonical": "FedIncmExSocSecRRTAWthldTxAmt",
+      "xpath": "CorrectNumberOrAmountGrp/FedIncmExSocSecRRTAWthldTxAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/FedIncmExSocSecRRTAWthldTxAmt (idx 10) is Column C (corrected) for federal income tax withheld."
+    },
+    "estimated_tax_payments_col_a": {
+      "canonical": "EstimatedTaxPaymentsAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/EstimatedTaxPaymentsAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/EstimatedTaxPaymentsAmt (idx 70) is Column A for estimated tax payments."
+    },
+    "estimated_tax_payments_col_b": {
+      "canonical": "EstimatedTaxPaymentsAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/EstimatedTaxPaymentsAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/EstimatedTaxPaymentsAmt (idx 50) is Column B (net change) for estimated tax payments."
+    },
+    "estimated_tax_payments_col_c": {
+      "canonical": "EstimatedTaxPaymentsAmt",
+      "xpath": "CorrectNumberOrAmountGrp/EstimatedTaxPaymentsAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/EstimatedTaxPaymentsAmt (idx 9) is Column C (corrected) for estimated tax payments."
+    },
+    "earned_income_credit_col_a": {
+      "canonical": "EarnedIncomeCreditAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/EarnedIncomeCreditAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/EarnedIncomeCreditAmt (idx 69) is Column A for EIC."
+    },
+    "earned_income_credit_col_b": {
+      "canonical": "EarnedIncomeCreditAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/EarnedIncomeCreditAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/EarnedIncomeCreditAmt (idx 49) is Column B (net change) for EIC."
+    },
+    "earned_income_credit_col_c": {
+      "canonical": "EarnedIncomeCreditAmt",
+      "xpath": "CorrectNumberOrAmountGrp/EarnedIncomeCreditAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/EarnedIncomeCreditAmt (idx 8) is Column C (corrected) for EIC."
+    },
+    "refundable_credits_col_a": {
+      "canonical": "RefundableCreditsAmt",
+      "xpath": "OriginalRptOrAsPrevAdjGrp/RefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "OriginalRptOrAsPrevAdjGrp/RefundableCreditsAmt (idx 75) is Column A for other refundable credits."
+    },
+    "refundable_credits_col_b": {
+      "canonical": "RefundableCreditsAmt",
+      "xpath": "NetChangeOrigRptOrPrevAdjGrp/RefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "NetChangeOrigRptOrPrevAdjGrp/RefundableCreditsAmt (idx 55) is Column B (net change) for other refundable credits."
+    },
+    "refundable_credits_col_c": {
+      "canonical": "RefundableCreditsAmt",
+      "xpath": "CorrectNumberOrAmountGrp/RefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "CorrectNumberOrAmountGrp/RefundableCreditsAmt (idx 14) is Column C (corrected) for other refundable credits."
+    },
+    "total_payments_col_a": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "TotalPaymentsAmt (idx 110) at the root level appears to be a single value, not split into Column A/B/C; no OriginalRptOrAsPrevAdjGrp/TotalPaymentsAmt candidate exists, so Column A cannot be cleanly mapped."
+    },
+    "total_payments_col_b": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "No NetChangeOrigRptOrPrevAdjGrp/TotalPaymentsAmt candidate exists in the list; Column B cannot be mapped."
+    },
+    "total_payments_col_c": {
+      "canonical": "TotalPaymentsAmt",
+      "xpath": "TotalPaymentsAmt",
+      "confidence": "medium",
+      "rationale": "TotalPaymentsAmt (idx 110) at root level best represents the corrected (Column C) total payments figure."
+    },
+    "overpayment_amount": {
+      "canonical": "OverpaidAmt",
+      "xpath": "OverpaidAmt",
+      "confidence": "high",
+      "rationale": "OverpaidAmt (idx 86) directly captures the overpayment amount on the form."
+    },
+    "amount_previously_refunded": {
+      "canonical": "TotPaymentsLessOverpaymentAmt",
+      "xpath": "TotPaymentsLessOverpaymentAmt",
+      "confidence": "high",
+      "rationale": "TotPaymentsLessOverpaymentAmt (idx 108) captures the previously refunded/applied amount subtracted from the overpayment."
+    },
+    "amount_available_for_refund_or_applied": {
+      "canonical": "NetOverpaymentAmt",
+      "xpath": "NetOverpaymentAmt",
+      "confidence": "high",
+      "rationale": "NetOverpaymentAmt (idx 64) represents the net overpayment available after subtracting previously refunded amounts."
+    },
+    "refund_amount": {
+      "canonical": "RefundAmt",
+      "xpath": "RefundAmt",
+      "confidence": "high",
+      "rationale": "RefundAmt (idx 100) directly captures the portion of the overpayment to be refunded."
+    },
+    "amount_applied_to_next_year": {
+      "canonical": "AppliedToEsTaxAmt",
+      "xpath": "AppliedToEsTaxAmt",
+      "confidence": "high",
+      "rationale": "AppliedToEsTaxAmt (idx 1) captures the amount applied to next year's estimated taxes."
+    },
+    "amount_you_owe": {
+      "canonical": "OwedAmt",
+      "xpath": "OwedAmt",
+      "confidence": "high",
+      "rationale": "OwedAmt (idx 87) directly captures the additional tax owed as a result of the amendment."
+    },
+    "presidential_election_fund_taxpayer": {
+      "canonical": "ChangeInElectToContriToPECFInd",
+      "xpath": "ChangeInElectToContriToPECFInd",
+      "confidence": "medium",
+      "rationale": "ChangeInElectToContriToPECFInd (idx 2) relates to the Presidential Election Campaign Fund election for the primary taxpayer."
+    },
+    "presidential_election_fund_spouse": {
+      "canonical": "ChangeInSpouseContriToPECFInd",
+      "xpath": "ChangeInSpouseContriToPECFInd",
+      "confidence": "medium",
+      "rationale": "ChangeInSpouseContriToPECFInd (idx 3) relates to the Presidential Election Campaign Fund election for the spouse."
+    },
+    "explanation_of_changes": {
+      "canonical": "ReasonForFilingAmdReturnTxt",
+      "xpath": "ReasonForFilingAmdReturnTxt",
+      "confidence": "high",
+      "rationale": "ReasonForFilingAmdReturnTxt (idx 98) holds the free-form narrative explanation of changes in Part III."
+    },
+    "net_operating_loss_checkbox": {
+      "canonical": "NetOperatingLossCarrybackInd",
+      "xpath": "NetOperatingLossCarrybackInd",
+      "confidence": "high",
+      "rationale": "NetOperatingLossCarrybackInd (idx 63) is the checkbox indicating an NOL carryback amendment."
+    },
+    "taxpayer_signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No taxpayer signature date element appears in the candidate list."
+    },
+    "spouse_signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No spouse signature date element appears in the candidate list."
+    },
+    "paid_preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer name element appears in the candidate list."
+    },
+    "paid_preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No preparer PTIN element appears in the candidate list."
+    },
+    "paid_preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer firm name element appears in the candidate list."
+    },
+    "paid_preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer firm EIN element appears in the candidate list."
+    },
+    "paid_preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer firm address element appears in the candidate list."
+    },
+    "paid_preparer_firm_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer firm city/state/ZIP element appears in the candidate list."
+    },
+    "paid_preparer_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer phone element appears in the candidate list."
+    },
+    "paid_preparer_signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer signature date element appears in the candidate list."
+    },
+    "paid_preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No paid preparer self-employed checkbox element appears in the candidate list."
+    }
+  }
+}

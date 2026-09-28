@@ -1,0 +1,197 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_5471",
+    "form_root": "IRS5471"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS5471.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:45:02+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_5471.bpt",
+    "name": "form_5471"
+  },
+  "fields": {
+    "filer_name": {
+      "canonical": "PersonNm",
+      "xpath": "PersonFilingThisReturn/PersonNm",
+      "confidence": "medium",
+      "rationale": "PersonFilingThisReturn/PersonNm is the closest match for the individual filer's name; if the filer is a business, idx 42 (BusinessNameLine1Txt under PersonFilingThisReturn) would apply, but PersonNm is the primary leaf for a named filer."
+    },
+    "filer_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No single canonical element under PersonFilingThisReturn captures SSN/ITIN/EIN as a unified 'identifying number'; the schema splits these into separate SSN/EIN/ITIN elements not present in the candidate list \u2014 blueprint should split into SSN, EIN, or ITIN fields."
+    },
+    "filer_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "PersonFilingThisReturn/USAddress/AddressLine1Txt",
+      "confidence": "medium",
+      "rationale": "PersonFilingThisReturn/USAddress/AddressLine1Txt matches the street address of the filer for a U.S. address; blueprint bundles full address into one string while canonical schema splits it \u2014 blueprint should split into AddressLine1Txt, AddressLine2Txt, CityNm, StateAbbreviationCd, ZIPCd."
+    },
+    "filer_city": {
+      "canonical": "CityNm",
+      "xpath": "PersonFilingThisReturn/USAddress/CityNm",
+      "confidence": "high",
+      "rationale": "PersonFilingThisReturn/USAddress/CityNm directly maps to the filer's city for a domestic mailing address."
+    },
+    "filer_state": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "PersonFilingThisReturn/USAddress/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "PersonFilingThisReturn/USAddress/StateAbbreviationCd directly maps to the two-letter state abbreviation of the filer's address."
+    },
+    "filer_zip": {
+      "canonical": "ZIPCd",
+      "xpath": "PersonFilingThisReturn/USAddress/ZIPCd",
+      "confidence": "high",
+      "rationale": "PersonFilingThisReturn/USAddress/ZIPCd directly maps to the ZIP code of the filer's mailing address."
+    },
+    "filer_country": {
+      "canonical": "CountryCd",
+      "xpath": "PersonFilingThisReturn/ForeignAddress/CountryCd",
+      "confidence": "high",
+      "rationale": "PersonFilingThisReturn/ForeignAddress/CountryCd maps to the ISO country code for a filer with a foreign mailing address."
+    },
+    "tax_year_begin": {
+      "canonical": "TaxYearBeginDt",
+      "xpath": "TaxYearBeginDt",
+      "confidence": "high",
+      "rationale": "TaxYearBeginDt corresponds to the 'Annual accounting period beginning' date shown at the top of page 1."
+    },
+    "tax_year_end": {
+      "canonical": "TaxYearEndDt",
+      "xpath": "TaxYearEndDt",
+      "confidence": "high",
+      "rationale": "TaxYearEndDt corresponds to the 'Annual accounting period ending' date shown at the top of page 1."
+    },
+    "is_amended_return": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element for an amended-return checkbox is present in the closed candidate list for IRS5471."
+    },
+    "filer_category": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The blueprint bundles the category into one field, but the canonical schema splits it into separate boolean indicators (CategoryOfFiler1aInd through CategoryOfFiler5cInd, idx 9\u201317); blueprint should be refactored into individual boolean fields per category."
+    },
+    "corporation_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "ForeignCorporation/BusinessName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "ForeignCorporation/BusinessName/BusinessNameLine1Txt maps directly to the foreign corporation's name in item 1a."
+    },
+    "corporation_ein": {
+      "canonical": "EmployerEIN",
+      "xpath": "EmployerEIN",
+      "confidence": "high",
+      "rationale": "EmployerEIN with row label referencing item 1b(1) matches the foreign corporation's U.S. EIN."
+    },
+    "corporation_reference_id": {
+      "canonical": "ForeignEntityReferenceIdNum",
+      "xpath": "ForeignEntityIdentificationGrp/ForeignEntityReferenceIdNum",
+      "confidence": "high",
+      "rationale": "ForeignEntityIdentificationGrp/ForeignEntityReferenceIdNum maps to item 1b(2) reference ID number."
+    },
+    "corporation_country_of_incorporation": {
+      "canonical": "CountryUnderWhoseLawsIncCd",
+      "xpath": "CountryUnderWhoseLawsIncCd",
+      "confidence": "high",
+      "rationale": "CountryUnderWhoseLawsIncCd matches item 1c 'Country under whose laws incorporated'."
+    },
+    "corporation_date_of_incorporation": {
+      "canonical": "IncorporationDt",
+      "xpath": "IncorporationDt",
+      "confidence": "high",
+      "rationale": "IncorporationDt matches item 1d/1e 'Date of incorporation'."
+    },
+    "corporation_address": {
+      "canonical": "ForeignAddress",
+      "xpath": "ForeignCorporation/ForeignAddress",
+      "confidence": "medium",
+      "rationale": "ForeignCorporation/ForeignAddress is the closest grouping for the corporation's principal office address; blueprint bundles the full address into one string while canonical splits into sub-elements \u2014 blueprint should split into AddressLine1Txt, CityNm, CountryCd, etc."
+    },
+    "principal_business_activity_code": {
+      "canonical": "PrincipalBusinessActivityCd",
+      "xpath": "PrincipalBusinessActivityCd",
+      "confidence": "high",
+      "rationale": "PrincipalBusinessActivityCd maps to the six-digit business activity code in item 1f."
+    },
+    "principal_business_activity": {
+      "canonical": "PrincipalBusinessActivityDesc",
+      "xpath": "PrincipalBusinessActivityDesc",
+      "confidence": "high",
+      "rationale": "PrincipalBusinessActivityDesc maps to the plain-language description of the principal business activity in item 1g."
+    },
+    "functional_currency": {
+      "canonical": "FunctionalCurrencyCd",
+      "xpath": "FunctionalCurrencyCd",
+      "confidence": "high",
+      "rationale": "FunctionalCurrencyCd matches item 1h 'Functional currency code'."
+    },
+    "schedule_a_stock": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule A stock class detail is not represented by any leaf element in the closed candidate list; it would require a separate schedule-level group not present here."
+    },
+    "schedule_b_us_shareholders": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule B Part I detail rows are not represented as leaf elements in the closed candidate list; PersonInformationIsFiledFor (idx 56) is a group element, not a leaf, and does not cover the full array structure."
+    },
+    "schedule_b_constructive_owners": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule B Part II constructive owner rows are not represented as distinct leaf elements in the closed candidate list."
+    },
+    "schedule_e_taxes": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule E foreign income tax rows are not represented by any element in the closed candidate list."
+    },
+    "schedule_j_ep": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule J E&P rows are not represented by any element in the closed candidate list."
+    },
+    "schedule_m_transactions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule M transaction rows are not represented by any element in the closed candidate list."
+    },
+    "schedule_o_acquisitions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule O Part I acquisition rows are not represented by any element in the closed candidate list."
+    },
+    "schedule_o_dispositions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule O Part II disposition rows are not represented by any element in the closed candidate list."
+    },
+    "schedule_o_reorganizations": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule O Part III reorganization rows are not represented by any element in the closed candidate list."
+    },
+    "schedule_q_income_groups": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Schedule Q income group rows are not represented by any element in the closed candidate list."
+    }
+  }
+}

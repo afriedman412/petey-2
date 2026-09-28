@@ -1,0 +1,713 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_990_ez",
+    "form_root": "IRS990EZ"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS990EZ.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:20:43+00:00",
+  "blueprint": {
+    "path": "blueprints/form_990_ez.bpt",
+    "name": "form_990_ez"
+  },
+  "fields": {
+    "organization_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization legal name is a header field stored in the return header (ReturnHeader), not in IRS990EZ body elements; no matching candidate exists in the closed list."
+    },
+    "doing_business_as": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "DBA name is a header-level element not present among the IRS990EZ body candidates."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "EIN is stored in the return header, not in the IRS990EZ body; no candidate matches."
+    },
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Tax period begin date is a ReturnHeader element, not present in the IRS990EZ body candidate list."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Tax period end date is a ReturnHeader element, not present in the IRS990EZ body candidate list."
+    },
+    "address_street": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization principal office address is a ReturnHeader element; no IRS990EZ body candidate covers the organization's own street address."
+    },
+    "address_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization city is a ReturnHeader element; no matching body candidate exists."
+    },
+    "address_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization state abbreviation is a ReturnHeader element; no matching body candidate exists."
+    },
+    "address_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization ZIP code is a ReturnHeader element; no matching body candidate exists."
+    },
+    "address_foreign_country": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization foreign country is a ReturnHeader element; no matching body candidate exists."
+    },
+    "telephone_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization telephone number in the header is a ReturnHeader element; the only PhoneNum candidates in the list are under BooksInCareOfDetail, which is a different context."
+    },
+    "amended_return": {
+      "canonical": "AmendedReturnInd",
+      "xpath": "AmendedReturnInd",
+      "confidence": "high",
+      "rationale": "AmendedReturnInd directly corresponds to the 'Amended return' checkbox in the header."
+    },
+    "application_pending": {
+      "canonical": "ApplicationPendingInd",
+      "xpath": "ApplicationPendingInd",
+      "confidence": "high",
+      "rationale": "ApplicationPendingInd directly corresponds to the 'Application pending' checkbox in the header."
+    },
+    "group_return": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to a group return checkbox for the IRS990EZ body."
+    },
+    "group_exemption_number": {
+      "canonical": "GroupExemptionNum",
+      "xpath": "GroupExemptionNum",
+      "confidence": "high",
+      "rationale": "GroupExemptionNum directly maps to the Group Exemption Number field in the header."
+    },
+    "organization_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Organization type requires choosing among Organization501c3Ind, Organization501cInd, Organization4947a1NotPFInd, and Organization527Ind; the blueprint bundles these into one category field but the schema splits them into separate boolean indicators \u2014 blueprint should be refactored into multiple boolean fields or a derived value."
+    },
+    "irc_section_other": {
+      "canonical": "@organization501cTypeTxt",
+      "xpath": "Organization501cInd/@organization501cTypeTxt",
+      "confidence": "high",
+      "rationale": "@organization501cTypeTxt is the attribute that stores the specific 501(c) subsection number written on the form."
+    },
+    "form_of_organization": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Form of organization requires choosing among TypeOfOrganizationCorpInd, TypeOfOrganizationAssocInd, TypeOfOrganizationTrustInd, and TypeOfOrganizationOtherInd; the blueprint bundles them into one category but the schema splits into separate booleans \u2014 blueprint should be refactored into multiple boolean fields."
+    },
+    "year_of_formation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Year of formation is not present among the closed candidate list for IRS990EZ body elements."
+    },
+    "state_of_legal_domicile": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "State of legal domicile is not present among the closed candidate list for IRS990EZ body elements."
+    },
+    "accounting_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Accounting method requires choosing among MethodOfAccountingCashInd, MethodOfAccountingAccrualInd, and MethodOfAccountingOtherDesc; blueprint bundles into one category but schema splits into separate indicators \u2014 blueprint should be refactored into multiple boolean fields."
+    },
+    "accounting_method_other": {
+      "canonical": "MethodOfAccountingOtherDesc",
+      "xpath": "MethodOfAccountingOtherDesc",
+      "confidence": "high",
+      "rationale": "MethodOfAccountingOtherDesc captures the description when the 'Other' accounting method checkbox is checked."
+    },
+    "website": {
+      "canonical": "WebsiteAddressTxt",
+      "xpath": "WebsiteAddressTxt",
+      "confidence": "high",
+      "rationale": "WebsiteAddressTxt directly corresponds to the organization's website address field in the header."
+    },
+    "contributions_gifts_grants": {
+      "canonical": "ContributionsGiftsGrantsEtcAmt",
+      "xpath": "ContributionsGiftsGrantsEtcAmt",
+      "confidence": "high",
+      "rationale": "ContributionsGiftsGrantsEtcAmt maps to Part I Line 1, contributions, gifts, grants, and similar amounts received."
+    },
+    "program_service_revenue": {
+      "canonical": "ProgramServiceRevenueAmt",
+      "xpath": "ProgramServiceRevenueAmt",
+      "confidence": "high",
+      "rationale": "ProgramServiceRevenueAmt maps to Part I Line 2, program service revenue."
+    },
+    "membership_dues": {
+      "canonical": "MembershipDuesAmt",
+      "xpath": "MembershipDuesAmt",
+      "confidence": "high",
+      "rationale": "MembershipDuesAmt maps to Part I Line 3, membership dues and assessments."
+    },
+    "investment_income": {
+      "canonical": "InvestmentIncomeAmt",
+      "xpath": "InvestmentIncomeAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeAmt maps to Part I Line 4, investment income."
+    },
+    "sale_of_assets_gross": {
+      "canonical": "SaleOfAssetsGrossAmt",
+      "xpath": "SaleOfAssetsGrossAmt",
+      "confidence": "high",
+      "rationale": "SaleOfAssetsGrossAmt maps to Part I Line 5a, gross amount from sale of assets other than inventory."
+    },
+    "sale_of_assets_cost": {
+      "canonical": "CostOrOtherBasisExpenseSaleAmt",
+      "xpath": "CostOrOtherBasisExpenseSaleAmt",
+      "confidence": "high",
+      "rationale": "CostOrOtherBasisExpenseSaleAmt maps to Part I Line 5b, cost or other basis and sales expenses."
+    },
+    "sale_of_assets_gain_loss": {
+      "canonical": "GainOrLossFromSaleOfAssetsAmt",
+      "xpath": "GainOrLossFromSaleOfAssetsAmt",
+      "confidence": "high",
+      "rationale": "GainOrLossFromSaleOfAssetsAmt maps to Part I Line 5c, gain or (loss) from sale of assets other than inventory."
+    },
+    "gaming_gross_revenue": {
+      "canonical": "GamingGrossIncomeAmt",
+      "xpath": "GamingGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "GamingGrossIncomeAmt maps to Part I Line 6a, gross income from gaming."
+    },
+    "fundraising_gross_revenue": {
+      "canonical": "FundraisingGrossIncomeAmt",
+      "xpath": "FundraisingGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "FundraisingGrossIncomeAmt maps to Part I Line 6b, gross income from fundraising events."
+    },
+    "gaming_fundraising_direct_expenses": {
+      "canonical": "SpecialEventsDirectExpensesAmt",
+      "xpath": "SpecialEventsDirectExpensesAmt",
+      "confidence": "high",
+      "rationale": "SpecialEventsDirectExpensesAmt maps to Part I Line 6c, direct expenses from gaming and fundraising events."
+    },
+    "gaming_fundraising_net": {
+      "canonical": "SpecialEventsNetIncomeLossAmt",
+      "xpath": "SpecialEventsNetIncomeLossAmt",
+      "confidence": "high",
+      "rationale": "SpecialEventsNetIncomeLossAmt maps to Part I Line 6d, net income or (loss) from gaming and fundraising events."
+    },
+    "gross_sales_inventory": {
+      "canonical": "GrossSalesOfInventoryAmt",
+      "xpath": "GrossSalesOfInventoryAmt",
+      "confidence": "high",
+      "rationale": "GrossSalesOfInventoryAmt maps to Part I Line 7a, gross sales of inventory."
+    },
+    "cost_of_goods_sold": {
+      "canonical": "CostOfGoodsSoldAmt",
+      "xpath": "CostOfGoodsSoldAmt",
+      "confidence": "high",
+      "rationale": "CostOfGoodsSoldAmt maps to Part I Line 7b, cost of goods sold."
+    },
+    "gross_profit_inventory": {
+      "canonical": "GrossProfitLossSlsOfInvntryAmt",
+      "xpath": "GrossProfitLossSlsOfInvntryAmt",
+      "confidence": "high",
+      "rationale": "GrossProfitLossSlsOfInvntryAmt maps to Part I Line 7c, gross profit or (loss) from sales of inventory."
+    },
+    "other_revenue": {
+      "canonical": "OtherRevenueTotalAmt",
+      "xpath": "OtherRevenueTotalAmt",
+      "confidence": "high",
+      "rationale": "OtherRevenueTotalAmt maps to Part I Line 8, other revenue."
+    },
+    "total_revenue": {
+      "canonical": "TotalRevenueAmt",
+      "xpath": "TotalRevenueAmt",
+      "confidence": "high",
+      "rationale": "TotalRevenueAmt maps to Part I Line 9, total revenue."
+    },
+    "grants_paid": {
+      "canonical": "GrantsAndSimilarAmountsPaidAmt",
+      "xpath": "GrantsAndSimilarAmountsPaidAmt",
+      "confidence": "high",
+      "rationale": "GrantsAndSimilarAmountsPaidAmt maps to Part I Line 10, grants and similar amounts paid."
+    },
+    "benefits_paid": {
+      "canonical": "BenefitsPaidToOrForMembersAmt",
+      "xpath": "BenefitsPaidToOrForMembersAmt",
+      "confidence": "high",
+      "rationale": "BenefitsPaidToOrForMembersAmt maps to Part I Line 11, benefits paid to or for members."
+    },
+    "salaries_compensation": {
+      "canonical": "SalariesOtherCompEmplBnftAmt",
+      "xpath": "SalariesOtherCompEmplBnftAmt",
+      "confidence": "high",
+      "rationale": "SalariesOtherCompEmplBnftAmt maps to Part I Line 12, salaries, other compensation, and employee benefits."
+    },
+    "professional_fees": {
+      "canonical": "FeesAndOtherPymtToIndCntrctAmt",
+      "xpath": "FeesAndOtherPymtToIndCntrctAmt",
+      "confidence": "high",
+      "rationale": "FeesAndOtherPymtToIndCntrctAmt maps to Part I Line 13, professional fees and other payments to independent contractors."
+    },
+    "occupancy_rent": {
+      "canonical": "OccupancyRentUtltsAndMaintAmt",
+      "xpath": "OccupancyRentUtltsAndMaintAmt",
+      "confidence": "high",
+      "rationale": "OccupancyRentUtltsAndMaintAmt maps to Part I Line 14, occupancy, rent, utilities, and maintenance."
+    },
+    "printing_publications": {
+      "canonical": "PrintingPublicationsPostageAmt",
+      "xpath": "PrintingPublicationsPostageAmt",
+      "confidence": "high",
+      "rationale": "PrintingPublicationsPostageAmt maps to Part I Line 15, printing, publications, postage, and shipping."
+    },
+    "other_expenses": {
+      "canonical": "OtherExpensesTotalAmt",
+      "xpath": "OtherExpensesTotalAmt",
+      "confidence": "high",
+      "rationale": "OtherExpensesTotalAmt maps to Part I Line 16, other expenses."
+    },
+    "total_expenses": {
+      "canonical": "TotalExpensesAmt",
+      "xpath": "TotalExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalExpensesAmt maps to Part I Line 17, total expenses."
+    },
+    "excess_or_deficit": {
+      "canonical": "ExcessOrDeficitForYearAmt",
+      "xpath": "ExcessOrDeficitForYearAmt",
+      "confidence": "high",
+      "rationale": "ExcessOrDeficitForYearAmt maps to Part I Line 18, excess or (deficit) for the year."
+    },
+    "net_assets_beginning": {
+      "canonical": "NetAssetsOrFundBalancesBOYAmt",
+      "xpath": "NetAssetsOrFundBalancesBOYAmt",
+      "confidence": "high",
+      "rationale": "NetAssetsOrFundBalancesBOYAmt maps to Part I Line 19, net assets or fund balances at beginning of year."
+    },
+    "other_changes_net_assets": {
+      "canonical": "OtherChangesInNetAssetsAmt",
+      "xpath": "OtherChangesInNetAssetsAmt",
+      "confidence": "high",
+      "rationale": "OtherChangesInNetAssetsAmt maps to Part I Line 20, other changes in net assets or fund balances."
+    },
+    "net_assets_end": {
+      "canonical": "NetAssetsOrFundBalancesEOYAmt",
+      "xpath": "NetAssetsOrFundBalancesEOYAmt",
+      "confidence": "high",
+      "rationale": "NetAssetsOrFundBalancesEOYAmt maps to Part I Line 21, net assets or fund balances at end of year."
+    },
+    "cash_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "CashSavingsAndInvestmentsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "CashSavingsAndInvestmentsGrp/BOYAmt maps to Part II Line 22 Column A, cash, savings, and investments at beginning of year."
+    },
+    "cash_end": {
+      "canonical": "EOYAmt",
+      "xpath": "CashSavingsAndInvestmentsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "CashSavingsAndInvestmentsGrp/EOYAmt maps to Part II Line 22 Column B, cash, savings, and investments at end of year."
+    },
+    "land_buildings_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "LandAndBuildingsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "LandAndBuildingsGrp/BOYAmt maps to Part II Line 23 Column A, land and buildings at beginning of year."
+    },
+    "land_buildings_end": {
+      "canonical": "EOYAmt",
+      "xpath": "LandAndBuildingsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "LandAndBuildingsGrp/EOYAmt maps to Part II Line 23 Column B, land and buildings at end of year."
+    },
+    "other_assets_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "OtherAssetsTotalDetail/BOYAmt",
+      "confidence": "high",
+      "rationale": "OtherAssetsTotalDetail/BOYAmt maps to Part II Line 24 Column A, other assets at beginning of year."
+    },
+    "other_assets_end": {
+      "canonical": "EOYAmt",
+      "xpath": "OtherAssetsTotalDetail/EOYAmt",
+      "confidence": "high",
+      "rationale": "OtherAssetsTotalDetail/EOYAmt maps to Part II Line 24 Column B, other assets at end of year."
+    },
+    "total_assets_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "Form990TotalAssetsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "Form990TotalAssetsGrp/BOYAmt maps to Part II Line 25 Column A, total assets at beginning of year."
+    },
+    "total_assets_end": {
+      "canonical": "EOYAmt",
+      "xpath": "Form990TotalAssetsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "Form990TotalAssetsGrp/EOYAmt maps to Part II Line 25 Column B, total assets at end of year."
+    },
+    "total_liabilities_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "SumOfTotalLiabilitiesGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "SumOfTotalLiabilitiesGrp/BOYAmt maps to Part II Line 26 Column A, total liabilities at beginning of year."
+    },
+    "total_liabilities_end": {
+      "canonical": "EOYAmt",
+      "xpath": "SumOfTotalLiabilitiesGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "SumOfTotalLiabilitiesGrp/EOYAmt maps to Part II Line 26 Column B, total liabilities at end of year."
+    },
+    "net_assets_balance_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "NetAssetsOrFundBalancesGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "NetAssetsOrFundBalancesGrp/BOYAmt maps to Part II Line 27 Column A, net assets or fund balances at beginning of year."
+    },
+    "net_assets_balance_end": {
+      "canonical": "EOYAmt",
+      "xpath": "NetAssetsOrFundBalancesGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "NetAssetsOrFundBalancesGrp/EOYAmt maps to Part II Line 27 Column B, net assets or fund balances at end of year."
+    },
+    "primary_exempt_purpose": {
+      "canonical": "PrimaryExemptPurposeTxt",
+      "xpath": "PrimaryExemptPurposeTxt",
+      "confidence": "high",
+      "rationale": "PrimaryExemptPurposeTxt maps to Part III's primary exempt purpose description field."
+    },
+    "program_service_accomplishments": {
+      "canonical": "ProgramSrvcAccomplishmentGrp",
+      "xpath": "ProgramSrvcAccomplishmentGrp",
+      "confidence": "medium",
+      "rationale": "ProgramSrvcAccomplishmentGrp is the repeating group element containing program service accomplishment rows for lines 28\u201330; blueprint should map to the group rather than individual child elements."
+    },
+    "other_program_services_description": {
+      "canonical": "DescriptionProgramSrvcAccomTxt",
+      "xpath": "ProgramSrvcAccomplishmentGrp/DescriptionProgramSrvcAccomTxt",
+      "confidence": "medium",
+      "rationale": "DescriptionProgramSrvcAccomTxt within ProgramSrvcAccomplishmentGrp covers line 31 description text, though the schema reuses the same element for lines 28\u201331; no separate line-31-only element exists."
+    },
+    "other_program_services_expenses": {
+      "canonical": "ProgramServiceExpensesAmt",
+      "xpath": "ProgramSrvcAccomplishmentGrp/ProgramServiceExpensesAmt",
+      "confidence": "medium",
+      "rationale": "ProgramServiceExpensesAmt within ProgramSrvcAccomplishmentGrp covers line 31 expenses, though the same element is reused for lines 28\u201331 in repeating group rows."
+    },
+    "total_program_service_expenses": {
+      "canonical": "TotalProgramServiceExpensesAmt",
+      "xpath": "TotalProgramServiceExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalProgramServiceExpensesAmt maps to Part III Line 32, total program service expenses."
+    },
+    "officers_directors_trustees": {
+      "canonical": "OfficerDirectorTrusteeEmplGrp",
+      "xpath": "OfficerDirectorTrusteeEmplGrp",
+      "confidence": "medium",
+      "rationale": "OfficerDirectorTrusteeEmplGrp is the repeating group element containing Part IV officer/director/trustee rows; blueprint should map to this group."
+    },
+    "activities_not_previously_reported": {
+      "canonical": "ActivitiesNotPreviouslyRptInd",
+      "xpath": "ActivitiesNotPreviouslyRptInd",
+      "confidence": "high",
+      "rationale": "ActivitiesNotPreviouslyRptInd maps to Part V Line 33, significant activities not previously reported."
+    },
+    "changes_not_previously_reported": {
+      "canonical": "ChgMadeToOrgnzngDocNotRptInd",
+      "xpath": "ChgMadeToOrgnzngDocNotRptInd",
+      "confidence": "high",
+      "rationale": "ChgMadeToOrgnzngDocNotRptInd maps to Part V Line 34, changes to organizing documents not previously reported."
+    },
+    "unrelated_business_income": {
+      "canonical": "OrganizationHadUBIInd",
+      "xpath": "OrganizationHadUBIInd",
+      "confidence": "high",
+      "rationale": "OrganizationHadUBIInd maps to Part V Line 35a, whether the organization had unrelated business gross income of $1,000 or more."
+    },
+    "form_990t_filed": {
+      "canonical": "OrganizationFiled990TInd",
+      "xpath": "OrganizationFiled990TInd",
+      "confidence": "high",
+      "rationale": "OrganizationFiled990TInd maps to Part V Line 35b, whether Form 990-T was filed."
+    },
+    "subject_to_proxy_tax": {
+      "canonical": "SubjectToProxyTaxInd",
+      "xpath": "SubjectToProxyTaxInd",
+      "confidence": "high",
+      "rationale": "SubjectToProxyTaxInd maps to Part V Line 36, subject to proxy tax requirements."
+    },
+    "political_campaign_activities": {
+      "canonical": "PoliticalCampaignActyInd",
+      "xpath": "PoliticalCampaignActyInd",
+      "confidence": "high",
+      "rationale": "PoliticalCampaignActyInd maps to Part V Line 37a, political campaign activities."
+    },
+    "section_501h_election": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to a section 501(h) election indicator for the IRS990EZ body."
+    },
+    "lobbying_activities": {
+      "canonical": "LobbyingActivitiesInd",
+      "xpath": "LobbyingActivitiesInd",
+      "confidence": "high",
+      "rationale": "LobbyingActivitiesInd maps to Part V Line 38, lobbying activities."
+    },
+    "loans_to_officers": {
+      "canonical": "MadeLoansToFromOfficersInd",
+      "xpath": "MadeLoansToFromOfficersInd",
+      "confidence": "high",
+      "rationale": "MadeLoansToFromOfficersInd maps to Part V Line 38a, whether loans to/from officers were made."
+    },
+    "loans_to_officers_balance": {
+      "canonical": "LoansToFromOfficersAmt",
+      "xpath": "LoansToFromOfficersAmt",
+      "confidence": "high",
+      "rationale": "LoansToFromOfficersAmt maps to Part V Line 38b, outstanding balance of loans to officers."
+    },
+    "initiated_termination": {
+      "canonical": "OrganizationDissolvedEtcInd",
+      "xpath": "OrganizationDissolvedEtcInd",
+      "confidence": "high",
+      "rationale": "OrganizationDissolvedEtcInd maps to Part V Line 39, whether the organization initiated liquidation or termination."
+    },
+    "states_filed": {
+      "canonical": "StatesWhereCopyOfReturnIsFldCd",
+      "xpath": "StatesWhereCopyOfReturnIsFldCd",
+      "confidence": "high",
+      "rationale": "StatesWhereCopyOfReturnIsFldCd maps to Part V Line 40, states with which a copy of the return is filed."
+    },
+    "held_assets_for_others": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part V Line 41 (held assets for another organization) in the IRS990EZ body."
+    },
+    "prior_year_return_filed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part V Line 42a (prior year return filed) in the IRS990EZ body."
+    },
+    "state_filing_required": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part V Line 42b (state filing required) in the IRS990EZ body."
+    },
+    "foreign_financial_accounts": {
+      "canonical": "ForeignFinancialAccountInd",
+      "xpath": "ForeignFinancialAccountInd",
+      "confidence": "high",
+      "rationale": "ForeignFinancialAccountInd maps to Part V Line 45a, whether the organization had a foreign financial account."
+    },
+    "foreign_account_country": {
+      "canonical": "ForeignFinancialAccountCntryCd",
+      "xpath": "ForeignFinancialAccountCntryCd",
+      "confidence": "high",
+      "rationale": "ForeignFinancialAccountCntryCd maps to Part V Line 45a, the country of the foreign financial account."
+    },
+    "fbar_filing_required": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part V Line 45b (FBAR filing required) in the IRS990EZ body."
+    },
+    "prohibited_tax_shelter_transaction": {
+      "canonical": "ProhibitedTaxShelterTransInd",
+      "xpath": "ProhibitedTaxShelterTransInd",
+      "confidence": "high",
+      "rationale": "ProhibitedTaxShelterTransInd maps to Part V Line 46, prohibited tax shelter transaction."
+    },
+    "taxable_party_notification_received": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part V Line 47 (taxable party notification received) in the IRS990EZ body."
+    },
+    "section_4958_tax_paid": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list directly corresponds to Part V Line 48 (section 4958 excise tax paid) as a single boolean indicator."
+    },
+    "quid_pro_quo_disclosure": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part V Line 50a/b (quid pro quo disclosure) in the IRS990EZ body."
+    },
+    "conservation_easement": {
+      "canonical": "TrnsfrExmptNonChrtblRltdOrgInd",
+      "xpath": "TrnsfrExmptNonChrtblRltdOrgInd",
+      "confidence": "medium",
+      "rationale": "TrnsfrExmptNonChrtblRltdOrgInd most closely matches a transfer to exempt non-charitable organization question, though the blueprint description references conservation easement/Line 51."
+    },
+    "excess_benefit_transactions": {
+      "canonical": "EngagedInExcessBenefitTransInd",
+      "xpath": "EngagedInExcessBenefitTransInd",
+      "confidence": "high",
+      "rationale": "EngagedInExcessBenefitTransInd maps to Part VI Line 45a, excess benefit transactions with a disqualified person."
+    },
+    "excess_benefit_transactions_prior": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part VI Line 45b (awareness of prior-year excess benefit transaction) in the IRS990EZ body."
+    },
+    "501c3_lobbying": {
+      "canonical": "LobbyingActivitiesInd",
+      "xpath": "LobbyingActivitiesInd",
+      "confidence": "medium",
+      "rationale": "LobbyingActivitiesInd is the closest match for Part VI Line 46 lobbying activities for 501(c)(3) organizations, though it is already mapped to the general lobbying field; no separate 501(c)(3)-specific lobbying indicator exists."
+    },
+    "501c3_school": {
+      "canonical": "SchoolOperatingInd",
+      "xpath": "SchoolOperatingInd",
+      "confidence": "high",
+      "rationale": "SchoolOperatingInd maps to Part VI Line 47, whether the organization operates a school."
+    },
+    "501c3_hospital": {
+      "canonical": "OperateHospitalInd",
+      "xpath": "OperateHospitalInd",
+      "confidence": "high",
+      "rationale": "OperateHospitalInd maps to Part VI Line 48, whether the organization operates a hospital."
+    },
+    "501c3_ownership_taxable_entity": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate in the closed list corresponds to Part VI Line 49a (controlled taxable entity ownership) in the IRS990EZ body."
+    },
+    "501c3_transaction_with_taxable_entity": {
+      "canonical": "TransactionWithControlEntInd",
+      "xpath": "TransactionWithControlEntInd",
+      "confidence": "medium",
+      "rationale": "TransactionWithControlEntInd maps to transactions with a controlled entity, corresponding to Part VI Line 49b."
+    },
+    "501c3_transfer_to_exempt_noncharitable": {
+      "canonical": "TrnsfrExmptNonChrtblRltdOrgInd",
+      "xpath": "TrnsfrExmptNonChrtblRltdOrgInd",
+      "confidence": "medium",
+      "rationale": "TrnsfrExmptNonChrtblRltdOrgInd maps to Part VI Line 50, transfers to exempt non-charitable related organizations."
+    },
+    "officer_signature_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Officer signature name is part of the return signature block, not present among the IRS990EZ body candidates."
+    },
+    "officer_signature_title": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Officer signature title is part of the return signature block, not present among the IRS990EZ body candidates."
+    },
+    "signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Signature date is part of the return signature block, not present among the IRS990EZ body candidates."
+    },
+    "preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Paid preparer name is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer PTIN is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer self-employed indicator is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer date is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer firm name is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer firm EIN is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer firm address is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_firm_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer firm city/state/ZIP is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "preparer_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Preparer phone number is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "irs_discuss_with_preparer": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The IRS discuss-with-preparer authorization checkbox is stored in the return-level preparer section, not in the IRS990EZ body candidates."
+    },
+    "third_party_designee_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Third-party designee name is stored in the return-level designee section, not in the IRS990EZ body candidates."
+    },
+    "third_party_designee_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Third-party designee phone is stored in the return-level designee section, not in the IRS990EZ body candidates."
+    },
+    "third_party_designee_pin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Third-party designee PIN is stored in the return-level designee section, not in the IRS990EZ body candidates."
+    }
+  }
+}

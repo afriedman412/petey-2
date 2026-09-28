@@ -1,0 +1,197 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1099_oid",
+    "form_root": "IRS1099OID"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099OID.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:06+00:00",
+  "blueprint": {
+    "path": "blueprints/form_1099_oid.bpt",
+    "name": "form_1099_oid"
+  },
+  "fields": {
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "PayerName/BusinessNameLine1Txt maps to the primary payer name line in the payer block."
+    },
+    "payer_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street address into one string; canonical splits PayerUSAddress into AddressLine1Txt, CityNm, StateAbbreviationCd, ZIPCd \u2014 blueprint should split into separate fields."
+    },
+    "payer_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles city/state/zip into one string; canonical PayerUSAddress splits these into CityNm, StateAbbreviationCd, ZIPCd \u2014 blueprint should split into separate fields."
+    },
+    "payer_telephone": {
+      "canonical": "PhoneNum",
+      "xpath": "PhoneNum",
+      "confidence": "high",
+      "rationale": "PhoneNum at root level corresponds to the payer's telephone number printed in the payer block."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN directly maps to the PAYER'S TIN box on the form."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN maps to the RECIPIENT'S TIN box; canonical schema uses RecipientSSN (or RecipientEIN at idx 28), but RecipientSSN is the primary field for this box."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly corresponds to the recipient name box on the form."
+    },
+    "recipient_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street address into one string; canonical RecipientUSAddress/RecipientForeignAddress splits into AddressLine1Txt, AddressLine2Txt, CityNm, etc. \u2014 blueprint should split into separate fields."
+    },
+    "recipient_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles city/state/zip into one string; canonical RecipientUSAddress splits these into CityNm, StateAbbreviationCd, ZIPCd \u2014 blueprint should split into separate fields."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum directly maps to the account number box at the lower left of the form."
+    },
+    "corrected": {
+      "canonical": "CorrectedInd",
+      "xpath": "CorrectedInd",
+      "confidence": "high",
+      "rationale": "CorrectedInd maps directly to the CORRECTED checkbox at the top of the form."
+    },
+    "fatca_filing_requirement": {
+      "canonical": "FATCAFilingRequirementInd",
+      "xpath": "FATCAFilingRequirementInd",
+      "confidence": "high",
+      "rationale": "FATCAFilingRequirementInd directly maps to the FATCA filing requirement checkbox on the form."
+    },
+    "oid_on_us_treasury_obligations": {
+      "canonical": "TreasuryObligationOIDAmt",
+      "xpath": "TreasuryObligationOIDAmt",
+      "confidence": "high",
+      "rationale": "TreasuryObligationOIDAmt maps to Box 1 \u2014 Original issue discount on U.S. Treasury obligations."
+    },
+    "other_periodic_interest": {
+      "canonical": "OtherPeriodicInterestAmt",
+      "xpath": "OtherPeriodicInterestAmt",
+      "confidence": "high",
+      "rationale": "OtherPeriodicInterestAmt directly maps to Box 2 \u2014 Other periodic interest."
+    },
+    "early_withdrawal_penalty": {
+      "canonical": "EarlyWithdrawalPenaltyAmt",
+      "xpath": "EarlyWithdrawalPenaltyAmt",
+      "confidence": "high",
+      "rationale": "EarlyWithdrawalPenaltyAmt directly maps to Box 3 \u2014 Early withdrawal penalty."
+    },
+    "federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt directly maps to Box 4 \u2014 Federal income tax withheld."
+    },
+    "market_discount": {
+      "canonical": "MarketDiscountAmt",
+      "xpath": "MarketDiscountAmt",
+      "confidence": "high",
+      "rationale": "MarketDiscountAmt directly maps to Box 5 \u2014 Market discount."
+    },
+    "acquisition_premium": {
+      "canonical": "AcquisitionPremiumAmt",
+      "xpath": "AcquisitionPremiumAmt",
+      "confidence": "high",
+      "rationale": "AcquisitionPremiumAmt directly maps to Box 6 \u2014 Acquisition premium."
+    },
+    "description_of_obligation": {
+      "canonical": "CUSIPNumberOrObligationDesc",
+      "xpath": "CUSIPNumberOrObligationDesc",
+      "confidence": "high",
+      "rationale": "CUSIPNumberOrObligationDesc maps to Box 7 \u2014 Description of the debt instrument."
+    },
+    "oid_on_us_savings_bonds": {
+      "canonical": "OriginalIssueDiscountAmt",
+      "xpath": "OriginalIssueDiscountAmt",
+      "confidence": "high",
+      "rationale": "OriginalIssueDiscountAmt maps to Box 8 \u2014 Original issue discount on U.S. savings bonds and similar instruments."
+    },
+    "investment_expenses": {
+      "canonical": "InvestmentExpenseAmt",
+      "xpath": "InvestmentExpenseAmt",
+      "confidence": "high",
+      "rationale": "InvestmentExpenseAmt directly maps to Box 9 \u2014 Investment expenses."
+    },
+    "bond_premium": {
+      "canonical": "BondPremiumAmt",
+      "xpath": "BondPremiumAmt",
+      "confidence": "high",
+      "rationale": "BondPremiumAmt directly maps to Box 10 \u2014 Bond premium."
+    },
+    "tax_exempt_oid": {
+      "canonical": "TaxExemptOIDAmt",
+      "xpath": "TaxExemptOIDAmt",
+      "confidence": "high",
+      "rationale": "TaxExemptOIDAmt directly maps to Box 11 \u2014 OID on a tax-exempt obligation."
+    },
+    "state_1": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099OIDStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "StateAbbreviationCd within Form1099OIDStateLocalTaxGrp maps to Box 12 first state abbreviation."
+    },
+    "payer_state_number_1": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099OIDStateLocalTaxGrp/StateIdNum",
+      "confidence": "high",
+      "rationale": "StateIdNum within Form1099OIDStateLocalTaxGrp maps to Box 12 payer's state identification number for the first state."
+    },
+    "state_income_tax_withheld_1": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099OIDStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "StateTaxWithheldAmt within Form1099OIDStateLocalTaxGrp maps to Box 13 state income tax withheld for the first state."
+    },
+    "state_2": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099OIDStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "medium",
+      "rationale": "StateAbbreviationCd in the second Form1099OIDStateLocalTaxGrp instance maps to Box 12 second state; the group repeats for the second state entry."
+    },
+    "payer_state_number_2": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099OIDStateLocalTaxGrp/StateIdNum",
+      "confidence": "medium",
+      "rationale": "StateIdNum in the second Form1099OIDStateLocalTaxGrp instance maps to Box 12 payer's state ID for the second state."
+    },
+    "state_income_tax_withheld_2": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099OIDStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "medium",
+      "rationale": "StateTaxWithheldAmt in the second Form1099OIDStateLocalTaxGrp instance maps to Box 13 state income tax withheld for the second state."
+    },
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr directly maps to the calendar tax year printed on the form."
+    }
+  }
+}

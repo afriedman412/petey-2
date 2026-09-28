@@ -1,0 +1,209 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_a",
+    "form_root": "IRS1040ScheduleA"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleA.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:08:12+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_a.bpt",
+    "name": "schedule_a"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a form header attribute not represented as a standalone canonical element in the MeF schema for Schedule A."
+    },
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer name is a form header field not present in the Schedule A canonical element list."
+    },
+    "ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "SSN is a form header field not present as a canonical element in this Schedule A schema."
+    },
+    "medical_dental_expenses": {
+      "canonical": "MedicalAndDentalExpensesAmt",
+      "xpath": "MedicalAndDentalExpensesAmt",
+      "confidence": "high",
+      "rationale": "MedicalAndDentalExpensesAmt corresponds to Line 1 gross medical and dental expenses."
+    },
+    "agi_for_medical": {
+      "canonical": "TaxReturnAGIAmt",
+      "xpath": "TaxReturnAGIAmt",
+      "confidence": "high",
+      "rationale": "TaxReturnAGIAmt corresponds to Line 2 AGI used as the base for the medical expense floor."
+    },
+    "medical_agi_floor": {
+      "canonical": "CalculatedMedicalAllowanceAmt",
+      "xpath": "CalculatedMedicalAllowanceAmt",
+      "confidence": "high",
+      "rationale": "CalculatedMedicalAllowanceAmt corresponds to Line 3, the computed AGI floor (AGI \u00d7 7.5%)."
+    },
+    "medical_dental_deduction": {
+      "canonical": "TotalMedicalAndDentalExpnssAmt",
+      "xpath": "TotalMedicalAndDentalExpnssAmt",
+      "confidence": "high",
+      "rationale": "TotalMedicalAndDentalExpnssAmt corresponds to Line 4, the deductible medical amount after subtracting the AGI floor."
+    },
+    "state_local_income_or_sales_tax": {
+      "canonical": "StateAndLocalTaxAmt",
+      "xpath": "StateAndLocalTaxAmt",
+      "confidence": "high",
+      "rationale": "StateAndLocalTaxAmt corresponds to Line 5a, the elected state and local income or sales tax amount."
+    },
+    "state_local_income_tax_elected": {
+      "canonical": "StateAndLocalSalesTaxInd",
+      "xpath": "StateAndLocalSalesTaxInd",
+      "confidence": "high",
+      "rationale": "StateAndLocalSalesTaxInd indicates whether sales tax was elected; when false/absent, income tax is elected, covering the Line 5a checkbox."
+    },
+    "state_local_real_estate_taxes": {
+      "canonical": "RealEstateTaxesAmt",
+      "xpath": "RealEstateTaxesAmt",
+      "confidence": "high",
+      "rationale": "RealEstateTaxesAmt corresponds to Line 5b, state and local real estate taxes."
+    },
+    "state_local_personal_property_taxes": {
+      "canonical": "PersonalPropertyTaxesAmt",
+      "xpath": "PersonalPropertyTaxesAmt",
+      "confidence": "high",
+      "rationale": "PersonalPropertyTaxesAmt corresponds to Line 5c, state and local personal property taxes."
+    },
+    "state_local_taxes_subtotal": {
+      "canonical": "TotalStateAndLocalTaxAmt",
+      "xpath": "TotalStateAndLocalTaxAmt",
+      "confidence": "high",
+      "rationale": "TotalStateAndLocalTaxAmt corresponds to Line 5d, the sum of Lines 5a\u20135c before the SALT cap."
+    },
+    "salt_deduction": {
+      "canonical": "StateAndLocalTaxLimitationAmt",
+      "xpath": "StateAndLocalTaxLimitationAmt",
+      "confidence": "high",
+      "rationale": "StateAndLocalTaxLimitationAmt corresponds to Line 5e, the SALT-capped deductible amount."
+    },
+    "other_taxes": {
+      "canonical": "OtherTaxesAmt",
+      "xpath": "OtherTaxesAmt",
+      "confidence": "high",
+      "rationale": "OtherTaxesAmt corresponds to Line 6, other taxes not captured in the SALT lines."
+    },
+    "total_taxes": {
+      "canonical": "TotalTaxesPaidAmt",
+      "xpath": "TotalTaxesPaidAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxesPaidAmt corresponds to Line 7, the total deductible taxes paid."
+    },
+    "home_mortgage_interest_1098": {
+      "canonical": "RptHomeMortgIntAndPointsAmt",
+      "xpath": "RptHomeMortgIntAndPointsAmt",
+      "confidence": "high",
+      "rationale": "RptHomeMortgIntAndPointsAmt corresponds to Line 8a, home mortgage interest and points reported on Form 1098."
+    },
+    "home_mortgage_interest_no_1098": {
+      "canonical": "Form1098HomeMortgIntNotRptAmt",
+      "xpath": "Form1098HomeMortgIntNotRptAmt",
+      "confidence": "high",
+      "rationale": "Form1098HomeMortgIntNotRptAmt corresponds to Line 8b, home mortgage interest not reported on Form 1098."
+    },
+    "home_mortgage_interest_no_1098_recipient_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Recipient name for Line 8b supporting detail is not represented as a canonical element in this Schedule A schema."
+    },
+    "home_mortgage_interest_no_1098_recipient_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Recipient SSN/EIN for Line 8b supporting detail is not represented as a canonical element in this Schedule A schema."
+    },
+    "points_not_on_1098": {
+      "canonical": "Form1098PointsNotReportedAmt",
+      "xpath": "Form1098PointsNotReportedAmt",
+      "confidence": "high",
+      "rationale": "Form1098PointsNotReportedAmt corresponds to Line 8c, mortgage points not reported on Form 1098."
+    },
+    "mortgage_insurance_premiums": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for mortgage insurance premiums (Line 8d) exists in this Schedule A candidate list."
+    },
+    "investment_interest": {
+      "canonical": "InvestmentInterestAmt",
+      "xpath": "InvestmentInterestAmt",
+      "confidence": "high",
+      "rationale": "InvestmentInterestAmt corresponds to Line 9, investment interest expense."
+    },
+    "total_interest": {
+      "canonical": "TotalInterestPaidAmt",
+      "xpath": "TotalInterestPaidAmt",
+      "confidence": "high",
+      "rationale": "TotalInterestPaidAmt corresponds to Line 10, the total interest deduction."
+    },
+    "cash_check_charity": {
+      "canonical": "GiftsByCashOrCheckAmt",
+      "xpath": "GiftsByCashOrCheckAmt",
+      "confidence": "high",
+      "rationale": "GiftsByCashOrCheckAmt corresponds to Line 11, gifts to charity by cash or check."
+    },
+    "noncash_charity": {
+      "canonical": "OtherThanByCashOrCheckAmt",
+      "xpath": "OtherThanByCashOrCheckAmt",
+      "confidence": "high",
+      "rationale": "OtherThanByCashOrCheckAmt corresponds to Line 12, noncash charitable gifts."
+    },
+    "carryover_from_prior_year": {
+      "canonical": "CarryoverFromPriorYearAmt",
+      "xpath": "CarryoverFromPriorYearAmt",
+      "confidence": "high",
+      "rationale": "CarryoverFromPriorYearAmt corresponds to Line 13, charitable contribution carryover from a prior year."
+    },
+    "total_charity": {
+      "canonical": "TotalCharitableContriAmt",
+      "xpath": "TotalCharitableContriAmt",
+      "confidence": "high",
+      "rationale": "TotalCharitableContriAmt corresponds to Line 14, total charitable contributions."
+    },
+    "casualty_theft_loss": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for casualty and theft loss (Line 15) exists in this Schedule A candidate list."
+    },
+    "other_itemized_deductions": {
+      "canonical": "OtherMiscellaneousDedAmt",
+      "xpath": "OtherMiscellaneousDedAmt",
+      "confidence": "high",
+      "rationale": "OtherMiscellaneousDedAmt corresponds to Line 16, other itemized deductions."
+    },
+    "other_itemized_deductions_description": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "A text description of other itemized deductions is not represented as a canonical element in this Schedule A schema."
+    },
+    "total_itemized_deductions": {
+      "canonical": "TotalItemizedDeductionsAmt",
+      "xpath": "TotalItemizedDeductionsAmt",
+      "confidence": "high",
+      "rationale": "TotalItemizedDeductionsAmt corresponds to Line 17, the total itemized deductions carried to Form 1040."
+    },
+    "itemizing_though_standard_higher": {
+      "canonical": "ItmzdDedLessThanStdDedInd",
+      "xpath": "ItmzdDedLessThanStdDedInd",
+      "confidence": "high",
+      "rationale": "ItmzdDedLessThanStdDedInd corresponds to the checkbox indicating the filer is itemizing even though itemized deductions are less than the standard deduction."
+    }
+  }
+}

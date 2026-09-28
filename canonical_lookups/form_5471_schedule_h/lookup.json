@@ -1,0 +1,71 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_5471_schedule_h",
+    "form_root": "IRS5471ScheduleH"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS5471ScheduleH.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:46:05+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_5471_schedule_h.bpt",
+    "name": "form_5471_schedule_h"
+  },
+  "fields": {
+    "filer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element exists for the filer's name in this schedule's XSD; it is a header field inherited from the parent return, not a discrete element in IRS5471ScheduleH."
+    },
+    "filer_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The filer's identifying number (SSN/ITIN/EIN from page 1 header) is not a discrete element in IRS5471ScheduleH; candidates 11, 34 refer to the foreign corporation's EIN/SSN, and 19/31 to missing-EIN reason codes, none of which represent the filer's TIN."
+    },
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element exists in IRS5471ScheduleH for the annual accounting period begin date; this is a header-level attribute not exposed as a leaf element in this schedule's XSD."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element exists in IRS5471ScheduleH for the annual accounting period end date; same structural mismatch as tax_year_begin."
+    },
+    "current_ep_functional_currency": {
+      "canonical": "CurrentEarningsAndProfitsAmt",
+      "xpath": "CurrentEarningsAndProfitsAmt",
+      "confidence": "high",
+      "rationale": "CurrentEarningsAndProfitsAmt maps directly to Schedule H line 1 \u2014 current year E&P in functional currency."
+    },
+    "ep_reduction_taxes": {
+      "canonical": "TaxesNetAddnAmt",
+      "xpath": "TaxesNetAddnAmt",
+      "confidence": "medium",
+      "rationale": "TaxesNetAddnAmt (or SbtrctnAmt) relates to tax adjustments; however the schema splits taxes into addition/subtraction variants \u2014 TaxesNetSbtrctnAmt (idx 36) best represents line 2a reduction for taxes paid/accrued, but blueprint description says 'reduction' which is a subtraction, so idx 36 is the closer match."
+    },
+    "ep_reduction_blocked_earnings": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element corresponds to a specific reduction for blocked/deferral earnings (Schedule H line 2b); this field has no matching leaf in the canonical XSD candidate list."
+    },
+    "ep_reduction_other": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "OtherAdjustmentsNetAddnAmt/SbtrctnAmt relate to general other adjustments in the reconciliation, not specifically to the line 2c 'other reductions' reduction line; cannot confidently match without a dedicated element."
+    },
+    "current_ep_us_dollars": {
+      "canonical": "CurrEarnAndPrftInUSDollarsAmt",
+      "xpath": "CurrEarnAndPrftInUSDollarsAmt",
+      "confidence": "high",
+      "rationale": "CurrEarnAndPrftInUSDollarsAmt directly represents current year earnings and profits translated to U.S. dollars, matching the blueprint description."
+    }
+  }
+}

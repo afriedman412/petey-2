@@ -1,0 +1,101 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_b",
+    "form_root": "IRS1040ScheduleB"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleB.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:08:01+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_b.bpt",
+    "name": "schedule_b"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a header/metadata field not represented as a leaf element in the MeF schema for Schedule B."
+    },
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer name is a form header field inherited from the parent 1040 return and not represented as a leaf element in the Schedule B schema."
+    },
+    "ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Primary filer SSN is a form header field inherited from the parent 1040 return and not represented as a leaf element in the Schedule B schema."
+    },
+    "interest_payers": {
+      "canonical": "Form1040SchBPartIGroup2",
+      "xpath": "Form1040SchBPartIGroup2",
+      "confidence": "medium",
+      "rationale": "Form1040SchBPartIGroup2 is the repeating group for non-seller-financed interest payer rows (name + amount) in Part I; blueprint 'interest_payers' maps to this group, though the canonical schema splits it into BusinessNameLine1Txt/BusinessNameLine2Txt and InterestAmt child elements."
+    },
+    "total_taxable_interest": {
+      "canonical": "CalculatedTotalTaxableIntAmt",
+      "xpath": "CalculatedTotalTaxableIntAmt",
+      "confidence": "high",
+      "rationale": "CalculatedTotalTaxableIntAmt directly represents the net total taxable interest computed for Part I, corresponding to Form 1040 line 2b."
+    },
+    "excludable_us_savings_bond_interest": {
+      "canonical": "ExcludableSavingsBondIntAmt",
+      "xpath": "ExcludableSavingsBondIntAmt",
+      "confidence": "high",
+      "rationale": "ExcludableSavingsBondIntAmt directly represents the Part I line for interest on U.S. savings bonds excluded via Form 8815."
+    },
+    "seller_financed_mortgage_interest": {
+      "canonical": "Form1040SchBPartIGroup1",
+      "xpath": "Form1040SchBPartIGroup1",
+      "confidence": "medium",
+      "rationale": "Form1040SchBPartIGroup1 is the repeating group for seller-financed mortgage interest entries (name, SSN, address, amount); blueprint 'seller_financed_mortgage_interest' maps to this group, though the canonical schema splits it into multiple child elements."
+    },
+    "dividend_payers": {
+      "canonical": "Form1040SchBPartII",
+      "xpath": "Form1040SchBPartII",
+      "confidence": "medium",
+      "rationale": "Form1040SchBPartII is the repeating group for ordinary dividend payer rows (name + amount) in Part II; blueprint 'dividend_payers' maps to this group, though the canonical schema splits it into BusinessNameLine1Txt/BusinessNameLine2Txt and DividendAmt child elements."
+    },
+    "total_ordinary_dividends": {
+      "canonical": "TotalOrdinaryDividendsAmt",
+      "xpath": "TotalOrdinaryDividendsAmt",
+      "confidence": "high",
+      "rationale": "TotalOrdinaryDividendsAmt directly represents the Part II total ordinary dividends line, corresponding to Form 1040 line 3b."
+    },
+    "had_foreign_account": {
+      "canonical": "ForeignAccountsQuestionInd",
+      "xpath": "ForeignAccountsQuestionInd",
+      "confidence": "high",
+      "rationale": "ForeignAccountsQuestionInd directly represents the Part III line 7a yes/no indicator for having a financial interest in or signature authority over a foreign financial account."
+    },
+    "foreign_country_name": {
+      "canonical": "ForeignCountryCd",
+      "xpath": "ForeignCountryCd",
+      "confidence": "high",
+      "rationale": "ForeignCountryCd represents the Part III line 7b field where the taxpayer names the foreign country if line 7a is Yes."
+    },
+    "fbar_required": {
+      "canonical": "FinCENForm114Ind",
+      "xpath": "FinCENForm114Ind",
+      "confidence": "high",
+      "rationale": "FinCENForm114Ind directly represents the indicator for whether the taxpayer is required to file FinCEN Form 114 (FBAR)."
+    },
+    "received_distribution_from_foreign_trust": {
+      "canonical": "ForeignTrustQuestionInd",
+      "xpath": "ForeignTrustQuestionInd",
+      "confidence": "high",
+      "rationale": "ForeignTrustQuestionInd directly represents the Part III line 8 yes/no indicator for receiving a distribution from or being a grantor/transferor to a foreign trust."
+    },
+    "form_3520_required": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No candidate element exists in the Schedule B MeF schema for the Form 3520 follow-up question; this sub-question is not captured as a separate leaf element in the canonical schema."
+    }
+  }
+}

@@ -1,0 +1,179 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_se",
+    "form_root": "IRS1040ScheduleSE"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleSE.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:09:18+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_se.bpt",
+    "name": "schedule_se"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a form-level metadata attribute not represented as a discrete leaf element in the Schedule SE MeF schema candidate list."
+    },
+    "filer_name": {
+      "canonical": "PersonNm",
+      "xpath": "PersonNm",
+      "confidence": "high",
+      "rationale": "PersonNm maps directly to the 'Name of person with self-employment income' field at the top of Schedule SE."
+    },
+    "filer_ssn": {
+      "canonical": "SSN",
+      "xpath": "SSN",
+      "confidence": "high",
+      "rationale": "SSN maps directly to the 'Social security number of person with self-employment income' field on Schedule SE."
+    },
+    "section_used": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The schema differentiates sections via xpath context (ShortScheduleSE vs. LongScheduleSE paths) rather than a single categorical indicator element; no single candidate represents this choice."
+    },
+    "section_a_net_farm_profit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "NetFarmProfitLossAmt (idx 8) exists but its xpath does not indicate ShortScheduleSE context; without a disambiguating path for Section A vs. Section B, a confident match cannot be made without risking incorrect assignment."
+    },
+    "section_a_conservation_reserve_payments": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "ConservationReserveProgPymtAmt (idx 3) exists but has no xpath prefix to distinguish Section A (Short) from Section B (Long) usage."
+    },
+    "section_a_net_nonfarm_profit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "NetNonFarmProfitLossAmt (idx 9) exists but lacks a ShortScheduleSE xpath prefix to confirm it belongs to Section A rather than Section B."
+    },
+    "section_a_combined_income": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "CombinedSEAmt (idx 1) or SETotalNetEarningsOrLossAmt under ShortScheduleSE (idx 16/30 area) could apply, but without a clear ShortScheduleSE-scoped combined-line element, a confident match is not possible."
+    },
+    "section_a_se_tax": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "SelfEmploymentTaxAmt (idx 29) exists but is not scoped to ShortScheduleSE in the candidate list, making disambiguation from the Long SE tax impossible."
+    },
+    "section_a_se_deduction": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "DeductibleSelfEmploymentTaxAmt (idx 4) exists but is not scoped to ShortScheduleSE, preventing confident assignment to Section A specifically."
+    },
+    "section_b_net_farm_profit": {
+      "canonical": "NetFarmProfitLossAmt",
+      "xpath": "NetFarmProfitLossAmt",
+      "confidence": "medium",
+      "rationale": "NetFarmProfitLossAmt is the best available candidate for farm profit/loss; assigned to Section B by process of elimination given no ShortScheduleSE-prefixed version exists in the candidate list."
+    },
+    "section_b_conservation_reserve_payments": {
+      "canonical": "ConservationReserveProgPymtAmt",
+      "xpath": "ConservationReserveProgPymtAmt",
+      "confidence": "medium",
+      "rationale": "ConservationReserveProgPymtAmt is the only candidate for Conservation Reserve Program payments and is assigned to Section B by default."
+    },
+    "section_b_net_nonfarm_profit": {
+      "canonical": "NetNonFarmProfitLossAmt",
+      "xpath": "NetNonFarmProfitLossAmt",
+      "confidence": "medium",
+      "rationale": "NetNonFarmProfitLossAmt is the only candidate for non-farm profit/loss and is assigned to Section B by default."
+    },
+    "section_b_combined_income": {
+      "canonical": "CombinedSEAmt",
+      "xpath": "CombinedSEAmt",
+      "confidence": "medium",
+      "rationale": "CombinedSEAmt is the best candidate for the sum of farm, conservation, and non-farm amounts in Section B."
+    },
+    "section_b_church_employee_income": {
+      "canonical": "W2WagesFromChurchesAmt",
+      "xpath": "W2WagesFromChurchesAmt",
+      "confidence": "high",
+      "rationale": "W2WagesFromChurchesAmt directly represents wages from churches not subject to Social Security/Medicare withholding, the primary Long SE church income line."
+    },
+    "section_b_net_earnings_adjusted": {
+      "canonical": "SETotalNetEarningsOrLossAmt",
+      "xpath": "SETotalNetEarningsOrLossAmt",
+      "confidence": "medium",
+      "rationale": "SETotalNetEarningsOrLossAmt (non-ShortScheduleSE xpath) represents the net SE earnings figure after the 92.35% adjustment in the Long Schedule SE context."
+    },
+    "section_b_social_security_wage_base": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The Social Security wage base cap printed on the form (e.g., $160,200) is a static reference value with no corresponding leaf element in the candidate list."
+    },
+    "section_b_taxable_ss_wages_and_tips": {
+      "canonical": "TotalWagesAndUnreportedTipsAmt",
+      "xpath": "TotalWagesAndUnreportedTipsAmt",
+      "confidence": "high",
+      "rationale": "TotalWagesAndUnreportedTipsAmt maps to the Section B line for total Social Security wages plus unreported tips used to determine remaining wage base."
+    },
+    "section_b_wage_base_remainder": {
+      "canonical": "WagesSubjectToSSTAmt",
+      "xpath": "WagesSubjectToSSTAmt",
+      "confidence": "high",
+      "rationale": "WagesSubjectToSSTAmt represents the remaining Social Security wage base after subtracting wages already subject to SST, matching the subtraction line in Section B."
+    },
+    "section_b_se_income_subject_to_ss": {
+      "canonical": "TaxBaseAmt",
+      "xpath": "TaxBaseAmt",
+      "confidence": "high",
+      "rationale": "TaxBaseAmt represents the smaller of net SE earnings or remaining wage base that is subject to the 12.4% Social Security portion of SE tax."
+    },
+    "section_b_se_tax": {
+      "canonical": "SelfEmploymentTaxAmt",
+      "xpath": "SelfEmploymentTaxAmt",
+      "confidence": "medium",
+      "rationale": "SelfEmploymentTaxAmt is the total SE tax calculated, assigned to Section B as no ShortScheduleSE-scoped SE tax element exists in the candidate list."
+    },
+    "section_b_se_deduction": {
+      "canonical": "DeductibleSelfEmploymentTaxAmt",
+      "xpath": "DeductibleSelfEmploymentTaxAmt",
+      "confidence": "medium",
+      "rationale": "DeductibleSelfEmploymentTaxAmt is the one-half deductible SE tax, assigned to Section B as the candidate list does not scope it to ShortScheduleSE."
+    },
+    "optional_method_used": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No boolean indicator element for optional method election exists in the candidate list; the schema captures optional method via amount fields rather than a flag."
+    },
+    "optional_method_farm_income": {
+      "canonical": "SETaxFarmOptionalMethodAmt",
+      "xpath": "SETaxFarmOptionalMethodAmt",
+      "confidence": "high",
+      "rationale": "SETaxFarmOptionalMethodAmt directly represents the net earnings computed under the optional farm method."
+    },
+    "optional_method_nonfarm_income": {
+      "canonical": "SETaxNonFarmOptionalMethodAmt",
+      "xpath": "SETaxNonFarmOptionalMethodAmt",
+      "confidence": "high",
+      "rationale": "SETaxNonFarmOptionalMethodAmt directly represents the net earnings computed under the optional nonfarm method."
+    },
+    "total_se_tax": {
+      "canonical": "SelfEmploymentTaxAmt",
+      "xpath": "SelfEmploymentTaxAmt",
+      "confidence": "high",
+      "rationale": "SelfEmploymentTaxAmt is the total self-employment tax carried to Schedule 2, covering both Section A and Section B outcomes."
+    },
+    "deductible_se_tax": {
+      "canonical": "DeductibleSelfEmploymentTaxAmt",
+      "xpath": "DeductibleSelfEmploymentTaxAmt",
+      "confidence": "high",
+      "rationale": "DeductibleSelfEmploymentTaxAmt is the one-half deductible portion of SE tax carried to Schedule 1, applicable regardless of which section was used."
+    }
+  }
+}

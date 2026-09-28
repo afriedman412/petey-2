@@ -1,0 +1,65 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_990_schedule_l",
+    "form_root": "IRS990ScheduleL"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS990ScheduleL.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:45:40+00:00",
+  "blueprint": {
+    "path": "blueprints/form_990_schedule_l.bpt",
+    "name": "form_990_schedule_l"
+  },
+  "fields": {
+    "organization_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Organization name is a header field on the schedule and does not correspond to any canonical leaf element in the IRS990ScheduleL schema."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "EIN is a header field on the schedule and does not correspond to any canonical leaf element in the IRS990ScheduleL schema."
+    },
+    "part_i_transactions": {
+      "canonical": "DisqualifiedPersonExBnftTrGrp",
+      "xpath": "DisqualifiedPersonExBnftTrGrp",
+      "confidence": "medium",
+      "rationale": "Part I excess benefit transactions map to the DisqualifiedPersonExBnftTrGrp repeating group; the blueprint array corresponds to the group container rather than a single leaf."
+    },
+    "part_ii_loans": {
+      "canonical": "LoansBtwnOrgInterestedPrsnGrp",
+      "xpath": "LoansBtwnOrgInterestedPrsnGrp",
+      "confidence": "medium",
+      "rationale": "Part II loans to/from interested persons map to the LoansBtwnOrgInterestedPrsnGrp repeating group container."
+    },
+    "part_ii_total_balance_due": {
+      "canonical": "TotalBalanceDueAmt",
+      "xpath": "TotalBalanceDueAmt",
+      "confidence": "high",
+      "rationale": "TotalBalanceDueAmt (row label 'Total ... $') directly represents the totals-line balance due amount at the bottom of the Part II table."
+    },
+    "part_iii_grants": {
+      "canonical": "GrntAsstBnftInterestedPrsnGrp",
+      "xpath": "GrntAsstBnftInterestedPrsnGrp",
+      "confidence": "medium",
+      "rationale": "Part III grants/assistance to interested persons map to the GrntAsstBnftInterestedPrsnGrp repeating group container."
+    },
+    "part_iv_transactions": {
+      "canonical": "BusTrInvolveInterestedPrsnGrp",
+      "xpath": "BusTrInvolveInterestedPrsnGrp",
+      "confidence": "medium",
+      "rationale": "Part IV business transactions involving interested persons map to the BusTrInvolveInterestedPrsnGrp repeating group container."
+    },
+    "part_v_supplemental_information": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Blueprint bundles the full Part V narrative into a single string, but the canonical schema splits it into a SupplementalInformationDetail repeating group with separate FormAndLineReferenceDesc and ExplanationTxt children; blueprint should be refactored into an array of objects with form_and_line_reference and explanation_text fields."
+    }
+  }
+}

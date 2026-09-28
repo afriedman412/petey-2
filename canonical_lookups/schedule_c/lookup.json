@@ -1,0 +1,443 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_c",
+    "form_root": "IRS1040ScheduleC"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleC.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:08:44+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_c.bpt",
+    "name": "schedule_c"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is encoded in the MeF submission header/form metadata, not as a standalone leaf element in the IRS1040ScheduleC XSD."
+    },
+    "taxpayer_name": {
+      "canonical": "ProprievtorNm",
+      "xpath": "ProprievtorNm",
+      "confidence": "high",
+      "rationale": "ProprievtorNm maps directly to the proprietor name printed at the top of Schedule C."
+    },
+    "ssn": {
+      "canonical": "SSN",
+      "xpath": "SSN",
+      "confidence": "high",
+      "rationale": "SSN corresponds to the taxpayer's Social Security Number at the top of the form."
+    },
+    "principal_business_or_profession": {
+      "canonical": "PrincipalBusinessActivityDesc",
+      "xpath": "PrincipalBusinessActivityDesc",
+      "confidence": "high",
+      "rationale": "PrincipalBusinessActivityDesc maps to Line A, the free-text description of the principal business activity."
+    },
+    "business_code": {
+      "canonical": "PrincipalBusinessActivityCd",
+      "xpath": "PrincipalBusinessActivityCd",
+      "confidence": "high",
+      "rationale": "PrincipalBusinessActivityCd maps to Line B, the six-digit activity code."
+    },
+    "business_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "BusinessNameLine1Txt maps to Line C, the business name if different from the taxpayer's name."
+    },
+    "employer_id_number": {
+      "canonical": "EIN",
+      "xpath": "EIN",
+      "confidence": "high",
+      "rationale": "EIN maps to Line D, the Employer Identification Number."
+    },
+    "business_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint bundles street/city/state/zip into one string; canonical splits into BusinessUSAddress/AddressLine1Txt + AddressLine2Txt + CityNm + StateAbbreviationCd + ZIPCd (or foreign equivalents) \u2014 blueprint should be refactored into separate address component fields."
+    },
+    "accounting_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint uses a single category field; canonical schema splits Line F into three separate boolean indicators (MethodOfAccountingCashInd, MethodOfAccountingAccrualInd, MethodOfAccountingOtherInd) \u2014 blueprint should be refactored to match or map each category value to the corresponding indicator."
+    },
+    "accounting_method_other": {
+      "canonical": "@methodOfAccountingOtherDesc",
+      "xpath": "MethodOfAccountingOtherInd/@methodOfAccountingOtherDesc",
+      "confidence": "high",
+      "rationale": "@methodOfAccountingOtherDesc is the attribute holding the description when 'Other' accounting method is selected."
+    },
+    "material_participation": {
+      "canonical": "MaterialParticipationInCYInd",
+      "xpath": "MaterialParticipationInCYInd",
+      "confidence": "high",
+      "rationale": "MaterialParticipationInCYInd maps to Line G, the material participation checkbox."
+    },
+    "started_or_acquired_in_tax_year": {
+      "canonical": "NewBusinessInCurrentYearInd",
+      "xpath": "NewBusinessInCurrentYearInd",
+      "confidence": "high",
+      "rationale": "NewBusinessInCurrentYearInd maps to Line H, whether the business was started or acquired in the current year."
+    },
+    "made_payments_requiring_1099": {
+      "canonical": "PaymentRqrFilingForm1099Ind",
+      "xpath": "PaymentRqrFilingForm1099Ind",
+      "confidence": "high",
+      "rationale": "PaymentRqrFilingForm1099Ind maps to Line I, whether the business made payments requiring a 1099."
+    },
+    "required_1099s_filed": {
+      "canonical": "RequiredForm1099FiledInd",
+      "xpath": "RequiredForm1099FiledInd",
+      "confidence": "high",
+      "rationale": "RequiredForm1099FiledInd maps to Line J, whether required 1099 forms were filed."
+    },
+    "gross_receipts_or_sales": {
+      "canonical": "TotalGrossReceiptsAmt",
+      "xpath": "TotalGrossReceiptsAmt",
+      "confidence": "high",
+      "rationale": "TotalGrossReceiptsAmt maps to Part I Line 1, gross receipts or sales."
+    },
+    "returns_and_allowances": {
+      "canonical": "ReturnsAndAllowancesAmt",
+      "xpath": "ReturnsAndAllowancesAmt",
+      "confidence": "high",
+      "rationale": "ReturnsAndAllowancesAmt maps to Part I Line 2, returns and allowances."
+    },
+    "net_receipts": {
+      "canonical": "NetGrossReceiptsAmt",
+      "xpath": "NetGrossReceiptsAmt",
+      "confidence": "high",
+      "rationale": "NetGrossReceiptsAmt maps to Part I Line 3, net receipts after subtracting returns and allowances."
+    },
+    "cost_of_goods_sold": {
+      "canonical": "CostOfGoodsSoldAmt",
+      "xpath": "CostOfGoodsSoldAmt",
+      "confidence": "high",
+      "rationale": "CostOfGoodsSoldAmt maps to Part I Line 4, cost of goods sold carried from Part III."
+    },
+    "gross_profit": {
+      "canonical": "GrossProfitAmt",
+      "xpath": "GrossProfitAmt",
+      "confidence": "high",
+      "rationale": "GrossProfitAmt maps to Part I Line 5, gross profit."
+    },
+    "other_income": {
+      "canonical": "OtherIncomeAmt",
+      "xpath": "OtherIncomeAmt",
+      "confidence": "high",
+      "rationale": "OtherIncomeAmt maps to Part I Line 6, other business income."
+    },
+    "gross_income": {
+      "canonical": "GrossIncomeAmt",
+      "xpath": "GrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "GrossIncomeAmt maps to Part I Line 7, gross income total."
+    },
+    "advertising": {
+      "canonical": "AdvertisingAmt",
+      "xpath": "AdvertisingAmt",
+      "confidence": "high",
+      "rationale": "AdvertisingAmt maps to Part II Line 8, advertising expenses."
+    },
+    "car_and_truck_expenses": {
+      "canonical": "CarAndTruckExpensesAmt",
+      "xpath": "CarAndTruckExpensesAmt",
+      "confidence": "high",
+      "rationale": "CarAndTruckExpensesAmt maps to Part II Line 9, car and truck expenses."
+    },
+    "commissions_and_fees": {
+      "canonical": "CommissionsAndFeesAmt",
+      "xpath": "CommissionsAndFeesAmt",
+      "confidence": "high",
+      "rationale": "CommissionsAndFeesAmt maps to Part II Line 10, commissions and fees."
+    },
+    "contract_labor": {
+      "canonical": "ContractLaborAmt",
+      "xpath": "ContractLaborAmt",
+      "confidence": "high",
+      "rationale": "ContractLaborAmt maps to Part II Line 11, contract labor."
+    },
+    "depletion": {
+      "canonical": "DepletionAmt",
+      "xpath": "DepletionAmt",
+      "confidence": "high",
+      "rationale": "DepletionAmt maps to Part II Line 12, depletion expense."
+    },
+    "depreciation_and_section_179": {
+      "canonical": "DeprecAndSect179ExpnsDedAmt",
+      "xpath": "DeprecAndSect179ExpnsDedAmt",
+      "confidence": "high",
+      "rationale": "DeprecAndSect179ExpnsDedAmt maps to Part II Line 13, depreciation and Section 179 deduction."
+    },
+    "employee_benefit_programs": {
+      "canonical": "EmployeeBenefitProgramAmt",
+      "xpath": "EmployeeBenefitProgramAmt",
+      "confidence": "high",
+      "rationale": "EmployeeBenefitProgramAmt maps to Part II Line 14, employee benefit programs."
+    },
+    "insurance_other_than_health": {
+      "canonical": "InsuranceAmt",
+      "xpath": "InsuranceAmt",
+      "confidence": "high",
+      "rationale": "InsuranceAmt maps to Part II Line 15, insurance other than health."
+    },
+    "interest_mortgage": {
+      "canonical": "MortgageInterestPaidBanksAmt",
+      "xpath": "MortgageInterestPaidBanksAmt",
+      "confidence": "high",
+      "rationale": "MortgageInterestPaidBanksAmt maps to Part II Line 16a, mortgage interest paid to banks."
+    },
+    "interest_other": {
+      "canonical": "MortgageInterestPaidOtherAmt",
+      "xpath": "MortgageInterestPaidOtherAmt",
+      "confidence": "high",
+      "rationale": "MortgageInterestPaidOtherAmt maps to Part II Line 16b, other interest expense."
+    },
+    "legal_and_professional_fees": {
+      "canonical": "LegalAndProfessionalServiceAmt",
+      "xpath": "LegalAndProfessionalServiceAmt",
+      "confidence": "high",
+      "rationale": "LegalAndProfessionalServiceAmt maps to Part II Line 17, legal and professional services."
+    },
+    "office_expense": {
+      "canonical": "OfficeExpensesAmt",
+      "xpath": "OfficeExpensesAmt",
+      "confidence": "high",
+      "rationale": "OfficeExpensesAmt maps to Part II Line 18, office expenses."
+    },
+    "pension_and_profit_sharing": {
+      "canonical": "PensionProfitSharingPlansAmt",
+      "xpath": "PensionProfitSharingPlansAmt",
+      "confidence": "high",
+      "rationale": "PensionProfitSharingPlansAmt maps to Part II Line 19, pension and profit-sharing plans."
+    },
+    "rent_lease_vehicles_machinery": {
+      "canonical": "MachineryAndEquipmentRentAmt",
+      "xpath": "MachineryAndEquipmentRentAmt",
+      "confidence": "high",
+      "rationale": "MachineryAndEquipmentRentAmt maps to Part II Line 20a, rent/lease of vehicles, machinery, and equipment."
+    },
+    "rent_lease_other_property": {
+      "canonical": "OtherBusinessPropertyRentAmt",
+      "xpath": "OtherBusinessPropertyRentAmt",
+      "confidence": "high",
+      "rationale": "OtherBusinessPropertyRentAmt maps to Part II Line 20b, rent/lease of other business property."
+    },
+    "repairs_and_maintenance": {
+      "canonical": "RepairsAndMaintenanceAmt",
+      "xpath": "RepairsAndMaintenanceAmt",
+      "confidence": "high",
+      "rationale": "RepairsAndMaintenanceAmt maps to Part II Line 21, repairs and maintenance."
+    },
+    "supplies": {
+      "canonical": "SuppliesAmt",
+      "xpath": "SuppliesAmt",
+      "confidence": "high",
+      "rationale": "SuppliesAmt maps to Part II Line 22, supplies not in cost of goods sold."
+    },
+    "taxes_and_licenses": {
+      "canonical": "TaxesAndLicensesAmt",
+      "xpath": "TaxesAndLicensesAmt",
+      "confidence": "high",
+      "rationale": "TaxesAndLicensesAmt maps to Part II Line 23, taxes and licenses."
+    },
+    "travel": {
+      "canonical": "TravelAmt",
+      "xpath": "TravelAmt",
+      "confidence": "high",
+      "rationale": "TravelAmt maps to Part II Line 24a, travel expenses."
+    },
+    "meals": {
+      "canonical": "MealsAndEntertainmentAmt",
+      "xpath": "MealsAndEntertainmentAmt",
+      "confidence": "high",
+      "rationale": "MealsAndEntertainmentAmt maps to Part II Line 24b, deductible meals."
+    },
+    "utilities": {
+      "canonical": "UtilitiesAmt",
+      "xpath": "UtilitiesAmt",
+      "confidence": "high",
+      "rationale": "UtilitiesAmt maps to Part II Line 25, utility expenses."
+    },
+    "wages": {
+      "canonical": "WagesLessEmploymentCreditsAmt",
+      "xpath": "WagesLessEmploymentCreditsAmt",
+      "confidence": "high",
+      "rationale": "WagesLessEmploymentCreditsAmt maps to Part II Line 26, wages less employment credits."
+    },
+    "other_expenses_total": {
+      "canonical": "TotalOtherExpensesAmt",
+      "xpath": "TotalOtherExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalOtherExpensesAmt maps to Part II Line 27b, total other expenses from Part V."
+    },
+    "total_expenses": {
+      "canonical": "TotalExpensesAmt",
+      "xpath": "TotalExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalExpensesAmt maps to Part II Line 28, total of all expenses."
+    },
+    "tentative_profit_or_loss": {
+      "canonical": "TentativeProfitOrLossAmt",
+      "xpath": "TentativeProfitOrLossAmt",
+      "confidence": "high",
+      "rationale": "TentativeProfitOrLossAmt maps to Part II Line 29, tentative profit or loss."
+    },
+    "home_office_deduction": {
+      "canonical": "HomeBusinessExpenseAmt",
+      "xpath": "HomeBusinessExpenseAmt",
+      "confidence": "high",
+      "rationale": "HomeBusinessExpenseAmt maps to Part II Line 30, home office expense deduction."
+    },
+    "net_profit_or_loss": {
+      "canonical": "NetProfitOrLossAmt",
+      "xpath": "NetProfitOrLossAmt",
+      "confidence": "high",
+      "rationale": "NetProfitOrLossAmt maps to Line 31, net profit or loss."
+    },
+    "all_investment_at_risk": {
+      "canonical": "AllInvestmentIsAtRiskInd",
+      "xpath": "AllInvestmentIsAtRiskInd",
+      "confidence": "high",
+      "rationale": "AllInvestmentIsAtRiskInd maps to Line 32a, all investment at risk indicator."
+    },
+    "some_investment_not_at_risk": {
+      "canonical": "SomeInvestmentIsNotAtRiskInd",
+      "xpath": "SomeInvestmentIsNotAtRiskInd",
+      "confidence": "high",
+      "rationale": "SomeInvestmentIsNotAtRiskInd maps to Line 32b, some investment not at risk indicator."
+    },
+    "inventory_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint uses a single category field; canonical schema splits Part III Line 33 into separate boolean indicators (ClosingInventoryCostMethodInd, LowerOfCostOrMarketMethodInd, OtherClosingInventoryMethodInd) \u2014 blueprint should be refactored into separate boolean fields per method."
+    },
+    "inventory_change_conforms_to_gaap": {
+      "canonical": "ChangeInValuationsInd",
+      "xpath": "ChangeInValuationsInd",
+      "confidence": "high",
+      "rationale": "ChangeInValuationsInd maps to Part III Line 34, whether there was a change in inventory valuation method."
+    },
+    "inventory_beginning_of_year": {
+      "canonical": "BeginningOfYearInventoryAmt",
+      "xpath": "BeginningOfYearInventoryAmt",
+      "confidence": "high",
+      "rationale": "BeginningOfYearInventoryAmt maps to Part III Line 35, beginning of year inventory."
+    },
+    "purchases_minus_withdrawals": {
+      "canonical": "PurchasesLessPersonalItemsAmt",
+      "xpath": "PurchasesLessPersonalItemsAmt",
+      "confidence": "high",
+      "rationale": "PurchasesLessPersonalItemsAmt maps to Part III Line 36, purchases less personal withdrawals."
+    },
+    "cost_of_labor": {
+      "canonical": "CostOfLaborAmt",
+      "xpath": "CostOfLaborAmt",
+      "confidence": "high",
+      "rationale": "CostOfLaborAmt maps to Part III Line 37, cost of labor in COGS."
+    },
+    "materials_and_supplies_cogs": {
+      "canonical": "MaterialsAndSuppliesAmt",
+      "xpath": "MaterialsAndSuppliesAmt",
+      "confidence": "high",
+      "rationale": "MaterialsAndSuppliesAmt maps to Part III Line 38, materials and supplies included in COGS."
+    },
+    "other_costs_cogs": {
+      "canonical": "OtherCostsAmt",
+      "xpath": "OtherCostsAmt",
+      "confidence": "high",
+      "rationale": "OtherCostsAmt maps to Part III Line 39, other costs included in COGS."
+    },
+    "total_cogs_before_closing_inventory": {
+      "canonical": "TotalCostsAmt",
+      "xpath": "TotalCostsAmt",
+      "confidence": "high",
+      "rationale": "TotalCostsAmt maps to Part III Line 40, total goods available for sale before subtracting closing inventory."
+    },
+    "inventory_end_of_year": {
+      "canonical": "EndOfYearInventoryAmt",
+      "xpath": "EndOfYearInventoryAmt",
+      "confidence": "high",
+      "rationale": "EndOfYearInventoryAmt maps to Part III Line 41, end of year inventory."
+    },
+    "cost_of_goods_sold_line_42": {
+      "canonical": "CostOfGoodsSoldAmt",
+      "xpath": "CostOfGoodsSoldAmt",
+      "confidence": "medium",
+      "rationale": "CostOfGoodsSoldAmt is also used for Part I Line 4; it represents the same value carried from Part III Line 42, so this is the correct element but it is shared between both blueprint fields."
+    },
+    "vehicle_date_placed_in_service": {
+      "canonical": "VehiclePlacedInServiceDt",
+      "xpath": "AdditionalVehicleInfoGrp/VehiclePlacedInServiceDt",
+      "confidence": "high",
+      "rationale": "VehiclePlacedInServiceDt maps to Part IV Line 43, the date the vehicle was placed in service."
+    },
+    "vehicle_total_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element exists for total miles driven; the schema only records business miles (BusinessMilesCnt), commuting miles (CommutingMilesCnt), and other miles (OtherMilesCnt) separately \u2014 total must be derived by summing those three fields."
+    },
+    "vehicle_business_miles": {
+      "canonical": "BusinessMilesCnt",
+      "xpath": "AdditionalVehicleInfoGrp/BusinessMilesCnt",
+      "confidence": "high",
+      "rationale": "BusinessMilesCnt maps to Part IV Line 44a, miles driven for business purposes."
+    },
+    "vehicle_commuting_miles": {
+      "canonical": "CommutingMilesCnt",
+      "xpath": "AdditionalVehicleInfoGrp/CommutingMilesCnt",
+      "confidence": "high",
+      "rationale": "CommutingMilesCnt maps to Part IV Line 44b, miles driven for commuting."
+    },
+    "vehicle_other_miles": {
+      "canonical": "OtherMilesCnt",
+      "xpath": "AdditionalVehicleInfoGrp/OtherMilesCnt",
+      "confidence": "high",
+      "rationale": "OtherMilesCnt maps to Part IV Line 44c, all other miles driven."
+    },
+    "vehicle_available_off_duty": {
+      "canonical": "VehicleAvailableOffDutyHrsInd",
+      "xpath": "AdditionalVehicleInfoGrp/VehicleAvailableOffDutyHrsInd",
+      "confidence": "high",
+      "rationale": "VehicleAvailableOffDutyHrsInd maps to Part IV Line 45, vehicle available during off-duty hours."
+    },
+    "another_vehicle_for_personal_use": {
+      "canonical": "AnotherVehicleForPrsnlUseInd",
+      "xpath": "AdditionalVehicleInfoGrp/AnotherVehicleForPrsnlUseInd",
+      "confidence": "high",
+      "rationale": "AnotherVehicleForPrsnlUseInd maps to Part IV Line 46, another vehicle available for personal use."
+    },
+    "evidence_to_support_deduction": {
+      "canonical": "EvidenceToSupportDeductionInd",
+      "xpath": "AdditionalVehicleInfoGrp/EvidenceToSupportDeductionInd",
+      "confidence": "high",
+      "rationale": "EvidenceToSupportDeductionInd maps to Part IV Line 47a, whether evidence exists to support the vehicle deduction."
+    },
+    "evidence_is_written": {
+      "canonical": "EvidenceWrittenInd",
+      "xpath": "AdditionalVehicleInfoGrp/EvidenceWrittenInd",
+      "confidence": "high",
+      "rationale": "EvidenceWrittenInd maps to Part IV Line 47b, whether the supporting evidence is in written form."
+    },
+    "other_expenses": {
+      "canonical": "OtherExpenseDetail",
+      "xpath": "OtherExpenseDetail",
+      "confidence": "medium",
+      "rationale": "OtherExpenseDetail is the repeating group element for Part V itemized other expenses; blueprint's array maps to this group rather than a single leaf value, which is the correct structural match."
+    },
+    "total_other_expenses": {
+      "canonical": "TotalOtherExpensesAmt",
+      "xpath": "TotalOtherExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalOtherExpensesAmt maps to Part V Line 48, total other expenses carried to Part II Line 27b."
+    }
+  }
+}

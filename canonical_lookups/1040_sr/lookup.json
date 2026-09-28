@@ -1,0 +1,647 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1040_sr",
+    "form_root": "IRS1040"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040SR.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:41:29+00:00",
+  "blueprint": {
+    "path": "blueprints/1040_sr.bpt",
+    "name": "form_1040_sr"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a form-level metadata attribute not represented as a leaf element in the MeF IRS1040 schema's canonical element list."
+    },
+    "filing_status": {
+      "canonical": "IndividualReturnFilingStatusCd",
+      "xpath": "IndividualReturnFilingStatusCd",
+      "confidence": "high",
+      "rationale": "IndividualReturnFilingStatusCd directly encodes the filing status selected by the taxpayer."
+    },
+    "mfs_spouse_name": {
+      "canonical": "SpouseNm",
+      "xpath": "SpouseNm",
+      "confidence": "medium",
+      "rationale": "SpouseNm at the root level captures the spouse's name, used on MFS returns to identify the spouse."
+    },
+    "hoh_qualifying_person": {
+      "canonical": "QualifyingHOHNm",
+      "xpath": "QualifyingHOHNm",
+      "confidence": "high",
+      "rationale": "QualifyingHOHNm holds the name of the qualifying person for Head of Household filing status."
+    },
+    "taxpayer_first_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Primary taxpayer first name is stored in a PersonName/PersonFirstNm element under a primary taxpayer group not present in this candidate list; no direct match available."
+    },
+    "taxpayer_last_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Primary taxpayer last name is stored in a PersonName/PersonLastNm element under a primary taxpayer group not present in this candidate list; no direct match available."
+    },
+    "taxpayer_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Primary taxpayer SSN is a top-level element (e.g., PrimarySSN) not included in the supplied candidate list."
+    },
+    "spouse_first_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Spouse first name would be under a spouse name group element not present in this candidate list."
+    },
+    "spouse_last_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Spouse last name would be under a spouse name group element not present in this candidate list."
+    },
+    "spouse_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Spouse SSN (e.g., SpouseSSN) is not included in the supplied candidate list."
+    },
+    "home_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Home address street line is stored in an AddressLine1Txt element under a USAddress group not present in this candidate list."
+    },
+    "city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "City, state, and ZIP are split across CityNm, StateAbbreviationCd, and ZIPCd elements not present in this candidate list; blueprint bundles them into one string which would need to be split into three separate fields."
+    },
+    "foreign_country": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign country name is stored in a ForeignAddress/CountryCd element not present in this candidate list."
+    },
+    "foreign_province_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign province/state is stored in a ForeignAddress/ProvinceOrStateNm element not present in this candidate list."
+    },
+    "foreign_postal_code": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign postal code is stored in a ForeignAddress/ForeignPostalCd element not present in this candidate list."
+    },
+    "presidential_election_fund_taxpayer": {
+      "canonical": "PECFPrimaryInd",
+      "xpath": "PECFPrimaryInd",
+      "confidence": "high",
+      "rationale": "PECFPrimaryInd is the Presidential Election Campaign Fund indicator for the primary taxpayer."
+    },
+    "presidential_election_fund_spouse": {
+      "canonical": "PECFSpouseInd",
+      "xpath": "PECFSpouseInd",
+      "confidence": "high",
+      "rationale": "PECFSpouseInd is the Presidential Election Campaign Fund indicator for the spouse."
+    },
+    "digital_assets": {
+      "canonical": "VirtualCurAcquiredDurTYInd",
+      "xpath": "VirtualCurAcquiredDurTYInd",
+      "confidence": "high",
+      "rationale": "VirtualCurAcquiredDurTYInd corresponds to the digital assets question about receiving/selling/exchanging virtual currency during the tax year."
+    },
+    "taxpayer_age_65_or_older": {
+      "canonical": "Primary65OrOlderInd",
+      "xpath": "Primary65OrOlderInd",
+      "confidence": "high",
+      "rationale": "Primary65OrOlderInd directly maps to the checkbox indicating the primary taxpayer was 65 or older."
+    },
+    "taxpayer_blind": {
+      "canonical": "PrimaryBlindInd",
+      "xpath": "PrimaryBlindInd",
+      "confidence": "high",
+      "rationale": "PrimaryBlindInd directly maps to the 'You are blind' checkbox for the primary taxpayer."
+    },
+    "spouse_age_65_or_older": {
+      "canonical": "Spouse65OrOlderInd",
+      "xpath": "Spouse65OrOlderInd",
+      "confidence": "high",
+      "rationale": "Spouse65OrOlderInd directly maps to the checkbox indicating the spouse was 65 or older."
+    },
+    "spouse_blind": {
+      "canonical": "SpouseBlindInd",
+      "xpath": "SpouseBlindInd",
+      "confidence": "high",
+      "rationale": "SpouseBlindInd directly maps to the 'Spouse is blind' checkbox."
+    },
+    "someone_can_claim_taxpayer_as_dependent": {
+      "canonical": "PrimaryClaimAsDependentInd",
+      "xpath": "PrimaryClaimAsDependentInd",
+      "confidence": "high",
+      "rationale": "PrimaryClaimAsDependentInd maps to the checkbox indicating someone can claim the primary taxpayer as a dependent."
+    },
+    "someone_can_claim_spouse_as_dependent": {
+      "canonical": "SpouseClaimAsDependentInd",
+      "xpath": "SpouseClaimAsDependentInd",
+      "confidence": "high",
+      "rationale": "SpouseClaimAsDependentInd maps to the checkbox indicating someone can claim the spouse as a dependent."
+    },
+    "spouse_itemizes_on_separate_return": {
+      "canonical": "MustItemizeInd",
+      "xpath": "MustItemizeInd",
+      "confidence": "high",
+      "rationale": "MustItemizeInd corresponds to the checkbox for 'Spouse itemizes on a separate return or you were a dual-status alien'."
+    },
+    "more_than_four_dependents": {
+      "canonical": "MoreDependentsInd",
+      "xpath": "MoreDependentsInd",
+      "confidence": "high",
+      "rationale": "MoreDependentsInd directly maps to the checkbox indicating more than four dependents are attached."
+    },
+    "dependents": {
+      "canonical": "DependentDetail",
+      "xpath": "DependentDetail",
+      "confidence": "medium",
+      "rationale": "DependentDetail is the repeating group element containing all dependent sub-fields; the blueprint models dependents as an array which aligns with this repeating group structure."
+    },
+    "wages_salaries_tips": {
+      "canonical": "WagesSalariesAndTipsAmt",
+      "xpath": "WagesSalariesAndTipsAmt",
+      "confidence": "high",
+      "rationale": "WagesSalariesAndTipsAmt maps to Line 1a total wages, salaries, and tips from W-2 Box 1."
+    },
+    "household_employee_wages": {
+      "canonical": "HouseholdEmployeeWagesAmt",
+      "xpath": "HouseholdEmployeeWagesAmt",
+      "confidence": "high",
+      "rationale": "HouseholdEmployeeWagesAmt maps to Line 1b household employee wages not reported on a W-2."
+    },
+    "tip_income_not_on_w2": {
+      "canonical": "TipIncomeAmt",
+      "xpath": "TipIncomeAmt",
+      "confidence": "high",
+      "rationale": "TipIncomeAmt maps to Line 1c tip income not reported to an employer."
+    },
+    "medicaid_waiver_payments": {
+      "canonical": "MedicaidWaiverPymtNotRptW2Amt",
+      "xpath": "MedicaidWaiverPymtNotRptW2Amt",
+      "confidence": "high",
+      "rationale": "MedicaidWaiverPymtNotRptW2Amt maps to Line 1d Medicaid waiver payments not reported on a W-2."
+    },
+    "taxable_dependent_care_benefits": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No candidate element for Line 1e taxable dependent care benefits from Form 2441 exists in the supplied list."
+    },
+    "employer_adoption_benefits": {
+      "canonical": "TaxableBenefitsForm8839Amt",
+      "xpath": "TaxableBenefitsForm8839Amt",
+      "confidence": "high",
+      "rationale": "TaxableBenefitsForm8839Amt maps to Line 1f employer-provided adoption benefits from Form 8839."
+    },
+    "wages_from_form_8919": {
+      "canonical": "TotalWagesWithNoWithholdingAmt",
+      "xpath": "TotalWagesWithNoWithholdingAmt",
+      "confidence": "high",
+      "rationale": "TotalWagesWithNoWithholdingAmt maps to Line 1g wages from Form 8919 for uncollected Social Security and Medicare tax."
+    },
+    "other_earned_income": {
+      "canonical": "OtherEarnedIncomeAmt",
+      "xpath": "OtherEarnedIncomeAmt",
+      "confidence": "high",
+      "rationale": "OtherEarnedIncomeAmt maps to Line 1h other earned income not captured in prior lines."
+    },
+    "total_wages": {
+      "canonical": "WagesAmt",
+      "xpath": "WagesAmt",
+      "confidence": "high",
+      "rationale": "WagesAmt maps to Line 1z total wages sum of all line 1 sub-items."
+    },
+    "tax_exempt_interest": {
+      "canonical": "TaxExemptInterestAmt",
+      "xpath": "TaxExemptInterestAmt",
+      "confidence": "high",
+      "rationale": "TaxExemptInterestAmt directly maps to Line 2a tax-exempt interest income."
+    },
+    "taxable_interest": {
+      "canonical": "TaxableInterestAmt",
+      "xpath": "TaxableInterestAmt",
+      "confidence": "high",
+      "rationale": "TaxableInterestAmt directly maps to Line 2b taxable interest income."
+    },
+    "qualified_dividends": {
+      "canonical": "QualifiedDividendsAmt",
+      "xpath": "QualifiedDividendsAmt",
+      "confidence": "high",
+      "rationale": "QualifiedDividendsAmt directly maps to Line 3a qualified dividends."
+    },
+    "ordinary_dividends": {
+      "canonical": "OrdinaryDividendsAmt",
+      "xpath": "OrdinaryDividendsAmt",
+      "confidence": "high",
+      "rationale": "OrdinaryDividendsAmt directly maps to Line 3b total ordinary dividends."
+    },
+    "ira_distributions_total": {
+      "canonical": "IRADistributionsAmt",
+      "xpath": "IRADistributionsAmt",
+      "confidence": "high",
+      "rationale": "IRADistributionsAmt maps to Line 4a total IRA distributions (gross amount)."
+    },
+    "ira_distributions_taxable": {
+      "canonical": "TaxableIRAAmt",
+      "xpath": "TaxableIRAAmt",
+      "confidence": "high",
+      "rationale": "TaxableIRAAmt maps to Line 4b taxable portion of IRA distributions."
+    },
+    "pensions_annuities_total": {
+      "canonical": "PensionsAnnuitiesAmt",
+      "xpath": "PensionsAnnuitiesAmt",
+      "confidence": "high",
+      "rationale": "PensionsAnnuitiesAmt maps to Line 5a total pensions and annuities (gross amount)."
+    },
+    "pensions_annuities_taxable": {
+      "canonical": "TotalTaxablePensionsAmt",
+      "xpath": "TotalTaxablePensionsAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxablePensionsAmt maps to Line 5b taxable portion of pensions and annuities."
+    },
+    "social_security_total": {
+      "canonical": "SocSecBnftAmt",
+      "xpath": "SocSecBnftAmt",
+      "confidence": "high",
+      "rationale": "SocSecBnftAmt maps to Line 6a total Social Security benefits received."
+    },
+    "social_security_taxable": {
+      "canonical": "TaxableSocSecAmt",
+      "xpath": "TaxableSocSecAmt",
+      "confidence": "high",
+      "rationale": "TaxableSocSecAmt maps to Line 6b taxable portion of Social Security benefits."
+    },
+    "lump_sum_election": {
+      "canonical": "LumpSumElectionMethodInd",
+      "xpath": "LumpSumElectionMethodInd",
+      "confidence": "high",
+      "rationale": "LumpSumElectionMethodInd maps to the Line 6c checkbox for using the lump-sum election method."
+    },
+    "capital_gain_or_loss": {
+      "canonical": "CapitalGainLossAmt",
+      "xpath": "CapitalGainLossAmt",
+      "confidence": "high",
+      "rationale": "CapitalGainLossAmt maps to Line 7 net capital gain or loss."
+    },
+    "schedule_d_not_required": {
+      "canonical": "CapitalDistributionInd",
+      "xpath": "CapitalDistributionInd",
+      "confidence": "high",
+      "rationale": "CapitalDistributionInd maps to the checkbox on Line 7 indicating Schedule D is not required."
+    },
+    "additional_income_schedule1": {
+      "canonical": "TotalAdditionalIncomeAmt",
+      "xpath": "TotalAdditionalIncomeAmt",
+      "confidence": "high",
+      "rationale": "TotalAdditionalIncomeAmt maps to Line 8 additional income from Schedule 1, Part I."
+    },
+    "total_income": {
+      "canonical": "TotalIncomeAmt",
+      "xpath": "TotalIncomeAmt",
+      "confidence": "high",
+      "rationale": "TotalIncomeAmt maps to Line 9 total income before adjustments."
+    },
+    "adjustments_to_income": {
+      "canonical": "TotalAdjustmentsAmt",
+      "xpath": "TotalAdjustmentsAmt",
+      "confidence": "high",
+      "rationale": "TotalAdjustmentsAmt maps to Line 10 adjustments to income from Schedule 1, Part II."
+    },
+    "adjusted_gross_income": {
+      "canonical": "AdjustedGrossIncomeAmt",
+      "xpath": "AdjustedGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "AdjustedGrossIncomeAmt directly maps to Line 11 Adjusted Gross Income."
+    },
+    "standard_or_itemized_deduction": {
+      "canonical": "TotalItemizedOrStandardDedAmt",
+      "xpath": "TotalItemizedOrStandardDedAmt",
+      "confidence": "high",
+      "rationale": "TotalItemizedOrStandardDedAmt maps to Line 12 standard or itemized deduction amount."
+    },
+    "itemized_deductions_used": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No explicit boolean indicator for itemized vs. standard deduction election appears in the candidate list; this flag is inferred from context rather than stored as a dedicated element."
+    },
+    "qbi_deduction": {
+      "canonical": "QualifiedBusinessIncomeDedAmt",
+      "xpath": "QualifiedBusinessIncomeDedAmt",
+      "confidence": "high",
+      "rationale": "QualifiedBusinessIncomeDedAmt maps to Line 13 Qualified Business Income deduction."
+    },
+    "total_deductions": {
+      "canonical": "TotalDeductionsAmt",
+      "xpath": "TotalDeductionsAmt",
+      "confidence": "high",
+      "rationale": "TotalDeductionsAmt maps to Line 14 total deductions (standard/itemized plus QBI)."
+    },
+    "taxable_income": {
+      "canonical": "TaxableIncomeAmt",
+      "xpath": "TaxableIncomeAmt",
+      "confidence": "high",
+      "rationale": "TaxableIncomeAmt directly maps to Line 15 taxable income."
+    },
+    "tax": {
+      "canonical": "TaxAmt",
+      "xpath": "TaxAmt",
+      "confidence": "high",
+      "rationale": "TaxAmt maps to Line 16 tax computed on taxable income."
+    },
+    "alternative_minimum_tax": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No AlternativeMinimumTaxAmt candidate appears in the supplied list for Line 17 AMT."
+    },
+    "excess_advance_premium_tax_credit": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No ExcessAdvancePremiumTaxCreditAmt candidate appears in the supplied list for the excess APTC repayment line."
+    },
+    "schedule2_additional_tax": {
+      "canonical": "TotalTaxBeforeCrAndOthTaxesAmt",
+      "xpath": "TotalTaxBeforeCrAndOthTaxesAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxBeforeCrAndOthTaxesAmt maps to the sum of tax lines (including Schedule 2 additions) before credits, corresponding to the line 18 total in recent revisions."
+    },
+    "child_tax_credit_or_credit_for_other_dependents": {
+      "canonical": "CTCODCAmt",
+      "xpath": "CTCODCAmt",
+      "confidence": "high",
+      "rationale": "CTCODCAmt maps to Line 19 Child Tax Credit and/or Credit for Other Dependents from Schedule 8812."
+    },
+    "schedule3_credits": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No Schedule3NonrefundableCreditsAmt candidate appears in the supplied list for Line 20 nonrefundable credits from Schedule 3."
+    },
+    "total_credits": {
+      "canonical": "TotalNonrefundableCreditsAmt",
+      "xpath": "TotalNonrefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "TotalNonrefundableCreditsAmt maps to Line 21 total nonrefundable credits."
+    },
+    "tax_after_credits": {
+      "canonical": "TaxLessCreditsAmt",
+      "xpath": "TaxLessCreditsAmt",
+      "confidence": "high",
+      "rationale": "TaxLessCreditsAmt maps to Line 22 tax after nonrefundable credits."
+    },
+    "other_taxes": {
+      "canonical": "TotalOtherTaxesAmt",
+      "xpath": "TotalOtherTaxesAmt",
+      "confidence": "high",
+      "rationale": "TotalOtherTaxesAmt maps to Line 23 other taxes from Schedule 2, Part II."
+    },
+    "total_tax": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxAmt maps to Line 24 total tax liability."
+    },
+    "federal_tax_withheld_w2": {
+      "canonical": "FormW2WithheldTaxAmt",
+      "xpath": "FormW2WithheldTaxAmt",
+      "confidence": "high",
+      "rationale": "FormW2WithheldTaxAmt maps to Line 25a federal income tax withheld from W-2 forms."
+    },
+    "federal_tax_withheld_1099": {
+      "canonical": "Form1099WithheldTaxAmt",
+      "xpath": "Form1099WithheldTaxAmt",
+      "confidence": "high",
+      "rationale": "Form1099WithheldTaxAmt maps to Line 25b federal income tax withheld from 1099 forms."
+    },
+    "federal_tax_withheld_other": {
+      "canonical": "TaxWithheldOtherAmt",
+      "xpath": "TaxWithheldOtherAmt",
+      "confidence": "high",
+      "rationale": "TaxWithheldOtherAmt maps to Line 25c federal income tax withheld from other forms."
+    },
+    "total_federal_tax_withheld": {
+      "canonical": "WithholdingTaxAmt",
+      "xpath": "WithholdingTaxAmt",
+      "confidence": "high",
+      "rationale": "WithholdingTaxAmt maps to Line 25d total federal income tax withheld."
+    },
+    "estimated_tax_payments": {
+      "canonical": "EstimatedTaxPaymentsAmt",
+      "xpath": "EstimatedTaxPaymentsAmt",
+      "confidence": "high",
+      "rationale": "EstimatedTaxPaymentsAmt maps to Line 26 estimated tax payments and any prior-year overpayment applied."
+    },
+    "earned_income_credit": {
+      "canonical": "EarnedIncomeCreditAmt",
+      "xpath": "EarnedIncomeCreditAmt",
+      "confidence": "high",
+      "rationale": "EarnedIncomeCreditAmt maps to Line 27 Earned Income Credit."
+    },
+    "additional_child_tax_credit": {
+      "canonical": "AdditionalChildTaxCreditAmt",
+      "xpath": "AdditionalChildTaxCreditAmt",
+      "confidence": "high",
+      "rationale": "AdditionalChildTaxCreditAmt maps to Line 28 Additional Child Tax Credit (refundable portion)."
+    },
+    "american_opportunity_credit": {
+      "canonical": "RefundableAmerOppCreditAmt",
+      "xpath": "RefundableAmerOppCreditAmt",
+      "confidence": "high",
+      "rationale": "RefundableAmerOppCreditAmt maps to Line 29 American Opportunity Credit refundable portion."
+    },
+    "reserved_line30": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No candidate element for Line 30 (Recovery Rebate Credit or reserved line) appears in the supplied list."
+    },
+    "schedule3_refundable_credits": {
+      "canonical": "RefundableCreditsAmt",
+      "xpath": "RefundableCreditsAmt",
+      "confidence": "high",
+      "rationale": "RefundableCreditsAmt maps to Line 31 refundable credits from Schedule 3."
+    },
+    "total_other_payments_refundable_credits": {
+      "canonical": "TotalOtherPaymentsRfdblCrAmt",
+      "xpath": "TotalOtherPaymentsRfdblCrAmt",
+      "confidence": "high",
+      "rationale": "TotalOtherPaymentsRfdblCrAmt maps to Line 32 total of other payments and refundable credits."
+    },
+    "total_payments": {
+      "canonical": "TotalPaymentsAmt",
+      "xpath": "TotalPaymentsAmt",
+      "confidence": "high",
+      "rationale": "TotalPaymentsAmt maps to Line 33 total payments."
+    },
+    "overpaid_amount": {
+      "canonical": "OverpaidAmt",
+      "xpath": "OverpaidAmt",
+      "confidence": "high",
+      "rationale": "OverpaidAmt maps to Line 34 amount overpaid."
+    },
+    "refund_amount": {
+      "canonical": "RefundAmt",
+      "xpath": "RefundAmt",
+      "confidence": "high",
+      "rationale": "RefundAmt maps to Line 35a amount to be refunded."
+    },
+    "routing_number": {
+      "canonical": "RoutingTransitNum",
+      "xpath": "RoutingTransitNum",
+      "confidence": "high",
+      "rationale": "RoutingTransitNum maps to Line 35b bank routing number for direct deposit."
+    },
+    "account_type": {
+      "canonical": "BankAccountTypeCd",
+      "xpath": "BankAccountTypeCd",
+      "confidence": "high",
+      "rationale": "BankAccountTypeCd maps to Line 35c type of bank account (checking or savings)."
+    },
+    "account_number": {
+      "canonical": "DepositorAccountNum",
+      "xpath": "DepositorAccountNum",
+      "confidence": "high",
+      "rationale": "DepositorAccountNum maps to Line 35d bank account number for direct deposit."
+    },
+    "applied_to_next_year": {
+      "canonical": "AppliedToEsTaxAmt",
+      "xpath": "AppliedToEsTaxAmt",
+      "confidence": "high",
+      "rationale": "AppliedToEsTaxAmt maps to Line 36 overpayment applied to next year's estimated tax."
+    },
+    "amount_owed": {
+      "canonical": "OwedAmt",
+      "xpath": "OwedAmt",
+      "confidence": "high",
+      "rationale": "OwedAmt maps to Line 37 amount the taxpayer owes."
+    },
+    "estimated_tax_penalty": {
+      "canonical": "EsPenaltyAmt",
+      "xpath": "EsPenaltyAmt",
+      "confidence": "high",
+      "rationale": "EsPenaltyAmt maps to Line 38 estimated tax underpayment penalty."
+    },
+    "third_party_designee": {
+      "canonical": "ThirdPartyDesigneeInd",
+      "xpath": "ThirdPartyDesigneeInd",
+      "confidence": "high",
+      "rationale": "ThirdPartyDesigneeInd maps to the Yes checkbox in the Third Party Designee section."
+    },
+    "third_party_designee_name": {
+      "canonical": "ThirdPartyDesigneeNm",
+      "xpath": "ThirdPartyDesigneeNm",
+      "confidence": "high",
+      "rationale": "ThirdPartyDesigneeNm maps to the name of the third-party designee."
+    },
+    "third_party_designee_phone": {
+      "canonical": "ThirdPartyDesigneePhoneNum",
+      "xpath": "ThirdPartyDesigneePhoneNum",
+      "confidence": "high",
+      "rationale": "ThirdPartyDesigneePhoneNum maps to the designee's phone number."
+    },
+    "third_party_designee_pin": {
+      "canonical": "ThirdPartyDesigneePIN",
+      "xpath": "ThirdPartyDesigneePIN",
+      "confidence": "high",
+      "rationale": "ThirdPartyDesigneePIN maps to the designee's chosen PIN."
+    },
+    "taxpayer_occupation": {
+      "canonical": "PrimaryOccupationTxt",
+      "xpath": "PrimaryOccupationTxt",
+      "confidence": "high",
+      "rationale": "PrimaryOccupationTxt maps to the primary taxpayer's occupation field in the signature section."
+    },
+    "taxpayer_identity_protection_pin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No IP PIN element for the primary taxpayer appears in the supplied candidate list."
+    },
+    "spouse_occupation": {
+      "canonical": "SpouseOccupationTxt",
+      "xpath": "SpouseOccupationTxt",
+      "confidence": "high",
+      "rationale": "SpouseOccupationTxt maps to the spouse's occupation field in the signature section."
+    },
+    "spouse_identity_protection_pin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No IP PIN element for the spouse appears in the supplied candidate list."
+    },
+    "phone_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer daytime phone number is not represented in the supplied candidate list."
+    },
+    "paid_preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer name is stored under a Preparer group element not present in this candidate list."
+    },
+    "paid_preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer PTIN is stored under a Preparer group element not present in this candidate list."
+    },
+    "paid_preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer self-employed indicator is stored under a Preparer group element not present in this candidate list."
+    },
+    "paid_preparer_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer signature date is stored under a Preparer group element not present in this candidate list."
+    },
+    "paid_preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm name is stored under a Preparer/Firm group element not present in this candidate list."
+    },
+    "paid_preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm EIN is stored under a Preparer/Firm group element not present in this candidate list."
+    },
+    "paid_preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm address is stored under a Preparer/Firm address group element not present in this candidate list."
+    },
+    "paid_preparer_firm_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm phone is stored under a Preparer/Firm group element not present in this candidate list."
+    }
+  }
+}

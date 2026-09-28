@@ -1,0 +1,365 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "4562_part_v",
+    "form_root": "IRS4562"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS4562.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-24T22:13:46+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_4562_part_v.bpt",
+    "name": "form_4562_part_v"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for taxpayer name exists in the candidate list; it is a form header field not represented as an XSD leaf in IRS4562."
+    },
+    "taxpayer_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for identifying number (SSN/EIN) exists in the candidate list; it is a form header field not represented as an XSD leaf in IRS4562."
+    },
+    "business_activity": {
+      "canonical": "BusinessOrActivityTxt",
+      "xpath": "BusinessOrActivityTxt",
+      "confidence": "high",
+      "rationale": "BusinessOrActivityTxt matches the header field for the business or activity to which the form relates."
+    },
+    "line_24a_evidence_to_support_use": {
+      "canonical": "EvidenceToSupportDeductionInd",
+      "xpath": "EvidenceToSupportDeductionInd",
+      "confidence": "high",
+      "rationale": "EvidenceToSupportDeductionInd directly corresponds to Part V Line 24a asking whether evidence supports the business/investment use claimed."
+    },
+    "line_24b_evidence_is_written": {
+      "canonical": "EvidenceWrittenInd",
+      "xpath": "EvidenceWrittenInd",
+      "confidence": "high",
+      "rationale": "EvidenceWrittenInd directly corresponds to Part V Line 24b asking whether the evidence is written."
+    },
+    "line_24c_own_lease_charter_aircraft": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "The blueprint bundles own/lease/charter into a single category field, but the canonical schema splits these into separate boolean indicators (OwnInd [130], LeaseInd [105], CharterInd [37]); blueprint should be refactored into three separate boolean fields."
+    },
+    "line_25_special_depreciation_listed": {
+      "canonical": "TotalSpecialDeprecAllwncAmt",
+      "xpath": "TotalSpecialDeprecAllwncAmt",
+      "confidence": "high",
+      "rationale": "TotalSpecialDeprecAllwncAmt with row label matching Line 25 special depreciation allowance for qualified listed property."
+    },
+    "listed_property_over_50pct": {
+      "canonical": "MoreThanHalfBusinessUseProp",
+      "xpath": "MoreThanHalfBusinessUseProp",
+      "confidence": "medium",
+      "rationale": "MoreThanHalfBusinessUseProp is the parent group element for Line 26 listed property used more than 50% in qualified business use; blueprint models it as an array while canonical uses a repeating group."
+    },
+    "listed_property_50pct_or_less": {
+      "canonical": "LessThanHalfBusinessUseProp",
+      "xpath": "LessThanHalfBusinessUseProp",
+      "confidence": "medium",
+      "rationale": "LessThanHalfBusinessUseProp is the parent group element for Line 27 listed property used 50% or less in qualified business use; blueprint models it as an array while canonical uses a repeating group."
+    },
+    "line_28_total_listed_property_depreciation": {
+      "canonical": "TotalListedDepreciationAmt",
+      "xpath": "TotalListedDepreciationAmt",
+      "confidence": "high",
+      "rationale": "TotalListedDepreciationAmt corresponds to Line 28 total of listed property depreciation amounts."
+    },
+    "line_29_total_section_179_listed_property": {
+      "canonical": "TotalSection179ExpenseAmt",
+      "xpath": "TotalSection179ExpenseAmt",
+      "confidence": "high",
+      "rationale": "TotalSection179ExpenseAmt corresponds to Line 29 total Section 179 cost for listed property."
+    },
+    "vehicle_1_total_business_miles": {
+      "canonical": "BusinessMilesCnt",
+      "xpath": "VehicleUsage/BusinessMilesCnt",
+      "confidence": "medium",
+      "rationale": "BusinessMilesCnt under VehicleUsage matches Line 30 business miles, but the canonical schema uses a single repeating VehicleUsage group rather than per-vehicle numbered fields; Vehicle 1 maps to the first instance."
+    },
+    "vehicle_1_commuting_miles": {
+      "canonical": "CommutingMilesCnt",
+      "xpath": "VehicleUsage/CommutingMilesCnt",
+      "confidence": "medium",
+      "rationale": "CommutingMilesCnt under VehicleUsage matches Line 31 commuting miles for the first vehicle instance."
+    },
+    "vehicle_1_other_personal_miles": {
+      "canonical": "OtherPersonalMilesCnt",
+      "xpath": "VehicleUsage/OtherPersonalMilesCnt",
+      "confidence": "medium",
+      "rationale": "OtherPersonalMilesCnt under VehicleUsage matches Line 32 other personal miles for the first vehicle instance."
+    },
+    "vehicle_1_total_miles": {
+      "canonical": "TotalMilesCnt",
+      "xpath": "VehicleUsage/TotalMilesCnt",
+      "confidence": "medium",
+      "rationale": "TotalMilesCnt under VehicleUsage matches Line 33 total miles for the first vehicle instance."
+    },
+    "vehicle_1_available_off_duty": {
+      "canonical": "VehicleAvailableOffDutyHrsInd",
+      "xpath": "VehicleUsage/VehicleAvailableOffDutyHrsInd",
+      "confidence": "medium",
+      "rationale": "VehicleAvailableOffDutyHrsInd under VehicleUsage matches Line 34 for the first vehicle instance."
+    },
+    "vehicle_1_used_by_5pct_owner": {
+      "canonical": "UsedPrimarilyByOwnerInd",
+      "xpath": "VehicleUsage/UsedPrimarilyByOwnerInd",
+      "confidence": "medium",
+      "rationale": "UsedPrimarilyByOwnerInd under VehicleUsage matches Line 35 for the first vehicle instance."
+    },
+    "vehicle_1_another_vehicle_available": {
+      "canonical": "AnotherVehicleForPrsnlUseInd",
+      "xpath": "VehicleUsage/AnotherVehicleForPrsnlUseInd",
+      "confidence": "medium",
+      "rationale": "AnotherVehicleForPrsnlUseInd under VehicleUsage matches Line 36 for the first vehicle instance."
+    },
+    "vehicle_2_total_business_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema uses a single repeating VehicleUsage group (idx 149) with one set of child elements; there is no separate Vehicle 2 element \u2014 blueprint should model vehicle data as an array within VehicleUsage rather than flat per-vehicle numbered fields."
+    },
+    "vehicle_2_commuting_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch as vehicle_2_total_business_miles; no separate Vehicle 2 CommutingMilesCnt element exists."
+    },
+    "vehicle_2_other_personal_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 2 OtherPersonalMilesCnt element exists."
+    },
+    "vehicle_2_total_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 2 TotalMilesCnt element exists."
+    },
+    "vehicle_2_available_off_duty": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 2 VehicleAvailableOffDutyHrsInd element exists."
+    },
+    "vehicle_2_used_by_5pct_owner": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 2 UsedPrimarilyByOwnerInd element exists."
+    },
+    "vehicle_2_another_vehicle_available": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 2 AnotherVehicleForPrsnlUseInd element exists."
+    },
+    "vehicle_3_total_business_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch as vehicle_2 fields; canonical VehicleUsage is a repeating group, not individually numbered."
+    },
+    "vehicle_3_commuting_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 3 CommutingMilesCnt element exists."
+    },
+    "vehicle_3_other_personal_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 3 OtherPersonalMilesCnt element exists."
+    },
+    "vehicle_3_total_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 3 TotalMilesCnt element exists."
+    },
+    "vehicle_3_available_off_duty": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 3 VehicleAvailableOffDutyHrsInd element exists."
+    },
+    "vehicle_3_used_by_5pct_owner": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 3 UsedPrimarilyByOwnerInd element exists."
+    },
+    "vehicle_3_another_vehicle_available": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 3 AnotherVehicleForPrsnlUseInd element exists."
+    },
+    "vehicle_4_total_business_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch as vehicle_2 and vehicle_3 fields; canonical schema does not have individually numbered vehicle elements."
+    },
+    "vehicle_4_commuting_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 4 CommutingMilesCnt element exists."
+    },
+    "vehicle_4_other_personal_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 4 OtherPersonalMilesCnt element exists."
+    },
+    "vehicle_4_total_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 4 TotalMilesCnt element exists."
+    },
+    "vehicle_4_available_off_duty": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 4 VehicleAvailableOffDutyHrsInd element exists."
+    },
+    "vehicle_4_used_by_5pct_owner": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 4 UsedPrimarilyByOwnerInd element exists."
+    },
+    "vehicle_4_another_vehicle_available": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 4 AnotherVehicleForPrsnlUseInd element exists."
+    },
+    "vehicle_5_total_business_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; canonical VehicleUsage is a repeating group not split into individually numbered vehicle fields."
+    },
+    "vehicle_5_commuting_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 5 CommutingMilesCnt element exists."
+    },
+    "vehicle_5_other_personal_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 5 OtherPersonalMilesCnt element exists."
+    },
+    "vehicle_5_total_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 5 TotalMilesCnt element exists."
+    },
+    "vehicle_5_available_off_duty": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 5 VehicleAvailableOffDutyHrsInd element exists."
+    },
+    "vehicle_5_used_by_5pct_owner": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 5 UsedPrimarilyByOwnerInd element exists."
+    },
+    "vehicle_5_another_vehicle_available": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 5 AnotherVehicleForPrsnlUseInd element exists."
+    },
+    "vehicle_6_total_business_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; canonical VehicleUsage is a repeating group not split into individually numbered vehicle fields."
+    },
+    "vehicle_6_commuting_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 6 CommutingMilesCnt element exists."
+    },
+    "vehicle_6_other_personal_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 6 OtherPersonalMilesCnt element exists."
+    },
+    "vehicle_6_total_miles": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 6 TotalMilesCnt element exists."
+    },
+    "vehicle_6_available_off_duty": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 6 VehicleAvailableOffDutyHrsInd element exists."
+    },
+    "vehicle_6_used_by_5pct_owner": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 6 UsedPrimarilyByOwnerInd element exists."
+    },
+    "vehicle_6_another_vehicle_available": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same structural mismatch; no separate Vehicle 6 AnotherVehicleForPrsnlUseInd element exists."
+    },
+    "line_37_written_policy_no_personal_use": {
+      "canonical": "PolicyNoPrsnlOrCmmtngUseInd",
+      "xpath": "PolicyNoPrsnlOrCmmtngUseInd",
+      "confidence": "high",
+      "rationale": "PolicyNoPrsnlOrCmmtngUseInd corresponds to Line 37 written policy prohibiting all personal use including commuting."
+    },
+    "line_38_written_policy_no_personal_except_commuting": {
+      "canonical": "PolicyNoPrsnlExcCmmtngUseInd",
+      "xpath": "PolicyNoPrsnlExcCmmtngUseInd",
+      "confidence": "high",
+      "rationale": "PolicyNoPrsnlExcCmmtngUseInd corresponds to Line 38 written policy prohibiting personal use except commuting."
+    },
+    "line_39_treat_all_use_as_personal": {
+      "canonical": "TreatAllVehUseAsPrsnlUseInd",
+      "xpath": "TreatAllVehUseAsPrsnlUseInd",
+      "confidence": "high",
+      "rationale": "TreatAllVehUseAsPrsnlUseInd corresponds to Line 39 treating all vehicle use by employees as personal use."
+    },
+    "line_40_provide_more_than_five_vehicles": {
+      "canonical": "ProvideOverNumVehAndHaveRecInd",
+      "xpath": "ProvideOverNumVehAndHaveRecInd",
+      "confidence": "high",
+      "rationale": "ProvideOverNumVehAndHaveRecInd corresponds to Line 40 about providing more than five vehicles and retaining employee use information."
+    },
+    "line_41_qualified_auto_demonstration": {
+      "canonical": "MeetRqrForAutoDemoUseInd",
+      "xpath": "MeetRqrForAutoDemoUseInd",
+      "confidence": "high",
+      "rationale": "MeetRqrForAutoDemoUseInd corresponds to Line 41 about meeting requirements for qualified automobile demonstration use."
+    }
+  }
+}

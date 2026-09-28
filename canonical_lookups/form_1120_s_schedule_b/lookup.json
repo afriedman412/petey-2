@@ -1,0 +1,221 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1120_s_schedule_b",
+    "form_root": "IRS1120SScheduleB"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1120S.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T00:25:02+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_1120_s_schedule_b.bpt",
+    "name": "form_1120_s_schedule_b"
+  },
+  "fields": {
+    "corporation_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The corporation name at the top of page 1 is a header field not represented as a leaf element in IRS1120SScheduleB; it belongs to the parent 1120-S form, not Schedule B."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The S corporation's own EIN is a header field on the parent 1120-S form, not a leaf element in IRS1120SScheduleB."
+    },
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year beginning date is a header field on the parent 1120-S form, not represented in IRS1120SScheduleB."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year ending date is a header field on the parent 1120-S form, not represented in IRS1120SScheduleB."
+    },
+    "business_activity": {
+      "canonical": "PrincipalBusinessActivityDesc",
+      "xpath": "PrincipalBusinessActivityDesc",
+      "confidence": "high",
+      "rationale": "PrincipalBusinessActivityDesc directly maps to Schedule B question 2a, the description of the principal business activity."
+    },
+    "business_product_or_service": {
+      "canonical": "PrincipalProductDesc",
+      "xpath": "PrincipalProductDesc",
+      "confidence": "high",
+      "rationale": "PrincipalProductDesc directly maps to Schedule B question 2b, the principal product or service offered."
+    },
+    "schedule_b_accounting_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The blueprint bundles accounting method into a single category field, but the canonical schema splits it into three separate boolean indicators (MethodOfAccountingCashInd, MethodOfAccountingAccrualInd, MethodOfAccountingOtherInd) plus an attribute for the other description; blueprint should be refactored into three boolean fields plus an optional description string."
+    },
+    "schedule_b_shareholder_disregarded_entity_trust_estate_nominee": {
+      "canonical": "ShrEntTrEstNomneSmlrPrsnInd",
+      "xpath": "ShrEntTrEstNomneSmlrPrsnInd",
+      "confidence": "high",
+      "rationale": "ShrEntTrEstNomneSmlrPrsnInd maps to Schedule B question 3 about shareholders that are disregarded entities, trusts, estates, or nominees."
+    },
+    "schedule_b_4a_owns_20pct_or_50pct_corp": {
+      "canonical": "CorporationOwnedPctStkIssdInd",
+      "xpath": "CorporationOwnedPctStkIssdInd",
+      "confidence": "high",
+      "rationale": "CorporationOwnedPctStkIssdInd is the boolean indicator for Schedule B question 4a about owning 20%/50% or more of another corporation's stock."
+    },
+    "schedule_b_4a_corp_name": {
+      "canonical": "CorporationNm",
+      "xpath": "CorpOwnPctStkIssdOutstdGrp/CorporationNm",
+      "confidence": "high",
+      "rationale": "CorporationNm under CorpOwnPctStkIssdOutstdGrp maps to the name of the corporation in which the S corporation owns 20%/50% or more (question 4a(i))."
+    },
+    "schedule_b_4a_corp_ein": {
+      "canonical": "EIN",
+      "xpath": "CorpOwnPctStkIssdOutstdGrp/EIN",
+      "confidence": "high",
+      "rationale": "EIN under CorpOwnPctStkIssdOutstdGrp maps to question 4a(ii), the EIN of the owned corporation."
+    },
+    "schedule_b_4a_corp_country_of_incorporation": {
+      "canonical": "IncorporationCountryCd",
+      "xpath": "CorpOwnPctStkIssdOutstdGrp/IncorporationCountryCd",
+      "confidence": "high",
+      "rationale": "IncorporationCountryCd under CorpOwnPctStkIssdOutstdGrp maps to question 4a(iii), country of incorporation."
+    },
+    "schedule_b_4a_corp_pct_stock_owned": {
+      "canonical": "VotingStockOwnedPct",
+      "xpath": "CorpOwnPctStkIssdOutstdGrp/VotingStockOwnedPct",
+      "confidence": "high",
+      "rationale": "VotingStockOwnedPct under CorpOwnPctStkIssdOutstdGrp maps to question 4a(iv), the percentage of stock owned."
+    },
+    "schedule_b_4b_owns_interest_partnership_trust": {
+      "canonical": "CorporationOwnPctPrtshpInd",
+      "xpath": "CorporationOwnPctPrtshpInd",
+      "confidence": "high",
+      "rationale": "CorporationOwnPctPrtshpInd is the boolean indicator for Schedule B question 4b about owning 20%/50% or more interest in a partnership or trust."
+    },
+    "schedule_b_5a_restricted_stock": {
+      "canonical": "OutstandingRestrictedStockInd",
+      "xpath": "OutstandingRestrictedStockInd",
+      "confidence": "high",
+      "rationale": "OutstandingRestrictedStockInd maps to Schedule B question 5a about outstanding restricted stock."
+    },
+    "schedule_b_5a_total_restricted_shares": {
+      "canonical": "TotalRestrictedStockOutstdNum",
+      "xpath": "TotalRestrictedStockOutstdNum",
+      "confidence": "high",
+      "rationale": "TotalRestrictedStockOutstdNum maps to question 5a(i), total shares of restricted stock outstanding."
+    },
+    "schedule_b_5a_total_nonrestricted_shares": {
+      "canonical": "TotNonrestrictedStockOutsdtNum",
+      "xpath": "TotNonrestrictedStockOutsdtNum",
+      "confidence": "high",
+      "rationale": "TotNonrestrictedStockOutsdtNum maps to question 5a(ii), total shares of non-restricted stock outstanding."
+    },
+    "schedule_b_5b_stock_options_warrants": {
+      "canonical": "OutstandingStkOptWarrantsInd",
+      "xpath": "OutstandingStkOptWarrantsInd",
+      "confidence": "high",
+      "rationale": "OutstandingStkOptWarrantsInd maps to Schedule B question 5b about outstanding stock options, warrants, or similar instruments."
+    },
+    "schedule_b_5b_total_shares_outstanding": {
+      "canonical": "TotShareStockOutstandingEOYCnt",
+      "xpath": "TotShareStockOutstandingEOYCnt",
+      "confidence": "high",
+      "rationale": "TotShareStockOutstandingEOYCnt maps to question 5b(i), total shares of stock outstanding at end of year."
+    },
+    "schedule_b_5b_total_shares_if_instruments_executed": {
+      "canonical": "TotShrStkOutstdAllExecutedCnt",
+      "xpath": "TotShrStkOutstdAllExecutedCnt",
+      "confidence": "high",
+      "rationale": "TotShrStkOutstdAllExecutedCnt maps to question 5b(ii), total shares outstanding if all instruments were executed."
+    },
+    "schedule_b_form_8918_required": {
+      "canonical": "FiledOrRequiredFileForm8918Ind",
+      "xpath": "FiledOrRequiredFileForm8918Ind",
+      "confidence": "high",
+      "rationale": "FiledOrRequiredFileForm8918Ind maps to Schedule B question 6 about Form 8918 filing requirement."
+    },
+    "schedule_b_publicly_offered_debt_instruments": {
+      "canonical": "OfferedDebtInstrumentsInd",
+      "xpath": "OfferedDebtInstrumentsInd",
+      "confidence": "high",
+      "rationale": "OfferedDebtInstrumentsInd maps to Schedule B question 7 about publicly offered debt instruments with OID."
+    },
+    "schedule_b_built_in_gains": {
+      "canonical": "AttachmentIndicatorCd",
+      "xpath": "AttachmentIndicatorCd",
+      "confidence": "low",
+      "rationale": "There is no direct boolean indicator for question 8 built-in gains; AttachmentIndicatorCd is not a match \u2014 returning null is more accurate; no candidate corresponds to the question 8 yes/no indicator."
+    },
+    "schedule_b_built_in_gains_amount": {
+      "canonical": "NetUnrlzdRedPYNetRcgnzGainAmt",
+      "xpath": "NetUnrlzdRedPYNetRcgnzGainAmt",
+      "confidence": "high",
+      "rationale": "NetUnrlzdRedPYNetRcgnzGainAmt maps to Schedule B question 8, the net unrealized built-in gain reduced by net recognized built-in gain from prior years."
+    },
+    "schedule_b_section_163j_real_property_farming": {
+      "canonical": "Section163jElectionInd",
+      "xpath": "Section163jElectionInd",
+      "confidence": "high",
+      "rationale": "Section163jElectionInd maps to Schedule B question 9 about a section 163(j) election for real property trade or farming business."
+    },
+    "schedule_b_section_163j_applies": {
+      "canonical": "SatisfyOneOrMoreConditionsInd",
+      "xpath": "SatisfyOneOrMoreConditionsInd",
+      "confidence": "high",
+      "rationale": "SatisfyOneOrMoreConditionsInd maps to Schedule B question 10 about satisfying one or more conditions for the 163(j) business interest expense limitation."
+    },
+    "schedule_b_small_corporation_exception": {
+      "canonical": "SchLAndSchM1NotRequiredInd",
+      "xpath": "SchLAndSchM1NotRequiredInd",
+      "confidence": "high",
+      "rationale": "SchLAndSchM1NotRequiredInd maps to Schedule B question 11, the small corporation exception making Schedules L and M-1 not required."
+    },
+    "schedule_b_debt_canceled_forgiven": {
+      "canonical": "DebtCancelledForgivenModifInd",
+      "xpath": "DebtCancelledForgivenModifInd",
+      "confidence": "high",
+      "rationale": "DebtCancelledForgivenModifInd maps to Schedule B question 12 about non-shareholder debt that was canceled, forgiven, or modified."
+    },
+    "schedule_b_debt_canceled_amount": {
+      "canonical": "PrincipalReductionAmt",
+      "xpath": "PrincipalReductionAmt",
+      "confidence": "high",
+      "rationale": "PrincipalReductionAmt maps to Schedule B question 12, the amount of principal reduction."
+    },
+    "schedule_b_qsub_terminated": {
+      "canonical": "QSubElectionTerminatedRvkdInd",
+      "xpath": "QSubElectionTerminatedRvkdInd",
+      "confidence": "high",
+      "rationale": "QSubElectionTerminatedRvkdInd maps to Schedule B question 13 about a QSub election being terminated or revoked."
+    },
+    "schedule_b_1099_required": {
+      "canonical": "RequiredToFileForms1099Ind",
+      "xpath": "RequiredToFileForms1099Ind",
+      "confidence": "high",
+      "rationale": "RequiredToFileForms1099Ind maps to Schedule B question 14a about whether the corporation is required to file Form(s) 1099."
+    },
+    "schedule_b_1099_filed": {
+      "canonical": "RequiredForms1099FiledInd",
+      "xpath": "RequiredForms1099FiledInd",
+      "confidence": "high",
+      "rationale": "RequiredForms1099FiledInd maps to Schedule B question 14b about whether the required Form(s) 1099 were filed."
+    },
+    "schedule_b_qualified_opportunity_fund": {
+      "canonical": "Form8996AttachedInd",
+      "xpath": "Form8996AttachedInd",
+      "confidence": "high",
+      "rationale": "Form8996AttachedInd maps to Schedule B question 15 about the corporation intending to self-certify as a Qualified Opportunity Fund (requiring Form 8996)."
+    },
+    "schedule_b_digital_asset": {
+      "canonical": "VirtualCurAcquiredDurTYInd",
+      "xpath": "VirtualCurAcquiredDurTYInd",
+      "confidence": "high",
+      "rationale": "VirtualCurAcquiredDurTYInd maps to Schedule B question 16 about receiving or disposing of a digital asset during the tax year."
+    }
+  }
+}

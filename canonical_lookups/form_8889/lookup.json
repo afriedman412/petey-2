@@ -1,0 +1,155 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_8889",
+    "form_root": "IRS8889"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS8889.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:37+00:00",
+  "blueprint": {
+    "path": "blueprints/form_8889.bpt",
+    "name": "form_8889"
+  },
+  "fields": {
+    "filer_name": {
+      "canonical": "PersonNm",
+      "xpath": "PersonNm",
+      "confidence": "high",
+      "rationale": "PersonNm maps to the name of the HSA account holder shown at the top of Form 8889."
+    },
+    "filer_ssn": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN maps to the Social Security Number of the HSA account holder shown at the top of Form 8889."
+    },
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The tax year is an attribute of the IRS8889 root element or the filing metadata, not a discrete leaf element in the canonical schema."
+    },
+    "hsa_coverage_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint bundles both checkbox states into a single category field, but the canonical schema splits them into two separate Boolean indicators (HDHPSelfOnlyCoverageInd [5] and HDHPFamilyCoverageInd [4]); blueprint should be split into two Boolean fields."
+    },
+    "hsa_contribution_limit": {
+      "canonical": "HSAFamilyDeductibleAmt",
+      "xpath": "HSAFamilyDeductibleAmt",
+      "confidence": "medium",
+      "rationale": "HSAFamilyDeductibleAmt is the closest match for the annual contribution limit; however, there is no self-only equivalent, and the canonical schema may represent this differently \u2014 medium confidence due to ambiguity."
+    },
+    "additional_contribution_55_plus": {
+      "canonical": "HSAAddnlContributionAmt",
+      "xpath": "HSAAddnlContributionAmt",
+      "confidence": "high",
+      "rationale": "HSAAddnlContributionAmt corresponds to the additional $1,000 catch-up contribution for taxpayers age 55 or older (Part I, Line 3/7)."
+    },
+    "archer_msa_contributions": {
+      "canonical": "TotalArcherMSAContributionAmt",
+      "xpath": "TotalArcherMSAContributionAmt",
+      "confidence": "high",
+      "rationale": "TotalArcherMSAContributionAmt corresponds to Part I, Line 4 \u2014 Archer MSA contributions that reduce the HSA contribution limit."
+    },
+    "qualified_hsa_funding_distributions": {
+      "canonical": "HSAQualifiedFundingDistriAmt",
+      "xpath": "HSAQualifiedFundingDistriAmt",
+      "confidence": "high",
+      "rationale": "HSAQualifiedFundingDistriAmt corresponds to the qualified HSA funding distribution from an IRA (Part I, Line 5/10)."
+    },
+    "months_in_qualifying_coverage": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for the number of months of qualifying HDHP coverage exists in the provided candidate list; this line is not represented as a discrete element."
+    },
+    "employer_contributions": {
+      "canonical": "HSAEmployerContributionAmt",
+      "xpath": "HSAEmployerContributionAmt",
+      "confidence": "high",
+      "rationale": "HSAEmployerContributionAmt corresponds to Part I, Line 9 \u2014 employer contributions including cafeteria plan amounts from W-2 Box 12 Code W."
+    },
+    "net_deductible_contribution_limit": {
+      "canonical": "HSALimitedContributionAmt",
+      "xpath": "HSALimitedContributionAmt",
+      "confidence": "medium",
+      "rationale": "HSALimitedContributionAmt is the best available match for the reduced/net deductible contribution limit line, though the naming is ambiguous relative to other HSALimited* elements."
+    },
+    "taxpayer_contributions": {
+      "canonical": "HSAContributionAmt",
+      "xpath": "HSAContributionAmt",
+      "confidence": "high",
+      "rationale": "HSAContributionAmt corresponds to taxpayer (non-employer) contributions actually made to the HSA for the tax year."
+    },
+    "hsa_deduction": {
+      "canonical": "TotalHSADeductionAmt",
+      "xpath": "TotalHSADeductionAmt",
+      "confidence": "high",
+      "rationale": "TotalHSADeductionAmt corresponds to Part I, Line 13 \u2014 the deductible HSA contribution flowing to Schedule 1."
+    },
+    "total_distributions": {
+      "canonical": "TotalHSADistributionAmt",
+      "xpath": "TotalHSADistributionAmt",
+      "confidence": "high",
+      "rationale": "TotalHSADistributionAmt corresponds to Part II, Line 14a \u2014 total distributions from all HSAs as reported on Form 1099-SA."
+    },
+    "rollover_distributions": {
+      "canonical": "HSADistributionRolloverAmt",
+      "xpath": "HSADistributionRolloverAmt",
+      "confidence": "high",
+      "rationale": "HSADistributionRolloverAmt corresponds to Part II, Line 14b \u2014 rollovers and returned mistaken distributions."
+    },
+    "qualified_medical_expenses": {
+      "canonical": "UnreimbQualMedAndDentalExpAmt",
+      "xpath": "UnreimbQualMedAndDentalExpAmt",
+      "confidence": "high",
+      "rationale": "UnreimbQualMedAndDentalExpAmt corresponds to Part II, Line 15 \u2014 qualified medical expenses paid using HSA distributions."
+    },
+    "taxable_distributions": {
+      "canonical": "TaxableHSADistributionAmt",
+      "xpath": "TaxableHSADistributionAmt",
+      "confidence": "high",
+      "rationale": "TaxableHSADistributionAmt corresponds to Part II, Line 17a \u2014 distributions not used for qualified expenses included in gross income."
+    },
+    "distributions_after_death_disability_medicare": {
+      "canonical": "HSANetDistributionAmt",
+      "xpath": "HSANetDistributionAmt",
+      "confidence": "high",
+      "rationale": "HSANetDistributionAmt is the best candidate for taxable distributions exempt from the 20% additional tax due to death/disability/age-65/Medicare exceptions."
+    },
+    "additional_tax_on_non_qualified": {
+      "canonical": "HSADistriAddnlPercentTaxAmt",
+      "xpath": "HSADistriAddnlPercentTaxAmt",
+      "confidence": "high",
+      "rationale": "HSADistriAddnlPercentTaxAmt corresponds to the 20% additional tax on non-qualified HSA distributions (Part II, Line 17c/22)."
+    },
+    "income_from_testing_period_failure": {
+      "canonical": "HDHPCoverageIncomeAmt",
+      "xpath": "HDHPCoverageIncomeAmt",
+      "confidence": "high",
+      "rationale": "HDHPCoverageIncomeAmt corresponds to Part III \u2014 income includible due to failure to maintain HDHP coverage through the testing period."
+    },
+    "additional_tax_testing_period_failure": {
+      "canonical": "HDHPCoverageAddnlTaxAmt",
+      "xpath": "HDHPCoverageAddnlTaxAmt",
+      "confidence": "high",
+      "rationale": "HDHPCoverageAddnlTaxAmt corresponds to Part III \u2014 the additional 10% tax on testing-period failure income."
+    },
+    "excess_contributions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for total excess HSA contributions subject to the 6% excise tax is present in the provided candidate list."
+    },
+    "excise_tax_on_excess_contributions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for the 6% excise tax on excess contributions is present in the provided candidate list."
+    }
+  }
+}

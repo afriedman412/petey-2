@@ -1,0 +1,137 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_e",
+    "form_root": "IRS1040ScheduleE"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleE.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:09:05+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_e.bpt",
+    "name": "schedule_e"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer name is a header field on Schedule E but does not correspond to any leaf element in the IRS MeF schema for IRS1040ScheduleE; it is carried at the parent 1040 level."
+    },
+    "taxpayer_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer SSN is a header field on Schedule E but is not represented as a leaf element in the IRS1040ScheduleE schema; it resides at the parent 1040 level."
+    },
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a form-header attribute not represented as a leaf element within the IRS1040ScheduleE schema."
+    },
+    "part_i_properties": {
+      "canonical": "PropertyRealEstAndRoyaltyGroup",
+      "xpath": "PropertyRealEstAndRoyaltyGroup",
+      "confidence": "medium",
+      "rationale": "The array of Part I rental/royalty properties maps to the repeating PropertyRealEstAndRoyaltyGroup container; blueprint should decompose each array entry into the individual child elements of that group."
+    },
+    "part_i_total_rents_received": {
+      "canonical": "TotAllPaymentsAllRentalPropAmt",
+      "xpath": "TotAllPaymentsAllRentalPropAmt",
+      "confidence": "high",
+      "rationale": "TotAllPaymentsAllRentalPropAmt holds the total rents received across all Part I properties (line 23a totals)."
+    },
+    "part_i_total_royalties_received": {
+      "canonical": "TotAllPaymentsAllRyltyPropAmt",
+      "xpath": "TotAllPaymentsAllRyltyPropAmt",
+      "confidence": "high",
+      "rationale": "TotAllPaymentsAllRyltyPropAmt holds the total royalties received across all Part I properties (line 23b totals)."
+    },
+    "part_i_total_expenses": {
+      "canonical": "TotalAllPropTotalExpensesAmt",
+      "xpath": "TotalAllPropTotalExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalAllPropTotalExpensesAmt holds the total expenses across all Part I properties (line 23c totals)."
+    },
+    "part_i_net_income_or_loss": {
+      "canonical": "TotalIncomeOrLossAmt",
+      "xpath": "TotalIncomeOrLossAmt",
+      "confidence": "medium",
+      "rationale": "TotalIncomeOrLossAmt is the net income/loss summary element that aggregates Part I results carried forward; line 26 equivalent in the schema."
+    },
+    "part_ii_entries": {
+      "canonical": "PartnershipOrSCorpGroup",
+      "xpath": "PartnershipOrSCorpGroup",
+      "confidence": "medium",
+      "rationale": "The array of Part II partnership/S-corp rows maps to the repeating PartnershipOrSCorpGroup container; blueprint should decompose each array entry into the individual child elements of that group."
+    },
+    "part_ii_total_passive_income": {
+      "canonical": "TotalPassiveIncomeAmt",
+      "xpath": "TotalPassiveIncomeAmt",
+      "confidence": "high",
+      "rationale": "TotalPassiveIncomeAmt holds the total passive income from all Part II entities."
+    },
+    "part_ii_total_passive_loss": {
+      "canonical": "TotalPassiveLossAllowedAmt",
+      "xpath": "TotalPassiveLossAllowedAmt",
+      "confidence": "high",
+      "rationale": "TotalPassiveLossAllowedAmt holds the total passive loss allowed from all Part II entities."
+    },
+    "part_ii_total_nonpassive_income": {
+      "canonical": "BusTotalNonpassiveIncomeAmt",
+      "xpath": "BusTotalNonpassiveIncomeAmt",
+      "confidence": "high",
+      "rationale": "BusTotalNonpassiveIncomeAmt holds the total nonpassive income from all Part II entities."
+    },
+    "part_ii_total_nonpassive_loss": {
+      "canonical": "TotalNonpassiveLossAmt",
+      "xpath": "TotalNonpassiveLossAmt",
+      "confidence": "high",
+      "rationale": "TotalNonpassiveLossAmt holds the total nonpassive loss from all Part II entities."
+    },
+    "part_ii_net_income_or_loss": {
+      "canonical": "NetPrtshpSCorpIncomeOrLossAmt",
+      "xpath": "NetPrtshpSCorpIncomeOrLossAmt",
+      "confidence": "high",
+      "rationale": "NetPrtshpSCorpIncomeOrLossAmt holds the net income or loss from partnerships and S corporations combined carried to the summary."
+    },
+    "part_iii_entries": {
+      "canonical": "EstateAndTrustGroup",
+      "xpath": "EstateAndTrustGroup",
+      "confidence": "medium",
+      "rationale": "The array of Part III estate/trust rows maps to the repeating EstateAndTrustGroup container; blueprint should decompose each array entry into the individual child elements of that group."
+    },
+    "part_iii_net_income_or_loss": {
+      "canonical": "TotEstateAndTrustIncOrLossAmt",
+      "xpath": "TotEstateAndTrustIncOrLossAmt",
+      "confidence": "high",
+      "rationale": "TotEstateAndTrustIncOrLossAmt holds the net income or loss from all estates and trusts combined carried to the summary."
+    },
+    "part_iv_entries": {
+      "canonical": "REMICGroup",
+      "xpath": "REMICGroup",
+      "confidence": "medium",
+      "rationale": "The array of Part IV REMIC rows maps to the repeating REMICGroup container; blueprint should decompose each array entry into the individual child elements of that group."
+    },
+    "part_iv_net_income_or_loss": {
+      "canonical": "TotalREMICIncomeAmt",
+      "xpath": "TotalREMICIncomeAmt",
+      "confidence": "high",
+      "rationale": "TotalREMICIncomeAmt holds the net income or loss from all REMIC activities combined carried to the summary."
+    },
+    "net_farm_rental_income_or_loss": {
+      "canonical": "NetFarmRentalIncomeOrLossAmt",
+      "xpath": "NetFarmRentalIncomeOrLossAmt",
+      "confidence": "high",
+      "rationale": "NetFarmRentalIncomeOrLossAmt directly maps to the net farm rental income or loss from Form 4835 summary line."
+    },
+    "total_supplemental_income_or_loss": {
+      "canonical": "TotalSuppIncomeOrLossAmt",
+      "xpath": "TotalSuppIncomeOrLossAmt",
+      "confidence": "high",
+      "rationale": "TotalSuppIncomeOrLossAmt is the final summary total of Schedule E (line 41 equivalent) transferred to Form 1040 Schedule 1."
+    }
+  }
+}

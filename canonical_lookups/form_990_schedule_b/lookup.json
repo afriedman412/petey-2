@@ -1,0 +1,65 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_990_schedule_b",
+    "form_root": "IRS990ScheduleB"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS990ScheduleB.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:45:42+00:00",
+  "blueprint": {
+    "path": "blueprints/form_990_schedule_b.bpt",
+    "name": "form_990_schedule_b"
+  },
+  "fields": {
+    "organization_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Organization name is a header field not represented as a leaf element in the Schedule B canonical schema; it lives in the parent return header, not in IRS990ScheduleB."
+    },
+    "employer_identification_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "EIN is a header field on the return, not a leaf element within the IRS990ScheduleB schema; no matching candidate exists in the closed list."
+    },
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is part of the return header, not a leaf element within IRS990ScheduleB; no candidate in the closed list represents it."
+    },
+    "organization_type": {
+      "canonical": "Organization501cInd",
+      "xpath": "Organization501cInd",
+      "confidence": "medium",
+      "rationale": "Organization501cInd is one of several organization-type indicators; however, the blueprint bundles all type options into one field while the schema splits them across Organization501cInd [56], Organization501c3ExemptPFInd [54], Organization501c3TaxablePFInd [55], Organization4947a1NotPFInd [52], Organization4947a1TrtdPFInd [53], and Organization527Ind [57] \u2014 the blueprint should be refactored into separate boolean indicator fields matching each canonical element."
+    },
+    "section_501c_subsection": {
+      "canonical": "@organization501cTypeTxt",
+      "xpath": "                  Organization501cInd/@organization501cTypeTxt",
+      "confidence": "high",
+      "rationale": "The attribute @organization501cTypeTxt on Organization501cInd captures the specific 501(c) subsection number entered in the parenthetical blank."
+    },
+    "contributors": {
+      "canonical": "ContributorInformationGrp",
+      "xpath": "ContributorInformationGrp",
+      "confidence": "medium",
+      "rationale": "ContributorInformationGrp [22] is the repeating group element for Part I contributor rows; the blueprint 'contributors' array maps to this group, though individual sub-fields within it would need separate mappings."
+    },
+    "noncash_contributions": {
+      "canonical": "NonCashPropertyContributionGrp",
+      "xpath": "NonCashPropertyContributionGrp",
+      "confidence": "medium",
+      "rationale": "NonCashPropertyContributionGrp [46] is the repeating group element for Part II noncash property contribution rows, matching the blueprint 'noncash_contributions' array."
+    },
+    "exclusively_religious_contributions": {
+      "canonical": "CharitableContributionsDetail",
+      "xpath": "CharitableContributionsDetail",
+      "confidence": "medium",
+      "rationale": "CharitableContributionsDetail [2] is the repeating group element for Part III exclusively religious/charitable contributions; the blueprint 'exclusively_religious_contributions' array maps to this group."
+    }
+  }
+}

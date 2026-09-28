@@ -1,0 +1,293 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "w_2",
+    "form_root": "IRSW2"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRSW2.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-24T21:12:19+00:00",
+  "blueprint": {
+    "path": "blueprints/w_2.bpt",
+    "name": "w2"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for tax year exists in the W-2 MeF schema; it is carried as an attribute or envelope-level element, not a leaf in IRSW2."
+    },
+    "employee_ssn": {
+      "canonical": "EmployeeSSN",
+      "xpath": "EmployeeSSN",
+      "confidence": "high",
+      "rationale": "EmployeeSSN directly maps to Box a \u2014 employee's Social Security number."
+    },
+    "employer_ein": {
+      "canonical": "EmployerEIN",
+      "xpath": "EmployerEIN",
+      "confidence": "high",
+      "rationale": "EmployerEIN directly maps to Box b \u2014 employer's Identification Number."
+    },
+    "employer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "EmployerName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "BusinessNameLine1Txt under EmployerName/BusinessNameLine1Txt captures the primary legal name of the employer (Box c)."
+    },
+    "employer_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "EmployerUSAddress/AddressLine1Txt",
+      "confidence": "high",
+      "rationale": "AddressLine1Txt under EmployerUSAddress matches the street address line from the employer address block (Box c)."
+    },
+    "employer_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No CityNm element exists under EmployerUSAddress in the candidate list; the blueprint should add an employer_city field mapped to EmployerUSAddress/CityNm which is absent from this candidate set."
+    },
+    "employer_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No StateAbbreviationCd exists under EmployerUSAddress in the candidate list (only under W2StateTaxGrp); blueprint should map to EmployerUSAddress/StateAbbreviationCd which is absent."
+    },
+    "employer_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No ZIPCd element exists under EmployerUSAddress in the candidate list; blueprint should map to EmployerUSAddress/ZIPCd which is absent."
+    },
+    "control_number": {
+      "canonical": "ControlNum",
+      "xpath": "ControlNum",
+      "confidence": "high",
+      "rationale": "ControlNum directly maps to Box d \u2014 employer-assigned control number."
+    },
+    "employee_first_name": {
+      "canonical": "EmployeeNm",
+      "xpath": "EmployeeNm",
+      "confidence": "medium",
+      "rationale": "EmployeeNm is the only employee name element available; the schema stores the full name as one field rather than split first/last \u2014 blueprint bundles first name but canonical uses a single EmployeeNm, so this is the closest match."
+    },
+    "employee_last_name": {
+      "canonical": "EmployeeNm",
+      "xpath": "EmployeeNm",
+      "confidence": "medium",
+      "rationale": "EmployeeNm is the only employee name element; the blueprint splits first/last name but the canonical schema uses a single EmployeeNm \u2014 both employee_first_name and employee_last_name map to the same element, indicating the blueprint should be refactored to a single employee_name field."
+    },
+    "employee_suffix": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No separate suffix element exists in the candidate list; the MeF schema embeds suffix within EmployeeNm, so there is no distinct leaf to map to."
+    },
+    "employee_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "EmployeeUSAddress/AddressLine1Txt",
+      "confidence": "high",
+      "rationale": "AddressLine1Txt under EmployeeUSAddress maps to the employee street address (Box f)."
+    },
+    "employee_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No CityNm element appears under EmployeeUSAddress in the candidate list; blueprint should map to EmployeeUSAddress/CityNm which is absent."
+    },
+    "employee_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No StateAbbreviationCd appears under EmployeeUSAddress in the candidate list; blueprint should map to EmployeeUSAddress/StateAbbreviationCd which is absent."
+    },
+    "employee_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No ZIPCd element appears under EmployeeUSAddress in the candidate list; blueprint should map to EmployeeUSAddress/ZIPCd which is absent."
+    },
+    "wages_tips_other": {
+      "canonical": "WagesAmt",
+      "xpath": "WagesAmt",
+      "confidence": "high",
+      "rationale": "WagesAmt directly maps to Box 1 \u2014 total taxable wages, tips, and other compensation."
+    },
+    "federal_income_tax_withheld": {
+      "canonical": "WithholdingAmt",
+      "xpath": "WithholdingAmt",
+      "confidence": "high",
+      "rationale": "WithholdingAmt directly maps to Box 2 \u2014 federal income tax withheld."
+    },
+    "social_security_wages": {
+      "canonical": "SocialSecurityWagesAmt",
+      "xpath": "SocialSecurityWagesAmt",
+      "confidence": "high",
+      "rationale": "SocialSecurityWagesAmt directly maps to Box 3 \u2014 wages subject to Social Security tax."
+    },
+    "social_security_tax_withheld": {
+      "canonical": "SocialSecurityTaxAmt",
+      "xpath": "SocialSecurityTaxAmt",
+      "confidence": "high",
+      "rationale": "SocialSecurityTaxAmt directly maps to Box 4 \u2014 Social Security tax withheld."
+    },
+    "medicare_wages": {
+      "canonical": "MedicareWagesAndTipsAmt",
+      "xpath": "MedicareWagesAndTipsAmt",
+      "confidence": "high",
+      "rationale": "MedicareWagesAndTipsAmt directly maps to Box 5 \u2014 wages and tips subject to Medicare tax."
+    },
+    "medicare_tax_withheld": {
+      "canonical": "MedicareTaxWithheldAmt",
+      "xpath": "MedicareTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "MedicareTaxWithheldAmt directly maps to Box 6 \u2014 Medicare tax withheld."
+    },
+    "social_security_tips": {
+      "canonical": "SocialSecurityTipsAmt",
+      "xpath": "SocialSecurityTipsAmt",
+      "confidence": "high",
+      "rationale": "SocialSecurityTipsAmt directly maps to Box 7 \u2014 tips subject to Social Security tax."
+    },
+    "allocated_tips": {
+      "canonical": "AllocatedTipsAmt",
+      "xpath": "AllocatedTipsAmt",
+      "confidence": "high",
+      "rationale": "AllocatedTipsAmt directly maps to Box 8 \u2014 tips allocated to the employee."
+    },
+    "box_9": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Box 9 (advance EIC, now reserved) has no corresponding canonical element in the MeF schema candidate list."
+    },
+    "dependent_care_benefits": {
+      "canonical": "DependentCareBenefitsAmt",
+      "xpath": "DependentCareBenefitsAmt",
+      "confidence": "high",
+      "rationale": "DependentCareBenefitsAmt directly maps to Box 10 \u2014 employer-provided dependent care benefits."
+    },
+    "nonqualified_plans": {
+      "canonical": "NonqualifiedPlansAmt",
+      "xpath": "NonqualifiedPlansAmt",
+      "confidence": "high",
+      "rationale": "NonqualifiedPlansAmt directly maps to Box 11 \u2014 nonqualified deferred compensation distributions."
+    },
+    "box_12_entries": {
+      "canonical": "EmployersUseGrp",
+      "xpath": "EmployersUseGrp",
+      "confidence": "medium",
+      "rationale": "EmployersUseGrp (with child EmployersUseCd and EmployersUseAmt) represents Box 12 coded entries; the blueprint array aligns with this repeating group, but the group element rather than a scalar leaf is the best structural match."
+    },
+    "statutory_employee": {
+      "canonical": "StatutoryEmployeeInd",
+      "xpath": "StatutoryEmployeeInd",
+      "confidence": "high",
+      "rationale": "StatutoryEmployeeInd directly maps to Box 13 statutory employee checkbox."
+    },
+    "retirement_plan": {
+      "canonical": "RetirementPlanInd",
+      "xpath": "RetirementPlanInd",
+      "confidence": "high",
+      "rationale": "RetirementPlanInd directly maps to Box 13 retirement plan checkbox."
+    },
+    "third_party_sick_pay": {
+      "canonical": "ThirdPartySickPayInd",
+      "xpath": "ThirdPartySickPayInd",
+      "confidence": "high",
+      "rationale": "ThirdPartySickPayInd directly maps to Box 13 third-party sick pay checkbox."
+    },
+    "box_14_entries": {
+      "canonical": "OtherDeductionsBenefitsGrp",
+      "xpath": "OtherDeductionsBenefitsGrp",
+      "confidence": "medium",
+      "rationale": "OtherDeductionsBenefitsGrp (with child Desc and Amt) represents Box 14 employer-use entries; the blueprint array maps to this repeating group element."
+    },
+    "state": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "StateAbbreviationCd under W2StateLocalTaxGrp/W2StateTaxGrp maps to Box 15 first-jurisdiction state abbreviation."
+    },
+    "employer_state_id": {
+      "canonical": "EmployerStateIdNum",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/EmployerStateIdNum",
+      "confidence": "high",
+      "rationale": "EmployerStateIdNum under the first W2StateTaxGrp maps to Box 15 first-jurisdiction employer state ID."
+    },
+    "state_wages": {
+      "canonical": "StateWagesAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/StateWagesAmt",
+      "confidence": "high",
+      "rationale": "StateWagesAmt under the first W2StateTaxGrp maps to Box 16 first-jurisdiction state wages."
+    },
+    "state_income_tax_withheld": {
+      "canonical": "StateIncomeTaxAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/StateIncomeTaxAmt",
+      "confidence": "high",
+      "rationale": "StateIncomeTaxAmt under the first W2StateTaxGrp maps to Box 17 first-jurisdiction state income tax withheld."
+    },
+    "state_2": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/StateAbbreviationCd",
+      "confidence": "medium",
+      "rationale": "StateAbbreviationCd under W2StateTaxGrp is reused for the second jurisdiction via a second instance of the repeating W2StateTaxGrp group; same element idx, second occurrence."
+    },
+    "employer_state_id_2": {
+      "canonical": "EmployerStateIdNum",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/EmployerStateIdNum",
+      "confidence": "medium",
+      "rationale": "EmployerStateIdNum under W2StateTaxGrp is reused for the second jurisdiction via a second instance of the repeating group; same element idx, second occurrence."
+    },
+    "state_wages_2": {
+      "canonical": "StateWagesAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/StateWagesAmt",
+      "confidence": "medium",
+      "rationale": "StateWagesAmt under W2StateTaxGrp is reused for the second jurisdiction via a second instance of the repeating group; same element idx, second occurrence."
+    },
+    "state_income_tax_withheld_2": {
+      "canonical": "StateIncomeTaxAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/StateIncomeTaxAmt",
+      "confidence": "medium",
+      "rationale": "StateIncomeTaxAmt under W2StateTaxGrp is reused for the second jurisdiction via a second instance of the repeating group; same element idx, second occurrence."
+    },
+    "local_wages": {
+      "canonical": "LocalWagesAndTipsAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/W2LocalTaxGrp/LocalWagesAndTipsAmt",
+      "confidence": "high",
+      "rationale": "LocalWagesAndTipsAmt under W2LocalTaxGrp maps to Box 18 first-locality local wages."
+    },
+    "local_income_tax_withheld": {
+      "canonical": "LocalIncomeTaxAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/W2LocalTaxGrp/LocalIncomeTaxAmt",
+      "confidence": "high",
+      "rationale": "LocalIncomeTaxAmt under W2LocalTaxGrp maps to Box 19 first-locality local income tax withheld."
+    },
+    "locality_name": {
+      "canonical": "LocalityNm",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/W2LocalTaxGrp/LocalityNm",
+      "confidence": "high",
+      "rationale": "LocalityNm under W2LocalTaxGrp maps to Box 20 first-locality name."
+    },
+    "local_wages_2": {
+      "canonical": "LocalWagesAndTipsAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/W2LocalTaxGrp/LocalWagesAndTipsAmt",
+      "confidence": "medium",
+      "rationale": "LocalWagesAndTipsAmt is reused for the second locality via a second instance of the repeating W2LocalTaxGrp group; same element idx, second occurrence."
+    },
+    "local_income_tax_withheld_2": {
+      "canonical": "LocalIncomeTaxAmt",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/W2LocalTaxGrp/LocalIncomeTaxAmt",
+      "confidence": "medium",
+      "rationale": "LocalIncomeTaxAmt is reused for the second locality via a second instance of the repeating W2LocalTaxGrp group; same element idx, second occurrence."
+    },
+    "locality_name_2": {
+      "canonical": "LocalityNm",
+      "xpath": "W2StateLocalTaxGrp/W2StateTaxGrp/W2LocalTaxGrp/LocalityNm",
+      "confidence": "medium",
+      "rationale": "LocalityNm is reused for the second locality via a second instance of the repeating W2LocalTaxGrp group; same element idx, second occurrence."
+    }
+  }
+}

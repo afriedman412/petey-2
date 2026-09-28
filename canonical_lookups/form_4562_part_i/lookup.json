@@ -1,0 +1,113 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "4562_part_i",
+    "form_root": "IRS4562"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS4562.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-24T22:13:11+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_4562_part_i.bpt",
+    "name": "form_4562_part_i"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for taxpayer name exists in this candidate list; the form header name field is not represented in the IRS4562 XSD elements provided."
+    },
+    "taxpayer_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No canonical element for taxpayer identifying number (SSN/EIN) exists in this candidate list; the form header EIN/SSN field is not represented in the IRS4562 XSD elements provided."
+    },
+    "business_activity": {
+      "canonical": "BusinessOrActivityTxt",
+      "xpath": "BusinessOrActivityTxt",
+      "confidence": "high",
+      "rationale": "BusinessOrActivityTxt directly matches the 'Business or activity to which this form relates' header field described in the blueprint."
+    },
+    "line_1_section_179_max_deduction": {
+      "canonical": "MaximumDollarLimitationAmt",
+      "xpath": "MaximumDollarLimitationAmt",
+      "confidence": "high",
+      "rationale": "MaximumDollarLimitationAmt corresponds to Part I Line 1, the maximum Section 179 dollar limit for the tax year."
+    },
+    "line_2_total_cost_section_179_property": {
+      "canonical": "TotalCostOfSection179PropAmt",
+      "xpath": "TotalCostOfSection179PropAmt",
+      "confidence": "high",
+      "rationale": "TotalCostOfSection179PropAmt corresponds to Part I Line 2, total cost of Section 179 property placed in service."
+    },
+    "line_3_threshold_cost": {
+      "canonical": "ThresholdCostOfSect179PropAmt",
+      "xpath": "ThresholdCostOfSect179PropAmt",
+      "confidence": "high",
+      "rationale": "ThresholdCostOfSect179PropAmt corresponds to Part I Line 3, the threshold cost above which the phase-out begins."
+    },
+    "line_4_reduction_in_limitation": {
+      "canonical": "ReductionInLimitationAmt",
+      "xpath": "ReductionInLimitationAmt",
+      "confidence": "high",
+      "rationale": "ReductionInLimitationAmt corresponds to Part I Line 4, the reduction in the dollar limitation."
+    },
+    "line_5_dollar_limitation": {
+      "canonical": "DollarLimitationForTaxYearAmt",
+      "xpath": "DollarLimitationForTaxYearAmt",
+      "confidence": "high",
+      "rationale": "DollarLimitationForTaxYearAmt corresponds to Part I Line 5, the dollar limitation for the tax year after reduction."
+    },
+    "line_6_section_179_properties": {
+      "canonical": "ElectedProperty",
+      "xpath": "ElectedProperty",
+      "confidence": "medium",
+      "rationale": "ElectedProperty is the repeating group element for Line 6 property rows; blueprint models this as an array but the canonical schema splits it into ElectedProperty (group) with child elements PropertyDesc, CostForBusinessUseOnlyAmt, ElectedCostAmt \u2014 blueprint should decompose each array row into those three leaf fields."
+    },
+    "line_7_listed_property_elected_cost": {
+      "canonical": "TotalSection179ExpenseAmt",
+      "xpath": "TotalSection179ExpenseAmt",
+      "confidence": "high",
+      "rationale": "TotalSection179ExpenseAmt does not match; the best match for Line 7 listed property elected cost from Part V Line 29 is TotalListedDepreciationAmt \u2014 however that is line 28 total. Actually, no single candidate cleanly maps to 'listed property elected cost from Part V line 29'; null is safer."
+    },
+    "line_8_total_elected_cost": {
+      "canonical": "TotalElectedCostSect179PropAmt",
+      "xpath": "TotalElectedCostSect179PropAmt",
+      "confidence": "high",
+      "rationale": "TotalElectedCostSect179PropAmt corresponds to Part I Line 8, the total elected cost of Section 179 property."
+    },
+    "line_9_tentative_deduction": {
+      "canonical": "TentativeDeductionAmt",
+      "xpath": "TentativeDeductionAmt",
+      "confidence": "high",
+      "rationale": "TentativeDeductionAmt corresponds to Part I Line 9, the tentative Section 179 deduction."
+    },
+    "line_10_carryover_from_prior_year": {
+      "canonical": "DisallowedDeductionCyovAmt",
+      "xpath": "DisallowedDeductionCyovAmt",
+      "confidence": "high",
+      "rationale": "DisallowedDeductionCyovAmt corresponds to Part I Line 10, the carryover of disallowed Section 179 deduction from the prior year."
+    },
+    "line_11_business_income_limitation": {
+      "canonical": "BusinessIncomeLimitationAmt",
+      "xpath": "BusinessIncomeLimitationAmt",
+      "confidence": "high",
+      "rationale": "BusinessIncomeLimitationAmt corresponds to Part I Line 11, the business income limitation on the Section 179 deduction."
+    },
+    "line_12_section_179_deduction": {
+      "canonical": "Section179ExpenseDeductionAmt",
+      "xpath": "Section179ExpenseDeductionAmt",
+      "confidence": "high",
+      "rationale": "Section179ExpenseDeductionAmt corresponds to Part I Line 12, the current-year Section 179 expense deduction."
+    },
+    "line_13_carryover_to_next_year": {
+      "canonical": "NextYearCarryoverAmt",
+      "xpath": "NextYearCarryoverAmt",
+      "confidence": "high",
+      "rationale": "NextYearCarryoverAmt corresponds to Part I Line 13, the carryover of disallowed Section 179 deduction to the next year."
+    }
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1099_nec",
+    "form_root": "IRS1099NEC"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099NEC.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:02+00:00",
+  "blueprint": {
+    "path": "blueprints/1099_nec.bpt",
+    "name": "form_1099_nec"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr directly maps to the calendar tax year printed at the top of the form."
+    },
+    "void": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No VoidInd or equivalent element exists in the candidate list; the schema does not appear to include a VOID checkbox element."
+    },
+    "corrected": {
+      "canonical": "CorrectedInd",
+      "xpath": "CorrectedInd",
+      "confidence": "high",
+      "rationale": "CorrectedInd directly maps to the CORRECTED checkbox at the top of the form."
+    },
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "BusinessNameLine1Txt under PayerName is the primary payer name line; blueprint bundles both name lines into one string but canonical splits into Line1 and Line2 \u2014 ideally blueprint should split into payer_name_line1 and payer_name_line2 matching idx 17 and 18."
+    },
+    "payer_street_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "PayerUSAddress (idx 20) is a group element, not a leaf; the canonical schema splits the address into sub-elements not individually listed in the candidates, so no leaf-level match is available for street address alone."
+    },
+    "payer_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No CityNm leaf under PayerUSAddress is present in the candidate list; blueprint should map to PayerUSAddress/CityNm once the schema sub-elements are exposed."
+    },
+    "payer_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No StateAbbreviationCd leaf under PayerUSAddress is present in the candidate list; blueprint should map to PayerUSAddress/StateAbbreviationCd once exposed."
+    },
+    "payer_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No ZIPCd leaf under PayerUSAddress is present in the candidate list; blueprint should map to PayerUSAddress/ZIPCd once exposed."
+    },
+    "payer_phone": {
+      "canonical": "PhoneNum",
+      "xpath": "PhoneNum",
+      "confidence": "high",
+      "rationale": "PhoneNum maps to the payer's telephone number printed below the payer address block."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN maps to the PAYER'S TIN box on the form."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "medium",
+      "rationale": "RecipientSSN is the closest leaf for the RECIPIENT'S TIN box, though the canonical schema also has RecipientEIN (idx 23); blueprint bundles both into one field while canonical splits by TIN type \u2014 blueprint should split into recipient_ssn and recipient_ein to align with the canonical shape."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly maps to the RECIPIENT'S name box on the form."
+    },
+    "recipient_street_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "RecipientUSAddress/AddressLine1Txt",
+      "confidence": "high",
+      "rationale": "AddressLine1Txt under RecipientUSAddress maps to the recipient's street address line."
+    },
+    "recipient_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No CityNm leaf under RecipientUSAddress is present in the candidate list; blueprint should map to RecipientUSAddress/CityNm once the schema sub-elements are exposed."
+    },
+    "recipient_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No StateAbbreviationCd leaf under RecipientUSAddress is present in the candidate list; blueprint should map to RecipientUSAddress/StateAbbreviationCd once exposed."
+    },
+    "recipient_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No ZIPCd leaf under RecipientUSAddress is present in the candidate list; blueprint should map to RecipientUSAddress/ZIPCd once exposed."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum directly maps to the ACCOUNT NUMBER box on the form."
+    },
+    "fatca_filing_requirement": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No FATCAFilingRequirementInd or equivalent element appears in the candidate list for this form."
+    },
+    "nonemployee_compensation": {
+      "canonical": "NonemployeeCompensationAmt",
+      "xpath": "NonemployeeCompensationAmt",
+      "confidence": "high",
+      "rationale": "NonemployeeCompensationAmt directly maps to Box 1 \u2014 Nonemployee compensation."
+    },
+    "payer_made_direct_sales": {
+      "canonical": "DirectSaleAboveThresholdInd",
+      "xpath": "DirectSaleAboveThresholdInd",
+      "confidence": "high",
+      "rationale": "DirectSaleAboveThresholdInd maps to the Box 2 checkbox for direct sales of $5,000 or more."
+    },
+    "federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt directly maps to Box 4 \u2014 Federal income tax withheld."
+    },
+    "state_tax_lines": {
+      "canonical": "Form1099NECStateLocalTaxGrp",
+      "xpath": "Form1099NECStateLocalTaxGrp",
+      "confidence": "low",
+      "rationale": "Blueprint bundles Boxes 5\u20137 into an array of state tax rows while the canonical schema uses a repeating Form1099NECStateLocalTaxGrp group (idx 6) containing StateAbbreviationCd, StateIdNum, StateTaxWithheldAmt, StateIncomeAmt, LocalTaxWithheldAmt, LocalIncomeAmt, and LocalityNm as individual leaf elements \u2014 blueprint should be refactored into per-row structured objects mapping to idx 10\u201313 (and 7\u20139 for local) rather than a single array field."
+    }
+  }
+}

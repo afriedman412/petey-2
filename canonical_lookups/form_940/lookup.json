@@ -1,0 +1,401 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_940",
+    "form_root": "IRS940"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS940.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:19:53+00:00",
+  "blueprint": {
+    "path": "blueprints/form_940.bpt",
+    "name": "form_940"
+  },
+  "fields": {
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "EIN is a header identifier not represented as a leaf element in the MeF canonical candidate list for IRS940."
+    },
+    "employer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Employer name is a header field not present as a leaf element in the canonical candidate list."
+    },
+    "trade_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Trade name is a header field not present as a leaf element in the canonical candidate list."
+    },
+    "address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Street address is a header field not present in the canonical candidate list; canonical schema likely splits into AddressLine1Txt + CityNm + StateAbbreviationCd + ZIPCd."
+    },
+    "city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "City is a header address sub-field not present as a leaf element in the canonical candidate list."
+    },
+    "state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "State abbreviation for employer address is a header field not present in the canonical candidate list."
+    },
+    "zip_code": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "ZIP code is a header address sub-field not present as a leaf element in the canonical candidate list."
+    },
+    "foreign_country_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign country name is a header address sub-field not present in the canonical candidate list."
+    },
+    "foreign_province_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign province/state is a header address sub-field not present in the canonical candidate list."
+    },
+    "foreign_postal_code": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Foreign postal code is a header address sub-field not present in the canonical candidate list."
+    },
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a header attribute not present as a leaf element in the canonical candidate list."
+    },
+    "amended_return": {
+      "canonical": "AmendedReturnInd",
+      "xpath": "AmendedReturnInd",
+      "confidence": "high",
+      "rationale": "AmendedReturnInd directly corresponds to the amended return checkbox at the top of Form 940."
+    },
+    "type_of_return_successor_employer": {
+      "canonical": "SuccessorEmployerInd",
+      "xpath": "SuccessorEmployerInd",
+      "confidence": "high",
+      "rationale": "SuccessorEmployerInd matches the checkbox indicating the filer is a successor employer."
+    },
+    "type_of_return_no_payments": {
+      "canonical": "NoPaymentsToEmployeesInd",
+      "xpath": "NoPaymentsToEmployeesInd",
+      "confidence": "high",
+      "rationale": "NoPaymentsToEmployeesInd matches the checkbox indicating no wages were paid during the year."
+    },
+    "type_of_return_final": {
+      "canonical": "FutureFilingNotRequiredInd",
+      "xpath": "FutureFilingNotRequiredInd",
+      "confidence": "high",
+      "rationale": "FutureFilingNotRequiredInd corresponds to the final return checkbox indicating the employer stopped paying wages."
+    },
+    "only_one_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "No candidate represents a single-state checkbox indicator; the MultiStateInd is the inverse concept and does not match Part 1 line 1a directly."
+    },
+    "only_one_state_code": {
+      "canonical": "FUTAStateCd",
+      "xpath": "FUTAStateCd",
+      "confidence": "high",
+      "rationale": "FUTAStateCd matches the two-letter state abbreviation entered on Part 1 line 1a for the single state where FUTA wages were paid."
+    },
+    "paid_wages_multistate": {
+      "canonical": "MultiStateInd",
+      "xpath": "MultiStateInd",
+      "confidence": "high",
+      "rationale": "MultiStateInd corresponds to the Part 1 line 1b checkbox indicating wages were paid in more than one state."
+    },
+    "paid_wages_credit_reduction_state": {
+      "canonical": "CreditReductionStateInd",
+      "xpath": "CreditReductionStateInd",
+      "confidence": "high",
+      "rationale": "CreditReductionStateInd matches the Part 1 line 2 checkbox for wages paid in a credit reduction state."
+    },
+    "total_payments_all_employees": {
+      "canonical": "WagesAmt",
+      "xpath": "WagesAmt",
+      "confidence": "high",
+      "rationale": "WagesAmt corresponds to Part 2 line 3 \u2014 total payments made to all employees before any exclusions."
+    },
+    "payments_exempt_from_futa": {
+      "canonical": "TotalExemptWagesAmt",
+      "xpath": "TotalExemptWagesAmt",
+      "confidence": "high",
+      "rationale": "TotalExemptWagesAmt matches the Part 2 line 4 total of all exempt payments."
+    },
+    "payments_exempt_fringe_benefits": {
+      "canonical": "FringeBenefitsInd",
+      "xpath": "FringeBenefitsInd",
+      "confidence": "high",
+      "rationale": "FringeBenefitsInd is the closest candidate for Part 2 line 4a fringe benefit exempt payments, though it appears to be an indicator rather than an amount \u2014 no amount element exists for this sub-line."
+    },
+    "payments_exempt_group_term_life": {
+      "canonical": "GroupTermLifeInsuranceInd",
+      "xpath": "GroupTermLifeInsuranceInd",
+      "confidence": "high",
+      "rationale": "GroupTermLifeInsuranceInd corresponds to Part 2 line 4b exempt payments for group-term life insurance."
+    },
+    "payments_exempt_retirement_pension": {
+      "canonical": "RetirementPensionInd",
+      "xpath": "RetirementPensionInd",
+      "confidence": "high",
+      "rationale": "RetirementPensionInd corresponds to Part 2 line 4c exempt payments for retirement and pension plans."
+    },
+    "payments_exempt_dependent_care": {
+      "canonical": "DependentCareInd",
+      "xpath": "DependentCareInd",
+      "confidence": "high",
+      "rationale": "DependentCareInd corresponds to Part 2 line 4d exempt payments for dependent care."
+    },
+    "payments_exempt_other": {
+      "canonical": "OtherInd",
+      "xpath": "OtherInd",
+      "confidence": "high",
+      "rationale": "OtherInd corresponds to Part 2 line 4e other exempt payments."
+    },
+    "total_payments_over_7000": {
+      "canonical": "WagesOverLimitAmt",
+      "xpath": "WagesOverLimitAmt",
+      "confidence": "high",
+      "rationale": "WagesOverLimitAmt matches Part 2 line 5 \u2014 total payments in excess of the $7,000 FUTA wage base per employee."
+    },
+    "subtotal": {
+      "canonical": "ExemptWagesAmt",
+      "xpath": "ExemptWagesAmt",
+      "confidence": "medium",
+      "rationale": "ExemptWagesAmt is the best available candidate for Part 2 line 6 subtotal (lines 4+5), though it may represent only the exempt portion; no dedicated subtotal element exists in the candidate list."
+    },
+    "total_taxable_futa_wages": {
+      "canonical": "TotalTaxableWagesAmt",
+      "xpath": "TotalTaxableWagesAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxableWagesAmt directly matches Part 2 line 7 \u2014 total taxable FUTA wages."
+    },
+    "futa_tax_before_adjustments": {
+      "canonical": "FUTATaxBeforeAdjustmentAmt",
+      "xpath": "FUTATaxBeforeAdjustmentAmt",
+      "confidence": "high",
+      "rationale": "FUTATaxBeforeAdjustmentAmt directly matches Part 2 line 8 \u2014 FUTA tax before adjustments."
+    },
+    "if_all_futa_wages_excluded_from_state": {
+      "canonical": "FUTAAdjustmentAmt",
+      "xpath": "FUTAAdjustmentAmt",
+      "confidence": "medium",
+      "rationale": "FUTAAdjustmentAmt is the closest candidate for Part 3 line 9/10 adjustments, but the schema does not distinguish between lines 9 and 10 in the candidate list; this field is mapped with medium confidence."
+    },
+    "if_some_futa_wages_excluded_from_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No separate candidate exists for Part 3 line 10 (partial exclusion adjustment); FUTAAdjustmentAmt was already mapped to line 9 and cannot serve double duty \u2014 schema likely bundles both into one element, so blueprint should reconcile."
+    },
+    "credit_reduction_amount": {
+      "canonical": "TotalCreditReductionAmt",
+      "xpath": "TotalCreditReductionAmt",
+      "confidence": "high",
+      "rationale": "TotalCreditReductionAmt matches Part 3 line 11 \u2014 credit reduction amount from Schedule A."
+    },
+    "total_futa_tax_after_adjustments": {
+      "canonical": "FUTATaxAfterAdjustmentAmt",
+      "xpath": "FUTATaxAfterAdjustmentAmt",
+      "confidence": "high",
+      "rationale": "FUTATaxAfterAdjustmentAmt directly matches Part 3 line 12 \u2014 total FUTA tax after all adjustments."
+    },
+    "futa_tax_deposited_for_year": {
+      "canonical": "TotalTaxDepositAmt",
+      "xpath": "TotalTaxDepositAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxDepositAmt matches Part 4 line 13 \u2014 total FUTA tax deposited for the year."
+    },
+    "balance_due": {
+      "canonical": "BalanceDueAmt",
+      "xpath": "BalanceDueAmt",
+      "confidence": "high",
+      "rationale": "BalanceDueAmt directly matches Part 4 line 14 \u2014 balance due when tax exceeds deposits."
+    },
+    "overpayment": {
+      "canonical": "OverpaidAmt",
+      "xpath": "OverpaymentGrp/OverpaidAmt",
+      "confidence": "high",
+      "rationale": "OverpaidAmt under OverpaymentGrp matches Part 4 line 15 \u2014 overpayment amount."
+    },
+    "overpayment_disposition": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Blueprint bundles the disposition choice into a single category field, but the canonical schema splits it into two boolean indicators (ApplyOverpaymentNextReturnInd and RefundOverpaymentInd); blueprint should be refactored into two separate boolean fields."
+    },
+    "q1_futa_liability": {
+      "canonical": "FirstQuarterTaxLiabilityAmt",
+      "xpath": "FirstQuarterTaxLiabilityAmt",
+      "confidence": "high",
+      "rationale": "FirstQuarterTaxLiabilityAmt matches Part 5 line 16a \u2014 Q1 FUTA tax liability."
+    },
+    "q2_futa_liability": {
+      "canonical": "SecondQuarterTaxLiabilityAmt",
+      "xpath": "SecondQuarterTaxLiabilityAmt",
+      "confidence": "high",
+      "rationale": "SecondQuarterTaxLiabilityAmt matches Part 5 line 16b \u2014 Q2 FUTA tax liability."
+    },
+    "q3_futa_liability": {
+      "canonical": "ThirdQuarterTaxLiabilityAmt",
+      "xpath": "ThirdQuarterTaxLiabilityAmt",
+      "confidence": "high",
+      "rationale": "ThirdQuarterTaxLiabilityAmt matches Part 5 line 16c \u2014 Q3 FUTA tax liability."
+    },
+    "q4_futa_liability": {
+      "canonical": "FourthQuarterTaxLiabilityAmt",
+      "xpath": "FourthQuarterTaxLiabilityAmt",
+      "confidence": "high",
+      "rationale": "FourthQuarterTaxLiabilityAmt matches Part 5 line 16d \u2014 Q4 FUTA tax liability."
+    },
+    "total_futa_tax_liability": {
+      "canonical": "TotalTaxLiabilityAmt",
+      "xpath": "TotalTaxLiabilityAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxLiabilityAmt matches Part 5 line 17 \u2014 total FUTA tax liability for the year."
+    },
+    "third_party_designee": {
+      "canonical": "OtherThirdPartyInd",
+      "xpath": "OtherThirdPartyInd",
+      "confidence": "high",
+      "rationale": "OtherThirdPartyInd corresponds to the Part 6 checkbox authorizing a third-party designee."
+    },
+    "designee_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Third-party designee name is not present as a leaf element in the canonical candidate list."
+    },
+    "designee_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Third-party designee phone number is not present as a leaf element in the canonical candidate list."
+    },
+    "designee_pin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Third-party designee PIN is not present as a leaf element in the canonical candidate list."
+    },
+    "signatory_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Signatory name is not present as a leaf element in the canonical candidate list."
+    },
+    "signatory_title": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Signatory title is not present as a leaf element in the canonical candidate list."
+    },
+    "signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Signature date is not present as a leaf element in the canonical candidate list."
+    },
+    "signatory_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Signatory phone number is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer name is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer PTIN is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer self-employed indicator is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer signature date is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer firm name is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer firm EIN is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer firm address is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_firm_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer firm city is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_firm_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer firm state is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_firm_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer firm ZIP code is not present as a leaf element in the canonical candidate list."
+    },
+    "paid_preparer_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Paid preparer phone number is not present as a leaf element in the canonical candidate list."
+    },
+    "schedule_a_credit_reduction_states": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Schedule A per-state credit reduction rows are a repeating structure not represented by any single leaf element in the canonical candidate list for the main IRS940 form."
+    },
+    "schedule_a_total_credit_reduction": {
+      "canonical": "TotalCreditReductionAmt",
+      "xpath": "TotalCreditReductionAmt",
+      "confidence": "medium",
+      "rationale": "TotalCreditReductionAmt is the best match for Schedule A line 3 total, though it also maps to the main form line 11; canonical schema likely uses the same element for both references."
+    }
+  }
+}
