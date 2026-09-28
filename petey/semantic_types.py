@@ -166,7 +166,7 @@ REGISTRY: tuple[SemanticType, ...] = (
         matches=("_phone", "_telephone", "_phone_number", "_phone_no",
                  "_fax", "_fax_number"),
         whole_names=("phone", "telephone", "fax"),
-        pattern=r"^\d{3}-\d{3}-\d{4}$",
+        pattern=r"^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$",
         ocr_whitelist="0123456789-()  ",
     ),
     SemanticType(

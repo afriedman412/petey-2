@@ -191,3 +191,30 @@ Best/worst show why: it names the *section* (`employer_identification_number` fo
 for a subrogation-waiver code) and never sees the form's naming convention. Mechanics: ollama 0.21 crashes its
 runner on the Liquid GGUF (`llama runner process has terminated`); llama-server on ollama's own blobs
 (`~/.ollama/models/blobs`, model + projector) works at ~1 s/widget on the M1.
+
+## Declared shape vs label-grounded value, library-wide, before and after the retype pass (2026-09-28)
+Ground truth: the 134 cached VLM cases imported from the old runs (`runs/_gen_cache/imported.json`; generated
+with the full inventory, not blind). 121 of the 132 ready blueprints have one. `run_all --gen-model
+claude-sonnet-4-6 --gen-cache-only`, one intact + one flat case each, no API.
+
+| | before (`run_all_vlm.json`) | after `retype --apply` (`run_all_vlm_after.json`) |
+|---|---:|---:|
+| fields contradicting their blueprint (`gt_shape_mismatch`) | 903 of 17,048 (5.3%) | **544 (3.2%)** |
+| by class: pattern / date / number / name | 553 / 185 / 162 / 2 | 295 / 84 / 162 / 2 |
+| native intact agree | 98.5% | 98.5% |
+| native flat agree | 92.8% | 92.7% |
+
+The retype pass (`petey/validate/retype.py`, every change under `x_petey_retype`): 1,348 patterns removed
+from non-string types (spec §5.6), 240 fields made parts by box max length, 118 comb boxes given the
+separator-free pattern (SSN in 9 cells), 256 short shapes removed from wide boxes (`_state` in
+`city_state_zip`), 107 parts by name (`_mm`/`_dd`/`_yyyy`/`_part1`), 49 dates on boxes too small for a date.
+Extraction mechanics do not move: the pass changes declarations, and native reads by path.
+
+What remains (544) is not one class. The old generator's formatting against the box (dashed SSNs where the
+comb has 9 cells; the blind prompt now states `maxlen`), values that belong to another field (`it_dt` holding
+"CERT-OF-ORIGIN" on CBP 7501; `duty_status_effective_dt` holding a duty description on DA 4187 — the swap
+class for `method_delta` / `correct.py`), `percent` fields whose printed value is "Free" or "Various" (f720,
+CBP 7501: a rate column that is not always numeric), and 526EZ's 35 approximate dates written as month/year
+against a tooltip that asks for a full date. Registry change alongside: `phone` now accepts `(xxx) xxx-xxxx`
+and dotted forms, which the scorer already canonicalised; committed blueprints keep the pattern they were
+emitted with until re-emitted.
