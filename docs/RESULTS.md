@@ -73,3 +73,19 @@ Against the same code's 0.76 / 0.61 on self-flattened development forms: recall 
 slightly higher. The spread is the finding — six forms at or above 0.85 recall, six at or below 0.23. Diagnose the bottom
 six per the protocol (they are now development forms); the `sibling` geometry source makes the number moot for these 23
 in production, but the 104 flat forms with no fillable twin depend on it.
+
+## Caption reachability and caption→name agreement (2026-09-28, `eval/caption_binding.py`)
+26,216 widgets across 150 committed v1.1 blueprints. Nearest printed caption by rule: left on the same row (≤60pt),
+above with horizontal overlap (≤24pt), or inside the rect.
+
+| | share of widgets |
+|---|---:|
+| caption within reach | 57% (left 21%, above 34%, inside 2%) |
+| /TU tooltip present | 52% |
+| caption tokens overlap committed name ≥0.3 (suffix/section stripped) | 19% of all widgets (34% of captioned) |
+| overlap ≥0.5 | 12% of all widgets |
+| MiniLM cosine ≥0.60 (raw names) | 13% of all widgets (23% of captioned) |
+
+Bimodal by form: f1099div 88%, f1099nec 83%, f1099k 80% of captioned widgets at ≥0.3; f1040sb 0%, uk_p60 3%,
+f4506t 4%, rrc_h_12 7%, f5500ez 8%. Consistent with the 2026-07 pinwheel finding. The nearest caption is not a
+name source; its remaining roles are anchor evidence and a search target for known canonical labels.
