@@ -477,6 +477,7 @@ def generate_from_pdf(
     cache_key_prefix: Optional[str] = None,
     blind: bool = True,
     client: Any = None,
+    cache_only: bool = False,
 ) -> list[dict[str, Any]]:
     """Generate N cases. Each case is `{path: value}` covering every widget.
 
@@ -523,6 +524,12 @@ def generate_from_pdf(
         cache_dir.mkdir(parents=True, exist_ok=True)
         return cache_dir / f"{h.hexdigest()}.json"
 
+    if cache_only:
+        hits = [_cache_path_for(i) for i in range(n)]
+        if not all(cp is not None and cp.exists() for cp in hits):
+            return []
+        return [json.loads(cp.read_text(encoding="utf-8")) for cp in hits]
+
     key: dict[str, dict] = {}
     if blind:
         per_page, key = blind_inventory(pdf_path)
@@ -541,6 +548,8 @@ def generate_from_pdf(
         if cp is not None and cp.exists():
             cases.append(json.loads(cp.read_text(encoding="utf-8")))
             continue
+        if cache_only:
+            return []  # caller decides; no API call is made
         if client is None:
             client = anthropic.Anthropic()
         merged: dict[str, Any] = {}

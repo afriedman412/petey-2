@@ -108,6 +108,7 @@ def _run_case(
     gen_cache_dir: Optional[Path] = None,
     gen_cache_key: Optional[str] = None,
     datalab_max_fields: int = 400,
+    gen_cache_only: bool = False,
 ) -> dict:
     """Run one case end-to-end. Returns the case's scores per method."""
     case_dir.mkdir(parents=True, exist_ok=True)
@@ -120,6 +121,13 @@ def _run_case(
         # on the case key so reruns reproduce.
         gt = generate_local(bpt, blank_pdf, seed=seed_from_key(gen_cache_key))
     else:
+        if gen_cache_only and not generate_from_pdf(
+                blank_pdf, n=1, model=gen_model or model,
+                cache_dir=gen_cache_dir, cache_key_prefix=gen_cache_key,
+                cache_only=True):
+            print(f"    [{variant}] no cached ground truth; skipping "
+                  f"(--gen-cache-only)")
+            return {"_gen_error": "no_cached_ground_truth"}
         gt = generate_from_pdf(
             blank_pdf, n=1, model=gen_model or model,
             cache_dir=gen_cache_dir, cache_key_prefix=gen_cache_key,
@@ -446,6 +454,12 @@ def main() -> int:
                          "when absent (metered), which is how the "
                          "meaning-based arm gets added to runs that only "
                          "have native.")
+    ap.add_argument("--gen-cache-only", action="store_true",
+                    help="never call the generator API: use cached ground "
+                         "truth or skip the case")
+    ap.add_argument("--fresh-flat-gt", action="store_true",
+                    help="generate separate ground truth per flat case "
+                         "(default: flat cases reuse the intact case's)")
     ap.add_argument("--run-dir", type=Path, default=None,
                     help="existing run dir to rescore (with --rescore/--reextract)")
     ap.add_argument("--out", type=Path,
@@ -520,6 +534,7 @@ def main() -> int:
         gen_cache_dir=gen_cache_dir,
         gen_cache_key=f"{gen_key}_intact_001",
         datalab_max_fields=args.datalab_max_fields,
+        gen_cache_only=args.gen_cache_only,
     ))
 
     for i in range(args.n_flat):
@@ -532,8 +547,10 @@ def main() -> int:
             methods=methods, model=args.model,
             gen_model=args.gen_model,
             gen_cache_dir=gen_cache_dir,
-            gen_cache_key=f"{gen_key}_flat_{cnum:03d}",
+            gen_cache_key=(f"{gen_key}_flat_{cnum:03d}" if args.fresh_flat_gt
+                           else f"{gen_key}_intact_001"),
             datalab_max_fields=args.datalab_max_fields,
+            gen_cache_only=args.gen_cache_only,
         ))
 
     # 3. Aggregate summary

@@ -70,6 +70,8 @@ def main() -> int:
                     help="passed to validate; 'local' runs the loop with no API")
     ap.add_argument("--label-model", type=str, default=None,
                     help="passed to validate; 'none' labels without an API")
+    ap.add_argument("--gen-cache-only", action="store_true",
+                    help="passed to validate: cached ground truth or skip")
     ap.add_argument("--forms", type=str, default=None,
                     help="comma-separated blueprint stems to run instead of the survey's ready set")
     ap.add_argument("--out", type=Path,
@@ -98,6 +100,8 @@ def main() -> int:
             cmd += ["--gen-model", args.gen_model]
         if args.label_model:
             cmd += ["--label-model", args.label_model]
+        if args.gen_cache_only:
+            cmd += ["--gen-cache-only"]
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True,
                                   timeout=900)
