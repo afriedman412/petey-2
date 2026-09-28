@@ -89,6 +89,10 @@ scripts that encode cross-field logic (on 21-526EZ, checking one marital-status 
 mutex group). The committed `vba21526ez.bpt` carries 130 patterns, all inferred from LLM-chosen slugs by
 `semantic_types`, and 0 `required` — the publisher declared 70 formats on that form and none were used.
 
+*Measured after building the parser (RESULTS.md, 2026-09-28): the 70 formats on 526EZ are all date pictures, and
+the marital-status scripts reference fields that do not exist on that form. Reciprocal clear-others groups exist on
+the USCIS/CBP/Army hybrids (68 on 7 forms), not on the VA ones, whose mutexes are exclGroups already.*
+
 Order: XFA `picture` → `pattern` (picture clauses translate: `9`→`\d`, `A`→`[A-Za-z]`, literals kept; the
 alternatives become accepted-input patterns, the display form the canonical one), `nullTest="error"` →
 `required`, `items` → `values`, the validate message → `description`, all tagged `x_petey_validation_source:

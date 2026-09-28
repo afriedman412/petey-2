@@ -89,3 +89,39 @@ above with horizontal overlap (≤24pt), or inside the rect.
 Bimodal by form: f1099div 88%, f1099nec 83%, f1099k 80% of captioned widgets at ≥0.3; f1040sb 0%, uk_p60 3%,
 f4506t 4%, rrc_h_12 7%, f5500ez 8%. Consistent with the 2026-07 pinwheel finding. The nearest caption is not a
 name source; its remaining roles are anchor evidence and a search target for known canonical labels.
+
+## Declared vs inferred validation on XFA hybrids (2026-09-28, `petey/label/xfa.py`, `eval/xfa_declared.py`)
+STRATEGY_v1 §5 step 3. The parser reads the XFA template packet, joins template fields to AcroForm widgets by
+path (exact join covers 95% of 17,749 widget paths across the 99 XFA PDFs in the corpus; index-stripped
+fallback covers the rest), and `auto_label` overlays what the publisher declared on every joined field.
+Re-emitted with `--no-llm` (no API):
+
+| | 21-526EZ (345 fields) | 10-10EZ (122 fields) |
+|---|---:|---:|
+| joined to template | 345 | 122 |
+| `pattern` from a text picture | 0 | 10 (4 SSN, 6 phone) |
+| `type: date` declared | 35 | 17 |
+| `type: number` declared | 0 | 12 |
+| radio groups with declared captions | 23 | 22 |
+| validate messages carried | 0 | 36 |
+| `required` (nullTest=error) | 0 | 0 |
+
+Corrections to §3.5 as written: the 70 pictures on 526EZ are the 35 date fields' `ui` + `format` clauses — the
+form declares no text shapes at all, so its SSN parts and phone numbers have no publisher pattern. The
+committed `vba21526ez.bpt` carries 130 inferred patterns; 35 of them sit on `type: date` fields, which the
+spec forbids (§5.6), and the re-emit drops those. 95 inferred text patterns have no declared counterpart and
+stay inferred. `nullTest="error"` occurs on 72 fields corpus-wide and on neither VA form: `required` is rarely
+declared.
+
+Hybrid detail: AcroForm radio appearance states are the exclGroup members' ordinals (0..n-1) in template order,
+while XFA item values are what the data packet stores (BirthSex: states 0/1, items 1/2). `values` keeps the
+appearance states because the extractor reads them; the captions pair by position under `x_petey_xfa.choices`.
+
+**Step 3b measurement — mutex from scripts.** The strategy's example was wrong: the 19 "clear marital status"
+scripts on 526EZ reference `married/divorced/separated/nevermarried`, fields that do not exist on that form
+(copied from another form). Both VA forms have 0 reciprocal groups; their mutexes are exclGroups, already
+`category` fields. Corpus-wide, 5,439 scripts, 532 with a clear-others assignment; requiring reciprocity
+(A clears B and B clears A) leaves **68 groups of 2+ members on 7 forms**: i-130 39, i-485 9, DA 4187 8,
+i-864 4, i-765 4, CBP 3299 3, VA DMV TPT-576 1. Two shapes: true mutexes (male/female, yes/no/unknown,
+child/parent/sibling/spouse, approve/disapprove) and one-of address groups (state vs province vs postal code).
+Committed blueprints exist for six of the seven.

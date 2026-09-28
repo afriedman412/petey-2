@@ -57,6 +57,7 @@ from petey.bpt_version import stamp_version
 from petey.label.dedup import DedupState
 from petey.label.page_signature import collapse_copy_pages
 from petey.label.vocab import load_form_vocab
+from petey.label import xfa as xfa_mod
 from petey.label.retrieve import Embedder, match_labels_to_widgets
 from petey.semantic_types import enrich_field
 from petey.locate import enumerate_geometry
@@ -550,6 +551,18 @@ def build_blueprint(
     if not widgets:
         raise SystemExit(f"No geometry in {blank_pdf}: no AcroForm widgets, and step2flat found no fields")
 
+    # The publisher's own field-level validation, when the form is an XFA
+    # hybrid (STRATEGY_v1 §3.5): joined to widgets by AcroForm path, so
+    # only meaningful with AcroForm geometry.
+    xfa_tpl = None
+    if geometry_method == "acroform":
+        try:
+            xfa_tpl = xfa_mod.parse(blank_pdf)
+        except Exception as e:  # a broken packet must not sink the draft
+            print(f"[auto_label] XFA template unreadable: {e}")
+        if xfa_tpl is not None:
+            print(f"[auto_label] XFA template: {xfa_tpl.census()}")
+
     if geometry_method == "acroform":
         # Step 1: cross-page copy collapse (multi-copy tax forms)
         widgets, copy_page_info = collapse_copy_pages(widgets)
@@ -736,6 +749,21 @@ def build_blueprint(
     mutex_widgets: dict[str, dict[str, dict]] = {}
     dedup = DedupState()
     n_tooltip_descriptions = 0
+    xfa_changes: collections.Counter = collections.Counter()
+
+    def _overlay_xfa(spec: dict, path: Optional[str]) -> dict:
+        """Declared beats inferred: XFA picture/nullTest/items over
+        whatever `enrich_field` guessed from the name."""
+        if xfa_tpl is None:
+            return spec
+        rec = xfa_tpl.lookup(path)
+        if rec is None:
+            xfa_changes["unjoined"] += 1
+            return spec
+        xfa_changes["joined"] += 1
+        for k in xfa_mod.apply_declared(spec, rec):
+            xfa_changes[k] += 1
+        return spec
 
     labeled = sorted(
         (w for w in label_entries if w.get("label")),
@@ -794,6 +822,7 @@ def build_blueprint(
                     "values": on_states,
                     "widget": widget_block,
                 }
+            _overlay_xfa(fields[assigned], w.get("path"))
             continue
 
         if "." in label:
@@ -814,6 +843,7 @@ def build_blueprint(
             spec["description"] = desc
             spec["x_petey_description_source"] = "tooltip"
             n_tooltip_descriptions += 1
+        _overlay_xfa(spec, w.get("path"))
         fields[assigned] = _attach_audit(spec, w["id"])
 
     for group, val_to_widget in mutex_widgets.items():
@@ -872,6 +902,10 @@ def build_blueprint(
         }
     if n_tooltip_descriptions:
         print(f"  [tooltip] {n_tooltip_descriptions} descriptions from /TU")
+    if xfa_changes:
+        print(f"  [xfa] declared over inferred: {dict(xfa_changes)}")
+        if set(xfa_changes) - {"joined", "unjoined"}:
+            bp["x_petey_xfa_log"] = dict(xfa_changes)
     return stamp_version(bp)
 
 
