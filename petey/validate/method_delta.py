@@ -293,11 +293,14 @@ def main() -> int:
     if args.form:
         dirs = [d for d in dirs if args.form in d.name]
 
-    # One run per form: the most recent, since re-runs supersede.
+    # One run per form: the most recent that carries a meaning-arm score.
+    # A later native-only run (the local batch) must not hide it.
     latest: dict[str, Path] = {}
     for d in dirs:
         form = d.name.rsplit("_", 2)[0]
-        latest[form] = d
+        has_petey = any(d.glob("case_*/score_petey*.json"))
+        if has_petey or form not in latest:
+            latest[form] = d
 
     results, counts = [], collections.Counter()
     for form, d in sorted(latest.items()):
