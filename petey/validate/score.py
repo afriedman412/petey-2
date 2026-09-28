@@ -412,6 +412,51 @@ def check_rules(bpt: dict, values: dict[str, Any]) -> list[dict]:
     return out
 
 
+_DATE_SHAPES = re.compile(
+    r"\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}-\d{1,2}-\d{2,4}"
+    r"|[A-Za-z]{3,9}\.? \d{1,2},? \d{4}|\d{1,2} [A-Za-z]{3,9}\.? \d{4}")
+_NUMBER_SHAPE = re.compile(r"[-+(]?\s*\$?\s*[\d,]+(?:\.\d+)?\s*%?\)?")
+
+
+def shape_mismatch(field: dict, value: Any) -> Optional[str]:
+    """Why a label-grounded value contradicts what the field declares.
+
+    The generator fills a box from the label printed next to it; the
+    blueprint declares what it believes the box holds. Where the two
+    disagree on SHAPE the blueprint is the usual suspect: a month box typed
+    `date`, an SSN part typed as a whole SSN, an email box named as a
+    street. Returns None when the value fits or there is nothing to test.
+    """
+    if value is None or value == "" or isinstance(value, bool):
+        return None
+    ftype = field.get("type", "string")
+    s = str(value).strip()
+    if not s:
+        return None
+    if ftype == "date":
+        return None if _DATE_SHAPES.fullmatch(s) else "date_type_vs_value"
+    if ftype in ("number", "integer"):
+        return None if _NUMBER_SHAPE.fullmatch(s) else "number_type_vs_value"
+    if ftype == "category":
+        allowed = field.get("values") or []
+        if allowed and s not in allowed:
+            return "value_not_in_values"
+        return None
+    if ftype == "string":
+        pat = field.get("pattern")
+        if pat:
+            try:
+                if not re.fullmatch(pat, s):
+                    return "pattern_vs_value"
+            except re.error:
+                return None
+        st = field.get("semantic_type")
+        if st in ("street_address", "city", "person_name", "first_name",
+                  "last_name", "entity_name", "business_name") and "@" in s:
+            return "name_vs_value"
+    return None
+
+
 def score(
     bpt: dict,
     ground_truth: dict[str, Any],
@@ -421,6 +466,7 @@ def score(
     """Emit a per-field verdict report."""
     fields = bpt.get("fields", {})
     gt_by_name: dict[str, Any] = {}
+    shape_mismatches: dict[str, str] = {}
     dispatch = dispatch_per_field or {}
     # An empty/absent dispatch means this method emits none at all, not
     # that every field was missed. See the tri-state note in the module
@@ -435,6 +481,9 @@ def score(
         ftype = field.get("type", "string")
         gt_value, defect = _normalize_ground_truth(field, ground_truth)
         gt_by_name[name] = gt_value
+        mismatch = shape_mismatch(field, gt_value)
+        if mismatch:
+            shape_mismatches[name] = mismatch
         ex_value = extracted.get(name)
         dispatch_entry = dispatch.get(name)
         reached = _field_reached(dispatch_entry) if instrumented else None
@@ -481,6 +530,7 @@ def score(
             "field": name,
             "type": ftype,
             "verdict": verdict,
+            "shape_mismatch": mismatch,
             "reached": reached,
             "gt_value": gt_value,
             "extracted_value": ex_value,
@@ -502,11 +552,17 @@ def score(
     ex_violations = check_rules(bpt, extracted)
     gt_violations = check_rules(bpt, gt_by_name)
     verdicts["rule_violation"] = len(ex_violations)
+    # Ground truth vs declaration: a label-grounded value the blueprint's
+    # own type/pattern rejects is a blueprint defect surfaced at generation
+    # time, independent of extraction. Counted beside the verdicts, not
+    # among them — the same field also gets agree/differ/miss.
+    verdicts["gt_shape_mismatch"] = len(shape_mismatches)
 
     return {
         "verdicts": verdicts,
         "rule_violations": ex_violations,
         "gt_rule_violations": gt_violations,
+        "gt_shape_mismatches": shape_mismatches,
         "agree_confirmed_count": agree_confirmed if instrumented else None,
         "agree_by_absence_count": agree_by_absence if instrumented else None,
         "labeler_miss_count": len(labeler_miss_paths),
