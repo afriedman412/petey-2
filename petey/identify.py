@@ -436,38 +436,21 @@ def _norm(s: str) -> str:
 
 
 def reconcile(idents: list[Identity], db: Path) -> dict[str, str]:
-    conn = sqlite3.connect(str(db))
-    forms = {r[0] for r in conn.execute("SELECT form_id FROM forms")}
-    aliases = {a: f for a, f in conn.execute("SELECT alias, form_id FROM aliases")}
-    by_sha = {s: f for p, s, f in conn.execute("SELECT path, sha256, form_id FROM source_pdfs")}
-    nf = {_norm(f): f for f in forms}
-    na = {_norm(a): f for a, f in aliases.items()}
+    """Compare each identity with what the registry already knows (read-only).
+    Uses the one resolver (`petey.registry_lookup`), the same one apply_identity uses."""
+    from petey.registry_lookup import resolve_form_id
+    conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+    by_sha = {s: f for s, f in conn.execute("SELECT sha256, form_id FROM source_pdfs")}
+    conn.close()
     verdict: dict[str, str] = {}
     for it in idents:
         reg = by_sha.get(it.sha256)
         if not it.canonical:
             verdict[it.path] = "unidentified" + ("" if reg else ",registry-unidentified")
             continue
-        num = _norm(it.form_number or "")
-        cands = [_norm(it.canonical), num]
-        hit = next((nf[c] for c in cands if c in nf), None) or next((na[c] for c in cands if c in na), None)
-        if not hit and num:
-            # last resort: a registry id that ENDS with the number, if unique, preferring the issuer's jurisdiction
-            ends = [f for k, f in nf.items() if len(num) >= 4 and k.endswith(num) and len(k) - len(num) <= 3]
-            if len(ends) > 1 and it.jurisdiction and it.jurisdiction.startswith("us-") and len(it.jurisdiction) == 5:
-                st = it.jurisdiction[3:]
-                ends = [f for f in ends if f.startswith(st + "_")] or ends
-            if len(ends) == 1:
-                hit = ends[0]
-        if not hit and num:
-            sfx = [f for k, f in nf.items() if len(k) >= 4 and num.endswith(k)]
-            if len(sfx) == 1:
-                hit = sfx[0]
-        if not hit and len(num) >= 3:
-            # registry id = number + descriptor (fincen_form_114_fbar), if unique
-            pre = [f for k, f in nf.items() if k.startswith(num) and len(k) > len(num)]
-            if len(pre) == 1:
-                hit = pre[0]
+        state = (it.jurisdiction or "").startswith("us-") and it.jurisdiction != "us-federal"
+        cands = [it.canonical] + ([] if state else [it.form_number or "", "form_" + (it.form_number or "")])
+        hit = next((f for f in (resolve_form_id(c, db) for c in cands if c) if f), None)
         if reg and hit == reg:
             verdict[it.path] = "agree"
         elif reg and hit and hit != reg:
