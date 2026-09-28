@@ -35,6 +35,8 @@ import yaml
 from petey.paths import BLUEPRINTS, SOURCE_PDFS
 from petey.semantic_types import lookup
 from petey.synth.local import widget_limits
+from petey.label import xfa as xfa_mod
+from petey.label.auto_label import _description_from_tooltip
 
 PART_TYPES = {"date_month", "date_day", "date_year", "id_part"}
 NARROW_PT = 28.0
@@ -77,11 +79,52 @@ def resolve_blank(bp: dict) -> Optional[Path]:
     return hits[0] if hits else None
 
 
+def describe_blueprint(bp: dict, limits: dict[str, dict],
+                       tpl: "xfa_mod.XfaTemplate | None") -> collections.Counter:
+    """Rule 4/5: publisher text into empty descriptions.
+
+    The meaning-based reader locates a field from its name and description
+    (`extract_llm`), and on 526EZ 67 of 328 fields were unlocatable by name
+    alone. The publisher wrote a tooltip for 52% of widgets library-wide
+    and, on XFA hybrids, a caption for every radio option; the emitter
+    carries both into new blueprints, and this carries them into the
+    committed ones. Additive: a field that has a description keeps it.
+    """
+    changes: collections.Counter = collections.Counter()
+    for name, spec in (bp.get("fields") or {}).items():
+        if spec.get("description"):
+            continue
+        widget = spec.get("widget") or {}
+        path = widget.get("path")
+        note = list(spec.get("x_petey_retype") or [])
+        if path and tpl is not None and spec.get("type") == "category" \
+                and widget.get("widget_type") == "radiobutton":
+            rec = tpl.lookup(path)
+            if rec is not None and rec.kind == "excl":
+                probe = {"values": list(spec.get("values") or [])}
+                xfa_mod.apply_declared(probe, rec)
+                if probe.get("description"):
+                    spec["description"] = probe["description"]
+                    spec["x_petey_description_source"] = "xfa_choices"
+                    note.append("description_from_xfa_choices")
+                    changes["description_from_xfa_choices"] += 1
+        if not spec.get("description") and path:
+            desc = _description_from_tooltip((limits.get(path) or {}).get("tooltip"))
+            if desc:
+                spec["description"] = desc
+                spec["x_petey_description_source"] = "tooltip"
+                note.append("description_from_tooltip")
+                changes["description_from_tooltip"] += 1
+        if note:
+            spec["x_petey_retype"] = note
+    return changes
+
+
 def retype_blueprint(bp: dict, limits: dict[str, dict]) -> collections.Counter:
     changes: collections.Counter = collections.Counter()
     for name, spec in (bp.get("fields") or {}).items():
         ftype = spec.get("type", "string")
-        note = []
+        note = list(spec.get("x_petey_retype") or [])
 
         if "pattern" in spec and ftype != "string":
             spec.pop("pattern")
@@ -167,6 +210,8 @@ def main() -> int:
     ap.add_argument("--apply", action="store_true", help="write changes (default: report only)")
     ap.add_argument("--out-dir", type=Path, default=None,
                     help="write retyped copies here instead of in place")
+    ap.add_argument("--describe", action="store_true",
+                    help="also fill empty descriptions from widget tooltips and XFA radio captions")
     args = ap.parse_args()
     paths = ([BLUEPRINTS / f"{args.form}.bpt"] if args.form
              else sorted(BLUEPRINTS.glob("*.bpt")))
@@ -179,6 +224,12 @@ def main() -> int:
         blank = resolve_blank(bp)
         limits = widget_limits(blank) if blank else {}
         changes = retype_blueprint(bp, limits)
+        if args.describe and blank:
+            try:
+                tpl = xfa_mod.parse(blank)
+            except Exception:
+                tpl = None
+            changes.update(describe_blueprint(bp, limits, tpl))
         if not changes:
             continue
         per_form[p.stem] = dict(changes)

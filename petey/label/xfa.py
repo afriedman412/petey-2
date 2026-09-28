@@ -612,6 +612,11 @@ def mutex_groups(t: "XfaTemplate") -> list[list[str]]:
 
 # ---------------------------------------------------------------- overlay
 
+def choices_description(choices: dict) -> str:
+    """`{"0": "FEMALE", "1": "MALE"}` -> 'One of: 0 = FEMALE; 1 = MALE'."""
+    return "One of: " + "; ".join(f"{k} = {v}" for k, v in choices.items() if v)
+
+
 def declared_pattern(f: XfaField) -> tuple[Optional[str], Optional[str]]:
     """(regex, source picture) for a TEXT field. Display form (`format`)
     first, then the validate picture, then the accepted-input alternatives
@@ -686,6 +691,12 @@ def apply_declared(spec: dict, f: XfaField) -> list[str]:
             if not states and f.items:
                 set_("type", "category")
                 set_("values", list(f.items))
+        # The values are appearance states ("0", "1"); a reader that goes
+        # by meaning needs the captions to pick one. Publisher text, so it
+        # belongs in the description when nothing better is there.
+        if x["choices"] and not spec.get("description"):
+            set_("description", choices_description(x["choices"]))
+            spec["x_petey_description_source"] = "xfa_choices"
 
     for where in ("format", "validate", "ui"):
         if f.pictures.get(where):
