@@ -288,8 +288,11 @@ def _aggregate(case_reports: list[dict], method: str) -> dict:
              if r.get(method, {}).get("verdicts") is not None]
     if not valid:
         return {"n_cases": 0}
-    verdicts_keys = ["agree", "differ", "extract_miss", "gt_defect"]
-    avg = {k: mean(r["verdicts"][k] for r in valid) for k in verdicts_keys}
+    verdicts_keys = ["agree", "differ", "extract_miss", "gt_defect",
+                     "rule_violation"]
+    # .get: reports scored before a verdict existed lack its key
+    avg = {k: mean(r["verdicts"].get(k, 0) for r in valid)
+           for k in verdicts_keys}
     # These are None for uninstrumented methods (the Petey CLI emits no
     # per-widget dispatch); averaging None raises, and defaulting it to 0
     # would reassert the very claim the tri-state exists to avoid.

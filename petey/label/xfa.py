@@ -548,6 +548,68 @@ def parse(pdf: Union[str, Path, pymupdf.Document]) -> Optional[XfaTemplate]:
             doc.close()
 
 
+# ---------------------------------------------------------------- rules
+
+_CLEAR_RE = re.compile(
+    r"([\w\.\[\]#\\]+)\.rawValue\s*=\s*(?:0|null|\"\"|''|\"Off\")\s*;?")
+
+
+def _resolve_ref(ref: str, origin: XfaField, t: "XfaTemplate",
+                 by_leaf: dict) -> Optional[str]:
+    """A script reference (`married`, `Page1.married`, `this.parent.x`)
+    -> template path. Siblings of the scripted field first, then a
+    unique leaf name anywhere; ambiguous names are skipped."""
+    leaf = ref.split(".")[-1].split("[")[0].lower()
+    if leaf in ("this", "parent", "xfa", "form"):
+        return None
+    cands = by_leaf.get(leaf) or []
+    if not cands:
+        return None
+    if len(cands) == 1:
+        return cands[0]
+    parent = origin.path.rsplit(".", 1)[0]
+    sib = [p for p in cands if p.rsplit(".", 1)[0] == parent]
+    return sib[0] if len(sib) == 1 else None
+
+
+def mutex_groups(t: "XfaTemplate") -> list[list[str]]:
+    """Reciprocal clear-others groups mined from field scripts.
+
+    A clears B (`B.rawValue = 0`) is not enough — publishers copy scripts
+    between forms (526EZ carries 19 that name fields it does not have).
+    A and B form a group only when each clears the other; the group is
+    the pair plus every field both clear. Returns lists of template
+    paths, size >= 2, one per distinct group.
+    """
+    by_leaf: dict[str, list[str]] = {}
+    for p, f in t.fields.items():
+        by_leaf.setdefault(f.name.lower(), []).append(p)
+    clears: dict[str, set[str]] = {}
+    for p, f in t.fields.items():
+        for s in f.scripts:
+            for m in _CLEAR_RE.finditer(s["text"]):
+                target = _resolve_ref(m.group(1), f, t, by_leaf)
+                if target and target != p:
+                    clears.setdefault(p, set()).add(target)
+    groups: set[frozenset] = set()
+    for a, ts in clears.items():
+        for b in ts:
+            if a in clears.get(b, ()):
+                groups.add(frozenset({a, b} | (ts & clears[b])))
+    # Members must share a kind. A checkbox that clears a block of text
+    # fields, which in turn clear it ("same as physical address"), is
+    # reciprocal but is a toggle, not a mutex: on a normal fill most of
+    # its members hold a value at once.
+    out = []
+    for g in groups:
+        if len(g) < 2:
+            continue
+        kinds = {t.fields[p].kind for p in g}
+        if len(kinds) == 1:
+            out.append(sorted(g))
+    return sorted(out)
+
+
 # ---------------------------------------------------------------- overlay
 
 def declared_pattern(f: XfaField) -> tuple[Optional[str], Optional[str]]:

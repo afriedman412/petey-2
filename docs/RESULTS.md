@@ -125,3 +125,16 @@ scripts on 526EZ reference `married/divorced/separated/nevermarried`, fields tha
 i-864 4, i-765 4, CBP 3299 3, VA DMV TPT-576 1. Two shapes: true mutexes (male/female, yes/no/unknown,
 child/parent/sibling/spouse, approve/disapprove) and one-of address groups (state vs province vs postal code).
 Committed blueprints exist for six of the seven.
+
+**Step 3b build (2026-09-28).** `xfa.mutex_groups` keeps a reciprocal group only when its members share a kind:
+a checkbox that clears a block of text fields which in turn clear it ("mailing same as physical",
+"obtained certificate: No" clearing the certificate fields) is reciprocal but is a toggle — on a normal fill
+most members hold a value at once — and the state/province/postal-code triples are US-vs-foreign toggles for the
+same reason (state and zip coexist). With the filter: **30 groups on 5 forms, all checkbox groups** (i-130 15,
+DA 4187 8, CBP 3299 3, TPT-576 3, i-864 1). The emitter writes them as `x_petey_rules: [{mutex: [...]}]` over
+the emitted field names; on the committed `i130.bpt` 6 of the 15 survive the name mapping because the LLM
+labeler had already folded the others into `category` fields with `widgets`, where the mutex is the type.
+`score.check_rules` evaluates `rules:` / `x_petey_rules` on the extracted values and on the ground truth;
+`rule_violation` is a new verdict count. Checks: a deliberately violating case (two relationship boxes held) is
+caught, the compliant case is clean, and the saved f1040 case rescores with identical per-field verdicts and
+`rule_violation: 0`.

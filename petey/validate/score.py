@@ -378,6 +378,40 @@ def _looks_like_ocr_noise(v: Any) -> bool:
     return False
 
 
+def _is_set(v: Any, ftype: str) -> bool:
+    """Does this field hold a value, for the purpose of a cross-field rule?"""
+    if v is None or v == "" or v == [] or v == "Off":
+        return False
+    if ftype == "boolean":
+        return bool(_coerce_bool(v))
+    return True
+
+
+def check_rules(bpt: dict, values: dict[str, Any]) -> list[dict]:
+    """Evaluate the blueprint's cross-field rules against name-keyed values.
+
+    Rules live under `rules:` (spec Appendix B, proposed) or `x_petey_rules`
+    until then. Only `mutex` is implemented: at most one member may hold a
+    value. Returns one record per violated rule. Needs no ground truth —
+    the form's own logic is the referee (STRATEGY_v1 §3.6).
+    """
+    fields = bpt.get("fields", {})
+    out: list[dict] = []
+    for rule in bpt.get("rules") or bpt.get("x_petey_rules") or []:
+        members = rule.get("mutex")
+        if not members:
+            continue
+        held = [f for f in members
+                if _is_set(values.get(f), fields.get(f, {}).get("type", "string"))]
+        if len(held) > 1:
+            out.append({
+                "rule": rule,
+                "held": held,
+                "values": {f: values.get(f) for f in held},
+            })
+    return out
+
+
 def score(
     bpt: dict,
     ground_truth: dict[str, Any],
@@ -386,6 +420,7 @@ def score(
 ) -> dict:
     """Emit a per-field verdict report."""
     fields = bpt.get("fields", {})
+    gt_by_name: dict[str, Any] = {}
     dispatch = dispatch_per_field or {}
     # An empty/absent dispatch means this method emits none at all, not
     # that every field was missed. See the tri-state note in the module
@@ -399,6 +434,7 @@ def score(
     for name, field in fields.items():
         ftype = field.get("type", "string")
         gt_value, defect = _normalize_ground_truth(field, ground_truth)
+        gt_by_name[name] = gt_value
         ex_value = extracted.get(name)
         dispatch_entry = dispatch.get(name)
         reached = _field_reached(dispatch_entry) if instrumented else None
@@ -460,8 +496,17 @@ def score(
         and v not in ("", "Off", False)
     ]
 
+    # Cross-field rules: a violated rule on the extracted side is its own
+    # verdict; on the ground-truth side it means the generator broke the
+    # form's logic (a defective case, not an extraction fault).
+    ex_violations = check_rules(bpt, extracted)
+    gt_violations = check_rules(bpt, gt_by_name)
+    verdicts["rule_violation"] = len(ex_violations)
+
     return {
         "verdicts": verdicts,
+        "rule_violations": ex_violations,
+        "gt_rule_violations": gt_violations,
         "agree_confirmed_count": agree_confirmed if instrumented else None,
         "agree_by_absence_count": agree_by_absence if instrumented else None,
         "labeler_miss_count": len(labeler_miss_paths),

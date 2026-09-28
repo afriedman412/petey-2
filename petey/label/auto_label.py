@@ -906,6 +906,28 @@ def build_blueprint(
         print(f"  [xfa] declared over inferred: {dict(xfa_changes)}")
         if set(xfa_changes) - {"joined", "unjoined"}:
             bp["x_petey_xfa_log"] = dict(xfa_changes)
+    if xfa_tpl is not None:
+        # Cross-field rules (STRATEGY_v1 §3.5, spec Appendix B proposal):
+        # reciprocal clear-others script groups become `mutex` rules over
+        # the emitted field names. Under x_petey_ until the spec adopts it.
+        tmpl_path_to_name: dict[str, str] = {}
+        for fname, fspec in fields.items():
+            paths = []
+            if fspec.get("widget", {}).get("path"):
+                paths.append(fspec["widget"]["path"])
+            paths += [wb.get("path") for wb in (fspec.get("widgets") or {}).values()]
+            for p in paths:
+                rec = xfa_tpl.lookup(p)
+                if rec is not None:
+                    tmpl_path_to_name[rec.path] = fname
+        rules = []
+        for group in xfa_mod.mutex_groups(xfa_tpl):
+            names = sorted({tmpl_path_to_name[p] for p in group if p in tmpl_path_to_name})
+            if len(names) >= 2:
+                rules.append({"mutex": names, "source": "xfa_script"})
+        if rules:
+            bp["x_petey_rules"] = rules
+            print(f"  [xfa] {len(rules)} mutex rules from scripts")
     return stamp_version(bp)
 
 
