@@ -45,6 +45,11 @@ def ready_targets() -> list[tuple[str, Path]]:
         if not src or src not in ready:
             continue
         blank = SOURCE_PDFS / str(src)
+        if not blank.exists():
+            # the survey records basenames; most PDFs live in subfolders
+            hits = [h for h in SOURCE_PDFS.rglob(Path(str(src)).name)
+                    if "source_pdfs_old" not in h.parts]
+            blank = hits[0] if len(hits) >= 1 else blank
         if blank.exists():
             out.append((p.stem, blank))
     return out

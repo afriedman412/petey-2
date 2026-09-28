@@ -42,32 +42,13 @@ from typing import Optional
 from petey.synth import generate_from_pdf, render_pdf, generate_local, seed_from_key  # noqa: E402
 
 from petey.extract import extract, load_blueprint  # noqa: E402
+from petey.extract_llm import extract_llm  # noqa: E402
 from petey.validate.score import score  # noqa: E402
 
 from petey.paths import REPO, RUNS, BLUEPRINTS
 DEFAULT_MODEL = "claude-sonnet-4-6"
 
 
-def _resolve_petey_bin() -> str | None:
-    """Locate a `petey` CLI that can ingest v1.1 blueprints.
-
-    `petey/venv` no longer exists (the rollout is stale), and hardcoding it
-    made the only meaning-based extraction method silently unrunnable —
-    which left `--methods native` as the default and the de-facto measurement,
-    even though native reads values back through the same AcroForm paths the
-    generator wrote them by and therefore cannot see a mislabeled field.
-
-    petey 0.5.1 parses v1.1 files without modification: it reads names,
-    types and descriptions and ignores the `widget` / `semantic_type` layer
-    entirely. That indifference is the property this method depends on — it
-    has to find each value by meaning, with no access to position.
-    """
-    # The `petey:*` methods are the dev-tool LLM arm. The CLI is not part of
-    # this repo; point PETEY_CLI at one, or have `petey` on PATH.
-    return os.environ.get("PETEY_CLI") or shutil.which("petey")
-
-
-PETEY_BIN = _resolve_petey_bin()
 PETEY_CACHE_DIR = RUNS / "_petey_cache"
 
 
@@ -102,68 +83,21 @@ def _extract_native(bpt: dict, pdf: Path) -> tuple[dict, dict]:
     return ex, dispatch
 
 
-def _petey_cache_key(bpt_path: Path, pdf: Path, parser: str, model: str) -> str:
-    """SHA-256 hash keyed on inputs that determine Petey's output.
-
-    (bpt bytes, pdf bytes, parser, model). If any of these change,
-    the cache misses and we re-hit the API.
-    """
-    import hashlib
-    h = hashlib.sha256()
-    h.update(bpt_path.read_bytes())
-    h.update(b"\x00")
-    h.update(pdf.read_bytes())
-    h.update(b"\x00")
-    h.update(parser.encode("utf-8"))
-    h.update(b"\x00")
-    h.update(model.encode("utf-8"))
-    return h.hexdigest()
-
-
 def _extract_petey(
     bpt_path: Path, pdf: Path, *, parser: str, model: str,
 ) -> dict:
-    """Shell to `petey extract` and return the single-record dict.
+    """The meaning-based arm, in-process (`petey/extract_llm.py`).
 
-    Caches results in `PETEY_CACHE_DIR` keyed by SHA-256 of
-    (bpt + pdf + parser + model). Petey CLI hits metered Anthropic API
-    at every call, so caching across invocations avoids re-running the
-    same extract when we re-score, re-launch a form for debugging, etc.
-    Cache invalidates automatically when any input byte changes.
+    Reads by field NAME with no access to the widget layer, so it can see
+    a mislabeled field that the geometry arm cannot. Used to shell out to
+    the external `petey` CLI; everything runs in this repo now. Responses
+    are cached by (fields, pdf bytes, parser, model) inside extract_llm.
     """
-    PETEY_CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    cache_key = _petey_cache_key(bpt_path, pdf, parser, model)
-    cache_path = PETEY_CACHE_DIR / f"{cache_key}.json"
+    bpt = load_blueprint(bpt_path)
     out_path = pdf.with_suffix(f".petey_{parser}.json")
-
-    if cache_path.exists():
-        records = json.loads(cache_path.read_text(encoding="utf-8"))
-        # Also mirror to the sibling location so downstream tools that
-        # expect it (or people spelunking the run dir) find it.
-        out_path.write_text(cache_path.read_text(encoding="utf-8"))
-    else:
-        if not PETEY_BIN:
-            raise RuntimeError("petey:* methods need the petey CLI: set PETEY_CLI or install petey")
-        subprocess.run(
-            [PETEY_BIN, "extract",
-             "--blueprint", str(bpt_path),
-             "--parser", parser,
-             "--model", model,
-             "--record-type", "single",
-             "--format", "json",
-             "--output", str(out_path),
-             str(pdf)],
-            capture_output=True, text=True, check=True,
-        )
-        records = json.loads(out_path.read_text(encoding="utf-8"))
-        cache_path.write_text(out_path.read_text(encoding="utf-8"))
-
-    if not records:
-        return {}
-    # Petey returns a list; single record type → first element is the case.
-    rec = records[0] if isinstance(records, list) else records
-    # Strip any Petey-added metadata keys (leading underscore convention).
-    return {k: v for k, v in rec.items() if not k.startswith("_")}
+    values = extract_llm(bpt, pdf, parser=parser, model=model)
+    out_path.write_text(json.dumps(values, indent=2, default=str))
+    return values
 
 
 def _run_case(
@@ -234,10 +168,10 @@ def _run_case(
                 ex, dispatch = _extract_native(bpt, target)
             elif method.startswith("petey") or method == "datalab":
                 # `petey` runs the .bpt-dependent, meaning-based path. The
-                # parser is a suffix — `petey:pymupdf` reads the flattened
-                # page's text layer and needs no key beyond the LLM's;
-                # `datalab` is kept as an alias for `petey:datalab`.
-                parser = ("datalab" if method == "datalab"
+                # parser is a suffix — `petey:pymupdf` reads the page's
+                # text layer, `petey:image` its rendered pages. `datalab`
+                # is a historical alias that now means the text layer.
+                parser = ("pymupdf" if method == "datalab"
                           else (method.split(":", 1) + ["pymupdf"])[1])
                 # Skip on forms known to overflow Petey's LLM output tokens
                 # (760+ missing rate on >=400-field forms in prior runs).
