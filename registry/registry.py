@@ -85,6 +85,22 @@ CREATE TABLE IF NOT EXISTS external_refs (
     UNIQUE (form_id, source, ref)
 );
 
+CREATE TABLE IF NOT EXISTS identities (
+    sha256         TEXT PRIMARY KEY,
+    path           TEXT,
+    form_id        TEXT,
+    canonical      TEXT,
+    issuer         TEXT,
+    jurisdiction   TEXT,
+    form_number    TEXT,
+    edition        TEXT,
+    omb_number     TEXT,
+    catalog_number TEXT,
+    form_name      TEXT,
+    xfa_root       TEXT,
+    text_layer     INTEGER,
+    evidence       TEXT
+);
 CREATE TABLE IF NOT EXISTS eval_runs (
     id            INTEGER PRIMARY KEY,
     form_id       TEXT NOT NULL REFERENCES forms(form_id),
@@ -97,7 +113,7 @@ CREATE TABLE IF NOT EXISTS eval_runs (
 """
 
 TABLES = ["forms", "form_tags", "aliases", "artifacts", "source_pdfs",
-          "external_refs", "eval_runs"]
+          "external_refs", "eval_runs", "identities"]
 
 
 def connect(readonly: bool = False) -> sqlite3.Connection:

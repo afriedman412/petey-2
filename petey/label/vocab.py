@@ -82,11 +82,20 @@ def expand_aliases(display: str) -> list[str]:
 
 
 def load_sensible_labels(form_id: str) -> list[tuple[str, list[str]]]:
-    """Return Sensible field IDs (as canonical_ids) for a form, humanized."""
+    """Return Sensible field IDs (as canonical_ids) for a form, humanized.
+
+    `form_id` may be a filename stem (`fw2`), a blueprint name or a registry
+    id; it is resolved through the registry, and so are the mapping's keys,
+    so `fw2` and `w_2` meet in the middle. Before this, the lookup was an
+    exact string match that resolved 0 of 148 forms.
+    """
     if not SENSIBLE_MAPPING.exists():
         return []
     mapping = yaml.safe_load(SENSIBLE_MAPPING.read_text()) or {}
-    cfg_paths = mapping.get(form_id) or []
+    from petey.registry_lookup import resolve_form_id
+    want = resolve_form_id(form_id) or form_id
+    by_form = {(resolve_form_id(k) or k): v for k, v in mapping.items()}
+    cfg_paths = by_form.get(want) or mapping.get(form_id) or []
     if isinstance(cfg_paths, str):
         cfg_paths = [cfg_paths]
     out: list[tuple[str, list[str]]] = []
