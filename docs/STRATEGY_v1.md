@@ -61,7 +61,12 @@ applies; HISTORY.md's raster-lattice prototype covered 79% and isn't wired.
   caption, and it is measured next (§5.1).
 
 ### 3.4 Name — ranked evidence, canonical first
-1. XFA template field names / captions (102 hybrids; parser is new)
+**Rule zero: where the document has a form layer, the blueprint is derived from it, never re-authored.** Geometry
+is exact, names come from the publisher where readable, validation is declared (§3.5). Authoring from the page is
+for documents with no layer.
+
+1. XFA template field names (102 hybrids; VA forms name fields `Veteran_Service_Member_First_Name`, DD 1155
+   names them `ResetButton` — readability is checked per name, `name_sources.is_readable`)
 2. `/TU` tooltip (publisher-written)
 3. Canonical vocabulary via the registry: MeF lookups (173 forms), Sensible ids (21 configs), ExtractBench schemas
    for evaluation only (never for generation, per the 2026-09-21 decision)
@@ -76,8 +81,32 @@ Two sources agreeing (e.g. tooltip and caption, or XFA and MeF) → accept; one 
 `needs_review`; conflict → review. "Independent" means different inputs: tooltip vs caption are independent,
 LLM-from-tooltip vs tooltip are not.
 
-### 3.5 Type
-XFA `<validate>` / widget type → `semantic_types` from the name → widget shape (checkbox-sized square = boolean).
+### 3.5 Type, pattern, values — declared beats inferred
+Measured on VA 10-10EZ (151 fields): the XFA template declares **123 `<picture>` formats** (SSN `999-99-9999`,
+phone `(999) 999-9999`, dates `MM/DD/YYYY` — each listing the *accepted input* layouts alongside the canonical
+one), **30 `<validate formatTest="error">`** rules with human messages, **71 `<items>` choice lists**, and
+scripts that encode cross-field logic (on 21-526EZ, checking one marital-status box clears the other three: a
+mutex group). The committed `vba21526ez.bpt` carries 130 patterns, all inferred from LLM-chosen slugs by
+`semantic_types`, and 0 `required` — the publisher declared 70 formats on that form and none were used.
+
+Order: XFA `picture` → `pattern` (picture clauses translate: `9`→`\d`, `A`→`[A-Za-z]`, literals kept; the
+alternatives become accepted-input patterns, the display form the canonical one), `nullTest="error"` →
+`required`, `items` → `values`, the validate message → `description`, all tagged `x_petey_validation_source:
+xfa`. Then MeF types for bound fields. Then `semantic_types` from the name. Then widget shape. Declared always
+wins over inferred.
+
+**Cross-field rules — the gap.** The spec constrains single fields only (`pattern`, `required`, `values`).
+XFA scripts and MeF business rules carry mutex groups, conditional requirements and sums. Proposed for spec
+Appendix B, and used under `x_petey_rules` until then:
+
+```yaml
+rules:
+  - mutex: [married, divorced, separated, never_married]
+  - requires: {if: spouse_name, then: marital_status}
+  - sum: {of: [line_5, line_6], equals: line_7}
+```
+Sources: XFA scripts (the clear-others pattern is detectable), MeF business rules for the 173 IRS forms (the
+spec already links them), Sensible computed fields. No model involved.
 
 ### 3.6 Validate — the loop, anchored
 Existing: generate (multimodal LLM, keyed by AcroForm path) → fill (AcroForm) → extract (offline) → score by path.
@@ -99,6 +128,11 @@ holds 12-3456789". Then:
 Value generation itself needs no model: `semantic_types` already pairs every type with a pattern-compliant
 generator; the multimodal generator stays as a referee, not the source.
 
+**Rules are a referee that needs no ground truth.** Generated cases must satisfy the form's rules; every
+extraction — synthetic or real — is checked against them, and a violation is its own verdict (`rule_violation`),
+alongside `agree` / `differ` / `extract_miss`. This is `shape_agree` (S1) lifted from per-field shape to the
+form's own logic, and it runs offline on every production document too.
+
 ### 3.7 Promote — registry lifecycle
 `planned → located → named → validated → active`, one field-level `needs_review` list, two human gates (label
 review; score-anomaly triage). The registry already tracks forms and artifacts; the states are new columns.
@@ -113,7 +147,8 @@ review; score-anomaly triage). The registry already tracks forms and artifacts; 
 | offline extractor, scorer, S1/S2 detectors, taxonomy | ported |
 | canonical-label search on the page (known label text → nearest rect) | **new**; measured first (§5.1) |
 | open caption → name (nearest caption) | measured: ~19% of widgets; not a name source, kept only as anchor evidence |
-| XFA template parser (names, captions, validate) | **new** |
+| XFA parser: names, `picture`→pattern, `nullTest`→required, `items`→values, messages→description | **new** |
+| `rules:` (mutex / requires / sum / one_of) + XFA-script and MeF-rule extraction; `rule_violation` verdict | **new**; spec Appendix B proposal |
 | name ranking wrapper over existing sources | **new**, small |
 | anchored ground truth + scorer join on anchor | **new**, small change to `score.py` |
 | flat-page fill (paint values into rects) | **new**, ~100 lines with pymupdf |
@@ -127,7 +162,11 @@ review; score-anomaly triage). The registry already tracks forms and artifacts; 
    to beat. → number in RESULTS.md.
 2. Name ranking wrapper (tooltip → canonical → path → caption); `label_source` on every field. Check: re-emit
    the 153 blueprints with `--no-llm` and report how many names are recoverable without a model.
-3. XFA parser → fold into 2. Check: the 102 hybrids, names vs tooltips.
+3. XFA parser → names into 2, validation into the emitter. Check: re-emit `vba21526ez` and `10-10EZ`; count
+   fields whose pattern/required/values now come from the publisher; diff inferred vs declared patterns.
+3b. `rules:` — mutex detection from XFA scripts first (cheapest, verifiable on 526EZ), then MeF business rules
+   for one IRS form; `rule_violation` in `score.py`. Check: the f1040 run still reproduces; a deliberately
+   violating synthetic case is caught.
 4. Anchored ground truth + scorer join; flat fill. Check: the f1040 run reproduces; one flat twin runs end to end.
 5. Lifecycle states + review list in the registry. Check: lint.
 6. VLM per-stage eval on 20 fillable forms (needs an API key; ~$1).
