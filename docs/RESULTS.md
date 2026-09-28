@@ -218,3 +218,22 @@ CBP 7501: a rate column that is not always numeric), and 526EZ's 35 approximate 
 against a tooltip that asks for a full date. Registry change alongside: `phone` now accepts `(xxx) xxx-xxxx`
 and dotted forms, which the scorer already canonicalised; committed blueprints keep the pattern they were
 emitted with until re-emitted.
+
+## Correction: the meaning arm on 526EZ, and the text layer of filled hybrids (2026-09-28)
+The "133 / 129 / 66" meaning-arm row for 526EZ above is invalid. `petey:pymupdf` reads the page TEXT layer,
+and on the filled 526EZ none of the widget values are in it (0 of 12 sampled), although every one renders
+(appearance streams present; ink at the rects on both intact and flattened pages). The reader was asked for
+values it could not see; its agreements were by absence. Library-wide (`runs/text_layer_check.json`): values
+are in the text layer on 129 of 132 filled forms; the exceptions are 21-526EZ, MA Form 1 and VA 760, which need
+`petey:image`. Text-mode results stand for the other 129.
+
+526EZ measured properly, `petey:image`, intact case, same cached ground truth:
+
+| blueprint | agree / differ / miss | candidate defects (swaps) | unlocatable |
+|---|---:|---:|---:|
+| committed before this session | 173 / 106 / 49 | 92 (44) | 51 |
+| after `retype` + `--describe` | **190 / 99 / 39** | **71 (27)** | **39** |
+
+Publisher tooltips and radio captions in `description` are what a name-based reader was missing; the
+remaining 39 unlocatable are mostly the repeated veteran/claimant sections. The 71 candidates with 27 swaps
+are `correct.py`'s input.
