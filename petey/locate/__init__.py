@@ -1,11 +1,12 @@
 """WHERE a field is. Two sources, one record.
 
-`enumerate_geometry(pdf)` returns `(widgets, dropped, method)`, trying in
-order: the document's own AcroForm widgets; a registered fillable twin of
-the same form with a matching layout (`sibling`, exact rects for free);
-step2flat's estimate for a flat form. All emit `{id, page, rect,
-widget_type, path, ...}`; programmatic records carry `path: None` plus a
-confidence.
+`enumerate_geometry(pdf)` returns `(widgets, dropped, method)`: the
+document's own AcroForm widgets if it has a form layer, else step2flat's
+estimate. Both emit `{id, page, rect, widget_type, path, ...}`;
+programmatic records carry `path: None` plus a confidence.
+
+`sibling` (borrow a registered fillable twin's rects) is opt-in only: the
+dev corpus happens to hold print/fillable pairs, production sees one PDF.
 """
 from __future__ import annotations
 
@@ -18,9 +19,8 @@ def enumerate_geometry(pdf_path: Path, method: str = "auto") -> tuple[list[dict]
         widgets, dropped = acroform.enumerate_widgets(pdf_path)
         if widgets or method == "acroform":
             return widgets, dropped, "acroform"
-    if method in ("auto", "sibling"):
+    if method == "sibling":
         widgets, dropped, twin = sibling.enumerate_fields(pdf_path)
-        if widgets or method == "sibling":
-            return widgets, dropped, f"sibling:{twin.name}" if twin else "sibling"
+        return widgets, dropped, f"sibling:{twin.name}" if twin else "sibling"
     widgets, dropped = programmatic.enumerate_fields(pdf_path)
     return widgets, dropped, "step2flat"

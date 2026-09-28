@@ -891,7 +891,7 @@ def main() -> int:
     ap.add_argument("--model", type=str, default=MODEL,
                     help="LLM model for labeling (default sonnet-4.6)")
     ap.add_argument("--geometry", choices=["auto", "acroform", "sibling", "step2flat"], default="auto",
-                    help="where field rects come from; auto = AcroForm, else a registered fillable twin, else step2flat")
+                    help="where field rects come from; auto = AcroForm if present, else step2flat (sibling is opt-in)")
     ap.add_argument("--no-llm", action="store_true",
                     help="emit placeholder field names; no API call (geometry-only draft)")
     ap.add_argument("--no-retrieval", action="store_true",
