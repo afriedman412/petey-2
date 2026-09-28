@@ -170,3 +170,24 @@ fields named as wholes (`telephone_number` holds an area code), radio groups who
 repeated sections (veteran vs claimant SSN) where the name alone cannot pick the copy — the
 "under-specified name" cause in `s2_meaning.py`. On the W-9 the meaning arm only loses flattened
 checkboxes to the text-layer parser (3), which is what `petey:image` is for.
+
+## Local VLM as the naming step (2026-09-28, `eval/local_vlm_naming.py`)
+The untested branch of the Liquid experiment: geometry supplied (the committed widget rect drawn in red on a
+page crop), the model asked only what the box is for, one snake_case name. 115 text widgets from fw9, f1040,
+acord25, i130, 21-526EZ (cms1500 has no labelable text widgets). Yardstick as in the caption measurement:
+MiniLM cosine against the committed name; baseline = nearest printed caption on the same widgets.
+
+| namer | cos ≥ 0.60 | cos ≥ 0.85 | token overlap ≥ 0.3 | median s/widget |
+|---|---:|---:|---:|---:|
+| nearest caption (rule, no model) | **24%** | — | 19% | — |
+| LFM2.5-VL-1.6B Q4 (llama-server) | 19% | 1% | 18% | 1.0 |
+| LFM2.5-VL-3B Q4 (llama-server) | 17% | 1% | 24% | 1.4 |
+| gemma3:4b (ollama) | 6% | 0% | 8% | 5.6 |
+
+Caption or 3B ≥ 0.60: 29% (they mostly agree on the easy widgets; 1.6B and 3B both ≥ 0.60 on 12 of 115).
+Per form the models track the caption (i-130 32%/36%, ACORD 25 8-12%/20%). Verdict: a local VLM reading a
+crop is not a name source — it lands below the nearest-caption rule it would replace, and adds little to it.
+Best/worst show why: it names the *section* (`employer_identification_number` for an SSN part, `claims_amount`
+for a subrogation-waiver code) and never sees the form's naming convention. Mechanics: ollama 0.21 crashes its
+runner on the Liquid GGUF (`llama runner process has terminated`); llama-server on ollama's own blobs
+(`~/.ollama/models/blobs`, model + projector) works at ~1 s/widget on the M1.
