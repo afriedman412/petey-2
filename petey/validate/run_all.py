@@ -61,11 +61,20 @@ def main() -> int:
     ap.add_argument("--n-flat", type=int, default=1)
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--only-missing-ground-truth", action="store_true")
+    ap.add_argument("--gen-model", type=str, default=None,
+                    help="passed to validate; 'local' runs the loop with no API")
+    ap.add_argument("--label-model", type=str, default=None,
+                    help="passed to validate; 'none' labels without an API")
+    ap.add_argument("--forms", type=str, default=None,
+                    help="comma-separated blueprint stems to run instead of the survey's ready set")
     ap.add_argument("--out", type=Path,
                     default=RUNS / "run_all.json")
     args = ap.parse_args()
 
     targets = ready_targets()
+    if args.forms:
+        wanted = {f.strip() for f in args.forms.split(",") if f.strip()}
+        targets = [t for t in targets if t[0] in wanted]
     if args.only_missing_ground_truth:
         targets = [t for t in targets if not has_ground_truth(t[0])]
     if args.limit:
@@ -80,6 +89,10 @@ def main() -> int:
         cmd = [sys.executable, "-m", "petey.validate.validate",
                "--blank", str(blank), "--form-id", form,
                "--n-flat", str(args.n_flat), "--methods", "native"]
+        if args.gen_model:
+            cmd += ["--gen-model", args.gen_model]
+        if args.label_model:
+            cmd += ["--label-model", args.label_model]
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True,
                                   timeout=900)

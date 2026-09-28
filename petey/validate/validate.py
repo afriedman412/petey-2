@@ -39,7 +39,7 @@ from statistics import mean
 from typing import Optional
 
 
-from petey.synth import generate_from_pdf, render_pdf  # noqa: E402
+from petey.synth import generate_from_pdf, render_pdf, generate_local, seed_from_key  # noqa: E402
 
 from petey.extract import extract, load_blueprint  # noqa: E402
 from petey.validate.score import score  # noqa: E402
@@ -180,10 +180,16 @@ def _run_case(
 
     # 1. Ground truth
     print(f"    [{variant}] gen ground truth...")
-    gt = generate_from_pdf(
-        blank_pdf, n=1, model=gen_model or model,
-        cache_dir=gen_cache_dir, cache_key_prefix=gen_cache_key,
-    )[0]
+    if (gen_model or model) == "local":
+        # Model-free: values drawn from the blueprint's own types,
+        # patterns, semantic types and rules (STRATEGY_v1 §3.6). Keyed
+        # on the case key so reruns reproduce.
+        gt = generate_local(bpt, seed=seed_from_key(gen_cache_key))
+    else:
+        gt = generate_from_pdf(
+            blank_pdf, n=1, model=gen_model or model,
+            cache_dir=gen_cache_dir, cache_key_prefix=gen_cache_key,
+        )[0]
     (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
 
     # 2. Fill intact
@@ -486,9 +492,11 @@ def main() -> int:
                     help="datalab-side LLM model (default sonnet-4.6)")
     ap.add_argument("--gen-model", type=str, default=None,
                     help="override model for ground-truth gen. Default: "
-                         "same as --model. Use haiku for cheap exploration.")
+                         "same as --model. Use haiku for cheap exploration; "
+                         "'local' draws values from the blueprint with no API.")
     ap.add_argument("--label-model", type=str, default=None,
-                    help="override model for auto_label. Default: --model.")
+                    help="override model for auto_label. Default: --model. "
+                         "'none' emits a geometry-only draft with no API.")
     ap.add_argument("--datalab-max-fields", type=int, default=400,
                     help="skip datalab method on forms exceeding this "
                          "field count (Petey LLM output-token-truncates "
@@ -556,7 +564,9 @@ def main() -> int:
             "--form-version",
             form_id.split("-")[0] if "-" in form_id else "unknown",
         ]
-        if label_model:
+        if label_model in ("none", "local"):
+            label_cmd += ["--no-llm"]  # geometry-only draft, placeholder names
+        elif label_model:
             label_cmd += ["--model", label_model]
         subprocess.run(label_cmd, check=True)
     else:
