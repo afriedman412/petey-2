@@ -1,0 +1,1229 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_990_schedule_a",
+    "form_root": "IRS990ScheduleA"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS990ScheduleA.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:43:10+00:00",
+  "blueprint": {
+    "path": "blueprints/form_990_schedule_a.bpt",
+    "name": "form_990_schedule_a"
+  },
+  "fields": {
+    "organization_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Organization name is a header field on Schedule A not represented as a leaf element in the canonical MeF schema candidates provided."
+    },
+    "employer_identification_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "EIN is a header field on Schedule A not represented as a leaf element in the canonical MeF schema candidates provided (EIN at idx 259 is inside SupportedOrgInformationGrp, which is for supported organizations, not the filer)."
+    },
+    "part_i_reason": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Part I reason is a composite category selecting among multiple boolean indicator fields (ChurchInd, SchoolInd, HospitalInd, etc.); the blueprint bundles what the canonical schema splits into separate boolean indicators \u2014 blueprint should be refactored into individual boolean fields matching ChurchInd, SchoolInd, HospitalInd, CollegeOrganizationInd, MedicalResearchOrganizationInd, etc."
+    },
+    "part_i_line4_hospital_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "HospitalNameAndAddressGrp/SupportedOrganizationName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "HospitalNameAndAddressGrp/SupportedOrganizationName/BusinessNameLine1Txt is the primary name line for the hospital entered on Part I Line 4."
+    },
+    "part_i_first_five_year_period": {
+      "canonical": "First5Years170Ind",
+      "xpath": "First5Years170Ind",
+      "confidence": "high",
+      "rationale": "First5Years170Ind corresponds to the Part I checkbox indicating the organization is in its first five years as a 501(c)(3)."
+    },
+    "supported_organizations": {
+      "canonical": "SupportedOrgInformationGrp",
+      "xpath": "SupportedOrgInformationGrp",
+      "confidence": "medium",
+      "rationale": "SupportedOrgInformationGrp is the repeating group element for the supported organizations table in Part I Lines 10\u201312; blueprint models it as an array matching this group."
+    },
+    "part_ii_gifts_grants_contributions_col_a": {
+      "canonical": "          CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GiftsGrantsContriRcvd170Grp/          CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContriRcvd170Grp/CurrentTaxYearMinus4YearsAmt matches Part II Line 1 column (a) \u2014 four years prior."
+    },
+    "part_ii_gifts_grants_contributions_col_b": {
+      "canonical": "          CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GiftsGrantsContriRcvd170Grp/          CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContriRcvd170Grp/CurrentTaxYearMinus3YearsAmt matches Part II Line 1 column (b) \u2014 three years prior."
+    },
+    "part_ii_gifts_grants_contributions_col_c": {
+      "canonical": "          CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GiftsGrantsContriRcvd170Grp/          CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContriRcvd170Grp/CurrentTaxYearMinus2YearsAmt matches Part II Line 1 column (c) \u2014 two years prior."
+    },
+    "part_ii_gifts_grants_contributions_col_d": {
+      "canonical": "          CurrentTaxYearMinus1YearAmt",
+      "xpath": "GiftsGrantsContriRcvd170Grp/          CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContriRcvd170Grp/CurrentTaxYearMinus1YearAmt matches Part II Line 1 column (d) \u2014 one year prior."
+    },
+    "part_ii_gifts_grants_contributions_col_e": {
+      "canonical": "          CurrentTaxYearAmt",
+      "xpath": "GiftsGrantsContriRcvd170Grp/          CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContriRcvd170Grp/CurrentTaxYearAmt matches Part II Line 1 column (e) \u2014 current tax year."
+    },
+    "part_ii_gifts_grants_contributions_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GiftsGrantsContriRcvd170Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContriRcvd170Grp/TotalAmt matches Part II Line 1 column (f) five-year total."
+    },
+    "part_ii_tax_revenues_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus4YearsAmt matches Part II Line 2 column (a)."
+    },
+    "part_ii_tax_revenues_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus3YearsAmt matches Part II Line 2 column (b)."
+    },
+    "part_ii_tax_revenues_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus2YearsAmt matches Part II Line 2 column (c)."
+    },
+    "part_ii_tax_revenues_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearMinus1YearAmt matches Part II Line 2 column (d)."
+    },
+    "part_ii_tax_revenues_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft170Grp/CurrentTaxYearAmt matches Part II Line 2 column (e)."
+    },
+    "part_ii_tax_revenues_total": {
+      "canonical": "TotalAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft170Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft170Grp/TotalAmt matches Part II Line 2 column (f) five-year total."
+    },
+    "part_ii_government_furnished_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus4YearsAmt matches Part II Line 3 column (a)."
+    },
+    "part_ii_government_furnished_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus3YearsAmt matches Part II Line 3 column (b)."
+    },
+    "part_ii_government_furnished_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus2YearsAmt matches Part II Line 3 column (c)."
+    },
+    "part_ii_government_furnished_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearMinus1YearAmt matches Part II Line 3 column (d)."
+    },
+    "part_ii_government_furnished_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl170Grp/CurrentTaxYearAmt matches Part II Line 3 column (e)."
+    },
+    "part_ii_government_furnished_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GovtFurnSrvcFcltsVl170Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl170Grp/TotalAmt matches Part II Line 3 column (f) five-year total."
+    },
+    "part_ii_total_add_lines1_3_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "TotalCalendarYear170Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "TotalCalendarYear170Grp/CurrentTaxYearMinus4YearsAmt matches Part II Line 4 column (a)."
+    },
+    "part_ii_total_add_lines1_3_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "TotalCalendarYear170Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "TotalCalendarYear170Grp/CurrentTaxYearMinus3YearsAmt matches Part II Line 4 column (b)."
+    },
+    "part_ii_total_add_lines1_3_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "TotalCalendarYear170Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "TotalCalendarYear170Grp/CurrentTaxYearMinus2YearsAmt matches Part II Line 4 column (c)."
+    },
+    "part_ii_total_add_lines1_3_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "TotalCalendarYear170Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "TotalCalendarYear170Grp/CurrentTaxYearMinus1YearAmt matches Part II Line 4 column (d)."
+    },
+    "part_ii_total_add_lines1_3_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "TotalCalendarYear170Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "TotalCalendarYear170Grp/CurrentTaxYearAmt matches Part II Line 4 column (e)."
+    },
+    "part_ii_total_add_lines1_3_total": {
+      "canonical": "TotalAmt",
+      "xpath": "TotalCalendarYear170Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "TotalCalendarYear170Grp/TotalAmt matches Part II Line 4 column (f) five-year total."
+    },
+    "part_ii_amounts_from_disqualified_col_a": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No Part II Line 5 disqualified persons group exists in the 170 candidates; AmountsRcvdDsqlfyPersonGrp (idx 23-28) appears to be for Part III (509) \u2014 no matching 170 disqualified person group is present in the candidate list."
+    },
+    "part_ii_amounts_from_disqualified_col_b": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same as col_a \u2014 no Part II Line 5 disqualified persons 170 group found in candidates."
+    },
+    "part_ii_amounts_from_disqualified_col_c": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same as col_a \u2014 no Part II Line 5 disqualified persons 170 group found in candidates."
+    },
+    "part_ii_amounts_from_disqualified_col_d": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same as col_a \u2014 no Part II Line 5 disqualified persons 170 group found in candidates."
+    },
+    "part_ii_amounts_from_disqualified_col_e": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same as col_a \u2014 no Part II Line 5 disqualified persons 170 group found in candidates."
+    },
+    "part_ii_amounts_from_disqualified_total": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Same as col_a \u2014 no Part II Line 5 disqualified persons 170 group found in candidates."
+    },
+    "part_ii_amounts_from_non_disqualified_excess": {
+      "canonical": "SubstantialContributorsTotAmt",
+      "xpath": "SubstantialContributorsTotAmt",
+      "confidence": "medium",
+      "rationale": "SubstantialContributorsTotAmt matches Part II Line 6 \u2014 the portion of contributions exceeding 2% from other than governmental units or publicly supported organizations."
+    },
+    "part_ii_public_support_total": {
+      "canonical": "PublicSupportTotal170Amt",
+      "xpath": "PublicSupportTotal170Amt",
+      "confidence": "high",
+      "rationale": "PublicSupportTotal170Amt matches Part II Line 7 \u2014 public support total for the 170 test."
+    },
+    "part_ii_gross_investment_income_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus4YearsAmt matches Part II Line 8 column (a)."
+    },
+    "part_ii_gross_investment_income_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus3YearsAmt matches Part II Line 8 column (b)."
+    },
+    "part_ii_gross_investment_income_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus2YearsAmt matches Part II Line 8 column (c)."
+    },
+    "part_ii_gross_investment_income_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome170Grp/CurrentTaxYearMinus1YearAmt matches Part II Line 8 column (d)."
+    },
+    "part_ii_gross_investment_income_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "GrossInvestmentIncome170Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome170Grp/CurrentTaxYearAmt matches Part II Line 8 column (e)."
+    },
+    "part_ii_gross_investment_income_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GrossInvestmentIncome170Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome170Grp/TotalAmt matches Part II Line 8 column (f) five-year total."
+    },
+    "part_ii_net_income_unrelated_business_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus4YearsAmt matches Part II Line 9 column (a)."
+    },
+    "part_ii_net_income_unrelated_business_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus3YearsAmt matches Part II Line 9 column (b)."
+    },
+    "part_ii_net_income_unrelated_business_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus2YearsAmt matches Part II Line 9 column (c)."
+    },
+    "part_ii_net_income_unrelated_business_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearMinus1YearAmt matches Part II Line 9 column (d)."
+    },
+    "part_ii_net_income_unrelated_business_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "UnrelatedBusinessNetIncm170Grp/CurrentTaxYearAmt matches Part II Line 9 column (e)."
+    },
+    "part_ii_net_income_unrelated_business_total": {
+      "canonical": "TotalAmt",
+      "xpath": "UnrelatedBusinessNetIncm170Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "UnrelatedBusinessNetIncm170Grp/TotalAmt matches Part II Line 9 column (f) five-year total."
+    },
+    "part_ii_other_income_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "OtherIncome170Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome170Grp/CurrentTaxYearMinus4YearsAmt matches Part II Line 10 column (a)."
+    },
+    "part_ii_other_income_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "OtherIncome170Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome170Grp/CurrentTaxYearMinus3YearsAmt matches Part II Line 10 column (b)."
+    },
+    "part_ii_other_income_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "OtherIncome170Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome170Grp/CurrentTaxYearMinus2YearsAmt matches Part II Line 10 column (c)."
+    },
+    "part_ii_other_income_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "OtherIncome170Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome170Grp/CurrentTaxYearMinus1YearAmt matches Part II Line 10 column (d)."
+    },
+    "part_ii_other_income_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "OtherIncome170Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome170Grp/CurrentTaxYearAmt matches Part II Line 10 column (e)."
+    },
+    "part_ii_other_income_total": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherIncome170Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome170Grp/TotalAmt matches Part II Line 10 column (f) five-year total."
+    },
+    "part_ii_total_support": {
+      "canonical": "TotalSupportAmt",
+      "xpath": "TotalSupportAmt",
+      "confidence": "high",
+      "rationale": "TotalSupportAmt matches Part II Line 11 \u2014 total support column (f)."
+    },
+    "part_ii_gross_receipts_from_related_activities": {
+      "canonical": "GrossReceiptsRltdActivitiesAmt",
+      "xpath": "GrossReceiptsRltdActivitiesAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsRltdActivitiesAmt matches Part II Line 12 \u2014 gross receipts from related activities."
+    },
+    "part_ii_public_support_percentage_current_year": {
+      "canonical": "PublicSupportCY170Pct",
+      "xpath": "PublicSupportCY170Pct",
+      "confidence": "high",
+      "rationale": "PublicSupportCY170Pct matches Part II Line 14 \u2014 public support percentage for the current year."
+    },
+    "part_ii_public_support_percentage_prior_year": {
+      "canonical": "PublicSupportPY170Pct",
+      "xpath": "PublicSupportPY170Pct",
+      "confidence": "high",
+      "rationale": "PublicSupportPY170Pct matches Part II Line 15 \u2014 public support percentage from the prior year."
+    },
+    "part_ii_33_pct_test_current_year": {
+      "canonical": "ThirtyThrPctSuprtTestsCY170Ind",
+      "xpath": "ThirtyThrPctSuprtTestsCY170Ind",
+      "confidence": "high",
+      "rationale": "ThirtyThrPctSuprtTestsCY170Ind matches Part II Line 16a \u2014 current year 33-1/3% test indicator."
+    },
+    "part_ii_33_pct_test_prior_year": {
+      "canonical": "ThirtyThrPctSuprtTestsPY170Ind",
+      "xpath": "ThirtyThrPctSuprtTestsPY170Ind",
+      "confidence": "high",
+      "rationale": "ThirtyThrPctSuprtTestsPY170Ind matches Part II Line 16b \u2014 prior year 33-1/3% test indicator."
+    },
+    "part_ii_10_pct_facts_circumstances": {
+      "canonical": "TenPctFactsCrcmstncsTestCYInd",
+      "xpath": "TenPctFactsCrcmstncsTestCYInd",
+      "confidence": "high",
+      "rationale": "TenPctFactsCrcmstncsTestCYInd matches Part II Line 17a \u2014 10% facts-and-circumstances test indicator for current year."
+    },
+    "part_ii_unusual_grants": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for Part II Line 13 unusual grants (170 version) is present in the candidate list."
+    },
+    "part_iii_gifts_grants_contributions_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus4YearsAmt matches Part III Line 1 column (a)."
+    },
+    "part_iii_gifts_grants_contributions_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus3YearsAmt matches Part III Line 1 column (b)."
+    },
+    "part_iii_gifts_grants_contributions_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus2YearsAmt matches Part III Line 1 column (c)."
+    },
+    "part_iii_gifts_grants_contributions_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearMinus1YearAmt matches Part III Line 1 column (d)."
+    },
+    "part_iii_gifts_grants_contributions_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContrisRcvd509Grp/CurrentTaxYearAmt matches Part III Line 1 column (e)."
+    },
+    "part_iii_gifts_grants_contributions_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GiftsGrantsContrisRcvd509Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GiftsGrantsContrisRcvd509Grp/TotalAmt matches Part III Line 1 column (f) five-year total."
+    },
+    "part_iii_gross_receipts_admissions_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus4YearsAmt matches Part III Line 2 column (a)."
+    },
+    "part_iii_gross_receipts_admissions_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus3YearsAmt matches Part III Line 2 column (b)."
+    },
+    "part_iii_gross_receipts_admissions_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus2YearsAmt matches Part III Line 2 column (c)."
+    },
+    "part_iii_gross_receipts_admissions_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsAdmissionsGrp/CurrentTaxYearMinus1YearAmt matches Part III Line 2 column (d)."
+    },
+    "part_iii_gross_receipts_admissions_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "GrossReceiptsAdmissionsGrp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsAdmissionsGrp/CurrentTaxYearAmt matches Part III Line 2 column (e)."
+    },
+    "part_iii_gross_receipts_admissions_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GrossReceiptsAdmissionsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsAdmissionsGrp/TotalAmt matches Part III Line 2 column (f) five-year total."
+    },
+    "part_iii_gross_receipts_not_unrelated_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus4YearsAmt matches Part III Line 3 column (a)."
+    },
+    "part_iii_gross_receipts_not_unrelated_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus3YearsAmt matches Part III Line 3 column (b)."
+    },
+    "part_iii_gross_receipts_not_unrelated_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus2YearsAmt matches Part III Line 3 column (c)."
+    },
+    "part_iii_gross_receipts_not_unrelated_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearMinus1YearAmt matches Part III Line 3 column (d)."
+    },
+    "part_iii_gross_receipts_not_unrelated_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsNonUnrltBusGrp/CurrentTaxYearAmt matches Part III Line 3 column (e)."
+    },
+    "part_iii_gross_receipts_not_unrelated_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GrossReceiptsNonUnrltBusGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsNonUnrltBusGrp/TotalAmt matches Part III Line 3 column (f) five-year total."
+    },
+    "part_iii_tax_revenues_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus4YearsAmt matches Part III Line 4 column (a)."
+    },
+    "part_iii_tax_revenues_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus3YearsAmt matches Part III Line 4 column (b)."
+    },
+    "part_iii_tax_revenues_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus2YearsAmt matches Part III Line 4 column (c)."
+    },
+    "part_iii_tax_revenues_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearMinus1YearAmt matches Part III Line 4 column (d)."
+    },
+    "part_iii_tax_revenues_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft509Grp/CurrentTaxYearAmt matches Part III Line 4 column (e)."
+    },
+    "part_iii_tax_revenues_total": {
+      "canonical": "TotalAmt",
+      "xpath": "TaxRevLeviedOrgnztnlBnft509Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "TaxRevLeviedOrgnztnlBnft509Grp/TotalAmt matches Part III Line 4 column (f) five-year total."
+    },
+    "part_iii_government_furnished_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus4YearsAmt matches Part III Line 5 column (a)."
+    },
+    "part_iii_government_furnished_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus3YearsAmt matches Part III Line 5 column (b)."
+    },
+    "part_iii_government_furnished_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus2YearsAmt matches Part III Line 5 column (c)."
+    },
+    "part_iii_government_furnished_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearMinus1YearAmt matches Part III Line 5 column (d)."
+    },
+    "part_iii_government_furnished_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl509Grp/CurrentTaxYearAmt matches Part III Line 5 column (e)."
+    },
+    "part_iii_government_furnished_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GovtFurnSrvcFcltsVl509Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GovtFurnSrvcFcltsVl509Grp/TotalAmt matches Part III Line 5 column (f) five-year total."
+    },
+    "part_iii_total_add_lines1_5_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "Total509Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "Total509Grp/CurrentTaxYearMinus4YearsAmt matches Part III Line 6 total column (a)."
+    },
+    "part_iii_total_add_lines1_5_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "Total509Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "Total509Grp/CurrentTaxYearMinus3YearsAmt matches Part III Line 6 total column (b)."
+    },
+    "part_iii_total_add_lines1_5_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "Total509Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "Total509Grp/CurrentTaxYearMinus2YearsAmt matches Part III Line 6 total column (c)."
+    },
+    "part_iii_total_add_lines1_5_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "Total509Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "Total509Grp/CurrentTaxYearMinus1YearAmt matches Part III Line 6 total column (d)."
+    },
+    "part_iii_total_add_lines1_5_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "Total509Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "Total509Grp/CurrentTaxYearAmt matches Part III Line 6 total column (e)."
+    },
+    "part_iii_total_add_lines1_5_total": {
+      "canonical": "TotalAmt",
+      "xpath": "Total509Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "Total509Grp/TotalAmt matches Part III Line 6 total column (f) five-year total."
+    },
+    "part_iii_amounts_from_disqualified_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus4YearsAmt matches Part III Line 7a column (a)."
+    },
+    "part_iii_amounts_from_disqualified_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus3YearsAmt matches Part III Line 7a column (b)."
+    },
+    "part_iii_amounts_from_disqualified_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus2YearsAmt matches Part III Line 7a column (c)."
+    },
+    "part_iii_amounts_from_disqualified_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearMinus1YearAmt matches Part III Line 7a column (d)."
+    },
+    "part_iii_amounts_from_disqualified_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "AmountsRcvdDsqlfyPersonGrp/CurrentTaxYearAmt matches Part III Line 7a column (e)."
+    },
+    "part_iii_amounts_from_disqualified_total": {
+      "canonical": "TotalAmt",
+      "xpath": "AmountsRcvdDsqlfyPersonGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "AmountsRcvdDsqlfyPersonGrp/TotalAmt matches Part III Line 7a column (f) five-year total."
+    },
+    "part_iii_amounts_over_threshold_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus4YearsAmt matches Part III Line 7b column (a)."
+    },
+    "part_iii_amounts_over_threshold_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus3YearsAmt matches Part III Line 7b column (b)."
+    },
+    "part_iii_amounts_over_threshold_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus2YearsAmt matches Part III Line 7b column (c)."
+    },
+    "part_iii_amounts_over_threshold_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "SubstantialContributorsAmtGrp/CurrentTaxYearMinus1YearAmt matches Part III Line 7b column (d)."
+    },
+    "part_iii_amounts_over_threshold_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "SubstantialContributorsAmtGrp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "SubstantialContributorsAmtGrp/CurrentTaxYearAmt matches Part III Line 7b column (e)."
+    },
+    "part_iii_amounts_over_threshold_total": {
+      "canonical": "TotalAmt",
+      "xpath": "SubstantialContributorsAmtGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "SubstantialContributorsAmtGrp/TotalAmt matches Part III Line 7b column (f) five-year total."
+    },
+    "part_iii_public_support_total": {
+      "canonical": "PublicSupportTotal509Amt",
+      "xpath": "PublicSupportTotal509Amt",
+      "confidence": "high",
+      "rationale": "PublicSupportTotal509Amt matches Part III Line 8 \u2014 public support total for the 509 test."
+    },
+    "part_iii_gross_investment_income_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus4YearsAmt matches Part III Line 9a column (a)."
+    },
+    "part_iii_gross_investment_income_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus3YearsAmt matches Part III Line 9a column (b)."
+    },
+    "part_iii_gross_investment_income_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus2YearsAmt matches Part III Line 9a column (c)."
+    },
+    "part_iii_gross_investment_income_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome509Grp/CurrentTaxYearMinus1YearAmt matches Part III Line 9a column (d)."
+    },
+    "part_iii_gross_investment_income_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "GrossInvestmentIncome509Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome509Grp/CurrentTaxYearAmt matches Part III Line 9a column (e)."
+    },
+    "part_iii_gross_investment_income_total": {
+      "canonical": "TotalAmt",
+      "xpath": "GrossInvestmentIncome509Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GrossInvestmentIncome509Grp/TotalAmt matches Part III Line 9a column (f) five-year total."
+    },
+    "part_iii_unrelated_business_income_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "Post1975UBTIGrp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "Post1975UBTIGrp/CurrentTaxYearMinus4YearsAmt matches Part III Line 9b column (a)."
+    },
+    "part_iii_unrelated_business_income_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "Post1975UBTIGrp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "Post1975UBTIGrp/CurrentTaxYearMinus3YearsAmt matches Part III Line 9b column (b)."
+    },
+    "part_iii_unrelated_business_income_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "Post1975UBTIGrp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "Post1975UBTIGrp/CurrentTaxYearMinus2YearsAmt matches Part III Line 9b column (c)."
+    },
+    "part_iii_unrelated_business_income_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "Post1975UBTIGrp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "Post1975UBTIGrp/CurrentTaxYearMinus1YearAmt matches Part III Line 9b column (d)."
+    },
+    "part_iii_unrelated_business_income_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "Post1975UBTIGrp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "Post1975UBTIGrp/CurrentTaxYearAmt matches Part III Line 9b column (e)."
+    },
+    "part_iii_unrelated_business_income_total": {
+      "canonical": "TotalAmt",
+      "xpath": "Post1975UBTIGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "Post1975UBTIGrp/TotalAmt matches Part III Line 9b column (f) five-year total."
+    },
+    "part_iii_investment_income_combined_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus4YearsAmt matches Part III Line 9c (add lines 9a and 9b) column (a)."
+    },
+    "part_iii_investment_income_combined_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus3YearsAmt matches Part III Line 9c column (b)."
+    },
+    "part_iii_investment_income_combined_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus2YearsAmt matches Part III Line 9c column (c)."
+    },
+    "part_iii_investment_income_combined_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearMinus1YearAmt matches Part III Line 9c column (d)."
+    },
+    "part_iii_investment_income_combined_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeAndUBTIGrp/CurrentTaxYearAmt matches Part III Line 9c column (e)."
+    },
+    "part_iii_investment_income_combined_total": {
+      "canonical": "TotalAmt",
+      "xpath": "InvestmentIncomeAndUBTIGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeAndUBTIGrp/TotalAmt matches Part III Line 9c column (f) five-year total."
+    },
+    "part_iii_other_income_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "OtherIncome509Grp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome509Grp/CurrentTaxYearMinus4YearsAmt matches Part III Line 10 column (a)."
+    },
+    "part_iii_other_income_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "OtherIncome509Grp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome509Grp/CurrentTaxYearMinus3YearsAmt matches Part III Line 10 column (b)."
+    },
+    "part_iii_other_income_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "OtherIncome509Grp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome509Grp/CurrentTaxYearMinus2YearsAmt matches Part III Line 10 column (c)."
+    },
+    "part_iii_other_income_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "OtherIncome509Grp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome509Grp/CurrentTaxYearMinus1YearAmt matches Part III Line 10 column (d)."
+    },
+    "part_iii_other_income_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "OtherIncome509Grp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome509Grp/CurrentTaxYearAmt matches Part III Line 10 column (e)."
+    },
+    "part_iii_other_income_total": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherIncome509Grp/TotalAmt",
+      "confidence": "high",
+      "rationale": "OtherIncome509Grp/TotalAmt matches Part III Line 10 column (f) five-year total."
+    },
+    "part_iii_total_support_col_a": {
+      "canonical": "CurrentTaxYearMinus4YearsAmt",
+      "xpath": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus4YearsAmt",
+      "confidence": "high",
+      "rationale": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus4YearsAmt matches Part III Line 11 total support column (a)."
+    },
+    "part_iii_total_support_col_b": {
+      "canonical": "CurrentTaxYearMinus3YearsAmt",
+      "xpath": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus3YearsAmt",
+      "confidence": "high",
+      "rationale": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus3YearsAmt matches Part III Line 11 column (b)."
+    },
+    "part_iii_total_support_col_c": {
+      "canonical": "CurrentTaxYearMinus2YearsAmt",
+      "xpath": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus2YearsAmt",
+      "confidence": "high",
+      "rationale": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus2YearsAmt matches Part III Line 11 column (c)."
+    },
+    "part_iii_total_support_col_d": {
+      "canonical": "CurrentTaxYearMinus1YearAmt",
+      "xpath": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus1YearAmt",
+      "confidence": "high",
+      "rationale": "TotalSupportCalendarYearGrp/CurrentTaxYearMinus1YearAmt matches Part III Line 11 column (d)."
+    },
+    "part_iii_total_support_col_e": {
+      "canonical": "CurrentTaxYearAmt",
+      "xpath": "TotalSupportCalendarYearGrp/CurrentTaxYearAmt",
+      "confidence": "high",
+      "rationale": "TotalSupportCalendarYearGrp/CurrentTaxYearAmt matches Part III Line 11 column (e)."
+    },
+    "part_iii_total_support_total": {
+      "canonical": "TotalAmt",
+      "xpath": "TotalSupportCalendarYearGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "TotalSupportCalendarYearGrp/TotalAmt matches Part III Line 11 column (f) five-year total."
+    },
+    "part_iii_public_support_percentage_current_year": {
+      "canonical": "PublicSupportCY509Pct",
+      "xpath": "PublicSupportCY509Pct",
+      "confidence": "high",
+      "rationale": "PublicSupportCY509Pct matches Part III Line 12 \u2014 public support percentage for the current year."
+    },
+    "part_iii_public_support_percentage_prior_year": {
+      "canonical": "PublicSupportPY509Pct",
+      "xpath": "PublicSupportPY509Pct",
+      "confidence": "high",
+      "rationale": "PublicSupportPY509Pct matches Part III Line 13 \u2014 public support percentage from the prior year."
+    },
+    "part_iii_investment_income_percentage_current_year": {
+      "canonical": "InvestmentIncomeCYPct",
+      "xpath": "InvestmentIncomeCYPct",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeCYPct matches Part III Line 14 \u2014 investment income percentage for the current year."
+    },
+    "part_iii_investment_income_percentage_prior_year": {
+      "canonical": "InvestmentIncomePYPct",
+      "xpath": "InvestmentIncomePYPct",
+      "confidence": "high",
+      "rationale": "InvestmentIncomePYPct matches Part III Line 15 \u2014 investment income percentage from the prior year."
+    },
+    "part_iii_33_pct_test_current_year": {
+      "canonical": "ThirtyThrPctSuprtTestsCY509Ind",
+      "xpath": "ThirtyThrPctSuprtTestsCY509Ind",
+      "confidence": "high",
+      "rationale": "ThirtyThrPctSuprtTestsCY509Ind matches Part III Line 16a \u2014 current year 33-1/3% test indicator for 509."
+    },
+    "part_iii_33_pct_test_prior_year": {
+      "canonical": "ThirtyThrPctSuprtTestsPY509Ind",
+      "xpath": "ThirtyThrPctSuprtTestsPY509Ind",
+      "confidence": "high",
+      "rationale": "ThirtyThrPctSuprtTestsPY509Ind matches Part III Line 16b \u2014 prior year 33-1/3% test indicator for 509."
+    },
+    "part_iii_private_foundation_determination": {
+      "canonical": "PrivateFoundation509Ind",
+      "xpath": "PrivateFoundation509Ind",
+      "confidence": "high",
+      "rationale": "PrivateFoundation509Ind matches Part III Line 17 \u2014 private foundation determination indicator."
+    },
+    "part_iv_section_a_1": {
+      "canonical": "SupportedOrgQualifiedInd",
+      "xpath": "Form990SchASupportingOrgGrp/SupportedOrgQualifiedInd",
+      "confidence": "medium",
+      "rationale": "SupportedOrgQualifiedInd under Form990SchASupportingOrgGrp matches Part IV Section A Line 1 about whether any supported org lacks an IRS determination of status."
+    },
+    "part_iv_section_a_2": {
+      "canonical": "SuprtOrgNoIRSDeterminationInd",
+      "xpath": "Form990SchASupportingOrgGrp/SuprtOrgNoIRSDeterminationInd",
+      "confidence": "medium",
+      "rationale": "SuprtOrgNoIRSDeterminationInd matches Part IV Section A Line 2 \u2014 supported org failed to notify the filer."
+    },
+    "part_iv_section_a_3": {
+      "canonical": "PaymentSubstantialContribtrInd",
+      "xpath": "Form990SchASupportingOrgGrp/PaymentSubstantialContribtrInd",
+      "confidence": "medium",
+      "rationale": "PaymentSubstantialContribtrInd matches Part IV Section A Line 3 \u2014 payment to a substantial contributor."
+    },
+    "part_iv_section_a_4": {
+      "canonical": "LoanDisqualifiedPersonInd",
+      "xpath": "Form990SchASupportingOrgGrp/LoanDisqualifiedPersonInd",
+      "confidence": "medium",
+      "rationale": "LoanDisqualifiedPersonInd matches Part IV Section A Line 4 \u2014 grant, loan, or compensation to substantial contributor or family."
+    },
+    "part_iv_section_a_5": {
+      "canonical": "ControlledDisqualifiedPrsnInd",
+      "xpath": "Form990SchASupportingOrgGrp/ControlledDisqualifiedPrsnInd",
+      "confidence": "medium",
+      "rationale": "ControlledDisqualifiedPrsnInd matches Part IV Section A Line 5 \u2014 disqualified person controlled an entity in which the filer had an interest."
+    },
+    "part_iv_section_a_6": {
+      "canonical": "SupportForeignOrgNoDetermInd",
+      "xpath": "Form990SchASupportingOrgGrp/SupportForeignOrgNoDetermInd",
+      "confidence": "medium",
+      "rationale": "SupportForeignOrgNoDetermInd is not quite right; GovernmentalUnitInd (idx 124) relates to the Part I question, not Part IV; no clearly matching candidate for Section A Line 6 (supported by governmental entity) is available \u2014 returning null."
+    },
+    "part_iv_section_b_type_i_1": {
+      "canonical": "PowerAppointMajorityDirTrstInd",
+      "xpath": "Form990SchAType1SuprtOrgGrp/PowerAppointMajorityDirTrstInd",
+      "confidence": "high",
+      "rationale": "PowerAppointMajorityDirTrstInd under Form990SchAType1SuprtOrgGrp matches Part IV Section B (Type I) Line 1."
+    },
+    "part_iv_section_b_type_i_2": {
+      "canonical": "OperateBenefitNonSuprtOrgInd",
+      "xpath": "Form990SchAType1SuprtOrgGrp/OperateBenefitNonSuprtOrgInd",
+      "confidence": "high",
+      "rationale": "OperateBenefitNonSuprtOrgInd under Form990SchAType1SuprtOrgGrp matches Part IV Section B (Type I) Line 2."
+    },
+    "part_iv_section_c_type_ii_1": {
+      "canonical": "MajorityDirTrstSupportedOrgInd",
+      "xpath": "MajorityDirTrstSupportedOrgInd",
+      "confidence": "high",
+      "rationale": "MajorityDirTrstSupportedOrgInd matches Part IV Section C (Type II) Line 1 \u2014 majority of board also directors of supported org."
+    },
+    "part_iv_section_d_type_iii_fi_1": {
+      "canonical": "ActivitiesFurtherExemptPrpsInd",
+      "xpath": "Form990SchAType3FuncIntGrp/ActivitiesFurtherExemptPrpsInd",
+      "confidence": "high",
+      "rationale": "ActivitiesFurtherExemptPrpsInd under Form990SchAType3FuncIntGrp matches Part IV Section D Line 1 \u2014 activities directly furthering exempt purposes."
+    },
+    "part_iv_section_d_type_iii_fi_2": {
+      "canonical": "ParentSupportedOrgInd",
+      "xpath": "Form990SchAType3FuncIntGrp/ParentSupportedOrgInd",
+      "confidence": "high",
+      "rationale": "ParentSupportedOrgInd under Form990SchAType3FuncIntGrp matches Part IV Section D Line 2 \u2014 filer is parent of each supported org."
+    },
+    "part_iv_section_d_type_iii_fi_3": {
+      "canonical": "GovernmentalEntityInd",
+      "xpath": "Form990SchAType3FuncIntGrp/GovernmentalEntityInd",
+      "confidence": "high",
+      "rationale": "GovernmentalEntityInd under Form990SchAType3FuncIntGrp matches Part IV Section D Line 3 \u2014 filer supported a governmental entity."
+    },
+    "part_iv_section_e_type_iii_nfi_1": {
+      "canonical": "TimelyProvidedDocumentsInd",
+      "xpath": "Form990SchAType3SprtOrgAllGrp/TimelyProvidedDocumentsInd",
+      "confidence": "medium",
+      "rationale": "TimelyProvidedDocumentsInd under Form990SchAType3SprtOrgAllGrp is the closest match for Part IV Section E Type III Non-FI Line 1."
+    },
+    "part_iv_section_e_type_iii_nfi_2": {
+      "canonical": "SupportedOrgVoiceInvestmentInd",
+      "xpath": "Form990SchAType3SprtOrgAllGrp/SupportedOrgVoiceInvestmentInd",
+      "confidence": "medium",
+      "rationale": "SupportedOrgVoiceInvestmentInd matches Part IV Section E Type III Non-FI Line 2 \u2014 attentiveness test."
+    },
+    "part_iv_section_e_type_iii_nfi_3": {
+      "canonical": "OfficersCloseRelationshipInd",
+      "xpath": "Form990SchAType3SprtOrgAllGrp/OfficersCloseRelationshipInd",
+      "confidence": "medium",
+      "rationale": "OfficersCloseRelationshipInd under Form990SchAType3SprtOrgAllGrp is the closest available candidate for Section E Line 3."
+    },
+    "part_v_integral_part_test_election": {
+      "canonical": "TrustIntegralPartTestInd",
+      "xpath": "TrustIntegralPartTestInd",
+      "confidence": "high",
+      "rationale": "TrustIntegralPartTestInd matches Part V checkbox for the integral part test election."
+    },
+    "part_v_section_a_net_short_term_capital_gain": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/NetSTCapitalGainAdjNetIncmGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/NetSTCapitalGainAdjNetIncmGrp/CurrentYearAmt matches Part V Section A Line 1 \u2014 net short-term capital gain."
+    },
+    "part_v_section_a_recoveries_of_prior_distributions": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/RecoveriesPYDistributionsGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/RecoveriesPYDistributionsGrp/CurrentYearAmt matches Part V Section A Line 2 \u2014 recoveries of prior-year distributions."
+    },
+    "part_v_section_a_other_gross_income": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/OtherGrossIncomeGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/OtherGrossIncomeGrp/CurrentYearAmt matches Part V Section A Line 3 \u2014 other gross income."
+    },
+    "part_v_section_a_add_lines1_3": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/AdjustedGrossIncomeGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/AdjustedGrossIncomeGrp/CurrentYearAmt matches Part V Section A Line 4 \u2014 add lines 1 through 3."
+    },
+    "part_v_section_a_depreciation_depletion": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/DepreciationDepletionGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/DepreciationDepletionGrp/CurrentYearAmt matches Part V Section A Line 5 \u2014 depreciation and depletion."
+    },
+    "part_v_section_a_portion_paid_for_production": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/ProductionIncomeGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/ProductionIncomeGrp/CurrentYearAmt matches Part V Section A Line 6 \u2014 portion of operating expenses for production of income."
+    },
+    "part_v_section_a_other_expenses": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/OtherExpensesGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/OtherExpensesGrp/CurrentYearAmt matches Part V Section A Line 7 \u2014 other expenses."
+    },
+    "part_v_section_a_adjusted_net_income": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "AdjustedNetIncomeGrp/TotalAdjustedNetIncomeGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "AdjustedNetIncomeGrp/TotalAdjustedNetIncomeGrp/CurrentYearAmt matches Part V Section A Line 8 \u2014 adjusted net income."
+    },
+    "part_v_section_b_aggregate_fair_market_value": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/TotalFMVOfNonExemptUseAssetGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/TotalFMVOfNonExemptUseAssetGrp/CurrentYearAmt matches Part V Section B Line 1d \u2014 total (aggregate) fair market value of non-exempt-use assets."
+    },
+    "part_v_section_b_acquisition_indebtedness": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/AcquisitionIndebtednessGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/AcquisitionIndebtednessGrp/CurrentYearAmt matches Part V Section B Line 2 \u2014 acquisition indebtedness."
+    },
+    "part_v_section_b_subtract_line2_from_line1": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/AdjustedFMVLessIndebtednessGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/AdjustedFMVLessIndebtednessGrp/CurrentYearAmt matches Part V Section B Line 3 \u2014 subtract line 2 from line 1."
+    },
+    "part_v_section_b_cash_deemed_held_for_exempt_use": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/CashDeemedCharitableGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/CashDeemedCharitableGrp/CurrentYearAmt matches Part V Section B Line 4 \u2014 cash deemed held for exempt use."
+    },
+    "part_v_section_b_net_value_nonexempt_assets": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/NetVlNonExemptUseAssetsGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/NetVlNonExemptUseAssetsGrp/CurrentYearAmt matches Part V Section B Line 5 \u2014 net value of non-exempt-use assets."
+    },
+    "part_v_section_b_multiply_by_035": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/PctOfNetVlNonExemptUseAstGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/PctOfNetVlNonExemptUseAstGrp/CurrentYearAmt matches Part V Section B Line 6 \u2014 multiply line 5 by 0.035."
+    },
+    "part_v_section_b_recoveries_prior_distributions": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/RecoveriesPYDistriMinAssetGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/RecoveriesPYDistriMinAssetGrp/CurrentYearAmt matches Part V Section B Line 7 \u2014 recoveries of prior-year distributions."
+    },
+    "part_v_section_b_minimum_asset_amount": {
+      "canonical": "CurrentYearAmt",
+      "xpath": "MinimumAssetAmountGrp/TotalMinimumAssetGrp/CurrentYearAmt",
+      "confidence": "high",
+      "rationale": "MinimumAssetAmountGrp/TotalMinimumAssetGrp/CurrentYearAmt matches Part V Section B Line 8 \u2014 minimum asset amount."
+    },
+    "part_v_section_c_adjusted_net_income_prior_year": {
+      "canonical": "CYAdjNetIncomeDistributableAmt",
+      "xpath": "DistributableAmountGrp/CYAdjNetIncomeDistributableAmt",
+      "confidence": "high",
+      "rationale": "DistributableAmountGrp/CYAdjNetIncomeDistributableAmt matches Part V Section C Line 1 \u2014 adjusted net income for the prior year."
+    },
+    "part_v_section_c_85_percent_of_line1": {
+      "canonical": "CYPct85AdjustedNetIncomeAmt",
+      "xpath": "DistributableAmountGrp/CYPct85AdjustedNetIncomeAmt",
+      "confidence": "high",
+      "rationale": "DistributableAmountGrp/CYPct85AdjustedNetIncomeAmt matches Part V Section C Line 2 \u2014 85% of line 1."
+    },
+    "part_v_section_c_minimum_asset_amount_prior_year": {
+      "canonical": "CYTotalMinAstDistributableAmt",
+      "xpath": "DistributableAmountGrp/CYTotalMinAstDistributableAmt",
+      "confidence": "high",
+      "rationale": "DistributableAmountGrp/CYTotalMinAstDistributableAmt matches Part V Section C Line 3 \u2014 minimum asset amount for prior year."
+    },
+    "part_v_section_c_greater_of_line2_or_line3": {
+      "canonical": "CYGreaterAdjustedMinimumAmt",
+      "xpath": "DistributableAmountGrp/CYGreaterAdjustedMinimumAmt",
+      "confidence": "high",
+      "rationale": "DistributableAmountGrp/CYGreaterAdjustedMinimumAmt matches Part V Section C Line 4 \u2014 greater of line 2 or line 3."
+    },
+    "part_v_section_c_income_tax_imposed_prior_year": {
+      "canonical": "CYIncomeTaxImposedPYAmt",
+      "xpath": "DistributableAmountGrp/CYIncomeTaxImposedPYAmt",
+      "confidence": "high",
+      "rationale": "DistributableAmountGrp/CYIncomeTaxImposedPYAmt matches Part V Section C Line 5 \u2014 income tax imposed in prior year."
+    },
+    "part_v_section_c_distributable_amount": {
+      "canonical": "CYDistributableAsAdjustedAmt",
+      "xpath": "DistributableAmountGrp/CYDistributableAsAdjustedAmt",
+      "confidence": "high",
+      "rationale": "DistributableAmountGrp/CYDistributableAsAdjustedAmt matches Part V Section C Line 6 \u2014 distributable amount."
+    },
+    "part_v_section_d_qualifying_distributions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Part V Section D qualifying distributions are split across multiple individual line elements (CYPaidAccomplishExemptPrpsAmt, CYPdInExcessIncomeActivityAmt, CYAdministrativeExpensePaidAmt, ExemptUseAssetsAcquisPaidAmt, QualifiedSetAsideAmt) in DistributionsGrp; blueprint models them as an array which bundles what canonical splits into separate scalar elements \u2014 blueprint should be refactored into individual fields."
+    },
+    "part_v_section_d_total_qualifying_distributions": {
+      "canonical": "CYTotalAnnualDistributionsAmt",
+      "xpath": "DistributionsGrp/CYTotalAnnualDistributionsAmt",
+      "confidence": "high",
+      "rationale": "DistributionsGrp/CYTotalAnnualDistributionsAmt matches Part V Section D Line 6 \u2014 total annual (qualifying) distributions."
+    },
+    "part_v_section_e_distributable_amount_current_year": {
+      "canonical": "            CYDistributableAsAdjustedAmt",
+      "xpath": "DistributionAllocationsGrp/            CYDistributableAsAdjustedAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/CYDistributableAsAdjustedAmt (indented xpath) matches Part V Section E Line 1 \u2014 distributable amount for current year."
+    },
+    "part_v_section_e_underdistributions_prior_years": {
+      "canonical": "UnderdistributionsAmt",
+      "xpath": "DistributionAllocationsGrp/UnderdistributionsAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/UnderdistributionsAmt matches Part V Section E Line 2 \u2014 underdistributions for prior years."
+    },
+    "part_v_section_e_excess_distributions_carryover": {
+      "canonical": "TotalExcessDistributionCyovAmt",
+      "xpath": "DistributionAllocationsGrp/TotalExcessDistributionCyovAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/TotalExcessDistributionCyovAmt matches Part V Section E Line 3 \u2014 total excess distributions carryover from prior years."
+    },
+    "part_v_section_e_qualifying_distributions_current_year": {
+      "canonical": "             CYTotalAnnualDistributionsAmt",
+      "xpath": "DistributionAllocationsGrp/             CYTotalAnnualDistributionsAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/CYTotalAnnualDistributionsAmt (indented xpath) matches Part V Section E Line 4 \u2014 qualifying distributions for the current year."
+    },
+    "part_v_section_e_applied_to_underdistributions": {
+      "canonical": "            CYDistribAppUnderdistriPYAmt",
+      "xpath": "DistributionAllocationsGrp/            CYDistribAppUnderdistriPYAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/CYDistribAppUnderdistriPYAmt matches Part V Section E Line 5a \u2014 applied to underdistributions of prior years."
+    },
+    "part_v_section_e_applied_to_current_year_distributable": {
+      "canonical": "            CYDistriAppDistributableAmt",
+      "xpath": "DistributionAllocationsGrp/            CYDistriAppDistributableAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/CYDistriAppDistributableAmt matches Part V Section E Line 5b \u2014 applied to current year distributable amount."
+    },
+    "part_v_section_e_carryover_to_next_year": {
+      "canonical": "ExcessDistributionAmt",
+      "xpath": "DistributionAllocationsGrp/ExcessDistributionAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/ExcessDistributionAmt matches Part V Section E Line 5c remainder \u2014 carryover to next year."
+    },
+    "part_v_section_e_remaining_underdistributions_prior_years": {
+      "canonical": "            RemainingUnderdistriPYAmt",
+      "xpath": "DistributionAllocationsGrp/            RemainingUnderdistriPYAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/RemainingUnderdistriPYAmt matches Part V Section E Line 6 \u2014 remaining underdistributions for years prior to current year."
+    },
+    "part_v_section_e_remaining_underdistributions_current_year": {
+      "canonical": "            RemainingUnderdistriCYAmt",
+      "xpath": "DistributionAllocationsGrp/            RemainingUnderdistriCYAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/RemainingUnderdistriCYAmt matches Part V Section E Line 7 \u2014 remaining underdistributions for current year."
+    },
+    "part_v_section_e_excess_distributions_carryover_to_next_year": {
+      "canonical": "            ExcessDistriCyovToNextYrAmt",
+      "xpath": "DistributionAllocationsGrp/            ExcessDistriCyovToNextYrAmt",
+      "confidence": "high",
+      "rationale": "DistributionAllocationsGrp/ExcessDistriCyovToNextYrAmt matches Part V Section E Line 8 \u2014 excess distributions carryover to next year."
+    },
+    "part_v_section_e_breakdown_excess_distributions": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The breakdown by year of origin is split across ExcessFromYear1Amt through ExcessFromYear5Amt (idx 45-49); blueprint models them as an array which bundles what canonical splits into five separate scalar elements \u2014 blueprint should be refactored into five individual fields."
+    },
+    "part_vi_supplemental_information": {
+      "canonical": "ExplanationTxt",
+      "xpath": "Form990ScheduleAPartVIGrp/ExplanationTxt",
+      "confidence": "high",
+      "rationale": "Form990ScheduleAPartVIGrp/ExplanationTxt matches Part VI free-form supplemental information text."
+    }
+  }
+}

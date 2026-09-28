@@ -1,0 +1,53 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_990_schedule_o",
+    "form_root": "IRS990ScheduleO"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS990ScheduleO.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:45:36+00:00",
+  "blueprint": {
+    "path": "blueprints/form_990_schedule_o.bpt",
+    "name": "form_990_schedule_o"
+  },
+  "fields": {
+    "organization_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Organization name is a header-level field stored in the MeF transmission envelope/return header, not as a leaf element within IRS990ScheduleO; no matching canonical element exists in this form's schema."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "EIN is a header-level field in the MeF return header, not represented as a leaf element within IRS990ScheduleO's candidate list."
+    },
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a header-level attribute in the MeF transmission envelope, not a leaf element within IRS990ScheduleO's schema."
+    },
+    "return_form": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Which core return form this schedule supplements is metadata carried in the MeF return header, not a leaf element within IRS990ScheduleO's schema."
+    },
+    "form_line_reference": {
+      "canonical": "FormAndLineReferenceDesc",
+      "xpath": "SupplementalInformationDetail/FormAndLineReferenceDesc",
+      "confidence": "high",
+      "rationale": "FormAndLineReferenceDesc under SupplementalInformationDetail directly corresponds to the 'Return Reference' column entry identifying the form, part, and line number."
+    },
+    "explanation": {
+      "canonical": "ExplanationTxt",
+      "xpath": "SupplementalInformationDetail/ExplanationTxt",
+      "confidence": "high",
+      "rationale": "ExplanationTxt under SupplementalInformationDetail directly corresponds to the 'Explanation' column narrative text for the referenced form line."
+    }
+  }
+}

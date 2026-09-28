@@ -1,0 +1,239 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_720",
+    "form_root": "IRS720"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS720.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:45+00:00",
+  "blueprint": {
+    "path": "blueprints/form_720.bpt",
+    "name": "form_720"
+  },
+  "fields": {
+    "employer_identification_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for EIN exists in the closed candidate list; it is typically an attribute or element on the root IRS720 not included here."
+    },
+    "business_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "BusinessNameLine1Txt is referenced in row labels but does not appear as a standalone candidate index in the closed list."
+    },
+    "trade_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No trade name / DBA element appears in the closed candidate list for this form."
+    },
+    "address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Street address elements (AddressLine1Txt, etc.) are referenced in row labels but not present as discrete candidates in the closed list."
+    },
+    "city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "CityNm is not present as a discrete candidate in the closed list."
+    },
+    "state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "StateAbbreviationCd is not present as a discrete candidate in the closed list."
+    },
+    "zip_code": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "ZIPCd is not present as a discrete candidate in the closed list."
+    },
+    "quarter_ending": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Quarter ending date field is referenced in header labels but no corresponding canonical element (e.g., QuarterEndingDate) appears in the closed candidate list."
+    },
+    "amended_return": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No AmendedReturnInd element appears in the closed candidate list for Form 720."
+    },
+    "final_return": {
+      "canonical": "FinalReturnInd",
+      "xpath": "FinalReturnInd",
+      "confidence": "high",
+      "rationale": "FinalReturnInd at candidate [9] directly corresponds to the 'Final return' checkbox described in the blueprint."
+    },
+    "address_change": {
+      "canonical": "AddressChangeInd",
+      "xpath": "AddressChangeInd",
+      "confidence": "high",
+      "rationale": "AddressChangeInd at candidate [1] directly corresponds to the 'Address change' checkbox described in the blueprint."
+    },
+    "part_i_lines": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles all Part I lines into one array; the canonical schema splits each IRS number into its own group element \u2014 no single candidate maps to this array structure; would need to be refactored into individual line fields per IRS number."
+    },
+    "part_i_total": {
+      "canonical": "QrtlyFederalExciseTaxPartIAmt",
+      "xpath": "QrtlyFederalExciseTaxPartI/QrtlyFederalExciseTaxPartIAmt",
+      "confidence": "high",
+      "rationale": "QrtlyFederalExciseTaxPartIAmt at [495] is labeled 'Total. Add all amounts in Part I', matching the Part I total field."
+    },
+    "part_ii_lines": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles all Part II lines into one array; the canonical schema splits each IRS number into its own group \u2014 no single candidate maps to this array structure."
+    },
+    "part_ii_total": {
+      "canonical": "QrtlyFederalExciseTaxPartIIAmt",
+      "xpath": "QrtlyFederalExciseTaxPartII/QrtlyFederalExciseTaxPartIIAmt",
+      "confidence": "high",
+      "rationale": "QrtlyFederalExciseTaxPartIIAmt at [558] is labeled 'Total. Add all amounts in Part II', matching the Part II total field."
+    },
+    "total_taxes": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxAmt at [563] is labeled 'Total tax. Add Part I, line 1, and Part II, line 2', directly matching the combined total taxes field."
+    },
+    "deposits_made": {
+      "canonical": "DepositsMadeForQuarterAmt",
+      "xpath": "DepositsMadeForQuarterAmt",
+      "confidence": "high",
+      "rationale": "DepositsMadeForQuarterAmt at [4] is labeled 'Deposits made for the quarter', directly matching this blueprint field."
+    },
+    "overpayment_from_prior_quarter": {
+      "canonical": "PreviousQuarterOverpaymentAmt",
+      "xpath": "PreviousQuarterOverpaymentAmt",
+      "confidence": "high",
+      "rationale": "PreviousQuarterOverpaymentAmt at [329] is labeled 'Overpayment from previous quarters', directly matching this blueprint field."
+    },
+    "balance_due": {
+      "canonical": "BalanceDueAmt",
+      "xpath": "BalanceDueAmt",
+      "confidence": "high",
+      "rationale": "BalanceDueAmt at [2] is labeled 'Balance Due', directly matching the balance due field in Part III."
+    },
+    "overpayment": {
+      "canonical": "OverpaymentAmt",
+      "xpath": "OverpaymentGrp/OverpaymentAmt",
+      "confidence": "high",
+      "rationale": "OverpaymentAmt at [327] under OverpaymentGrp is labeled 'Overpayment. If line 9 is greater than line 3', directly matching this blueprint field."
+    },
+    "overpayment_disposition": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles both disposition options (apply to next return vs. refund) into one category field; canonical schema splits into ApplyOverpaymentNextReturnInd [326] and RefundOverpaymentInd [328] \u2014 blueprint should be refactored into two boolean fields or a derived enum from those two indicators."
+    },
+    "schedule_c_lines": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles all Schedule C claim lines into one array; the canonical schema has dozens of discrete elements per claim type \u2014 no single candidate maps to this array structure."
+    },
+    "total_claims": {
+      "canonical": "TotalClaimsAmt",
+      "xpath": "IRS720ScheduleC/TotalClaimsAmt",
+      "confidence": "high",
+      "rationale": "TotalClaimsAmt at [316] is labeled 'Total claims. Add amounts on lines 1 through 14', directly matching the total claims field."
+    },
+    "third_party_designee_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No third-party designee name element appears in the closed candidate list for this form."
+    },
+    "third_party_designee_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No third-party designee phone element appears in the closed candidate list for this form."
+    },
+    "third_party_designee_pin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No third-party designee PIN element appears in the closed candidate list for this form."
+    },
+    "signature_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No signature name element appears in the closed candidate list for this form."
+    },
+    "signature_title": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No signature title element appears in the closed candidate list for this form."
+    },
+    "signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No signature date element appears in the closed candidate list for this form."
+    },
+    "preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer name element appears in the closed candidate list for this form."
+    },
+    "preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer PTIN element appears in the closed candidate list for this form."
+    },
+    "preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm name element appears in the closed candidate list for this form."
+    },
+    "preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm EIN element appears in the closed candidate list for this form."
+    },
+    "preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer firm address element appears in the closed candidate list for this form."
+    },
+    "preparer_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer phone element appears in the closed candidate list for this form."
+    },
+    "preparer_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer date element appears in the closed candidate list for this form."
+    },
+    "preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No preparer self-employed indicator element appears in the closed candidate list for this form."
+    }
+  }
+}

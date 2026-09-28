@@ -1,0 +1,53 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "4562_part_vi",
+    "form_root": "IRS4562"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS4562.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-24T22:13:06+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_4562_part_vi.bpt",
+    "name": "form_4562_part_vi"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for taxpayer name exists in the candidate list; the form header name field is not represented as a standalone XSD element in IRS4562."
+    },
+    "taxpayer_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for the identifying number (SSN/EIN) exists in the candidate list; the form header EIN/SSN field is not represented as a standalone XSD element in IRS4562."
+    },
+    "business_activity": {
+      "canonical": "BusinessOrActivityTxt",
+      "xpath": "BusinessOrActivityTxt",
+      "confidence": "high",
+      "rationale": "BusinessOrActivityTxt matches the form header 'Business or activity to which this form relates' field exactly."
+    },
+    "amortization_items": {
+      "canonical": "AmortizationInfoTable",
+      "xpath": "AmortizationInfo/AmortizationInfoTable",
+      "confidence": "medium",
+      "rationale": "AmortizationInfoTable is the repeating table element under AmortizationInfo that holds each row of Part VI Line 42 amortizable cost entries; the blueprint array maps to this repeating group rather than any single leaf element."
+    },
+    "line_43_amortization_prior_years": {
+      "canonical": "AmortizationCostsBeforeTYAmt",
+      "xpath": "AmortizationCostsBeforeTYAmt",
+      "confidence": "high",
+      "rationale": "AmortizationCostsBeforeTYAmt corresponds to Line 43 \u2014 amortization of costs that began before the current tax year."
+    },
+    "line_44_total_amortization": {
+      "canonical": "TotalAmortizationAmt",
+      "xpath": "TotalAmortizationAmt",
+      "confidence": "high",
+      "rationale": "TotalAmortizationAmt corresponds to Line 44 \u2014 total amortization, the sum of current-year column (f) amounts and Line 43."
+    }
+  }
+}

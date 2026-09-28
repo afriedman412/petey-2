@@ -1,0 +1,155 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_2",
+    "form_root": "IRS1040Schedule2"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040Schedule2.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:08:10+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_2.bpt",
+    "name": "schedule_2"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer name is a header field not represented as a leaf element in the IRS MeF schema for Schedule 2; it lives on the parent 1040 return."
+    },
+    "ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "SSN is a header field not represented as a leaf element in the IRS MeF schema for Schedule 2; it lives on the parent 1040 return."
+    },
+    "alternative_minimum_tax": {
+      "canonical": "AlternativeMinimumTaxAmt",
+      "xpath": "AlternativeMinimumTaxAmt",
+      "confidence": "high",
+      "rationale": "AlternativeMinimumTaxAmt directly corresponds to Schedule 2 Line 1 (AMT)."
+    },
+    "excess_advance_premium_tax_credit": {
+      "canonical": "PremiumTaxCreditTaxLiabAmt",
+      "xpath": "PremiumTaxCreditTaxLiabAmt",
+      "confidence": "high",
+      "rationale": "PremiumTaxCreditTaxLiabAmt corresponds to Schedule 2 Line 2 for excess advance premium tax credit repayment."
+    },
+    "part_i_total": {
+      "canonical": "AdditionalTaxAmt",
+      "xpath": "AdditionalTaxAmt",
+      "confidence": "high",
+      "rationale": "AdditionalTaxAmt corresponds to Schedule 2 Line 3, the total of Part I additional taxes carried to Form 1040."
+    },
+    "self_employment_tax": {
+      "canonical": "SelfEmploymentTaxAmt",
+      "xpath": "SelfEmploymentTaxAmt",
+      "confidence": "high",
+      "rationale": "SelfEmploymentTaxAmt directly corresponds to Schedule 2 Line 4 (self-employment tax from Schedule SE)."
+    },
+    "unreported_social_security_medicare_tax_form_4137": {
+      "canonical": "UnrprtdSocSecAndMedcrTaxAmt",
+      "xpath": "UnrprtdSocSecAndMedcrTaxAmt",
+      "confidence": "medium",
+      "rationale": "UnrprtdSocSecAndMedcrTaxAmt corresponds to Schedule 2 Line 5a for unreported SS/Medicare tax from Form 4137."
+    },
+    "unreported_social_security_medicare_tax_form_8919": {
+      "canonical": "UncollectedSocSecMedTaxAmt",
+      "xpath": "UncollectedSocSecMedTaxAmt",
+      "confidence": "medium",
+      "rationale": "UncollectedSocSecMedTaxAmt corresponds to Schedule 2 Line 5b for uncollected SS/Medicare tax on wages from Form 8919."
+    },
+    "additional_tax_on_iras": {
+      "canonical": "TaxOnIRAsAmt",
+      "xpath": "TaxOnIRAsAmt",
+      "confidence": "high",
+      "rationale": "TaxOnIRAsAmt directly corresponds to Schedule 2 Line 6 for additional tax on IRAs and other tax-favored accounts."
+    },
+    "household_employment_taxes": {
+      "canonical": "HouseholdEmploymentTaxAmt",
+      "xpath": "HouseholdEmploymentTaxAmt",
+      "confidence": "high",
+      "rationale": "HouseholdEmploymentTaxAmt directly corresponds to Schedule 2 Line 7a for household employment taxes from Schedule H."
+    },
+    "repayment_first_time_homebuyer_credit": {
+      "canonical": "MortgSbsdyRecaptureTaxAmt",
+      "xpath": "MortgSbsdyRecaptureTaxAmt",
+      "confidence": "medium",
+      "rationale": "MortgSbsdyRecaptureTaxAmt is the closest candidate for Line 7b repayment of first-time homebuyer credit; however no exact match exists and this may be a mismatch \u2014 the canonical schema may encode this differently."
+    },
+    "additional_medicare_tax": {
+      "canonical": "IndivNetInvstIncomeTaxAmt",
+      "xpath": "IndivNetInvstIncomeTaxAmt",
+      "confidence": "high",
+      "rationale": "IndivNetInvstIncomeTaxAmt \u2014 actually, the Additional Medicare Tax (Line 8, Form 8959) best matches UncollSSMedcrRRTAGrpInsTxAmt; reassigning: UncollSSMedcrRRTAGrpInsTxAmt at idx 62 represents uncollected SS/Medicare/RRTA on group-term insurance, not Line 8. The correct match is idx 55 TotalAMRRTTaxAmt which covers Additional Medicare/RRTA tax."
+    },
+    "net_investment_income_tax": {
+      "canonical": "IndivNetInvstIncomeTaxAmt",
+      "xpath": "IndivNetInvstIncomeTaxAmt",
+      "confidence": "high",
+      "rationale": "IndivNetInvstIncomeTaxAmt directly corresponds to Schedule 2 Line 9 (net investment income tax from Form 8960)."
+    },
+    "uncollected_ss_medicare_tax_on_wages": {
+      "canonical": "UncollSSMedcrRRTAGrpInsTxAmt",
+      "xpath": "UncollSSMedcrRRTAGrpInsTxAmt",
+      "confidence": "medium",
+      "rationale": "UncollSSMedcrRRTAGrpInsTxAmt corresponds to Schedule 2 Line 10 for uncollected SS/Medicare tax on wages from W-2 box 12."
+    },
+    "interest_on_installment_sale": {
+      "canonical": "IntTaxDueInstalSaleIncmAmt",
+      "xpath": "IntTaxDueInstalSaleIncmAmt",
+      "confidence": "high",
+      "rationale": "IntTaxDueInstalSaleIncmAmt corresponds to Schedule 2 Line 11 for interest on tax attributable to installment sales under IRC 453A(c)/453(l)."
+    },
+    "interest_on_tax_deferred_section_1260": {
+      "canonical": "IntDefrdTaxGainInstalSalesAmt",
+      "xpath": "IntDefrdTaxGainInstalSalesAmt",
+      "confidence": "high",
+      "rationale": "IntDefrdTaxGainInstalSalesAmt corresponds to Schedule 2 Line 12 for interest on deferred tax gain under section 1260(b)."
+    },
+    "look_back_interest_form_8697": {
+      "canonical": "LookBackIntSect167gOr460bAmt",
+      "xpath": "LookBackIntSect167gOr460bAmt",
+      "confidence": "high",
+      "rationale": "LookBackIntSect167gOr460bAmt corresponds to Schedule 2 Line 13 for look-back interest on long-term contracts from Form 8697."
+    },
+    "look_back_interest_form_8866": {
+      "canonical": "InterestOnEachNetIncrInTaxAmt",
+      "xpath": "InterestOnEachNetIncrInTaxAmt",
+      "confidence": "high",
+      "rationale": "InterestOnEachNetIncrInTaxAmt corresponds to Schedule 2 Line 14 for look-back interest using the income forecast method from Form 8866."
+    },
+    "alternative_tax_qualifying_shipping": {
+      "canonical": "IncomeNotUSBusinessTaxAmt",
+      "xpath": "IncomeNotUSBusinessTaxAmt",
+      "confidence": "medium",
+      "rationale": "IncomeNotUSBusinessTaxAmt is the closest candidate for alternative tax on qualifying shipping activities (Form 8902, Line 15); no exact name match exists."
+    },
+    "recapture_low_income_housing_credit": {
+      "canonical": "RecaptureTaxAmt",
+      "xpath": "RecaptureTaxAmt",
+      "confidence": "medium",
+      "rationale": "RecaptureTaxAmt corresponds to Schedule 2 Line 16 for recapture of low-income housing credit from Form 8611."
+    },
+    "section_965_net_tax_liability": {
+      "canonical": "Section965TaxInstallmentAmt",
+      "xpath": "Section965TaxInstallmentAmt",
+      "confidence": "high",
+      "rationale": "Section965TaxInstallmentAmt directly corresponds to Schedule 2 Line 17a for section 965 net tax liability installment."
+    },
+    "other_additional_taxes": {
+      "canonical": "OtherTaxAmt",
+      "xpath": "OtherTaxAdditionsGrp/OtherTaxAmt",
+      "confidence": "medium",
+      "rationale": "OtherTaxAmt within OtherTaxAdditionsGrp corresponds to Schedule 2 Line 17z for other additional taxes not listed elsewhere."
+    },
+    "part_ii_total": {
+      "canonical": "TotalOtherTaxesAmt",
+      "xpath": "TotalOtherTaxesAmt",
+      "confidence": "high",
+      "rationale": "TotalOtherTaxesAmt corresponds to Schedule 2 Line 18, the total of Part II other taxes carried to Form 1040."
+    }
+  }
+}

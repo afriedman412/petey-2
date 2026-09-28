@@ -1,0 +1,167 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1099_b",
+    "form_root": "IRS1099B"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099B.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:17:31+00:00",
+  "blueprint": {
+    "path": "blueprints/1099_b.bpt",
+    "name": "form_1099_b"
+  },
+  "fields": {
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "BusinessNameLine1Txt under PayerName is the best single-field match for the payer's name, though the schema splits it into two lines (blueprint may need to split into BusinessNameLine1Txt and BusinessNameLine2Txt)."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN directly maps to the payer's taxpayer identification number printed on the form."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly maps to the recipient's name box on the form."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "medium",
+      "rationale": "RecipientSSN is the best available match; the schema does not expose a separate RecipientEIN leaf for individuals, so SSN is the primary TIN field (RecipientEIN at idx 40 also exists for entities, but RecipientSSN is more common)."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum directly maps to the account number box on the 1099-B."
+    },
+    "description_of_property": {
+      "canonical": "PropertyDesc",
+      "xpath": "PropertyDesc",
+      "confidence": "high",
+      "rationale": "PropertyDesc directly maps to Box 1a description of property sold or exchanged."
+    },
+    "date_acquired": {
+      "canonical": "AcquiredDt",
+      "xpath": "AcquiredDt",
+      "confidence": "high",
+      "rationale": "AcquiredDt directly maps to Box 1b date acquired."
+    },
+    "date_sold": {
+      "canonical": "SoldOrDisposedDt",
+      "xpath": "SoldOrDisposedDt",
+      "confidence": "high",
+      "rationale": "SoldOrDisposedDt directly maps to Box 1c date sold or disposed."
+    },
+    "proceeds": {
+      "canonical": "ProceedsAmt",
+      "xpath": "ProceedsAmt",
+      "confidence": "high",
+      "rationale": "ProceedsAmt directly maps to Box 1d gross proceeds."
+    },
+    "cost_or_other_basis": {
+      "canonical": "CostOrOtherBasisAmt",
+      "xpath": "CostOrOtherBasisAmt",
+      "confidence": "high",
+      "rationale": "CostOrOtherBasisAmt directly maps to Box 1e cost or other basis."
+    },
+    "accrued_market_discount": {
+      "canonical": "AccruedMarketDiscountAmt",
+      "xpath": "AccruedMarketDiscountAmt",
+      "confidence": "high",
+      "rationale": "AccruedMarketDiscountAmt directly maps to Box 1f accrued market discount."
+    },
+    "wash_sale_loss_disallowed": {
+      "canonical": "NondeductibleWashSaleLossAmt",
+      "xpath": "NondeductibleWashSaleLossAmt",
+      "confidence": "high",
+      "rationale": "NondeductibleWashSaleLossAmt directly maps to Box 1g wash-sale loss disallowed."
+    },
+    "federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt directly maps to Box 4 federal income tax withheld."
+    },
+    "term": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles short-term, long-term, and ordinary into a single category field, but the canonical schema splits these into three separate boolean indicators (ShortTermGainLossInd, LongTermGainLossInd, OrdinaryInd); blueprint should be refactored into three boolean fields matching those elements."
+    },
+    "covered_security": {
+      "canonical": "NoncoveredSecurityInd",
+      "xpath": "NoncoveredSecurityInd",
+      "confidence": "medium",
+      "rationale": "NoncoveredSecurityInd is the inverse of covered_security (true here means non-covered); BasisReportedInd (idx 3) is also related but NoncoveredSecurityInd most directly reflects Box 3 covered/non-covered status."
+    },
+    "applicable_checkbox_on_form_8949": {
+      "canonical": "Form8949ApplicableCheckboxCd",
+      "xpath": "Form8949ApplicableCheckboxCd",
+      "confidence": "high",
+      "rationale": "Form8949ApplicableCheckboxCd directly maps to the Form 8949 reporting category code."
+    },
+    "loss_not_allowed": {
+      "canonical": "LossNotAllowedInd",
+      "xpath": "LossNotAllowedInd",
+      "confidence": "high",
+      "rationale": "LossNotAllowedInd directly maps to Box 5 loss-not-allowed checkbox."
+    },
+    "collectible_or_qof": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles collectible (Box 6) and QOF (separate checkbox) into one boolean, but the canonical schema splits them into CollectiblesInd (idx 7) and QOFInd (idx 38); blueprint should be refactored into two separate boolean fields."
+    },
+    "realized_gain_or_loss": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for net gain/loss exists in the IRS 1099-B MeF schema; this is a computed field common on broker substitute statements but not an IRS-defined XML element."
+    },
+    "quantity": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for quantity/shares sold exists in the IRS 1099-B MeF schema; quantity is not a standard IRS-defined box and has no matching XSD element."
+    },
+    "cusip": {
+      "canonical": "CUSIPNum",
+      "xpath": "CUSIPNum",
+      "confidence": "high",
+      "rationale": "CUSIPNum directly maps to the CUSIP identifier field on the 1099-B."
+    },
+    "bartering_income": {
+      "canonical": "BarterAmt",
+      "xpath": "BarterAmt",
+      "confidence": "high",
+      "rationale": "BarterAmt directly maps to Box 13 barter exchange fair market value."
+    },
+    "state_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099BStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "StateTaxWithheldAmt under Form1099BStateLocalTaxGrp directly maps to Box 16 state income tax withheld."
+    },
+    "state": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099BStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "StateAbbreviationCd under Form1099BStateLocalTaxGrp directly maps to Box 15 two-letter state abbreviation."
+    },
+    "state_identification_number": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099BStateLocalTaxGrp/StateIdNum",
+      "confidence": "high",
+      "rationale": "StateIdNum under Form1099BStateLocalTaxGrp directly maps to Box 17 payer's state identification number."
+    }
+  }
+}

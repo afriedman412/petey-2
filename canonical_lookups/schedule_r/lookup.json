@@ -1,0 +1,137 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_r",
+    "form_root": "IRS1040ScheduleR"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleR.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:09:09+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_r.bpt",
+    "name": "schedule_r"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer name shown at top of form is not represented as a standalone canonical element in this schema; no matching candidate exists."
+    },
+    "taxpayer_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Taxpayer SSN at top of form is not represented as a standalone canonical element in this schema; no matching candidate exists."
+    },
+    "part1_checkbox": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint bundles all Part I checkbox options into a single category field, but the canonical schema splits each option into separate boolean indicators (e.g., Primary65OrOlderInd, BothSpouses65OrOlderInd, BothUnder65BothRtdDsbltyInd, etc.); blueprint should be refactored into individual boolean fields matching each canonical indicator."
+    },
+    "taxpayer_physician_statement": {
+      "canonical": "PriorYearStatementInd",
+      "xpath": "PriorYearStatementInd",
+      "confidence": "medium",
+      "rationale": "PriorYearStatementInd is the closest canonical element for the physician/disability statement indicator; the personFirstNm attribute suggests it applies to the primary taxpayer."
+    },
+    "spouse_physician_statement": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "No distinct canonical element exists for the spouse's physician statement separately from the primary taxpayer's; PriorYearStatementInd with @spouseNm attribute does not clearly represent this boolean indicator as a standalone field."
+    },
+    "line_10_initial_amount": {
+      "canonical": "FilingStatusAmt",
+      "xpath": "FilingStatusAmt",
+      "confidence": "high",
+      "rationale": "FilingStatusAmt corresponds to the initial base dollar amount determined by filing status/Part I box, which is Line 10 on Schedule R."
+    },
+    "line_11a_disability_income_taxpayer": {
+      "canonical": "TaxableDisabilityAmt",
+      "xpath": "TaxableDisabilityAmt",
+      "confidence": "high",
+      "rationale": "TaxableDisabilityAmt corresponds to taxable disability income, which aligns with Line 11a for the taxpayer's disability income."
+    },
+    "line_11b_disability_income_spouse": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No separate canonical element exists for the spouse's disability income (Line 11b); TaxableDisabilityAmt appears to cover only the combined or primary value, and no spouse-specific variant is present in the candidate list."
+    },
+    "line_12_smaller_of_10_or_11": {
+      "canonical": "SmallerOfFSOrTaxableAmt",
+      "xpath": "SmallerOfFSOrTaxableAmt",
+      "confidence": "high",
+      "rationale": "SmallerOfFSOrTaxableAmt directly names the Line 12 computation \u2014 the smaller of the filing status amount (Line 10) or taxable disability income (Line 11)."
+    },
+    "line_13a_agi": {
+      "canonical": "TaxReturnAGIAmt",
+      "xpath": "TaxReturnAGIAmt",
+      "confidence": "high",
+      "rationale": "TaxReturnAGIAmt corresponds to the AGI from Form 1040 entered on Line 13a of Schedule R."
+    },
+    "line_13b_nontaxable_social_security": {
+      "canonical": "NontxSocSecAndRlrdBenefitsAmt",
+      "xpath": "NontxSocSecAndRlrdBenefitsAmt",
+      "confidence": "high",
+      "rationale": "NontxSocSecAndRlrdBenefitsAmt directly matches Line 13b \u2014 nontaxable Social Security and railroad retirement benefits."
+    },
+    "line_13c_combined_income": {
+      "canonical": "TotalNontaxableAmt",
+      "xpath": "TotalNontaxableAmt",
+      "confidence": "high",
+      "rationale": "TotalNontaxableAmt corresponds to Line 13c, the combined total of AGI and nontaxable benefits used for the phase-out calculation."
+    },
+    "line_14_phaseout_threshold": {
+      "canonical": "ExemptionAmt",
+      "xpath": "ExemptionAmt",
+      "confidence": "high",
+      "rationale": "ExemptionAmt corresponds to the Line 14 phase-out threshold amount based on filing status on Schedule R."
+    },
+    "line_15_excess_agi": {
+      "canonical": "AdjustedGrossIncomeAmt",
+      "xpath": "AdjustedGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "AdjustedGrossIncomeAmt in this context corresponds to Line 15 \u2014 the excess of combined income over the phase-out threshold."
+    },
+    "line_16_half_excess": {
+      "canonical": "HalfAGIAmt",
+      "xpath": "HalfAGIAmt",
+      "confidence": "high",
+      "rationale": "HalfAGIAmt directly corresponds to Line 16 \u2014 one-half of the excess AGI phase-out amount."
+    },
+    "line_17_credit_base": {
+      "canonical": "AdjustedCreditAmt",
+      "xpath": "AdjustedCreditAmt",
+      "confidence": "high",
+      "rationale": "AdjustedCreditAmt corresponds to Line 17 \u2014 the net credit base after subtracting the AGI phase-out reduction from Line 12."
+    },
+    "line_18_credit_percentage": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The 15% statutory rate is a printed constant on the form and is not represented as a data element in the canonical schema."
+    },
+    "line_19_tentative_credit": {
+      "canonical": "CalculatedAmountOfNetCreditAmt",
+      "xpath": "CalculatedAmountOfNetCreditAmt",
+      "confidence": "high",
+      "rationale": "CalculatedAmountOfNetCreditAmt corresponds to Line 19 \u2014 the tentative credit computed as Line 17 multiplied by 15%."
+    },
+    "line_20_tax_liability_limit": {
+      "canonical": "TotalTaxLessCreditsAmt",
+      "xpath": "TotalTaxLessCreditsAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxLessCreditsAmt corresponds to Line 20 \u2014 the tax liability limitation from the Credit Limit Worksheet."
+    },
+    "line_21_credit": {
+      "canonical": "CreditForElderlyOrDisabledAmt",
+      "xpath": "CreditForElderlyOrDisabledAmt",
+      "confidence": "high",
+      "rationale": "CreditForElderlyOrDisabledAmt directly corresponds to Line 21 \u2014 the final Credit for the Elderly or the Disabled, the smaller of Line 19 or Line 20."
+    }
+  }
+}

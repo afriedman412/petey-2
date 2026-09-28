@@ -1,0 +1,71 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1120_schedule_j",
+    "form_root": "IRS1120ScheduleJ"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1120.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:35:41+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_1120_schedule_j.bpt",
+    "name": "form_1120_schedule_j"
+  },
+  "fields": {
+    "corporation_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Corporation name is a header field not represented as a leaf element in the Schedule J canonical XSD candidates."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "EIN is a header/identifier field not represented as a leaf element in the Schedule J canonical XSD candidates."
+    },
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year begin date is a header field not represented as a leaf element in the Schedule J canonical XSD candidates."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year end date is a header field not represented as a leaf element in the Schedule J canonical XSD candidates."
+    },
+    "income_tax": {
+      "canonical": "IncomeTaxAmt",
+      "xpath": "IncomeTaxAmt",
+      "confidence": "high",
+      "rationale": "IncomeTaxAmt corresponds to the income tax before credits line on Schedule J."
+    },
+    "alternative_minimum_tax": {
+      "canonical": "CorpAlternativeMinimumTaxAmt",
+      "xpath": "CorpAlternativeMinimumTaxAmt",
+      "confidence": "high",
+      "rationale": "CorpAlternativeMinimumTaxAmt directly represents the corporate AMT from Form 4626 on Schedule J."
+    },
+    "additional_taxes": {
+      "canonical": "OtherTaxesAmt",
+      "xpath": "OtherTaxesAmt",
+      "confidence": "medium",
+      "rationale": "OtherTaxesAmt best represents additional taxes and amounts on Schedule J; however the blueprint bundles multiple items (recapture, BEAT, etc.) that the schema splits across multiple elements."
+    },
+    "total_credits": {
+      "canonical": "TotalCreditAmt",
+      "xpath": "TotalCreditAmt",
+      "confidence": "high",
+      "rationale": "TotalCreditAmt represents the total non-refundable credits on Schedule J reducing tax liability."
+    },
+    "total_tax": {
+      "canonical": "TotalTaxAmt",
+      "xpath": "TotalTaxAmt",
+      "confidence": "high",
+      "rationale": "TotalTaxAmt is the net total tax from Schedule J carried to page 1 of Form 1120."
+    }
+  }
+}

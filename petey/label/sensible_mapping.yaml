@@ -1,0 +1,88 @@
+# Mapping from Petey form_id → Sensible config file(s) used for slug vocabulary.
+#
+# Paths are relative to sensible-configuration-library/. When multiple configs
+# exist for a form type (per-year, per-vendor), list the most recent or most
+# generic one first; the loader takes the union of field IDs across listed
+# configs.
+#
+# Sensible field IDs are loaded from fields[].id of each linked config and
+# fed to vlm_label.py as the PREFERRED slug source (per label-source-priority
+# decision 2026-06-27 in project_labeler_first_generation.md).
+#
+# Add new entries as new forms get labeled. Missing entries fall back to
+# existing bpt vocab + LLM invention.
+
+# --- Tax forms (IRS) ---
+w_2:
+  - templates/Tax Forms/W2s/configurations/w2.json
+w_9:
+  - templates/Tax Forms/W9s/configurations/w9_2018.json
+form_1040:
+  - templates/Tax Forms/1040s/configurations/1040_2022.json
+form_1040_senior:
+  - templates/Tax Forms/1040s/configurations/senior_1040_2021.json
+form_1065:
+  - templates/Tax Forms/1065s/configurations/1065_2018.json
+form_1120:
+  - templates/Tax Forms/1120s/configurations/1120_2019.json
+form_1120s:
+  - templates/Tax Forms/1120s/configurations/1120s_2023.json
+form_4868:
+  - templates/Tax Forms/4868s/configurations/4868_2022.json
+form_941:
+  - templates/Tax Forms/941s/configurations/941_2022.json
+
+# 1099 variants — Sensible has a single shared 1099_2020 config across types
+form_1099_misc:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+form_1099_nec:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+form_1099_int:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+form_1099_div:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+form_1099_r:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+form_1099_g:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+form_1099_s:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+form_1099_k:
+  - templates/Tax Forms/1099s/configurations/1099_2020.json
+
+# --- Healthcare ---
+cms_1500:
+  - templates/Healthcare/CMS 1500/configurations/cms_1500_08_05.json
+eob:
+  - templates/Healthcare/EOBs/configurations/cigna_2022.json
+  - templates/Healthcare/EOBs/configurations/apex.json
+sbc:
+  - templates/Healthcare/SBCs/configurations/ai_generalized_sbc.json
+
+# --- Insurance (ACORDs) ---
+acord_25:
+  - templates/Insurance/ACORD Forms/configurations/acord_25_2016_03.json
+acord_125:
+  - templates/Insurance/ACORD Forms/configurations/acord_125_2016_03.json
+acord_126:
+  - templates/Insurance/ACORD Forms/configurations/acord_126_2016_09.json
+acord_127:
+  - templates/Insurance/ACORD Forms/configurations/acord_127_2015_12.json
+acord_130:
+  - templates/Insurance/ACORD Forms/configurations/acord_130_2017_05.json
+acord_140:
+  - templates/Insurance/ACORD Forms/configurations/acord_140_2016_03.json
+
+# --- HR / pay ---
+pay_stub:
+  - templates/Human Resources/Pay Stubs/configurations/pay_stubs.json
+
+# --- Real estate ---
+closing_disclosure:
+  - templates/Real Estate/Closing Disclosures/configurations/closing_disclosure.json
+
+# --- Financial ---
+bank_statement:
+  - templates/Financial Services/Bank Statements/configurations/ai_generalized_single_account_statement.json
+form_5500:
+  - templates/Financial Services/Retirement/configurations/form_5500.json

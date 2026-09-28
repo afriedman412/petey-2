@@ -1,0 +1,89 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_8949",
+    "form_root": "IRS8949"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS8949.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:19:12+00:00",
+  "blueprint": {
+    "path": "blueprints/form_8949.bpt",
+    "name": "form_8949"
+  },
+  "fields": {
+    "part": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema splits rows into ShortTermCapitalGainAndLossGrp and LongTermCapitalGainAndLossGrp groups rather than exposing a single 'part' attribute; blueprint should derive part from which group the CapitalGainAndLossAssetGrp row belongs to (indices 2/3 for short-term, 0/1 for long-term) rather than storing it as a separate field."
+    },
+    "reporting_category": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The reporting category checkbox (A/B/C or D/E/F) is not represented as a distinct leaf element in the canonical schema; the MeF schema encodes it implicitly through the group/asset structure with no corresponding XSD element in the candidate list."
+    },
+    "description_of_property": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf element for property description (e.g., PropertyDescriptionTxt) appears in the closed candidate list; the four candidates are all group-level elements with no label, so no match is possible."
+    },
+    "date_acquired": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf element for date acquired (e.g., AcquiredDt) appears in the closed candidate list; all four candidates are group-level elements."
+    },
+    "date_sold": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf element for date sold (e.g., SoldDt) appears in the closed candidate list; all four candidates are group-level elements."
+    },
+    "proceeds": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf amount element for proceeds (e.g., ProceedsAmt) appears in the closed candidate list; all four candidates are group-level elements."
+    },
+    "cost_or_basis": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf amount element for cost or basis (e.g., CostOrOtherBasisAmt) appears in the closed candidate list; all four candidates are group-level elements."
+    },
+    "adjustment_code": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf element for adjustment code (e.g., AdjustmentCd) appears in the closed candidate list; all four candidates are group-level elements."
+    },
+    "adjustment_amount": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf amount element for adjustment amount (e.g., GainOrLossAdjustmentAmt) appears in the closed candidate list; all four candidates are group-level elements."
+    },
+    "gain_or_loss": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf amount element for gain or loss (e.g., GainOrLossAmt) appears in the closed candidate list; all four candidates are group-level elements."
+    },
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf element for taxpayer name appears in the closed candidate list; header fields are not represented among the four group-level candidates."
+    },
+    "taxpayer_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No leaf element for taxpayer SSN/TIN appears in the closed candidate list; header fields are not represented among the four group-level candidates."
+    }
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1099_misc",
+    "form_root": "IRS1099MISC"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099MISC.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:17:32+00:00",
+  "blueprint": {
+    "path": "blueprints/1099_misc.bpt",
+    "name": "form_1099_misc"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr maps directly to the calendar year printed on the form."
+    },
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "Blueprint bundles payer name into one string but canonical schema splits into BusinessNameLine1Txt and BusinessNameLine2Txt under PayerName; mapping to line 1 as primary, but blueprint should split into two fields for full alignment."
+    },
+    "payer_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street/city/state/zip into one string; canonical schema uses PayerUSAddress or PayerForeignAddress group elements with sub-fields \u2014 blueprint should split into AddressLine1Txt, CityNm, StateAbbreviationCd, ZIPCd fields."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN matches the payer's taxpayer identification number field."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN is the canonical element for the recipient's TIN (SSN/EIN/ITIN) on 1099-MISC; RecipientEIN at idx 29 is also a candidate but RecipientSSN is the primary match for individuals."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly maps to the recipient's name field."
+    },
+    "recipient_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles recipient address into one string; canonical schema splits into RecipientUSAddress or RecipientForeignAddress group elements with sub-fields \u2014 blueprint should split into AddressLine1Txt, CityNm, StateAbbreviationCd, ZIPCd."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum directly corresponds to the account number field on the form."
+    },
+    "second_tin_notice": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element for the '2nd TIN not.' checkbox exists in the supplied canonical list."
+    },
+    "fatca_filing_requirement": {
+      "canonical": "FATCAFilingRequirementInd",
+      "xpath": "FATCAFilingRequirementInd",
+      "confidence": "high",
+      "rationale": "FATCAFilingRequirementInd directly maps to the FATCA filing requirement checkbox."
+    },
+    "void": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No VOID checkbox element exists in the supplied canonical candidate list."
+    },
+    "corrected": {
+      "canonical": "CorrectedInd",
+      "xpath": "CorrectedInd",
+      "confidence": "high",
+      "rationale": "CorrectedInd directly maps to the CORRECTED checkbox on the form."
+    },
+    "box_1_rents": {
+      "canonical": "RentAmt",
+      "xpath": "RentAmt",
+      "confidence": "high",
+      "rationale": "RentAmt maps directly to Box 1 \u2014 Rents."
+    },
+    "box_2_royalties": {
+      "canonical": "RoyaltyAmt",
+      "xpath": "RoyaltyAmt",
+      "confidence": "high",
+      "rationale": "RoyaltyAmt maps directly to Box 2 \u2014 Royalties."
+    },
+    "box_3_other_income": {
+      "canonical": "OtherIncomeAmt",
+      "xpath": "OtherIncomeAmt",
+      "confidence": "high",
+      "rationale": "OtherIncomeAmt maps directly to Box 3 \u2014 Other income."
+    },
+    "box_4_federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt maps directly to Box 4 \u2014 Federal income tax withheld."
+    },
+    "box_5_fishing_boat_proceeds": {
+      "canonical": "FishingBoatProceedsAmt",
+      "xpath": "FishingBoatProceedsAmt",
+      "confidence": "high",
+      "rationale": "FishingBoatProceedsAmt maps directly to Box 5 \u2014 Fishing boat proceeds."
+    },
+    "box_6_medical_health_care_payments": {
+      "canonical": "MedicalHealthCarePaymentsAmt",
+      "xpath": "MedicalHealthCarePaymentsAmt",
+      "confidence": "high",
+      "rationale": "MedicalHealthCarePaymentsAmt maps directly to Box 6 \u2014 Medical and health care payments."
+    },
+    "box_7_payer_direct_sales_indicator": {
+      "canonical": "DirectSaleAboveThresholdInd",
+      "xpath": "DirectSaleAboveThresholdInd",
+      "confidence": "high",
+      "rationale": "DirectSaleAboveThresholdInd maps directly to Box 7 direct sales checkbox for 2020+ forms."
+    },
+    "box_7_nonemployee_compensation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No NonemployeeCompensationAmt element exists in the canonical list; this pre-2020 Box 7 value is not represented in the 1099-MISC MeF schema (moved to 1099-NEC)."
+    },
+    "box_8_substitute_payments": {
+      "canonical": "SubstitutePaymentsAmt",
+      "xpath": "SubstitutePaymentsAmt",
+      "confidence": "high",
+      "rationale": "SubstitutePaymentsAmt maps directly to Box 8 \u2014 Substitute payments."
+    },
+    "box_9_crop_insurance_proceeds": {
+      "canonical": "CropInsuranceProceedsAmt",
+      "xpath": "CropInsuranceProceedsAmt",
+      "confidence": "high",
+      "rationale": "CropInsuranceProceedsAmt maps directly to Box 9 \u2014 Crop insurance proceeds."
+    },
+    "box_10_gross_proceeds_to_attorney": {
+      "canonical": "AttorneyGrossProceedsPaidAmt",
+      "xpath": "AttorneyGrossProceedsPaidAmt",
+      "confidence": "high",
+      "rationale": "AttorneyGrossProceedsPaidAmt maps directly to Box 10 \u2014 Gross proceeds paid to an attorney."
+    },
+    "box_11_fish_purchased": {
+      "canonical": "FishPurchasedForResaleAmt",
+      "xpath": "FishPurchasedForResaleAmt",
+      "confidence": "high",
+      "rationale": "FishPurchasedForResaleAmt maps directly to Box 11 \u2014 Fish purchased for resale."
+    },
+    "box_12_section_409a_deferrals": {
+      "canonical": "Section409ADeferralsAmt",
+      "xpath": "Section409ADeferralsAmt",
+      "confidence": "high",
+      "rationale": "Section409ADeferralsAmt maps directly to Box 12 \u2014 Section 409A deferrals."
+    },
+    "box_13_excess_golden_parachute": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No ExcessGoldenParachuteAmt or equivalent element exists in the supplied canonical candidate list."
+    },
+    "box_14_nonqualified_deferred_compensation": {
+      "canonical": "NonqlfyDeferredCompensationAmt",
+      "xpath": "NonqlfyDeferredCompensationAmt",
+      "confidence": "high",
+      "rationale": "NonqlfyDeferredCompensationAmt maps directly to Box 14 \u2014 Nonqualified deferred compensation income."
+    },
+    "box_16_state_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099MISCStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "StateTaxWithheldAmt under Form1099MISCStateLocalTaxGrp maps to Box 16 \u2014 State tax withheld."
+    },
+    "box_17_state_payer_state_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles state abbreviation and state ID number into one string; canonical schema splits into StateAbbreviationCd (idx 14) and StateIdNum (idx 15) \u2014 blueprint should split into two separate fields."
+    },
+    "box_18_state_income": {
+      "canonical": "StateIncomeAmt",
+      "xpath": "Form1099MISCStateLocalTaxGrp/StateIncomeAmt",
+      "confidence": "high",
+      "rationale": "StateIncomeAmt under Form1099MISCStateLocalTaxGrp maps to Box 18 \u2014 State income."
+    }
+  }
+}

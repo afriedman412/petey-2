@@ -1,0 +1,179 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1099_patr",
+    "form_root": "IRS1099PATR"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099PATR.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:03+00:00",
+  "blueprint": {
+    "path": "blueprints/form_1099_patr.bpt",
+    "name": "form_1099_patr"
+  },
+  "fields": {
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "PayerName/BusinessNameLine1Txt maps to the cooperative's primary name line in the payer information block."
+    },
+    "payer_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street address into one string; canonical splits PayerUSAddress into AddressLine1Txt, CityNm, StateAbbreviationCd, ZIPCd \u2014 blueprint should split into separate fields and map to PayerUSAddress sub-elements."
+    },
+    "payer_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles city/state/ZIP into one string; canonical PayerUSAddress splits these into CityNm, StateAbbreviationCd, and ZIPCd \u2014 blueprint should split into 3 separate fields."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN directly corresponds to the payer's TIN box on the form."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN is the canonical element for the recipient's TIN (SSN/EIN/ITIN) on Form 1099-PATR; RecipientEIN at idx 30 is an alternative but RecipientSSN is the primary field."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly maps to the recipient (patron) name box."
+    },
+    "recipient_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "RecipientUSAddress/AddressLine1Txt",
+      "confidence": "medium",
+      "rationale": "RecipientUSAddress/AddressLine1Txt is the best match for the recipient's street address, assuming a domestic address; blueprint should split street/city/state/zip into separate fields."
+    },
+    "recipient_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles city/state/ZIP into one string; canonical RecipientUSAddress splits these into CityNm, StateAbbreviationCd, and ZIPCd \u2014 blueprint should split into 3 separate fields."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum directly corresponds to the account number assigned by the cooperative to the patron."
+    },
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr maps to the calendar year printed near the top of the form."
+    },
+    "box_1_patronage_dividends": {
+      "canonical": "PatronageDividendsAmt",
+      "xpath": "PatronageDividendsAmt",
+      "confidence": "high",
+      "rationale": "PatronageDividendsAmt directly corresponds to Box 1 \u2014 Patronage dividends."
+    },
+    "box_2_nonpatronage_distributions": {
+      "canonical": "NonpatronageDistributionsAmt",
+      "xpath": "NonpatronageDistributionsAmt",
+      "confidence": "high",
+      "rationale": "NonpatronageDistributionsAmt directly corresponds to Box 2 \u2014 Nonpatronage distributions."
+    },
+    "box_3_per_unit_retain_allocations": {
+      "canonical": "PerUnitRetainAllocationsAmt",
+      "xpath": "PerUnitRetainAllocationsAmt",
+      "confidence": "high",
+      "rationale": "PerUnitRetainAllocationsAmt directly corresponds to Box 3 \u2014 Per-unit retain allocations."
+    },
+    "box_4_federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt directly corresponds to Box 4 \u2014 Federal income tax withheld."
+    },
+    "box_5_redemption_of_nonqualified_notices": {
+      "canonical": "RedeemedNonqualifiedNoticesAmt",
+      "xpath": "RedeemedNonqualifiedNoticesAmt",
+      "confidence": "high",
+      "rationale": "RedeemedNonqualifiedNoticesAmt directly corresponds to Box 5 \u2014 Redemption of nonqualified notices and retain allocations."
+    },
+    "box_6_section_199a_g_deduction": {
+      "canonical": "Section199AgDeductionAmt",
+      "xpath": "Section199AgDeductionAmt",
+      "confidence": "high",
+      "rationale": "Section199AgDeductionAmt directly corresponds to Box 6 \u2014 Section 199A(g) deduction."
+    },
+    "box_7_qualified_payments": {
+      "canonical": "Section199Ab7QualifiedPymtAmt",
+      "xpath": "Section199Ab7QualifiedPymtAmt",
+      "confidence": "high",
+      "rationale": "Section199Ab7QualifiedPymtAmt directly corresponds to Box 7 \u2014 Qualified payments under section 199A(b)(7)."
+    },
+    "box_8_section_199a_qualified_items": {
+      "canonical": "Section199AaQualifiedItemsAmt",
+      "xpath": "Section199AaQualifiedItemsAmt",
+      "confidence": "high",
+      "rationale": "Section199AaQualifiedItemsAmt directly corresponds to Box 8 \u2014 Section 199A(a) qualified items income or loss."
+    },
+    "box_9_section_199a_w2_wages": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element for Section 199A(a) W-2 wages (Box 9) exists in the supplied canonical list; this field has no matching element."
+    },
+    "box_10_section_199a_unadjusted_basis": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No candidate element for Section 199A(a) unadjusted basis (Box 10) exists in the supplied canonical list; this field has no matching element."
+    },
+    "box_11_specified_coop_patron": {
+      "canonical": "SpecifiedCooperativeInd",
+      "xpath": "SpecifiedCooperativeInd",
+      "confidence": "high",
+      "rationale": "SpecifiedCooperativeInd directly corresponds to Box 11 \u2014 Specified cooperative patron checkbox."
+    },
+    "state_1": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099PATRStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "Form1099PATRStateLocalTaxGrp/StateAbbreviationCd maps to the first state abbreviation; the schema supports multiple instances of the group for state 1 and state 2."
+    },
+    "state_1_id_number": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099PATRStateLocalTaxGrp/StateIdNum",
+      "confidence": "high",
+      "rationale": "Form1099PATRStateLocalTaxGrp/StateIdNum maps to the payer's state identification number for the first state."
+    },
+    "state_1_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099PATRStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "Form1099PATRStateLocalTaxGrp/StateTaxWithheldAmt maps to state income tax withheld for the first state."
+    },
+    "state_2": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099PATRStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "medium",
+      "rationale": "The second state uses a second instance of Form1099PATRStateLocalTaxGrp/StateAbbreviationCd; same element index as state_1 because the schema repeats the group."
+    },
+    "state_2_id_number": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099PATRStateLocalTaxGrp/StateIdNum",
+      "confidence": "medium",
+      "rationale": "The second state uses a second instance of Form1099PATRStateLocalTaxGrp/StateIdNum; same element index as state_1_id_number because the schema repeats the group."
+    },
+    "state_2_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099PATRStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "medium",
+      "rationale": "The second state uses a second instance of Form1099PATRStateLocalTaxGrp/StateTaxWithheldAmt; same element index as state_1_tax_withheld because the schema repeats the group."
+    }
+  }
+}

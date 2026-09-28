@@ -1,0 +1,239 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "w_2g",
+    "form_root": "IRSW2G"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRSW2G.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-24T21:12:12+00:00",
+  "blueprint": {
+    "path": "blueprints/form_w_2g.bpt",
+    "name": "form_w2g"
+  },
+  "fields": {
+    "void": {
+      "canonical": "VoidInd",
+      "xpath": "VoidInd",
+      "confidence": "high",
+      "rationale": "VoidInd maps directly to the VOID checkbox at the top of the W-2G form."
+    },
+    "corrected": {
+      "canonical": "CorrectedW2GInd",
+      "xpath": "CorrectedW2GInd",
+      "confidence": "high",
+      "rationale": "CorrectedW2GInd maps directly to the CORRECTED checkbox at the top of the form."
+    },
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "BusinessNameLine1Txt under PayerName/BusinessNameLine1Txt is the primary payer name line."
+    },
+    "payer_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street address into one string but canonical schema splits into PayerUSAddress/AddressLine1Txt (idx 22) and PayerForeignAddress/AddressLine1Txt (idx 13); blueprint should be split into separate fields for US vs. foreign address line 1."
+    },
+    "payer_room_suite": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint has a separate room/suite field but canonical schema represents this as AddressLine2Txt (idx 23 for US, idx 14 for foreign); blueprint should map this to AddressLine2Txt rather than a distinct field."
+    },
+    "payer_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No CityNm element exists under PayerUSAddress or PayerForeignAddress in the canonical candidate list; the schema likely embeds city in the address group but it is not exposed as a discrete candidate here."
+    },
+    "payer_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No StateAbbreviationCd or ProvinceOrStateNm element exists under PayerUSAddress or PayerForeignAddress in the candidate list; cannot match without the correct xpath candidate."
+    },
+    "payer_country": {
+      "canonical": "CountryCd",
+      "xpath": "PayerForeignAddress/CountryCd",
+      "confidence": "medium",
+      "rationale": "CountryCd under PayerForeignAddress/CountryCd is the canonical field for the payer's country."
+    },
+    "payer_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No ZIPCd or ForeignPostalCd element appears under PayerUSAddress or PayerForeignAddress in the candidate list; cannot match without the correct xpath candidate."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN directly corresponds to the PAYER'S TIN box on the W-2G form."
+    },
+    "payer_phone": {
+      "canonical": "PayerTelephoneNum",
+      "xpath": "PayerTelephoneNum",
+      "confidence": "high",
+      "rationale": "PayerTelephoneNum maps directly to the PAYER'S telephone no. field."
+    },
+    "winner_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm maps directly to the WINNER'S name box on the form."
+    },
+    "winner_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "RecipientUSAddress/AddressLine1Txt",
+      "confidence": "medium",
+      "rationale": "AddressLine1Txt under RecipientUSAddress is the best match for the winner's street address, assuming a US address."
+    },
+    "winner_apt_no": {
+      "canonical": "AddressLine2Txt",
+      "xpath": "RecipientUSAddress/AddressLine2Txt",
+      "confidence": "medium",
+      "rationale": "AddressLine2Txt under RecipientUSAddress is the canonical field for apartment/suite number in the recipient's US address."
+    },
+    "winner_city": {
+      "canonical": "CityNm",
+      "xpath": "RecipientForeignAddress/CityNm",
+      "confidence": "low",
+      "rationale": "CityNm exists only under RecipientForeignAddress in the candidate list; no CityNm under RecipientUSAddress is available, so this only partially matches for foreign addresses."
+    },
+    "winner_state": {
+      "canonical": "ProvinceOrStateNm",
+      "xpath": "RecipientForeignAddress/ProvinceOrStateNm",
+      "confidence": "low",
+      "rationale": "ProvinceOrStateNm exists only under RecipientForeignAddress; no StateAbbreviationCd under RecipientUSAddress is available in the candidate list, so this is only a partial foreign-address match."
+    },
+    "winner_country": {
+      "canonical": "CountryCd",
+      "xpath": "RecipientForeignAddress/CountryCd",
+      "confidence": "medium",
+      "rationale": "CountryCd under RecipientForeignAddress/CountryCd is the canonical field for the winner's country."
+    },
+    "winner_zip": {
+      "canonical": "ForeignPostalCd",
+      "xpath": "RecipientForeignAddress/ForeignPostalCd",
+      "confidence": "low",
+      "rationale": "ForeignPostalCd under RecipientForeignAddress is the only postal code candidate for the recipient; no ZIPCd under RecipientUSAddress appears in the candidate list, so this only matches foreign addresses."
+    },
+    "winner_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN maps to Box 9 WINNER'S TIN; the schema uses SSN as the primary identifier for the recipient."
+    },
+    "box1_reportable_winnings": {
+      "canonical": "GamblingReportableWinningAmt",
+      "xpath": "GamblingReportableWinningAmt",
+      "confidence": "high",
+      "rationale": "GamblingReportableWinningAmt maps directly to Box 1 Reportable winnings."
+    },
+    "box2_date_won": {
+      "canonical": "GamblingWinningDt",
+      "xpath": "GamblingWinningDt",
+      "confidence": "high",
+      "rationale": "GamblingWinningDt maps directly to Box 2 Date won."
+    },
+    "box3_type_of_wager": {
+      "canonical": "GamblingWinWagerTypeDesc",
+      "xpath": "GamblingWinWagerTypeDesc",
+      "confidence": "high",
+      "rationale": "GamblingWinWagerTypeDesc maps directly to Box 3 Type of wager."
+    },
+    "box4_federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt maps directly to Box 4 Federal income tax withheld."
+    },
+    "box5_transaction": {
+      "canonical": "GamblingWinningTransactionDesc",
+      "xpath": "GamblingWinningTransactionDesc",
+      "confidence": "high",
+      "rationale": "GamblingWinningTransactionDesc maps directly to Box 5 Transaction identifier."
+    },
+    "box6_race": {
+      "canonical": "GamblingWinningEventDesc",
+      "xpath": "GamblingWinningEventDesc",
+      "confidence": "medium",
+      "rationale": "GamblingWinningEventDesc is the best available match for Box 6 Race, describing the specific race or event."
+    },
+    "box7_winnings_from_identical_wagers": {
+      "canonical": "GamblingWinFromIdntclWagersAmt",
+      "xpath": "GamblingWinFromIdntclWagersAmt",
+      "confidence": "high",
+      "rationale": "GamblingWinFromIdntclWagersAmt maps directly to Box 7 Winnings from identical wagers."
+    },
+    "box8_cashier": {
+      "canonical": "GamblingWinCashierId",
+      "xpath": "GamblingWinCashierId",
+      "confidence": "high",
+      "rationale": "GamblingWinCashierId maps directly to Box 8 Cashier."
+    },
+    "box10_window": {
+      "canonical": "GamblingWinWindowNum",
+      "xpath": "GamblingWinWindowNum",
+      "confidence": "high",
+      "rationale": "GamblingWinWindowNum maps directly to Box 10 Window."
+    },
+    "box11_first_id": {
+      "canonical": "RecipientFirstAdditionalIdNum",
+      "xpath": "RecipientFirstAdditionalIdNum",
+      "confidence": "high",
+      "rationale": "RecipientFirstAdditionalIdNum maps directly to Box 11 First identification no."
+    },
+    "box12_second_id": {
+      "canonical": "RecipientSecondAdditionalIdNum",
+      "xpath": "RecipientSecondAdditionalIdNum",
+      "confidence": "high",
+      "rationale": "RecipientSecondAdditionalIdNum maps directly to Box 12 Second identification no."
+    },
+    "box13_state_payer_id": {
+      "canonical": "PayerStateIdNum",
+      "xpath": "W2GStateLocalTaxGrp/PayerStateIdNum",
+      "confidence": "high",
+      "rationale": "PayerStateIdNum under W2GStateLocalTaxGrp maps directly to Box 13 State/Payer's state identification no."
+    },
+    "box14_state_winnings": {
+      "canonical": "GamblingWinningAmt",
+      "xpath": "W2GStateLocalTaxGrp/GamblingWinningAmt",
+      "confidence": "high",
+      "rationale": "GamblingWinningAmt under W2GStateLocalTaxGrp maps directly to Box 14 State winnings."
+    },
+    "box15_state_income_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "W2GStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "StateTaxWithheldAmt under W2GStateLocalTaxGrp maps directly to Box 15 State income tax withheld."
+    },
+    "box16_local_winnings": {
+      "canonical": "GamblingWinningAmt",
+      "xpath": "W2GStateLocalTaxGrp/W2GLocalTaxGrp/GamblingWinningAmt",
+      "confidence": "high",
+      "rationale": "GamblingWinningAmt under W2GStateLocalTaxGrp/W2GLocalTaxGrp maps directly to Box 16 Local winnings."
+    },
+    "box17_local_income_tax_withheld": {
+      "canonical": "LocalIncomeTaxAmt",
+      "xpath": "W2GStateLocalTaxGrp/W2GLocalTaxGrp/LocalIncomeTaxAmt",
+      "confidence": "high",
+      "rationale": "LocalIncomeTaxAmt under W2GStateLocalTaxGrp/W2GLocalTaxGrp maps directly to Box 17 Local income tax withheld."
+    },
+    "box18_name_of_locality": {
+      "canonical": "LocalityNm",
+      "xpath": "W2GStateLocalTaxGrp/W2GLocalTaxGrp/LocalityNm",
+      "confidence": "high",
+      "rationale": "LocalityNm under W2GStateLocalTaxGrp/W2GLocalTaxGrp maps directly to Box 18 Name of locality."
+    },
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr maps directly to the tax year printed in the form heading."
+    }
+  }
+}

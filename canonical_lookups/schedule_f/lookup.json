@@ -1,0 +1,437 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "schedule_f",
+    "form_root": "IRS1040ScheduleF"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1040ScheduleF.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T03:10:01+00:00",
+  "blueprint": {
+    "path": "blueprints/schedule_f.bpt",
+    "name": "schedule_f"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a header/metadata attribute not represented as a discrete leaf element in the MeF schema for Schedule F."
+    },
+    "taxpayer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "FarmProprietorName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "BusinessNameLine1Txt under FarmProprietorName is the closest match for the proprietor name printed at the top of the form; however, if the filer is an individual the name may come from a different schema location not in this candidate list."
+    },
+    "taxpayer_ssn_or_ein": {
+      "canonical": "SSN",
+      "xpath": "SSN",
+      "confidence": "medium",
+      "rationale": "SSN is the most common identifier for a Schedule F proprietor; EIN (idx 1) is also present but SSN is the primary filer identifier \u2014 blueprint bundles both into one field while the schema splits them, so SSN is the best single match."
+    },
+    "principal_product": {
+      "canonical": "PrincipalProductDesc",
+      "xpath": "PrincipalProductDesc",
+      "confidence": "high",
+      "rationale": "PrincipalProductDesc directly maps to the 'Principal product' line near the top of Schedule F."
+    },
+    "agricultural_activity_code": {
+      "canonical": "AgriculturalActivityCd",
+      "xpath": "AgriculturalActivityCd",
+      "confidence": "high",
+      "rationale": "AgriculturalActivityCd maps to the six-digit business activity code box near the principal product line."
+    },
+    "employer_id_number": {
+      "canonical": "EIN",
+      "xpath": "EIN",
+      "confidence": "high",
+      "rationale": "EIN directly maps to the Employer Identification Number line on Schedule F."
+    },
+    "accounting_method": {
+      "canonical": "MethodOfAccountingCashInd",
+      "xpath": "MethodOfAccountingCashInd",
+      "confidence": "medium",
+      "rationale": "Blueprint uses a single category field for accounting method, but the schema splits this into MethodOfAccountingCashInd (idx 76) and MethodOfAccountingAccrualInd (idx 75); MethodOfAccountingCashInd is the more common case \u2014 blueprint should be refactored into two boolean fields to align with the canonical shape."
+    },
+    "materially_participated": {
+      "canonical": "MateriallyParticipatedInd",
+      "xpath": "MateriallyParticipatedInd",
+      "confidence": "high",
+      "rationale": "MateriallyParticipatedInd directly maps to the material participation Yes/No checkbox on Schedule F."
+    },
+    "required_to_file_form_4562": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No candidate in the closed list corresponds to a Form 4562 required-to-file checkbox; the schema does not expose this as a distinct element."
+    },
+    "sales_of_livestock_purchased": {
+      "canonical": "SalesOfLvstckBghtForResaleAmt",
+      "xpath": "FarmIncomeCashMethodGrp/SalesOfLvstckBghtForResaleAmt",
+      "confidence": "high",
+      "rationale": "SalesOfLvstckBghtForResaleAmt under FarmIncomeCashMethodGrp maps to Line 1a, gross sales of livestock purchased for resale."
+    },
+    "cost_of_livestock_purchased": {
+      "canonical": "CostOfLvstckBghtForResaleAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CostOfLvstckBghtForResaleAmt",
+      "confidence": "high",
+      "rationale": "CostOfLvstckBghtForResaleAmt under FarmIncomeCashMethodGrp maps to Line 1b, cost of livestock purchased for resale."
+    },
+    "gross_profit_livestock_purchased": {
+      "canonical": "PurchasedProfitAmt",
+      "xpath": "FarmIncomeCashMethodGrp/PurchasedProfitAmt",
+      "confidence": "high",
+      "rationale": "PurchasedProfitAmt under FarmIncomeCashMethodGrp maps to Line 1c, gross profit from livestock purchased for resale."
+    },
+    "sales_of_livestock_raised": {
+      "canonical": "SaleOfProductsRaisedAmt",
+      "xpath": "FarmIncomeCashMethodGrp/SaleOfProductsRaisedAmt",
+      "confidence": "high",
+      "rationale": "SaleOfProductsRaisedAmt under FarmIncomeCashMethodGrp maps to Line 2, gross income from sales of raised livestock and products."
+    },
+    "cooperative_distributions_gross": {
+      "canonical": "CooperativeDistributionsAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CooperativeDistributionsAmt",
+      "confidence": "high",
+      "rationale": "CooperativeDistributionsAmt under FarmIncomeCashMethodGrp maps to Line 3a, total cooperative distributions (gross)."
+    },
+    "cooperative_distributions_taxable": {
+      "canonical": "CooperativeDistriTxblAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CooperativeDistriTxblAmt",
+      "confidence": "high",
+      "rationale": "CooperativeDistriTxblAmt under FarmIncomeCashMethodGrp maps to Line 3b, taxable portion of cooperative distributions."
+    },
+    "agricultural_program_payments_gross": {
+      "canonical": "AgriculturalProgramPymtAmt",
+      "xpath": "FarmIncomeCashMethodGrp/AgriculturalProgramPymtAmt",
+      "confidence": "high",
+      "rationale": "AgriculturalProgramPymtAmt under FarmIncomeCashMethodGrp maps to Line 4a, total agricultural program payments."
+    },
+    "agricultural_program_payments_taxable": {
+      "canonical": "AgriculturalProgramPymtTxblAmt",
+      "xpath": "FarmIncomeCashMethodGrp/AgriculturalProgramPymtTxblAmt",
+      "confidence": "high",
+      "rationale": "AgriculturalProgramPymtTxblAmt under FarmIncomeCashMethodGrp maps to Line 4b, taxable portion of agricultural program payments."
+    },
+    "ccc_loans_reported_elected": {
+      "canonical": "CCCLoanReportedElectionAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CCCLoanReportedElectionAmt",
+      "confidence": "high",
+      "rationale": "CCCLoanReportedElectionAmt under FarmIncomeCashMethodGrp maps to Line 5a, CCC loan amounts elected to be treated as income."
+    },
+    "ccc_loans_forfeited": {
+      "canonical": "CCCLoansForfeitedAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CCCLoansForfeitedAmt",
+      "confidence": "high",
+      "rationale": "CCCLoansForfeitedAmt under FarmIncomeCashMethodGrp maps to Line 5b, CCC loans forfeited or repaid with certificates."
+    },
+    "crop_insurance_proceeds_gross": {
+      "canonical": "CropInsProcAndDsstrPymtAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CropInsProcAndDsstrPymtAmt",
+      "confidence": "high",
+      "rationale": "CropInsProcAndDsstrPymtAmt under FarmIncomeCashMethodGrp maps to Line 6a, total crop insurance proceeds and disaster payments."
+    },
+    "crop_insurance_proceeds_taxable": {
+      "canonical": "CropInsProcAndDsstrPymtTxblAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CropInsProcAndDsstrPymtTxblAmt",
+      "confidence": "high",
+      "rationale": "CropInsProcAndDsstrPymtTxblAmt under FarmIncomeCashMethodGrp maps to Line 6b, taxable portion of crop insurance proceeds."
+    },
+    "crop_insurance_deferred_to_next_year": {
+      "canonical": "ElectionDeferCropInsProcInd",
+      "xpath": "FarmIncomeCashMethodGrp/ElectionDeferCropInsProcInd",
+      "confidence": "high",
+      "rationale": "ElectionDeferCropInsProcInd under FarmIncomeCashMethodGrp maps to the deferral election checkbox for crop insurance proceeds."
+    },
+    "custom_hire_income": {
+      "canonical": "CustomHireIncomeAmt",
+      "xpath": "FarmIncomeCashMethodGrp/CustomHireIncomeAmt",
+      "confidence": "high",
+      "rationale": "CustomHireIncomeAmt under FarmIncomeCashMethodGrp maps to Line 7, custom hire income."
+    },
+    "other_farm_income": {
+      "canonical": "OtherIncomeAmt",
+      "xpath": "FarmIncomeCashMethodGrp/OtherIncomeAmt",
+      "confidence": "high",
+      "rationale": "OtherIncomeAmt under FarmIncomeCashMethodGrp maps to Line 8, other farm income not reported elsewhere."
+    },
+    "gross_farm_income_cash": {
+      "canonical": "GrossIncomeAmt",
+      "xpath": "FarmIncomeCashMethodGrp/GrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "GrossIncomeAmt under FarmIncomeCashMethodGrp maps to Line 9, total gross farm income for cash-method filers."
+    },
+    "car_and_truck_expenses": {
+      "canonical": "CarAndTruckExpensesAmt",
+      "xpath": "FarmExpensesGrp/CarAndTruckExpensesAmt",
+      "confidence": "high",
+      "rationale": "CarAndTruckExpensesAmt under FarmExpensesGrp maps to Line 10, car and truck expenses."
+    },
+    "chemicals": {
+      "canonical": "ChemicalExpenseAmt",
+      "xpath": "FarmExpensesGrp/ChemicalExpenseAmt",
+      "confidence": "high",
+      "rationale": "ChemicalExpenseAmt under FarmExpensesGrp maps to Line 11, chemicals."
+    },
+    "conservation_expenses": {
+      "canonical": "ConservationExpenseAmt",
+      "xpath": "FarmExpensesGrp/ConservationExpenseAmt",
+      "confidence": "high",
+      "rationale": "ConservationExpenseAmt under FarmExpensesGrp maps to Line 12, conservation expenses."
+    },
+    "custom_hire_expense": {
+      "canonical": "CustomHireExpenseAmt",
+      "xpath": "FarmExpensesGrp/CustomHireExpenseAmt",
+      "confidence": "high",
+      "rationale": "CustomHireExpenseAmt under FarmExpensesGrp maps to Line 13, custom hire expense."
+    },
+    "depreciation_and_section_179": {
+      "canonical": "DeprecAndSect179ExpnsDedAmt",
+      "xpath": "FarmExpensesGrp/DeprecAndSect179ExpnsDedAmt",
+      "confidence": "high",
+      "rationale": "DeprecAndSect179ExpnsDedAmt under FarmExpensesGrp maps to Line 14, depreciation and Section 179 expense."
+    },
+    "employee_benefit_programs": {
+      "canonical": "EmployeeBenefitProgramAmt",
+      "xpath": "FarmExpensesGrp/EmployeeBenefitProgramAmt",
+      "confidence": "high",
+      "rationale": "EmployeeBenefitProgramAmt under FarmExpensesGrp maps to Line 15, employee benefit programs."
+    },
+    "feed_purchased": {
+      "canonical": "FeedPurchasedExpenseAmt",
+      "xpath": "FarmExpensesGrp/FeedPurchasedExpenseAmt",
+      "confidence": "high",
+      "rationale": "FeedPurchasedExpenseAmt under FarmExpensesGrp maps to Line 16, feed purchased."
+    },
+    "fertilizers_and_lime": {
+      "canonical": "FertilizerAndLimeExpenseAmt",
+      "xpath": "FarmExpensesGrp/FertilizerAndLimeExpenseAmt",
+      "confidence": "high",
+      "rationale": "FertilizerAndLimeExpenseAmt under FarmExpensesGrp maps to Line 17, fertilizers and lime."
+    },
+    "freight_and_trucking": {
+      "canonical": "FreightAndTruckingExpenseAmt",
+      "xpath": "FarmExpensesGrp/FreightAndTruckingExpenseAmt",
+      "confidence": "high",
+      "rationale": "FreightAndTruckingExpenseAmt under FarmExpensesGrp maps to Line 18, freight and trucking."
+    },
+    "gasoline_fuel_oil": {
+      "canonical": "GasolineFuelAndOilExpenseAmt",
+      "xpath": "FarmExpensesGrp/GasolineFuelAndOilExpenseAmt",
+      "confidence": "high",
+      "rationale": "GasolineFuelAndOilExpenseAmt under FarmExpensesGrp maps to Line 19, gasoline, fuel, and oil."
+    },
+    "insurance_other_than_health": {
+      "canonical": "InsuranceAmt",
+      "xpath": "FarmExpensesGrp/InsuranceAmt",
+      "confidence": "high",
+      "rationale": "InsuranceAmt under FarmExpensesGrp maps to Line 20, insurance other than health."
+    },
+    "interest_mortgage": {
+      "canonical": "MortgageInterestPaidBanksAmt",
+      "xpath": "FarmExpensesGrp/MortgageInterestPaidBanksAmt",
+      "confidence": "high",
+      "rationale": "MortgageInterestPaidBanksAmt under FarmExpensesGrp maps to Line 21a, mortgage interest paid to banks."
+    },
+    "interest_other": {
+      "canonical": "MortgageInterestPaidOtherAmt",
+      "xpath": "FarmExpensesGrp/MortgageInterestPaidOtherAmt",
+      "confidence": "high",
+      "rationale": "MortgageInterestPaidOtherAmt under FarmExpensesGrp maps to Line 21b, other interest paid."
+    },
+    "labor_hired": {
+      "canonical": "LaborHiredExpenseAmt",
+      "xpath": "FarmExpensesGrp/LaborHiredExpenseAmt",
+      "confidence": "high",
+      "rationale": "LaborHiredExpenseAmt under FarmExpensesGrp maps to Line 22, labor hired."
+    },
+    "pension_profit_sharing": {
+      "canonical": "PensionProfitSharingPlansAmt",
+      "xpath": "FarmExpensesGrp/PensionProfitSharingPlansAmt",
+      "confidence": "high",
+      "rationale": "PensionProfitSharingPlansAmt under FarmExpensesGrp maps to Line 23, pension and profit-sharing plans."
+    },
+    "rent_lease_vehicles_machinery": {
+      "canonical": "MachineryAndEquipmentRentAmt",
+      "xpath": "FarmExpensesGrp/MachineryAndEquipmentRentAmt",
+      "confidence": "high",
+      "rationale": "MachineryAndEquipmentRentAmt under FarmExpensesGrp maps to Line 24a, rent/lease for vehicles and machinery."
+    },
+    "rent_lease_land_animals": {
+      "canonical": "OtherBusinessPropertyRentAmt",
+      "xpath": "FarmExpensesGrp/OtherBusinessPropertyRentAmt",
+      "confidence": "high",
+      "rationale": "OtherBusinessPropertyRentAmt under FarmExpensesGrp maps to Line 24b, rent/lease for land and animals."
+    },
+    "repairs_maintenance": {
+      "canonical": "RepairsAndMaintenanceAmt",
+      "xpath": "FarmExpensesGrp/RepairsAndMaintenanceAmt",
+      "confidence": "high",
+      "rationale": "RepairsAndMaintenanceAmt under FarmExpensesGrp maps to Line 25, repairs and maintenance."
+    },
+    "seeds_and_plants": {
+      "canonical": "SeedAndPlantExpenseAmt",
+      "xpath": "FarmExpensesGrp/SeedAndPlantExpenseAmt",
+      "confidence": "high",
+      "rationale": "SeedAndPlantExpenseAmt under FarmExpensesGrp maps to Line 26, seeds and plants."
+    },
+    "storage_and_warehousing": {
+      "canonical": "StorageAndWarehousingExpnsAmt",
+      "xpath": "FarmExpensesGrp/StorageAndWarehousingExpnsAmt",
+      "confidence": "high",
+      "rationale": "StorageAndWarehousingExpnsAmt under FarmExpensesGrp maps to Line 27, storage and warehousing."
+    },
+    "supplies_purchased": {
+      "canonical": "SuppliesAmt",
+      "xpath": "FarmExpensesGrp/SuppliesAmt",
+      "confidence": "high",
+      "rationale": "SuppliesAmt under FarmExpensesGrp maps to Line 28, supplies."
+    },
+    "taxes": {
+      "canonical": "TaxExpenseAmt",
+      "xpath": "FarmExpensesGrp/TaxExpenseAmt",
+      "confidence": "high",
+      "rationale": "TaxExpenseAmt under FarmExpensesGrp maps to Line 29, taxes."
+    },
+    "utilities": {
+      "canonical": "UtilitiesAmt",
+      "xpath": "FarmExpensesGrp/UtilitiesAmt",
+      "confidence": "high",
+      "rationale": "UtilitiesAmt under FarmExpensesGrp maps to Line 30, utilities."
+    },
+    "veterinary_breeding_medicine": {
+      "canonical": "VtrnryBreedingMedicineExpnsAmt",
+      "xpath": "FarmExpensesGrp/VtrnryBreedingMedicineExpnsAmt",
+      "confidence": "high",
+      "rationale": "VtrnryBreedingMedicineExpnsAmt under FarmExpensesGrp maps to Line 31, veterinary, breeding, and medicine."
+    },
+    "other_expenses": {
+      "canonical": "OtherFarmExpense",
+      "xpath": "FarmExpensesGrp/OtherFarmExpensesGrp/OtherFarmExpense",
+      "confidence": "medium",
+      "rationale": "OtherFarmExpense (the repeating group element at idx 20) is the best match for the array of itemized other expenses on Lines 32a\u201332e; each instance contains ExpenseDescriptionTxt and ExpenseAmt children \u2014 blueprint should align with this repeating structure rather than a flat array."
+    },
+    "total_expenses": {
+      "canonical": "TotalExpensesAmt",
+      "xpath": "FarmExpensesGrp/TotalExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalExpensesAmt under FarmExpensesGrp maps to the total farm expenses line (Line 33 equivalent)."
+    },
+    "net_farm_profit_loss": {
+      "canonical": "NetFarmProfitLossAmt",
+      "xpath": "FarmExpensesGrp/NetFarmProfitLossAmt",
+      "confidence": "high",
+      "rationale": "NetFarmProfitLossAmt under FarmExpensesGrp maps to the net farm profit or loss line."
+    },
+    "if_loss_at_risk": {
+      "canonical": "AllInvestmentIsAtRiskInd",
+      "xpath": "FarmExpensesGrp/AllInvestmentIsAtRiskInd",
+      "confidence": "medium",
+      "rationale": "AllInvestmentIsAtRiskInd (idx 2) is one of the two at-risk checkboxes; the schema splits this into AllInvestmentIsAtRiskInd and SomeInvestmentIsNotAtRiskInd (idx 29), while the blueprint uses a single category \u2014 blueprint should be refactored into two boolean fields to match the canonical split."
+    },
+    "accrual_livestock_sales": {
+      "canonical": "SalesLivestockProduceProdAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/SalesLivestockProduceProdAmt",
+      "confidence": "high",
+      "rationale": "SalesLivestockProduceProdAmt under FarmIncomeAccrualMethodGrp maps to accrual-method gross livestock and product sales."
+    },
+    "accrual_cost_livestock_resale": {
+      "canonical": "CostOfProductsSoldAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/CostOfProductsSoldAmt",
+      "confidence": "high",
+      "rationale": "CostOfProductsSoldAmt under FarmIncomeAccrualMethodGrp maps to accrual cost of livestock/items bought for resale."
+    },
+    "accrual_sales_raised_livestock": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No separate accrual candidate exists for sales of raised (not purchased) livestock; SalesLivestockProduceProdAmt (idx 52) covers the combined accrual sales line and there is no distinct raised-livestock element in the accrual group."
+    },
+    "accrual_cooperative_distributions_taxable": {
+      "canonical": "CooperativeDistriTxblAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/CooperativeDistriTxblAmt",
+      "confidence": "high",
+      "rationale": "CooperativeDistriTxblAmt under FarmIncomeAccrualMethodGrp maps to taxable cooperative distributions for accrual-method filers."
+    },
+    "accrual_agricultural_program_payments_taxable": {
+      "canonical": "AgriculturalProgramPymtTxblAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/AgriculturalProgramPymtTxblAmt",
+      "confidence": "high",
+      "rationale": "AgriculturalProgramPymtTxblAmt under FarmIncomeAccrualMethodGrp maps to taxable agricultural program payments for accrual-method filers."
+    },
+    "accrual_ccc_loans": {
+      "canonical": "CCCLoanReportedElectionAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/CCCLoanReportedElectionAmt",
+      "confidence": "medium",
+      "rationale": "CCCLoanReportedElectionAmt under FarmIncomeAccrualMethodGrp (idx 39) is the best single match; CCCLoansForfeitedAmt (idx 40) is the other part \u2014 blueprint bundles both into one field while schema splits them, so blueprint should be refactored into two separate fields."
+    },
+    "accrual_crop_insurance": {
+      "canonical": "CropInsProcAndDsstrPymtAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/CropInsProcAndDsstrPymtAmt",
+      "confidence": "high",
+      "rationale": "CropInsProcAndDsstrPymtAmt under FarmIncomeAccrualMethodGrp maps to accrual crop insurance proceeds and disaster payments."
+    },
+    "accrual_custom_hire_income": {
+      "canonical": "CustomHireIncomeAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/CustomHireIncomeAmt",
+      "confidence": "high",
+      "rationale": "CustomHireIncomeAmt under FarmIncomeAccrualMethodGrp maps to accrual custom hire income."
+    },
+    "accrual_other_income": {
+      "canonical": "AccrualOtherIncomeAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/AccrualOtherIncomeAmt",
+      "confidence": "high",
+      "rationale": "AccrualOtherIncomeAmt under FarmIncomeAccrualMethodGrp maps to all other accrual-basis farm income."
+    },
+    "accrual_gross_farm_income": {
+      "canonical": "GrossIncomeAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/GrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "GrossIncomeAmt under FarmIncomeAccrualMethodGrp maps to total accrual gross farm income."
+    },
+    "accrual_inventory_beginning": {
+      "canonical": "InventoryOfProductsAtBOYAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/InventoryOfProductsAtBOYAmt",
+      "confidence": "high",
+      "rationale": "InventoryOfProductsAtBOYAmt under FarmIncomeAccrualMethodGrp maps to beginning-of-year farm inventory value in Part III."
+    },
+    "accrual_cost_of_purchased_livestock": {
+      "canonical": "CostOfProductsPrchsDuringYrAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/CostOfProductsPrchsDuringYrAmt",
+      "confidence": "high",
+      "rationale": "CostOfProductsPrchsDuringYrAmt under FarmIncomeAccrualMethodGrp maps to cost of livestock and items purchased during the year for Part III."
+    },
+    "accrual_cost_of_items_withdrawn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No candidate in the closed list represents cost of items withdrawn for personal use; this Part III line is not exposed as a distinct element in the provided schema candidates."
+    },
+    "accrual_inventory_ending": {
+      "canonical": "InventoryOfProductsAtEOYAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/InventoryOfProductsAtEOYAmt",
+      "confidence": "high",
+      "rationale": "InventoryOfProductsAtEOYAmt under FarmIncomeAccrualMethodGrp maps to end-of-year farm inventory value in Part III."
+    },
+    "accrual_cost_of_goods_sold": {
+      "canonical": "CostOfProductsSoldAmt",
+      "xpath": "FarmIncomeAccrualMethodGrp/CostOfProductsSoldAmt",
+      "confidence": "medium",
+      "rationale": "CostOfProductsSoldAmt under FarmIncomeAccrualMethodGrp is the closest match for the calculated cost-of-goods-sold line in Part III, though it may also serve as the accrual_cost_livestock_resale field \u2014 both blueprint fields may map to the same canonical element, indicating a potential structural overlap."
+    },
+    "inventory_valuation_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No candidate in the closed list represents the inventory valuation method checkbox in Part III; the schema does not expose this as a discrete element in the provided candidates."
+    },
+    "inventory_valuation_changed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "No candidate in the closed list represents the inventory valuation method change indicator for Part III; the schema does not expose this as a discrete element in the provided candidates."
+    }
+  }
+}

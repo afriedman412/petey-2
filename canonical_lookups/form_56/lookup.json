@@ -1,0 +1,257 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_56",
+    "form_root": "IRS56"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS56.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:13+00:00",
+  "blueprint": {
+    "path": "blueprints/form_56.bpt",
+    "name": "form_56"
+  },
+  "fields": {
+    "taxpayer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for taxpayer/decedent/trust name in Part I; the schema likely captures this via a separate name group not present in the candidate list \u2014 blueprint should map to a taxpayer name element that is not exposed in this candidate set."
+    },
+    "taxpayer_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for the taxpayer's street address in Part I; the candidate list does not include a taxpayer address group distinct from fiduciary or grantee addresses."
+    },
+    "taxpayer_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for taxpayer city in Part I is present in the candidate list."
+    },
+    "taxpayer_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for taxpayer state abbreviation in Part I is present in the candidate list."
+    },
+    "taxpayer_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No canonical element for taxpayer ZIP code in Part I is present in the candidate list."
+    },
+    "taxpayer_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No SSN element for the taxpayer appears in the candidate list; it would be a separate identifying number element not exposed here."
+    },
+    "taxpayer_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No EIN element for the taxpayer/entity appears in the candidate list."
+    },
+    "decedent_ssn": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No decedent SSN element appears in the candidate list."
+    },
+    "date_of_death": {
+      "canonical": "DecedentDeathDt",
+      "xpath": "DecedentDeathDt",
+      "confidence": "high",
+      "rationale": "DecedentDeathDt directly corresponds to the date of death of the decedent entered in Part I."
+    },
+    "fiduciary_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles first and last name into one string; canonical schema splits into PersonFirstNm (idx 38) and PersonLastNm (idx 39) under FiduciaryPersonName, or FiduciaryBusinessNm (idx 27) \u2014 blueprint should split into separate first/last name fields or use business name element."
+    },
+    "fiduciary_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "FiduciaryUSAddress/AddressLine1Txt",
+      "confidence": "medium",
+      "rationale": "FiduciaryUSAddress/AddressLine1Txt (idx 46) maps to the street address line of the fiduciary's US mailing address in Part I."
+    },
+    "fiduciary_city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No CityNm element appears under FiduciaryUSAddress in the candidate list; the city field for the fiduciary US address is missing from the exposed candidates."
+    },
+    "fiduciary_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No StateAbbreviationCd element appears under FiduciaryUSAddress in the candidate list."
+    },
+    "fiduciary_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No ZIPCd element appears under FiduciaryUSAddress in the candidate list."
+    },
+    "fiduciary_identifying_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No fiduciary TIN/SSN/EIN element appears in the candidate list."
+    },
+    "fiduciary_telephone": {
+      "canonical": "FiduciaryUSPhoneNum",
+      "xpath": "FiduciaryUSPhoneNum",
+      "confidence": "high",
+      "rationale": "FiduciaryUSPhoneNum (idx 48) directly corresponds to the fiduciary's telephone number in Part I."
+    },
+    "authority_will": {
+      "canonical": "TestateInd",
+      "xpath": "TestateInd",
+      "confidence": "medium",
+      "rationale": "TestateInd (idx 112) corresponds to authority from a valid will (testate estate), aligning with Part II checkbox 1a."
+    },
+    "authority_court_appointment_minor_incompetent": {
+      "canonical": "GuardianOrConservatorInd",
+      "xpath": "GuardianOrConservatorInd",
+      "confidence": "high",
+      "rationale": "GuardianOrConservatorInd (idx 71) corresponds to Part II checkbox 1b \u2014 court appointment as guardian of a minor or incompetent."
+    },
+    "authority_valid_trust": {
+      "canonical": "ValidTrustOrAmendmentInd",
+      "xpath": "ValidTrustOrAmendmentInd",
+      "confidence": "high",
+      "rationale": "ValidTrustOrAmendmentInd (idx 114) corresponds to Part II checkbox 1c \u2014 authority from a valid trust instrument."
+    },
+    "authority_court_appointment_other": {
+      "canonical": "BankruptcyOrAssignmentInd",
+      "xpath": "BankruptcyOrAssignmentInd",
+      "confidence": "medium",
+      "rationale": "BankruptcyOrAssignmentInd (idx 2) corresponds to Part II checkbox 1d \u2014 court appointment other than guardianship (e.g., bankruptcy trustee)."
+    },
+    "authority_other": {
+      "canonical": "OtherAuthorityInd",
+      "xpath": "OtherFiduciaryAuthorityGrp/OtherAuthorityInd",
+      "confidence": "high",
+      "rationale": "OtherAuthorityInd (idx 102) under OtherFiduciaryAuthorityGrp corresponds to Part II checkbox 1e \u2014 other authority source."
+    },
+    "authority_other_description": {
+      "canonical": "OtherAuthorityExplanationDesc",
+      "xpath": "OtherFiduciaryAuthorityGrp/OtherAuthorityExplanationDesc",
+      "confidence": "high",
+      "rationale": "OtherAuthorityExplanationDesc (idx 101) under OtherFiduciaryAuthorityGrp captures the free-text description when checkbox 1e is checked."
+    },
+    "tax_type_income": {
+      "canonical": "IncomeInd",
+      "xpath": "IncomeInd",
+      "confidence": "high",
+      "rationale": "IncomeInd (idx 72) corresponds to the Part III income tax checkbox."
+    },
+    "tax_type_gift": {
+      "canonical": "GiftInd",
+      "xpath": "GiftInd",
+      "confidence": "high",
+      "rationale": "GiftInd (idx 57) corresponds to the Part III gift tax checkbox (Form 709)."
+    },
+    "tax_type_estate": {
+      "canonical": "EstateInd",
+      "xpath": "EstateInd",
+      "confidence": "high",
+      "rationale": "EstateInd (idx 15) corresponds to the Part III estate tax checkbox (Form 706 series)."
+    },
+    "tax_type_generation_skipping": {
+      "canonical": "GenerationSkippingTransferInd",
+      "xpath": "GenerationSkippingTransferInd",
+      "confidence": "high",
+      "rationale": "GenerationSkippingTransferInd (idx 56) corresponds to the Part III generation-skipping transfer tax checkbox."
+    },
+    "tax_type_employment": {
+      "canonical": "EmploymentInd",
+      "xpath": "EmploymentInd",
+      "confidence": "high",
+      "rationale": "EmploymentInd (idx 14) corresponds to the Part III employment tax checkbox."
+    },
+    "tax_type_excise": {
+      "canonical": "ExciseInd",
+      "xpath": "ExciseInd",
+      "confidence": "high",
+      "rationale": "ExciseInd (idx 16) corresponds to the Part III excise tax checkbox."
+    },
+    "tax_type_other": {
+      "canonical": "OtherInd",
+      "xpath": "OtherInd",
+      "confidence": "high",
+      "rationale": "OtherInd (idx 105) corresponds to the Part III other tax type checkbox."
+    },
+    "tax_type_other_description": {
+      "canonical": "@otherTaxDesc",
+      "xpath": "OtherInd/@otherTaxDesc",
+      "confidence": "high",
+      "rationale": "OtherInd/@otherTaxDesc (idx 106) captures the free-text description of the other tax type."
+    },
+    "tax_years_or_periods": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles tax years/periods into one string; canonical schema splits into TaxYr or TaxPeriodBeginDt/TaxPeriodEndDt within FiduciaryRcvCopyOfCommunGrp/TaxYearOrTaxPeriodGrp (idx 44, 42, 43) \u2014 blueprint should split into separate year and/or period begin/end date fields."
+    },
+    "date_proceeding_initiated": {
+      "canonical": "ProceedingsInitiatedDt",
+      "xpath": "ProceedingsInitiatedDt",
+      "confidence": "high",
+      "rationale": "ProceedingsInitiatedDt (idx 111) directly corresponds to Part IV date a court proceeding was initiated."
+    },
+    "court_name": {
+      "canonical": "CourtNm",
+      "xpath": "CourtNm",
+      "confidence": "high",
+      "rationale": "CourtNm (idx 10) corresponds to Part IV court name."
+    },
+    "docket_number": {
+      "canonical": "DocketNum",
+      "xpath": "DocketNum",
+      "confidence": "high",
+      "rationale": "DocketNum (idx 13) corresponds to Part IV docket/case number."
+    },
+    "date_of_appointment": {
+      "canonical": "FiduciaryAuthorityDt",
+      "xpath": "FiduciaryAuthorityDt",
+      "confidence": "high",
+      "rationale": "FiduciaryAuthorityDt (idx 22) corresponds to the date the fiduciary was appointed or assumed office in Part IV."
+    },
+    "revocation_all": {
+      "canonical": "TotalRevocationInd",
+      "xpath": "TotalRevocationInd",
+      "confidence": "high",
+      "rationale": "TotalRevocationInd (idx 113) corresponds to the Part V checkbox for revoking all prior notices."
+    },
+    "revocation_partial": {
+      "canonical": "PartialRevocationInd",
+      "xpath": "PartialRevocationInd",
+      "confidence": "high",
+      "rationale": "PartialRevocationInd (idx 110) corresponds to the Part V checkbox for partial revocation."
+    },
+    "revocation_tax_years_or_periods": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles revocation tax years/periods into one string; canonical schema splits into TaxYr or TaxPeriodBeginDt/TaxPeriodEndDt within FidcryAuthDoesNotCoverAllYrGrp/TaxYearOrTaxPeriodGrp (idx 21, 19, 20) \u2014 blueprint should split into separate year and/or period begin/end date fields."
+    },
+    "fiduciary_title": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No fiduciary title/capacity element appears in the candidate list for the signature block."
+    },
+    "signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "No signature date element appears in the candidate list."
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1099_g",
+    "form_root": "IRS1099G"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099G.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:17:32+00:00",
+  "blueprint": {
+    "path": "blueprints/1099_g.bpt",
+    "name": "form_1099_g"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr maps directly to the four-digit calendar year printed at the top of the form."
+    },
+    "corrected": {
+      "canonical": "CorrectedInd",
+      "xpath": "CorrectedInd",
+      "confidence": "high",
+      "rationale": "CorrectedInd is the boolean indicator for the CORRECTED checkbox on the form."
+    },
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "BusinessNameLine1Txt under PayerName captures the primary payer name line; however the blueprint bundles the full name into one string while the canonical schema splits into Line1 and Line2 \u2014 blueprint should split into payer_name_line1 and payer_name_line2 matching BusinessNameLine1Txt and BusinessNameLine2Txt."
+    },
+    "payer_street_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema wraps payer address in PayerUSAddress or PayerForeignAddress groups without exposing individual street/city/state/zip leaf elements in the candidate list \u2014 blueprint should split into structured address fields matching the group's child elements (AddressLine1Txt, CityNm, StateAbbreviationCd, ZIPCd) inside PayerUSAddress."
+    },
+    "payer_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "City, state, and ZIP are separate child elements inside PayerUSAddress not individually listed in the candidates; blueprint bundles them into one string and should split into CityNm, StateAbbreviationCd, and ZIPCd fields under PayerUSAddress."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN directly corresponds to the Payer's federal identification number box on the form."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN is the canonical element for the recipient's TIN/SSN on the 1099-G; note that if an EIN is used instead, RecipientEIN (idx 22) would apply, but SSN is most common and the blueprint should consider splitting by TIN type."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly maps to the RECIPIENT'S name box on the form."
+    },
+    "recipient_street_address": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "RecipientUSAddress/AddressLine1Txt",
+      "confidence": "medium",
+      "rationale": "AddressLine1Txt under RecipientUSAddress is the closest match for the recipient's street address line."
+    },
+    "recipient_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "City, state, and ZIP are separate child elements inside RecipientUSAddress not individually listed; blueprint bundles them into one string and should split into CityNm, StateAbbreviationCd, and ZIPCd fields under RecipientUSAddress."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum directly corresponds to the Account number box on the form."
+    },
+    "box_1_unemployment_compensation": {
+      "canonical": "UnemploymentCompAmt",
+      "xpath": "UnemploymentCompAmt",
+      "confidence": "high",
+      "rationale": "UnemploymentCompAmt directly maps to Box 1 \u2014 Unemployment compensation."
+    },
+    "box_2_state_local_tax_refunds": {
+      "canonical": "StateLclRefundCreditOffsetAmt",
+      "xpath": "StateLclRefundCreditOffsetAmt",
+      "confidence": "high",
+      "rationale": "StateLclRefundCreditOffsetAmt maps to Box 2 \u2014 State or local income tax refunds, credits, or offsets."
+    },
+    "box_3_box_2_tax_year": {
+      "canonical": "RefundCreditOffsetTaxYr",
+      "xpath": "RefundCreditOffsetTaxYr",
+      "confidence": "high",
+      "rationale": "RefundCreditOffsetTaxYr maps to Box 3 \u2014 the tax year to which the Box 2 refund applies."
+    },
+    "box_4_federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt directly maps to Box 4 \u2014 Federal income tax withheld."
+    },
+    "box_5_rtaa_payments": {
+      "canonical": "RTAAPaymentsAmt",
+      "xpath": "RTAAPaymentsAmt",
+      "confidence": "high",
+      "rationale": "RTAAPaymentsAmt directly maps to Box 5 \u2014 RTAA payments."
+    },
+    "box_6_taxable_grants": {
+      "canonical": "TaxableGrantsAmt",
+      "xpath": "TaxableGrantsAmt",
+      "confidence": "high",
+      "rationale": "TaxableGrantsAmt directly maps to Box 6 \u2014 Taxable grants."
+    },
+    "box_7_agriculture_payments": {
+      "canonical": "AgriculturePaymentsAmt",
+      "xpath": "AgriculturePaymentsAmt",
+      "confidence": "high",
+      "rationale": "AgriculturePaymentsAmt directly maps to Box 7 \u2014 Agriculture payments."
+    },
+    "box_8_trade_or_business": {
+      "canonical": "TradeOrBusinessIncomeInd",
+      "xpath": "TradeOrBusinessIncomeInd",
+      "confidence": "high",
+      "rationale": "TradeOrBusinessIncomeInd is the boolean indicator for Box 8 \u2014 the trade or business checkbox."
+    },
+    "box_9_market_gain": {
+      "canonical": "MarketGainAmt",
+      "xpath": "MarketGainAmt",
+      "confidence": "high",
+      "rationale": "MarketGainAmt directly maps to Box 9 \u2014 Market gain on CCC loans."
+    },
+    "box_10a_state": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099GStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "StateAbbreviationCd under Form1099GStateLocalTaxGrp (first row) maps to Box 10a \u2014 two-letter state abbreviation."
+    },
+    "box_10b_state_id_number": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099GStateLocalTaxGrp/StateIdNum",
+      "confidence": "high",
+      "rationale": "StateIdNum under Form1099GStateLocalTaxGrp (first row) maps to Box 10b \u2014 state payer identification number."
+    },
+    "box_11_state_income_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099GStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "StateTaxWithheldAmt under Form1099GStateLocalTaxGrp (first row) maps to Box 11 \u2014 state income tax withheld."
+    },
+    "second_state": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099GStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "medium",
+      "rationale": "StateAbbreviationCd under Form1099GStateLocalTaxGrp represents the second row's state code when the group repeats; the schema uses a repeating group rather than separate first/second elements \u2014 blueprint should model both rows as elements within the same repeating group structure."
+    },
+    "second_state_id_number": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099GStateLocalTaxGrp/StateIdNum",
+      "confidence": "medium",
+      "rationale": "StateIdNum under Form1099GStateLocalTaxGrp represents the second row's state ID when the group repeats; same structural note as second_state applies."
+    },
+    "second_state_income_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099GStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "medium",
+      "rationale": "StateTaxWithheldAmt under Form1099GStateLocalTaxGrp represents the second row's withheld amount when the group repeats; same structural note as second_state applies."
+    }
+  }
+}

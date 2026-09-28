@@ -1,0 +1,251 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1099_k",
+    "form_root": "IRS1099K"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099K.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:17:36+00:00",
+  "blueprint": {
+    "path": "blueprints/1099_k.bpt",
+    "name": "form_1099_k"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": "CalendarYr",
+      "xpath": "CalendarYr",
+      "confidence": "high",
+      "rationale": "CalendarYr directly maps to the calendar/tax year printed at the top of the form."
+    },
+    "corrected": {
+      "canonical": "CorrectedInd",
+      "xpath": "CorrectedInd",
+      "confidence": "high",
+      "rationale": "CorrectedInd maps to the CORRECTED checkbox on the form."
+    },
+    "filer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName/BusinessNameLine1Txt",
+      "confidence": "medium",
+      "rationale": "BusinessNameLine1Txt under PayerName is the primary filer/payer name line; however the blueprint bundles the full name into one field while canonical splits into Line1 and Line2 \u2014 blueprint should split into filer_name_line1 and filer_name_line2."
+    },
+    "filer_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles street address into one string; canonical PayerUSAddress splits into AddressLine1Txt, CityNm, StateAbbreviationCd, ZIPCd \u2014 blueprint should split into separate fields."
+    },
+    "filer_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles city/state/ZIP into one string; canonical PayerUSAddress splits these into separate child elements \u2014 blueprint should split into CityNm, StateAbbreviationCd, and ZIPCd fields."
+    },
+    "filer_phone": {
+      "canonical": "PhoneNum",
+      "xpath": "PhoneNum",
+      "confidence": "high",
+      "rationale": "PhoneNum at the root level corresponds to the filer/payer telephone number printed in the filer address block."
+    },
+    "filer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN maps to the filer's taxpayer identification number box on the form."
+    },
+    "payee_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly maps to the payee's name box on the form."
+    },
+    "payee_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles payee street address into one string; canonical RecipientUSAddress splits into AddressLine1Txt, CityNm, StateAbbreviationCd, ZIPCd \u2014 blueprint should split into separate fields."
+    },
+    "payee_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "Blueprint bundles city/state/ZIP into one string; canonical RecipientUSAddress splits these into separate child elements \u2014 blueprint should split into CityNm, StateAbbreviationCd, and ZIPCd fields."
+    },
+    "payee_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN maps to the payee's TIN (SSN or EIN) box on the form; note RecipientEIN is also a candidate but RecipientSSN is the primary element here."
+    },
+    "account_number": {
+      "canonical": "RecipientAccountNum",
+      "xpath": "RecipientAccountNum",
+      "confidence": "high",
+      "rationale": "RecipientAccountNum maps to the Account number box assigned by the filer to identify the payee's account."
+    },
+    "gross_amount": {
+      "canonical": "GrossAmt",
+      "xpath": "GrossAmt",
+      "confidence": "high",
+      "rationale": "GrossAmt maps to Box 1a \u2014 Gross amount of total reportable payment transactions."
+    },
+    "card_not_present_transactions": {
+      "canonical": "CardNotPresentTransAmt",
+      "xpath": "CardNotPresentTransAmt",
+      "confidence": "high",
+      "rationale": "CardNotPresentTransAmt maps to Box 1b \u2014 Gross amount for card-not-present transactions."
+    },
+    "merchant_category_code": {
+      "canonical": "MerchantCategoryCd",
+      "xpath": "MerchantCategoryCd",
+      "confidence": "high",
+      "rationale": "MerchantCategoryCd maps to Box 2 \u2014 the four-digit Merchant Category Code."
+    },
+    "number_of_transactions": {
+      "canonical": "PaymentTransactionCnt",
+      "xpath": "PaymentTransactionCnt",
+      "confidence": "high",
+      "rationale": "PaymentTransactionCnt maps to Box 3 \u2014 total number of payment transactions."
+    },
+    "federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt maps to Box 4 \u2014 federal income tax withheld under backup withholding."
+    },
+    "january_amount": {
+      "canonical": "JanuaryAmt",
+      "xpath": "JanuaryAmt",
+      "confidence": "high",
+      "rationale": "JanuaryAmt maps to Box 4a \u2014 gross amount of transactions for January."
+    },
+    "february_amount": {
+      "canonical": "FebruaryAmt",
+      "xpath": "FebruaryAmt",
+      "confidence": "high",
+      "rationale": "FebruaryAmt maps to Box 4b \u2014 gross amount of transactions for February."
+    },
+    "march_amount": {
+      "canonical": "MarchAmt",
+      "xpath": "MarchAmt",
+      "confidence": "high",
+      "rationale": "MarchAmt maps to Box 4c \u2014 gross amount of transactions for March."
+    },
+    "april_amount": {
+      "canonical": "AprilAmt",
+      "xpath": "AprilAmt",
+      "confidence": "high",
+      "rationale": "AprilAmt maps to Box 4d \u2014 gross amount of transactions for April."
+    },
+    "may_amount": {
+      "canonical": "MayAmt",
+      "xpath": "MayAmt",
+      "confidence": "high",
+      "rationale": "MayAmt maps to Box 4e \u2014 gross amount of transactions for May."
+    },
+    "june_amount": {
+      "canonical": "JuneAmt",
+      "xpath": "JuneAmt",
+      "confidence": "high",
+      "rationale": "JuneAmt maps to Box 4f \u2014 gross amount of transactions for June."
+    },
+    "july_amount": {
+      "canonical": "JulyAmt",
+      "xpath": "JulyAmt",
+      "confidence": "high",
+      "rationale": "JulyAmt maps to Box 4g \u2014 gross amount of transactions for July."
+    },
+    "august_amount": {
+      "canonical": "AugustAmt",
+      "xpath": "AugustAmt",
+      "confidence": "high",
+      "rationale": "AugustAmt maps to Box 4h \u2014 gross amount of transactions for August."
+    },
+    "september_amount": {
+      "canonical": "SeptemberAmt",
+      "xpath": "SeptemberAmt",
+      "confidence": "high",
+      "rationale": "SeptemberAmt maps to Box 4i \u2014 gross amount of transactions for September."
+    },
+    "october_amount": {
+      "canonical": "OctoberAmt",
+      "xpath": "OctoberAmt",
+      "confidence": "high",
+      "rationale": "OctoberAmt maps to Box 4j \u2014 gross amount of transactions for October."
+    },
+    "november_amount": {
+      "canonical": "NovemberAmt",
+      "xpath": "NovemberAmt",
+      "confidence": "high",
+      "rationale": "NovemberAmt maps to Box 4k \u2014 gross amount of transactions for November."
+    },
+    "december_amount": {
+      "canonical": "DecemberAmt",
+      "xpath": "DecemberAmt",
+      "confidence": "high",
+      "rationale": "DecemberAmt maps to Box 4l \u2014 gross amount of transactions for December."
+    },
+    "payment_card_transactions": {
+      "canonical": "PaymentCardInd",
+      "xpath": "PaymentCardInd",
+      "confidence": "high",
+      "rationale": "PaymentCardInd maps to the payment card transactions checkbox on the form."
+    },
+    "third_party_network_transactions": {
+      "canonical": "ThirdPartyNetworkInd",
+      "xpath": "ThirdPartyNetworkInd",
+      "confidence": "high",
+      "rationale": "ThirdPartyNetworkInd maps to the third-party network transactions checkbox on the form."
+    },
+    "pse_name": {
+      "canonical": "PSENm",
+      "xpath": "PSENm",
+      "confidence": "high",
+      "rationale": "PSENm maps to the PSE name box identifying the Payment Settlement Entity or EPF."
+    },
+    "pse_phone": {
+      "canonical": "PSEPhoneNum",
+      "xpath": "PSEPhoneNum",
+      "confidence": "high",
+      "rationale": "PSEPhoneNum maps to the telephone number printed adjacent to the PSE name box."
+    },
+    "state": {
+      "canonical": "StateAbbreviationCd",
+      "xpath": "Form1099KStateLocalTaxGrp/StateAbbreviationCd",
+      "confidence": "high",
+      "rationale": "StateAbbreviationCd under Form1099KStateLocalTaxGrp maps to the first state abbreviation in the state information section."
+    },
+    "state_identification_number": {
+      "canonical": "StateIdNum",
+      "xpath": "Form1099KStateLocalTaxGrp/StateIdNum",
+      "confidence": "high",
+      "rationale": "StateIdNum under Form1099KStateLocalTaxGrp maps to the filer's state identification number for the first state."
+    },
+    "state_tax_withheld": {
+      "canonical": "StateTaxWithheldAmt",
+      "xpath": "Form1099KStateLocalTaxGrp/StateTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "StateTaxWithheldAmt under Form1099KStateLocalTaxGrp maps to the state income tax withheld for the first state."
+    },
+    "state_2": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema uses a repeating Form1099KStateLocalTaxGrp group rather than separate first/second state elements; blueprint should refactor to reference the second occurrence of the group rather than a distinct state_2 field."
+    },
+    "state_identification_number_2": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema uses a repeating Form1099KStateLocalTaxGrp group for multiple states; blueprint should refactor to reference the second group occurrence instead of a flat state_identification_number_2 field."
+    },
+    "state_tax_withheld_2": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "low",
+      "rationale": "The canonical schema uses a repeating Form1099KStateLocalTaxGrp group for multiple states; blueprint should refactor to reference the second group occurrence instead of a flat state_tax_withheld_2 field."
+    }
+  }
+}

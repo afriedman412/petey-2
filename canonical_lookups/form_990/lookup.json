@@ -1,0 +1,2027 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_990",
+    "form_root": "IRS990"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS990.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:45:28+00:00",
+  "blueprint": {
+    "path": "blueprints/form_990.bpt",
+    "name": "form_990"
+  },
+  "fields": {
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The tax year begin date is a return-level header attribute stored in the IRS MeF submission manifest/header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The tax year end date is a return-level header attribute stored in the IRS MeF submission manifest/header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "organization_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's legal name is stored in the return header (ReturnHeader/Filer/BusinessName), not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "doing_business_as": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "DoingBusinessAsName/BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "DoingBusinessAsName/BusinessNameLine1Txt maps to the DBA name printed on the second name line of the header."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The EIN is stored in the return header (ReturnHeader/Filer/EIN), not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "address_line_1": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's mailing address is stored in the return header (ReturnHeader/Filer/USAddress), not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "address_line_2": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's secondary address line is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "city": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's city is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's state abbreviation is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's ZIP code is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "foreign_country": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's foreign country is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "foreign_province_state": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's foreign province/state is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "foreign_postal_code": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's foreign postal code is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "telephone_number": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The organization's telephone number is stored in the return header, not within IRS990; no matching candidate exists in the closed list."
+    },
+    "website": {
+      "canonical": "WebsiteAddressTxt",
+      "xpath": "WebsiteAddressTxt",
+      "confidence": "high",
+      "rationale": "WebsiteAddressTxt directly maps to the organization's website URL printed in Item J of the header."
+    },
+    "address_change": {
+      "canonical": "AddressChangeInd",
+      "xpath": "AddressChangeInd",
+      "confidence": "high",
+      "rationale": "AddressChangeInd maps to the 'Address change' checkbox in Item B of the header."
+    },
+    "name_change": {
+      "canonical": "NameChangeInd",
+      "xpath": "NameChangeInd",
+      "confidence": "high",
+      "rationale": "NameChangeInd maps to the 'Name change' checkbox in Item B of the header."
+    },
+    "initial_return": {
+      "canonical": "InitialReturnInd",
+      "xpath": "InitialReturnInd",
+      "confidence": "high",
+      "rationale": "InitialReturnInd maps to the 'Initial return' checkbox in Item B of the header."
+    },
+    "final_return_terminated": {
+      "canonical": "FinalReturnInd",
+      "xpath": "FinalReturnInd",
+      "confidence": "high",
+      "rationale": "FinalReturnInd maps to the 'Final return/terminated' checkbox in Item B of the header."
+    },
+    "amended_return": {
+      "canonical": "AmendedReturnInd",
+      "xpath": "AmendedReturnInd",
+      "confidence": "high",
+      "rationale": "AmendedReturnInd maps to the 'Amended return' checkbox in Item B of the header."
+    },
+    "application_pending": {
+      "canonical": "ApplicationPendingInd",
+      "xpath": "ApplicationPendingInd",
+      "confidence": "high",
+      "rationale": "ApplicationPendingInd maps to the 'Application pending' checkbox in Item B of the header."
+    },
+    "tax_exempt_status": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Tax-exempt status is captured by multiple mutually exclusive indicators (Organization501c3Ind, Organization501cInd, Organization4947a1NotPFInd, Organization527Ind); the blueprint bundles these into one category field but the canonical schema splits them \u2014 blueprint should be refactored into separate boolean fields matching each indicator."
+    },
+    "irc_section_other": {
+      "canonical": "@organization501cTypeTxt",
+      "xpath": "Organization501cInd/@organization501cTypeTxt",
+      "confidence": "high",
+      "rationale": "Organization501cInd/@organization501cTypeTxt holds the specific IRC 501(c) subsection number when 501(c)(other) is selected."
+    },
+    "form_of_organization": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Form of organization is captured by multiple mutually exclusive indicators (TypeOfOrganizationCorpInd, TypeOfOrganizationTrustInd, TypeOfOrganizationAssocInd, TypeOfOrganizationOtherInd); the blueprint bundles them into one category field but the canonical schema splits them \u2014 blueprint should refactor into separate boolean fields."
+    },
+    "form_of_organization_other": {
+      "canonical": "OtherOrganizationDsc",
+      "xpath": "OtherOrganizationDsc",
+      "confidence": "medium",
+      "rationale": "OtherOrganizationDsc holds the description when 'Other' is selected for form of organization."
+    },
+    "year_of_formation": {
+      "canonical": "FormationYr",
+      "xpath": "FormationYr",
+      "confidence": "high",
+      "rationale": "FormationYr maps to Item L \u2014 the four-digit year the organization was legally formed."
+    },
+    "state_of_legal_domicile": {
+      "canonical": "LegalDomicileStateCd",
+      "xpath": "LegalDomicileStateCd",
+      "confidence": "high",
+      "rationale": "LegalDomicileStateCd maps to Item M \u2014 the two-letter state of legal domicile."
+    },
+    "group_exemption_number": {
+      "canonical": "GroupExemptionNum",
+      "xpath": "GroupExemptionNum",
+      "confidence": "high",
+      "rationale": "GroupExemptionNum maps to Item H(c) \u2014 the four-digit group exemption number."
+    },
+    "is_group_return": {
+      "canonical": "GroupReturnForAffiliatesInd",
+      "xpath": "GroupReturnForAffiliatesInd",
+      "confidence": "high",
+      "rationale": "GroupReturnForAffiliatesInd maps to Item H(a) \u2014 whether this is a group return for subordinates."
+    },
+    "all_subordinates_included": {
+      "canonical": "AllAffiliatesIncludedInd",
+      "xpath": "AllAffiliatesIncludedInd",
+      "confidence": "high",
+      "rationale": "AllAffiliatesIncludedInd maps to Item H(b) \u2014 whether all subordinates are included in the group return."
+    },
+    "gross_receipts": {
+      "canonical": "GrossReceiptsAmt",
+      "xpath": "GrossReceiptsAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsAmt maps to Item G on page 1 \u2014 gross receipts used to determine which form version is required."
+    },
+    "mission_statement": {
+      "canonical": "ActivityOrMissionDesc",
+      "xpath": "ActivityOrMissionDesc",
+      "confidence": "high",
+      "rationale": "ActivityOrMissionDesc maps to Part I, line 1 \u2014 brief description of the organization's mission or most significant activities."
+    },
+    "discontinued_operations": {
+      "canonical": "ContractTerminationInd",
+      "xpath": "ContractTerminationInd",
+      "confidence": "high",
+      "rationale": "ContractTerminationInd maps to Part I, line 2 \u2014 whether the organization discontinued its operations or disposed of more than 25% of its net assets."
+    },
+    "num_voting_members_governing_body": {
+      "canonical": "VotingMembersGoverningBodyCnt",
+      "xpath": "VotingMembersGoverningBodyCnt",
+      "confidence": "high",
+      "rationale": "VotingMembersGoverningBodyCnt maps to Part I, line 3 \u2014 total number of voting members of the governing body."
+    },
+    "num_independent_voting_members": {
+      "canonical": "VotingMembersIndependentCnt",
+      "xpath": "VotingMembersIndependentCnt",
+      "confidence": "high",
+      "rationale": "VotingMembersIndependentCnt maps to Part I, line 4 \u2014 number of independent voting members of the governing body."
+    },
+    "num_employees": {
+      "canonical": "TotalEmployeeCnt",
+      "xpath": "TotalEmployeeCnt",
+      "confidence": "high",
+      "rationale": "TotalEmployeeCnt maps to Part I, line 5 \u2014 total number of individuals employed in the calendar year."
+    },
+    "num_volunteers": {
+      "canonical": "TotalVolunteersCnt",
+      "xpath": "TotalVolunteersCnt",
+      "confidence": "high",
+      "rationale": "TotalVolunteersCnt maps to Part I, line 6 \u2014 total number of volunteers."
+    },
+    "total_unrelated_business_revenue": {
+      "canonical": "TotalGrossUBIAmt",
+      "xpath": "TotalGrossUBIAmt",
+      "confidence": "high",
+      "rationale": "TotalGrossUBIAmt maps to Part I, line 7a \u2014 total unrelated business revenue from Part VIII, column (C), line 12."
+    },
+    "net_unrelated_business_revenue": {
+      "canonical": "NetUnrelatedBusTxblIncmAmt",
+      "xpath": "NetUnrelatedBusTxblIncmAmt",
+      "confidence": "high",
+      "rationale": "NetUnrelatedBusTxblIncmAmt maps to Part I, line 7b \u2014 net unrelated business taxable income from Form 990-T."
+    },
+    "contributions_prior_year": {
+      "canonical": "PYContributionsGrantsAmt",
+      "xpath": "PYContributionsGrantsAmt",
+      "confidence": "high",
+      "rationale": "PYContributionsGrantsAmt maps to Part I, line 8 (prior year column) \u2014 contributions and grants from the prior year."
+    },
+    "contributions_current_year": {
+      "canonical": "CYContributionsGrantsAmt",
+      "xpath": "CYContributionsGrantsAmt",
+      "confidence": "high",
+      "rationale": "CYContributionsGrantsAmt maps to Part I, line 8 (current year column) \u2014 contributions and grants."
+    },
+    "program_service_revenue_prior_year": {
+      "canonical": "PYProgramServiceRevenueAmt",
+      "xpath": "PYProgramServiceRevenueAmt",
+      "confidence": "high",
+      "rationale": "PYProgramServiceRevenueAmt maps to Part I, line 9 (prior year column) \u2014 program service revenue from the prior year."
+    },
+    "program_service_revenue_current_year": {
+      "canonical": "CYProgramServiceRevenueAmt",
+      "xpath": "CYProgramServiceRevenueAmt",
+      "confidence": "high",
+      "rationale": "CYProgramServiceRevenueAmt maps to Part I, line 9 (current year column) \u2014 program service revenue."
+    },
+    "investment_income_prior_year": {
+      "canonical": "PYInvestmentIncomeAmt",
+      "xpath": "PYInvestmentIncomeAmt",
+      "confidence": "high",
+      "rationale": "PYInvestmentIncomeAmt maps to Part I, line 10 (prior year column) \u2014 investment income from the prior year."
+    },
+    "investment_income_current_year": {
+      "canonical": "CYInvestmentIncomeAmt",
+      "xpath": "CYInvestmentIncomeAmt",
+      "confidence": "high",
+      "rationale": "CYInvestmentIncomeAmt maps to Part I, line 10 (current year column) \u2014 investment income."
+    },
+    "other_revenue_prior_year": {
+      "canonical": "PYOtherRevenueAmt",
+      "xpath": "PYOtherRevenueAmt",
+      "confidence": "high",
+      "rationale": "PYOtherRevenueAmt maps to Part I, line 11 (prior year column) \u2014 other revenue from the prior year."
+    },
+    "other_revenue_current_year": {
+      "canonical": "CYOtherRevenueAmt",
+      "xpath": "CYOtherRevenueAmt",
+      "confidence": "high",
+      "rationale": "CYOtherRevenueAmt maps to Part I, line 11 (current year column) \u2014 other revenue."
+    },
+    "total_revenue_prior_year": {
+      "canonical": "PYTotalRevenueAmt",
+      "xpath": "PYTotalRevenueAmt",
+      "confidence": "high",
+      "rationale": "PYTotalRevenueAmt maps to Part I, line 12 (prior year column) \u2014 total revenue from the prior year."
+    },
+    "total_revenue_current_year": {
+      "canonical": "CYTotalRevenueAmt",
+      "xpath": "CYTotalRevenueAmt",
+      "confidence": "high",
+      "rationale": "CYTotalRevenueAmt maps to Part I, line 12 (current year column) \u2014 total revenue."
+    },
+    "grants_and_similar_prior_year": {
+      "canonical": "PYGrantsAndSimilarPaidAmt",
+      "xpath": "PYGrantsAndSimilarPaidAmt",
+      "confidence": "high",
+      "rationale": "PYGrantsAndSimilarPaidAmt maps to Part I, line 13 (prior year column) \u2014 grants and similar amounts paid from the prior year."
+    },
+    "grants_and_similar_current_year": {
+      "canonical": "CYGrantsAndSimilarPaidAmt",
+      "xpath": "CYGrantsAndSimilarPaidAmt",
+      "confidence": "high",
+      "rationale": "CYGrantsAndSimilarPaidAmt maps to Part I, line 13 (current year column) \u2014 grants and similar amounts paid."
+    },
+    "benefits_to_members_prior_year": {
+      "canonical": "PYBenefitsPaidToMembersAmt",
+      "xpath": "PYBenefitsPaidToMembersAmt",
+      "confidence": "high",
+      "rationale": "PYBenefitsPaidToMembersAmt maps to Part I, line 14 (prior year column) \u2014 benefits paid to or for members from the prior year."
+    },
+    "benefits_to_members_current_year": {
+      "canonical": "CYBenefitsPaidToMembersAmt",
+      "xpath": "CYBenefitsPaidToMembersAmt",
+      "confidence": "high",
+      "rationale": "CYBenefitsPaidToMembersAmt maps to Part I, line 14 (current year column) \u2014 benefits paid to or for members."
+    },
+    "salaries_prior_year": {
+      "canonical": "PYSalariesCompEmpBnftPaidAmt",
+      "xpath": "PYSalariesCompEmpBnftPaidAmt",
+      "confidence": "high",
+      "rationale": "PYSalariesCompEmpBnftPaidAmt maps to Part I, line 15 (prior year column) \u2014 salaries and compensation from the prior year."
+    },
+    "salaries_current_year": {
+      "canonical": "CYSalariesCompEmpBnftPaidAmt",
+      "xpath": "CYSalariesCompEmpBnftPaidAmt",
+      "confidence": "high",
+      "rationale": "CYSalariesCompEmpBnftPaidAmt maps to Part I, line 15 (current year column) \u2014 salaries, other compensation, employee benefits."
+    },
+    "professional_fundraising_fees_prior_year": {
+      "canonical": "PYTotalProfFndrsngExpnsAmt",
+      "xpath": "PYTotalProfFndrsngExpnsAmt",
+      "confidence": "high",
+      "rationale": "PYTotalProfFndrsngExpnsAmt maps to Part I, line 16a (prior year column) \u2014 professional fundraising fees from the prior year."
+    },
+    "professional_fundraising_fees_current_year": {
+      "canonical": "CYTotalProfFndrsngExpnsAmt",
+      "xpath": "CYTotalProfFndrsngExpnsAmt",
+      "confidence": "high",
+      "rationale": "CYTotalProfFndrsngExpnsAmt maps to Part I, line 16a (current year column) \u2014 professional fundraising fees."
+    },
+    "total_fundraising_expenses_current_year": {
+      "canonical": "CYTotalFundraisingExpenseAmt",
+      "xpath": "CYTotalFundraisingExpenseAmt",
+      "confidence": "high",
+      "rationale": "CYTotalFundraisingExpenseAmt maps to Part I, line 16b \u2014 total fundraising expenses (Part IX, column (D), line 25)."
+    },
+    "other_expenses_prior_year": {
+      "canonical": "PYOtherExpensesAmt",
+      "xpath": "PYOtherExpensesAmt",
+      "confidence": "high",
+      "rationale": "PYOtherExpensesAmt maps to Part I, line 17 (prior year column) \u2014 other expenses from the prior year."
+    },
+    "other_expenses_current_year": {
+      "canonical": "CYOtherExpensesAmt",
+      "xpath": "CYOtherExpensesAmt",
+      "confidence": "high",
+      "rationale": "CYOtherExpensesAmt maps to Part I, line 17 (current year column) \u2014 other expenses."
+    },
+    "total_expenses_prior_year": {
+      "canonical": "PYTotalExpensesAmt",
+      "xpath": "PYTotalExpensesAmt",
+      "confidence": "high",
+      "rationale": "PYTotalExpensesAmt maps to Part I, line 18 (prior year column) \u2014 total expenses from the prior year."
+    },
+    "total_expenses_current_year": {
+      "canonical": "CYTotalExpensesAmt",
+      "xpath": "CYTotalExpensesAmt",
+      "confidence": "high",
+      "rationale": "CYTotalExpensesAmt maps to Part I, line 18 (current year column) \u2014 total expenses."
+    },
+    "revenue_less_expenses_prior_year": {
+      "canonical": "PYRevenuesLessExpensesAmt",
+      "xpath": "PYRevenuesLessExpensesAmt",
+      "confidence": "high",
+      "rationale": "PYRevenuesLessExpensesAmt maps to Part I, line 19 (prior year column) \u2014 revenue less expenses from the prior year."
+    },
+    "revenue_less_expenses_current_year": {
+      "canonical": "CYRevenuesLessExpensesAmt",
+      "xpath": "CYRevenuesLessExpensesAmt",
+      "confidence": "high",
+      "rationale": "CYRevenuesLessExpensesAmt maps to Part I, line 19 (current year column) \u2014 revenue less expenses."
+    },
+    "total_assets_beginning": {
+      "canonical": "TotalAssetsBOYAmt",
+      "xpath": "TotalAssetsBOYAmt",
+      "confidence": "high",
+      "rationale": "TotalAssetsBOYAmt maps to Part I, line 20 (beginning of year) \u2014 total assets from Part X, line 16, column (A)."
+    },
+    "total_assets_end": {
+      "canonical": "TotalAssetsEOYAmt",
+      "xpath": "TotalAssetsEOYAmt",
+      "confidence": "high",
+      "rationale": "TotalAssetsEOYAmt maps to Part I, line 20 (end of year) \u2014 total assets from Part X, line 16, column (B)."
+    },
+    "total_liabilities_beginning": {
+      "canonical": "TotalLiabilitiesBOYAmt",
+      "xpath": "TotalLiabilitiesBOYAmt",
+      "confidence": "high",
+      "rationale": "TotalLiabilitiesBOYAmt maps to Part I, line 21 (beginning of year) \u2014 total liabilities from Part X, line 26, column (A)."
+    },
+    "total_liabilities_end": {
+      "canonical": "TotalLiabilitiesEOYAmt",
+      "xpath": "TotalLiabilitiesEOYAmt",
+      "confidence": "high",
+      "rationale": "TotalLiabilitiesEOYAmt maps to Part I, line 21 (end of year) \u2014 total liabilities from Part X, line 26, column (B)."
+    },
+    "net_assets_beginning": {
+      "canonical": "NetAssetsOrFundBalancesBOYAmt",
+      "xpath": "NetAssetsOrFundBalancesBOYAmt",
+      "confidence": "high",
+      "rationale": "NetAssetsOrFundBalancesBOYAmt maps to Part I, line 22 (beginning of year) \u2014 net assets or fund balances at the beginning of the year."
+    },
+    "net_assets_end": {
+      "canonical": "NetAssetsOrFundBalancesEOYAmt",
+      "xpath": "NetAssetsOrFundBalancesEOYAmt",
+      "confidence": "high",
+      "rationale": "NetAssetsOrFundBalancesEOYAmt maps to Part I, line 22 (end of year) \u2014 net assets or fund balances at the end of the year."
+    },
+    "part_iii_schedule_o_note": {
+      "canonical": "InfoInScheduleOPartIIIInd",
+      "xpath": "InfoInScheduleOPartIIIInd",
+      "confidence": "high",
+      "rationale": "InfoInScheduleOPartIIIInd maps to Part III \u2014 whether Schedule O contains a response or note to any line in Part III."
+    },
+    "program_service_accomplishments_described": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "No candidate specifically indicates whether Schedule O contains a note to the Part III mission description line 1; this is not a discrete boolean element in the closed list."
+    },
+    "did_activities_change": {
+      "canonical": "SignificantNewProgramSrvcInd",
+      "xpath": "SignificantNewProgramSrvcInd",
+      "confidence": "high",
+      "rationale": "SignificantNewProgramSrvcInd maps to Part III, line 2 \u2014 whether the organization undertook any significant new program services during the year."
+    },
+    "did_cease_activities": {
+      "canonical": "SignificantChangeInd",
+      "xpath": "SignificantChangeInd",
+      "confidence": "high",
+      "rationale": "SignificantChangeInd maps to Part III, line 3 \u2014 whether the organization ceased conducting or made significant changes in any program services."
+    },
+    "program_services": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint declares an array of program service accomplishments (lines 4a\u20134d); the canonical schema uses separate groups (ProgSrvcAccomActy2Grp, ProgSrvcAccomActy3Grp, ProgSrvcAccomActyOtherGrp plus inline elements for 4a) \u2014 blueprint should be refactored into separate fields or sub-records matching each canonical group."
+    },
+    "total_program_service_expenses": {
+      "canonical": "TotalProgramServiceExpensesAmt",
+      "xpath": "TotalProgramServiceExpensesAmt",
+      "confidence": "high",
+      "rationale": "TotalProgramServiceExpensesAmt maps to Part III, line 4e \u2014 total program service expenses."
+    },
+    "has_schedule_a": {
+      "canonical": "Organization501c3Ind",
+      "xpath": "Organization501c3Ind",
+      "confidence": "high",
+      "rationale": "Organization501c3Ind maps to Part IV, line 1 \u2014 whether the organization is described in section 501(c)(3) or 4947(a)(1)."
+    },
+    "has_schedule_b": {
+      "canonical": "ScheduleBRequiredInd",
+      "xpath": "ScheduleBRequiredInd",
+      "confidence": "high",
+      "rationale": "ScheduleBRequiredInd maps to Part IV, line 2 \u2014 whether the organization is required to complete Schedule B."
+    },
+    "has_schedule_c_political": {
+      "canonical": "PoliticalCampaignActyInd",
+      "xpath": "PoliticalCampaignActyInd",
+      "confidence": "high",
+      "rationale": "PoliticalCampaignActyInd maps to Part IV, line 3 \u2014 whether the organization engaged in political campaign activities requiring Schedule C, Part I."
+    },
+    "has_schedule_c_lobbying": {
+      "canonical": "LobbyingActivitiesInd",
+      "xpath": "LobbyingActivitiesInd",
+      "confidence": "high",
+      "rationale": "LobbyingActivitiesInd maps to Part IV, line 4 \u2014 whether the organization engaged in lobbying activities requiring Schedule C, Part II."
+    },
+    "has_schedule_c_membership": {
+      "canonical": "MembersOrStockholdersInd",
+      "xpath": "MembersOrStockholdersInd",
+      "confidence": "high",
+      "rationale": "MembersOrStockholdersInd maps to Part IV, line 5 \u2014 whether the organization receives membership dues as defined in Rev. Proc. 98-19 requiring Schedule C, Part III."
+    },
+    "has_schedule_d_donor_advised": {
+      "canonical": "DonorAdvisedFundInd",
+      "xpath": "DonorAdvisedFundInd",
+      "confidence": "high",
+      "rationale": "DonorAdvisedFundInd maps to Part IV, line 6 \u2014 whether the organization maintained donor advised funds requiring Schedule D, Part I."
+    },
+    "has_schedule_d_conservation_easement": {
+      "canonical": "ConservationEasementsInd",
+      "xpath": "ConservationEasementsInd",
+      "confidence": "high",
+      "rationale": "ConservationEasementsInd maps to Part IV, line 7 \u2014 whether the organization received or held a conservation easement requiring Schedule D, Part II."
+    },
+    "has_schedule_d_collections": {
+      "canonical": "CollectionsOfArtInd",
+      "xpath": "CollectionsOfArtInd",
+      "confidence": "high",
+      "rationale": "CollectionsOfArtInd maps to Part IV, line 8 \u2014 whether the organization maintained collections of art or historical treasures requiring Schedule D, Part III."
+    },
+    "has_schedule_d_escrow": {
+      "canonical": "EscrowAccountInd",
+      "xpath": "EscrowAccountInd",
+      "confidence": "high",
+      "rationale": "EscrowAccountInd maps to Part IV, line 9 \u2014 whether the organization reported an escrow or custodial account liability or provided credit counseling services requiring Schedule D, Part IV."
+    },
+    "has_schedule_d_endowments": {
+      "canonical": "DonorRstrOrQuasiEndowmentsInd",
+      "xpath": "DonorRstrOrQuasiEndowmentsInd",
+      "confidence": "high",
+      "rationale": "DonorRstrOrQuasiEndowmentsInd maps to Part IV, line 10 \u2014 whether the organization held assets in donor-restricted endowments or quasi-endowments requiring Schedule D, Part V."
+    },
+    "has_schedule_d_11a": {
+      "canonical": "ReportLandBuildingEquipmentInd",
+      "xpath": "ReportLandBuildingEquipmentInd",
+      "confidence": "high",
+      "rationale": "ReportLandBuildingEquipmentInd maps to Part IV, line 11a \u2014 whether the organization reported land, buildings, and equipment requiring Schedule D, Part VI."
+    },
+    "has_schedule_d_11b": {
+      "canonical": "ReportInvestmentsOtherSecInd",
+      "xpath": "ReportInvestmentsOtherSecInd",
+      "confidence": "high",
+      "rationale": "ReportInvestmentsOtherSecInd maps to Part IV, line 11b \u2014 whether the organization reported investments in other securities requiring Schedule D, Part VII."
+    },
+    "has_schedule_d_11c": {
+      "canonical": "ReportProgramRelatedInvstInd",
+      "xpath": "ReportProgramRelatedInvstInd",
+      "confidence": "high",
+      "rationale": "ReportProgramRelatedInvstInd maps to Part IV, line 11c \u2014 whether the organization reported investments in program-related investments requiring Schedule D, Part VIII."
+    },
+    "has_schedule_d_11d": {
+      "canonical": "ReportOtherAssetsInd",
+      "xpath": "ReportOtherAssetsInd",
+      "confidence": "high",
+      "rationale": "ReportOtherAssetsInd maps to Part IV, line 11d \u2014 whether the organization reported other assets requiring Schedule D, Part IX."
+    },
+    "has_schedule_d_11e": {
+      "canonical": "ReportOtherLiabilitiesInd",
+      "xpath": "ReportOtherLiabilitiesInd",
+      "confidence": "high",
+      "rationale": "ReportOtherLiabilitiesInd maps to Part IV, line 11e \u2014 whether the organization reported other liabilities requiring Schedule D, Part X."
+    },
+    "has_schedule_d_11f": {
+      "canonical": "IncludeFIN48FootnoteInd",
+      "xpath": "IncludeFIN48FootnoteInd",
+      "confidence": "high",
+      "rationale": "IncludeFIN48FootnoteInd maps to Part IV, line 11f \u2014 whether financial statements include a FIN 48 footnote requiring Schedule D, Part X."
+    },
+    "has_schedule_d_12a": {
+      "canonical": "IndependentAuditFinclStmtInd",
+      "xpath": "IndependentAuditFinclStmtInd",
+      "confidence": "high",
+      "rationale": "IndependentAuditFinclStmtInd maps to Part IV, line 12a \u2014 whether the organization had separately audited financial statements requiring Schedule D, Parts XI and XII."
+    },
+    "has_schedule_d_12b": {
+      "canonical": "ConsolidatedAuditFinclStmtInd",
+      "xpath": "ConsolidatedAuditFinclStmtInd",
+      "confidence": "high",
+      "rationale": "ConsolidatedAuditFinclStmtInd maps to Part IV, line 12b \u2014 whether the organization was included in consolidated audited financial statements."
+    },
+    "has_schedule_e": {
+      "canonical": "SchoolOperatingInd",
+      "xpath": "SchoolOperatingInd",
+      "confidence": "high",
+      "rationale": "SchoolOperatingInd maps to Part IV, line 13 \u2014 whether the organization is a school described in section 170(b)(1)(A)(ii) requiring Schedule E."
+    },
+    "has_schedule_f_14a": {
+      "canonical": "ForeignOfficeInd",
+      "xpath": "ForeignOfficeInd",
+      "confidence": "high",
+      "rationale": "ForeignOfficeInd maps to Part IV, line 14a \u2014 whether the organization maintained an office or employees outside the United States."
+    },
+    "has_schedule_f_14b": {
+      "canonical": "ForeignActivitiesInd",
+      "xpath": "ForeignActivitiesInd",
+      "confidence": "high",
+      "rationale": "ForeignActivitiesInd maps to Part IV, line 14b \u2014 whether the organization had aggregate revenues or expenses over $10,000 from activities outside the United States requiring Schedule F, Parts I and IV."
+    },
+    "has_schedule_f_15": {
+      "canonical": "MoreThan5000KToOrgInd",
+      "xpath": "MoreThan5000KToOrgInd",
+      "confidence": "high",
+      "rationale": "MoreThan5000KToOrgInd maps to Part IV, line 15 \u2014 whether the organization reported more than $5,000 of grants to foreign organizations requiring Schedule F, Parts II and IV."
+    },
+    "has_schedule_f_16": {
+      "canonical": "MoreThan5000KToIndividualsInd",
+      "xpath": "MoreThan5000KToIndividualsInd",
+      "confidence": "high",
+      "rationale": "MoreThan5000KToIndividualsInd maps to Part IV, line 16 \u2014 whether the organization reported more than $5,000 of grants to foreign individuals requiring Schedule F, Parts III and IV."
+    },
+    "has_schedule_g_17": {
+      "canonical": "ProfessionalFundraisingInd",
+      "xpath": "ProfessionalFundraisingInd",
+      "confidence": "high",
+      "rationale": "ProfessionalFundraisingInd maps to Part IV, line 17 \u2014 whether the organization reported more than $15,000 of professional fundraising service expenses requiring Schedule G, Part I."
+    },
+    "has_schedule_g_18": {
+      "canonical": "FundraisingActivitiesInd",
+      "xpath": "FundraisingActivitiesInd",
+      "confidence": "high",
+      "rationale": "FundraisingActivitiesInd maps to Part IV, line 18 \u2014 whether the organization reported more than $15,000 of fundraising event gross income and contributions requiring Schedule G, Part II."
+    },
+    "has_schedule_g_19": {
+      "canonical": "GamingActivitiesInd",
+      "xpath": "GamingActivitiesInd",
+      "confidence": "high",
+      "rationale": "GamingActivitiesInd maps to Part IV, line 19 \u2014 whether the organization reported more than $15,000 of gross income from gaming activities requiring Schedule G, Part III."
+    },
+    "has_schedule_h": {
+      "canonical": "OperateHospitalInd",
+      "xpath": "OperateHospitalInd",
+      "confidence": "high",
+      "rationale": "OperateHospitalInd maps to Part IV, line 20a \u2014 whether the organization operated one or more hospital facilities requiring Schedule H."
+    },
+    "has_schedule_h_20b": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "No candidate in the closed list specifically represents whether the organization attached a copy of its audited financial statements to this return (Part IV, line 20b)."
+    },
+    "has_schedule_i_21": {
+      "canonical": "GrantsToOrganizationsInd",
+      "xpath": "GrantsToOrganizationsInd",
+      "confidence": "high",
+      "rationale": "GrantsToOrganizationsInd maps to Part IV, line 21 \u2014 whether the organization reported more than $5,000 of grants to domestic organizations requiring Schedule I, Parts I and II."
+    },
+    "has_schedule_i_22": {
+      "canonical": "GrantsToIndividualsInd",
+      "xpath": "GrantsToIndividualsInd",
+      "confidence": "high",
+      "rationale": "GrantsToIndividualsInd maps to Part IV, line 22 \u2014 whether the organization reported more than $5,000 of grants to domestic individuals requiring Schedule I, Parts I and III."
+    },
+    "has_schedule_j": {
+      "canonical": "ScheduleJRequiredInd",
+      "xpath": "ScheduleJRequiredInd",
+      "confidence": "high",
+      "rationale": "ScheduleJRequiredInd maps to Part IV, line 23 \u2014 whether the organization answered Yes to Part VII, Section A, lines 3, 4, or 5 requiring Schedule J."
+    },
+    "has_schedule_k_24a": {
+      "canonical": "TaxExemptBondsInd",
+      "xpath": "TaxExemptBondsInd",
+      "confidence": "high",
+      "rationale": "TaxExemptBondsInd maps to Part IV, line 24a \u2014 whether the organization had a tax-exempt bond issue with outstanding principal over $100,000 requiring Schedule K."
+    },
+    "has_schedule_k_24b": {
+      "canonical": "InvestTaxExemptBondsInd",
+      "xpath": "InvestTaxExemptBondsInd",
+      "confidence": "high",
+      "rationale": "InvestTaxExemptBondsInd maps to Part IV, line 24b \u2014 whether the organization invested any proceeds of tax-exempt bonds beyond a temporary period exception."
+    },
+    "has_schedule_k_24c": {
+      "canonical": "OnBehalfOfIssuerInd",
+      "xpath": "OnBehalfOfIssuerInd",
+      "confidence": "high",
+      "rationale": "OnBehalfOfIssuerInd maps to Part IV, line 24c/d; however this is the closest match for escrow account to defease bonds (line 24c); note possible ambiguity with 24d."
+    },
+    "has_schedule_k_24d": {
+      "canonical": "OnBehalfOfIssuerInd",
+      "xpath": "OnBehalfOfIssuerInd",
+      "confidence": "low",
+      "rationale": "OnBehalfOfIssuerInd is a candidate for Part IV, line 24d (acted as 'on behalf of' issuer), but it was already tentatively matched to 24c \u2014 the closed list appears to conflate 24c and 24d into this single element; confidence is low due to ambiguity."
+    },
+    "has_schedule_l_25a": {
+      "canonical": "EngagedInExcessBenefitTransInd",
+      "xpath": "EngagedInExcessBenefitTransInd",
+      "confidence": "high",
+      "rationale": "EngagedInExcessBenefitTransInd maps to Part IV, line 25a \u2014 whether the organization engaged in an excess benefit transaction with a disqualified person during the year."
+    },
+    "has_schedule_l_25b": {
+      "canonical": "PYExcessBenefitTransInd",
+      "xpath": "PYExcessBenefitTransInd",
+      "confidence": "high",
+      "rationale": "PYExcessBenefitTransInd maps to Part IV, line 25b \u2014 whether the organization is aware of a prior-year excess benefit transaction not previously reported."
+    },
+    "has_schedule_l_26": {
+      "canonical": "LoanOutstandingInd",
+      "xpath": "LoanOutstandingInd",
+      "confidence": "high",
+      "rationale": "LoanOutstandingInd maps to Part IV, line 26 \u2014 whether the organization reported receivables from or payables to officers, directors, or key employees requiring Schedule L, Part II."
+    },
+    "has_schedule_l_27": {
+      "canonical": "GrantToRelatedPersonInd",
+      "xpath": "GrantToRelatedPersonInd",
+      "confidence": "high",
+      "rationale": "GrantToRelatedPersonInd maps to Part IV, line 27 \u2014 whether the organization provided a grant or assistance to any officer, director, trustee, key employee, or related person requiring Schedule L, Part III."
+    },
+    "has_schedule_l_28a": {
+      "canonical": "BusinessRlnWithOrgMemInd",
+      "xpath": "BusinessRlnWithOrgMemInd",
+      "confidence": "high",
+      "rationale": "BusinessRlnWithOrgMemInd maps to Part IV, line 28a \u2014 whether the organization was a party to a business transaction with a current or former officer, director, trustee, key employee, or substantial contributor requiring Schedule L, Part IV."
+    },
+    "has_schedule_l_28b": {
+      "canonical": "BusinessRlnWithFamMemInd",
+      "xpath": "BusinessRlnWithFamMemInd",
+      "confidence": "high",
+      "rationale": "BusinessRlnWithFamMemInd maps to Part IV, line 28b \u2014 whether the organization was party to a business transaction with a family member of individuals described in line 28a."
+    },
+    "has_schedule_l_28c": {
+      "canonical": "BusinessRlnWith35CtrlEntInd",
+      "xpath": "BusinessRlnWith35CtrlEntInd",
+      "confidence": "high",
+      "rationale": "BusinessRlnWith35CtrlEntInd maps to Part IV, line 28c \u2014 whether the organization was party to a business transaction with a 35% controlled entity."
+    },
+    "has_schedule_m_29": {
+      "canonical": "DeductibleNonCashContriInd",
+      "xpath": "DeductibleNonCashContriInd",
+      "confidence": "high",
+      "rationale": "DeductibleNonCashContriInd maps to Part IV, line 29 \u2014 whether the organization received more than $25,000 in noncash contributions requiring Schedule M."
+    },
+    "has_schedule_m_30": {
+      "canonical": "DeductibleArtContributionInd",
+      "xpath": "DeductibleArtContributionInd",
+      "confidence": "high",
+      "rationale": "DeductibleArtContributionInd maps to Part IV, line 30 \u2014 whether the organization received contributions of art, historical treasures, or conservation contributions requiring Schedule M."
+    },
+    "has_schedule_n_31": {
+      "canonical": "TerminateOperationsInd",
+      "xpath": "TerminateOperationsInd",
+      "confidence": "high",
+      "rationale": "TerminateOperationsInd maps to Part IV, line 31 \u2014 whether the organization liquidated, terminated, or dissolved and ceased operations requiring Schedule N, Part I."
+    },
+    "has_schedule_n_32": {
+      "canonical": "PartialLiquidationInd",
+      "xpath": "PartialLiquidationInd",
+      "confidence": "high",
+      "rationale": "PartialLiquidationInd maps to Part IV, line 32 \u2014 whether the organization sold, exchanged, or disposed of more than 25% of its net assets requiring Schedule N, Part II."
+    },
+    "has_schedule_r_33": {
+      "canonical": "DisregardedEntityInd",
+      "xpath": "DisregardedEntityInd",
+      "confidence": "high",
+      "rationale": "DisregardedEntityInd maps to Part IV, line 33 \u2014 whether the organization owned 100% of a disregarded entity requiring Schedule R, Part I."
+    },
+    "has_schedule_r_34": {
+      "canonical": "RelatedEntityInd",
+      "xpath": "RelatedEntityInd",
+      "confidence": "high",
+      "rationale": "RelatedEntityInd maps to Part IV, line 34 \u2014 whether the organization was related to any tax-exempt or taxable entity requiring Schedule R, Parts II\u2013IV."
+    },
+    "has_schedule_r_35a": {
+      "canonical": "RelatedOrganizationCtrlEntInd",
+      "xpath": "RelatedOrganizationCtrlEntInd",
+      "confidence": "high",
+      "rationale": "RelatedOrganizationCtrlEntInd maps to Part IV, line 35a \u2014 whether the organization had a controlled entity within section 512(b)(13)."
+    },
+    "has_schedule_r_35b": {
+      "canonical": "TransactionWithControlEntInd",
+      "xpath": "TransactionWithControlEntInd",
+      "confidence": "high",
+      "rationale": "TransactionWithControlEntInd maps to Part IV, line 35b \u2014 whether the organization received payments from or engaged in transactions with a controlled entity."
+    },
+    "has_schedule_r_36": {
+      "canonical": "TrnsfrExmptNonChrtblRltdOrgInd",
+      "xpath": "TrnsfrExmptNonChrtblRltdOrgInd",
+      "confidence": "high",
+      "rationale": "TrnsfrExmptNonChrtblRltdOrgInd maps to Part IV, line 36 \u2014 whether the organization made transfers to an exempt non-charitable related organization requiring Schedule R, Part V, line 2."
+    },
+    "has_schedule_r_37": {
+      "canonical": "ActivitiesConductedPrtshpInd",
+      "xpath": "ActivitiesConductedPrtshpInd",
+      "confidence": "high",
+      "rationale": "ActivitiesConductedPrtshpInd maps to Part IV, line 37 \u2014 whether the organization conducted more than 5% of its activities through a partnership requiring Schedule R, Part VI."
+    },
+    "has_schedule_o": {
+      "canonical": "ScheduleORequiredInd",
+      "xpath": "ScheduleORequiredInd",
+      "confidence": "high",
+      "rationale": "ScheduleORequiredInd maps to Part IV, line 38 \u2014 whether the organization completed Schedule O."
+    },
+    "num_forms_1096": {
+      "canonical": "IRPDocumentCnt",
+      "xpath": "IRPDocumentCnt",
+      "confidence": "high",
+      "rationale": "IRPDocumentCnt maps to Part V, line 1a \u2014 number reported in box 3 of Form 1096."
+    },
+    "num_forms_w2g": {
+      "canonical": "IRPDocumentW2GCnt",
+      "xpath": "IRPDocumentW2GCnt",
+      "confidence": "high",
+      "rationale": "IRPDocumentW2GCnt maps to Part V, line 1b \u2014 number of Forms W-2G included on line 1a."
+    },
+    "backup_withholding_compliance": {
+      "canonical": "BackupWthldComplianceInd",
+      "xpath": "BackupWthldComplianceInd",
+      "confidence": "high",
+      "rationale": "BackupWthldComplianceInd maps to Part V, line 1c \u2014 whether the organization complied with backup withholding rules."
+    },
+    "num_employees_form_w3": {
+      "canonical": "EmployeeCnt",
+      "xpath": "EmployeeCnt",
+      "confidence": "high",
+      "rationale": "EmployeeCnt maps to Part V, line 2a \u2014 number of employees reported on Form W-3."
+    },
+    "filed_employment_tax_returns": {
+      "canonical": "EmploymentTaxReturnsFiledInd",
+      "xpath": "EmploymentTaxReturnsFiledInd",
+      "confidence": "high",
+      "rationale": "EmploymentTaxReturnsFiledInd maps to Part V, line 2b \u2014 whether the organization filed all required federal employment tax returns."
+    },
+    "unrelated_business_income_over_1000": {
+      "canonical": "UnrelatedBusIncmOverLimitInd",
+      "xpath": "UnrelatedBusIncmOverLimitInd",
+      "confidence": "high",
+      "rationale": "UnrelatedBusIncmOverLimitInd maps to Part V, line 3a \u2014 whether the organization had unrelated business gross income of $1,000 or more."
+    },
+    "filed_form_990_t": {
+      "canonical": "Form990TFiledInd",
+      "xpath": "Form990TFiledInd",
+      "confidence": "high",
+      "rationale": "Form990TFiledInd maps to Part V, line 3b \u2014 whether the organization filed Form 990-T for this year."
+    },
+    "foreign_financial_accounts": {
+      "canonical": "ForeignFinancialAccountInd",
+      "xpath": "ForeignFinancialAccountInd",
+      "confidence": "high",
+      "rationale": "ForeignFinancialAccountInd maps to Part V, line 4a \u2014 whether the organization had a financial account in a foreign country."
+    },
+    "foreign_financial_account_countries": {
+      "canonical": "ForeignCountryCd",
+      "xpath": "ForeignCountryCd",
+      "confidence": "high",
+      "rationale": "ForeignCountryCd maps to Part V, line 4b \u2014 the country or countries where foreign financial accounts are held."
+    },
+    "fbar_filed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "No candidate in the closed list specifically represents whether the organization filed FinCEN Form 114 (FBAR); this indicator does not appear as a leaf element in the IRS990 schema candidates."
+    },
+    "prohibited_tax_shelter_transaction": {
+      "canonical": "ProhibitedTaxShelterTransInd",
+      "xpath": "ProhibitedTaxShelterTransInd",
+      "confidence": "high",
+      "rationale": "ProhibitedTaxShelterTransInd maps to Part V, line 5a \u2014 whether the organization was a party to a prohibited tax shelter transaction."
+    },
+    "disclosed_tax_shelter": {
+      "canonical": "TaxablePartyNotificationInd",
+      "xpath": "TaxablePartyNotificationInd",
+      "confidence": "high",
+      "rationale": "TaxablePartyNotificationInd maps to Part V, line 5b \u2014 whether any taxable party notified the organization of a prohibited tax shelter transaction."
+    },
+    "num_1098c_forms": {
+      "canonical": "Form8282FiledCnt",
+      "xpath": "Form8282FiledCnt",
+      "confidence": "high",
+      "rationale": "Form8282FiledCnt is not the right match; Form8282PropertyDisposedOfInd relates to Form 8282; however Form1098CFiledInd is a boolean not a count \u2014 the closest count element is absent. Actually, idx 188 Form8282FiledCnt relates to Form 8282, not 1098-C. No candidate count element for 1098-C forms exists; returning null."
+    },
+    "gross_receipts_from_gaming": {
+      "canonical": "GrossReceiptsForPublicUseAmt",
+      "xpath": "GrossReceiptsForPublicUseAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsForPublicUseAmt does not match gaming receipts; GamingGrossIncomeAmt (idx 220) matches Part V, line 9a gross receipts from gaming."
+    },
+    "initiation_fees": {
+      "canonical": "InitiationFeesAndCapContriAmt",
+      "xpath": "InitiationFeesAndCapContriAmt",
+      "confidence": "high",
+      "rationale": "InitiationFeesAndCapContriAmt maps to Part V, line 10a \u2014 initiation fees and capital contributions for section 501(c)(7) organizations."
+    },
+    "gross_receipts_public_use": {
+      "canonical": "GrossReceiptsForPublicUseAmt",
+      "xpath": "GrossReceiptsForPublicUseAmt",
+      "confidence": "high",
+      "rationale": "GrossReceiptsForPublicUseAmt maps to Part V, line 10b \u2014 gross receipts for public use of club facilities for section 501(c)(7) organizations."
+    },
+    "family_or_business_relationship": {
+      "canonical": "FamilyOrBusinessRlnInd",
+      "xpath": "FamilyOrBusinessRlnInd",
+      "confidence": "high",
+      "rationale": "FamilyOrBusinessRlnInd maps to Part VI, Section A, line 2 \u2014 whether any officer, director, trustee, or key employee had a family or business relationship with another."
+    },
+    "delegated_management": {
+      "canonical": "DelegationOfMgmtDutiesInd",
+      "xpath": "DelegationOfMgmtDutiesInd",
+      "confidence": "high",
+      "rationale": "DelegationOfMgmtDutiesInd maps to Part VI, Section A, line 3 \u2014 whether the organization delegated control over management duties to a management company."
+    },
+    "significant_changes_to_documents": {
+      "canonical": "ChangeToOrgDocumentsInd",
+      "xpath": "ChangeToOrgDocumentsInd",
+      "confidence": "high",
+      "rationale": "ChangeToOrgDocumentsInd maps to Part VI, Section A, line 4 \u2014 whether the organization made significant changes to its governing documents."
+    },
+    "became_aware_of_diversion": {
+      "canonical": "MaterialDiversionOrMisuseInd",
+      "xpath": "MaterialDiversionOrMisuseInd",
+      "confidence": "high",
+      "rationale": "MaterialDiversionOrMisuseInd maps to Part VI, Section A, line 5 \u2014 whether the organization became aware of a significant diversion of assets."
+    },
+    "has_members_or_stockholders": {
+      "canonical": "MembersOrStockholdersInd",
+      "xpath": "MembersOrStockholdersInd",
+      "confidence": "medium",
+      "rationale": "MembersOrStockholdersInd was already used for has_schedule_c_membership; however the same element also corresponds to Part VI, Section A, line 6 \u2014 whether the organization has members or stockholders. The overlap is structural in the schema."
+    },
+    "elections_by_members": {
+      "canonical": "ElectionOfBoardMembersInd",
+      "xpath": "ElectionOfBoardMembersInd",
+      "confidence": "high",
+      "rationale": "ElectionOfBoardMembersInd maps to Part VI, Section A, line 7a \u2014 whether any decisions of the governing body required approval by members or stockholders."
+    },
+    "board_minutes_documented": {
+      "canonical": "MinutesOfGoverningBodyInd",
+      "xpath": "MinutesOfGoverningBodyInd",
+      "confidence": "high",
+      "rationale": "MinutesOfGoverningBodyInd maps to Part VI, Section A, line 8a \u2014 whether the organization contemporaneously documented all governing body meetings."
+    },
+    "committee_minutes_documented": {
+      "canonical": "MinutesOfCommitteesInd",
+      "xpath": "MinutesOfCommitteesInd",
+      "confidence": "high",
+      "rationale": "MinutesOfCommitteesInd maps to Part VI, Section A, line 8b \u2014 whether the organization documented meetings of committees with authority to act on behalf of the governing body."
+    },
+    "has_local_chapters": {
+      "canonical": "LocalChaptersInd",
+      "xpath": "LocalChaptersInd",
+      "confidence": "high",
+      "rationale": "LocalChaptersInd maps to Part VI, Section A, line 9a \u2014 whether the organization has local chapters, branches, or affiliates."
+    },
+    "policies_apply_to_chapters": {
+      "canonical": "PoliciesReferenceChaptersInd",
+      "xpath": "PoliciesReferenceChaptersInd",
+      "confidence": "high",
+      "rationale": "PoliciesReferenceChaptersInd maps to Part VI, Section A, line 9b \u2014 whether the organization's governing board has policies that apply to chapters or affiliates."
+    },
+    "form_990_provided_to_board": {
+      "canonical": "Form990ProvidedToGvrnBodyInd",
+      "xpath": "Form990ProvidedToGvrnBodyInd",
+      "confidence": "high",
+      "rationale": "Form990ProvidedToGvrnBodyInd maps to Part VI, Section C, line 11a \u2014 whether a copy of Form 990 was provided to all governing body members before filing."
+    },
+    "written_conflict_of_interest_policy": {
+      "canonical": "ConflictOfInterestPolicyInd",
+      "xpath": "ConflictOfInterestPolicyInd",
+      "confidence": "high",
+      "rationale": "ConflictOfInterestPolicyInd maps to Part VI, Section B, line 12a \u2014 whether the organization has a written conflict of interest policy."
+    },
+    "officers_disclose_interests": {
+      "canonical": "AnnualDisclosureCoveredPrsnInd",
+      "xpath": "AnnualDisclosureCoveredPrsnInd",
+      "confidence": "high",
+      "rationale": "AnnualDisclosureCoveredPrsnInd maps to Part VI, Section B, line 12b \u2014 whether officers are required to disclose annually interests that could give rise to conflicts."
+    },
+    "conflict_of_interest_monitored": {
+      "canonical": "RegularMonitoringEnfrcInd",
+      "xpath": "RegularMonitoringEnfrcInd",
+      "confidence": "high",
+      "rationale": "RegularMonitoringEnfrcInd maps to Part VI, Section B, line 12c \u2014 whether the organization regularly monitors and enforces compliance with its conflict of interest policy."
+    },
+    "written_whistleblower_policy": {
+      "canonical": "WhistleblowerPolicyInd",
+      "xpath": "WhistleblowerPolicyInd",
+      "confidence": "high",
+      "rationale": "WhistleblowerPolicyInd maps to Part VI, Section B, line 13 \u2014 whether the organization has a written whistleblower policy."
+    },
+    "written_document_retention_policy": {
+      "canonical": "DocumentRetentionPolicyInd",
+      "xpath": "DocumentRetentionPolicyInd",
+      "confidence": "high",
+      "rationale": "DocumentRetentionPolicyInd maps to Part VI, Section B, line 14 \u2014 whether the organization has a written document retention and destruction policy."
+    },
+    "ceo_compensation_process": {
+      "canonical": "CompensationProcessCEOInd",
+      "xpath": "CompensationProcessCEOInd",
+      "confidence": "high",
+      "rationale": "CompensationProcessCEOInd maps to Part VI, Section B, line 15a \u2014 whether the process for determining CEO compensation included independent review and comparability data."
+    },
+    "officer_compensation_process": {
+      "canonical": "CompensationProcessOtherInd",
+      "xpath": "CompensationProcessOtherInd",
+      "confidence": "high",
+      "rationale": "CompensationProcessOtherInd maps to Part VI, Section B, line 15b \u2014 whether other officers' compensation used the same independent review process."
+    },
+    "public_inspection_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Public inspection methods are captured by multiple separate indicators (OwnWebsiteInd, OtherWebsiteInd, UponRequestInd); the blueprint bundles them into one multi-category field but the canonical schema splits them \u2014 blueprint should refactor into three separate boolean fields."
+    },
+    "form_990_available_to_public": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Part VI, Section C, line 19 about making Form 990 available for public inspection does not have a dedicated leaf element in the closed candidate list; OwnWebsiteInd/OtherWebsiteInd/UponRequestInd relate to line 18, not line 19."
+    },
+    "officers_directors_trustees": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint declares an array; the canonical schema uses repeating Form990PartVIISectionAGrp groups with multiple child elements \u2014 blueprint should be refactored into a repeating record matching the group, not a single field."
+    },
+    "total_compensation_officers_directors": {
+      "canonical": "TotalReportableCompFromOrgAmt",
+      "xpath": "TotalReportableCompFromOrgAmt",
+      "confidence": "medium",
+      "rationale": "TotalReportableCompFromOrgAmt maps to the total reportable compensation from the organization for officers/directors in Part VII, Section A, which is the closest match for line 1b total compensation."
+    },
+    "independent_contractors": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint declares an array; the canonical schema uses repeating ContractorCompensationGrp groups \u2014 blueprint should be refactored into a repeating record matching the group structure."
+    },
+    "federated_campaigns": {
+      "canonical": "FederatedCampaignsAmt",
+      "xpath": "FederatedCampaignsAmt",
+      "confidence": "high",
+      "rationale": "FederatedCampaignsAmt maps to Part VIII, line 1a \u2014 federated campaigns revenue."
+    },
+    "membership_dues": {
+      "canonical": "MembershipDuesAmt",
+      "xpath": "MembershipDuesAmt",
+      "confidence": "high",
+      "rationale": "MembershipDuesAmt maps to Part VIII, line 1b \u2014 membership dues revenue."
+    },
+    "fundraising_events_contributions": {
+      "canonical": "FundraisingAmt",
+      "xpath": "FundraisingAmt",
+      "confidence": "high",
+      "rationale": "FundraisingAmt (at path FundraisingAmt, idx 213) maps to Part VIII, line 1c \u2014 gross receipts from fundraising events (contributions portion)."
+    },
+    "related_organizations_contributions": {
+      "canonical": "RelatedOrganizationsAmt",
+      "xpath": "RelatedOrganizationsAmt",
+      "confidence": "high",
+      "rationale": "RelatedOrganizationsAmt maps to Part VIII, line 1d \u2014 related organizations contributions."
+    },
+    "government_grants": {
+      "canonical": "GovernmentGrantsAmt",
+      "xpath": "GovernmentGrantsAmt",
+      "confidence": "high",
+      "rationale": "GovernmentGrantsAmt maps to Part VIII, line 1e \u2014 government grants (contributions)."
+    },
+    "all_other_contributions": {
+      "canonical": "AllOtherContributionsAmt",
+      "xpath": "AllOtherContributionsAmt",
+      "confidence": "high",
+      "rationale": "AllOtherContributionsAmt maps to Part VIII, line 1f \u2014 all other contributions, gifts, grants, and similar amounts."
+    },
+    "noncash_contributions_included": {
+      "canonical": "NoncashContributionsAmt",
+      "xpath": "NoncashContributionsAmt",
+      "confidence": "high",
+      "rationale": "NoncashContributionsAmt maps to Part VIII, line 1g \u2014 noncash contributions included in lines 1a through 1f."
+    },
+    "total_contributions": {
+      "canonical": "TotalContributionsAmt",
+      "xpath": "TotalContributionsAmt",
+      "confidence": "high",
+      "rationale": "TotalContributionsAmt maps to Part VIII, line 1h \u2014 total contributions and grants; sum of lines 1a through 1f."
+    },
+    "program_service_revenue": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint declares an array; the canonical schema uses repeating ProgramServiceRevenueGrp groups \u2014 blueprint should be refactored into a repeating record matching the group structure."
+    },
+    "all_other_program_service_revenue": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "TotalOthProgramServiceRevGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "TotalOthProgramServiceRevGrp/TotalRevenueColumnAmt (idx 583) maps to Part VIII, line 2f \u2014 all other program service revenue (column A total)."
+    },
+    "total_program_service_revenue": {
+      "canonical": "TotalProgramServiceRevenueAmt",
+      "xpath": "TotalProgramServiceRevenueAmt",
+      "confidence": "high",
+      "rationale": "TotalProgramServiceRevenueAmt maps to Part VIII, line 2g \u2014 total program service revenue; sum of lines 2a through 2f."
+    },
+    "investment_income_interest": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "InvestmentIncomeGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "InvestmentIncomeGrp/TotalRevenueColumnAmt (idx 290) maps to Part VIII, line 3 \u2014 investment income total revenue column (A)."
+    },
+    "tax_exempt_bond_proceeds": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "IncmFromInvestBondProceedsGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "IncmFromInvestBondProceedsGrp/TotalRevenueColumnAmt (idx 250) maps to Part VIII, line 4 \u2014 income from investment of tax-exempt bond proceeds (column A total)."
+    },
+    "royalties": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "RoyaltiesRevenueGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "RoyaltiesRevenueGrp/TotalRevenueColumnAmt (idx 525) maps to Part VIII, line 5 \u2014 royalties received (column A total)."
+    },
+    "gross_rents_real": {
+      "canonical": "RealAmt",
+      "xpath": "GrossRentsGrp/RealAmt",
+      "confidence": "high",
+      "rationale": "GrossRentsGrp/RealAmt (idx 241) maps to Part VIII, line 6a(i) \u2014 gross rents from real property."
+    },
+    "gross_rents_personal": {
+      "canonical": "PersonalAmt",
+      "xpath": "GrossRentsGrp/PersonalAmt",
+      "confidence": "high",
+      "rationale": "GrossRentsGrp/PersonalAmt (idx 240) maps to Part VIII, line 6a(ii) \u2014 gross rents from personal property."
+    },
+    "less_rental_expenses_real": {
+      "canonical": "RealAmt",
+      "xpath": "LessRentalExpensesGrp/RealAmt",
+      "confidence": "high",
+      "rationale": "LessRentalExpensesGrp/RealAmt (idx 309) maps to Part VIII, line 6b(i) \u2014 less rental expenses for real property."
+    },
+    "less_rental_expenses_personal": {
+      "canonical": "PersonalAmt",
+      "xpath": "LessRentalExpensesGrp/PersonalAmt",
+      "confidence": "high",
+      "rationale": "LessRentalExpensesGrp/PersonalAmt (idx 308) maps to Part VIII, line 6b(ii) \u2014 less rental expenses for personal property."
+    },
+    "net_rental_income_real": {
+      "canonical": "RealAmt",
+      "xpath": "RentalIncomeOrLossGrp/RealAmt",
+      "confidence": "high",
+      "rationale": "RentalIncomeOrLossGrp/RealAmt (idx 511) maps to Part VIII, line 6c(i) \u2014 net rental income or (loss) from real property."
+    },
+    "net_rental_income_personal": {
+      "canonical": "PersonalAmt",
+      "xpath": "RentalIncomeOrLossGrp/PersonalAmt",
+      "confidence": "high",
+      "rationale": "RentalIncomeOrLossGrp/PersonalAmt (idx 510) maps to Part VIII, line 6c(ii) \u2014 net rental income or (loss) from personal property."
+    },
+    "gross_sales_of_assets": {
+      "canonical": "SecuritiesAmt",
+      "xpath": "GrossAmountSalesAssetsGrp/SecuritiesAmt",
+      "confidence": "medium",
+      "rationale": "GrossAmountSalesAssetsGrp/SecuritiesAmt (idx 237) maps to the securities portion of Part VIII, line 7a; the blueprint bundles securities and other into one field while the canonical schema splits them \u2014 blueprint should split into gross_sales_securities and gross_sales_other."
+    },
+    "less_cost_of_sales": {
+      "canonical": "SecuritiesAmt",
+      "xpath": "LessCostOthBasisSalesExpnssGrp/SecuritiesAmt",
+      "confidence": "medium",
+      "rationale": "LessCostOthBasisSalesExpnssGrp/SecuritiesAmt (idx 307) maps to the securities portion of Part VIII, line 7b; same structural mismatch \u2014 blueprint bundles securities and other."
+    },
+    "gain_or_loss_on_sales": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "NetGainOrLossInvestmentsGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "NetGainOrLossInvestmentsGrp/TotalRevenueColumnAmt (idx 343) maps to the net gain or (loss) total in Part VIII, line 7d (column A), which is the closest to line 7c net gain."
+    },
+    "gross_fundraising_events": {
+      "canonical": "FundraisingGrossIncomeAmt",
+      "xpath": "FundraisingGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "FundraisingGrossIncomeAmt (idx 215) maps to Part VIII, line 8a \u2014 gross income from fundraising events (not including contributions)."
+    },
+    "less_fundraising_direct_expenses": {
+      "canonical": "FundraisingDirectExpensesAmt",
+      "xpath": "FundraisingDirectExpensesAmt",
+      "confidence": "high",
+      "rationale": "FundraisingDirectExpensesAmt (idx 214) maps to Part VIII, line 8b \u2014 less direct expenses from fundraising events."
+    },
+    "net_fundraising_income": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "NetIncmFromFundraisingEvtGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "NetIncmFromFundraisingEvtGrp/TotalRevenueColumnAmt (idx 346) maps to Part VIII, line 8c \u2014 net income or (loss) from fundraising events (column A total)."
+    },
+    "gross_gaming": {
+      "canonical": "GamingGrossIncomeAmt",
+      "xpath": "GamingGrossIncomeAmt",
+      "confidence": "high",
+      "rationale": "GamingGrossIncomeAmt (idx 220) maps to Part VIII, line 9a \u2014 gross income from gaming activities."
+    },
+    "less_gaming_direct_expenses": {
+      "canonical": "GamingDirectExpensesAmt",
+      "xpath": "GamingDirectExpensesAmt",
+      "confidence": "high",
+      "rationale": "GamingDirectExpensesAmt (idx 219) maps to Part VIII, line 9b \u2014 less direct expenses from gaming activities."
+    },
+    "net_gaming_income": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "NetIncomeFromGamingGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "NetIncomeFromGamingGrp/TotalRevenueColumnAmt (idx 350) maps to Part VIII, line 9c \u2014 net income or (loss) from gaming activities (column A total)."
+    },
+    "gross_inventory_sales": {
+      "canonical": "GrossSalesOfInventoryAmt",
+      "xpath": "GrossSalesOfInventoryAmt",
+      "confidence": "high",
+      "rationale": "GrossSalesOfInventoryAmt (idx 242) maps to Part VIII, line 10a \u2014 gross sales of inventory."
+    },
+    "less_inventory_cost_of_goods": {
+      "canonical": "CostOfGoodsSoldAmt",
+      "xpath": "CostOfGoodsSoldAmt",
+      "confidence": "high",
+      "rationale": "CostOfGoodsSoldAmt (idx 105) maps to Part VIII, line 10b \u2014 less cost of goods sold."
+    },
+    "net_inventory_income": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "NetIncomeOrLossGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "NetIncomeOrLossGrp/TotalRevenueColumnAmt (idx 354) maps to Part VIII, line 10c \u2014 net income or (loss) from sales of inventory (column A total)."
+    },
+    "other_revenue_items": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint declares an array of miscellaneous revenue items (lines 11a\u201311d); the canonical schema uses repeating OtherRevenueMiscGrp groups \u2014 blueprint should be refactored into a repeating record matching the group structure."
+    },
+    "all_other_revenue": {
+      "canonical": "OtherRevenueTotalAmt",
+      "xpath": "OtherRevenueTotalAmt",
+      "confidence": "high",
+      "rationale": "OtherRevenueTotalAmt (idx 415) maps to Part VIII, line 11e \u2014 total of miscellaneous revenue (which includes 'all other revenue')."
+    },
+    "total_other_revenue": {
+      "canonical": "OtherRevenueTotalAmt",
+      "xpath": "OtherRevenueTotalAmt",
+      "confidence": "medium",
+      "rationale": "OtherRevenueTotalAmt (idx 415) is labeled 'e Total. Add lines 11a\u201311d' which matches line 11f concept; however the same element appears to serve as the sum total of other revenue lines, making it the best available match for total_other_revenue."
+    },
+    "total_revenue": {
+      "canonical": "TotalRevenueColumnAmt",
+      "xpath": "TotalRevenueGrp/TotalRevenueColumnAmt",
+      "confidence": "high",
+      "rationale": "TotalRevenueGrp/TotalRevenueColumnAmt (idx 594) maps to Part VIII, line 12 \u2014 total revenue (column A)."
+    },
+    "grants_to_domestic_orgs": {
+      "canonical": "TotalAmt",
+      "xpath": "GrantsToDomesticOrgsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GrantsToDomesticOrgsGrp/TotalAmt (idx 233) maps to Part IX, line 1 \u2014 grants to domestic organizations (column A)."
+    },
+    "grants_to_domestic_individuals": {
+      "canonical": "TotalAmt",
+      "xpath": "GrantsToDomesticIndividualsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "GrantsToDomesticIndividualsGrp/TotalAmt (idx 230) maps to Part IX, line 2 \u2014 grants to domestic individuals (column A)."
+    },
+    "grants_to_foreign_orgs": {
+      "canonical": "TotalAmt",
+      "xpath": "ForeignGrantsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "ForeignGrantsGrp/TotalAmt (idx 184) maps to Part IX, line 3 \u2014 grants to foreign organizations and individuals (column A)."
+    },
+    "benefits_paid_to_members": {
+      "canonical": "TotalAmt",
+      "xpath": "BenefitsToMembersGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "BenefitsToMembersGrp/TotalAmt (idx 35) maps to Part IX, line 4 \u2014 benefits paid to or for members (column A)."
+    },
+    "compensation_current_officers": {
+      "canonical": "TotalAmt",
+      "xpath": "CompCurrentOfcrDirectorsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "CompCurrentOfcrDirectorsGrp/TotalAmt (idx 79) maps to Part IX, line 5 \u2014 compensation of current officers, directors, trustees, and key employees (column A)."
+    },
+    "compensation_disqualified_persons": {
+      "canonical": "TotalAmt",
+      "xpath": "CompDisqualPersonsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "CompDisqualPersonsGrp/TotalAmt (idx 84) maps to Part IX, line 6 \u2014 compensation to disqualified persons (column A)."
+    },
+    "other_salaries_wages": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherSalariesAndWagesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "OtherSalariesAndWagesGrp/TotalAmt (idx 420) maps to Part IX, line 7 \u2014 other salaries and wages (column A)."
+    },
+    "pension_plan_contributions": {
+      "canonical": "TotalAmt",
+      "xpath": "PensionPlanContributionsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "PensionPlanContributionsGrp/TotalAmt (idx 454) maps to Part IX, line 8 \u2014 pension plan accruals and contributions (column A)."
+    },
+    "other_employee_benefits": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherEmployeeBenefitsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "OtherEmployeeBenefitsGrp/TotalAmt (idx 396) maps to Part IX, line 9 \u2014 other employee benefits (column A)."
+    },
+    "payroll_taxes": {
+      "canonical": "TotalAmt",
+      "xpath": "PayrollTaxesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "PayrollTaxesGrp/TotalAmt (idx 447) maps to Part IX, line 10 \u2014 payroll taxes (column A)."
+    },
+    "fees_for_services_management": {
+      "canonical": "TotalAmt",
+      "xpath": "FeesForServicesManagementGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "FeesForServicesManagementGrp/TotalAmt (idx 166) maps to Part IX, line 11a \u2014 fees for services: management (column A)."
+    },
+    "fees_for_services_legal": {
+      "canonical": "TotalAmt",
+      "xpath": "FeesForServicesLegalGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "FeesForServicesLegalGrp/TotalAmt (idx 158) maps to Part IX, line 11b \u2014 fees for services: legal (column A)."
+    },
+    "fees_for_services_accounting": {
+      "canonical": "TotalAmt",
+      "xpath": "FeesForServicesAccountingGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "FeesForServicesAccountingGrp/TotalAmt (idx 154) maps to Part IX, line 11c \u2014 fees for services: accounting (column A)."
+    },
+    "fees_for_services_lobbying": {
+      "canonical": "TotalAmt",
+      "xpath": "FeesForServicesLobbyingGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "FeesForServicesLobbyingGrp/TotalAmt (idx 162) maps to Part IX, line 11d \u2014 fees for services: lobbying (column A)."
+    },
+    "fees_for_services_professional_fundraising": {
+      "canonical": "TotalAmt",
+      "xpath": "FeesForServicesProfFundraising/TotalAmt",
+      "confidence": "high",
+      "rationale": "FeesForServicesProfFundraising/TotalAmt (idx 172) maps to Part IX, line 11e \u2014 fees for services: professional fundraising (column A)."
+    },
+    "fees_for_services_investment_management": {
+      "canonical": "TotalAmt",
+      "xpath": "FeesForSrvcInvstMgmntFeesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "FeesForSrvcInvstMgmntFeesGrp/TotalAmt (idx 176) maps to Part IX, line 11f \u2014 fees for services: investment management fees (column A)."
+    },
+    "fees_for_services_other": {
+      "canonical": "TotalAmt",
+      "xpath": "FeesForServicesOtherGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "FeesForServicesOtherGrp/TotalAmt (idx 170) maps to Part IX, line 11g \u2014 fees for services: other (column A)."
+    },
+    "advertising_promotion": {
+      "canonical": "TotalAmt",
+      "xpath": "AdvertisingGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "AdvertisingGrp/TotalAmt (idx 20) maps to Part IX, line 12 \u2014 advertising and promotion expenses (column A)."
+    },
+    "office_expenses": {
+      "canonical": "TotalAmt",
+      "xpath": "OfficeExpensesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "OfficeExpensesGrp/TotalAmt (idx 376) maps to Part IX, line 13 \u2014 office expenses (column A)."
+    },
+    "information_technology": {
+      "canonical": "TotalAmt",
+      "xpath": "InformationTechnologyGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "InformationTechnologyGrp/TotalAmt (idx 268) maps to Part IX, line 14 \u2014 information technology expenses (column A)."
+    },
+    "royalties_expense": {
+      "canonical": "TotalAmt",
+      "xpath": "RoyaltiesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "RoyaltiesGrp/TotalAmt (idx 522) maps to Part IX, line 15 \u2014 royalties expense (column A)."
+    },
+    "occupancy": {
+      "canonical": "TotalAmt",
+      "xpath": "OccupancyGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "OccupancyGrp/TotalAmt (idx 372) maps to Part IX, line 16 \u2014 occupancy expenses (column A)."
+    },
+    "travel": {
+      "canonical": "TotalAmt",
+      "xpath": "TravelGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "TravelGrp/TotalAmt (idx 602) maps to Part IX, line 17 \u2014 travel expenses (column A)."
+    },
+    "payments_for_travel_entertainment": {
+      "canonical": "TotalAmt",
+      "xpath": "PymtTravelEntrtnmntPubOfclGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "PymtTravelEntrtnmntPubOfclGrp/TotalAmt (idx 495) maps to Part IX, line 18 \u2014 payments of travel or entertainment expenses for public officials (column A)."
+    },
+    "conferences_conventions_meetings": {
+      "canonical": "TotalAmt",
+      "xpath": "ConferencesMeetingsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "ConferencesMeetingsGrp/TotalAmt (idx 91) maps to Part IX, line 19 \u2014 conferences, conventions, and meetings expenses (column A)."
+    },
+    "interest_expense": {
+      "canonical": "TotalAmt",
+      "xpath": "InterestGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "InterestGrp/TotalAmt (idx 282) maps to Part IX, line 20 \u2014 interest expense (column A)."
+    },
+    "payments_to_affiliates": {
+      "canonical": "TotalAmt",
+      "xpath": "PaymentsToAffiliatesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "PaymentsToAffiliatesGrp/TotalAmt (idx 443) maps to Part IX, line 21 \u2014 payments to affiliates (column A)."
+    },
+    "depreciation_depletion_amortization": {
+      "canonical": "TotalAmt",
+      "xpath": "DepreciationDepletionGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "DepreciationDepletionGrp/TotalAmt (idx 119) maps to Part IX, line 22 \u2014 depreciation, depletion, and amortization (column A)."
+    },
+    "insurance": {
+      "canonical": "TotalAmt",
+      "xpath": "InsuranceGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "InsuranceGrp/TotalAmt (idx 275) maps to Part IX, line 23 \u2014 insurance expenses (column A)."
+    },
+    "other_expenses_24a": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherExpensesGrp/TotalAmt",
+      "confidence": "medium",
+      "rationale": "OtherExpensesGrp/TotalAmt (idx 402) maps to the first instance of Part IX, line 24 other expenses (column A); the group repeats for lines 24a\u201324d so the first instance is the best match for 24a."
+    },
+    "other_expenses_24b": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherExpensesGrp/TotalAmt",
+      "confidence": "low",
+      "rationale": "OtherExpensesGrp is a repeating group; the canonical schema uses multiple instances for 24a\u201324d but the closed candidate list shows only one idx 402 for TotalAmt within this group \u2014 the blueprint should model each line as a separate group instance; returning 402 with low confidence due to structural ambiguity."
+    },
+    "other_expenses_24c": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherExpensesGrp/TotalAmt",
+      "confidence": "low",
+      "rationale": "Same repeating group structural ambiguity as 24b; returning 402 with low confidence."
+    },
+    "other_expenses_24d": {
+      "canonical": "TotalAmt",
+      "xpath": "OtherExpensesGrp/TotalAmt",
+      "confidence": "low",
+      "rationale": "Same repeating group structural ambiguity as 24b; returning 402 with low confidence."
+    },
+    "other_expenses_24e": {
+      "canonical": "TotalAmt",
+      "xpath": "AllOtherExpensesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "AllOtherExpensesGrp/TotalAmt (idx 26) maps to Part IX, line 24e \u2014 all other expenses not listed above (column A)."
+    },
+    "total_functional_expenses": {
+      "canonical": "TotalAmt",
+      "xpath": "TotalFunctionalExpensesGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "TotalFunctionalExpensesGrp/TotalAmt (idx 567) maps to Part IX, line 25 \u2014 total functional expenses (column A)."
+    },
+    "total_program_service_expenses_ix": {
+      "canonical": "ProgramServicesAmt",
+      "xpath": "TotalFunctionalExpensesGrp/ProgramServicesAmt",
+      "confidence": "high",
+      "rationale": "TotalFunctionalExpensesGrp/ProgramServicesAmt (idx 566) maps to Part IX, line 25, column (B) \u2014 total expenses allocated to program services."
+    },
+    "total_management_expenses": {
+      "canonical": "ManagementAndGeneralAmt",
+      "xpath": "TotalFunctionalExpensesGrp/ManagementAndGeneralAmt",
+      "confidence": "high",
+      "rationale": "TotalFunctionalExpensesGrp/ManagementAndGeneralAmt (idx 565) maps to Part IX, line 25, column (C) \u2014 total expenses allocated to management and general."
+    },
+    "total_fundraising_expenses_ix": {
+      "canonical": "FundraisingAmt",
+      "xpath": "TotalFunctionalExpensesGrp/FundraisingAmt",
+      "confidence": "high",
+      "rationale": "TotalFunctionalExpensesGrp/FundraisingAmt (idx 564) maps to Part IX, line 25, column (D) \u2014 total expenses allocated to fundraising."
+    },
+    "joint_costs_included": {
+      "canonical": "JointCostsInd",
+      "xpath": "JointCostsInd",
+      "confidence": "high",
+      "rationale": "JointCostsInd (idx 298) maps to Part IX, line 26 \u2014 whether the organization reported joint costs from a combined educational campaign and fundraising solicitation."
+    },
+    "joint_costs_amount": {
+      "canonical": "TotalAmt",
+      "xpath": "TotalJointCostsGrp/TotalAmt",
+      "confidence": "high",
+      "rationale": "TotalJointCostsGrp/TotalAmt (idx 572) maps to Part IX, line 26 \u2014 the total amount of joint costs reported."
+    },
+    "cash_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "CashNonInterestBearingGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "CashNonInterestBearingGrp/BOYAmt (idx 70) maps to Part X, line 1 \u2014 cash at beginning of year (column A)."
+    },
+    "cash_end": {
+      "canonical": "EOYAmt",
+      "xpath": "CashNonInterestBearingGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "CashNonInterestBearingGrp/EOYAmt (idx 71) maps to Part X, line 1 \u2014 cash at end of year (column B)."
+    },
+    "savings_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "SavingsAndTempCashInvstGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "SavingsAndTempCashInvstGrp/BOYAmt (idx 530) maps to Part X, line 2 \u2014 savings and temporary cash investments at beginning of year."
+    },
+    "savings_end": {
+      "canonical": "EOYAmt",
+      "xpath": "SavingsAndTempCashInvstGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "SavingsAndTempCashInvstGrp/EOYAmt (idx 531) maps to Part X, line 2 \u2014 savings and temporary cash investments at end of year."
+    },
+    "pledges_receivable_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "PledgesAndGrantsReceivableGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "PledgesAndGrantsReceivableGrp/BOYAmt (idx 455) maps to Part X, line 3 \u2014 pledges and grants receivable at beginning of year."
+    },
+    "pledges_receivable_end": {
+      "canonical": "EOYAmt",
+      "xpath": "PledgesAndGrantsReceivableGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "PledgesAndGrantsReceivableGrp/EOYAmt (idx 456) maps to Part X, line 3 \u2014 pledges and grants receivable at end of year."
+    },
+    "accounts_receivable_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "AccountsReceivableGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "AccountsReceivableGrp/BOYAmt (idx 8) maps to Part X, line 4 \u2014 accounts receivable at beginning of year."
+    },
+    "accounts_receivable_end": {
+      "canonical": "EOYAmt",
+      "xpath": "AccountsReceivableGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "AccountsReceivableGrp/EOYAmt (idx 9) maps to Part X, line 4 \u2014 accounts receivable at end of year."
+    },
+    "loans_receivable_officers_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "ReceivablesFromOfficersEtcGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "ReceivablesFromOfficersEtcGrp/BOYAmt (idx 503) maps to Part X, line 5 \u2014 loans receivable from officers, directors, and key employees at beginning of year."
+    },
+    "loans_receivable_officers_end": {
+      "canonical": "EOYAmt",
+      "xpath": "ReceivablesFromOfficersEtcGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "ReceivablesFromOfficersEtcGrp/EOYAmt (idx 504) maps to Part X, line 5 \u2014 loans receivable from officers at end of year."
+    },
+    "loans_receivable_other_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "RcvblFromDisqualifiedPrsnGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "RcvblFromDisqualifiedPrsnGrp/BOYAmt (idx 500) maps to Part X, line 6 \u2014 loans receivable from other disqualified persons at beginning of year."
+    },
+    "loans_receivable_other_end": {
+      "canonical": "EOYAmt",
+      "xpath": "RcvblFromDisqualifiedPrsnGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "RcvblFromDisqualifiedPrsnGrp/EOYAmt (idx 501) maps to Part X, line 6 \u2014 loans receivable from other disqualified persons at end of year."
+    },
+    "notes_receivable_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "OthNotesLoansReceivableNetGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "OthNotesLoansReceivableNetGrp/BOYAmt (idx 388) maps to Part X, line 7 \u2014 notes and loans receivable at beginning of year."
+    },
+    "notes_receivable_end": {
+      "canonical": "EOYAmt",
+      "xpath": "OthNotesLoansReceivableNetGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "OthNotesLoansReceivableNetGrp/EOYAmt (idx 389) maps to Part X, line 7 \u2014 notes and loans receivable at end of year."
+    },
+    "inventories_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "InventoriesForSaleOrUseGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "InventoriesForSaleOrUseGrp/BOYAmt (idx 283) maps to Part X, line 8 \u2014 inventories at beginning of year."
+    },
+    "inventories_end": {
+      "canonical": "EOYAmt",
+      "xpath": "InventoriesForSaleOrUseGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "InventoriesForSaleOrUseGrp/EOYAmt (idx 284) maps to Part X, line 8 \u2014 inventories at end of year."
+    },
+    "prepaid_expenses_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "PrepaidExpensesDefrdChargesGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "PrepaidExpensesDefrdChargesGrp/BOYAmt (idx 459) maps to Part X, line 9 \u2014 prepaid expenses and deferred charges at beginning of year."
+    },
+    "prepaid_expenses_end": {
+      "canonical": "EOYAmt",
+      "xpath": "PrepaidExpensesDefrdChargesGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "PrepaidExpensesDefrdChargesGrp/EOYAmt (idx 460) maps to Part X, line 9 \u2014 prepaid expenses and deferred charges at end of year."
+    },
+    "land_buildings_equipment_cost": {
+      "canonical": "LandBldgEquipCostOrOtherBssAmt",
+      "xpath": "LandBldgEquipCostOrOtherBssAmt",
+      "confidence": "high",
+      "rationale": "LandBldgEquipCostOrOtherBssAmt (idx 303) maps to Part X, line 10a \u2014 land, buildings, and equipment at cost or other basis."
+    },
+    "less_accumulated_depreciation": {
+      "canonical": "LandBldgEquipAccumDeprecAmt",
+      "xpath": "LandBldgEquipAccumDeprecAmt",
+      "confidence": "high",
+      "rationale": "LandBldgEquipAccumDeprecAmt (idx 299) maps to Part X, line 10b \u2014 less accumulated depreciation."
+    },
+    "land_buildings_equipment_net_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "LandBldgEquipBasisNetGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "LandBldgEquipBasisNetGrp/BOYAmt (idx 301) maps to Part X, line 10c \u2014 land, buildings, and equipment net at beginning of year."
+    },
+    "land_buildings_equipment_net_end": {
+      "canonical": "EOYAmt",
+      "xpath": "LandBldgEquipBasisNetGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "LandBldgEquipBasisNetGrp/EOYAmt (idx 302) maps to Part X, line 10c \u2014 land, buildings, and equipment net at end of year."
+    },
+    "investments_publicly_traded_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "InvestmentsPubTradedSecGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "InvestmentsPubTradedSecGrp/BOYAmt (idx 296) maps to Part X, line 11 \u2014 investments in publicly traded securities at beginning of year."
+    },
+    "investments_publicly_traded_end": {
+      "canonical": "EOYAmt",
+      "xpath": "InvestmentsPubTradedSecGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "InvestmentsPubTradedSecGrp/EOYAmt (idx 297) maps to Part X, line 11 \u2014 investments in publicly traded securities at end of year."
+    },
+    "investments_other_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "InvestmentsOtherSecuritiesGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "InvestmentsOtherSecuritiesGrp/BOYAmt (idx 292) maps to Part X, line 12 \u2014 investments in other securities at beginning of year."
+    },
+    "investments_other_end": {
+      "canonical": "EOYAmt",
+      "xpath": "InvestmentsOtherSecuritiesGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "InvestmentsOtherSecuritiesGrp/EOYAmt (idx 293) maps to Part X, line 12 \u2014 investments in other securities at end of year."
+    },
+    "investments_program_related_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "InvestmentsProgramRelatedGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "InvestmentsProgramRelatedGrp/BOYAmt (idx 294) maps to Part X, line 13 \u2014 investments in program-related investments at beginning of year."
+    },
+    "investments_program_related_end": {
+      "canonical": "EOYAmt",
+      "xpath": "InvestmentsProgramRelatedGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "InvestmentsProgramRelatedGrp/EOYAmt (idx 295) maps to Part X, line 13 \u2014 investments in program-related investments at end of year."
+    },
+    "intangible_assets_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "IntangibleAssetsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "IntangibleAssetsGrp/BOYAmt (idx 276) maps to Part X, line 14 \u2014 intangible assets at beginning of year."
+    },
+    "intangible_assets_end": {
+      "canonical": "EOYAmt",
+      "xpath": "IntangibleAssetsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "IntangibleAssetsGrp/EOYAmt (idx 277) maps to Part X, line 14 \u2014 intangible assets at end of year."
+    },
+    "other_assets_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "OtherAssetsTotalGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "OtherAssetsTotalGrp/BOYAmt (idx 390) maps to Part X, line 15 \u2014 other assets at beginning of year."
+    },
+    "other_assets_end": {
+      "canonical": "EOYAmt",
+      "xpath": "OtherAssetsTotalGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "OtherAssetsTotalGrp/EOYAmt (idx 391) maps to Part X, line 15 \u2014 other assets at end of year."
+    },
+    "total_assets_bs_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "TotalAssetsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "TotalAssetsGrp/BOYAmt (idx 559) maps to Part X, line 16 \u2014 total assets at beginning of year."
+    },
+    "total_assets_bs_end": {
+      "canonical": "EOYAmt",
+      "xpath": "TotalAssetsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "TotalAssetsGrp/EOYAmt (idx 560) maps to Part X, line 16 \u2014 total assets at end of year."
+    },
+    "accounts_payable_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "AccountsPayableAccrExpnssGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "AccountsPayableAccrExpnssGrp/BOYAmt (idx 6) maps to Part X, line 17 \u2014 accounts payable and accrued expenses at beginning of year."
+    },
+    "accounts_payable_end": {
+      "canonical": "EOYAmt",
+      "xpath": "AccountsPayableAccrExpnssGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "AccountsPayableAccrExpnssGrp/EOYAmt (idx 7) maps to Part X, line 17 \u2014 accounts payable and accrued expenses at end of year."
+    },
+    "grants_payable_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "GrantsPayableGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "GrantsPayableGrp/BOYAmt (idx 226) maps to Part X, line 18 \u2014 grants payable at beginning of year."
+    },
+    "grants_payable_end": {
+      "canonical": "EOYAmt",
+      "xpath": "GrantsPayableGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "GrantsPayableGrp/EOYAmt (idx 227) maps to Part X, line 18 \u2014 grants payable at end of year."
+    },
+    "deferred_revenue_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "DeferredRevenueGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "DeferredRevenueGrp/BOYAmt (idx 112) maps to Part X, line 19 \u2014 deferred revenue at beginning of year."
+    },
+    "deferred_revenue_end": {
+      "canonical": "EOYAmt",
+      "xpath": "DeferredRevenueGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "DeferredRevenueGrp/EOYAmt (idx 113) maps to Part X, line 19 \u2014 deferred revenue at end of year."
+    },
+    "tax_exempt_bond_liabilities_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "TaxExemptBondLiabilitiesGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "TaxExemptBondLiabilitiesGrp/BOYAmt (idx 545) maps to Part X, line 20 \u2014 tax-exempt bond liabilities at beginning of year."
+    },
+    "tax_exempt_bond_liabilities_end": {
+      "canonical": "EOYAmt",
+      "xpath": "TaxExemptBondLiabilitiesGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "TaxExemptBondLiabilitiesGrp/EOYAmt (idx 546) maps to Part X, line 20 \u2014 tax-exempt bond liabilities at end of year."
+    },
+    "escrow_liability_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "EscrowAccountLiabilityGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "EscrowAccountLiabilityGrp/BOYAmt (idx 139) maps to Part X, line 21 \u2014 escrow or custodial account liability at beginning of year."
+    },
+    "escrow_liability_end": {
+      "canonical": "EOYAmt",
+      "xpath": "EscrowAccountLiabilityGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "EscrowAccountLiabilityGrp/EOYAmt (idx 140) maps to Part X, line 21 \u2014 escrow or custodial account liability at end of year."
+    },
+    "loans_payable_officers_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "LoansFromOfficersDirectorsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "LoansFromOfficersDirectorsGrp/BOYAmt (idx 313) maps to Part X, line 22 \u2014 loans payable to officers and directors at beginning of year."
+    },
+    "loans_payable_officers_end": {
+      "canonical": "EOYAmt",
+      "xpath": "LoansFromOfficersDirectorsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "LoansFromOfficersDirectorsGrp/EOYAmt (idx 314) maps to Part X, line 22 \u2014 loans payable to officers and directors at end of year."
+    },
+    "secured_mortgages_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "MortgNotesPyblScrdInvstPropGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "MortgNotesPyblScrdInvstPropGrp/BOYAmt (idx 335) maps to Part X, line 23 \u2014 secured mortgages and notes payable at beginning of year."
+    },
+    "secured_mortgages_end": {
+      "canonical": "EOYAmt",
+      "xpath": "MortgNotesPyblScrdInvstPropGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "MortgNotesPyblScrdInvstPropGrp/EOYAmt (idx 336) maps to Part X, line 23 \u2014 secured mortgages and notes payable at end of year."
+    },
+    "unsecured_notes_payable_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "UnsecuredNotesLoansPayableGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "UnsecuredNotesLoansPayableGrp/BOYAmt (idx 611) maps to Part X, line 24 \u2014 unsecured notes and loans payable at beginning of year."
+    },
+    "unsecured_notes_payable_end": {
+      "canonical": "EOYAmt",
+      "xpath": "UnsecuredNotesLoansPayableGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "UnsecuredNotesLoansPayableGrp/EOYAmt (idx 612) maps to Part X, line 24 \u2014 unsecured notes and loans payable at end of year."
+    },
+    "other_liabilities_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "OtherLiabilitiesGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "OtherLiabilitiesGrp/BOYAmt (idx 405) maps to Part X, line 25 \u2014 other liabilities at beginning of year."
+    },
+    "other_liabilities_end": {
+      "canonical": "EOYAmt",
+      "xpath": "OtherLiabilitiesGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "OtherLiabilitiesGrp/EOYAmt (idx 406) maps to Part X, line 25 \u2014 other liabilities at end of year."
+    },
+    "total_liabilities_bs_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "TotalLiabilitiesGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "TotalLiabilitiesGrp/BOYAmt (idx 576) maps to Part X, line 26 \u2014 total liabilities at beginning of year."
+    },
+    "total_liabilities_bs_end": {
+      "canonical": "EOYAmt",
+      "xpath": "TotalLiabilitiesGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "TotalLiabilitiesGrp/EOYAmt (idx 577) maps to Part X, line 26 \u2014 total liabilities at end of year."
+    },
+    "net_assets_unrestricted_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "NoDonorRestrictionNetAssetsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "NoDonorRestrictionNetAssetsGrp/BOYAmt (idx 363) maps to Part X, line 27 \u2014 net assets without donor restrictions at beginning of year."
+    },
+    "net_assets_unrestricted_end": {
+      "canonical": "EOYAmt",
+      "xpath": "NoDonorRestrictionNetAssetsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "NoDonorRestrictionNetAssetsGrp/EOYAmt (idx 364) maps to Part X, line 27 \u2014 net assets without donor restrictions at end of year."
+    },
+    "net_assets_restricted_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "DonorRestrictionNetAssetsGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "DonorRestrictionNetAssetsGrp/BOYAmt (idx 130) maps to Part X, line 28 \u2014 net assets with donor restrictions at beginning of year."
+    },
+    "net_assets_restricted_end": {
+      "canonical": "EOYAmt",
+      "xpath": "DonorRestrictionNetAssetsGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "DonorRestrictionNetAssetsGrp/EOYAmt (idx 131) maps to Part X, line 28 \u2014 net assets with donor restrictions at end of year."
+    },
+    "total_net_assets_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "TotalNetAssetsFundBalanceGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "TotalNetAssetsFundBalanceGrp/BOYAmt (idx 579) maps to Part X, line 33 \u2014 total net assets or fund balances at beginning of year."
+    },
+    "total_net_assets_end": {
+      "canonical": "EOYAmt",
+      "xpath": "TotalNetAssetsFundBalanceGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "TotalNetAssetsFundBalanceGrp/EOYAmt (idx 580) maps to Part X, line 33 \u2014 total net assets or fund balances at end of year."
+    },
+    "total_liabilities_and_net_assets_beginning": {
+      "canonical": "BOYAmt",
+      "xpath": "TotLiabNetAssetsFundBalanceGrp/BOYAmt",
+      "confidence": "high",
+      "rationale": "TotLiabNetAssetsFundBalanceGrp/BOYAmt (idx 553) maps to Part X, line 34 \u2014 total liabilities and net assets at beginning of year."
+    },
+    "total_liabilities_and_net_assets_end": {
+      "canonical": "EOYAmt",
+      "xpath": "TotLiabNetAssetsFundBalanceGrp/EOYAmt",
+      "confidence": "high",
+      "rationale": "TotLiabNetAssetsFundBalanceGrp/EOYAmt (idx 554) maps to Part X, line 34 \u2014 total liabilities and net assets at end of year."
+    },
+    "total_revenue_reconciliation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Part XI, line 1 (total revenue carried into reconciliation) does not have a dedicated leaf element in the closed candidate list distinct from Part VIII line 12; no specific reconciliation carry-forward element exists."
+    },
+    "total_expenses_reconciliation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Part XI, line 2 (total expenses carried into reconciliation) does not have a dedicated leaf element in the closed candidate list; no specific reconciliation carry-forward element exists."
+    },
+    "revenue_less_expenses_reconciliation": {
+      "canonical": "ReconcilationRevenueExpnssAmt",
+      "xpath": "ReconcilationRevenueExpnssAmt",
+      "confidence": "medium",
+      "rationale": "ReconcilationRevenueExpnssAmt (idx 505) maps to Part XI, line 3 \u2014 revenue less expenses in the reconciliation."
+    },
+    "net_assets_beginning_reconciliation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Part XI, line 4 (net assets at beginning of year from Part X, line 33) does not have a dedicated leaf element distinct from the balance sheet elements in the closed candidate list."
+    },
+    "net_unrealized_gains_on_investments": {
+      "canonical": "NetUnrlzdGainsLossesInvstAmt",
+      "xpath": "NetUnrlzdGainsLossesInvstAmt",
+      "confidence": "high",
+      "rationale": "NetUnrlzdGainsLossesInvstAmt (idx 361) maps to Part XI, line 5 \u2014 net unrealized gains or losses on investments."
+    },
+    "donated_services_use_of_facilities": {
+      "canonical": "DonatedServicesAndUseFcltsAmt",
+      "xpath": "DonatedServicesAndUseFcltsAmt",
+      "confidence": "high",
+      "rationale": "DonatedServicesAndUseFcltsAmt (idx 127) maps to Part XI, line 6 \u2014 donated services and use of facilities."
+    },
+    "investment_expenses": {
+      "canonical": "InvestmentExpenseAmt",
+      "xpath": "InvestmentExpenseAmt",
+      "confidence": "high",
+      "rationale": "InvestmentExpenseAmt (idx 286) maps to Part XI, line 7 \u2014 investment expenses not included in Part VIII, line 7b."
+    },
+    "prior_period_adjustments": {
+      "canonical": "PriorPeriodAdjustmentsAmt",
+      "xpath": "PriorPeriodAdjustmentsAmt",
+      "confidence": "high",
+      "rationale": "PriorPeriodAdjustmentsAmt (idx 464) maps to Part XI, line 8 \u2014 prior period adjustments."
+    },
+    "other_changes_net_assets": {
+      "canonical": "OtherChangesInNetAssetsAmt",
+      "xpath": "OtherChangesInNetAssetsAmt",
+      "confidence": "high",
+      "rationale": "OtherChangesInNetAssetsAmt (idx 392) maps to Part XI, line 9 \u2014 other changes in net assets or fund balances."
+    },
+    "net_assets_end_reconciliation": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Part XI, line 10 (net assets at end of year from reconciliation) does not have a dedicated leaf element in the closed candidate list distinct from the Part X balance sheet elements."
+    },
+    "accounting_method": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Accounting method is captured by three separate boolean indicators (MethodOfAccountingCashInd, MethodOfAccountingAccrualInd, MethodOfAccountingOtherInd); the blueprint bundles them into one category field \u2014 blueprint should refactor into three separate boolean fields."
+    },
+    "accounting_method_other": {
+      "canonical": "@methodOfAccountingOtherDesc",
+      "xpath": "MethodOfAccountingOtherInd/@methodOfAccountingOtherDesc",
+      "confidence": "high",
+      "rationale": "MethodOfAccountingOtherInd/@methodOfAccountingOtherDesc (idx 324) maps to Part XII, line 1 \u2014 description of accounting method when 'Other' is selected."
+    },
+    "financial_statements_compiled": {
+      "canonical": "AccountantCompileOrReviewInd",
+      "xpath": "AccountantCompileOrReviewInd",
+      "confidence": "high",
+      "rationale": "AccountantCompileOrReviewInd (idx 4) maps to Part XII, line 2a \u2014 whether the organization's financial statements were compiled or reviewed by an independent accountant."
+    },
+    "financial_statements_audited": {
+      "canonical": "FSAuditedInd",
+      "xpath": "FSAuditedInd",
+      "confidence": "high",
+      "rationale": "FSAuditedInd (idx 146) maps to Part XII, line 2b \u2014 whether the organization's financial statements were audited by an independent accountant."
+    },
+    "audit_committee_exists": {
+      "canonical": "AuditCommitteeInd",
+      "xpath": "AuditCommitteeInd",
+      "confidence": "high",
+      "rationale": "AuditCommitteeInd (idx 30) maps to Part XII, line 2c \u2014 whether the organization had an audit committee overseeing financial statements."
+    },
+    "financial_statements_available_to_governing_body": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Part XII, line 3a (whether financial results were available to the governing body before filing) does not appear as a distinct leaf element in the closed candidate list."
+    },
+    "financial_statements_available_to_public": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Part XII, line 3b (whether financial results were available to the public before filing) does not appear as a distinct leaf element in the closed candidate list."
+    },
+    "signature_officer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The officer signature name is stored in the return header signature block, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "signature_officer_title": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The officer signature title is stored in the return header signature block, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "signature_date": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The signature date is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer information is stored in the return header (ReturnHeader/Preparer), not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_ptin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer PTIN is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_self_employed": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer self-employed checkbox is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_firm_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm name is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_firm_ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm EIN is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_firm_address": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm address is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_firm_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer firm city/state/zip is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "preparer_phone": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Preparer phone number is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    },
+    "irs_discuss_with_preparer": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "The IRS discuss with preparer authorization is stored in the return header, not as a leaf element within IRS990; no matching candidate exists in the closed list."
+    }
+  }
+}

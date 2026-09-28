@@ -1,0 +1,197 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "1099_r",
+    "form_root": "IRS1099R"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1099R.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:18:05+00:00",
+  "blueprint": {
+    "path": "blueprints/1099_r.bpt",
+    "name": "form_1099_r"
+  },
+  "fields": {
+    "tax_year": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year is a form-level metadata attribute (typically an XML attribute or wrapper element on IRS1099R) and does not correspond to any leaf element in the candidate list."
+    },
+    "corrected": {
+      "canonical": "CorrectedInd",
+      "xpath": "CorrectedInd",
+      "confidence": "high",
+      "rationale": "CorrectedInd directly maps to the CORRECTED checkbox at the top of the form."
+    },
+    "payer_name": {
+      "canonical": "BusinessNameLine1Txt",
+      "xpath": "PayerName//BusinessNameLine1Txt",
+      "confidence": "high",
+      "rationale": "BusinessNameLine1Txt under PayerName xpath is the primary name line for the payer's name block."
+    },
+    "payer_street": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "PayerUSAddress/AddressLine1Txt",
+      "confidence": "high",
+      "rationale": "AddressLine1Txt under PayerUSAddress matches the payer's street address; blueprint should also capture AddressLine2Txt (idx 36) for a complete address, but this is the primary street line."
+    },
+    "payer_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint bundles city, state, and ZIP into one string, but the canonical schema splits these into separate elements (CityNm, StateAbbreviationCd, ZIPCd) under PayerUSAddress \u2014 blueprint should be refactored into at least three separate fields."
+    },
+    "payer_tin": {
+      "canonical": "PayerEIN",
+      "xpath": "PayerEIN",
+      "confidence": "high",
+      "rationale": "PayerEIN directly corresponds to the PAYER'S TIN box on the form."
+    },
+    "recipient_tin": {
+      "canonical": "RecipientSSN",
+      "xpath": "RecipientSSN",
+      "confidence": "high",
+      "rationale": "RecipientSSN directly corresponds to the RECIPIENT'S TIN box on the form."
+    },
+    "recipient_name": {
+      "canonical": "RecipientNm",
+      "xpath": "RecipientNm",
+      "confidence": "high",
+      "rationale": "RecipientNm directly maps to the recipient's name block on the form."
+    },
+    "recipient_street": {
+      "canonical": "AddressLine1Txt",
+      "xpath": "RecipientUSAddress/AddressLine1Txt",
+      "confidence": "high",
+      "rationale": "AddressLine1Txt under RecipientUSAddress matches the recipient's street address line."
+    },
+    "recipient_city_state_zip": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint bundles city, state, and ZIP into one string, but canonical schema splits these into separate elements under RecipientUSAddress \u2014 blueprint should be refactored into at least three separate fields."
+    },
+    "account_number": {
+      "canonical": "PayerRecipientAccountNum",
+      "xpath": "PayerRecipientAccountNum",
+      "confidence": "high",
+      "rationale": "PayerRecipientAccountNum directly corresponds to the Account number box on the form."
+    },
+    "box_1_gross_distribution": {
+      "canonical": "GrossDistributionAmt",
+      "xpath": "GrossDistributionAmt",
+      "confidence": "high",
+      "rationale": "GrossDistributionAmt directly maps to Box 1 \u2014 Gross distribution."
+    },
+    "box_2a_taxable_amount": {
+      "canonical": "TaxableAmt",
+      "xpath": "TaxableAmt",
+      "confidence": "high",
+      "rationale": "TaxableAmt directly maps to Box 2a \u2014 Taxable amount."
+    },
+    "box_2b_taxable_amount_not_determined": {
+      "canonical": "TxblAmountNotDeterminedInd",
+      "xpath": "TxblAmountNotDeterminedInd",
+      "confidence": "high",
+      "rationale": "TxblAmountNotDeterminedInd directly maps to the Box 2b 'Taxable amount not determined' checkbox."
+    },
+    "box_2b_total_distribution": {
+      "canonical": "TotalDistributionInd",
+      "xpath": "TotalDistributionInd",
+      "confidence": "high",
+      "rationale": "TotalDistributionInd directly maps to the Box 2b 'Total distribution' checkbox."
+    },
+    "box_3_capital_gain": {
+      "canonical": "CapitalGainAmt",
+      "xpath": "CapitalGainAmt",
+      "confidence": "high",
+      "rationale": "CapitalGainAmt directly maps to Box 3 \u2014 Capital gain."
+    },
+    "box_4_federal_income_tax_withheld": {
+      "canonical": "FederalIncomeTaxWithheldAmt",
+      "xpath": "FederalIncomeTaxWithheldAmt",
+      "confidence": "high",
+      "rationale": "FederalIncomeTaxWithheldAmt directly maps to Box 4 \u2014 Federal income tax withheld."
+    },
+    "box_5_employee_contributions": {
+      "canonical": "EmployeeContributionsAmt",
+      "xpath": "EmployeeContributionsAmt",
+      "confidence": "high",
+      "rationale": "EmployeeContributionsAmt directly maps to Box 5 \u2014 Employee contributions or insurance premiums."
+    },
+    "box_6_net_unrealized_appreciation": {
+      "canonical": "NetUnrlzdSecuritiesApprcnAmt",
+      "xpath": "NetUnrlzdSecuritiesApprcnAmt",
+      "confidence": "high",
+      "rationale": "NetUnrlzdSecuritiesApprcnAmt directly maps to Box 6 \u2014 Net unrealized appreciation in employer's securities."
+    },
+    "box_7_distribution_code": {
+      "canonical": "F1099RDistributionCd",
+      "xpath": "F1099RDistributionCd",
+      "confidence": "high",
+      "rationale": "F1099RDistributionCd directly maps to Box 7 \u2014 Distribution code(s)."
+    },
+    "box_7_ira_sep_simple": {
+      "canonical": "IRASEPSIMPLEInd",
+      "xpath": "IRASEPSIMPLEInd",
+      "confidence": "high",
+      "rationale": "IRASEPSIMPLEInd directly maps to the IRA/SEP/SIMPLE checkbox adjacent to Box 7."
+    },
+    "box_8_other": {
+      "canonical": "OtherDistributionAmt",
+      "xpath": "OtherDistributionAmt",
+      "confidence": "high",
+      "rationale": "OtherDistributionAmt directly maps to Box 8 \u2014 Other."
+    },
+    "box_9a_your_percentage_of_total_distribution": {
+      "canonical": "RcpntTotalDistributionPct",
+      "xpath": "RcpntTotalDistributionPct",
+      "confidence": "high",
+      "rationale": "RcpntTotalDistributionPct directly maps to Box 9a \u2014 Your percentage of total distribution."
+    },
+    "box_9b_total_employee_contributions": {
+      "canonical": "TotalEmployeeContributionsAmt",
+      "xpath": "TotalEmployeeContributionsAmt",
+      "confidence": "high",
+      "rationale": "TotalEmployeeContributionsAmt directly maps to Box 9b \u2014 Total employee contributions."
+    },
+    "box_10_amount_allocable_to_irr": {
+      "canonical": "IRRAllocatedAmt",
+      "xpath": "IRRAllocatedAmt",
+      "confidence": "high",
+      "rationale": "IRRAllocatedAmt directly maps to Box 10 \u2014 Amount allocable to IRR within 5 years."
+    },
+    "box_11_first_year_of_roth_contribution": {
+      "canonical": "DesignatedROTHAcctFirstYr",
+      "xpath": "DesignatedROTHAcctFirstYr",
+      "confidence": "high",
+      "rationale": "DesignatedROTHAcctFirstYr directly maps to Box 11 \u2014 1st year of designated Roth contributions."
+    },
+    "box_12_fatca_filing_requirement": {
+      "canonical": "FATCAFilingRequirementInd",
+      "xpath": "FATCAFilingRequirementInd",
+      "confidence": "high",
+      "rationale": "FATCAFilingRequirementInd directly maps to Box 12 \u2014 FATCA filing requirement checkbox."
+    },
+    "box_13_date_of_payment": {
+      "canonical": "PaymentDt",
+      "xpath": "PaymentDt",
+      "confidence": "high",
+      "rationale": "PaymentDt directly maps to Box 13 \u2014 Date of payment."
+    },
+    "state_entries": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint bundles state rows as an array, but the canonical schema splits these into distinct elements (StateTaxWithheldAmt at idx 14, PayerStateIdNum at idx 11, StateAbbreviationCd at idx 12, StateDistributionAmt at idx 13) within F1099RStateTaxGrp \u2014 blueprint should be refactored into individual scalar fields per state row rather than an array."
+    },
+    "local_entries": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Blueprint bundles local rows as an array, but canonical schema splits these into distinct elements (LocalTaxWithheldAmt at idx 9, LocalityNm at idx 10, LocalDistributionAmt at idx 8) within F1099RLocalTaxGrp \u2014 blueprint should be refactored into individual scalar fields per locality row rather than an array."
+    }
+  }
+}

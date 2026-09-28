@@ -1,0 +1,197 @@
+{
+  "binding": {
+    "schema": "irs_mef",
+    "version": "2026",
+    "form": "form_1065_schedule_b",
+    "form_root": "IRS1065ScheduleB"
+  },
+  "source_xsl": "PY2027R1/mef/Stylesheets/2026/IRS1065.xsl",
+  "model": "claude-sonnet-4-6",
+  "generated_at": "2026-06-25T02:35:12+00:00",
+  "blueprint": {
+    "path": "blueprints/_drafts/form_1065_schedule_b.bpt",
+    "name": "form_1065_schedule_b"
+  },
+  "fields": {
+    "partnership_name": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Partnership name is a header field on the return, not represented as a leaf element in the Schedule B XSD candidate list."
+    },
+    "ein": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Partnership EIN (Box D) is a header field on the main return, not a Schedule B leaf element; the EIN candidates here are all within child group elements (EntityOwnIntGrp, IndivOrEstateOwnIntGrp, etc.)."
+    },
+    "tax_year_begin": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year begin date is a header field on Form 1065 page 1, not present as a leaf element in the Schedule B candidate list."
+    },
+    "tax_year_end": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "high",
+      "rationale": "Tax year end date is a header field on Form 1065 page 1, not present as a leaf element in the Schedule B candidate list."
+    },
+    "entity_type": {
+      "canonical": null,
+      "xpath": null,
+      "confidence": "medium",
+      "rationale": "Schedule B question 1 entity type is split across multiple boolean indicators (DomesticGeneralPartnershipInd, DomesticLimitedPartnershipInd, DomesticLimitedLiabPrtshpInd, DomesticLimitedLiabilityCoInd, ForeignPartnershipInd, OtherInd); the blueprint bundles these into one category field and should be refactored into separate boolean fields matching each indicator."
+    },
+    "sb_q2a_foreign_domestic_corp_owns_50pct": {
+      "canonical": "EntOwnInt50PctOrMorePrtshpInd",
+      "xpath": "EntOwnInt50PctOrMorePrtshpInd",
+      "confidence": "high",
+      "rationale": "EntOwnInt50PctOrMorePrtshpInd maps to Schedule B question 2a about entities owning 50% or more interest in the partnership."
+    },
+    "sb_q2b_individual_estate_owns_50pct": {
+      "canonical": "IndivEstOwn50OrMorePrtshpInd",
+      "xpath": "IndivEstOwn50OrMorePrtshpInd",
+      "confidence": "high",
+      "rationale": "IndivEstOwn50OrMorePrtshpInd maps to Schedule B question 2b about individuals or estates owning 50% or more interest."
+    },
+    "sb_q3a_owns_20pct_or_50pct_corp": {
+      "canonical": "PercentTotalVtngPwrOwnOfStkInd",
+      "xpath": "PercentTotalVtngPwrOwnOfStkInd",
+      "confidence": "high",
+      "rationale": "PercentTotalVtngPwrOwnOfStkInd maps to Schedule B question 3a about the partnership owning 20%+ or 50%+ of voting power in any corporation."
+    },
+    "sb_q3b_owns_20pct_or_50pct_entity": {
+      "canonical": "OwnForeignOrDomesticPrtshpInd",
+      "xpath": "OwnForeignOrDomesticPrtshpInd",
+      "confidence": "high",
+      "rationale": "OwnForeignOrDomesticPrtshpInd maps to Schedule B question 3b about owning 20%+ or 50%+ interest in any foreign or domestic partnership or trust."
+    },
+    "sb_q4_meets_small_partnership_conditions": {
+      "canonical": "PrtshpSatisfyAllConditionsInd",
+      "xpath": "PrtshpSatisfyAllConditionsInd",
+      "confidence": "high",
+      "rationale": "PrtshpSatisfyAllConditionsInd maps to Schedule B question 4 about satisfying all conditions to skip Schedules L, M-1, M-2."
+    },
+    "is_publicly_traded_partnership": {
+      "canonical": "PubliclyTradedPartnershipInd",
+      "xpath": "PubliclyTradedPartnershipInd",
+      "confidence": "high",
+      "rationale": "PubliclyTradedPartnershipInd directly maps to Schedule B question 5 about being a publicly traded partnership."
+    },
+    "sb_q6_debt_canceled_modified": {
+      "canonical": "DebtCancelledForgivenModifInd",
+      "xpath": "DebtCancelledForgivenModifInd",
+      "confidence": "high",
+      "rationale": "DebtCancelledForgivenModifInd maps to Schedule B question 6 about debt canceled, forgiven, or modified."
+    },
+    "sb_q7_form_8918_material_advisor": {
+      "canonical": "FiledOrRequiredFileForm8918Ind",
+      "xpath": "FiledOrRequiredFileForm8918Ind",
+      "confidence": "high",
+      "rationale": "FiledOrRequiredFileForm8918Ind maps to Schedule B question 7 about filing Form 8918."
+    },
+    "sb_q8_foreign_financial_account": {
+      "canonical": "ForeignFinancialAccountInd",
+      "xpath": "ForeignFinancialAccountInd",
+      "confidence": "high",
+      "rationale": "ForeignFinancialAccountInd maps to Schedule B question 8 about having a foreign financial account."
+    },
+    "sb_q8_foreign_country": {
+      "canonical": "@foreignCountryCd",
+      "xpath": "ForeignFinancialAccountInd/@foreignCountryCd",
+      "confidence": "high",
+      "rationale": "@foreignCountryCd is the attribute on ForeignFinancialAccountInd holding the foreign country name for question 8."
+    },
+    "sb_q9_foreign_trust": {
+      "canonical": "ReceivedDistributionFrgnTrInd",
+      "xpath": "ReceivedDistributionFrgnTrInd",
+      "confidence": "high",
+      "rationale": "ReceivedDistributionFrgnTrInd maps to Schedule B question 9 about receiving distributions from or being grantor of a foreign trust."
+    },
+    "has_section_754_election": {
+      "canonical": "Section754ElectionInd",
+      "xpath": "Section754ElectionInd",
+      "confidence": "high",
+      "rationale": "Section754ElectionInd maps to Schedule B question 10a about having a section 754 election in effect."
+    },
+    "sb_q12_distributed_tenancy_in_common": {
+      "canonical": "TenancyInCommonInd",
+      "xpath": "TenancyInCommonInd",
+      "confidence": "high",
+      "rationale": "TenancyInCommonInd maps to Schedule B question 12 about distributing a tenancy-in-common or undivided interest."
+    },
+    "sb_q16a_filed_form_1099": {
+      "canonical": "RequiredToFileForms1099Ind",
+      "xpath": "RequiredToFileForms1099Ind",
+      "confidence": "high",
+      "rationale": "RequiredToFileForms1099Ind maps to Schedule B question 16a about whether payments were made requiring Form 1099 filing."
+    },
+    "sb_q16b_will_file_form_1099": {
+      "canonical": "RequiredForms1099FiledInd",
+      "xpath": "RequiredForms1099FiledInd",
+      "confidence": "high",
+      "rationale": "RequiredForms1099FiledInd maps to Schedule B question 16b about whether the required Form(s) 1099 were or will be filed."
+    },
+    "sb_q19_chapter3_chapter4_payments": {
+      "canonical": "RequiredToFileForms1042Ind",
+      "xpath": "RequiredToFileForms1042Ind",
+      "confidence": "high",
+      "rationale": "RequiredToFileForms1042Ind maps to Schedule B question 19 about payments requiring Forms 1042/1042-S under chapter 3 or 4."
+    },
+    "sb_q20_form_8938_specified_domestic": {
+      "canonical": "RequiredToFileForm8938Ind",
+      "xpath": "RequiredToFileForm8938Ind",
+      "confidence": "high",
+      "rationale": "RequiredToFileForm8938Ind maps to Schedule B question 20 about being a specified domestic entity required to file Form 8938."
+    },
+    "sb_q21_section_721c_partnership": {
+      "canonical": "Section721cPartnershipInd",
+      "xpath": "Section721cPartnershipInd",
+      "confidence": "high",
+      "rationale": "Section721cPartnershipInd maps to Schedule B question 21 about being a section 721(c) partnership."
+    },
+    "sb_q22_disallowed_interest_royalty": {
+      "canonical": "NondedIntRoyaltyUndSect267AInd",
+      "xpath": "NondedIntRoyaltyUndSect267AInd",
+      "confidence": "high",
+      "rationale": "NondedIntRoyaltyUndSect267AInd maps to Schedule B question 22 about interest or royalty disallowed under section 267A."
+    },
+    "sb_q23_section_163j_election": {
+      "canonical": "Section163jElectionInd",
+      "xpath": "Section163jElectionInd",
+      "confidence": "high",
+      "rationale": "Section163jElectionInd maps to Schedule B question 23 about a section 163(j) election for real property or farming business."
+    },
+    "sb_q25_qualified_opportunity_fund": {
+      "canonical": "Form8996AttachedInd",
+      "xpath": "Form8996AttachedInd",
+      "confidence": "high",
+      "rationale": "Form8996AttachedInd maps to Schedule B question 25 about the partnership intending to self-certify as a qualified opportunity fund."
+    },
+    "sb_q27_section_1707_transfers": {
+      "canonical": "TransfersSubjectToDisclRqrInd",
+      "xpath": "TransfersSubjectToDisclRqrInd",
+      "confidence": "high",
+      "rationale": "TransfersSubjectToDisclRqrInd maps to Schedule B question 27 about transfers subject to Regulations section 1.707-8 disclosure requirements."
+    },
+    "sb_q30_digital_asset": {
+      "canonical": "VirtualCurAcquiredDurTYInd",
+      "xpath": "VirtualCurAcquiredDurTYInd",
+      "confidence": "high",
+      "rationale": "VirtualCurAcquiredDurTYInd maps to Schedule B question 30 about receiving, selling, or disposing of a digital asset during the tax year."
+    },
+    "sb_q32_subchapter_k_election_out": {
+      "canonical": "ElectOutSubchapterKSect761Ind",
+      "xpath": "ElectOutSubchapterKSect761Ind",
+      "confidence": "high",
+      "rationale": "ElectOutSubchapterKSect761Ind maps to Schedule B question 32 about electing out of subchapter K under section 761."
+    },
+    "is_bba_election_out": {
+      "canonical": "ElectOutUnderSection6221bInd",
+      "xpath": "ElectOutUnderSection6221bInd",
+      "confidence": "high",
+      "rationale": "ElectOutUnderSection6221bInd maps to Schedule B question 33 about electing out of the centralized partnership audit regime under section 6221(b)."
+    }
+  }
+}
