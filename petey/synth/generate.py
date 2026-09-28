@@ -91,6 +91,74 @@ dollars for IRS forms.
 """
 
 
+BLIND_SYSTEM_PROMPT = """You generate one realistic filled case for a blank form. \
+You see the form's page image with a numbered red box drawn on every \
+fillable widget, and an inventory that lists each box number with its \
+control type. Nothing else about the widgets is given: read the printed \
+label next to each box on the page and fill it with a value that makes \
+sense there.
+
+OUTPUT SHAPE:
+- Return JSON only. No prose, no markdown, no code fences.
+- Top-level shape: {"values": {"<box number>": <value>, ...}}
+- One entry per box in the inventory.
+- Values by type:
+  * text     → string. Realistic per the printed label (name, SSN, \
+address, date, money amount, etc.). Respect `maxlen` when given: the \
+box holds that many characters, so write an SSN as 9 digits in a \
+9-character box.
+  * checkbox → true (checked) or false (unchecked). ALWAYS a JSON bool.
+  * radio    → the box number of the ONE option to select, from its \
+`options` list, as a string; or null to leave the group unselected.
+  * combobox → one of the listed `choices`.
+- Use `null` for boxes that are legitimately blank on real filings \
+(optional sub-totals, "Other" description when Other isn't selected, \
+reserved fields).
+
+GROUND EVERY VALUE IN THIS DOCUMENT. You may recognize this form. Do \
+not fill it from that recollection: revisions change field sets, line \
+numbering and layout, and the page image supplied here is authoritative \
+for THIS file. Fill a box from the label printed next to it, not from \
+where you remember that field living.
+
+UNIQUENESS:
+- Every text value in the case must be recognizably unique. Do NOT reuse \
+the same value across boxes. The case is used to check that extraction \
+pulls the right value out of the right box, so distinct values per box \
+are required.
+
+COHERENCE:
+- ZIP / state / phone area code align (e.g., MA ZIP 01xxx, area 617).
+- Dates flow logically (birth < service < today; policy effective < \
+expiration by 12 months).
+- Related amounts have plausible relative sizes.
+- Names formatted "Last, First M" unless the label describes a business, \
+trust, estate, or organization.
+
+FIDELITY:
+- Use real US city names. Vary across cases.
+- SSNs: area numbers 100-899. EINs: XX-XXXXXXX.
+- ISO dates for date fields: YYYY-MM-DD, unless the box shows a \
+different printed format (MM/DD/YYYY) or is a single date part.
+- Money: dollars-and-cents for healthcare / insurance / payroll; whole \
+dollars for IRS forms.
+"""
+
+
+BLIND_USER_TEMPLATE = """Boxes on this page:
+
+```json
+{inventory_json}
+```
+
+The page image is attached with each box number drawn at the top-left \
+corner of its red rectangle. Fill every box per the label printed next \
+to it. Return JSON:
+
+{{"values": {{"<box number>": <value>, ...}}}}
+"""
+
+
 USER_TEMPLATE = """Widget inventory:
 
 ```json
@@ -195,6 +263,127 @@ def enumerate_widgets(pdf_path: Path) -> list[dict]:
     return grouped
 
 
+_COMB_FLAG = 1 << 24
+
+
+def blind_inventory(pdf_path: Path) -> tuple[dict[int, list[dict]], dict[str, dict]]:
+    """The leak-minimized view of a form's widgets.
+
+    Returns `(per_page_boxes, key)`. `per_page_boxes[page]` is what the
+    model sees: `{id, type}` plus `maxlen` for text, `options` (member
+    box ids) for a radio group, `choices` for a combobox, and the box
+    rect for drawing. `key[id]` is what stays local: the AcroForm path
+    and, for radio members, the on-state — the publisher's names never
+    reach the model, so its values cannot be steered by the same evidence
+    the labeler uses.
+    """
+    doc = pymupdf.open(str(pdf_path))
+    per_page: dict[int, list[dict]] = {}
+    key: dict[str, dict] = {}
+    next_id = 1
+    radio_groups: dict[str, dict] = {}
+    try:
+        for page_no, page in enumerate(doc, start=1):
+            boxes = per_page.setdefault(page_no, [])
+            for w in page.widgets() or []:
+                wt = _widget_type_string(w.field_type)
+                if wt in ("signature", "unknown"):
+                    continue
+                if (w.field_flags or 0) & (1 << 16):  # pushbutton
+                    continue
+                bid = str(next_id)
+                next_id += 1
+                rect = [round(c, 2) for c in w.rect]
+                if wt == "radiobutton":
+                    g = radio_groups.get(w.field_name)
+                    if g is None:
+                        gid = str(next_id)
+                        next_id += 1
+                        g = {"id": gid, "type": "radio", "options": [],
+                             "rect": rect, "_page": page_no}
+                        radio_groups[w.field_name] = g
+                        boxes.append(g)
+                        key[gid] = {"path": w.field_name, "type": "radio"}
+                    g["options"].append(bid)
+                    boxes.append({"id": bid, "type": "radio_option",
+                                  "of": g["id"], "rect": rect})
+                    key[bid] = {"path": w.field_name, "type": "radio_option",
+                                "on_state": _unescape_pdf_name(w.on_state())}
+                    continue
+                entry = {"id": bid, "type": wt, "rect": rect}
+                if wt == "text":
+                    maxlen = int(w.text_maxlen or 0)
+                    if maxlen:
+                        entry["maxlen"] = maxlen
+                    if (w.field_flags or 0) & _COMB_FLAG:
+                        entry["comb"] = True
+                elif wt in ("combobox", "listbox") and w.choice_values:
+                    entry["choices"] = list(w.choice_values)
+                boxes.append(entry)
+                key[bid] = {"path": w.field_name, "type": wt}
+    finally:
+        doc.close()
+    return per_page, key
+
+
+def _model_view(boxes: list[dict]) -> list[dict]:
+    """Strip the drawing-only keys before the inventory goes to the model."""
+    out = []
+    for b in boxes:
+        if b["type"] == "radio_option":
+            continue
+        e = {k: v for k, v in b.items() if k not in ("rect", "_page")}
+        out.append(e)
+    return out
+
+
+def render_annotated_pages(pdf_path: Path, per_page: dict[int, list[dict]],
+                           dpi: int = PAGE_DPI) -> list[bytes]:
+    """Page PNGs with a numbered red box drawn on every widget."""
+    doc = pymupdf.open(str(pdf_path))
+    out: list[bytes] = []
+    try:
+        for page_no, page in enumerate(doc, start=1):
+            for b in per_page.get(page_no, []):
+                if b["type"] == "radio":
+                    continue  # the group has no box of its own; members do
+                r = pymupdf.Rect(*b["rect"])
+                page.draw_rect(r, color=(1, 0, 0), width=0.6)
+                fs = 5 if r.height < 9 else 6
+                page.insert_text(pymupdf.Point(r.x0 + 0.8, r.y0 + fs + 0.4),
+                                 b["id"], fontsize=fs, color=(1, 0, 0),
+                                 fontname="helv")
+            pix = page.get_pixmap(dpi=dpi)
+            out.append(pix.tobytes("png"))
+    finally:
+        doc.close()
+    return out
+
+
+def unblind(values: dict[str, Any], key: dict[str, dict]) -> dict[str, Any]:
+    """Model output `{box id: value}` -> `{acroform_path: value}`."""
+    out: dict[str, Any] = {}
+    for bid, v in values.items():
+        k = key.get(str(bid))
+        if k is None:
+            continue
+        if k["type"] == "radio":
+            if v in (None, ""):
+                out[k["path"]] = None
+                continue
+            member = key.get(str(v))
+            if member and member["type"] == "radio_option" \
+                    and member["path"] == k["path"]:
+                out[k["path"]] = member.get("on_state")
+            else:
+                out[k["path"]] = None
+        elif k["type"] == "radio_option":
+            continue
+        else:
+            out[k["path"]] = v
+    return out
+
+
 def render_page_pngs(pdf_path: Path, dpi: int = PAGE_DPI) -> list[bytes]:
     """Render each page to PNG bytes for the multimodal prompt."""
     doc = pymupdf.open(str(pdf_path))
@@ -234,10 +423,17 @@ def _extract_json_object(text: str) -> Optional[dict]:
 
 def _call_llm_one_page(
     client, model: str, page_png: bytes, page_inventory: list[dict],
+    blind: bool = False,
 ) -> dict[str, Any]:
-    """One LLM call for one page's widgets. Returns `{path: value}`."""
+    """One LLM call for one page's widgets. Returns `{path: value}`
+    (or `{box id: value}` in blind mode; the caller unblinds)."""
     inventory_json = json.dumps(page_inventory, indent=2)
-    user_text = USER_TEMPLATE.format(inventory_json=inventory_json)
+    if blind:
+        user_text = BLIND_USER_TEMPLATE.format(inventory_json=inventory_json)
+        system = BLIND_SYSTEM_PROMPT
+    else:
+        user_text = USER_TEMPLATE.format(inventory_json=inventory_json)
+        system = SYSTEM_PROMPT
     content = [
         {
             "type": "image",
@@ -252,7 +448,7 @@ def _call_llm_one_page(
     with client.messages.stream(
         model=model,
         max_tokens=MAX_TOKENS,
-        system=SYSTEM_PROMPT,
+        system=system,
         messages=[{"role": "user", "content": content}],
     ) as stream:
         final = stream.get_final_message()
@@ -279,8 +475,16 @@ def generate_from_pdf(
     model: str = MODEL,
     cache_dir: Optional[Path] = None,
     cache_key_prefix: Optional[str] = None,
+    blind: bool = True,
+    client: Any = None,
 ) -> list[dict[str, Any]]:
     """Generate N cases. Each case is `{path: value}` covering every widget.
+
+    `blind` (default) shows the model numbered boxes on the page image and
+    an inventory of ids and control types only — no AcroForm names, no
+    export values — and maps ids back to paths here (`blind_inventory`,
+    `unblind`). `blind=False` is the original prompt with the full
+    inventory. `client` lets a test inject a stand-in for the API.
 
     One LLM call per page, so total response tokens scale with widgets-per-
     page, not widgets-per-form. Necessary for forms like 990-PF (1147 widgets
@@ -310,6 +514,8 @@ def generate_from_pdf(
         h.update(pdf_bytes)
         h.update(b"\x00")
         h.update(model.encode("utf-8"))
+        if blind:
+            h.update(b"\x00blind")
         h.update(b"\x00")
         h.update((cache_key_prefix or "").encode("utf-8"))
         h.update(b"\x00")
@@ -317,14 +523,18 @@ def generate_from_pdf(
         cache_dir.mkdir(parents=True, exist_ok=True)
         return cache_dir / f"{h.hexdigest()}.json"
 
-    inventory = enumerate_widgets(pdf_path)
-    page_pngs = render_page_pngs(pdf_path)
+    key: dict[str, dict] = {}
+    if blind:
+        per_page, key = blind_inventory(pdf_path)
+        page_pngs = render_annotated_pages(pdf_path, per_page)
+        by_page = {p: _model_view(b) for p, b in per_page.items() if b}
+    else:
+        inventory = enumerate_widgets(pdf_path)
+        page_pngs = render_page_pngs(pdf_path)
+        by_page = {}
+        for entry in inventory:
+            by_page.setdefault(entry["page"], []).append(entry)
 
-    by_page: dict[int, list[dict]] = {}
-    for entry in inventory:
-        by_page.setdefault(entry["page"], []).append(entry)
-
-    client: Any = None
     cases: list[dict[str, Any]] = []
     for i in range(n):
         cp = _cache_path_for(i)
@@ -338,10 +548,64 @@ def generate_from_pdf(
             page_inventory = by_page[page_no]
             page_png = page_pngs[page_no - 1]
             values = _call_llm_one_page(
-                client, model, page_png, page_inventory,
+                client, model, page_png, page_inventory, blind=blind,
             )
+            if blind:
+                values = unblind(values, key)
             merged.update(values)
         if cp is not None:
             cp.write_text(json.dumps(merged, indent=2))
         cases.append(merged)
     return cases
+
+
+def dry_run(pdf_path: Path, out_dir: Path) -> dict:
+    """Write exactly what the blind generator would send: one annotated
+    PNG per page and the per-page inventory; the id->path key separately.
+    Lets the leak surface be eyeballed without an API call."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    per_page, key = blind_inventory(pdf_path)
+    pngs = render_annotated_pages(pdf_path, per_page)
+    payload = {}
+    for page_no, png in enumerate(pngs, start=1):
+        boxes = per_page.get(page_no, [])
+        if not boxes:
+            continue
+        (out_dir / f"page_{page_no:02d}.png").write_bytes(png)
+        payload[page_no] = _model_view(boxes)
+    (out_dir / "model_view.json").write_text(json.dumps(payload, indent=1))
+    (out_dir / "key.json").write_text(json.dumps(key, indent=1))
+    n_boxes = sum(len(v) for v in payload.values())
+    return {"pages": len(payload), "boxes": n_boxes, "out": str(out_dir)}
+
+
+def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser(
+        description="Synthetic ground truth from a blank form (multimodal LLM).")
+    ap.add_argument("pdf", type=Path)
+    ap.add_argument("--dry-run", type=Path, metavar="DIR",
+                    help="write the blind payload (annotated pages + inventory) "
+                         "to DIR and stop; no API call")
+    ap.add_argument("--n", type=int, default=1)
+    ap.add_argument("--model", default=MODEL)
+    ap.add_argument("--full-inventory", action="store_true",
+                    help="original prompt: paths and export values go to the model")
+    ap.add_argument("--out", type=Path)
+    args = ap.parse_args()
+    if args.dry_run:
+        print(dry_run(args.pdf, args.dry_run))
+        return 0
+    cases = generate_from_pdf(args.pdf, n=args.n, model=args.model,
+                              blind=not args.full_inventory)
+    text = json.dumps(cases, indent=2)
+    if args.out:
+        args.out.write_text(text)
+        print(f"[ok] {len(cases)} case(s) -> {args.out}")
+    else:
+        print(text)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

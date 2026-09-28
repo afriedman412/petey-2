@@ -184,7 +184,7 @@ def _run_case(
         # Model-free: values drawn from the blueprint's own types,
         # patterns, semantic types and rules (STRATEGY_v1 §3.6). Keyed
         # on the case key so reruns reproduce.
-        gt = generate_local(bpt, seed=seed_from_key(gen_cache_key))
+        gt = generate_local(bpt, blank_pdf, seed=seed_from_key(gen_cache_key))
     else:
         gt = generate_from_pdf(
             blank_pdf, n=1, model=gen_model or model,

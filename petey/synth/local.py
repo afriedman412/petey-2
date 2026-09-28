@@ -247,14 +247,105 @@ def _held(spec: dict, gt: dict) -> bool:
     return v not in (None, "", False, "Off")
 
 
+_COMB_FLAG = 1 << 24
+_PT_PER_CHAR = 5.5   # a 9-10pt form font, roughly
+
+
+def widget_limits(blank_pdf: Optional[Path]) -> dict[str, dict]:
+    """`{path: {maxlen, comb, width}}` from the blank's AcroForm layer.
+
+    The first f1040 run put three-word strings into two-digit comb boxes
+    and dashed SSNs into nine-cell combs; every flat disagreement was a
+    value that did not fit. The generator has to know the box.
+    """
+    if not blank_pdf:
+        return {}
+    import pymupdf
+    out: dict[str, dict] = {}
+    try:
+        doc = pymupdf.open(str(blank_pdf))
+    except Exception:
+        return {}
+    try:
+        for page in doc:
+            for w in page.widgets() or []:
+                if w.field_type != pymupdf.PDF_WIDGET_TYPE_TEXT:
+                    continue
+                out[w.field_name] = {
+                    "maxlen": int(w.text_maxlen or 0),
+                    "comb": bool((w.field_flags or 0) & _COMB_FLAG),
+                    "width": float(w.rect.width),
+                }
+    finally:
+        doc.close()
+    return out
+
+
+_SUFFIX_DIGITS = {
+    "_mm": lambda r: f"{r.randint(1, 12):02d}",
+    "_dd": lambda r: f"{r.randint(1, 28):02d}",
+    "_yyyy": lambda r: str(r.randint(2018, 2026)),
+    "_yy": lambda r: f"{r.randint(18, 26):02d}",
+    "_pin": lambda r: str(r.randint(100000, 999999)),
+    "_ptin": lambda r: f"P{r.randint(10000000, 99999999)}",
+    "_no": lambda r: str(r.randint(1000, 99999)),
+    "_num": lambda r: str(r.randint(1000, 99999)),
+    "_number": lambda r: str(r.randint(1000, 99999)),
+    "_id": lambda r: str(r.randint(10000, 999999)),
+    "_ct": lambda r: str(r.randint(0, 12)),
+    "_pct": lambda r: str(r.choice([5, 10, 25, 50])),
+    "_amt": lambda r: _money(r),
+}
+
+
+def _by_suffix(name: str, rng: random.Random) -> Optional[str]:
+    low = name.lower()
+    for suf, gen in _SUFFIX_DIGITS.items():
+        if low.endswith(suf) or f"{suf}_" in low:
+            return gen(rng)
+    return None
+
+
+def fit_to_widget(value: Any, limits: Optional[dict], spec: dict,
+                  rng: random.Random) -> Any:
+    """Shorten a generated string so the box can hold it.
+
+    Comb / max-length fields drop separators first, then truncate. Wide
+    free-text boxes keep the value; narrow ones get a value whose length
+    fits the rect at a typical form font size.
+    """
+    if not isinstance(value, str) or not value or not limits:
+        return value
+    v = value
+    maxlen = limits.get("maxlen") or 0
+    if maxlen and len(v) > maxlen:
+        compact = re.sub(r"[^A-Za-z0-9]", "", v)
+        v = compact if compact else v
+        if len(v) > maxlen:
+            v = v[:maxlen]
+        return v
+    if spec.get("pattern"):
+        return v  # shape wins; the box was drawn for it
+    budget = int(limits.get("width", 0) / _PT_PER_CHAR) if limits.get("width") else 0
+    if budget and len(v) > budget:
+        words = v.split()
+        while len(words) > 1 and len(" ".join(words)) > budget:
+            words.pop()
+        v = " ".join(words)
+        if len(v) > budget:
+            v = v[:max(budget, 2)]
+    return v
+
+
 def generate_local(
-    bpt: dict, *, seed: int = 0, fill_rate: float = 0.85,
-    check_rate: float = 0.4,
+    bpt: dict, blank_pdf: Optional[Path] = None, *, seed: int = 0,
+    fill_rate: float = 0.85, check_rate: float = 0.4,
 ) -> dict[str, Any]:
     """`{acroform_path: value}` for every widget the blueprint owns."""
     rng = random.Random(seed)
     gt: dict[str, Any] = {}
     fields: dict[str, dict] = bpt.get("fields", {})
+    limits = widget_limits(blank_pdf)
     for name, spec in fields.items():
         ftype = spec.get("type", "string")
         widgets = spec.get("widgets")
@@ -278,7 +369,13 @@ def generate_local(
             gt[path] = rng.random() < check_rate
         else:
             if spec.get("required") or rng.random() < fill_rate:
-                gt[path] = value_for(spec, rng)
+                v = None
+                if ftype == "string" and not spec.get("semantic_type") \
+                        and not spec.get("pattern"):
+                    v = _by_suffix(name, rng)
+                if v is None:
+                    v = value_for(spec, rng)
+                gt[path] = fit_to_widget(v, limits.get(path), spec, rng)
             else:
                 gt[path] = ""
 
@@ -297,11 +394,13 @@ def seed_from_key(key: Optional[str]) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Model-free ground truth from a blueprint.")
     ap.add_argument("bpt", type=Path)
+    ap.add_argument("--blank", type=Path, default=None,
+                    help="blank PDF; values are sized to its widgets")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", type=Path)
     args = ap.parse_args()
     bpt = yaml.safe_load(args.bpt.read_text(encoding="utf-8"))
-    gt = generate_local(bpt, seed=args.seed)
+    gt = generate_local(bpt, args.blank, seed=args.seed)
     text = json.dumps(gt, indent=2)
     if args.out:
         args.out.write_text(text)
