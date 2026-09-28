@@ -59,6 +59,8 @@ from petey.label.page_signature import collapse_copy_pages
 from petey.label.vocab import load_form_vocab
 from petey.label.retrieve import Embedder, match_labels_to_widgets
 from petey.semantic_types import enrich_field
+from petey.locate import enumerate_geometry
+from petey.locate.acroform import enumerate_widgets, _widget_type_string, _unescape_pdf_name  # noqa: F401
 
 MODEL = "claude-sonnet-4-6"
 # Measured, not estimated: 150 labels cost 4,190 output tokens on Form 1025
@@ -85,132 +87,6 @@ RETRIEVAL_REVIEW_FLOOR = 0.60
 MIN_PAGE_WORDS = 15
 
 COPY_RE = re.compile(r"Copy[A-Za-z0-9]+\[\d+\]")
-
-
-def _unescape_pdf_name(s: Optional[str]) -> Optional[str]:
-    """Decode PDF name-object hex escapes (`#XX` → the byte).
-
-    pymupdf returns raw AcroForm names — a radio on-state of "N/A"
-    comes through as "N#2FA". Un-escape once at read time so the .bpt's
-    `values:` list holds "N/A" and downstream (LLM prompt, fill,
-    extract, score) all speak the decoded form.
-    """
-    if not s or "#" not in s:
-        return s
-    return re.sub(
-        r"#([0-9A-Fa-f]{2})",
-        lambda m: chr(int(m.group(1), 16)),
-        s,
-    )
-
-
-def _widget_type_string(field_type: int) -> str:
-    """Map pymupdf widget-type constants to blueprint widget_type.
-
-    AcroForm widget type is authoritative — the VLM is never allowed to
-    reclassify. Radio buttons preserve their identity so the labeler can
-    group them by shared field_name and emit them as `type: category`
-    at the group level (or `type: boolean` for singleton groups).
-    Comboboxes / listboxes: single-choice string, treat as text.
-    Signatures: no text value, treat as text.
-
-    Pushbuttons used to land here too, and that was the bug behind
-    OBSERVATIONS class 12 — 106 fields across 12 blueprints bound to
-    controls that hold no value at all. They are dropped in
-    `enumerate_widgets` now rather than typed.
-    """
-    if field_type == pymupdf.PDF_WIDGET_TYPE_CHECKBOX:
-        return "checkbox"
-    if field_type == pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON:
-        return "radiobutton"
-    return "text"
-
-
-# PDF field flag bit 17. A pushbutton is a control: it fires an action and
-# retains no value, verified across the corpus as `field_value == ''` on
-# every one. The flag is exact — of 51,919 widgets in `source_pdfs/`, all
-# 548 carrying it are type Button, and no CheckBox, RadioButton, ComboBox,
-# Signature or Text does.
-PUSHBUTTON_FLAG = 1 << 16
-
-# PDF field flag bit 1 (ReadOnly), combined with a non-empty default value.
-# Some form-conversion tools emit the printed CAPTION as a locked form field
-# sitting beside the data field it labels: Form5020 carries a widget named
-# `31` holding `'31. SOCIAL SECURITY NUMBER'` next to `31_SOC_A_SECUPITi_NUMB`
-# (the garbled name gives the tool away) which holds the actual number.
-#
-# Labeled as a data field it is poison in both directions: the generator
-# writes a value into a widget that cannot hold one, and a meaning-based
-# reader asked for `employee_ssn` correctly returns the real SSN and is
-# scored against the caption. That is how it was found — `petey` was right
-# and the blueprint was wrong.
-#
-# Both conditions are required. ReadOnly ALONE is a locked but real data
-# field, often calculated — 1,683 of those in `source_pdfs/` against 384
-# captions, so dropping on the flag alone would discard four times more
-# real fields than captions.
-READONLY_FLAG = 1 << 0
-
-
-def _is_caption_widget(w) -> bool:
-    """A locked widget whose value IS the printed label."""
-    if not ((w.field_flags or 0) & READONLY_FLAG):
-        return False
-    return bool((w.field_value or "").strip())
-
-
-def enumerate_widgets(pdf_path: Path) -> tuple[list[dict], list[dict]]:
-    """Return `(widgets, dropped)`.
-
-    Dropped widgets are REPORTED, not silently skipped. A silent filter
-    would give us no way to notice the form where the assumption breaks,
-    whereas `_dedup.py` logging its collisions is exactly what made class
-    13 enumerable across the library without measuring anything. The
-    corpus behind this filter is 482 mostly-US-government forms; non-US
-    and commercial forms are where a different convention would show up.
-    """
-    doc = pymupdf.open(str(pdf_path))
-    widgets: list[dict] = []
-    dropped: list[dict] = []
-    idx = 0
-    for page_num, page in enumerate(doc, start=1):
-        for w in page.widgets():
-            tooltip = (w.field_label or "").strip() or None
-            if (w.field_flags or 0) & PUSHBUTTON_FLAG:
-                dropped.append({
-                    "path": w.field_name,
-                    "page": page_num,
-                    "reason": "pushbutton",
-                    "field_type": w.field_type_string,
-                    "tooltip": tooltip,
-                })
-                continue
-            if _is_caption_widget(w):
-                dropped.append({
-                    "path": w.field_name,
-                    "page": page_num,
-                    "reason": "caption",
-                    "field_type": w.field_type_string,
-                    "tooltip": tooltip,
-                    "caption": (w.field_value or "").strip()[:80],
-                })
-                continue
-            wt = _widget_type_string(w.field_type)
-            entry = {
-                "id": idx,
-                "page": page_num,
-                "rect": [float(x) for x in w.rect],
-                "widget_type": wt,
-                "path": w.field_name,
-            }
-            if tooltip:
-                entry["tooltip"] = tooltip
-            if wt == "radiobutton":
-                entry["on_state"] = _unescape_pdf_name(w.on_state())
-            widgets.append(entry)
-            idx += 1
-    doc.close()
-    return widgets, dropped
 
 
 def first_copy_ids(widgets: list[dict]) -> set[int]:
@@ -652,8 +528,11 @@ def build_blueprint(
     model: str = MODEL,
     use_retrieval: bool = True,
     retrieval_threshold: float = RETRIEVAL_ACCEPT,
+    geometry: str = "auto",
+    use_llm: bool = True,
 ) -> dict:
-    widgets, dropped_widgets = enumerate_widgets(blank_pdf)
+    widgets, dropped_widgets, geometry_method = enumerate_geometry(blank_pdf, geometry)
+    print(f"[auto_label] geometry: {geometry_method} ({len(widgets)} fields)")
     if dropped_widgets:
         by_reason: dict[str, int] = {}
         for d in dropped_widgets:
@@ -669,19 +548,26 @@ def build_blueprint(
         print(f"[auto_label] dropped {len(dropped_widgets)} widgets: "
               + ", ".join(parts or ["other"]))
     if not widgets:
-        raise SystemExit(f"No AcroForm widgets in {blank_pdf}")
+        raise SystemExit(f"No geometry in {blank_pdf}: no AcroForm widgets, and step2flat found no fields")
 
-    # Step 1: cross-page copy collapse (multi-copy tax forms)
-    widgets, copy_page_info = collapse_copy_pages(widgets)
+    if geometry_method == "acroform":
+        # Step 1: cross-page copy collapse (multi-copy tax forms)
+        widgets, copy_page_info = collapse_copy_pages(widgets)
 
-    # Step 2: same-canonical-path copy dedup (Copy A/B in AcroForm path).
-    # Radios are exempt — they group by shared field_name in step 3.
-    keep_ids = first_copy_ids(widgets)
-    kept = [w for w in widgets if w["id"] in keep_ids]
+        # Step 2: same-canonical-path copy dedup (Copy A/B in AcroForm path).
+        # Radios are exempt — they group by shared field_name in step 3.
+        keep_ids = first_copy_ids(widgets)
+        kept = [w for w in widgets if w["id"] in keep_ids]
 
-    # Step 3: collapse radio-group siblings so the VLM sees one entry
-    # per group, not one per individual radio widget.
-    label_entries, radio_members_by_id = _group_radios_for_labeling(kept)
+        # Step 3: collapse radio-group siblings so the VLM sees one entry
+        # per group, not one per individual radio widget.
+        label_entries, radio_members_by_id = _group_radios_for_labeling(kept)
+    else:
+        # Programmatic geometry has no paths: no copy pages to detect, no
+        # AcroForm radio groups to collapse. Every field is its own entry.
+        copy_page_info = {}
+        kept = widgets
+        label_entries, radio_members_by_id = list(widgets), {}
     pages_with_widgets = sorted({w["page"] for w in label_entries})
 
     if copy_page_info.get("dropped_as_copies"):
@@ -785,6 +671,14 @@ def build_blueprint(
                             if w["page"] == page_no]
             page_obj = doc[page_no - 1]
 
+            if not use_llm:
+                # Placeholder names: the geometry-only draft. Real names
+                # come from a later labeling pass or the validation loop.
+                for w in page_widgets:
+                    labels_by_id[w["id"]] = f"p{w['page']}_{w['widget_type'][0]}{w['id']:03d}"
+                    audit_by_id[w["id"]] = {"source": "placeholder"}
+                continue
+
             retrieval_hits: dict[int, dict] = {}
             if embedder is not None and vocab:
                 retrieval_hits = retrieval_prepass(
@@ -876,7 +770,7 @@ def build_blueprint(
             "page": w["page"],
             "rect": w["rect"],
             "widget_type": w["widget_type"],
-            "path": w["path"],
+            "path": w.get("path"),
         }
 
         # Radio group — single AcroForm field, N selectable states.
@@ -913,6 +807,8 @@ def build_blueprint(
         )
         spec = enrich_field(label, w["widget_type"])
         spec["widget"] = widget_block
+        if "confidence" in w:  # programmatic geometry: the rect is an estimate; say how good
+            spec["x_petey_geometry"] = {"confidence": w["confidence"], "source": w.get("geometry_source")}
         desc = _description_from_tooltip(w.get("tooltip"))
         if desc:
             spec["description"] = desc
@@ -953,7 +849,9 @@ def build_blueprint(
         # its neighbours.
         "authoring": {
             "method": "auto_label",
-            "model": model,
+            "model": model if use_llm else None,
+            "geometry": geometry_method,
+            "labels": "llm" if use_llm else "placeholder",
         },
         "fields": fields,
     }
@@ -992,6 +890,10 @@ def main() -> int:
                     help='form revision year (e.g. "2025")')
     ap.add_argument("--model", type=str, default=MODEL,
                     help="LLM model for labeling (default sonnet-4.6)")
+    ap.add_argument("--geometry", choices=["auto", "acroform", "step2flat"], default="auto",
+                    help="where field rects come from; auto = AcroForm if present, else step2flat")
+    ap.add_argument("--no-llm", action="store_true",
+                    help="emit placeholder field names; no API call (geometry-only draft)")
     ap.add_argument("--no-retrieval", action="store_true",
                     help="disable local retrieval prepass; LLM-only")
     ap.add_argument("--retrieval-threshold", type=float,
@@ -1016,6 +918,8 @@ def main() -> int:
         form_version=args.form_version,
         model=args.model,
         use_retrieval=not args.no_retrieval,
+        geometry=args.geometry,
+        use_llm=not args.no_llm,
         retrieval_threshold=args.retrieval_threshold,
     )
 

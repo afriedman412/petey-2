@@ -36,6 +36,11 @@ import pymupdf
 
 from petey.paths import REPO, SOURCE_PDFS
 
+def _yy(y: str) -> str:
+    """Two-digit year -> four: 68 is 1968, not 2068."""
+    return y if len(y) == 4 else ("19" if int(y) >= 50 else "20") + y
+
+
 MONTHS = {m: i for i, m in enumerate(
     ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"], 1)}
 STATES = {
@@ -128,10 +133,10 @@ NUMBER_RULES = [
 EDITION_RULES = [
     ("rev_month_year", r"\(?\bRev(?:ised|\.)?\s*([A-Za-z]{3,9})\.?\s+(\d{4})\)?", lambda m: f"{m.group(2)}_{MONTHS.get(m.group(1)[:3].lower(), 0):02d}"),
     ("rev_mm_yyyy",    r"\(?\bRev(?:ised|\.)?\s*(\d{1,2})[-/](\d{4})\)?", lambda m: f"{m.group(2)}_{int(m.group(1)):02d}"),
-    ("rev_mm_yy",      r"\(?\bRev(?:ised|\.)?\s*(\d{1,2})[-/](\d{2})\)?", lambda m: f"20{m.group(2)}_{int(m.group(1)):02d}"),
+    ("rev_mm_yy",      r"\(?\bRev(?:ised|\.)?\s*(\d{1,2})[-/](\d{2})\)?", lambda m: f"{_yy(m.group(2))}_{int(m.group(1)):02d}"),
     ("acord_edition",  r"ACORD\s+\d+\s*\((\d{4})/(\d{2})\)", lambda m: f"{m.group(1)}_{m.group(2)}"),
-    ("uscis_edition",  r"Edition\s+(\d{2})/(\d{2})/(\d{2,4})", lambda m: f"{'20'+m.group(3) if len(m.group(3))==2 else m.group(3)}_{m.group(1)}_{m.group(2)}"),
-    ("rev_mdy",        r"\(?\b(?:R(?:ev(?:ised)?)?\.?\s*)?(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})\)?", lambda m: f"{'20'+m.group(3) if len(m.group(3))==2 else m.group(3)}_{int(m.group(1)):02d}_{int(m.group(2)):02d}"),
+    ("uscis_edition",  r"Edition\s+(\d{2})/(\d{2})/(\d{2,4})", lambda m: f"{_yy(m.group(3))}_{m.group(1)}_{m.group(2)}"),
+    ("rev_mdy",        r"\(?\b(?:R(?:ev(?:ised)?)?\.?\s*)?(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})\)?", lambda m: f"{_yy(m.group(3))}_{int(m.group(1)):02d}_{int(m.group(2)):02d}"),
     ("rev_month_d_y",  r"\bRevised\s+([A-Za-z]{3,9})\.?\s+\d{1,2},?\s+(\d{4})", lambda m: f"{m.group(2)}_{MONTHS.get(m.group(1)[:3].lower(), 0):02d}"),
     ("year_paren",     r"\((20\d{2})\)", lambda m: m.group(1)),
     ("year_form",      r"\b(20\d{2})\s+(?:Form|Schedule)\b", lambda m: m.group(1)),
