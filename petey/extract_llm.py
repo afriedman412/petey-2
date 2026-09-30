@@ -110,6 +110,7 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
     key = hashlib.sha256(
         doc_key + b"\x00" + model.encode() + b"\x00" + parser.encode()
         + b"\x00" + json.dumps(fields, sort_keys=True).encode()
+        + b"\x00fixed-sampling"  # cache namespace: answers sampled at temperature 0 / low effort
     ).hexdigest()
     CACHE.mkdir(parents=True, exist_ok=True)
     cached = CACHE / f"{key}.json"
@@ -120,10 +121,16 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
                     "Blueprint fields:\n```json\n"
                     + json.dumps(fields, indent=1) + "\n```\n"
                     "Return {\"values\": {...}} with one entry per field."})
-    with client.messages.stream(
-        model=model, max_tokens=MAX_TOKENS, system=SYSTEM,
-        messages=[{"role": "user", "content": content}],
-    ) as stream:
+    kwargs: dict = dict(model=model, max_tokens=MAX_TOKENS, system=SYSTEM,
+                        messages=[{"role": "user", "content": content}])
+    # The reader is the loop's judge, so it should read the same way twice.
+    # Models up to the 4.6 generation take a temperature; the 5 generation
+    # rejects sampling parameters and takes an effort level instead.
+    if re.search(r"-(4-[0-6]|3-\d)", model):
+        kwargs["temperature"] = 0
+    else:
+        kwargs["output_config"] = {"effort": "low"}
+    with client.messages.stream(**kwargs) as stream:
         final = stream.get_final_message()
     text = "".join(b.text for b in final.content
                    if getattr(b, "type", None) == "text")

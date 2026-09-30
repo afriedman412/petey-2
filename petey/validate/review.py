@@ -51,7 +51,7 @@ PRICES = {  # $ per million tokens, input / output (list price, 2026-06)
     "claude-sonnet-5": (2.0, 10.0), "claude-sonnet-4-6": (3.0, 15.0),
     "claude-haiku-4-5": (1.0, 5.0), "claude-fable-5-1": (10.0, 50.0),
 }
-FIELDS_PER_CALL = 40
+FIELDS_PER_CALL = 25
 TYPES = ("string", "number", "integer", "date", "boolean", "category", "multi_category")
 
 SYSTEM = """You review field definitions in a blueprint: a schema that says, for \
@@ -301,7 +301,7 @@ def ask(client, model: str, effort: str, form_title: str, fields: list[dict]) ->
             + "\n".join(json.dumps(f, ensure_ascii=False) for f in fields)
             + "\n\nReturn one decision per field.")
     kwargs: dict[str, Any] = dict(
-        model=model, max_tokens=32000, system=SYSTEM,
+        model=model, max_tokens=64000, system=SYSTEM,
         messages=[{"role": "user", "content": user}],
         output_config={"effort": effort,
                        "format": {"type": "json_schema", "schema": DECISION_SCHEMA}},
@@ -324,8 +324,30 @@ def ask(client, model: str, effort: str, form_title: str, fields: list[dict]) ->
     try:
         return json.loads(text).get("decisions", []), usage
     except json.JSONDecodeError:
-        usage["parse_error"] = text[:200]
+        # Truncated at max_tokens (thinking plus a long JSON): the caller
+        # splits the chunk and retries. Never silently drop 40 fields.
+        usage["parse_error"] = f"{resp.stop_reason}: {text[:120]}"
         return [], usage
+
+
+def ask_split(client, model: str, effort: str, form_title: str, fields: list[dict],
+              usage_total: collections.Counter, depth: int = 0) -> list[dict]:
+    """`ask`, halving the chunk on truncation (down to single fields)."""
+    got, usage = ask(client, model, effort, form_title, fields)
+    for k in ("input_tokens", "output_tokens"):
+        usage_total[k] += usage[k]
+    usage_total["calls"] += 1
+    if usage.get("stop_reason") == "refusal":
+        usage_total["refusals"] += 1
+        return got
+    if not got and usage.get("parse_error") and len(fields) > 1 and depth < 3:
+        usage_total["truncated_retries"] += 1
+        mid = len(fields) // 2
+        return (ask_split(client, model, effort, form_title, fields[:mid], usage_total, depth + 1)
+                + ask_split(client, model, effort, form_title, fields[mid:], usage_total, depth + 1))
+    if not got and usage.get("parse_error"):
+        usage_total["lost_fields"] += len(fields)
+    return got
 
 
 # ------------------------------------------------------------------- apply
@@ -419,13 +441,7 @@ def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
     t0 = time.time()
     for i in range(0, len(evidence), FIELDS_PER_CALL):
         chunk = evidence[i:i + FIELDS_PER_CALL]
-        got, usage = ask(client, model, effort, title, chunk)
-        decisions.extend(got)
-        usage_total["input_tokens"] += usage["input_tokens"]
-        usage_total["output_tokens"] += usage["output_tokens"]
-        usage_total["calls"] += 1
-        if usage.get("stop_reason") == "refusal":
-            usage_total["refusals"] += 1
+        decisions.extend(ask_split(client, model, effort, title, chunk, usage_total))
     pin, pout = PRICES.get(model, (0.0, 0.0))
     cost = usage_total["input_tokens"] / 1e6 * pin + usage_total["output_tokens"] / 1e6 * pout
     changes = collections.Counter()
