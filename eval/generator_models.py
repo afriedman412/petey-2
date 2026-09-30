@@ -41,7 +41,7 @@ def run_one(form: str, model: str, blank: str | None) -> Path:
     out = OUT / f"iterate_{form}_{model.replace('/', '_')}.json"
     if out.exists():
         return out
-    reader = "petey:image" if form in IMAGE_FORMS else "petey:pymupdf"
+    reader = "petey:image" if any(form.startswith(f) for f in IMAGE_FORMS) else "petey:pymupdf"
     cmd = [sys.executable, "-u", "-m", "petey.validate.iterate", "--form", form, "--gen-model", model,
            "--gen-key", f"{form}_gm", "--methods", f"native,{reader}", "--n-flat", "0", "--max-iter", "1",
            "--out", str(out)]
