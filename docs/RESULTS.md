@@ -647,3 +647,29 @@ takes the option with the most added ink, which sidesteps the threshold for the 
 **Design restated by Andrew (2026-09-30):** generate synthetic cases from both outputs — the blueprint's typing and
 the publisher metadata (AcroForm / XFA, or the page itself) — and compare what each puts in every box; a box the two
 disagree on is a labeler flag. That sits alongside the extraction comparison the loop already runs.
+
+## Radio and checkbox states in the text reader (2026-09-30, `extract_llm.page_texts_with_marks`)
+
+The text-mode reader gets a `[x]` / `[ ]` token at every option box, placed by the blueprint's rectangles, decided by
+the widget's own value when the document still has its form layer (exact; the product's inputs are clean digital)
+and by ink in the box against the blank otherwise (`petey/validate/ink.py`, for flattened cases and later flat
+forms). The widget's own glyph is dropped from the text; when nothing is printed beside a box (yes/no grids under
+column headers) the token carries the blueprint's caption: `[ ] YES [x] NO`. The reader still gets no coordinates,
+no paths and no widget names.
+
+| form | before (text reader) | after | option fields found |
+|---|---|---|---|
+| 10-10EZ (side copy, 122) | 95-102 agree, 19 radio groups unlocatable | **122 / 122**, no detections at all | 42 / 42 |
+| I-765 (140) | 104-119 agree, 20-25 name defects | **137 / 140**, 0 name defects | 24 / 24 |
+| ACORD 25 (128) | 115-121 agree, 7-8 boolean deltas | 112 / 128 | 19 / 24 |
+
+ACORD 25 goes *down* because the reader can now see what it could not before: five automobile-coverage boxes in the
+committed blueprint are named one row off (the box beside ANY AUTO is `auto_liability_ind`, beside OWNED is
+`auto_any_auto_ind`, beside HIRED is `auto_owned_autos_only_ind`, the blank fourth-row box is
+`auto_hired_autos_only_ind`; `name_slide`). The reader answers what the page shows and disagrees with the ground
+truth's names — the correct outcome. The PDF's own field names (`Vehicle_AnyAutoIndicator_A` on the box beside ANY
+AUTO) were right; the old labeler slid. Along the way: I-765's unit-type boxes export ` FLR ` / ` APT ` / ` STE `
+one place over from the printed Apt. / Ste. / Flr. (new taxonomy class `export_caption_mismatch`); tokens defer to
+the printed word beside the box, so it does not matter to the reader. Ink detection stays as the fallback only; the
+library recaption from page text was tried and reverted (right where the export is a code, wrong where the text
+beside a box is a question or a watermark) — parked with the flat-form work.

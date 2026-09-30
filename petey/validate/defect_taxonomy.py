@@ -179,7 +179,12 @@ REGISTRY: tuple[DefectClass, ...] = (
               "often a defensible refinement — but together they found 76 "
               "fields, and the publisher's name then NAMES the field the "
               "widget really holds, which the value-identity edges in "
-              "correct.py cannot supply.",
+              "correct.py cannot supply.\n\n"
+              "2026-09-30: a slide across checkbox rows (acord25's automobile "
+              "column: the box beside ANY AUTO is named auto_liability_ind, "
+              "beside OWNED is auto_any_auto_ind, ...) was invisible to the "
+              "text reader until the mark tokens; now the reader answers what "
+              "the page shows and the slide surfaces as reader disagreement.",
     ),
     DefectClass(
         name="block_renumbered",
@@ -451,6 +456,22 @@ REGISTRY: tuple[DefectClass, ...] = (
               "them, so this is tier 0, not a correction.",
     ),
     DefectClass(
+        name="export_caption_mismatch",
+        owner="blueprint", tier=1,
+        canonical="i765:preparer_unit_type — the box printed 'Apt.' exports ' FLR ', 'Ste.' exports ' APT ', "
+                  "'Flr.' exports ' STE ': the publisher's export values are rotated one place against the captions",
+        validation="petey",
+        signature="an option's on-state word disagrees with the caption printed beside its box",
+        fix="caption from the page text; keep the export word as x_petey_on_state_word; never fill, "
+            "caption or bank values by the export word",
+        detector="petey/label/captions.py (caption_options_from_page verifies on-state captions against the page)",
+        inline_fix="expand_options recaption",
+        notes="Found 2026-09-30 when mark tokens in the text reader carried the export word and the "
+              "reader answered 'apt' for the box printed 'Ste.'. Ground truth by path is unaffected; "
+              "anything that trusts the export value as a label is. The labeler had named the boxes "
+              "by the printed captions, correctly.",
+    ),
+    DefectClass(
         name="yn_column",
         owner="parser", tier=1,
         validation="petey",
@@ -459,7 +480,12 @@ REGISTRY: tuple[DefectClass, ...] = (
         detector=None,
         observations_class="class 7 / C8",
         notes="Class 7 fix landed; the residue is the column layout where "
-              "Yes and No sit in separate columns of a grid.",
+              "Yes and No sit in separate columns of a grid.\n\n"
+              "2026-09-30: the text-mode reader now gets a [x] / [ ] token at "
+              "every option box, decided by ink in the box against the blank "
+              "(petey/validate/ink.py, extract_llm.page_texts_with_marks), with "
+              "the column header carried in the token when nothing is printed "
+              "beside the box. 10-10EZ went from 19 unlocatable groups to 0.",
     ),
     DefectClass(
         name="mistyped_field",

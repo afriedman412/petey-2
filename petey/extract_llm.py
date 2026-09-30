@@ -51,6 +51,10 @@ Rules:
 YYYY-MM-DD; otherwise do not reformat or correct values.
 - boolean fields: true if the box is marked, false if it is present and \
 unmarked, null if you cannot tell.
+- In page text, a checkbox or radio option appears as [x] (selected) or \
+[ ] (not selected) just before its printed caption. Read a category \
+field from which caption carries [x]; map the caption to one of the \
+listed values using the field's description when the values are codes.
 - category fields: one of the listed values, or null.
 - If nothing on the form corresponds to a field, return null. Do NOT guess \
 and do NOT return a value from a different field because it seems close.
@@ -99,6 +103,112 @@ def page_texts(pdf: Path, pages: Optional[list[int]] = None) -> list[tuple[int, 
         return [(p, doc[p - 1].get_text("text")) for p in pages]
     finally:
         doc.close()
+
+
+def option_boxes(bpt: dict) -> dict[int, list[dict]]:
+    """Every checkbox / radio option box in the blueprint, by page: `{page:
+    [{rect, group, key}]}` — a category's options (group = field name, key =
+    the option's on-state) and lone booleans (group = None)."""
+    out: dict[int, list[dict]] = {}
+    for name, spec in (bpt.get("fields") or {}).items():
+        ws = spec.get("widgets") or {}
+        if ws:
+            for st, wb in ws.items():
+                if wb.get("page") and wb.get("rect"):
+                    out.setdefault(int(wb["page"]), []).append({"rect": wb["rect"], "group": name, "key": st,
+                                                                "caption": wb.get("caption") or (st if not str(st).isdigit() else None)})
+            continue
+        w = spec.get("widget") or {}
+        if w.get("widget_type") in ("checkbox", "radiobutton") and w.get("page") and w.get("rect"):
+            out.setdefault(int(w["page"]), []).append({"rect": w["rect"], "group": None, "key": name, "caption": None})
+    return out
+
+
+def page_texts_with_marks(pdf: Path, blank: Path, bpt: dict,
+                          pages: Optional[list[int]] = None) -> list[tuple[int, str]]:
+    """Page text with a [x] / [ ] token at every option box, decided by the
+    ink in the box against the blank (petey.validate.ink). The text layer
+    never records which option is selected — the mark is drawn, not
+    written — so a text-mode reader could not see radio states at all
+    (10-10EZ: 19 groups unlocatable). The blueprint's rectangles place the
+    tokens; the reader still gets no coordinates and no widget names."""
+    from petey.validate import ink
+    boxes = option_boxes(bpt)
+    doc = pymupdf.open(str(pdf))
+    bdoc = pymupdf.open(str(blank))
+    try:
+        pages = pages or list(range(1, min(len(doc), MAX_PAGES) + 1))
+        out = []
+        for p in pages:
+            page = doc[p - 1]
+            words = [(w[0], w[1], w[2], w[3], w[4]) for w in page.get_text("words")]
+            marks = []
+            if p in boxes and p - 1 < len(bdoc):
+                bpage = bdoc[p - 1]
+                # the state itself: from the widget when the document still
+                # has its form layer (exact), else from ink in the box
+                # against the blank (flattened cases, flat forms)
+                states = {}
+                for w in page.widgets() or []:
+                    if w.field_type_string in ("CheckBox", "RadioButton"):
+                        states[tuple(round(c, 1) for c in w.rect)] = w.field_value not in (None, "", "Off")
+                by_group: dict = {}
+                for b in boxes[p]:
+                    by_group.setdefault(b["group"], []).append(b)
+                for group, opts in by_group.items():
+                    if states:
+                        for o in opts:
+                            marks.append((o, bool(states.get(tuple(round(c, 1) for c in o["rect"]), False))))
+                        continue
+                    deltas = [(ink.ink_delta(page, bpage, o["rect"]), o) for o in opts]
+                    if group is None:
+                        for d, o in deltas:
+                            marks.append((o, d >= ink.THRESHOLD))
+                    else:
+                        best = max(deltas, key=lambda t: t[0])
+                        for d, o in deltas:
+                            marks.append((o, o is best[1] and d >= ink.THRESHOLD))
+            # the widget's own glyph (a ZapfDingbats check reads as "3") sits
+            # inside the box in the text layer; the token replaces it
+            rects = [pymupdf.Rect(*o["rect"]) for o, _ in marks]
+            words = [w for w in words if not any(r.contains(pymupdf.Point((w[0] + w[2]) / 2, (w[1] + w[3]) / 2)) for r in rects)]
+            tokens = {}
+            for o, on in marks:
+                x0, y0, x1, y1 = o["rect"]
+                words.append((x0, y0, x1, y1, "[x]" if on else "[ ]"))
+                tokens[(x0, y0)] = o.get("caption")
+            # lines in reading order: cluster by vertical centre, then x. A
+            # token sits just before the caption printed beside its box; when
+            # the caption is not the next word (column headers above a grid),
+            # the token carries it: "[x] NO"
+            words.sort(key=lambda w: (round((w[1] + w[3]) / 2 / 4), w[0]))
+            lines, cur, cur_y = [], [], None
+            def _emit(ws):
+                parts = []
+                for i, w in enumerate(ws):
+                    t = w[4]
+                    cap = tokens.get((w[0], w[1])) if t in ("[x]", "[ ]") else None
+                    # a printed word starting within 14 pt of the box's right
+                    # edge IS the caption a person reads; the blueprint's
+                    # caption is added only when nothing is printed beside
+                    # the box (column headers above a yes/no grid)
+                    nxt = ws[i + 1] if i + 1 < len(ws) else None
+                    adjacent = nxt is not None and nxt[4] not in ("[x]", "[ ]") and 0 <= nxt[0] - w[2] <= 14
+                    if cap and not adjacent:
+                        t = f"{t} {str(cap).strip()}"
+                    parts.append(t)
+                return " ".join(parts)
+            for w in words:
+                cy = round((w[1] + w[3]) / 2 / 4)
+                if cur and cy != cur_y:
+                    lines.append(_emit(cur)); cur = []
+                cur.append(w); cur_y = cy
+            if cur:
+                lines.append(_emit(cur))
+            out.append((p, "\n".join(lines)))
+        return out
+    finally:
+        doc.close(); bdoc.close()
 
 
 def page_images(pdf: Path, pages: Optional[list[int]] = None, dpi: int = 150) -> list[bytes]:
@@ -203,7 +313,14 @@ def extract_llm(
             for p in page_images(pdf, pages)
         ]
     elif parser == "pymupdf":
-        texts = page_texts(pdf, pages)
+        blank = None
+        if option_boxes(bpt):
+            try:
+                from petey.validate.retype import resolve_blank
+                blank = resolve_blank(bpt)
+            except Exception:
+                blank = None
+        texts = page_texts_with_marks(pdf, blank, bpt, pages) if blank else page_texts(pdf, pages)
         joined = "\n\n".join(f"=== page {p} ===\n{t}" for p, t in texts)
         doc_parts = [{"type": "text", "text": "Form content:\n" + joined}]
     else:
