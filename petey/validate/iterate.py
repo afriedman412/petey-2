@@ -171,6 +171,7 @@ def judge_review(bp_path: Path, snapshot: str, before: dict[str, int], after: di
     fields = cur["fields"]
     verdict = collections.Counter()
     restore: dict[str, tuple[str, dict]] = {}
+    outcomes: dict[str, dict] = {}   # old_name -> what the loop decided
     for name, spec in list(fields.items()):
         rv = spec.get("x_petey_review")
         if not rv or rv.get("judged"):
@@ -181,13 +182,17 @@ def judge_review(bp_path: Path, snapshot: str, before: dict[str, int], after: di
         if a < b:
             verdict["better"] += 1
             rv["judged"] = f"kept: {b} -> {a}"
+            outcomes[old_name] = {"outcome": "kept_better", "before": b, "after": a, "new_name": name}
         elif a > b or renamed:
             verdict["worse" if a > b else "same_rename"] += 1
             if old_name in old["fields"]:
                 restore[name] = (old_name, old["fields"][old_name])
+            outcomes[old_name] = {"outcome": "restored_worse" if a > b else "restored_no_effect",
+                                  "before": b, "after": a, "new_name": name}
         else:
             verdict["same_kept"] += 1
             rv["judged"] = f"kept: {b} -> {a}"
+            outcomes[old_name] = {"outcome": "kept_same", "before": b, "after": a, "new_name": name}
     if restore:
         rebuilt = {}
         for k, v in fields.items():
@@ -203,7 +208,33 @@ def judge_review(bp_path: Path, snapshot: str, before: dict[str, int], after: di
     bp_path.write_text(yaml.safe_dump(cur, sort_keys=False, allow_unicode=True,
                                       default_flow_style=False), encoding="utf-8")
     verdict["restored"] = len(restore)
-    return dict(verdict)
+    out = dict(verdict)
+    out["outcomes"] = outcomes
+    return out
+
+
+PAIRS = RUNS / "review_pairs.jsonl"
+
+
+def record_pairs(form: str, run_dir: Path, pending: dict, outcomes: dict) -> int:
+    """Training data as a side effect: every reviewed field's evidence, the
+    model's decision, and what the loop decided about it. "ok" verdicts are
+    recorded too — a field the model correctly left alone is a pair."""
+    n = 0
+    with PAIRS.open("a", encoding="utf-8") as fh:
+        for d in pending.get("decisions", []):
+            field = d.get("field")
+            ev = pending.get("evidence", {}).get(field)
+            if ev is None:
+                continue
+            rec = {"form": form, "run": run_dir.name, "model": pending.get("model"),
+                   "field": field, "evidence": ev, "decision": d,
+                   "loop": outcomes.get(field, {"outcome": "ok_not_applied" if d.get("verdict") == "ok"
+                                                else "not_applied"}),
+                   "recorded": time.strftime("%Y-%m-%dT%H:%M:%S")}
+            fh.write(json.dumps(rec, default=str) + "\n")
+            n += 1
+    return n
 
 
 def fix(form: str, detection: dict, *, describe: bool, apply_correct: bool) -> collections.Counter:
@@ -283,6 +314,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         if pending is not None:
             after = field_status(run_dir)
             judged = judge_review(bp_path, pending["snapshot"], pending["status"], after)
+            outcomes = judged.pop("outcomes", {})
+            record_pairs(form, run_dir, pending, outcomes)
             judged.update({"detected_before": pending["detected"], "detected_after": det["total"],
                            "cost_usd": pending["cost_usd"]})
             print(f"[{form}] review judged field by field: {judged}")
@@ -311,7 +344,9 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
                   f"{res['verdicts']} -> applied {res['applied']} (${res['cost_usd']})")
             if applied:
                 pending = {"snapshot": snapshot, "detected": det["total"], "applied": applied,
-                           "cost_usd": res["cost_usd"], "status": field_status(run_dir)}
+                           "cost_usd": res["cost_usd"], "status": field_status(run_dir),
+                           "model": review_model, "decisions": res.get("decisions", []),
+                           "evidence": {e["field"]: e for e in res.get("evidence", [])}}
                 for k, v in applied.items():
                     changes[f"review:{k}"] += v
         rec = {"iteration": i, "run": run_dir.name, "seconds": round(time.time() - t0, 1),

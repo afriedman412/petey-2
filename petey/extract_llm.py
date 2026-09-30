@@ -123,6 +123,28 @@ def _parse(text: str) -> dict:
         return {}
 
 
+def _ask_local(model: str, fields: list[dict], doc_parts: list[dict]) -> str:
+    """A local model through ollama (`ollama:<name>`), text mode only. The
+    same system prompt and field list; no API, no key."""
+    import os
+    import urllib.request
+    host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+    user = "\n\n".join(p["text"] for p in doc_parts if p.get("type") == "text")
+    user += ("\n\nBlueprint fields:\n```json\n" + json.dumps(fields, indent=1) + "\n```\n"
+             "Return {\"values\": {...}} with one entry per field.")
+    body = json.dumps({"model": model.split(":", 1)[1], "stream": False, "format": "json",
+                       "options": {"temperature": 0, "num_ctx": 32768, "num_predict": 8192},
+                       "messages": [{"role": "system", "content": SYSTEM},
+                                    {"role": "user", "content": user}]}).encode()
+    req = urllib.request.Request(f"{host}/api/chat", data=body, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=1800) as resp:
+        data = json.loads(resp.read())
+    USAGE["input_tokens"] += int(data.get("prompt_eval_count") or 0)
+    USAGE["output_tokens"] += int(data.get("eval_count") or 0)
+    USAGE["calls"] += 1
+    return data["message"]["content"]
+
+
 def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
          doc_key: bytes, parser: str) -> dict:
     key = hashlib.sha256(
@@ -139,6 +161,10 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
                     "Blueprint fields:\n```json\n"
                     + json.dumps(fields, indent=1) + "\n```\n"
                     "Return {\"values\": {...}} with one entry per field."})
+    if model.startswith("ollama:"):
+        out = _parse(_ask_local(model, fields, doc_parts))
+        cached.write_text(json.dumps(out, indent=2, default=str))
+        return out
     kwargs: dict = dict(model=model, max_tokens=MAX_TOKENS, system=SYSTEM,
                         messages=[{"role": "user", "content": content}])
     # The reader is the loop's judge, so it should read the same way twice.
@@ -183,7 +209,7 @@ def extract_llm(
     else:
         raise ValueError(f"unknown parser {parser!r}; use pymupdf or image")
     fields = field_view(bpt)
-    if client is None:
+    if client is None and not model.startswith("ollama:"):
         import anthropic
         client = anthropic.Anthropic()
     values: dict[str, Any] = {}

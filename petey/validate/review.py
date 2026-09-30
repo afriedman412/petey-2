@@ -456,7 +456,7 @@ def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
             "effort": effort, "fields_reviewed": len(evidence), "flagged": len(flags),
             "verdicts": dict(verdicts), "applied": dict(changes), "usage": dict(usage_total),
             "cost_usd": round(cost, 4), "seconds": round(time.time() - t0, 1),
-            "decisions": decisions}
+            "decisions": decisions, "evidence": evidence}
 
 
 def main() -> int:
