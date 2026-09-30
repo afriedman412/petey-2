@@ -568,3 +568,9 @@ they did not in the generator). gpt-5.5 costs the most for no gain.
 Gemini 3.1 Pro when yield per form matters more than price; gpt-4.1 and the DeepSeek models are out for this slot.
 Labeler: Gemini 3.8 Flash is the value default; nothing measured favours a dearer model. Both are one generation per
 form per model; the variance of the generators themselves is unmeasured.
+
+**Framing (user, 2026-09-30).** The product use case is a handful of forms at a time; library-wide runs are a
+development concern. So the per-dollar and seconds columns above are dev numbers, not decision criteria: at a few
+forms, price differences are cents and latency is minutes. On quality alone the generator choice is yield (Sonnet 4.6,
+most confirmed fields per form) against precision (the Gemini pair, fewer fields, nearly all findable); the labeler
+choice is a wash among the top four.
