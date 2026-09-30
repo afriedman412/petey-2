@@ -709,7 +709,8 @@ guesses. v3 added `group` after the bank ticked two or three boxes of I-765's ma
 I-765 and 526EZ). Two fill-path bugs found on the way: YAML reads an unquoted `1978-03-14` as a date object, and
 pymupdf returns (export, display) pairs for I-765's state comboboxes; both normalised.
 
-**Class check: page class vs blueprint type, per field, family level.** Tier 1: captioned box, typed field,
+**Class check: page class vs blueprint type, per field, family level** (a scoring step, run for any generator
+once the form has a cached classification; generation itself reads nothing from the blueprint). Tier 1: captioned box, typed field,
 families differ (a detection; reaches the reviewer as `page_class` with the caption read). Tier 2: captioned box,
 blueprint field untyped; the page offers a type (a suggestion, reported not counted). Tier 3: uncaptioned; a guess
 on both sides.

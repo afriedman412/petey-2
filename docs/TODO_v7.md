@@ -97,8 +97,9 @@ synthetic-data workstream; the same night steps 1-4 of that workstream were buil
   the worst case per field.
 - **Class check** `petey/validate/class_check.py`: page class vs blueprint type per field, family-level, three
   tiers (1 captioned contradiction -> detection + reviewer flag `page_class`; 2 blueprint untyped, page offers a
-  type -> suggestion; 3 uncaptioned -> a guess on both sides). Written into every bank run as
-  `class_disagreements.json`. Found: I-765 `attorney_state_bar_num` typed state_abbr, `employer_everify_company_id`
+  type -> suggestion; 3 uncaptioned -> a guess on both sides). A scoring step (Andrew: not case generation), run
+  for any generator whose form has a cached classification, on fresh runs and rescores; `class_disagreements.json`
+  per case. Generation reads nothing from the blueprint: the blueprint-typed fallback class map is gone. Found: I-765 `attorney_state_bar_num` typed state_abbr, `employer_everify_company_id`
   typed business_name; 526EZ's 20+15 `disability_N_nm` typed person_name (the `_nm` slug rule), `va_file_number_2`
   captioned VETERAN'S NAME; ACORD 25's six insurer names typed person_name, seven policy numbers typed free text.
 - Set 1 (bank, 3 cases) by path: W-9 23/23, ACORD 25 128/128, I-765 140/140, 526EZ 328/328, zero ground-truth

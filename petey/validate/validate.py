@@ -41,7 +41,7 @@ from typing import Optional
 
 
 from petey.synth import generate_from_pdf, render_pdf, generate_local, seed_from_key  # noqa: E402
-from petey.synth.bank import class_map_from_blueprint, generate_from_bank  # noqa: E402
+from petey.synth.bank import generate_from_bank  # noqa: E402
 from petey.synth.classify import classify_form  # noqa: E402
 
 from petey.extract import extract, load_blueprint  # noqa: E402
@@ -140,6 +140,24 @@ def _record_set(form_id: str, set_id: int, keys: list[str], gen_model: str, run_
     mp.write_text(json.dumps(m, indent=1))
 
 
+def _class_score(bpt: dict, blank_pdf: Path, case_dir: Path, tag: str) -> None:
+    """Scoring step: the page-grounded class map (a cached fact about the
+    form, whichever generator made the case) against the blueprint's typing,
+    field by field. Writes `class_map.json` and `class_disagreements.json`
+    beside the method scores. Never calls the API: no cached classification,
+    no check."""
+    cmap = classify_form(blank_pdf, cache_only=True)
+    if cmap is None:
+        return
+    from petey.validate.class_check import check_run_case
+    (case_dir / "class_map.json").write_text(json.dumps(
+        {k: v for k, v in cmap.items() if k != "raw"}, indent=1))
+    rows = check_run_case(bpt, cmap, case_dir)
+    t = collections.Counter(r["tier"] for r in rows)
+    print(f"    [{tag}] class check: {t[1]} contradictions, {t[2]} type suggestions, "
+          f"{t[3]} uncaptioned")
+
+
 def _run_case(
     *,
     bpt_path: Path, bpt: dict, blank_pdf: Path,
@@ -162,14 +180,14 @@ def _run_case(
         gt = generate_local(bpt, blank_pdf, seed=seed_from_key(gen_cache_key))
     elif (gen_model or model) == "bank":
         # Value bank keyed by the page-grounded class map (TODO v6 synthetic
-        # data, steps 1-2). The classification is one cached call per form;
-        # with --gen-cache-only an uncached form falls back to the
-        # blueprint's own typing, and the run records which it was.
+        # data, steps 1-2). The classification is one cached call per form.
+        # Nothing here reads the blueprint: an uncached form under
+        # --gen-cache-only is skipped, never typed from the blueprint.
         cmap = classify_form(blank_pdf, cache_only=gen_cache_only,
                              form_id=(gen_cache_key or "").rsplit("_intact", 1)[0] or None)
         if cmap is None:
-            cmap = class_map_from_blueprint(bpt)
-            print(f"    [{variant}] no cached classification; class map from the blueprint")
+            print(f"    [{variant}] no cached classification; skipping (--gen-cache-only)")
+            return {"_gen_error": "no_cached_classification"}
         donor = None
         if gen_cache_dir is not None:
             for blind in (True, False):
@@ -187,14 +205,6 @@ def _run_case(
             gt = generate_from_bank(cmap, blank_pdf, seed=seed_from_key(gen_cache_key), donor=donor)
             if bank_cp is not None:
                 bank_cp.write_text(json.dumps(gt, indent=2))
-        (case_dir / "class_map.json").write_text(json.dumps(
-            {k: v for k, v in cmap.items() if k != "raw"}, indent=1))
-        if cmap.get("model") != "blueprint":
-            from petey.validate.class_check import check_run_case
-            rows = check_run_case(bpt, cmap, case_dir)
-            t = collections.Counter(r["tier"] for r in rows)
-            print(f"    [{variant}] class check: {t[1]} contradictions, {t[2]} type suggestions, "
-                  f"{t[3]} uncaptioned")
     else:
         if gen_cache_only and not generate_from_pdf(
                 blank_pdf, n=1, model=gen_model or model,
@@ -301,6 +311,7 @@ def _run_case(
               f"miss={v['extract_miss']} defect={v['gt_defect']} "
               f"conf={'n/a' if conf is None else conf}")
 
+    _class_score(bpt, blank_pdf, case_dir, variant)
     return per_method_scores
 
 
@@ -357,6 +368,8 @@ def _run_rescore(
         return 1
     import yaml
     bpt = yaml.safe_load(bpt_path.read_text(encoding="utf-8"))
+    from petey.validate.retype import resolve_blank
+    blank_pdf = resolve_blank(bpt)   # for the class check; None when the blank is gone
     form_id = run_dir.name.rsplit("_", 2)[0]
 
     print(f"[{'reextract' if reextract else 'rescore'}] "
@@ -457,6 +470,8 @@ def _run_rescore(
             print(f"  [{case_dir.name}] method={method} "
                   f"agree={v['agree']} differ={v['differ']} "
                   f"miss={v['extract_miss']} defect={v['gt_defect']}")
+        if blank_pdf is not None:
+            _class_score(bpt, blank_pdf, case_dir, case_dir.name)
         case_reports.append(per_method)
 
     n_fields = len(bpt.get("fields", {}))

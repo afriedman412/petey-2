@@ -6,8 +6,8 @@
 
 Where a value comes from:
   * the box's CLASS (from `synth.classify`, a page-grounded model call
-    cached once per form, or from the blueprint's semantic type when no
-    class map exists) picks the kind of value;
+    cached once per form) picks the kind of value; nothing here reads the
+    blueprint, which is the thing the case will judge;
   * the box's ENTITY picks WHOSE value: every entity in a case gets one
     persona and one business from `bank.yaml`, so the applicant's SSN is
     the same string in every applicant SSN box and differs from the
@@ -30,7 +30,6 @@ from typing import Any, Optional
 
 import yaml
 
-from petey.synth.classify import BUSINESS_CLASSES, SEMANTIC_TO_CLASS
 from petey.synth.local import _words, fit_to_widget, widget_limits
 
 BANK_PATH = Path(__file__).with_name("bank.yaml")
@@ -56,43 +55,6 @@ def load_bank(path: Path = BANK_PATH) -> dict:
     return _str(yaml.safe_load(path.read_text(encoding="utf-8")))
 
 
-def class_map_from_blueprint(bpt: dict) -> dict:
-    """A class map in the classifier's shape derived from the blueprint's own
-    typing: the fallback when no page-grounded classification is cached.
-    Every box is the applicant's."""
-    boxes: dict[str, dict] = {}
-    for name, spec in (bpt.get("fields") or {}).items():
-        ftype = spec.get("type", "string")
-        if spec.get("widgets"):
-            paths = {wb["path"] for wb in spec["widgets"].values() if wb.get("path")}
-            for p in paths:
-                boxes[p] = {"class": "choice", "entity": None, "control": "radio",
-                            "source": "blueprint"}
-            continue
-        path = (spec.get("widget") or {}).get("path")
-        if not path:
-            continue
-        control = (spec.get("widget") or {}).get("widget_type") or "text"
-        st = spec.get("semantic_type")
-        cls = SEMANTIC_TO_CLASS.get(st or "")
-        if cls is None:
-            cls = {"date": "date", "number": "money", "integer": "count", "boolean": "checkbox",
-                   "category": "choice"}.get(ftype)
-        if cls is None:
-            low = name.lower()
-            if low.endswith(("_mm",)) or "_mm_" in low:
-                cls = "date_month"
-            elif low.endswith(("_dd",)) or "_dd_" in low:
-                cls = "date_day"
-            elif low.endswith(("_yyyy", "_yy")):
-                cls = "date_year"
-            else:
-                cls = "free_text"
-        boxes[path] = {"class": cls, "entity": "applicant" if control == "text" else None,
-                       "control": control, "source": "blueprint"}
-    return {"form": bpt.get("name"), "model": "blueprint", "boxes": boxes}
-
-
 # ------------------------------------------------------------- helpers
 
 def _digits(s: str) -> str:
@@ -109,11 +71,14 @@ def _money(rng: random.Random) -> str:
 
 
 def _other_id(rng: random.Random, bank: dict, maxlen: int) -> str:
-    """Digits only: account, policy, claim and file numbers are numeric on
-    the forms in hand, and the blueprint's `account_number` pattern gates
-    on digits. Letter-prefixed identifiers (A-Numbers) are a later class."""
-    n = maxlen if 0 < maxlen <= 12 else rng.choice([8, 9, 10])
-    return "".join(rng.choice("0123456789") for _ in range(max(n, 1)))
+    """An identifier of no particular kind: a bank prefix plus digits when
+    the box is unbounded, digits alone when it declares a length. A
+    blueprint pattern that rejects one of these is a question about the
+    pattern (Andrew, 2026-09-30), not a reason to shape the value."""
+    if 0 < maxlen <= 12:
+        return "".join(rng.choice("0123456789") for _ in range(maxlen))
+    pre = rng.choice(bank.get("id_prefixes") or ["A"])
+    return f"{pre}{rng.randint(100000000, 999999999)}"
 
 
 def _box_len(lim: Optional[dict]) -> int:
@@ -400,14 +365,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Bank-backed synthetic case from a cached class map.")
     ap.add_argument("blank", type=Path)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--bpt", type=Path, help="fallback class map from this blueprint")
     ap.add_argument("--out", type=Path)
     args = ap.parse_args()
     cmap = classify_form(args.blank, cache_only=True)
     if cmap is None:
-        if not args.bpt:
-            raise SystemExit("no cached classification for this blank; pass --bpt for the fallback")
-        cmap = class_map_from_blueprint(yaml.safe_load(args.bpt.read_text(encoding="utf-8")))
+        raise SystemExit("no cached classification for this blank; run petey.synth.classify first")
     gt = generate_from_bank(cmap, args.blank, seed=args.seed)
     text = json.dumps(gt, indent=2)
     if args.out:
