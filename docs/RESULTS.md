@@ -676,7 +676,7 @@ beside a box is a question or a watermark) — parked with the flat-form work.
 
 ## Page-grounded classification, value bank and case sets (2026-09-30, `petey/synth/classify.py`, `petey/synth/bank.py`, `petey/validate/class_check.py`)
 
-TODO_v6's synthetic-data plan, steps 1-4, built and run on the five test forms. The classifier sees what the blind
+The TODO's synthetic-data plan, steps 1-4, built and run on the five test forms. The classifier sees what the blind
 generator sees (page image with numbered red boxes, an inventory of ids and control types, no names, no export
 values) and returns per box the caption it read, a class from a closed 40-name vocabulary, whose value it is
 (`entity`), and for checkboxes the question a set of boxes answers (`group`). Cached once per blank, model and

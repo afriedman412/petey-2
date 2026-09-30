@@ -179,7 +179,7 @@ def _run_case(
         # on the case key so reruns reproduce.
         gt = generate_local(bpt, blank_pdf, seed=seed_from_key(gen_cache_key))
     elif (gen_model or model) == "bank":
-        # Value bank keyed by the page-grounded class map (TODO v6 synthetic
+        # Value bank keyed by the page-grounded class map (TODO, synthetic
         # data, steps 1-2). The classification is one cached call per form.
         # Nothing here reads the blueprint: an uncached form under
         # --gen-cache-only is skipped, never typed from the blueprint.
@@ -549,7 +549,7 @@ def main() -> int:
                          "truth or skip the case")
     ap.add_argument("--case-set", type=int, default=None, metavar="N",
                     help="run a versioned case set: --n-cases intact cases keyed "
-                         "<gen-key>_setN_caseK, frozen once generated (TODO v6 step 3)")
+                         "<gen-key>_setN_caseK, frozen once generated (TODO, synthetic data step 3)")
     ap.add_argument("--n-cases", type=int, default=None,
                     help="intact cases in the set (default 3 with --case-set, else 1)")
     ap.add_argument("--fresh-flat-gt", action="store_true",

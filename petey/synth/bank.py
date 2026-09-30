@@ -1,4 +1,4 @@
-"""Bank-backed case builder (TODO v6, synthetic data step 2).
+"""Bank-backed case builder (TODO, synthetic data step 2).
 
 `generate_from_bank(class_map, blank_pdf, seed=...)` returns
 `{acroform_path: value}` in the shape `generate_from_pdf` and
