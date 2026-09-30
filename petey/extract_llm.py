@@ -144,7 +144,7 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
     # Models up to the 4.6 generation take a temperature; the 5 generation
     # rejects sampling parameters and takes an effort level instead.
     if re.search(r"-(4-[0-6]|3-\d)", model):
-        kwargs["temperature"] = 0
+        kwargs["extra_body"] = {"temperature": 0}   # not a typed parameter in SDK 1.x
     else:
         kwargs["output_config"] = {"effort": "low"}
     with client.messages.stream(**kwargs) as stream:
