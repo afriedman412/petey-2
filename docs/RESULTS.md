@@ -277,3 +277,32 @@ made findable fields unfindable, and page-number qualifiers on repeated sections
 renames only when the name describes another box or cannot tell this box apart, with section context supplied.
 Observation for the generator: repeated page-header copies of one identifier (the SSN on every 526EZ page) hold
 the same value on a real filing; the blind generator's uniqueness rule gives each copy a different one.
+
+## Model comparison with the loop as judge (2026-09-29, `eval/reader_models.py`, `iterate.py --review-model`)
+**Readers** (same run, same filled PDF, same ground truth, same fields; text layer except 526EZ in image mode).
+`defect` = the reader returned another box's value where the by-path read was right; those become flags.
+
+| form (fields) | Sonnet 4.6, temp 0 | Sonnet 5, low effort | Haiku 4.5, temp 0 |
+|---|---|---|---|
+| W-9 (23) | 16 agree, 0 defect, 1.7¢ | 18, 0, 1.4¢ | 17, 0, 0.4¢ |
+| ACORD 25 (128) | 119, 0, 6.7¢ | 119, 0, 6.0¢ | 108, **5**, 2.4¢ |
+| I-765 (140) | 111, 18, 11.5¢ | 101, 18, 25.9¢ (194 s) | 80, **37**, 3.5¢ |
+| 21-526EZ (328, image) | 282, 7 | 282, 6, 29¢ | 265, **21**, 8.5¢ |
+
+Sonnet 4.6 and Sonnet 5 read alike; Sonnet 5 costs more here because its thinking is billed as output even at low
+effort. Haiku is 3-5x cheaper and two to three times more likely to flag a correct field as a defect, and every false
+flag is a paid reviewer call — not a judge. Reader noise floor: on I-765 the same blueprint gave 40 and 45 detections
+on different runs at temperature 0, so differences of a few fields per round are not signal.
+
+**Reviewers** (same flagged fields; the Sonnet 4.6 reader judges; each model starts from the committed blueprint).
+
+| form | Opus 5 | Sonnet 5 | Haiku 4.5 |
+|---|---|---|---|
+| ACORD 25 (6 flagged) | 6 fixes, 6 better, clean, 4.0¢ | same 6, clean, 1.9¢ | same 6, clean, 0.7¢ |
+| W-9 (4 flagged) | 1 fix, better, 3.6¢ | 4 fixes, 1 better, 3 kept, 1.5¢ | 1 fix, better, 0.5¢ |
+| I-765 (32-37 flagged) | 13 fixes: 3 better, **1 worse**, 5 no-op renames restored, 29¢ | 3 fixes: 1 better, 20¢ | 27 fixes: 2 better, 9 kept, 0 worse, 4.5¢ |
+
+On the two easy forms all three models make the same fixes and Haiku costs a sixth of Opus. On the hard form no model
+produced a clear win within the judge's noise floor, and Opus was the only one to make a field worse (restored by the
+loop). Nothing measured here justifies Opus for the reviewer; the loop's per-field judgment is what protects the
+blueprint, not the model tier. I-765 rerun with the truncation fix: 32 fields reviewed, nothing lost.
