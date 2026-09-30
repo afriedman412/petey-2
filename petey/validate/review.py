@@ -76,7 +76,8 @@ rows) and needs the copy or row in it.
 
 For each field decide: "ok" if the definition is right and the flag is the \
 generator's or reader's fault, or "fix" with only the attributes that should \
-change. Publisher evidence (tooltip, XFA declaration, readable field name) \
+change (null means unchanged; list an attribute in `remove` to drop it, e.g. a \
+wrong semantic_type). Publisher evidence (tooltip, XFA declaration, readable field name) \
 outranks printed text, which outranks the current name. A box that holds part of \
 a value (month, day, year, one segment of an SSN or phone) is a string with a \
 digit pattern and a name that says which part. Keep names unique on the form; \
@@ -99,10 +100,12 @@ DECISION_SCHEMA = {
                     "pattern": {"type": ["string", "null"]},
                     "values": {"type": ["array", "null"], "items": {"type": "string"}},
                     "description": {"type": ["string", "null"]},
+                    "remove": {"type": "array", "items": {"type": "string", "enum": [
+                        "semantic_type", "pattern", "values", "description"]}},
                     "reason": {"type": "string"},
                 },
                 "required": ["field", "verdict", "name", "type", "semantic_type", "pattern",
-                             "values", "description", "reason"],
+                             "values", "description", "remove", "reason"],
                 "additionalProperties": False,
             },
         },
@@ -298,6 +301,12 @@ def apply_decisions(bp: dict, decisions: list[dict], model: str) -> collections.
             if v not in (None, "", []) and v != spec.get(k):
                 spec[k] = v
                 touched.append(k)
+        for k in d.get("remove") or []:
+            if k == "values" and spec.get("type") in ("category", "multi_category"):
+                continue  # a category needs its values
+            if k in spec and k not in touched:
+                spec.pop(k)
+                touched.append(f"-{k}")
         if spec.get("type") != "string":
             spec.pop("pattern", None)
         if spec.get("type") not in ("category", "multi_category") and "values" in spec and not spec.get("widgets"):
