@@ -250,3 +250,30 @@ chain is the repeated veteran/claimant section, where the by-name reader picks t
 class that correct.py can fix losslessly is small in this library; the bulk of the 589 candidates are
 under-specified names on repeated sections and table rows, which is a naming-convention question (row/copy
 prefixes) rather than a rebind.
+
+## The LLM reviewer, judged by the loop (2026-09-29, `petey/validate/review.py`, `iterate.py --review flagged`)
+The reviewer sees only fields the detectors flagged, with an evidence bundle each (spec, box size and max length,
+the publisher's field name and tooltip, the XFA declaration, printed words near the box, the section heading,
+sibling copies, and what the detectors observed). It returns a verdict per field as strict JSON. The loop
+re-validates and keeps each change only if that field's status improved; a rename that changes nothing is restored.
+
+**Two measurement bugs found and fixed on the way.** (1) The name-based reader saw only the first 12 pages; on
+526EZ that hid 116 fields on pages 13-15, and every earlier reader number for that form (133/129/66, 173/106/49,
+190/99/39) was mostly that cap. The reader now gets every page that carries a field. (2) The reader sampled at the
+default temperature, so a one-field change on I-765 moved its numbers by nine fields; it now samples at
+temperature 0 (low effort on 5-generation models). Also: a 40-field review chunk on I-765 hit the 32k output cap
+and lost all 40 decisions for $0.90 — now 64k, 25 fields per call, split-and-retry on truncation.
+
+**526EZ with the corrected reader** (all 328 fields visible): reader agree **278 (85%)**, not found 0, real name
+defects 11, format quibbles 39 (partial comb reads), shape contradictions 39 (35 approximate dates). One review
+round (claude-opus-5, medium, **$0.36**): 50 flagged, 12 fixes proposed, **9 better, 0 worse, 3 no-op renames
+restored**; agree 278 -> 282, name defects 11 -> 7, shape 39 -> 37.
+
+**Reference forms** (text-layer reader, one round each): ACORD 25 — 6 fixes, all better, contradictions 8 -> 0,
+clean, $0.04. W-9 — 1 fix, better, $0.04. I-765 — truncated (above); rerun pending.
+
+Earlier rounds on the capped reader taught the rename policy: cosmetic renames (`_txt` suffixes, normalising)
+made findable fields unfindable, and page-number qualifiers on repeated sections helped nothing; the prompt now
+renames only when the name describes another box or cannot tell this box apart, with section context supplied.
+Observation for the generator: repeated page-header copies of one identifier (the SSN on every 526EZ page) hold
+the same value on a real filing; the blind generator's uniqueness rule gives each copy a different one.

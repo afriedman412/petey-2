@@ -31,7 +31,7 @@ fields:
     - description_from_tooltip
   current_mailing_address_line_1_txt:
     type: string
-    semantic_type: street_address
+    semantic_type: email
     widget:
       page: 9
       rect:
@@ -45,6 +45,18 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Publisher field name (Email_Address_Optional) and tooltip both say this
+        box holds the optional email address, not a mailing address line; street_address
+        semantic type is wrong.
+      before:
+        type: string
+        semantic_type: street_address
+        description: 11. EMAIL ADDRESS (Optional). Line 1.
+      judged: 'kept: 1 -> 0'
   veteran_nm:
     type: string
     semantic_type: person_name
@@ -2575,7 +2587,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  veteran_ssn_part1_2:
+  veteran_ssn_part1_service_info:
     type: string
     semantic_type: id_part
     pattern: ^\d{1,3}$
@@ -2593,7 +2605,20 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter first three numbers.
     x_petey_description_source: tooltip
-  veteran_ssn_part2_2:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - name
+      reason: Numeric _2 suffix does not identify which repeated SSN header this is;
+        qualify with the section it sits in (Service Information).
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+        description: Veteran's Social Security Number. Enter first three numbers.
+      old_name: veteran_ssn_part1_2
+      judged: 'kept: 3 -> 0'
+  veteran_ssn_part2_service_info:
     type: string
     semantic_type: id_part
     pattern: ^\d{1,2}$
@@ -2611,7 +2636,20 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter middle two numbers.
     x_petey_description_source: tooltip
-  veteran_ssn_part3_2:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - name
+      reason: Numeric _2 suffix does not identify which repeated SSN header this is;
+        qualify with the section it sits in (Service Information).
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+        description: Veteran's Social Security Number. Enter middle two numbers.
+      old_name: veteran_ssn_part2_2
+      judged: 'kept: 3 -> 0'
+  veteran_ssn_part3_service_info:
     type: string
     semantic_type: id_part
     pattern: ^\d{1,4}$
@@ -2629,6 +2667,19 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter last four numbers.
     x_petey_description_source: tooltip
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - name
+      reason: Numeric _2 suffix does not identify which repeated SSN header this is;
+        qualify with the section it sits in (Service Information).
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+        description: Veteran's Social Security Number. Enter last four numbers.
+      old_name: veteran_ssn_part3_2
+      judged: 'kept: 3 -> 0'
   other_name_served_under_txt:
     type: string
     semantic_type: person_name
@@ -3519,7 +3570,7 @@ fields:
   current_unit_phone_number_txt:
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^\(?\d{3}\)?[-. ]?\d{3}[-. ]?\d{4}$
     widget:
       page: 12
       rect:
@@ -3533,6 +3584,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      reason: Free-text box with no comb/maxlen; the publisher only asks for a phone
+        number including area code, so the strict 000-000-0000 pattern is over-constrained.
+        Widened to accept common area-code formats.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+        description: 21. E. CURRENT OR ASSIGNED PHONE NUMBER OF UNIT (Include Area
+          Code).
+      judged: 'kept: 1 -> 0'
   will_receive_military_retired_pay_explanation_txt:
     type: string
     semantic_type: text
@@ -4024,10 +4089,31 @@ fields:
       - 176.781982421875
       widget_type: radiobutton
       path: F[0].#subform[12].RadioButtonList[15]
-    description: 'One of: 1 = YES; 2 = NO'
+    description: '27C. BRANCH OF SERVICE. One of: 0 = ARMY; 1 = NAVY; 2 = MARINE CORPS;
+      3 = AIR FORCE; 4 = COAST GUARD; 5 = SPACE FORCE; 6 = NOAA; 7 = USPHS.'
     x_petey_description_source: xfa_choices
     x_petey_retype:
     - description_from_xfa_choices
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: The eight export values 0-7 match the eight printed branch choices;
+        the YES/NO description was copied from the neighboring 27A question and made
+        the reader pick a different box. Name and values are correct.
+      before:
+        type: category
+        values:
+        - '0'
+        - '1'
+        - '2'
+        - '3'
+        - '4'
+        - '5'
+        - '6'
+        - '7'
+        description: 'One of: 1 = YES; 2 = NO'
+      judged: 'kept: 3 -> 0'
   poa_signature_dt_yr:
     type: string
     widget:
@@ -4162,7 +4248,7 @@ fields:
       - 374.7229919433594
       widget_type: text
       path: F[0].#subform[13].Digital_Signature[2]
-  veteran_ssn_4:
+  veteran_ssn_first3_alternate_signer:
     type: string
     semantic_type: id_part
     pattern: ^\d{1,3}$
@@ -4180,7 +4266,21 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter first three numbers.
     x_petey_description_source: tooltip
-  veteran_ssn_2_2:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - name
+      reason: Numeric suffix cannot distinguish this SSN segment from the other copies;
+        renamed to state the segment (first three digits) and the Section XI alternate
+        signer copy it belongs to.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+        description: Veteran's Social Security Number. Enter first three numbers.
+      old_name: veteran_ssn_4
+      judged: 'kept: 3 -> 0'
+  veteran_ssn_middle2_alternate_signer:
     type: string
     semantic_type: id_part
     pattern: ^\d{1,2}$
@@ -4198,7 +4298,20 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter middle two numbers.
     x_petey_description_source: tooltip
-  veteran_ssn_3_2:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - name
+      reason: Name did not identify which SSN segment or which repeated copy; tooltip
+        says middle two numbers, Section XI alternate signer page.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+        description: Veteran's Social Security Number. Enter middle two numbers.
+      old_name: veteran_ssn_2_2
+      judged: 'kept: 3 -> 0'
+  veteran_ssn_last4_alternate_signer:
     type: string
     semantic_type: id_part
     pattern: ^\d{1,4}$
@@ -4216,6 +4329,19 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter last four numbers.
     x_petey_description_source: tooltip
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - name
+      reason: Name did not identify which SSN segment or which repeated copy; tooltip
+        says last four numbers, Section XI alternate signer page.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+        description: Veteran's Social Security Number. Enter last four numbers.
+      old_name: veteran_ssn_3_2
+      judged: 'kept: 3 -> 0'
   veteran_ssn_part1_3:
     type: string
     semantic_type: id_part
