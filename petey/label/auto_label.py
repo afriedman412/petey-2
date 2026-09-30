@@ -64,6 +64,9 @@ from petey.locate import enumerate_geometry
 from petey.locate.acroform import enumerate_widgets, _widget_type_string, _unescape_pdf_name  # noqa: F401
 
 MODEL = "claude-sonnet-4-6"
+# Call-log tag prefix; main() appends the form name so one form's labeler
+# usage can be summed even when several forms label concurrently.
+CALL_TAG = "auto_label"
 # Measured, not estimated: 150 labels cost 4,190 output tokens on Form 1025
 # page 3, so ~28 tokens per label — not the 15-20 assumed when LABEL_BATCH was
 # chosen. At 8192 the ceiling held only ~290 labels, which a single dense page
@@ -472,7 +475,7 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
     stop = getattr(final, "stop_reason", None)
     usage = getattr(final, "usage", None)
     call_log.record(
-        f"auto_label/{model}", raw=text, finish_reason=stop,
+        f"{CALL_TAG}/{model}", raw=text, finish_reason=stop,
         request={"widgets": len(widgets_on_page),
                  "max_tokens": MAX_TOKENS,
                  "prompt_chars": len(user_text)},
@@ -1000,6 +1003,8 @@ def main() -> int:
     name = args.name or (args.output.stem if args.output else None) or (identity or {}).get("form_id")
     if not name:
         raise SystemExit("--name or --output is required with --no-register")
+    global CALL_TAG
+    CALL_TAG = f"auto_label/{name}"
     if args.output is None:
         from petey.paths import BLUEPRINTS
         args.output = BLUEPRINTS / f"{name}.bpt"
