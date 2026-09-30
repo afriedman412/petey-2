@@ -269,14 +269,29 @@ def widget_limits(blank_pdf: Optional[Path]) -> dict[str, dict]:
     try:
         for page in doc:
             for w in page.widgets() or []:
-                if w.field_type != pymupdf.PDF_WIDGET_TYPE_TEXT:
-                    continue
-                out[w.field_name] = {
-                    "maxlen": int(w.text_maxlen or 0),
-                    "comb": bool((w.field_flags or 0) & _COMB_FLAG),
-                    "width": float(w.rect.width),
-                    "tooltip": (w.field_label or "").strip(),
-                }
+                kind = {pymupdf.PDF_WIDGET_TYPE_TEXT: "text",
+                        pymupdf.PDF_WIDGET_TYPE_CHECKBOX: "checkbox",
+                        pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON: "radiobutton",
+                        pymupdf.PDF_WIDGET_TYPE_COMBOBOX: "combobox",
+                        pymupdf.PDF_WIDGET_TYPE_LISTBOX: "listbox"}.get(w.field_type, "other")
+                entry = out.get(w.field_name) or {"kind": kind, "on_states": []}
+                if kind == "text":
+                    entry.update({
+                        "maxlen": int(w.text_maxlen or 0),
+                        "comb": bool((w.field_flags or 0) & _COMB_FLAG),
+                        "width": float(w.rect.width),
+                        "tooltip": (w.field_label or "").strip(),
+                    })
+                elif kind in ("checkbox", "radiobutton"):
+                    try:
+                        on = w.on_state()
+                    except Exception:
+                        on = None
+                    if on and on not in entry["on_states"]:
+                        entry["on_states"].append(on)
+                    entry.setdefault("tooltip", (w.field_label or "").strip())
+                    entry["rects"] = entry.get("rects", []) + [[round(c, 1) for c in w.rect]]
+                out[w.field_name] = entry
     finally:
         doc.close()
     return out
@@ -319,6 +334,19 @@ def fit_to_widget(value: Any, limits: Optional[dict], spec: dict,
         return value
     v = value
     maxlen = limits.get("maxlen") or 0
+    if spec.get("type") == "date" and re.fullmatch(r"\d{4}-\d{2}-\d{2}", v):
+        # A date is never cut: pick the longest printed form the box
+        # holds (the scorer canonicalises all of them). Boxes 40-55pt
+        # wide were getting "2016-11", which is not a date.
+        budget = int(limits.get("width", 0) / _PT_PER_CHAR) if limits.get("width") else 0
+        if maxlen:
+            budget = min(budget, maxlen) if budget else maxlen
+        y, m, d = v.split("-")
+        forms = [v, f"{m}/{d}/{y}", f"{m}/{d}/{y[2:]}", f"{int(m)}/{int(d)}/{y[2:]}", f"{m}{d}{y[2:]}"]
+        for f in forms:
+            if not budget or len(f) <= budget:
+                return f
+        return forms[-1]
     if maxlen and len(v) > maxlen:
         compact = re.sub(r"[^A-Za-z0-9]", "", v)
         v = compact if compact else v
@@ -365,9 +393,26 @@ def generate_local(
             continue
         if ftype == "category":
             values = spec.get("values") or []
+            lim = limits.get(path) or {}
+            real = lim.get("on_states") or []
+            if real and not set(values) & set(real):
+                values = real  # the blueprint's values do not match the widget's states
             gt[path] = rng.choice(values) if values and rng.random() < fill_rate else ""
         elif ftype == "boolean":
-            gt[path] = rng.random() < check_rate
+            lim = limits.get(path) or {}
+            if lim.get("kind") == "radiobutton":
+                # The blueprint calls it a checkbox, the AcroForm says it is
+                # one member of a radio group (class yn_column). The fill
+                # selects a radio by on-state, so "True" would never land.
+                # Pick this member's own on-state; sibling members of the
+                # same group share the path, so the last draw wins.
+                ons = lim.get("on_states") or []
+                if rng.random() < check_rate and ons:
+                    gt[path] = rng.choice(ons)
+                else:
+                    gt.setdefault(path, "")
+            else:
+                gt[path] = rng.random() < check_rate
         else:
             if spec.get("required") or rng.random() < fill_rate:
                 v = None
