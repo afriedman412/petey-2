@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import base64
 import json
+import time
 import re
 from pathlib import Path
 from typing import Any, Optional
@@ -421,9 +422,95 @@ def _extract_json_object(text: str) -> Optional[dict]:
     return None
 
 
+# Other vendors' models speak the OpenAI chat-completions dialect at their own
+# endpoints; one client class covers them all. Keys come from this repo's .env,
+# then petey-master's (the user keeps the non-Anthropic keys there).
+PROVIDERS = {
+    # prefix -> (base_url, key env var). None base_url = api.openai.com
+    "gpt-": (None, "OPENAI_API_KEY"),
+    "o1": (None, "OPENAI_API_KEY"),
+    "o3": (None, "OPENAI_API_KEY"),
+    "o4": (None, "OPENAI_API_KEY"),
+    "gemini-": ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY"),
+    "deepseek-": ("https://api.deepseek.com", "DEEPSEEK_API_KEY"),
+    "mistral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
+    "pixtral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
+    "accounts/fireworks/": ("https://api.fireworks.ai/inference/v1", "FIREWORKS_API_KEY"),
+}
+_ENV_FILES = (Path(__file__).resolve().parents[2] / ".env",
+              Path(__file__).resolve().parents[3] / "petey-master" / ".env")
+
+
+def provider_for(model: str):
+    """(base_url, key_env) for a non-Anthropic model id, else None."""
+    for pre, cfg in PROVIDERS.items():
+        if model.startswith(pre):
+            return cfg
+    return None
+
+
+def _load_keys() -> None:
+    import os
+    for env in _ENV_FILES:
+        if not env.exists():
+            continue
+        for line in env.read_text().splitlines():
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+def make_client(model: str):
+    """An SDK client for `model`: Anthropic by default, OpenAI-compatible for
+    the vendors in PROVIDERS."""
+    import os
+    _load_keys()
+    cfg = provider_for(model)
+    if cfg is None:
+        import anthropic
+        return anthropic.Anthropic()
+    from openai import OpenAI
+    base_url, key_env = cfg
+    key = os.environ.get(key_env)
+    if not key:
+        raise RuntimeError(f"{key_env} not set (looked in {', '.join(str(e) for e in _ENV_FILES)})")
+    return OpenAI(api_key=key, base_url=base_url, timeout=600)
+
+
+def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system: str,
+                                     user_text: str, tag: str) -> str:
+    """Same page, same prompt, chat-completions dialect. Returns the text."""
+    from petey.label import call_log
+    t0 = time.time()
+    data_url = "data:image/png;base64," + base64.standard_b64encode(page_png).decode("ascii")
+    kwargs = dict(
+        model=model,
+        messages=[{"role": "system", "content": system},
+                  {"role": "user", "content": [
+                      {"type": "image_url", "image_url": {"url": data_url}},
+                      {"type": "text", "text": user_text}]}],
+    )
+    # reasoning models take max_completion_tokens and reject temperature
+    if model.startswith(("gpt-5", "o1", "o3", "o4")):
+        kwargs["max_completion_tokens"] = MAX_TOKENS
+    else:
+        kwargs["max_tokens"] = MAX_TOKENS
+        kwargs["temperature"] = 0
+    resp = client.chat.completions.create(**kwargs)
+    choice = resp.choices[0]
+    text = choice.message.content or ""
+    u = getattr(resp, "usage", None)
+    call_log.record(tag, raw=text, finish_reason=getattr(choice, "finish_reason", None),
+                    request={"model": model, "prompt_chars": len(user_text)},
+                    usage={"input_tokens": getattr(u, "prompt_tokens", None),
+                           "output_tokens": getattr(u, "completion_tokens", None)} if u else None,
+                    elapsed=time.time() - t0)
+    return text
+
+
 def _call_llm_one_page(
     client, model: str, page_png: bytes, page_inventory: list[dict],
-    blind: bool = False,
+    blind: bool = False, tag: str = "generate",
 ) -> dict[str, Any]:
     """One LLM call for one page's widgets. Returns `{path: value}`
     (or `{box id: value}` in blind mode; the caller unblinds)."""
@@ -434,6 +521,14 @@ def _call_llm_one_page(
     else:
         user_text = USER_TEMPLATE.format(inventory_json=inventory_json)
         system = SYSTEM_PROMPT
+    if provider_for(model) is not None:
+        text = _call_openai_compatible_one_page(client, model, page_png, system, user_text, tag)
+        parsed = _extract_json_object(text)
+        if not parsed or "values" not in parsed:
+            raise RuntimeError(f"LLM did not return {{'values': {{...}}}}.\nGot: {text[:500]}")
+        if not isinstance(parsed["values"], dict):
+            raise RuntimeError(f"Expected dict under 'values', got {type(parsed['values'])}")
+        return parsed["values"]
     content = [
         {
             "type": "image",
@@ -445,6 +540,7 @@ def _call_llm_one_page(
         },
         {"type": "text", "text": user_text},
     ]
+    t0 = time.time()
     with client.messages.stream(
         model=model,
         max_tokens=MAX_TOKENS,
@@ -455,6 +551,13 @@ def _call_llm_one_page(
     text = "".join(
         b.text for b in final.content if getattr(b, "type", None) == "text"
     )
+    from petey.label import call_log
+    u = getattr(final, "usage", None)
+    call_log.record(tag, raw=text, finish_reason=getattr(final, "stop_reason", None),
+                    request={"model": model, "prompt_chars": len(user_text)},
+                    usage={"input_tokens": getattr(u, "input_tokens", None),
+                           "output_tokens": getattr(u, "output_tokens", None)} if u else None,
+                    elapsed=time.time() - t0)
     parsed = _extract_json_object(text)
     if not parsed or "values" not in parsed:
         raise RuntimeError(
@@ -499,7 +602,6 @@ def generate_from_pdf(
     when the same blank PDF is generated against multiple times (e.g., pass
     the form_id so different validation runs don't collide).
     """
-    import anthropic
     import hashlib
 
     pdf_path = Path(pdf_path)
@@ -551,13 +653,14 @@ def generate_from_pdf(
         if cache_only:
             return []  # caller decides; no API call is made
         if client is None:
-            client = anthropic.Anthropic()
+            client = make_client(model)
         merged: dict[str, Any] = {}
+        tag = f"generate/{cache_key_prefix or pdf_path.stem}/{model.replace('/', '_')}"
         for page_no in sorted(by_page.keys()):
             page_inventory = by_page[page_no]
             page_png = page_pngs[page_no - 1]
             values = _call_llm_one_page(
-                client, model, page_png, page_inventory, blind=blind,
+                client, model, page_png, page_inventory, blind=blind, tag=tag,
             )
             if blind:
                 values = unblind(values, key)
