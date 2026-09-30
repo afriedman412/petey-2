@@ -587,3 +587,34 @@ model + case key); every later loop run reuses it, and most library cases were i
 the product path only when a new form enters, once, and never during extraction. So its cost and latency are paid once
 per form; its quality is baked into every judgment on that form until someone regenerates — which argues for choosing
 the generator on precision and for more than one case per form.
+
+## Synthetic-case coverage audit and three fill-path bugs (2026-09-30)
+
+Andrew's question: how much of each target form do the cached synthetic cases cover? Distinct cases across
+petey-master's runs (non-blind, by path) and this week's blind generations, a group counted as filled when any option
+is selected:
+
+| form | cases | fields | filled per case | filled in at least one case | never filled |
+|---|---|---|---|---|---|
+| W-9 | 14 | 23 | 8-15 | 19 (83%) | C-corp / trust boxes, "other" classification |
+| ACORD 25 | 18 | 128 | 71-114 | 120 (94%) | 8 coverage flags (claims-made, hired autos, ...) |
+| I-765 | 21 | 140 | 95-126 | 136 (97%) | arrested/convicted, replacement EAD, 2 preparer-scope boxes |
+| 21-526EZ | 23 | 328 | 156-313 | 316 (96%) | signatures, "no date" flags, "other, specify" text |
+
+The never-filled fields are the legitimately rare ones; a single case covers 60-80% of a form and a handful of cases
+cover 94-97%. What the audit turned up on the way, all fixed:
+- **Blind inventory ignored checkbox-flagged option groups** (one field, several kids: CMS-1500 insurance type). The
+  kids were shown as independent true/false boxes and their answers overwrote one another on the shared path;
+  `blind_inventory` now groups them exactly as the emitter does (CMS-1500: 11 groups where there were none).
+- **Escaped on-states never filled.** I-765's unit-type boxes have on-states like `#20APT#20` (" APT "); the
+  filler passed the raw name and pymupdf left the box Off in every case since July. On-states are now decoded in the
+  filler and the local generator; I-765 by-path readback is 140 of 140 (was 136 with 4 misses on every run).
+- **Cluster options scored against the wrong value type.** A labeler cluster's options are separate checkbox fields
+  whose ground truth is a bool; the scorer compared it to the on-state string and reduced the group to nothing.
+- Labeler clusters now carry each option's on-state and a caption (the on-state word — Widowed / Divorced / Single /
+  Married — else page text): 1,231 on-states and 1,146 captions across 52 library forms.
+
+Andrew's directions from the same discussion: keep several cases per form as a versioned set (fixed within any
+comparison, refreshed when the generator changes) rather than regenerating every round; stockpile examples of
+recurring value types (SSN, address, phone) drawn from cases we trust; keep "extract a correct value" and "fix a
+malformed value" as separate problems.

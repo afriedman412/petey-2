@@ -41,7 +41,8 @@ def expand_blueprint(bp: dict, blank: Path) -> collections.Counter:
     changes: collections.Counter = collections.Counter()
     widgets, _dropped = enumerate_widgets(blank)
     grouped = option_group_paths(widgets)
-    if not grouped:
+    has_clusters = any(s.get("widgets") for s in (bp.get("fields") or {}).values())
+    if not grouped and not has_clusters:
         return changes
     members_by_path: dict[str, list[dict]] = collections.defaultdict(list)
     for w in widgets:
@@ -52,11 +53,25 @@ def expand_blueprint(bp: dict, blank: Path) -> collections.Counter:
     except Exception:
         tpl = None
 
+    on_by_path = {w["path"]: w.get("on_state") for w in widgets if w.get("on_state")}
     for name, spec in (bp.get("fields") or {}).items():
         widget = spec.get("widget") or {}
         if not widget and spec.get("widgets"):
             widget = next(iter(spec["widgets"].values()))
         path = widget.get("path")
+        if spec.get("widgets") and path and path not in grouped:
+            # a labeler cluster: separate checkbox fields grouped by name;
+            # give each option its on-state and a caption from it
+            n_on = n_cap = 0
+            for v, wb in spec["widgets"].items():
+                st = on_by_path.get(wb.get("path"))
+                if st and not wb.get("on_state"):
+                    wb["on_state"] = st; n_on += 1
+                st = wb.get("on_state")
+                if st and not wb.get("caption") and not st.isdigit() and st.lower() not in ("on", "off", "yes", "no", "true", "false"):
+                    wb["caption"] = st; n_cap += 1
+            changes["cluster_on_state"] += n_on; changes["cluster_captions"] += n_cap
+            continue
         if not path or path not in grouped:
             continue
         if spec.get("widgets"):

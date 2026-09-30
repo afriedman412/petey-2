@@ -31,6 +31,16 @@ from typing import Any
 import pymupdf
 
 
+def _unescape_pdf_name(s):
+    """`#20APT#20` -> ` APT `: pymupdf reports a kid's on-state as the raw PDF
+    name, but checks the kid only when given the decoded string (I-765 unit
+    types stayed Off in every case until 2026-09-30)."""
+    if not isinstance(s, str):
+        return s
+    import re
+    return re.sub(r"#([0-9A-Fa-f]{2})", lambda m: chr(int(m.group(1), 16)), s)
+
+
 def _coerce_checkbox_value(
     widget: pymupdf.Widget, value: Any,
 ) -> str:
@@ -41,7 +51,7 @@ def _coerce_checkbox_value(
     (universal PDF constant).
     """
     if value:
-        on = widget.on_state()
+        on = _unescape_pdf_name(widget.on_state())
         return on if on else "Yes"
     return "Off"
 
@@ -120,7 +130,7 @@ def render_pdf(
                         n_text_filled += 1
                     elif wt == pymupdf.PDF_WIDGET_TYPE_CHECKBOX:
                         if name in checkbox_groups:
-                            on = w.on_state()
+                            on = _unescape_pdf_name(w.on_state())
                             w.field_value = on if (value not in (None, "", False) and str(value) == str(on)) else "Off"
                         else:
                             w.field_value = _coerce_checkbox_value(w, value)
@@ -155,7 +165,7 @@ def render_pdf(
                 if name not in wanted:
                     continue
                 try:
-                    on = w.on_state()
+                    on = _unescape_pdf_name(w.on_state())
                     if on != wanted[name]:
                         # Do NOT write to siblings. Every member of a radio
                         # group shares one AcroForm /V, so selecting the

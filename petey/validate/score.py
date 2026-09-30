@@ -254,10 +254,12 @@ def _option_selected(raw, w_block: dict) -> bool:
     when the field holds that state; older per-field checkbox clusters keep
     the "path is checked" rule."""
     st = w_block.get("on_state")
-    if st:
+    if st and not isinstance(raw, bool):
+        # one field, several kids: the field holds the selected on-state
         if isinstance(raw, (list, tuple, set)):
             return st in {str(x) for x in raw}
         return raw not in (None, "", "Off") and str(raw) == str(st)
+    # its own checkbox field (a labeler cluster): the generator writes a bool
     return _coerce_bool(raw) is True
 
 

@@ -278,6 +278,30 @@ def blind_inventory(pdf_path: Path) -> tuple[dict[int, list[dict]], dict[str, di
     reach the model, so its values cannot be steered by the same evidence
     the labeler uses.
     """
+    # Checkbox FIELDS with several kids and distinct on-states are option
+    # groups too (I-765 marital status, unit types; CMS-1500 insurance
+    # type). Shown as independent true/false boxes, the kids' answers
+    # overwrite one another on the shared path and every blind case left
+    # the group unselected (found 2026-09-30: 8 of 8 I-765 cases).
+    group_paths: set[str] = set()
+    scan = pymupdf.open(str(pdf_path))
+    try:
+        kids: dict[str, int] = {}
+        states: dict[str, set] = {}
+        for page in scan:
+            for w in page.widgets() or []:
+                if w.field_type == pymupdf.PDF_WIDGET_TYPE_CHECKBOX:
+                    kids[w.field_name] = kids.get(w.field_name, 0) + 1
+                    try:
+                        on = w.on_state()
+                    except Exception:
+                        on = None
+                    if on:
+                        states.setdefault(w.field_name, set()).add(on)
+        group_paths = {n for n, k in kids.items() if k > 1 and len(states.get(n, ())) > 1}
+    finally:
+        scan.close()
+
     doc = pymupdf.open(str(pdf_path))
     per_page: dict[int, list[dict]] = {}
     key: dict[str, dict] = {}
@@ -295,7 +319,7 @@ def blind_inventory(pdf_path: Path) -> tuple[dict[int, list[dict]], dict[str, di
                 bid = str(next_id)
                 next_id += 1
                 rect = [round(c, 2) for c in w.rect]
-                if wt == "radiobutton":
+                if wt == "radiobutton" or (wt == "checkbox" and w.field_name in group_paths):
                     g = radio_groups.get(w.field_name)
                     if g is None:
                         gid = str(next_id)

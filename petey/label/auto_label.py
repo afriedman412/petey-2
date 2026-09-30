@@ -933,6 +933,8 @@ def build_blueprint(
             group, value = label.split(".", 1)
             if value in mutex_widgets.get(group, {}):
                 continue
+            if w.get("on_state"):
+                widget_block = dict(widget_block, on_state=w["on_state"])
             mutex_widgets.setdefault(group, {})[value] = widget_block
             continue
         assigned = dedup.assign(
@@ -950,6 +952,29 @@ def build_blueprint(
         _overlay_xfa(spec, w.get("path"))
         fields[assigned] = _attach_audit(spec, w["id"])
 
+    for group, val_to_widget in mutex_widgets.items():
+        values = sorted(val_to_widget.keys())
+        if len(values) <= 1:
+            for v, w_block in val_to_widget.items():
+                fields[f"{group}_{v}_ind"] = {
+                    "type": "boolean",
+                    "widget": w_block,
+                }
+            continue
+        fields[group] = {
+            "type": "category",
+            "values": values,
+            "widgets": val_to_widget,
+        }
+        # captions for the cluster's options: the on-state when the
+        # publisher wrote it as a word (I-765: Widowed / Divorced / Single /
+        # Married), else the page text beside the box
+        for v, wb in val_to_widget.items():
+            st = wb.get("on_state")
+            if st and not _ORDINAL_STATE.match(st) and st.lower() not in ("on", "off", "yes", "no", "true", "false"):
+                wb["caption"] = st
+        page_captions.append(val_to_widget)
+
     # captions still missing after the XFA and on-state rules come from the
     # page text beside (or above) each option box; nothing else is guessed
     if page_captions:
@@ -965,21 +990,6 @@ def build_blueprint(
             _doc.close()
         if n_page_captions:
             print(f"  [captions] {n_page_captions} option captions from page text")
-
-    for group, val_to_widget in mutex_widgets.items():
-        values = sorted(val_to_widget.keys())
-        if len(values) <= 1:
-            for v, w_block in val_to_widget.items():
-                fields[f"{group}_{v}_ind"] = {
-                    "type": "boolean",
-                    "widget": w_block,
-                }
-            continue
-        fields[group] = {
-            "type": "category",
-            "values": values,
-            "widgets": val_to_widget,
-        }
 
     bp = {
         "bpt_version": BPT_VERSION,  # re-stamped from content below

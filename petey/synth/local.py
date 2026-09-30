@@ -285,7 +285,7 @@ def widget_limits(blank_pdf: Optional[Path]) -> dict[str, dict]:
                     })
                 elif kind in ("checkbox", "radiobutton"):
                     try:
-                        on = w.on_state()
+                        on = _unescape_pdf_name(w.on_state())
                     except Exception:
                         on = None
                     if on and on not in entry["on_states"]:
