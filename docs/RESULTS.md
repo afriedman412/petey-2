@@ -319,3 +319,85 @@ Fine on a one-page form, then a cliff: on 128-140 fields they find about half an
 defects, at 5-6x the wall-clock. Not a judge. The local-model slot that remains plausible is a narrow naming model
 trained on loop-judged pairs (`runs/review_pairs.jsonl` now accumulates evidence, decision and loop outcome per
 reviewed field), not a general reader.
+
+## Relabel test: the current emitter against the committed blueprints (2026-09-29, `docs/RELABEL_PLAN_v1.md`, `eval/relabel_compare.py`)
+
+Five blanks relabeled from scratch into side copies (`--no-register --no-retrieval`, labeler `claude-sonnet-4-6`), each
+scored by the loop against the same cached ground truth as its committed counterpart, then one Haiku review round on the
+relabel. The committed blueprints carry every retype pass and, for 526EZ, the accepted Opus review; the relabels carry
+only what the emitter does today (XFA declarations, tooltips as descriptions, box-geometry rules at emit).
+
+| form | version | fields | emit fixes | shape contradictions | name-based reader | name defects | Haiku review (relabel) | labeling (Sonnet 4.6) | names vs committed |
+|---|---|---|---|---|---|---|---|---|---|
+| fw9 | committed | 23 |  | 1 {'pattern_vs_value': 1} | 16/23 agree, 4 differ, 3 miss | 0 |  |  |  |
+| fw9 | relabel | 17 | wide_widget_short_pattern 1 | 0 | 10/17 agree, 4 differ, 3 miss | 0 | 3 flagged, 0 fixes, $0.00 | 24,673 in / 758 out, $0.09, 9c/page | 13/23 identical, token jaccard 0.70 |
+| acord25 | committed | 128 |  | 6 {'pattern_vs_value': 6} | 115/128 agree, 8 differ, 5 miss | 0 |  |  |  |
+| acord25 | relabel | 128 | none | 0 | 121/128 agree, 2 differ, 5 miss | 0 | no flags | 21,636 in / 2,824 out, $0.11, 11c/page | 24/128 identical, token jaccard 0.58 |
+| i765 | committed | 140 |  | 8 {'pattern_vs_value': 8} | 104/140 agree, 31 differ, 5 miss | 25 |  |  |  |
+| i765 | relabel | 154 | wide_widget_short_pattern 15, separators_dropped_by_maxlen 6 | 12 {'pattern_vs_value': 12} | 119/154 agree, 26 differ, 9 miss | 21 | 27 flagged, 27 fixes: 3 better / 0 worse / 0 restored, $0.03 | 72,775 in / 3,490 out, $0.27, 4c/page | 39/154 identical, token jaccard 0.65 |
+| vba21526ez | committed (after review) | 328 |  | 37 {'pattern_vs_value': 2, 'date_type_vs_value': 35} | 282/328 agree, 46 differ, 0 miss | 7 |  |  |  |
+| vba21526ez | relabel | 345 | date_narrow_widget->string 57, part_by_maxlen 7 | 37 {'pattern_vs_value': 2, 'date_type_vs_value': 35} | 300/345 agree, 45 differ, 0 miss | 6 | 43 flagged, 39 fixes: 19 better / 0 worse / 1 restored, $0.06 | 129,877 in / 8,034 out, $0.51, 7c/page | 33/343 identical, token jaccard 0.46 |
+| va_form_10_10ez | committed | (not run) |  |  |  |  |  |  |  |
+| va_form_10_10ez | relabel | 122 | wide_widget_short_pattern 1, separators_dropped_by_maxlen 1 | 8 {'date_type_vs_value': 6, 'pattern_vs_value': 2} | 95/122 agree, 6 differ, 21 miss | 6 | 27 flagged, 20 fixes: 8 better / 0 worse / 2 restored, $0.03 | 58,471 in / 2,583 out, $0.21, 7c/page |  |
+
+Reader = the name-based reader (`petey:pymupdf`; `petey:image` on 526EZ), Sonnet 4.6 at temperature 0; `agree` counts
+fields, so a relabel that collapses a checkbox cluster into one category field has fewer fields to agree on (W-9: the
+seven tax-classification boxes became one field; every one of the 23 widgets is still covered).
+
+**Per form.**
+- **W-9**: identical reader outcomes on all 23 widgets (same 4 differ, same 3 comb misses); the relabel's one
+  contradiction fewer is the retyped `account_number` pattern. Names agree on 13 of 23 widgets; the rest are
+  synonyms (`city_state_zip_cd` vs `_txt`). SSN/EIN parts came out `^\d{1,5}$` (the `id_part` default in
+  `semantic_types.py`); the committed parts were narrowed by box length in the retype pass, which the emitter's
+  `part_by_maxlen` rule only does when the widget carries MaxLen.
+- **ACORD 25**: the relabel is clean on the first pass, no flags. The committed blueprint's six phone contradictions are
+  six **misnamed fields**: `producer_phone_area_cd` / `_phone_nbr` and their insured / certificate-holder twins sit on
+  the state-abbreviation and ZIP boxes; the relabel names them `producer_state_abbreviation_cd` / `producer_zip_cd`.
+  Reader agree 121 vs 115. The one place where a fresh labeling beats every pass the old blueprint has been through.
+- **I-765**: 154 fields (the committed grouped 14 checkboxes into categories; both cover the same 154 widgets).
+  Reader agree 119 vs 104 and name defects 21 vs 25, both in the relabel's favour; shape contradictions 12 vs 8
+  against it — all twelve are inferred patterns that the generator's formatting contradicts (SSN with dashes against
+  `^\d{9}$`, `(617) 555-0234` against `^\d{10}$`, receipt numbers `MSC…` against `^\d{13}$`, eligibility-category
+  letters against the `id_part` default). The committed blueprint lost these to the retype pass; the emitter cannot,
+  because it has no values at emit time. That is what the loop is for, and it is the Haiku round's job below.
+- **21-526EZ**: 345 fields (the committed has 328 after review), shape contradictions 37 = 37 (the same 35 approximate
+  month/year dates typed `date`, on both), reader agree 300/345 vs 282/328 (87% both ways), name defects 6 vs 7 (the
+  committed had 11 before its Opus round). The fresh emitter reproduces the reviewed blueprint's quality in one pass
+  and $0.51 of labeling; `date_narrow_widget->string` fired 57 times on real names. Names agree on 33 of 343
+  widgets — the labeler does not produce the committed names, it produces names that work as well.
+- **10-10EZ** (no committed version; first fully new-emitter form): 122 fields, 8 contradictions (6 approximate
+  dates, 2 patterns), 6 name defects, 19 reader misses. The misses are radio groups whose values are the XFA export
+  codes (`0`/`1`), which the text-layer reader cannot locate — the `yn_column` class, not a text-layer problem (the
+  filled PDF's text layer carries 74 of 75 string values).
+
+**The Haiku review round** (`--review flagged --review-model claude-haiku-4-5`, per-field judgment by the loop):
+- W-9: 3 flagged, all `ok`, $0.004. ACORD 25: nothing flagged.
+- **I-765: 27 flagged, 27 "fixes": 25 of them removed the tooltip description**, 2 loosened patterns (better).
+  The per-field judge scored the 25 as `same_kept` because each reviewed field read the same afterwards — but the
+  whole form went from 37 detections to 51: sixteen **other** fields, the Part 6 additional-information rows, lost
+  their disambiguation and collided. The emitter's `description_from_tooltip` rule put the descriptions back on the
+  next iteration and the form returned to 37/21. Two lessons: (1) the judge is per field and blind to collateral
+  damage — it needs a whole-form guard (restore the round when `detected_after` exceeds `detected_before` by more
+  than the noise floor); (2) a reviewer must not be allowed to delete publisher-sourced descriptions, and Haiku
+  deletes them eagerly. $0.03.
+- 526EZ: 43 flagged, 39 fixes, the 35 approximate month/year dates retyped `date` -> `string` with a pattern:
+  **19 better, 1 restored**, detections 43 -> 24, contradictions 37 -> 18, $0.06. The 18 left are the patterns Haiku
+  put on those retyped dates, which the generator's values contradict in 16 cases — the fix traded one class for a
+  smaller one, and a second round would remove them. Compare the committed blueprint after its Opus round: 37
+  contradictions, 7 name defects, $0.36.
+- 10-10EZ: 27 flagged, 20 fixes — 6 approximate dates retyped, 6 patterns, 2 names: **8 better, 2 restored**,
+  contradictions 8 -> 0, name defects 6 -> 0, detections 33 -> 19, $0.03. The 19 left are the radio groups keyed by
+  export code, which no reviewer fix reaches (a generator/reader convention, not a blueprint defect). Here too Haiku
+  deleted 10 descriptions and the emitter's `description_from_xfa_choices` rule restored them a round later.
+
+**Labeling cost, measured** (Sonnet 4.6, one call per page, `runs/_calls/auto_label/<form>/`): 4–11¢ per page, 
+$1.19 for the five forms (49 pages, ~307k input / 18k output tokens); the plan's 9¢ estimate holds. Whole test with
+validations and reviews about $2.50, under the $6 budget.
+
+**Answers to the plan's questions.** The relabel matches or beats the retyped originals on every form on reader
+agreement and name defects; it is behind only on inferred patterns that the generator's formatting contradicts (I-765),
+which the loop removes in one round. The emit-time rules fire on real names (57 + 7 on 526EZ, 15 + 6 on I-765). No new
+regression class; the `yn_column` and `approximate_date_month_year` classes account for the residue. New forms can be
+generated with the current labeler as is; the 10-10EZ blueprint is fit to enter the library after one loop round. The
+reviewer's default stays a per-field judge with a whole-form guard to add before the next wider run; Haiku is fine on
+declarations and unsafe on descriptions.

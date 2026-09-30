@@ -39,8 +39,11 @@ def _load(p: Path):
 
 
 def _bp(stem: str):
-    p = BLUEPRINTS / f"{stem}.bpt"
-    return yaml.safe_load(open(p)) if p.exists() else None
+    # side copies live in blueprints/ while a test runs and move to runs/relabel/blueprints/ once recorded
+    for p in (BLUEPRINTS / f"{stem}.bpt", REL / "blueprints" / f"{stem}.bpt"):
+        if p.exists():
+            return yaml.safe_load(open(p))
+    return None
 
 
 def _by_path(bp) -> dict[str, str]:
