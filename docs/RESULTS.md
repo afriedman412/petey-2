@@ -500,3 +500,71 @@ generation only: I-765 — Sonnet 4.6 9.4¢, Gemini 3.1 Pro 6.4¢, Gemini 3.8 Fl
 DeepSeek flash 11¢ (its 90k reasoning tokens); ACORD 25 — 3.1¢ / 2.8¢ / 0.8¢ / 1.6¢ / 18¢ / 11¢ (v4-pro). So the
 better-realism generator (Gemini 3.1 Pro) is also a third cheaper than the default, and Gemini 3.8 Flash is a quarter
 of the default's price. The harness now tabulates dollars (`PRICES` in `eval/generator_models.py`).
+
+**Correction to the generator comparison (2026-09-30).** The `reader agree` column above counts every field the
+reader and the ground truth agree on, including fields empty in both. A generator that leaves fields blank collects
+that agreement for free, and the fill rates differ by 2x, so the column flattered the sparse fillers. Counted on the
+fields each generator actually filled (the harness now prints this):
+
+| form | generator | filled | reader agree on filled | $ | agreed fields per cent |
+|---|---|---|---|---|---|
+| ACORD 25 | claude-sonnet-4-6 | 78 | 63 (81%) | 3.1¢ | 20 |
+| | gpt-5.5 | 97 | 86 (89%) | 18¢ | 5 |
+| | gemini-3.8-flash | 78 | 73 (94%) | 0.8¢ | 91 |
+| | gemini-3.1-pro-preview | 71 | 67 (94%) | 2.8¢ | 24 |
+| | gpt-4.1 / deepseek-v4-pro | 111 / 114 | 36 (32%) / 13 (11%) | | |
+| I-765 | claude-sonnet-4-6 | 122 | 89 (73%) | 9.4¢ | 9 |
+| | gpt-5.5 | 116 | 91 (78%) | 61¢ | 1.5 |
+| | gemini-3.8-flash | 95 | 67 (71%) | 2.2¢ | 30 |
+| | gemini-3.1-pro-preview | 108 | 84 (78%) | 6.4¢ | 13 |
+| | deepseek-flash | 118 | 90 (76%) | 11¢ | 8 |
+| 21-526EZ (image) | claude-sonnet-4-6 | 312 | 262 (84%) | 13¢ | 20 |
+| | gemini-3.8-flash | 219 | 211 (96%) | 3.1¢ | 68 |
+| | gemini-3.1-pro-preview | 156 | 147 (94%) | 9.0¢ | 16 |
+| 10-10EZ (image, side copy) | all three | 99-103 | 99-102 (99-100%) | 1.2-4.6¢ | |
+
+Reading, corrected: the Gemini pair has the highest **precision** (share of filled values a reader can find: 94% on
+ACORD 25, 94-96% on 526EZ) and Sonnet 4.6 the highest **yield** (it fills 312 of 526EZ's 328 fields against Gemini
+3.1 Pro's 156, and so produces the most reader-confirmed fields on that form, 262 to 211 to 147). gpt-5.5 ties Gemini
+3.1 Pro on I-765 precision at ten times the price. As training data per dollar, **Gemini 3.8 Flash** is ahead on every
+form by 3-4x (68-91 confirmed fields per cent on the two large forms against Sonnet's 20); its weakness is I-765, where
+it fills fewer fields at the lowest precision of the four usable models. Gemini 3.1 Pro's earlier "best on realism"
+verdict was the by-absence artifact: it is precise because it is sparse. On 10-10EZ every generator is at 99-100%
+and the form does not separate them. 526EZ note: Sonnet's 36 shape contradictions there are the 35 approximate
+month/year dates it fills that the blueprint types `date`; Gemini leaves most of those blank.
+
+## Frontier models as the labeler (2026-09-30, `eval/labeler_models.py`, `auto_label --model`)
+
+Same three forms relabeled from the blank by each model (side copies, `--no-register --no-retrieval`), scored through
+the loop against the same cached Sonnet 4.6 ground truth, so only the names, types and declarations differ. Field
+counts differ where a labeler grouped checkbox clusters into categories (the committed I-765 has 140).
+
+| form | labeler | fields | shape contradictions | reader agree on filled / miss | name defects | $ | s |
+|---|---|---|---|---|---|---|---|
+| W-9 (23 widgets) | all six | 17 | 0 | 8/11 / 3 | 0 | 1.4¢ (DeepSeek) to 15¢ (gpt-5.5) | 4-34 |
+| ACORD 25 | claude-sonnet-4-6 | 128 | 0 | 77/82 / 5 | 0 | 11¢ | 32 |
+| | gpt-5.5 | 116 | 0 | 78/79 / 1 | 0 | 22¢ | 43 |
+| | gpt-4.1 | 128 | 0 | 77/82 / 5 | 0 | 6¢ | 21 |
+| | gemini-3.8-flash | 125 | 0 | 78/82 / 4 | 0 | 3¢ | 38 |
+| | gemini-3.1-pro-preview | 128 | 0 | 77/82 / 5 | 0 | 8¢ | 76 |
+| | deepseek-flash | 115 | 0 | 78/79 / 1 | 0 | 3¢ | 87 |
+| I-765 | claude-sonnet-4-6 | 154 | 10 | 84/117 / 12 | 20 | 27¢ | 54 |
+| | gpt-5.5 | 133 | 10 | 85/117 / 1 | 28 | 57¢ | 114 |
+| | gpt-4.1 | 152 | 10 | 69/117 / 11 | **35** | 16¢ | 30 |
+| | gemini-3.8-flash | 135 | 12 | 89/117 / 4 | 22 | 8¢ | 170 |
+| | gemini-3.1-pro-preview | 133 | 10 | **92/117** / 2 | 21 | 21¢ | 189 |
+| | deepseek-flash | 139 | 10 | 86/117 / 4 | 25 | 4¢ | 65 |
+
+Reading: on W-9 and ACORD 25 every labeler produces a blueprint the loop cannot tell apart (no contradictions, no name
+defects, the same reader outcomes). I-765 separates them a little: Gemini 3.1 Pro, Gemini 3.8 Flash, Sonnet 4.6 and
+DeepSeek flash sit within the reader's noise floor of each other (20-25 name defects, 84-92 of 117 filled fields
+found); gpt-5.5 is a step behind (28) and gpt-4.1 clearly worse (35 defects, 69 found). The ten pattern contradictions
+are the same on every labeler — inferred patterns the generator's formatting contradicts, the loop's job to remove. So
+the labeler slot is not where model choice matters; cost is. Gemini 3.8 Flash labels I-765 for 8¢ against Sonnet's
+27¢ with the same quality, and DeepSeek flash for 4¢ (its reasoning tokens stayed under the labeler's 32k cap here;
+they did not in the generator). gpt-5.5 costs the most for no gain.
+
+**Decisions this feeds.** Generator: Gemini 3.8 Flash for volume (best confirmed fields per dollar), Sonnet 4.6 or
+Gemini 3.1 Pro when yield per form matters more than price; gpt-4.1 and the DeepSeek models are out for this slot.
+Labeler: Gemini 3.8 Flash is the value default; nothing measured favours a dearer model. Both are one generation per
+form per model; the variance of the generators themselves is unmeasured.

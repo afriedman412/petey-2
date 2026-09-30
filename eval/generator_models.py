@@ -66,6 +66,22 @@ def usage_for(form: str, model: str) -> dict:
     return dict(tot)
 
 
+
+def reader_on_filled(run: str) -> dict:
+    """Reader agreement counted on fields the generator FILLED. The summary's
+    `agree` also counts fields empty in both ground truth and reading, which
+    hands a sparse generator agreement for free (526EZ: Gemini 3.1 Pro filled
+    156 of 328 and 'agreed' on 318)."""
+    d = RUNS / run / "case_001_intact"
+    files = list(d.glob("score_petey*.json"))
+    if not files:
+        return {}
+    sc = json.load(open(files[0])); pf = sc["per_field"]; pf = list(pf.values()) if isinstance(pf, dict) else pf
+    filled = [x for x in pf if x.get("gt_value") not in (None, "", False, "Off")]
+    return {"filled": len(filled), "agree_filled": sum(1 for x in filled if x["verdict"] == "agree"),
+            "miss_filled": sum(1 for x in filled if x["verdict"] == "extract_miss")}
+
+
 def row(form: str, model: str, it_json: Path) -> dict:
     if not it_json.exists():
         return {"form": form, "model": model, "error": "no output (see log)"}
@@ -86,6 +102,7 @@ def row(form: str, model: str, it_json: Path) -> dict:
             "fill_agree": native.get("agree"), "fill_miss": native.get("extract_miss"), "fill_differ": native.get("differ"),
             "rule_viol": len(sc.get("gt_rule_violations") or []), "shape": native.get("gt_shape_mismatch"),
             "reader_agree": rd.get("agree"), "reader_defect": it.get("delta", {}).get("defect", 0),
+            **reader_on_filled(it["run"]),
             "usage": usage_for(form, model), "seconds_loop": it.get("seconds")}
 
 
@@ -106,14 +123,14 @@ def main() -> int:
             r = row(form, model, out); rows.append(r)
             print(json.dumps(r), flush=True)
     (OUT / "generator_models.json").write_text(json.dumps(rows, indent=1))
-    print("\n| form | generator | filled/fields | fill agree / miss / differ | rule viol | shape | reader agree (defects) | tokens in/out | $ | gen s |")
+    print("\n| form | generator | filled/fields | fill agree / miss / differ | rule viol | shape | reader agree on filled (defects) | tokens in/out | $ | gen s |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     for r in rows:
         if "error" in r:
             print(f"| {r['form']} | {r['model']} | {r['error']} | | | | | | |"); continue
         u = r["usage"]
         print(f"| {r['form']} | {r['model']} | {r['filled']}/{r['fields']} | {r['fill_agree']} / {r['fill_miss']} / {r['fill_differ']} | {r['rule_viol']} | {r['shape']} | "
-              f"{r['reader_agree']} ({r['reader_defect']}) | {u.get('in', 0):,}/{u.get('out', 0):,}{' TRUNC' if u.get('truncated') else ''} | {u.get('usd', 0):.3f} | {u.get('s', 0):.0f} |")
+              f"{r.get('agree_filled')}/{r.get('filled')} ({r['reader_defect']}) | {u.get('in', 0):,}/{u.get('out', 0):,}{' TRUNC' if u.get('truncated') else ''} | {u.get('usd', 0):.3f} | {u.get('s', 0):.0f} |")
     return 0
 
 

@@ -23,7 +23,7 @@ from pathlib import Path
 import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
-from eval.generator_models import PRICES
+from eval.generator_models import PRICES, reader_on_filled
 
 OUT = RUNS / "labelmodels"
 IMAGE_FORMS = {"vba21526ez", "ma1", "va760", "va_form_10_10ez"}
@@ -92,7 +92,7 @@ def row(form: str, model: str, out: Path, bpt: Path) -> dict:
     rd = summ["intact"].get(readers[0], {}) if readers else {}
     r.update({"shape": sum(it.get("shape", {}).values()), "shape_by": it.get("shape", {}),
               "reader_agree": rd.get("agree"), "reader_differ": rd.get("differ"), "reader_miss": rd.get("extract_miss"),
-              "name_defects": it.get("delta", {}).get("defect", 0), "detected": it.get("detected")})
+              "name_defects": it.get("delta", {}).get("defect", 0), "detected": it.get("detected"), **reader_on_filled(it["run"])})
     return r
 
 
@@ -110,14 +110,14 @@ def main() -> int:
             out, bpt = (OUT / f"iterate_{stem}.json", OUT / "blueprints" / f"{stem}.bpt") if args.no_run else run_one(form, model)
             r = row(form, model, out, bpt); rows.append(r); print(json.dumps(r), flush=True)
     (OUT / "labeler_models.json").write_text(json.dumps(rows, indent=1))
-    print("\n| form | labeler | fields | emit fixes | shape contradictions | reader agree / differ / miss | name defects | tokens in/out | $ | label s |")
+    print("\n| form | labeler | fields | emit fixes | shape contradictions | reader agree on filled / miss | name defects | tokens in/out | $ | label s |")
     print("|---|---|---|---|---|---|---|---|---|---|")
     for r in rows:
         u = r["usage"]
         if "error" in r:
             print(f"| {r['form']} | {r['model']} | {r.get('fields', '')} | | {r['error']} | | | {u.get('in', 0):,}/{u.get('out', 0):,}{' TRUNC' if u.get('truncated') else ''} | {u.get('usd', 0):.3f} | {u.get('s', 0):.0f} |"); continue
         print(f"| {r['form']} | {r['model']} | {r['fields']} | {', '.join(f'{k} {v}' for k, v in r['emit_fixes'].items()) or 'none'} | {r['shape']} {r['shape_by'] or ''} | "
-              f"{r['reader_agree']} / {r['reader_differ']} / {r['reader_miss']} | {r['name_defects']} | {u.get('in', 0):,}/{u.get('out', 0):,}{' TRUNC' if u.get('truncated') else ''} | {u.get('usd', 0):.3f} | {u.get('s', 0):.0f} |")
+              f"{r.get('agree_filled')}/{r.get('filled')} / {r.get('miss_filled')} | {r['name_defects']} | {u.get('in', 0):,}/{u.get('out', 0):,}{' TRUNC' if u.get('truncated') else ''} | {u.get('usd', 0):.3f} | {u.get('s', 0):.0f} |")
     return 0
 
 
