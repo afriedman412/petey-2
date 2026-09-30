@@ -9,6 +9,12 @@ and `petey/validate/defect_taxonomy.py`.
   blueprint by form id, record edition and OMB, link the blueprint as an artifact.
 
 ## Next — under discussion
+- **Reviewer follow-ups (2026-09-29 evening).** Rerun I-765 (its first review was truncated); compare cheaper
+  models on the same flagged fields (Sonnet 5, Haiku 4.5 as reviewer; Sonnet 5 / Haiku as reader) with the
+  loop as judge; the reader still runs on Sonnet 4.6 by default.
+- **Generator: repeated copies of one identifier.** Page-header repeats (the SSN on every 526EZ page) should
+  hold the same value; the blind generator's uniqueness rule gives each a different one and creates disagreement
+  no name can fix. Detect copies (same publisher field name / tooltip across pages) and fill them identically.
 - **Naming without Claude.** Today names come from the Claude labeler (tooltip, then AcroForm/XFA path,
   then printed words, all as evidence in one prompt) or are placeholders. Build the ranking wrapper
   (STRATEGY_v1 §5 step 2) so publisher evidence names fields on its own where it can, and the model only
