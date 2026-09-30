@@ -618,3 +618,32 @@ Andrew's directions from the same discussion: keep several cases per form as a v
 comparison, refreshed when the generator changes) rather than regenerating every round; stockpile examples of
 recurring value types (SSN, address, phone) drawn from cases we trust; keep "extract a correct value" and "fix a
 malformed value" as separate problems.
+
+## Ink-mark detection, robustness experiment (2026-09-30, `petey/validate/ink.py`, `eval/ink_marks.py`)
+
+Andrew's condition before ink detection becomes the reader's eyes for radio and checkbox states: verify it against
+different shapes, sizes, colours and densities of marks. Twelve pages he picked (AcroForm forms, so every option
+box's rectangle and truth are known; 314 boxes): each page is flattened (widget appearances baked into the content,
+since a hand mark sits on top of the printed box), 60% of boxes get a synthetic mark with a random variant — shape
+(check, X, dot, filled square, tick, scribble), size 0.45-1.25 of the box, colour (black, blue, red, grey, faint
+pencil), stroke 0.5-3 pt, offset 0-0.45 of the box — and 40% stay empty; a second pass marks boxes the PDF's own way
+(appearance glyphs). Detector: render the box from the marked and the blank page at 200 dpi, grey, mean darkening
+over the box (borders and printed glyphs cancel).
+
+| threshold (mean darkening) | precision | recall |
+|---|---|---|
+| 0.005 | 0.985 | 0.982 |
+| **0.010 (chosen)** | 0.984 | 0.952 |
+| 0.020 | 0.987 | 0.900 |
+
+Appearance-glyph marks: recall 0.985 (the two misses are DA 4187 kids whose appearance does not bake). Drawn
+marks by variant at 0.01: every colour including faint pencil above 85%; every shape above 85% except the small
+thin tick; marks shifted 0.45 of a box out are the main loss (52 of 77) and would confuse a person too. The four
+false positives are empty boxes next to an oversized or shifted neighbour's mark spilling in. A first, binary
+"dark pixel" version missed all 38 pencil marks; mean darkening fixed that. Caveat: these are rendered pages; scans
+add speckle and need their own calibration before the threshold is trusted there. For a group, `selected_option`
+takes the option with the most added ink, which sidesteps the threshold for the chosen one.
+
+**Design restated by Andrew (2026-09-30):** generate synthetic cases from both outputs — the blueprint's typing and
+the publisher metadata (AcroForm / XFA, or the page itself) — and compare what each puts in every box; a box the two
+disagree on is a labeler flag. That sits alongside the extraction comparison the loop already runs.
