@@ -80,9 +80,17 @@ change (null means unchanged; list an attribute in `remove` to drop it, e.g. a \
 wrong semantic_type). Publisher evidence (tooltip, XFA declaration, readable field name) \
 outranks printed text, which outranks the current name. A box that holds part of \
 a value (month, day, year, one segment of an SSN or phone) is a string with a \
-digit pattern and a name that says which part. Keep names unique on the form; \
-if you rename, say what the box holds and, for repeated sections, which copy. \
-Change nothing the evidence does not support."""
+digit pattern and a name that says which part.
+
+Rename only when the current name describes something other than what this box \
+holds, or cannot tell this box apart from another field on the form. Never rename \
+to adjust a suffix, normalize style, or add words that do not change what the name \
+points at: the name is how a reader finds the box, and a working name is worth \
+keeping. When a section repeats (veteran and claimant, several employers, table \
+rows), qualify with what distinguishes the copy — the section heading or role \
+given in `section_heading`, and see `sibling_copies` for the other copies' names — \
+not with a page number. Keep names unique on the form. Change nothing the evidence \
+does not support."""
 
 DECISION_SCHEMA = {
     "type": "object",
@@ -163,6 +171,56 @@ def _near_words(words: list[tuple], rect: list[float], dx: float = 170, dy: floa
     return " ".join(w[4] for w in hits[:40])
 
 
+_HEADING_RE = re.compile(r"^(?:SECTION|PART|Section|Part|Schedule|SCHEDULE)\b|^[IVX]+\.\s|^[A-Z]\.\s")
+
+
+def _page_lines(page) -> list[tuple]:
+    """(x0, y0, x1, y1, text, bold) per text line on the page."""
+    out = []
+    for b in page.get_text("dict")["blocks"]:
+        for ln in b.get("lines", []):
+            spans = [sp for sp in ln["spans"] if sp["text"].strip()]
+            if not spans:
+                continue
+            text = " ".join(sp["text"].strip() for sp in spans)
+            bold = all(sp["flags"] & 16 for sp in spans)
+            out.append((*ln["bbox"], text, bold))
+    return out
+
+
+def _is_heading(text: str) -> bool:
+    """A section marker, not a field label: forms like the VA's print every
+    label in capitals, so case alone says nothing."""
+    t = text.strip()
+    return 6 <= len(t) <= 140 and bool(_HEADING_RE.search(t))
+
+
+def _section_heading(lines: list[tuple], rect: list[float]) -> Optional[str]:
+    """The section a box sits in: the nearest section marker above it on the
+    page; for a box above every marker (a page-header copy of a repeated
+    field), the first marker on the page."""
+    y0 = rect[1]
+    above = [(ly1, text) for _, _, _, ly1, text, _ in lines if ly1 <= y0 + 1 and _is_heading(text)]
+    if above:
+        return max(above)[1][:140]
+    below = [(ly0, text) for _, ly0, _, _, text, _ in lines if _is_heading(text)]
+    return (min(below)[1][:140] + " (section this page belongs to)") if below else None
+
+
+_STEM_RE = re.compile(r"(?:_page\d+|_p\d+|_copy\d*|_\d+)+$")
+
+
+def _siblings(fields: dict, name: str) -> list[str]:
+    stem = _STEM_RE.sub("", name)
+    out = []
+    for other, spec in fields.items():
+        if other == name or _STEM_RE.sub("", other) != stem:
+            continue
+        w = spec.get("widget") or {}
+        out.append(f"{other} (page {w.get('page')})")
+    return out[:8]
+
+
 def build_evidence(bp: dict, blank: Path, flags: dict[str, list[dict]], scope: str) -> list[dict]:
     limits = widget_limits(blank)
     try:
@@ -171,6 +229,8 @@ def build_evidence(bp: dict, blank: Path, flags: dict[str, list[dict]], scope: s
         tpl = None
     doc = pymupdf.open(str(blank))
     words_by_page: dict[int, list[tuple]] = {}
+    lines_by_page: dict[int, list[tuple]] = {}
+    all_fields = bp.get("fields") or {}
     out = []
     try:
         for name, spec in (bp.get("fields") or {}).items():
@@ -209,7 +269,14 @@ def build_evidence(bp: dict, blank: Path, flags: dict[str, list[dict]], scope: s
             if page and w.get("rect"):
                 if page not in words_by_page:
                     words_by_page[page] = doc[page - 1].get_text("words")
+                    lines_by_page[page] = _page_lines(doc[page - 1])
                 rec["printed_near_box"] = _near_words(words_by_page[page], w["rect"])
+                heading = _section_heading(lines_by_page[page], w["rect"])
+                if heading:
+                    rec["section_heading"] = heading
+            sib = _siblings(all_fields, name)
+            if sib:
+                rec["sibling_copies"] = sib
             rec["observed"] = flags.get(name, [])
             out.append({k: v for k, v in rec.items() if v not in (None, {}, [])})
     finally:
