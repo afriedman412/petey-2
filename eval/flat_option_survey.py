@@ -64,25 +64,61 @@ def clusters(boxes: list[dict], gap: float = 90.0) -> list[list[dict]]:
     return out
 
 
+def _draw_overlays(pdf: Path, boxes: list[dict], cl: list[list[dict]], out_dir: Path) -> None:
+    """One PNG per page that has a box candidate: grey = lone box, green = in a
+    candidate group (group index printed beside its first box)."""
+    import pymupdf
+    out_dir.mkdir(parents=True, exist_ok=True)
+    doc = pymupdf.open(pdf)
+    in_group = {}
+    for gi, g in enumerate(cl, 1):
+        for b in g:
+            in_group[id(b)] = gi
+    pages = sorted({int(b["page"]) for b in boxes})
+    for pno in pages:
+        page = doc[pno]
+        shape = page.new_shape()
+        for b in boxes:
+            if int(b["page"]) != pno:
+                continue
+            r = pymupdf.Rect(*b["rect"])
+            gi = in_group.get(id(b))
+            shape.draw_rect(r + (-1.5, -1.5, 1.5, 1.5))
+            shape.finish(color=(0, 0.6, 0) if gi else (0.5, 0.5, 0.5), width=1.2 if gi else 0.6)
+        shape.commit()
+        for gi, g in enumerate(cl, 1):
+            first = min((b for b in g if int(b["page"]) == pno), key=lambda b: (b["rect"][1], b["rect"][0]), default=None)
+            if first is not None:
+                page.insert_text((first["rect"][0] - 14, first["rect"][3]), f"g{gi}", fontsize=6, color=(0, 0.5, 0))
+        page.get_pixmap(dpi=80).save(out_dir / f"{pdf.stem}_p{pno + 1}.png")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--pdfs", nargs="*", default=None, help="paths under source_pdfs/ (default: every flat form)")
+    ap.add_argument("--overlays", type=Path, default=None, help="write per-page PNGs with finder boxes drawn")
     args = ap.parse_args()
-    survey = json.load(open(RUNS / "source_survey.json"))
-    flat = [r["file"] for r in survey if not r.get("error") and r.get("widgets") == 0]
+    if args.pdfs:
+        flat = args.pdfs
+    else:
+        survey = json.load(open(RUNS / "source_survey.json"))
+        flat = [r["file"] for r in survey if not r.get("error") and r.get("widgets") == 0]
     if args.limit:
         flat = flat[: args.limit]
     rows = []
     for i, name in enumerate(flat):
-        hits = list(SOURCE_PDFS.rglob(Path(name).name))
+        hits = [SOURCE_PDFS / name] if (SOURCE_PDFS / name).exists() else list(SOURCE_PDFS.rglob(Path(name).name))
         if not hits:
-            continue
+            rows.append({"pdf": name, "error": "not found"}); continue
         try:
             kept, scored = pipeline.run(str(hits[0]))
         except Exception as e:
             rows.append({"pdf": name, "error": str(e)[:80]}); continue
         boxes = [r for r in kept if r["kind"] in ("radio", "checkbox")]
         cl = clusters(boxes)
+        if args.overlays:
+            _draw_overlays(hits[0], boxes, cl, args.overlays)
         rows.append({"pdf": name, "boxes": len(boxes), "ovals": sum(1 for b in boxes if b["kind"] == "radio"),
                      "clusters": len(cl), "cluster_sizes": sorted(collections.Counter(len(c) for c in cl).items()),
                      "boxes_in_clusters": sum(len(c) for c in cl), "text_fields": sum(1 for r in kept if r["kind"] in ("text", "comb"))})

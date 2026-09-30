@@ -46,6 +46,7 @@ import collections
 import hashlib
 import json
 import re
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -486,8 +487,6 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL):
 
 
 def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
-    import anthropic
-
     widget_lines = []
     for w in widgets_on_page:
         x0, y0, x1, y1 = w["rect"]
@@ -526,30 +525,49 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
         f"Emit a snake_case label for every widget."
     )
 
-    client = anthropic.Anthropic()
-    with client.messages.stream(
-        model=model, max_tokens=MAX_TOKENS,
-        system=LABEL_SYSTEM,
-        messages=[{"role": "user", "content": user_text}],
-    ) as stream:
-        final = stream.get_final_message()
-    text = "".join(
-        b.text for b in final.content
-        if getattr(b, "type", None) == "text"
-    )
-    # `stop_reason` is the difference between "the model answered badly"
-    # and "the answer was cut off at MAX_TOKENS". Log every call, so a
-    # failure never needs a re-run to diagnose. See call_log.py.
-    stop = getattr(final, "stop_reason", None)
-    usage = getattr(final, "usage", None)
+    from petey.synth.generate import make_client, provider_for
+    t0 = time.time()
+    client = make_client(model)
+    if provider_for(model) is not None:
+        # other vendors, chat-completions dialect (same prompt, text only)
+        kwargs = dict(model=model, messages=[{"role": "system", "content": LABEL_SYSTEM},
+                                             {"role": "user", "content": user_text}])
+        if model.startswith(("gpt-5", "o1", "o3", "o4")):
+            kwargs["max_completion_tokens"] = MAX_TOKENS
+        else:
+            kwargs["max_tokens"] = MAX_TOKENS
+            kwargs["temperature"] = 0
+        resp = client.chat.completions.create(**kwargs)
+        choice = resp.choices[0]
+        text = choice.message.content or ""
+        stop = getattr(choice, "finish_reason", None)
+        u = getattr(resp, "usage", None)
+        in_tok, out_tok = (getattr(u, "prompt_tokens", None), getattr(u, "completion_tokens", None)) if u else (None, None)
+    else:
+        with client.messages.stream(
+            model=model, max_tokens=MAX_TOKENS,
+            system=LABEL_SYSTEM,
+            messages=[{"role": "user", "content": user_text}],
+        ) as stream:
+            final = stream.get_final_message()
+        text = "".join(
+            b.text for b in final.content
+            if getattr(b, "type", None) == "text"
+        )
+        # `stop_reason` is the difference between "the model answered badly"
+        # and "the answer was cut off at MAX_TOKENS". Log every call, so a
+        # failure never needs a re-run to diagnose. See call_log.py.
+        stop = getattr(final, "stop_reason", None)
+        usage = getattr(final, "usage", None)
+        in_tok, out_tok = (getattr(usage, "input_tokens", None), getattr(usage, "output_tokens", None)) if usage else (None, None)
     call_log.record(
-        f"{CALL_TAG}/{model}", raw=text, finish_reason=stop,
+        f"{CALL_TAG}/{model.replace('/', '_')}", raw=text, finish_reason=stop,
         request={"widgets": len(widgets_on_page),
                  "max_tokens": MAX_TOKENS,
                  "prompt_chars": len(user_text)},
-        usage={"output_tokens": getattr(usage, "output_tokens", None),
-               "input_tokens": getattr(usage, "input_tokens", None)}
-        if usage else None,
+        usage={"output_tokens": out_tok, "input_tokens": in_tok}
+        if in_tok is not None or out_tok is not None else None,
+        elapsed=time.time() - t0,
     )
     parsed = _parse_json_object(text)
     if not parsed or "labels" not in parsed:
