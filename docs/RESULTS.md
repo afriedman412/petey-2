@@ -581,3 +581,9 @@ Gemini 3.1 Pro and 3.8 Flash lead on ACORD 25 and 526EZ, gpt-5.5 ties 3.1 Pro on
 points on the two large forms (and 35 of its 36 contradictions on 526EZ are approximate dates it chose to fill). On
 that reading the Gemini pair is at least as good as the default for this slot. The next comparison, if wanted, is
 precision at controlled density: two prompt variants per form (typical filing, complete filing) for every model.
+
+**Where the generator sits (2026-09-30).** The synthetic case is generated once per form and cached (blank bytes +
+model + case key); every later loop run reuses it, and most library cases were imported from petey-master. It runs on
+the product path only when a new form enters, once, and never during extraction. So its cost and latency are paid once
+per form; its quality is baked into every judgment on that form until someone regenerates — which argues for choosing
+the generator on precision and for more than one case per form.
