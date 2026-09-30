@@ -27,6 +27,7 @@ import sys
 from pathlib import Path
 
 from petey.paths import RUNS
+from petey.validate.test_forms import TEST_FORMS, by_stem, forms
 
 OUT = RUNS / "genmodels"
 # $/1M tokens (input, output), vendor list prices fetched 2026-09-30; DeepSeek at peak rates
@@ -34,7 +35,7 @@ PRICES = {"claude-sonnet-4-6": (3.0, 15.0), "claude-sonnet-5": (2.0, 10.0), "cla
           "gpt-5.5": (5.0, 30.0), "gpt-4.1": (2.0, 8.0),
           "gemini-3.1-pro-preview": (2.0, 12.0), "gemini-3.8-flash": (0.75, 3.75),
           "deepseek-flash": (0.3, 1.2), "deepseek-v4-pro": (1.32, 3.96)}
-IMAGE_FORMS = {"vba21526ez", "ma1", "va760", "va_form_10_10ez"}
+IMAGE_FORMS = {"vba21526ez", "ma1", "va760"} | {f.stem for f in TEST_FORMS if f.reader == "petey:image"}
 
 
 def run_one(form: str, model: str, blank: str | None) -> Path:
@@ -108,14 +109,16 @@ def row(form: str, model: str, it_json: Path) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--forms", default="fw9,acord25,i765")
+    ap.add_argument("--forms", default=None, help="comma-separated stems; default: the --tier's forms")
+    ap.add_argument("--tier", default="core", choices=("smoke", "core", "full"))
     ap.add_argument("--models", default="claude-sonnet-4-6,gpt-5.5,gemini-3.8-flash,deepseek-v4-pro")
     ap.add_argument("--blank", default=None, help="blank PDF when the form has no blueprint yet")
     ap.add_argument("--no-run", action="store_true", help="tabulate existing outputs only")
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     rows = []
-    for form in args.forms.split(","):
+    stems = args.forms.split(",") if args.forms else [f.stem for f in forms(args.tier)]
+    for form in stems:
         for model in args.models.split(","):
             out = OUT / f"iterate_{form}_{model.replace('/', '_')}.json"
             if not args.no_run:

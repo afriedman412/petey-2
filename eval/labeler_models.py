@@ -24,12 +24,11 @@ import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
 from eval.generator_models import PRICES, reader_on_filled
+from petey.validate.test_forms import TEST_FORMS, forms
 
 OUT = RUNS / "labelmodels"
-IMAGE_FORMS = {"vba21526ez", "ma1", "va760", "va_form_10_10ez"}
-BLANKS = {"fw9": "source_pdfs/tax/fw9.pdf", "acord25": "source_pdfs/acord25_blank.pdf",
-          "i765": "source_pdfs/immigration/i-765.pdf", "vba21526ez": "source_pdfs/vba-21-526ez-are.pdf",
-          "va_form_10_10ez": "source_pdfs/VA Form 10-10EZ.pdf"}
+IMAGE_FORMS = {"ma1", "va760"} | {f.stem for f in TEST_FORMS if f.reader == "petey:image"}
+BLANKS = {f.stem: str(f.blank_path) for f in TEST_FORMS}
 
 
 def safe(model: str) -> str:
@@ -98,13 +97,15 @@ def row(form: str, model: str, out: Path, bpt: Path) -> dict:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("--forms", default="fw9,acord25,i765")
+    ap.add_argument("--forms", default=None, help="comma-separated stems; default: the --tier's forms")
+    ap.add_argument("--tier", default="core", choices=("smoke", "core", "full"))
     ap.add_argument("--models", default="claude-sonnet-4-6,gpt-5.5,gpt-4.1,gemini-3.8-flash,gemini-3.1-pro-preview,deepseek-flash")
     ap.add_argument("--no-run", action="store_true")
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     rows = []
-    for form in args.forms.split(","):
+    stems = args.forms.split(",") if args.forms else [f.stem for f in forms(args.tier)]
+    for form in stems:
         for model in args.models.split(","):
             stem = f"{form}_lm_{safe(model)}"
             out, bpt = (OUT / f"iterate_{stem}.json", OUT / "blueprints" / f"{stem}.bpt") if args.no_run else run_one(form, model)

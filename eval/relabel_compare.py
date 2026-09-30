@@ -28,7 +28,8 @@ CALLS = RUNS / "_calls" / "auto_label"
 PRICE = {"claude-sonnet-4-6": (3.0, 15.0), "claude-sonnet-5": (2.0, 10.0),
          "claude-haiku-4-5": (1.0, 5.0), "claude-opus-5": (5.0, 25.0)}  # $/M in, out
 
-FORMS = ["fw9", "acord25", "i765", "vba21526ez", "va_form_10_10ez"]
+from petey.validate.test_forms import forms as _test_forms
+FORMS = [f.stem for f in _test_forms("full")]
 COMMITTED_JSON = {  # committed side run outside runs/relabel (last iteration is the baseline)
     "vba21526ez": RUNS / "iterate_vba21526ez_review5.json",
 }
