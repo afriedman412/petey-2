@@ -906,6 +906,21 @@ def build_blueprint(
         print(f"  [xfa] declared over inferred: {dict(xfa_changes)}")
         if set(xfa_changes) - {"joined", "unjoined"}:
             bp["x_petey_xfa_log"] = dict(xfa_changes)
+    if geometry_method == "acroform":
+        # The loop's deterministic repairs, run at emit instead of after:
+        # they need only the blueprint, the box geometry and the XFA
+        # template, all in hand here. Parts from box length, separator-free
+        # comb patterns, short shapes off wide boxes, dates on boxes too
+        # small for one, tooltips and radio captions into descriptions.
+        # Imported here: retype imports this module.
+        from petey.synth.local import widget_limits
+        from petey.validate.retype import describe_blueprint, retype_blueprint
+        limits = widget_limits(blank_pdf)
+        emit_fixes = retype_blueprint(bp, limits)
+        emit_fixes.update(describe_blueprint(bp, limits, xfa_tpl))
+        if emit_fixes:
+            bp["x_petey_emit_fixes"] = dict(emit_fixes)
+            print(f"  [emit] loop rules applied at emit: {dict(emit_fixes)}")
     if xfa_tpl is not None:
         # Cross-field rules (STRATEGY_v1 §3.5, spec Appendix B proposal):
         # reciprocal clear-others script groups become `mutex` rules over
@@ -938,10 +953,13 @@ def main() -> int:
     )
     ap.add_argument("--blank", required=True, type=Path,
                     help="path to blank AcroForm PDF")
-    ap.add_argument("--output", required=True, type=Path,
-                    help="output blueprint .bpt path")
+    ap.add_argument("--output", type=Path, default=None,
+                    help="output blueprint .bpt path (default: blueprints/<form_id>.bpt)")
     ap.add_argument("--name", type=str, default=None,
-                    help="form_id (default: derived from --output stem)")
+                    help="form_id (default: from the registry via petey.ingest, "
+                         "else the --output stem)")
+    ap.add_argument("--no-register", action="store_true",
+                    help="do not identify the form or write to the registry")
     ap.add_argument("--form-version", type=str, default=None,
                     help='form revision year (e.g. "2025")')
     ap.add_argument("--model", type=str, default=MODEL,
@@ -968,7 +986,25 @@ def main() -> int:
     if not args.blank.exists():
         raise SystemExit(f"Blank PDF not found: {args.blank}")
 
-    name = args.name or args.output.stem
+    identity = None
+    if not args.no_register:
+        # Identify the document and resolve or register its form, so the
+        # blueprint is born with the registry's id, edition and provenance.
+        from petey.ingest import ingest
+        identity = ingest(args.blank, name=args.name)
+        print(f"[ingest] form_id={identity['form_id']} via={identity['via']} "
+              f"canonical={identity['canonical']} edition={identity['edition']} "
+              f"created={identity['created']}")
+    # The blueprint's own name: the caller's --name, else the --output stem,
+    # else the registry form id. The registry link always uses the form id.
+    name = args.name or (args.output.stem if args.output else None) or (identity or {}).get("form_id")
+    if not name:
+        raise SystemExit("--name or --output is required with --no-register")
+    if args.output is None:
+        from petey.paths import BLUEPRINTS
+        args.output = BLUEPRINTS / f"{name}.bpt"
+    if args.form_version is None and identity and identity.get("edition"):
+        args.form_version = identity["edition"]
     bp = build_blueprint(
         args.blank, name,
         form_version=args.form_version,
@@ -988,6 +1024,11 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"[ok] wrote {args.output}")
+    if identity is not None:
+        from petey.ingest import record_blueprint
+        if record_blueprint(identity["form_id"], args.output, args.blank, placeholder_names=args.no_llm,
+                            spec_version=str(bp.get("bpt_version"))):
+            print(f"[ingest] registered {args.output.name} as an artifact of {name}")
     return 0
 
 
