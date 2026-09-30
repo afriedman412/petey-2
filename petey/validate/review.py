@@ -160,6 +160,21 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
                            else "reader found a different box's value for this name"),
                 "generated_value": r.get("gt"), "reader_value": r.get("petey"),
                 **({"reader_value_belongs_to": r["swap_with"]} if r.get("swap_with") else {})})
+    # Page-grounded classification (synth.classify) against the blueprint's
+    # typing: the second opinion on what kind of value the box holds. Only
+    # captioned boxes count; an uncaptioned line under a block heading is
+    # a guess on both sides.
+    cd = intact / "class_disagreements.json"
+    if cd.exists():
+        for row in json.loads(cd.read_text()):
+            if row.get("tier") != 1:
+                continue
+            flags[row["field"]].append({
+                "detector": "page_class",
+                "detail": (f"the page says this box holds a {row['page_class']} "
+                           f"(caption {row.get('label')!r}); the blueprint types it "
+                           f"{row.get('semantic_type') or row.get('type') or 'untyped'}"),
+                "generated_value": gt_by_field.get(row["field"])})
     return flags
 
 

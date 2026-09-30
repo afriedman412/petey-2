@@ -1,7 +1,9 @@
-# TODO v7 (2026-09-30, night)
+# TODO (2026-09-30; updated in place, history in `git log -- docs/TODO_v7.md`)
 
-Supersedes TODO_v6 (kept). v7 adds the library regeneration as the closing step of the synthetic-data workstream. v6 added a self-contained **Synthetic data** section (the next workstream, to be picked up in a fresh session) and records the reader wiring. v5 corrected the value-bank item (classification from the page, not the blueprint's typing). v4 added the value bank, the ink-mark experiment, the reader-mode guards and the multi-case sets from the 2026-09-30 discussion. Priorities are Andrew's; the ordering below is a proposal from the 2026-09-29/30
-work, for him to reorder. Numbers and context: `docs/RESULTS.md` (relabel test, option groups, model comparisons),
+From 2026-09-30 late this list is edited in place and its history is the commit log; TODO_v1..v6 stay as the
+record of how it got here. v7 (2026-09-30 night) added the library regeneration as the closing step of the
+synthetic-data workstream; the same night steps 1-4 of that workstream were built and run on the five test forms
+(section below). Priorities are Andrew's; the ordering is a proposal. Numbers and context: `docs/RESULTS.md`,
 `petey/validate/defect_taxonomy.py`.
 
 ## Done since v1
@@ -60,7 +62,7 @@ work, for him to reorder. Numbers and context: `docs/RESULTS.md` (relabel test, 
 5. Keep "extract a correct value" and "fix a malformed value" as separate problems (a bank of malformed examples is
    a different, later dataset).
 
-**Steps, in order.**
+**Steps, in order** (1-4 done 2026-09-30 late, see below).
 1. Classification pass: add a `--classify` mode to the blind generator (same page image + inventory; output
    `{box: class}`), cache per form beside the values cache; write the class map into the run.
 2. Value bank file (`petey/synth/bank.yaml`) and a bank-backed case builder in `synth/local.py` keyed by the class
@@ -78,6 +80,52 @@ work, for him to reorder. Numbers and context: `docs/RESULTS.md` (relabel test, 
    alongside its old blueprint; a form where the old blueprint wins gets looked at, not overwritten. Order matters:
    relabeling against the old non-blind cases would fit new blueprints to values invented from publisher names.
    Dev-time batch: tens of dollars for both passes at Sonnet 4.6, a fraction on Gemini 3.8 Flash.
+
+## Synthetic data — done 2026-09-30 late (steps 1-4)
+- **Classifier** `petey/synth/classify.py`: blind (same annotated page image and id/type inventory as the blind
+  generator), closed 40-class vocabulary, per box `{label, class, entity, group}`; cached once per (blank, model,
+  prompt version) under `runs/_gen_cache/classify/`. Five forms, 776 boxes, every box classed, no off-vocabulary
+  answers. `label` is the caption the model read (null when a box has none of its own: 40 of ACORD 25's 128);
+  `group` names the question a set of checkboxes answers (W-9's seven tax-classification boxes as one group).
+- **Value bank** `petey/synth/bank.yaml` + `petey/synth/bank.py`: 24 personas (state / ZIP / area code aligned,
+  reserved 555-01xx phones), 12 businesses, pools. One persona and one business per entity per case; part runs
+  (SSN 3-2-4, EIN 2-7, phone 3-3-4, date month/day/year) filled from one whole; checkbox groups tick at most one;
+  free text from the cached blind case when there is one. `--gen-model bank` in validate/iterate; no API.
+- **Case sets** (`validate --case-set N [--n-cases K]`, iterate passes through): intact cases keyed
+  `<gen-key>_setN_caseK`; bank ground truth frozen on disk per key; manifest `runs/_gen_cache/sets/<form>_setN.json`.
+  Over a set `iterate.detect` sums verdicts and counts a shape or class flag once per field; `field_status` takes
+  the worst case per field.
+- **Class check** `petey/validate/class_check.py`: page class vs blueprint type per field, family-level, three
+  tiers (1 captioned contradiction -> detection + reviewer flag `page_class`; 2 blueprint untyped, page offers a
+  type -> suggestion; 3 uncaptioned -> a guess on both sides). Written into every bank run as
+  `class_disagreements.json`. Found: I-765 `attorney_state_bar_num` typed state_abbr, `employer_everify_company_id`
+  typed business_name; 526EZ's 20+15 `disability_N_nm` typed person_name (the `_nm` slug rule), `va_file_number_2`
+  captioned VETERAN'S NAME; ACORD 25's six insurer names typed person_name, seven policy numbers typed free text.
+- Set 1 (bank, 3 cases) by path: W-9 23/23, ACORD 25 128/128, I-765 140/140, 526EZ 328/328, zero ground-truth
+  defects after the group fix. Anthropic client now has a timeout (one stalled stream held a run for three hours).
+
+## Synthetic data — what is left (steps 4b, 5, 6, 7)
+- **Step 4, second half: class flags against the reader's flags** per field on the five sets, with the reader arm
+  (text mode; image on 526EZ). ACORD 25 and I-765 runs are in RESULTS; 526EZ and 10-10EZ still to run (10-10EZ's
+  blueprint is a side copy: `validate` needs a `--bpt` override before it can go through the loop).
+- **Step 5: blind-generator default** (Sonnet 4.6 vs Gemini 3.1 Pro / 3.8 Flash). Unchanged; the bank now covers
+  most boxes, so the blind generator's job narrows to free text and to being generator (b) in the per-box
+  comparison. Decide after step 4 says how much the blind values add.
+- **Step 6: regenerate the library's working set** as set 1 — bank cases need only a classification per form
+  (about 2 cents a page, Sonnet 4.6; the five forms cost $1.80 over three prompt versions). Blind cases per form
+  stay optional. Needs Andrew's go-ahead: 134 forms. **Step 7** (v7): relabel the library only after that, judged
+  against the new sets.
+- **Classifier stability**: the same page classified twice (v2 -> v3 prompt) moved ACORD 25's uncaptioned insured
+  block from a two-line slide to the conventional order; measure re-run agreement per box before the class check
+  gates anything automatically. Same question as the reader-stability item below.
+- **Vocabulary gaps seen**: a split dollars/cents amount reads as `id_part` (526EZ 27D); `unit` vs the blueprint's
+  `text` for Apt/Ste/Flr numbers is a tier-1 row that is really a suggestion; `signature` sits in the name family.
+- **Untyped fields (tier 2)**: 4 / 21 / 10 / 52 / 11 on the five forms. The page's class is a free semantic type
+  for each; an emitter rule could take it when the blueprint has none (page class -> `semantic_type` via
+  `SEMANTIC_TO_CLASS` inverted), keeping the blueprint's own typing where it exists.
+- **Entities**: the classifier's `entity` slugs (applicant / spouse / preparer / insured / producer / certificate
+  holder ...) are consistent within a form; not yet used by anything but the bank. A repeated-identifier check
+  (TODO_v1: the SSN on every 526EZ page) falls out of them for free.
 
 ## Now
 - **Reader stability, measured, not floored.** The loop's judge is the name-based reader, an LLM call; the same
@@ -99,6 +147,9 @@ work, for him to reorder. Numbers and context: `docs/RESULTS.md` (relabel test, 
   so a flat form can go through the loop at all. Not part of the AcroForm work above.
 
 ## Next
+- **Reviewer on the class flags.** The reviewer now receives `page_class` flags with the caption the model read.
+  Run one review round on I-765 and 526EZ with set 1 and judge as usual; the disability-name and bar-number rows
+  are the test cases.
 - **Value bank + page-grounded classification (Andrew).** Two steps replace blind value generation for most boxes:
   the model classifies each box from the page image, blind (SSN, city, date, yes/no, free text), cached per form;
   a bank of a few dozen names, addresses, phone numbers, SSNs, dates and amounts supplies the values, one person
@@ -130,8 +181,8 @@ work, for him to reorder. Numbers and context: `docs/RESULTS.md` (relabel test, 
   more evidence is wanted first: precision at controlled density (typical vs complete case prompt variants, two or
   three draws each) on ACORD 25 and I-765; and more than one cached case per form, so the judge is not one draw.
 - **Reviewer across vendors** — the one slot compared only among Anthropic models.
-- **Generator: repeated copies of one identifier** (the SSN on every 526EZ page should hold one value). Unchanged
-  from v1.
+- **Generator: repeated copies of one identifier** (the SSN on every 526EZ page should hold one value). Done for
+  bank cases (one persona per entity); still open for blind cases.
 - **Library fixes waiting on a decision:** rename ACORD 25's six phone fields (or replace the blueprint with the
   relabel); add 10-10EZ (`runs/relabel/blueprints/va_form_10_10ez_relabel2.bpt`, 0 contradictions, 0 name defects
   after one review round) as the first new-emitter form; rename CMS-1500's `amended_return_ind` group.

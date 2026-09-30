@@ -673,3 +673,76 @@ one place over from the printed Apt. / Ste. / Flr. (new taxonomy class `export_c
 the printed word beside the box, so it does not matter to the reader. Ink detection stays as the fallback only; the
 library recaption from page text was tried and reverted (right where the export is a code, wrong where the text
 beside a box is a question or a watermark) — parked with the flat-form work.
+
+## Page-grounded classification, value bank and case sets (2026-09-30, `petey/synth/classify.py`, `petey/synth/bank.py`, `petey/validate/class_check.py`)
+
+TODO_v6's synthetic-data plan, steps 1-4, built and run on the five test forms. The classifier sees what the blind
+generator sees (page image with numbered red boxes, an inventory of ids and control types, no names, no export
+values) and returns per box the caption it read, a class from a closed 40-name vocabulary, whose value it is
+(`entity`), and for checkboxes the question a set of boxes answers (`group`). Cached once per blank, model and
+prompt version. The bank (`bank.yaml`: 24 personas with aligned state / ZIP / area code, 12 businesses) then
+builds any number of cases for nothing: one persona per entity, so every applicant SSN box on a form holds the
+same string; split boxes (SSN 3-2-4, EIN 2-7, phone 3-3-4, date parts) filled from one whole; one box per checkbox
+group. Sets of three cases per form are frozen on disk (`validate --case-set 1`, manifest in
+`runs/_gen_cache/sets/`).
+
+**Classification, Sonnet 4.6, prompt v3** (three prompt versions over the day; 60 page calls, $1.80 in total).
+
+| form | boxes | uncaptioned (label null) | checkbox groups | off-vocabulary | unknown ids |
+|---|---|---|---|---|---|
+| W-9 | 23 | 0 | 1 (the 7 tax-classification boxes) | 0 | 0 |
+| ACORD 25 | 128 | 40 | 7 | 0 | 0 |
+| I-765 | 161 | 17 | 13 | 0 | 0 |
+| 21-526EZ | 342 | 0 | 5 | 0 | 0 |
+| 10-10EZ | 122 | 0 | 3 | 0 | 0 |
+
+Prompt v1 had no `label`; on ACORD 25 the producer / insured / certificate-holder blocks (four lines under one
+heading, no per-line caption) came back slid by one or two rows, in a different direction from the committed
+blueprint's own slide (its six "phone" fields are the state and ZIP boxes). v2 asks for the caption and returns null
+where a box has none, with the conventional order (name, street, street, city; short boxes ending a line are state
+then ZIP) as the fallback; the insured block then read in that order and the 40 uncaptioned boxes are marked as
+guesses. v3 added `group` after the bank ticked two or three boxes of I-765's marital status and unit-type sets
+(distinct paths per kid, so neither the inventory nor the filler sees a group).
+
+**Bank set 1, three cases, by-path readback (`native`).** W-9 23/23, ACORD 25 128/128, I-765 140/140, 21-526EZ
+328/328 on every case; zero ground-truth defects after the group fix (before it: 2-4 mutex violations per case on
+I-765 and 526EZ). Two fill-path bugs found on the way: YAML reads an unquoted `1978-03-14` as a date object, and
+pymupdf returns (export, display) pairs for I-765's state comboboxes; both normalised.
+
+**Class check: page class vs blueprint type, per field, family level.** Tier 1: captioned box, typed field,
+families differ (a detection; reaches the reviewer as `page_class` with the caption read). Tier 2: captioned box,
+blueprint field untyped; the page offers a type (a suggestion, reported not counted). Tier 3: uncaptioned; a guess
+on both sides.
+
+| form | fields | tier 1 | tier 2 | tier 3 | what tier 1 is |
+|---|---|---|---|---|---|
+| W-9 | 23 | 1 | 4 | 0 | requester name-and-address typed person_name |
+| ACORD 25 | 128 | 13 | 21 | 17 | six insurer names typed person_name; seven policy / certificate numbers typed free text |
+| I-765 | 140 | 13 | 10 | 6 | `attorney_state_bar_num` typed state_abbr (`_state` slug); E-Verify company id typed business_name; eight document numbers typed free text; eligibility-category parts |
+| 21-526EZ | 328 | 47 | 52 | 0 | 35 `disability_N_nm` typed person_name (the `_nm` slug rule); name-and-address boxes typed person_name; financial institution typed person_name |
+| 10-10EZ (side copy) | 122 | 8 | 11 | 0 | next-of-kin address / relationship, designee, facility, three numbers typed free text |
+
+The 526EZ box named `va_file_number_2` is captioned VETERAN/SERVICEMEMBER'S NAME (a tier-2 row: the field is
+untyped). The `_nm` and `_state` slug rules in `semantic_types.py` account for most tier-1 rows across the forms.
+
+**Class flags against the reader's flags** (text reader, set 1, `iterate --max-iter 1`; fields flagged in any of
+the three cases):
+
+| form | reader flagged (defect / unlocatable) | class tier 1 | both | reader hit a tier-2 field |
+|---|---|---|---|---|
+| W-9 | 2 | 1 | 0 | 0 |
+| ACORD 25 | 32 | 13 | 0 | 4 (INSR LTR codes, the WC yes/no) |
+| I-765 | 3 | 13 | 1 (`attorney_state_bar_num`) | 0 |
+
+The two detectors see different faults. The reader answers placement and naming (ACORD 25's slid producer /
+insured / holder blocks, the automobile row shift, the OTHER coverage rows); the class check answers typing (a
+business named as a person, a number typed as prose). Neither reaches the six misnamed ACORD 25 phone fields by
+name, but the bank does by value: it fills them as state and ZIP per the page class, the blueprint's phone pattern
+rejects that, and `pattern_vs_value` fires on all six in all three cases; on I-765 the same detector fires on the
+bar number typed as a state code. That is the two-generator disagreement of the design showing up through the
+existing shape detector rather than a new one. (A first pass had the reader flagging one more field on each form;
+that was before the combobox fix, when I-765's state boxes held pairs.)
+
+Not run: 526EZ and 10-10EZ with the reader arm (image mode on 526EZ; 10-10EZ's blueprint is a side copy and
+`validate` has no `--bpt` override). The blind-generator default (step 5) and the library-wide set (step 6, 134
+forms, a classification per form at about 2 cents a page) wait on Andrew.

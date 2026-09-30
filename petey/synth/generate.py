@@ -190,6 +190,12 @@ def _unescape_pdf_name(s: Optional[str]) -> Optional[str]:
     )
 
 
+def _choice_exports(values) -> list:
+    """Combobox choices as export strings: pymupdf returns (export, display)
+    pairs on some forms (I-765 state lists)."""
+    return [c[0] if isinstance(c, (list, tuple)) else c for c in (values or [])]
+
+
 def _widget_type_string(field_type: int) -> str:
     """Map pymupdf widget type int → canonical string."""
     return {
@@ -223,7 +229,7 @@ def enumerate_widgets(pdf_path: Path) -> list[dict]:
                     "on_state": (_unescape_pdf_name(w.on_state())
                                  if wt in ("checkbox", "radiobutton")
                                  else None),
-                    "choices": (list(w.choice_values)
+                    "choices": (_choice_exports(w.choice_values)
                                 if wt in ("combobox", "listbox")
                                 and w.choice_values else None),
                 })
@@ -343,7 +349,7 @@ def blind_inventory(pdf_path: Path) -> tuple[dict[int, list[dict]], dict[str, di
                     if (w.field_flags or 0) & _COMB_FLAG:
                         entry["comb"] = True
                 elif wt in ("combobox", "listbox") and w.choice_values:
-                    entry["choices"] = list(w.choice_values)
+                    entry["choices"] = _choice_exports(w.choice_values)
                 boxes.append(entry)
                 key[bid] = {"path": w.field_name, "type": wt}
     finally:
@@ -492,7 +498,9 @@ def make_client(model: str):
     cfg = provider_for(model)
     if cfg is None:
         import anthropic
-        return anthropic.Anthropic()
+        # A page call is under a minute; without a timeout one stalled stream
+        # held the 526EZ classification for three hours (2026-09-30).
+        return anthropic.Anthropic(timeout=300, max_retries=3)
     from openai import OpenAI
     base_url, key_env = cfg
     key = os.environ.get(key_env)
@@ -532,27 +540,13 @@ def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system
     return text
 
 
-def _call_llm_one_page(
-    client, model: str, page_png: bytes, page_inventory: list[dict],
-    blind: bool = False, tag: str = "generate",
-) -> dict[str, Any]:
-    """One LLM call for one page's widgets. Returns `{path: value}`
-    (or `{box id: value}` in blind mode; the caller unblinds)."""
-    inventory_json = json.dumps(page_inventory, indent=2)
-    if blind:
-        user_text = BLIND_USER_TEMPLATE.format(inventory_json=inventory_json)
-        system = BLIND_SYSTEM_PROMPT
-    else:
-        user_text = USER_TEMPLATE.format(inventory_json=inventory_json)
-        system = SYSTEM_PROMPT
+def call_page(client, model: str, page_png: bytes, system: str, user_text: str,
+              tag: str) -> str:
+    """One multimodal call: a page image plus text, any vendor. Returns the
+    raw text; the caller parses. Shared by value generation and by the
+    classification pass (`synth.classify`)."""
     if provider_for(model) is not None:
-        text = _call_openai_compatible_one_page(client, model, page_png, system, user_text, tag)
-        parsed = _extract_json_object(text)
-        if not parsed or "values" not in parsed:
-            raise RuntimeError(f"LLM did not return {{'values': {{...}}}}.\nGot: {text[:500]}")
-        if not isinstance(parsed["values"], dict):
-            raise RuntimeError(f"Expected dict under 'values', got {type(parsed['values'])}")
-        return parsed["values"]
+        return _call_openai_compatible_one_page(client, model, page_png, system, user_text, tag)
     content = [
         {
             "type": "image",
@@ -582,6 +576,23 @@ def _call_llm_one_page(
                     usage={"input_tokens": getattr(u, "input_tokens", None),
                            "output_tokens": getattr(u, "output_tokens", None)} if u else None,
                     elapsed=time.time() - t0)
+    return text
+
+
+def _call_llm_one_page(
+    client, model: str, page_png: bytes, page_inventory: list[dict],
+    blind: bool = False, tag: str = "generate",
+) -> dict[str, Any]:
+    """One LLM call for one page's widgets. Returns `{path: value}`
+    (or `{box id: value}` in blind mode; the caller unblinds)."""
+    inventory_json = json.dumps(page_inventory, indent=2)
+    if blind:
+        user_text = BLIND_USER_TEMPLATE.format(inventory_json=inventory_json)
+        system = BLIND_SYSTEM_PROMPT
+    else:
+        user_text = USER_TEMPLATE.format(inventory_json=inventory_json)
+        system = SYSTEM_PROMPT
+    text = call_page(client, model, page_png, system, user_text, tag)
     parsed = _extract_json_object(text)
     if not parsed or "values" not in parsed:
         raise RuntimeError(

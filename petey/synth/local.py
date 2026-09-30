@@ -283,6 +283,12 @@ def widget_limits(blank_pdf: Optional[Path]) -> dict[str, dict]:
                         "width": float(w.rect.width),
                         "tooltip": (w.field_label or "").strip(),
                     })
+                elif kind in ("combobox", "listbox"):
+                    # pymupdf gives (export, display) pairs for some
+                    # comboboxes (I-765 state lists); the value is the export
+                    entry["choices"] = [c[0] if isinstance(c, (list, tuple)) else c
+                                        for c in (w.choice_values or []) if c not in ("", " ", (" ", " "))]
+                    entry["width"] = float(w.rect.width)
                 elif kind in ("checkbox", "radiobutton"):
                     try:
                         on = _unescape_pdf_name(w.on_state())

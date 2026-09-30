@@ -28,6 +28,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import collections
 import json
 import os
 import shutil
@@ -40,6 +41,8 @@ from typing import Optional
 
 
 from petey.synth import generate_from_pdf, render_pdf, generate_local, seed_from_key  # noqa: E402
+from petey.synth.bank import class_map_from_blueprint, generate_from_bank  # noqa: E402
+from petey.synth.classify import classify_form  # noqa: E402
 
 from petey.extract import extract, load_blueprint  # noqa: E402
 from petey.extract_llm import extract_llm  # noqa: E402
@@ -100,6 +103,43 @@ def _extract_petey(
     return values
 
 
+def _bank_cache_path(cache_dir: Optional[Path], blank_pdf: Path, key: Optional[str]) -> Optional[Path]:
+    """Where a bank case's ground truth is frozen: same directory as the
+    generator cache, keyed on the blank's bytes, the generator name and the
+    case key (`<gen_key>_set<N>_case<K>` for a set member)."""
+    if cache_dir is None:
+        return None
+    import hashlib
+    h = hashlib.sha256()
+    h.update(blank_pdf.read_bytes())
+    h.update(b"\x00bank\x00")
+    h.update((key or "").encode("utf-8"))
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return cache_dir / f"{h.hexdigest()}.json"
+
+
+SETS_DIR = RUNS / "_gen_cache" / "sets"
+
+
+def _record_set(form_id: str, set_id: int, keys: list[str], gen_model: str, run_dir: Path) -> None:
+    """The set manifest: which case keys make up `<form>_set<N>`, under which
+    generator. Written once; later runs of the same set append themselves
+    and a generator change is recorded, not silently absorbed."""
+    SETS_DIR.mkdir(parents=True, exist_ok=True)
+    mp = SETS_DIR / f"{form_id}_set{set_id}.json"
+    if mp.exists():
+        m = json.loads(mp.read_text(encoding="utf-8"))
+        if m.get("generator") != gen_model:
+            print(f"[set   ] WARNING: {mp.name} was created with generator {m.get('generator')!r}, "
+                  f"this run uses {gen_model!r}; the cached ground truth is the frozen one")
+            m.setdefault("generator_conflicts", []).append({"generator": gen_model, "run": run_dir.name})
+        m.setdefault("runs", []).append(run_dir.name)
+    else:
+        m = {"form": form_id, "set": set_id, "generator": gen_model, "cases": keys,
+             "created": time.strftime("%Y-%m-%d %H:%M:%S"), "runs": [run_dir.name]}
+    mp.write_text(json.dumps(m, indent=1))
+
+
 def _run_case(
     *,
     bpt_path: Path, bpt: dict, blank_pdf: Path,
@@ -120,6 +160,41 @@ def _run_case(
         # patterns, semantic types and rules (STRATEGY_v1 §3.6). Keyed
         # on the case key so reruns reproduce.
         gt = generate_local(bpt, blank_pdf, seed=seed_from_key(gen_cache_key))
+    elif (gen_model or model) == "bank":
+        # Value bank keyed by the page-grounded class map (TODO v6 synthetic
+        # data, steps 1-2). The classification is one cached call per form;
+        # with --gen-cache-only an uncached form falls back to the
+        # blueprint's own typing, and the run records which it was.
+        cmap = classify_form(blank_pdf, cache_only=gen_cache_only,
+                             form_id=(gen_cache_key or "").rsplit("_intact", 1)[0] or None)
+        if cmap is None:
+            cmap = class_map_from_blueprint(bpt)
+            print(f"    [{variant}] no cached classification; class map from the blueprint")
+        donor = None
+        if gen_cache_dir is not None:
+            for blind in (True, False):
+                hit = generate_from_pdf(blank_pdf, n=1, model=DEFAULT_MODEL, cache_dir=gen_cache_dir,
+                                        cache_key_prefix=gen_cache_key, blind=blind, cache_only=True)
+                if hit:
+                    donor = hit[0]
+                    break
+        # Frozen once written: a case set must not drift when the class map
+        # or the bank changes; regenerate a new set instead.
+        bank_cp = _bank_cache_path(gen_cache_dir, blank_pdf, gen_cache_key)
+        if bank_cp is not None and bank_cp.exists():
+            gt = json.loads(bank_cp.read_text(encoding="utf-8"))
+        else:
+            gt = generate_from_bank(cmap, blank_pdf, seed=seed_from_key(gen_cache_key), donor=donor)
+            if bank_cp is not None:
+                bank_cp.write_text(json.dumps(gt, indent=2))
+        (case_dir / "class_map.json").write_text(json.dumps(
+            {k: v for k, v in cmap.items() if k != "raw"}, indent=1))
+        if cmap.get("model") != "blueprint":
+            from petey.validate.class_check import check_run_case
+            rows = check_run_case(bpt, cmap, case_dir)
+            t = collections.Counter(r["tier"] for r in rows)
+            print(f"    [{variant}] class check: {t[1]} contradictions, {t[2]} type suggestions, "
+                  f"{t[3]} uncaptioned")
     else:
         if gen_cache_only and not generate_from_pdf(
                 blank_pdf, n=1, model=gen_model or model,
@@ -457,6 +532,11 @@ def main() -> int:
     ap.add_argument("--gen-cache-only", action="store_true",
                     help="never call the generator API: use cached ground "
                          "truth or skip the case")
+    ap.add_argument("--case-set", type=int, default=None, metavar="N",
+                    help="run a versioned case set: --n-cases intact cases keyed "
+                         "<gen-key>_setN_caseK, frozen once generated (TODO v6 step 3)")
+    ap.add_argument("--n-cases", type=int, default=None,
+                    help="intact cases in the set (default 3 with --case-set, else 1)")
     ap.add_argument("--fresh-flat-gt", action="store_true",
                     help="generate separate ground truth per flat case "
                          "(default: flat cases reuse the intact case's)")
@@ -496,8 +576,10 @@ def main() -> int:
     run_dir.mkdir(parents=True, exist_ok=True)
     gen_cache_dir = args.out / "_gen_cache"
 
+    n_cases = args.n_cases or (3 if args.case_set is not None else 1)
     print(f"[validate] form_id={form_id} methods={methods} "
-          f"cases=1 intact + {args.n_flat} flat")
+          f"cases={n_cases} intact + {args.n_flat} flat"
+          + (f" (case set {args.case_set})" if args.case_set is not None else ""))
     print(f"[validate] run_dir={run_dir}")
 
     # 1. Labeling
@@ -522,23 +604,31 @@ def main() -> int:
     shutil.copy(bpt_path, run_dir / "blueprint.bpt")
     bpt = load_blueprint(bpt_path)
 
-    # 2. Cases: 1 intact + N flat
+    # 2. Cases: K intact (1, or a case set) + N flat
+    if args.case_set is not None:
+        intact_keys = [f"{gen_key}_set{args.case_set}_case{k:03d}" for k in range(1, n_cases + 1)]
+    else:
+        intact_keys = [f"{gen_key}_intact_001"] + [f"{gen_key}_intact_{k:03d}" for k in range(2, n_cases + 1)]
     case_reports: list[dict] = []
-    intact_dir = run_dir / "case_001_intact"
-    print("\n[case  ] 001 (intact)")
-    case_reports.append(_run_case(
-        bpt_path=bpt_path, bpt=bpt, blank_pdf=args.blank,
-        case_dir=intact_dir, variant="intact",
-        methods=methods, model=args.model,
-        gen_model=args.gen_model,
-        gen_cache_dir=gen_cache_dir,
-        gen_cache_key=f"{gen_key}_intact_001",
-        datalab_max_fields=args.datalab_max_fields,
-        gen_cache_only=args.gen_cache_only,
-    ))
+    for k, key in enumerate(intact_keys, start=1):
+        intact_dir = run_dir / f"case_{k:03d}_intact"
+        print(f"\n[case  ] {k:03d} (intact, {key})")
+        case_reports.append(_run_case(
+            bpt_path=bpt_path, bpt=bpt, blank_pdf=args.blank,
+            case_dir=intact_dir, variant="intact",
+            methods=methods, model=args.model,
+            gen_model=args.gen_model,
+            gen_cache_dir=gen_cache_dir,
+            gen_cache_key=key,
+            datalab_max_fields=args.datalab_max_fields,
+            gen_cache_only=args.gen_cache_only,
+        ))
+    if args.case_set is not None:
+        _record_set(form_id, args.case_set, intact_keys, args.gen_model or args.model, run_dir)
+    intact_reports = list(case_reports)
 
     for i in range(args.n_flat):
-        cnum = i + 2
+        cnum = n_cases + i + 1
         flat_dir = run_dir / f"case_{cnum:03d}_flat"
         print(f"\n[case  ] {cnum:03d} (flat)")
         case_reports.append(_run_case(
@@ -548,7 +638,7 @@ def main() -> int:
             gen_model=args.gen_model,
             gen_cache_dir=gen_cache_dir,
             gen_cache_key=(f"{gen_key}_flat_{cnum:03d}" if args.fresh_flat_gt
-                           else f"{gen_key}_intact_001"),
+                           else intact_keys[0]),
             datalab_max_fields=args.datalab_max_fields,
             gen_cache_only=args.gen_cache_only,
         ))
@@ -561,7 +651,11 @@ def main() -> int:
         "methods": methods,
         "intact": {m: case_reports[0].get(m, {}).get("verdicts")
                    for m in methods},
-        "flat_avg": {m: _aggregate(case_reports[1:], m) for m in methods},
+        "set": ({"id": args.case_set, "n_cases": n_cases, "keys": intact_keys,
+                 "per_method": {m: _aggregate(intact_reports, m) for m in methods},
+                 "per_case": [{m: r.get(m, {}).get("verdicts") for m in methods} for r in intact_reports]}
+                if n_cases > 1 else None),
+        "flat_avg": {m: _aggregate(case_reports[n_cases:], m) for m in methods},
     }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2))
 
@@ -581,6 +675,16 @@ def main() -> int:
         conf = "n/a" if c is None else str(c)
         print(f"  {m:<10} {vd['agree']:<8} {vd['differ']:<8} "
               f"{vd['extract_miss']:<8} {vd['gt_defect']:<8} {conf:<10}")
+
+    if summary["set"]:
+        print(f"\nCASE SET {args.case_set} ({n_cases} intact cases, mean):")
+        for m in methods:
+            a = summary["set"]["per_method"][m]
+            if a.get("n_cases", 0) == 0:
+                print(f"  {m:<10} no valid cases")
+                continue
+            print(f"  {m:<10} agree {a['agree']:.1f}  differ {a['differ']:.1f}  "
+                  f"miss {a['extract_miss']:.1f}  defect {a['gt_defect']:.1f}")
 
     if args.n_flat:
         print(f"\nFLATTENED ({args.n_flat} cases, mean):")

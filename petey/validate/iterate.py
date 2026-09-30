@@ -66,7 +66,8 @@ CLASS_OF = {
 
 def run_validate(form: str, blank: Optional[Path], *, gen_model: str, methods: str,
                  n_flat: int, gen_cache_only: bool, label_model: Optional[str],
-                 gen_key: Optional[str]) -> Path:
+                 gen_key: Optional[str], case_set: Optional[int] = None,
+                 n_cases: Optional[int] = None) -> Path:
     if blank is None:
         bp = yaml.safe_load((BLUEPRINTS / f"{form}.bpt").read_text(encoding="utf-8"))
         blank = resolve_blank(bp)
@@ -81,6 +82,10 @@ def run_validate(form: str, blank: Optional[Path], *, gen_model: str, methods: s
         cmd += ["--label-model", label_model]
     if gen_key:
         cmd += ["--gen-key", gen_key]
+    if case_set is not None:
+        cmd += ["--case-set", str(case_set)]
+    if n_cases:
+        cmd += ["--n-cases", str(n_cases)]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
     m = re.search(r"run_dir=(\S+)", proc.stdout or "")
     if proc.returncode != 0 or not m:
@@ -88,19 +93,45 @@ def run_validate(form: str, blank: Optional[Path], *, gen_model: str, methods: s
     return Path(m.group(1))
 
 
+def intact_dirs(run_dir: Path) -> list[Path]:
+    """Every intact case of a run: one, or the members of a case set."""
+    return sorted(d for d in run_dir.glob("case_*_intact") if d.is_dir())
+
+
 def detect(form: str, run_dir: Path) -> dict:
+    """What the run detected. Over a case set the verdict counts are summed
+    across cases, a shape contradiction or rule violation counts once per
+    field (any case), so one bad draw cannot be outvoted by clean ones."""
     intact = run_dir / "case_001_intact"
     out: dict = {"run": run_dir.name, "verdicts": {}, "shape": {}, "rule_violations": 0,
-                 "delta": {}, "confirmed_cycles": [], "generation": None}
+                 "delta": {}, "confirmed_cycles": [], "generation": None,
+                 "n_cases": len(intact_dirs(run_dir))}
     score_path = intact / "score_native.json"
     if not score_path.exists():
         summary = json.loads((run_dir / "summary.json").read_text()) if (run_dir / "summary.json").exists() else {}
         out["generation"] = "no_ground_truth" if not summary.get("intact", {}).get("native") else "no_score"
         return out
-    r = json.loads(score_path.read_text())
-    out["verdicts"] = r.get("verdicts", {})
-    out["shape"] = dict(collections.Counter((r.get("gt_shape_mismatches") or {}).values()))
-    out["rule_violations"] = len(r.get("rule_violations") or [])
+    verdicts: collections.Counter = collections.Counter()
+    shape_fields: dict[str, str] = {}
+    rule_fields: set[str] = set()
+    for d in intact_dirs(run_dir):
+        sp = d / "score_native.json"
+        if not sp.exists():
+            continue
+        r = json.loads(sp.read_text())
+        verdicts.update(r.get("verdicts", {}))
+        shape_fields.update(r.get("gt_shape_mismatches") or {})
+        for rv in r.get("rule_violations") or []:
+            rule_fields.add(json.dumps(rv, sort_keys=True, default=str))
+    out["verdicts"] = dict(verdicts)
+    out["shape"] = dict(collections.Counter(shape_fields.values()))
+    out["rule_violations"] = len(rule_fields)
+    cd = intact / "class_disagreements.json"
+    if cd.exists():
+        rows = json.loads(cd.read_text())
+        out["class_disagree"] = sum(1 for r in rows if r.get("tier") == 1)
+        out["class_suggest"] = sum(1 for r in rows if r.get("tier") == 2)
+        out["class_uncaptioned"] = sum(1 for r in rows if r.get("tier") == 3)
     if any(intact.glob("score_petey*.json")):
         res = method_delta.compare_run(run_dir, "auto")
         # method_delta rows carry `verdict` (differ / extract_miss) AND `cause`
@@ -114,7 +145,8 @@ def detect(form: str, run_dir: Path) -> dict:
                     out["confirmed_cycles"].append(c)
     out["total"] = (sum(out["shape"].values()) + out["rule_violations"]
                     + sum(v for k, v in out["delta"].items() if k in ("defect", "unlocatable"))
-                    + out["verdicts"].get("differ", 0) + out["verdicts"].get("extract_miss", 0))
+                    + out["verdicts"].get("differ", 0) + out["verdicts"].get("extract_miss", 0)
+                    + out.get("class_disagree", 0))
     return out
 
 
@@ -146,16 +178,24 @@ def field_status(run_dir: Path) -> dict[str, int]:
     """Per-field badness after a validation: 0 = fine. Shape contradiction
     adds 1; the name-based reader's cause adds its rank (wrong value worse
     than not found, not found worse than a format quibble)."""
-    intact = run_dir / "case_001_intact"
     status: dict[str, int] = collections.defaultdict(int)
-    native = json.loads((intact / "score_native.json").read_text())
-    for f in native.get("gt_shape_mismatches") or {}:
-        status[f] += 1
-    arms = method_delta.meaning_methods(intact)
-    arm = "petey:image" if "petey:image" in arms else (arms[0] if arms else None)
-    if arm:
-        for r in method_delta.compare_case(intact, arm):
-            status[r["field"]] += _RANK.get(r.get("cause") or "", 2)
+    for intact in intact_dirs(run_dir):
+        per_case: dict[str, int] = collections.defaultdict(int)
+        native = json.loads((intact / "score_native.json").read_text())
+        for f in native.get("gt_shape_mismatches") or {}:
+            per_case[f] += 1
+        arms = method_delta.meaning_methods(intact)
+        arm = "petey:image" if "petey:image" in arms else (arms[0] if arms else None)
+        if arm:
+            for r in method_delta.compare_case(intact, arm):
+                per_case[r["field"]] += _RANK.get(r.get("cause") or "", 2)
+        cd = intact / "class_disagreements.json"
+        if cd.exists():
+            for row in json.loads(cd.read_text()):
+                if row.get("tier") == 1:
+                    per_case[row["field"]] += 1
+        for f, v in per_case.items():
+            status[f] = max(status[f], v)
     return status
 
 
@@ -281,7 +321,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
             max_iter: int, describe: bool, apply_correct: bool,
             review: str = "none", review_model: str = "claude-opus-5",
             review_effort: str = "medium", review_rounds: int = 1,
-            allow_dirty: bool = False) -> dict:
+            allow_dirty: bool = False, case_set: Optional[int] = None,
+            n_cases: Optional[int] = None) -> dict:
     """See the module docstring. With `review` != "none", after the rule
     fixes the LLM reviewer (`review.py`) looks at the flagged fields and its
     fixes are applied; the NEXT validation judges them. If detections did
@@ -303,7 +344,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
     for i in range(1, max_iter + 1):
         t0 = time.time()
         run_dir = run_validate(form, blank, gen_model=gen_model, methods=methods, n_flat=n_flat,
-                               gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key)
+                               gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key,
+                               case_set=case_set, n_cases=n_cases)
         det = detect(form, run_dir)
         if det.get("generation"):
             history.append({"iteration": i, "run": run_dir.name, "blocked": det["generation"]})
@@ -384,6 +426,8 @@ def main() -> int:
     ap.add_argument("--gen-model", default="local", help="'local' (no API) or a model id")
     ap.add_argument("--gen-cache-only", action="store_true")
     ap.add_argument("--gen-key", default=None)
+    ap.add_argument("--case-set", type=int, default=None, help="versioned case set id (validate --case-set)")
+    ap.add_argument("--n-cases", type=int, default=None, help="intact cases in the set (default 3)")
     ap.add_argument("--methods", default="native")
     ap.add_argument("--n-flat", type=int, default=1)
     ap.add_argument("--label-model", default=None, help="'none' labels without an API when the blueprint is missing")
@@ -402,7 +446,7 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     rv = dict(review=args.review, review_model=args.review_model,
-              review_effort=args.review_effort, review_rounds=args.review_rounds,
+              review_effort=args.review_effort, review_rounds=args.review_rounds, case_set=args.case_set, n_cases=args.n_cases,
               allow_dirty=args.allow_dirty)
     if args.all or args.forms:
         from petey.validate.run_all import ready_targets
