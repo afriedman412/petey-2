@@ -574,3 +574,10 @@ development concern. So the per-dollar and seconds columns above are dev numbers
 forms, price differences are cents and latency is minutes. On quality alone the generator choice is yield (Sonnet 4.6,
 most confirmed fields per form) against precision (the Gemini pair, fewer fields, nearly all findable); the labeler
 choice is a wash among the top four.
+
+**Yield is a knob (user, 2026-09-30).** How many boxes a generator fills is a property of the case it invented, not
+of the model, and the prompt can set it for any model. The model's own signal is precision on the boxes it filled:
+Gemini 3.1 Pro and 3.8 Flash lead on ACORD 25 and 526EZ, gpt-5.5 ties 3.1 Pro on I-765, Sonnet 4.6 trails by 7-13
+points on the two large forms (and 35 of its 36 contradictions on 526EZ are approximate dates it chose to fill). On
+that reading the Gemini pair is at least as good as the default for this slot. The next comparison, if wanted, is
+precision at controlled density: two prompt variants per form (typical filing, complete filing) for every model.
