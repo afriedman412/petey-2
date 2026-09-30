@@ -240,7 +240,8 @@ def _clear(spec: dict, gt: dict) -> None:
 
 def _held(spec: dict, gt: dict) -> bool:
     if spec.get("widgets"):
-        return any(gt.get(wb.get("path")) is True
+        return any((gt.get(wb.get("path")) == wb["on_state"]) if wb.get("on_state")
+                   else gt.get(wb.get("path")) is True
                    for wb in spec["widgets"].values())
     path = (spec.get("widget") or {}).get("path")
     v = gt.get(path)
@@ -386,7 +387,16 @@ def generate_local(
             else:
                 pick = {v for v in values if rng.random() < check_rate}
             for v, wb in widgets.items():
-                if wb.get("path"):
+                if not wb.get("path"):
+                    continue
+                if wb.get("on_state"):
+                    # options of ONE field (radio group): the field holds
+                    # the picked option's on-state, or nothing
+                    if v in pick:
+                        gt[wb["path"]] = wb["on_state"]
+                    else:
+                        gt.setdefault(wb["path"], False)
+                else:
                     gt[wb["path"]] = v in pick
             continue
         if not path:

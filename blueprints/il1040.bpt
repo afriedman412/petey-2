@@ -325,17 +325,35 @@ fields:
       widget_type: checkbox
       path: dependent_status
   nonresident_or_part_year_resident_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 238.9199981689453
-      - 247.55999755859375
-      - 249.9600067138672
-      - 258.5999755859375
-      widget_type: checkbox
-      path: residency
+    type: category
+    values:
+    - nonresident
+    - part year resident
+    widgets:
+      nonresident:
+        page: 1
+        rect:
+        - 238.9199981689453
+        - 247.55999755859375
+        - 249.9600067138672
+        - 258.5999755859375
+        widget_type: checkbox
+        path: residency
+        on_state: nonresident
+        caption: nonresident
+      part year resident:
+        page: 1
+        rect:
+        - 378.0
+        - 247.55999755859375
+        - 389.0400085449219
+        - 258.5999755859375
+        widget_type: checkbox
+        path: residency
+        on_state: part year resident
+        caption: part year resident
+    x_petey_retype:
+    - option_group:boolean->category[2]
   federal_agi_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1171,21 +1189,38 @@ fields:
     x_petey_retype:
     - description_from_tooltip
   direct_deposit_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.720001220703125
-      - 403.9200134277344
-      - 72.5999984741211
-      - 412.79998779296875
-      widget_type: checkbox
-      path: refund
+    type: category
     description: choose refund method
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    - option_group:boolean->category[2]
+    values:
+    - direct deposit
+    - paper check
+    widgets:
+      direct deposit:
+        page: 2
+        rect:
+        - 63.720001220703125
+        - 403.9200134277344
+        - 72.5999984741211
+        - 412.79998779296875
+        widget_type: checkbox
+        path: refund
+        on_state: direct deposit
+        caption: direct deposit
+      paper check:
+        page: 2
+        rect:
+        - 63.720001220703125
+        - 458.8800048828125
+        - 72.5999984741211
+        - 467.8800048828125
+        widget_type: checkbox
+        path: refund
+        on_state: paper check
+        caption: paper check
   routing_number:
     type: string
     semantic_type: routing_number
@@ -1204,17 +1239,35 @@ fields:
     x_petey_retype:
     - description_from_tooltip
   checking_or_savings_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 407.2449951171875
-      - 418.7380065917969
-      - 421.6449890136719
-      - 433.13800048828125
-      widget_type: checkbox
-      path: account_type
+    type: category
+    values:
+    - checking
+    - savings
+    widgets:
+      checking:
+        page: 2
+        rect:
+        - 407.2449951171875
+        - 418.7380065917969
+        - 421.6449890136719
+        - 433.13800048828125
+        widget_type: checkbox
+        path: account_type
+        on_state: checking
+        caption: checking
+      savings:
+        page: 2
+        rect:
+        - 475.4339904785156
+        - 418.7380065917969
+        - 489.8340148925781
+        - 433.13800048828125
+        widget_type: checkbox
+        path: account_type
+        on_state: savings
+        caption: savings
+    x_petey_retype:
+    - option_group:boolean->category[2]
   account_number:
     type: string
     semantic_type: account_number
@@ -1607,16 +1660,71 @@ fields:
     x_petey_retype:
     - description_from_tooltip
   filing_status_single_ind:
-    type: boolean
-    widget:
-      page: 1
-      rect:
-      - 97.80000305175781
-      - 213.3599853515625
-      - 108.83999633789062
-      - 224.4000244140625
-      widget_type: checkbox
-      path: filing_status
+    type: category
+    values:
+    - single
+    - married filing jointly
+    - married filing separately
+    - widowed
+    - head of household
+    widgets:
+      single:
+        page: 1
+        rect:
+        - 97.80000305175781
+        - 213.3599853515625
+        - 108.83999633789062
+        - 224.4000244140625
+        widget_type: checkbox
+        path: filing_status
+        on_state: single
+        caption: single
+      married filing jointly:
+        page: 1
+        rect:
+        - 146.27999877929688
+        - 213.3599853515625
+        - 157.32000732421875
+        - 224.4000244140625
+        widget_type: checkbox
+        path: filing_status
+        on_state: married filing jointly
+        caption: married filing jointly
+      married filing separately:
+        page: 1
+        rect:
+        - 244.32000732421875
+        - 213.3599853515625
+        - 255.36000061035156
+        - 224.4000244140625
+        widget_type: checkbox
+        path: filing_status
+        on_state: married filing separately
+        caption: married filing separately
+      widowed:
+        page: 1
+        rect:
+        - 360.8399963378906
+        - 213.3599853515625
+        - 371.8800048828125
+        - 224.4000244140625
+        widget_type: checkbox
+        path: filing_status
+        on_state: widowed
+        caption: widowed
+      head of household:
+        page: 1
+        rect:
+        - 418.9200134277344
+        - 213.3599853515625
+        - 429.8399963378906
+        - 224.4000244140625
+        widget_type: checkbox
+        path: filing_status
+        on_state: head of household
+        caption: head of household
+    x_petey_retype:
+    - option_group:boolean->category[5]
 x_petey_dedup_log:
   duplicate_labels_reassigned: 1
   collisions:

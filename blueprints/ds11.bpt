@@ -10,29 +10,77 @@ description: ''
 instructions: ''
 fields:
   passport_book_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 89.01860046386719
-      - 70.56298828125
-      - 101.58000183105469
-      - 81.489990234375
-      widget_type: checkbox
-      path: Selection
+    type: category
+    values:
+    - Book
+    - Card
+    - Both
+    widgets:
+      Book:
+        page: 5
+        rect:
+        - 89.01860046386719
+        - 70.56298828125
+        - 101.58000183105469
+        - 81.489990234375
+        widget_type: checkbox
+        path: Selection
+        on_state: Book
+        caption: Book
+      Card:
+        page: 5
+        rect:
+        - 212.72799682617188
+        - 70.55999755859375
+        - 225.29200744628906
+        - 81.489990234375
+        widget_type: checkbox
+        path: Selection
+        on_state: Card
+        caption: Card
+      Both:
+        page: 5
+        rect:
+        - 335.9630126953125
+        - 70.55999755859375
+        - 348.5270080566406
+        - 81.489990234375
+        widget_type: checkbox
+        path: Selection
+        on_state: Both
+        caption: Both
+    x_petey_retype:
+    - option_group:boolean->category[3]
   large_book_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 112.58200073242188
-      - 89.6729736328125
-      - 123.38200378417969
-      - 100.4730224609375
-      widget_type: checkbox
-      path: Regular or Large Book
+    type: category
+    values:
+    - Regular
+    - Large
+    widgets:
+      Regular:
+        page: 5
+        rect:
+        - 112.58200073242188
+        - 89.6729736328125
+        - 123.38200378417969
+        - 100.4730224609375
+        widget_type: checkbox
+        path: Regular or Large Book
+        on_state: Regular
+        caption: Regular
+      Large:
+        page: 5
+        rect:
+        - 243.49200439453125
+        - 89.6729736328125
+        - 254.29200744628906
+        - 100.4730224609375
+        widget_type: checkbox
+        path: Regular or Large Book
+        on_state: Large
+        caption: Large
+    x_petey_retype:
+    - option_group:boolean->category[2]
   last_first_middle_nm:
     type: string
     semantic_type: person_name
@@ -117,17 +165,35 @@ fields:
     x_petey_retype:
     - part_by_maxlen:4
   sex_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 242.21400451660156
-      - 200.22698974609375
-      - 254.9770050048828
-      - 212.33599853515625
-      widget_type: checkbox
-      path: Gender
+    type: category
+    values:
+    - M
+    - F
+    widgets:
+      M:
+        page: 5
+        rect:
+        - 242.21400451660156
+        - 200.22698974609375
+        - 254.9770050048828
+        - 212.33599853515625
+        widget_type: checkbox
+        path: Gender
+        on_state: M
+        caption: M
+      F:
+        page: 5
+        rect:
+        - 259.22100830078125
+        - 200.22698974609375
+        - 271.9840087890625
+        - 212.33599853515625
+        widget_type: checkbox
+        path: Gender
+        on_state: F
+        caption: F
+    x_petey_retype:
+    - option_group:boolean->category[2]
   uscis_a_number_txt:
     type: string
     semantic_type: text
@@ -413,29 +479,65 @@ fields:
       widget_type: text
       path: Parent 1 Place of Birth
   sex_male_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 494.19000244140625
-      - 108.19598388671875
-      - 502.8299865722656
-      - 116.83599853515625
-      widget_type: checkbox
-      path: Parent 1 Gender
+    type: category
+    values:
+    - M
+    - F
+    widgets:
+      M:
+        page: 6
+        rect:
+        - 494.19000244140625
+        - 108.19598388671875
+        - 502.8299865722656
+        - 116.83599853515625
+        widget_type: checkbox
+        path: Parent 1 Gender
+        on_state: M
+        caption: M
+      F:
+        page: 6
+        rect:
+        - 494.19000244140625
+        - 117.375
+        - 502.8299865722656
+        - 126.34197998046875
+        widget_type: checkbox
+        path: Parent 1 Gender
+        on_state: F
+        caption: F
+    x_petey_retype:
+    - option_group:boolean->category[2]
   sex_female_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 530.093017578125
-      - 109.15997314453125
-      - 538.7329711914062
-      - 117.79998779296875
-      widget_type: checkbox
-      path: Parent 1 US Citizen
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 530.093017578125
+        - 109.15997314453125
+        - 538.7329711914062
+        - 117.79998779296875
+        widget_type: checkbox
+        path: Parent 1 US Citizen
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 529.875
+        - 120.09100341796875
+        - 538.5150146484375
+        - 128.927978515625
+        widget_type: checkbox
+        path: Parent 1 US Citizen
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   applicant_name_3:
     type: string
     semantic_type: person_name
@@ -489,41 +591,95 @@ fields:
       widget_type: text
       path: Parent 2 Place of Birth
   sex_male_2_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 493.2439880371094
-      - 172.82501220703125
-      - 501.5570068359375
-      - 181.46502685546875
-      widget_type: checkbox
-      path: Parent 2 Gender
+    type: category
+    values:
+    - M
+    - F
+    widgets:
+      M:
+        page: 6
+        rect:
+        - 493.2439880371094
+        - 172.82501220703125
+        - 501.5570068359375
+        - 181.46502685546875
+        widget_type: checkbox
+        path: Parent 2 Gender
+        on_state: M
+        caption: M
+      F:
+        page: 6
+        rect:
+        - 493.2439880371094
+        - 182.22601318359375
+        - 501.8840026855469
+        - 191.1929931640625
+        widget_type: checkbox
+        path: Parent 2 Gender
+        on_state: F
+        caption: F
+    x_petey_retype:
+    - option_group:boolean->category[2]
   sex_female_2_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 530.3709716796875
-      - 174.6259765625
-      - 539.010986328125
-      - 183.2659912109375
-      widget_type: checkbox
-      path: Parent 2 US Citizen
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 530.3709716796875
+        - 174.6259765625
+        - 539.010986328125
+        - 183.2659912109375
+        widget_type: checkbox
+        path: Parent 2 US Citizen
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 530.4439697265625
+        - 183.86199951171875
+        - 539.083984375
+        - 192.50201416015625
+        widget_type: checkbox
+        path: Parent 2 US Citizen
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   travel_with_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 171.86199951171875
-      - 193.46197509765625
-      - 180.5019989013672
-      - 202.10198974609375
-      widget_type: checkbox
-      path: Ever Married
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 171.86199951171875
+        - 193.46197509765625
+        - 180.5019989013672
+        - 202.10198974609375
+        widget_type: checkbox
+        path: Ever Married
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 206.843994140625
+        - 193.75299072265625
+        - 215.48399353027344
+        - 202.39300537109375
+        widget_type: checkbox
+        path: Ever Married
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   parent_guardian_nm:
     type: string
     semantic_type: person_name
@@ -562,17 +718,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
   parent_guardian_deceased_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 29.752700805664062
-      - 247.71600341796875
-      - 38.3927001953125
-      - 256.35699462890625
-      widget_type: checkbox
-      path: Spouse US Citizen
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 29.752700805664062
+        - 247.71600341796875
+        - 38.3927001953125
+        - 256.35699462890625
+        widget_type: checkbox
+        path: Spouse US Citizen
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 58.84360122680664
+        - 247.78900146484375
+        - 67.48359680175781
+        - 256.42901611328125
+        widget_type: checkbox
+        path: Spouse US Citizen
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   parent_guardian_dob_2_dt:
     type: date
     semantic_type: birth_date
@@ -588,17 +762,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
   parent_guardian_2_deceased_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 308.0799865722656
-      - 247.426025390625
-      - 316.7200012207031
-      - 256.06597900390625
-      widget_type: checkbox
-      path: Divorced
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 308.0799865722656
+        - 247.426025390625
+        - 316.7200012207031
+        - 256.06597900390625
+        widget_type: checkbox
+        path: Divorced
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 343.2799987792969
+        - 247.49798583984375
+        - 351.9200134277344
+        - 256.13800048828125
+        widget_type: checkbox
+        path: Divorced
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   parent_guardian_2_dob_dt:
     type: date
     semantic_type: birth_date
@@ -626,17 +818,59 @@ fields:
       widget_type: text
       path: Applicant Additional Contact Phone Numbers
   parent_guardian_2_cell_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 194.55299377441406
-      - 273.97100830078125
-      - 203.1929931640625
-      - 282.6109924316406
-      widget_type: checkbox
-      path: 'Additional #'
+    type: category
+    values:
+    - Home
+    - Work
+    - Cell
+    - Other
+    widgets:
+      Home:
+        page: 6
+        rect:
+        - 194.55299377441406
+        - 273.97100830078125
+        - 203.1929931640625
+        - 282.6109924316406
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Home
+        caption: Home
+      Work:
+        page: 6
+        rect:
+        - 194.77099609375
+        - 283.5710144042969
+        - 203.41099548339844
+        - 292.21099853515625
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Work
+        caption: Work
+      Cell:
+        page: 6
+        rect:
+        - 227.78900146484375
+        - 274.9169921875
+        - 236.4290008544922
+        - 283.5570068359375
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Cell
+        caption: Cell
+      Other:
+        page: 6
+        rect:
+        - 228.0800018310547
+        - 283.93499755859375
+        - 236.72000122070312
+        - 292.57501220703125
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Other
+        caption: Other
+    x_petey_retype:
+    - option_group:boolean->category[4]
   parent_guardian_2_relationship:
     type: string
     widget:
@@ -901,17 +1135,35 @@ fields:
       widget_type: text
       path: Relationship to Applicant
   name_printed_on_card_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 362.5530090332031
-      - 491.4989929199219
-      - 371.1929931640625
-      - 500.1390075683594
-      widget_type: checkbox
-      path: Ever Applied or Issued
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 362.5530090332031
+        - 491.4989929199219
+        - 371.1929931640625
+        - 500.1390075683594
+        widget_type: checkbox
+        path: Ever Applied or Issued
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 396.11700439453125
+        - 492.00799560546875
+        - 404.7569885253906
+        - 500.64801025390625
+        widget_type: checkbox
+        path: Ever Applied or Issued
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   most_recent_book_nm:
     type: string
     semantic_type: person_name

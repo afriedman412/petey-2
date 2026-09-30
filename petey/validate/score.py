@@ -246,6 +246,21 @@ def _values_equal(
     return _canonicalize(a, semantic_type) == _canonicalize(b, semantic_type)
 
 
+
+def _option_selected(raw, w_block: dict) -> bool:
+    """Is this option of a category field selected, given the ground-truth
+    value stored at its path? Options that declare an `on_state` (one field,
+    several kids: radio groups and checkbox fields with kids) are selected
+    when the field holds that state; older per-field checkbox clusters keep
+    the "path is checked" rule."""
+    st = w_block.get("on_state")
+    if st:
+        if isinstance(raw, (list, tuple, set)):
+            return st in {str(x) for x in raw}
+        return raw not in (None, "", "Off") and str(raw) == str(st)
+    return _coerce_bool(raw) is True
+
+
 def _normalize_ground_truth(
     field: dict, gt: dict[str, Any],
 ) -> tuple[Any, Optional[str]]:
@@ -258,7 +273,7 @@ def _normalize_ground_truth(
         if widgets:
             selected = [
                 v for v, w_block in widgets.items()
-                if _coerce_bool(gt.get(w_block.get("path"))) is True
+                if _option_selected(gt.get(w_block.get("path")), w_block)
             ]
             if len(selected) == 0:
                 return None, None
@@ -279,7 +294,7 @@ def _normalize_ground_truth(
         widgets = field.get("widgets") or {}
         selected = [
             v for v, w_block in widgets.items()
-            if _coerce_bool(gt.get(w_block.get("path"))) is True
+            if _option_selected(gt.get(w_block.get("path")), w_block)
         ]
         return selected, None
 

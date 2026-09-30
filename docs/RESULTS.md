@@ -401,3 +401,33 @@ regression class; the `yn_column` and `approximate_date_month_year` classes acco
 generated with the current labeler as is; the 10-10EZ blueprint is fit to enter the library after one loop round. The
 reviewer's default stays a per-field judge with a whole-form guard to add before the next wider run; Haiku is fine on
 declarations and unsafe on descriptions.
+
+## Option groups: one field per group, one entry per option (2026-09-29, `eval/radio_survey.py`, `petey/validate/expand_options.py`)
+
+Prompted by the 10-10EZ residue: 19 radio groups the text reader could not place. The emitter wrote a radio group as
+one widget (the union box) with `values` = on-states, so neither a person nor a geometry-aware reader could see the
+options. The corpus survey found the encodings that exist: 1,172 button fields with more than one widget in 147 PDFs —
+692 flagged radio (306 word states, 225 yes/no, 159 ordinal `0..n-1`), 480 flagged **checkbox** (423 with distinct
+states, which behave exactly like radios; 45 with one state drawn in several places), 21 radio fields with a single
+widget, groups of 2 to 12 options with two outliers at 64 and 93. The checkbox-flagged groups had been deduped to
+their first kid: CMS-1500's seven-way insurance type was one boolean named `amended_return_ind`; 81 such groups in 11
+library forms.
+
+**Encoding now.** Any button field with several kids is one field. Distinct on-states are options: `type: category`,
+`values` = the on-states (what the field stores; generator, filler, scorer unchanged), `widgets` keyed by on-state, each
+entry with the option's own box, `on_state`, and `caption` (XFA member caption, else the on-state when it is a word;
+ordinal states without a declaration stay uncaptioned — nothing guessed). Kids repeating one state are a boolean with
+`x_petey_appearances`. Selection everywhere is "the field holds this option's on-state" (`extract.py`, `score.py`,
+`synth/local.py`); the filler sets only the matching kid of a checkbox-flagged group on (`synth/render.py` — before,
+every kid went on and GT "F" read back as `[M, F]`). XFA captions prefer the member's word value over its template
+name (10-10EZ section 2 read "YES4" / "NO4"; the members' values are YES / NO).
+
+**Checks** (native arm, cached ground truth, no reruns beyond these): 10-10EZ 122/122 with 22 groups; 526EZ 328/328
+with 23 groups; CMS-1500 and DS-11, the checkbox-flagged cases, every migrated group agrees (their remaining misses are
+date fields bound to name paths, pre-existing). 10-10EZ relabeled with the new emitter and run through the loop with a
+Haiku round: 0 contradictions, 0 name defects; the text reader still cannot see radio states (19 unlocatable), as
+expected — that is a reader-mode question, not a blueprint one.
+
+**Library migration** (`expand_options --apply`, deterministic, from each blank's AcroForm kids and XFA captions):
+43 forms, 376 groups rebuilt (286 single-widget radios, 90 booleans-on-first-kid), 965 options, 882 captioned. Names
+untouched — the CMS-1500 group still answers to `amended_return_ind`; renaming is the reviewer's job.

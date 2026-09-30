@@ -81,10 +81,27 @@ def render_pdf(
         # name and is scored as agreeing. The eval rewarded the hallucination
         # and penalised the correct answer.
         radio_group_names: set[str] = set()
+        # Checkbox FIELDS with several kids and distinct on-states are option
+        # groups too (CMS-1500 insurance type: Medicare / Medicaid / ...).
+        # The value is an on-state; only the kid carrying it goes on, the
+        # others go Off. Treating each kid as its own checkbox turned every
+        # kid on whenever the value was truthy.
+        checkbox_states: dict[str, set[str]] = {}
+        checkbox_kids: dict[str, int] = {}
         for page in doc:
             for w in page.widgets() or []:
                 if w.field_type == pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON:
                     radio_group_names.add(w.field_name)
+                elif w.field_type == pymupdf.PDF_WIDGET_TYPE_CHECKBOX:
+                    checkbox_kids[w.field_name] = checkbox_kids.get(w.field_name, 0) + 1
+                    try:
+                        on = w.on_state()
+                    except Exception:
+                        on = None
+                    if on:
+                        checkbox_states.setdefault(w.field_name, set()).add(on)
+        checkbox_groups = {n for n, k in checkbox_kids.items()
+                           if k > 1 and len(checkbox_states.get(n, ())) > 1}
 
         for page in doc:
             for w in page.widgets() or []:
@@ -102,7 +119,11 @@ def render_pdf(
                         w.update()
                         n_text_filled += 1
                     elif wt == pymupdf.PDF_WIDGET_TYPE_CHECKBOX:
-                        w.field_value = _coerce_checkbox_value(w, value)
+                        if name in checkbox_groups:
+                            on = w.on_state()
+                            w.field_value = on if (value not in (None, "", False) and str(value) == str(on)) else "Off"
+                        else:
+                            w.field_value = _coerce_checkbox_value(w, value)
                         w.update()
                         n_checkbox_filled += 1
                     elif wt == pymupdf.PDF_WIDGET_TYPE_COMBOBOX:

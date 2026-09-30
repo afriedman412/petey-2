@@ -93,16 +93,72 @@ MIN_PAGE_WORDS = 15
 COPY_RE = re.compile(r"Copy[A-Za-z0-9]+\[\d+\]")
 
 
-def first_copy_ids(widgets: list[dict]) -> set[int]:
-    """First-copy dedup for non-radio widgets; keep all radios.
+_WORD_STATE = re.compile(r"^[A-Za-z][A-Za-z0-9 _/&'().-]*$")
+_ORDINAL_STATE = re.compile(r"^\d+$")
 
-    Radio widgets sharing a `field_name` (AcroForm group) get grouped by
-    `_group_radios_for_labeling` downstream, not by the Copy A/B/C
-    heuristic here.
+
+def option_widgets(members: list[dict], group: dict) -> dict[str, dict]:
+    """`{on_state: widget block}` for one option group, first appearance per state."""
+    out: dict[str, dict] = {}
+    for m in members:
+        st = m.get("on_state")
+        if not st or st in out:
+            continue
+        out[st] = {
+            "page": m["page"],
+            "rect": m["rect"],
+            "widget_type": m.get("widget_type") or group.get("true_widget_type") or "radiobutton",
+            "path": group.get("path"),
+            "on_state": st,
+        }
+    return out
+
+
+def caption_options(spec: dict) -> None:
+    """Put the printed caption on each option: the XFA member caption when the
+    template declares one, else the on-state itself when it is a word
+    (`Medicare`, `Yes`); ordinal states (`0`, `1`) with no declaration stay
+    uncaptioned — the description still carries `One of: ...` when the XFA
+    gave it. Nothing is guessed."""
+    widgets = spec.get("widgets") or {}
+    if not widgets:
+        return
+    declared = ((spec.get("x_petey_xfa") or {}).get("choices")) or {}
+    for st, block in widgets.items():
+        cap = declared.get(st)
+        if not cap and _WORD_STATE.match(st) and st.lower() not in ("on", "off", "yes", "no", "true", "false"):
+            cap = st
+        elif not cap and st.lower() in ("yes", "no"):
+            cap = st.capitalize()
+        if cap:
+            block["caption"] = cap
+
+
+def option_group_paths(widgets: list[dict]) -> set[str]:
+    """Paths of button FIELDS that have more than one widget.
+
+    One AcroForm field, several kids, each kid an option with its own
+    on-state: that is a radio group whatever the field's flag says. The
+    corpus survey (eval/radio_survey.py, 2026-09-29) found 692 such fields
+    flagged radio and 480 flagged checkbox; the checkbox-flagged ones used
+    to dedup to their first kid, so CMS-1500's seven-way insurance type
+    became one boolean.
     """
+    counts: dict[str, int] = {}
+    for w in widgets:
+        if w["widget_type"] in ("radiobutton", "checkbox"):
+            counts[w["path"]] = counts.get(w["path"], 0) + 1
+    return {path for path, n in counts.items() if n > 1}
+
+
+def first_copy_ids(widgets: list[dict]) -> set[int]:
+    """First-copy dedup for ordinary widgets; keep every member of an
+    option group (see `option_group_paths`), which `_group_radios_for_labeling`
+    collapses downstream instead of the Copy A/B/C heuristic here."""
+    grouped = option_group_paths(widgets)
     groups: dict[str, list[dict]] = {}
     for w in widgets:
-        if w["widget_type"] == "radiobutton":
+        if w["path"] in grouped:
             continue
         key = COPY_RE.sub("COPY", w["path"])
         groups.setdefault(key, []).append(w)
@@ -111,7 +167,7 @@ def first_copy_ids(widgets: list[dict]) -> set[int]:
         arr.sort(key=lambda w: (w["page"], w["id"]))
         keep.add(arr[0]["id"])
     for w in widgets:
-        if w["widget_type"] == "radiobutton":
+        if w["path"] in grouped:
             keep.add(w["id"])
     return keep
 
@@ -126,10 +182,11 @@ def _group_radios_for_labeling(
     per-member on-state export values, so the VLM sees the group as a
     single choice-set rather than N independent widgets.
     """
+    grouped = option_group_paths(widgets)
     radios_by_path: dict[str, list[dict]] = {}
     others: list[dict] = []
     for w in widgets:
-        if w["widget_type"] == "radiobutton":
+        if w["path"] in grouped or w["widget_type"] == "radiobutton":
             radios_by_path.setdefault(w["path"], []).append(w)
         else:
             others.append(w)
@@ -143,13 +200,22 @@ def _group_radios_for_labeling(
         xs = [c for m in same_page for c in (m["rect"][0], m["rect"][2])]
         ys = [c for m in same_page for c in (m["rect"][1], m["rect"][3])]
         union_rect = [min(xs), min(ys), max(xs), max(ys)]
+        # distinct on-states in page order; kids that repeat a state are
+        # extra appearances of the same option (Form400 mirrors a box on
+        # pages 1 and 3), not extra options
+        seen: list[str] = []
+        for m in members:
+            st = m.get("on_state")
+            if st and st not in seen:
+                seen.append(st)
         group_entries.append({
             "id": first["id"],
             "page": first["page"],
             "rect": union_rect,
-            "widget_type": "radiobutton",
+            "widget_type": "radiobutton",  # the label prompt's group entry kind
+            "true_widget_type": first["widget_type"],
             "path": path,
-            "options": [m.get("on_state") for m in members],
+            "options": seen,
         })
         members_by_id[first["id"]] = members
     return others + group_entries, members_by_id
@@ -810,22 +876,34 @@ def build_blueprint(
         # skips them), so no audit is attached.
         if w["widget_type"] == "radiobutton":
             members = radio_members_by_id.get(w["id"], [])
-            on_states = [m.get("on_state") for m in members
-                         if m.get("on_state")]
+            on_states = list(w.get("options") or [])
             assigned = dedup.assign(
                 label, page=w["page"], rect=w["rect"],
             )
             if len(on_states) <= 1:
+                # one state (or none): a checkbox, possibly drawn in several
+                # places; the first appearance is the widget
+                first = members[0] if members else w
                 fields[assigned] = {
-                    "type": "boolean", "widget": widget_block,
+                    "type": "boolean",
+                    "widget": {"page": first["page"], "rect": first["rect"],
+                               "widget_type": first.get("widget_type") or w.get("true_widget_type") or "checkbox",
+                               "path": w.get("path")},
                 }
+                if len(members) > 1:
+                    fields[assigned]["x_petey_appearances"] = len(members)
             else:
+                # one field, one option per on-state, each with the box it
+                # is drawn in: what a person sees on the page. `values`
+                # stays the on-states (what the field stores) so the
+                # generator, filler and scorer are unchanged.
                 fields[assigned] = {
                     "type": "category",
                     "values": on_states,
-                    "widget": widget_block,
+                    "widgets": option_widgets(members, w),
                 }
             _overlay_xfa(fields[assigned], w.get("path"))
+            caption_options(fields[assigned])
             continue
 
         if "." in label:

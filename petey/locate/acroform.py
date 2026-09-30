@@ -133,8 +133,15 @@ def enumerate_widgets(pdf_path: Path) -> tuple[list[dict], list[dict]]:
             }
             if tooltip:
                 entry["tooltip"] = tooltip
-            if wt == "radiobutton":
-                entry["on_state"] = _unescape_pdf_name(w.on_state())
+            if wt in ("radiobutton", "checkbox"):
+                # Every button carries its on-state. Checkbox FIELDS with
+                # several kids and distinct on-states (CMS-1500 insurance
+                # type: Medicare / Medicaid / ...) are option groups exactly
+                # like radios; without the state they dedup to one box.
+                try:
+                    entry["on_state"] = _unescape_pdf_name(w.on_state())
+                except Exception:
+                    entry["on_state"] = None
             widgets.append(entry)
             idx += 1
     doc.close()

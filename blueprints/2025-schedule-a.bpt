@@ -1564,21 +1564,38 @@ fields:
     x_petey_retype:
     - description_from_tooltip
   dividends_paid_in_cash_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 286.03399658203125
-      - 395.72198486328125
-      - 294.19000244140625
-      - 409.22198486328125
-      widget_type: checkbox
-      path: P3-9c-2
+    type: category
     description: Mark if paid in cash or credited
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    - option_group:boolean->category[2]
+    values:
+    - Cash
+    - Credit
+    widgets:
+      Cash:
+        page: 4
+        rect:
+        - 286.03399658203125
+        - 395.72198486328125
+        - 294.19000244140625
+        - 409.22198486328125
+        widget_type: radiobutton
+        path: P3-9c-2
+        on_state: Cash
+        caption: Cash
+      Credit:
+        page: 4
+        rect:
+        - 354.09698486328125
+        - 395.72198486328125
+        - 362.25299072265625
+        - 409.22198486328125
+        widget_type: radiobutton
+        path: P3-9c-2
+        on_state: Credit
+        caption: Credit
   dividends_retroactive_rate_refunds_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1712,22 +1729,39 @@ fields:
     x_petey_retype:
     - description_from_tooltip
   insurance_company_failed_to_provide_info_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 434.67498779296875
-      - 666.0059814453125
-      - 442.8320007324219
-      - 679.5050048828125
-      widget_type: checkbox
-      path: P4-11
+    type: category
     description: Did the insurance company fail to provide any information necessary
       to complete Schedule A? Mark yes or no.
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    - option_group:boolean->category[2]
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 4
+        rect:
+        - 434.67498779296875
+        - 666.0059814453125
+        - 442.8320007324219
+        - 679.5050048828125
+        widget_type: radiobutton
+        path: P4-11
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 4
+        rect:
+        - 485.739013671875
+        - 666.0059814453125
+        - 493.8949890136719
+        - 679.5050048828125
+        widget_type: radiobutton
+        path: P4-11
+        on_state: 'No'
+        caption: 'No'
   information_not_provided_txt:
     type: string
     semantic_type: text

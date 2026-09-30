@@ -104,6 +104,26 @@ def _tessdata_path() -> Optional[str]:
     return None
 
 
+def _selected_states(doc, widget: dict) -> Optional[set[str]]:
+    """On-states currently selected on the field at `widget["path"]`, read
+    from every widget of that field on the page (each kid reports its own
+    state; the selected kid reports its on-state, the others `Off`).
+    None when the path is not in the AcroForm layer."""
+    page_no = int(widget.get("page", 1)) - 1
+    if page_no < 0 or page_no >= len(doc):
+        return None
+    matches = [pw for pw in doc[page_no].widgets()
+               if pw.field_name == widget.get("path")]
+    if not matches:
+        return None
+    out: set[str] = set()
+    for pw in matches:
+        v = _unescape_pdf_name(pw.field_value)
+        if v not in (None, "", "Off"):
+            out.add(str(v))
+    return out
+
+
 def _coerce_checkbox(v: Any) -> bool:
     """True if the widget value represents 'selected/checked'.
 
@@ -514,6 +534,18 @@ def extract(blueprint: dict, pdf_path: Path) -> dict:
                 selected: list[str] = []
                 per_value_dispatch: dict[str, str] = {}
                 for value, w_block in field["widgets"].items():
+                    if w_block.get("on_state"):
+                        # Option of a group: selected when the field at
+                        # this path holds THIS option's on-state. Radio
+                        # options share one path and differ only by
+                        # on-state, so "is the path checked" would select
+                        # every option at once.
+                        states = _selected_states(doc, w_block)
+                        path_counts["acroform" if states is not None else "acroform_empty"] += 1
+                        per_value_dispatch[value] = "acroform"
+                        if states and w_block["on_state"] in states:
+                            selected.append(value)
+                        continue
                     raw, path = _extract_widget(
                         doc, w_block,
                         ocr_api=ocr_api,

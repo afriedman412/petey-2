@@ -681,12 +681,22 @@ def apply_declared(spec: dict, f: XfaField) -> list[str]:
         # the declared captions are paired by position when the states
         # are ordinals, else by declared value.
         states = spec.get("values") or []
-        caps = [m["caption"] or m["name"] for m in f.members]
+        # caption > declared value when it is a word (YES / NO) > member
+        # name. 10-10EZ's section 2 members have no caption, values YES /
+        # NO and names YES4 / NO4; the name is the template's, not the page's.
+        def _cap(m):
+            v = m.get("value")
+            if m.get("caption"):
+                return m["caption"]
+            if v and not str(v).isdigit():
+                return str(v)
+            return m.get("name")
+        caps = [_cap(m) for m in f.members]
         if states and len(states) == len(caps) and \
                 list(states) == [str(i) for i in range(len(caps))]:
             x["choices"] = dict(zip(states, caps))
         else:
-            x["choices"] = {m["value"]: m["caption"] or m["name"]
+            x["choices"] = {m["value"]: _cap(m)
                             for m in f.members if m["value"] is not None}
             if not states and f.items:
                 set_("type", "category")

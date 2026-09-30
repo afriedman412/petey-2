@@ -95,6 +95,8 @@ def describe_blueprint(bp: dict, limits: dict[str, dict],
         if spec.get("description"):
             continue
         widget = spec.get("widget") or {}
+        if not widget and spec.get("widgets"):
+            widget = next(iter(spec["widgets"].values()))  # option group: one field, one path
         path = widget.get("path")
         note = list(spec.get("x_petey_retype") or [])
         if path and tpl is not None and spec.get("type") == "category" \
