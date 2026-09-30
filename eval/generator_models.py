@@ -49,7 +49,7 @@ def run_one(form: str, model: str, blank: str | None) -> Path:
 
 
 def usage_for(form: str, model: str) -> dict:
-    d = RUNS / "_calls" / "generate" / f"{form}_gm" / model.replace("/", "_")
+    d = RUNS / "_calls" / "generate" / f"{form}_gm_intact_001" / model.replace("/", "_")
     tot = collections.Counter()
     for f in d.glob("*.json") if d.exists() else []:
         r = json.load(open(f)); u = r.get("usage") or {}

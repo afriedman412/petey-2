@@ -443,3 +443,53 @@ of one group is dropped). Measured against XFA-declared captions: 526EZ 48 of 54
 12 uncaptioned (two branch-of-service boxes whose text sits off the box's line, and boxes with no printed text near
 them). Flat PDFs: the geometry finder tells ovals from squares but the adapter drops the distinction and nothing
 groups them; radio groups on flat forms are the next gap.
+
+## Frontier models as the blind generator (2026-09-30, `eval/generator_models.py`, `petey/synth/generate.py` OpenAI-compatible backends)
+
+Same three forms, same loop, only the generator changes: one blind generation per form (page image with numbered boxes,
+no names), fill, by-path readback, Sonnet 4.6 name-based reader. A generator is judged on whether its values survive
+filling (`fill agree`), contradict declared shapes (`shape`), and can be found by a reader beside the right caption
+(`reader agree`, with the reader's defect count) — the last is the realism proxy. `filled` is how many fields it chose
+to fill; a real filing leaves fields empty, so more is not better by itself. Tokens are in/out for the whole form;
+dollars are not tabulated for non-Anthropic vendors (no price table in the repo).
+
+| form | generator | filled/fields | fill agree / miss / differ | shape | reader agree (defects) | tokens in/out | gen s |
+|---|---|---|---|---|---|---|---|
+| W-9 (23) | claude-sonnet-4-6 | 8 | 23 / 0 / 0 | 0 | **23** (0) | 2.8k/0.2k | 4 |
+| | gpt-5.5 | 8 | 23 / 0 / 0 | 1 | **23** (0) | 3.6k/0.6k | 11 |
+| | gpt-4.1 | 15 | 23 / 0 / 0 | 1 | 19 (0) | 1.9k/0.2k | 3 |
+| | gemini-3.8-flash | 10 | 23 / 0 / 0 | 1 | 16 (2) | 2.4k/0.2k | 4 |
+| | gemini-3.1-pro-preview | 12 | 23 / 0 / 0 | 1 | 19 (2) | 2.4k/0.3k | 15 |
+| | deepseek-flash | 10 | 23 / 0 / 0 | 1 | 13 (0) | 2.1k/4.6k | 22 |
+| | deepseek-v4-pro | 12 | 23 / 0 / 0 | 1 | 20 (1) | 1.2k/20.0k | 257 |
+| ACORD 25 (128) | claude-sonnet-4-6 | 78 | 127 / 0 / 1 | 7 | 111 (5) | 5.0k/1.1k | 18 |
+| | gpt-5.5 | 97 | 127 / 0 / 1 | 9 | 111 (8) | 5.4k/5.2k | 68 |
+| | gpt-4.1 | 111 | 110 / **16** / 2 | **27** | 51 (19) | 3.7k/1.1k | 8 |
+| | gemini-3.8-flash | 78 | 128 / 0 / 0 | 8 | **118** (0) | 4.7k/1.2k | 20 |
+| | gemini-3.1-pro-preview | 71 | 128 / 0 / 0 | **2** | **119** (1) | 4.7k/1.5k | 45 |
+| | deepseek-flash | — | reasoning exhausted the 32k output cap, no JSON | | | | |
+| | deepseek-v4-pro | 114 | 113 / **9** / 6 | **39** | 24 (36) | 3.0k/26.1k | 286 |
+| I-765 (140) | claude-sonnet-4-6 | 123 | 136 / 4 / 0 | 2 | 104 (20) | 23.8k/1.5k | 36 |
+| | gpt-5.5 | 117 | 136 / 4 / 0 | 1 | 110 (17) | 28.4k/15.7k | 251 |
+| | gpt-4.1 | 133 | 139 / 1 / 0 | 4 | 98 (26) | 16.3k/1.3k | 21 |
+| | gemini-3.8-flash | 95 | 137 / 3 / 0 | 1 | 108 (22) | 20.8k/1.6k | 89 |
+| | gemini-3.1-pro-preview | 108 | 136 / 4 / 0 | 1 | **114** (11) | 20.8k/1.9k | 168 |
+| | deepseek-flash | 118 | 138 / 2 / 0 | 1 | 108 (24) | 18.1k/89.8k | 414 |
+| | deepseek-v4-pro | — | reasoning exhausted the 32k output cap, no JSON | | | | |
+
+**Reading.** Every model's values survive filling except two: gpt-4.1 and deepseek-v4-pro fill almost every box on
+ACORD 25 (111 and 114 of 128) with values that contradict the declared shapes (27 and 39) and that the reader cannot
+place (51 and 24 agree, 19 and 36 defects) — over-filling makes an unrealistic document. On realism, **Gemini 3.1 Pro
+is the best generator** here: fewest reader defects on both larger forms (1 on ACORD 25, 11 on I-765, against
+Sonnet 4.6's 5 and 20; the I-765 reader noise floor is about 5 fields, so the ACORD gap is within noise and the I-765
+gap is not), the fewest shape contradictions, and no fill misses. Gemini 3.8 Flash matches it on ACORD 25 (118, 0
+defects) at a quarter of the wall-clock, and is a step behind on I-765. gpt-5.5 reads like Sonnet 4.6 on quality and
+costs 7x the wall-clock and 10x the output tokens (its reasoning is billed as output). The DeepSeek models are
+reasoning models too: deepseek-flash spent 90k output tokens on I-765's seven pages and both hit the 32k cap with
+no JSON on one form each — not usable as configured (their thinking would need to be turned off or capped).
+
+**Caveats.** One generation per form per model, so the generator's own variance is unmeasured; the judge is a Claude
+reader, and Gemini won anyway; the six non-Anthropic backends go through the OpenAI-compatible endpoints, keys from
+`petey-master/.env`. Decision this feeds: the default blind generator (Sonnet 4.6 today) has a better-realism
+alternative in Gemini 3.1 Pro and a cheaper near-equal in Gemini 3.8 Flash; price per form for those two is the
+number still missing.
