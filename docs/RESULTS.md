@@ -493,3 +493,10 @@ reader, and Gemini won anyway; the six non-Anthropic backends go through the Ope
 `petey-master/.env`. Decision this feeds: the default blind generator (Sonnet 4.6 today) has a better-realism
 alternative in Gemini 3.1 Pro and a cheaper near-equal in Gemini 3.8 Flash; price per form for those two is the
 number still missing.
+
+**Prices** (vendor list prices fetched 2026-09-30, $/1M in/out: Sonnet 4.6 3/15, gpt-5.5 5/30, gpt-4.1 2/8, Gemini
+3.1 Pro 2/12, Gemini 3.8 Flash 0.75/3.75 through 2026, DeepSeek flash 0.3/1.2 and v4-pro 1.32/3.96 at peak). Per form,
+generation only: I-765 — Sonnet 4.6 9.4¢, Gemini 3.1 Pro 6.4¢, Gemini 3.8 Flash 2.2¢, gpt-4.1 4.3¢, gpt-5.5 61¢,
+DeepSeek flash 11¢ (its 90k reasoning tokens); ACORD 25 — 3.1¢ / 2.8¢ / 0.8¢ / 1.6¢ / 18¢ / 11¢ (v4-pro). So the
+better-realism generator (Gemini 3.1 Pro) is also a third cheaper than the default, and Gemini 3.8 Flash is a quarter
+of the default's price. The harness now tabulates dollars (`PRICES` in `eval/generator_models.py`).

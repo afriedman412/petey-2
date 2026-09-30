@@ -29,6 +29,11 @@ from pathlib import Path
 from petey.paths import RUNS
 
 OUT = RUNS / "genmodels"
+# $/1M tokens (input, output), vendor list prices fetched 2026-09-30; DeepSeek at peak rates
+PRICES = {"claude-sonnet-4-6": (3.0, 15.0), "claude-sonnet-5": (2.0, 10.0), "claude-haiku-4-5": (1.0, 5.0), "claude-opus-5": (5.0, 25.0),
+          "gpt-5.5": (5.0, 30.0), "gpt-4.1": (2.0, 8.0),
+          "gemini-3.1-pro-preview": (2.0, 12.0), "gemini-3.8-flash": (0.75, 3.75),
+          "deepseek-flash": (0.3, 1.2), "deepseek-v4-pro": (1.32, 3.96)}
 IMAGE_FORMS = {"vba21526ez", "ma1", "va760", "va_form_10_10ez"}
 
 
@@ -56,6 +61,8 @@ def usage_for(form: str, model: str) -> dict:
         tot["in"] += u.get("input_tokens") or 0; tot["out"] += u.get("output_tokens") or 0
         tot["s"] += r.get("elapsed_s") or 0; tot["calls"] += 1
         tot["truncated"] += 1 if r.get("truncated") else 0
+    pi, po = PRICES.get(model, (0, 0))
+    tot["usd"] = round((tot["in"] * pi + tot["out"] * po) / 1e6, 4)
     return dict(tot)
 
 
@@ -99,14 +106,14 @@ def main() -> int:
             r = row(form, model, out); rows.append(r)
             print(json.dumps(r), flush=True)
     (OUT / "generator_models.json").write_text(json.dumps(rows, indent=1))
-    print("\n| form | generator | filled/fields | fill agree / miss / differ | rule viol | shape | reader agree (defects) | tokens in/out | gen s |")
-    print("|---|---|---|---|---|---|---|---|---|")
+    print("\n| form | generator | filled/fields | fill agree / miss / differ | rule viol | shape | reader agree (defects) | tokens in/out | $ | gen s |")
+    print("|---|---|---|---|---|---|---|---|---|---|")
     for r in rows:
         if "error" in r:
             print(f"| {r['form']} | {r['model']} | {r['error']} | | | | | | |"); continue
         u = r["usage"]
         print(f"| {r['form']} | {r['model']} | {r['filled']}/{r['fields']} | {r['fill_agree']} / {r['fill_miss']} / {r['fill_differ']} | {r['rule_viol']} | {r['shape']} | "
-              f"{r['reader_agree']} ({r['reader_defect']}) | {u.get('in', 0):,}/{u.get('out', 0):,}{' TRUNC' if u.get('truncated') else ''} | {u.get('s', 0):.0f} |")
+              f"{r['reader_agree']} ({r['reader_defect']}) | {u.get('in', 0):,}/{u.get('out', 0):,}{' TRUNC' if u.get('truncated') else ''} | {u.get('usd', 0):.3f} | {u.get('s', 0):.0f} |")
     return 0
 
 
