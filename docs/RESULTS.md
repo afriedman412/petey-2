@@ -453,7 +453,7 @@ filling (`fill agree`), contradict declared shapes (`shape`), and can be found b
 to fill; a real filing leaves fields empty, so more is not better by itself. Tokens are in/out for the whole form;
 dollars are not tabulated for non-Anthropic vendors (no price table in the repo).
 
-| form | generator | filled/fields | fill agree / miss / differ | shape | reader agree (defects) | tokens in/out | gen s |
+| form (fields) | generator | filled | fill agree / miss / differ | shape contradictions | reader agree (defects) | tokens in/out | gen s |
 |---|---|---|---|---|---|---|---|
 | W-9 (23) | claude-sonnet-4-6 | 8 | 23 / 0 / 0 | 0 | **23** (0) | 2.8k/0.2k | 4 |
 | | gpt-5.5 | 8 | 23 / 0 / 0 | 1 | **23** (0) | 3.6k/0.6k | 11 |
