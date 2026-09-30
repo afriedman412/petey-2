@@ -300,11 +300,13 @@ def ask(client, model: str, effort: str, form_title: str, fields: list[dict]) ->
     user = (f"Form: {form_title}\n\nFlagged fields ({len(fields)}), one JSON object each:\n"
             + "\n".join(json.dumps(f, ensure_ascii=False) for f in fields)
             + "\n\nReturn one decision per field.")
+    output_config: dict[str, Any] = {"format": {"type": "json_schema", "schema": DECISION_SCHEMA}}
+    if not re.search(r"-(4-[0-5]|3-\d)", model):
+        output_config["effort"] = effort   # Haiku 4.5 and older reject `effort`
     kwargs: dict[str, Any] = dict(
-        model=model, max_tokens=64000, system=SYSTEM,
-        messages=[{"role": "user", "content": user}],
-        output_config={"effort": effort,
-                       "format": {"type": "json_schema", "schema": DECISION_SCHEMA}},
+        model=model, max_tokens=64000 if not re.search(r"-(4-[0-5]|3-\d)", model) else 16000,
+        system=SYSTEM, messages=[{"role": "user", "content": user}],
+        output_config=output_config,
     )
     if model.startswith("claude-opus-5") or model.startswith("claude-fable"):
         # Refusal fallback: a declined request re-runs server-side on the

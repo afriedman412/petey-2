@@ -35,6 +35,7 @@ CACHE = RUNS / "_petey_cache"
 MAX_FIELDS_PER_CALL = 120
 MAX_PAGES = 40   # a hard ceiling; the pages sent are the ones that carry fields
 MAX_TOKENS = 16384
+USAGE: dict[str, int] = {"input_tokens": 0, "output_tokens": 0, "calls": 0}  # accumulates per process
 
 SYSTEM = """You extract values from a COMPLETED form according to a \
 blueprint. You are given the blueprint's fields — each with a name, a type, \
@@ -149,6 +150,9 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
         kwargs["output_config"] = {"effort": "low"}
     with client.messages.stream(**kwargs) as stream:
         final = stream.get_final_message()
+    USAGE["input_tokens"] += final.usage.input_tokens
+    USAGE["output_tokens"] += final.usage.output_tokens
+    USAGE["calls"] += 1
     text = "".join(b.text for b in final.content
                    if getattr(b, "type", None) == "text")
     out = _parse(text)
