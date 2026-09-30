@@ -306,3 +306,16 @@ On the two easy forms all three models make the same fixes and Haiku costs a six
 produced a clear win within the judge's noise floor, and Opus was the only one to make a field worse (restored by the
 loop). Nothing measured here justifies Opus for the reviewer; the loop's per-field judgment is what protects the
 blueprint, not the model tier. I-765 rerun with the truncation fix: 32 fields reviewed, nothing lost.
+
+**Local models as the reader** (ollama on the M1, text mode, temperature 0; same runs as above):
+
+| form | Sonnet 4.6 | qwen3:4b-instruct | llama3.1:8b |
+|---|---|---|---|
+| W-9 (23) | 16 agree, 0 defect, 10 s | 17, 2, 21 s | 16, 1, 35 s |
+| ACORD 25 (128) | 119, 0, 26 s | 66, **28**, 180 s | 70, **20**, 218 s |
+| I-765 (140) | 111, 18, 50 s | 68, **47**, 278 s | 61, **39**, 302 s |
+
+Fine on a one-page form, then a cliff: on 128-140 fields they find about half and flag 20-47 correct fields as
+defects, at 5-6x the wall-clock. Not a judge. The local-model slot that remains plausible is a narrow naming model
+trained on loop-judged pairs (`runs/review_pairs.jsonl` now accumulates evidence, decision and loop outcome per
+reviewed field), not a general reader.
