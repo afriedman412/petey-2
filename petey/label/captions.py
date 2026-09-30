@@ -1,0 +1,173 @@
+"""Printed caption for an option box, read from the page.
+
+A radio or checkbox option's caption is the text the publisher printed
+beside its box: to the right on almost every form, below on a few grids.
+When neither the XFA template nor the on-state names the option (ordinal
+states on a non-XFA form; a fallback join we refuse to trust), this is the
+only document-grounded source left.
+
+Measured on 2026-09-30 against options whose caption the XFA declares
+(10-10EZ, 526EZ exact joins): see eval in RESULTS.md "Option groups".
+"""
+from __future__ import annotations
+
+import re
+from typing import Optional
+
+import pymupdf
+
+_STOP_GAP = 12.0     # pt of horizontal whitespace that ends a caption
+_MAX_REACH = 220.0   # pt to the right we will read at most
+_MAX_WORDS = 6       # a caption is a label, not a sentence
+_HEADER_REACH = 170.0  # six grid rows; not the top of the page
+_END_PUNCT = re.compile(r"[.:;]$")
+
+
+def _words_on(page: pymupdf.Page) -> list[tuple]:
+    # (x0, y0, x1, y1, text, block, line, word) — keep the reading order
+    return [tuple(w[:8]) for w in page.get_text("words")]
+
+
+def _overlap(a0, a1, b0, b1) -> float:
+    return max(0.0, min(a1, b1) - max(a0, b0))
+
+
+def _right_of(words, rect, stop_x) -> Optional[str]:
+    x0, y0, x1, y1 = rect
+    limit = min(x1 + _MAX_REACH, stop_x if stop_x is not None else x1 + _MAX_REACH)
+    cands = []
+    for w in words:
+        if w[0] < x1 - 1 or w[0] > limit:
+            continue
+        # on the box's line: the word's vertical span overlaps the box's by
+        # at least half the smaller of the two — a line above or below the
+        # box (the question text, an item number) does not
+        ov = _overlap(y0, y1, w[1], w[3])
+        centred = abs((w[1] + w[3]) / 2 - (y0 + y1) / 2) <= 0.5 * (y1 - y0)
+        if ov < 0.5 * min(y1 - y0, w[3] - w[1]) and not centred:
+            continue
+        cands.append(w)
+    if not cands:
+        return None
+    # order by line (top to bottom) then x: a caption wrapped onto two
+    # lines reads NATIONAL / GUARD, not by whichever block pymupdf made
+    cands.sort(key=lambda w: (round((w[1] + w[3]) / 2 / 3), w[0]))
+    if cands[0][0] - x1 > _STOP_GAP * 2:
+        return None  # nothing adjacent; the text belongs to something else
+    out = [cands[0]]
+    for w in cands[1:]:
+        prev = out[-1]
+        same_line = abs((w[1] + w[3]) / 2 - (prev[1] + prev[3]) / 2) < 3
+        if same_line and w[0] - prev[2] > _STOP_GAP:
+            break  # a gap on the same line ends the caption
+        if not same_line and w[0] > x1 + _STOP_GAP * 2:
+            break  # the next line does not start beside the box: not a wrap
+        out.append(w)
+    if len(out) > _MAX_WORDS:
+        return None  # a sentence beside the box (the next question), not its caption
+    return " ".join(w[4] for w in out)
+
+
+def _header_above(words, rect, options_rects) -> Optional[str]:
+    """Column header: the nearest short text line directly above the box's
+    column (yes/no grids: one YES / NO header serves every row)."""
+    x0, y0, x1, y1 = rect
+    cx = (x0 + x1) / 2
+    cands = [w for w in words if w[3] <= y0 + 1 and w[3] >= y0 - _HEADER_REACH and w[0] - 3 <= cx <= w[2] + 3]
+    if not cands:
+        return None
+    nearest = max(cands, key=lambda w: w[3])
+    line = sorted((w for w in cands if w[5] == nearest[5] and w[6] == nearest[6]), key=lambda w: w[7])
+    if len(line) > 3:
+        return None
+    return " ".join(w[4] for w in line)
+
+
+_LEADERS = re.compile(r"\s*\.{3,}.*$")  # dot leaders and whatever follows them (a line number)
+_JUNK = re.compile(r"^[\(\[]?(https?://|www\.)|^[\$\(\)\[\]\.,;:]+$")  # a URL or bare punctuation is never a caption
+_ITEM_LABEL = re.compile(r"^(\d{1,2}[A-Z]?|[A-Z])\.?(\s|$)")  # "14A", "E. HAVE YOU": the next item, not a caption
+
+
+def _left_of(words, rect, options_rects) -> Optional[str]:
+    """Caption printed LEFT of the box ("YES [ ]"): the words on the box's
+    line ending just before it, back to a gap or the previous option box."""
+    x0, y0, x1, y1 = rect
+    floor = max([r[2] for r in options_rects if r[2] <= x0 - 1 and _overlap(y0, y1, r[1], r[3]) > 0] + [x0 - _MAX_REACH])
+    cands = [w for w in words if w[2] <= x0 + 1 and w[2] >= floor
+             and _overlap(y0, y1, w[1], w[3]) >= 0.5 * min(y1 - y0, w[3] - w[1])]
+    if not cands:
+        return None
+    cands.sort(key=lambda w: -w[2])
+    if x0 - cands[0][2] > _STOP_GAP * 2:
+        return None
+    out = [cands[0]]
+    for w in cands[1:]:
+        if out[-1][0] - w[2] > _STOP_GAP:
+            break
+        out.append(w)
+    out.reverse()
+    if len(out) > _MAX_WORDS:
+        return None
+    cap = " ".join(w[4] for w in out)
+    return None if _ITEM_LABEL.match(cap) else cap
+
+
+def caption_right_of(page: pymupdf.Page, rect, stop_x: Optional[float] = None,
+                     words=None, options_rects=None) -> Optional[str]:
+    """The printed caption of an option box: the words on its line just
+    right of it; else just left of it; else the short column header above
+    it. None when nothing qualifies — never a guess."""
+    words = words if words is not None else _words_on(page)
+    cap = None
+    for finder in (lambda: _right_of(words, rect, stop_x),
+                   lambda: _left_of(words, rect, options_rects or []),
+                   lambda: _header_above(words, rect, options_rects or [])):
+        c = finder()
+        if c and not _ITEM_LABEL.match(c) and not _JUNK.match(c):
+            cap = c
+            break
+    if not cap:
+        return None
+    cap = _LEADERS.sub("", cap.strip())          # "Other.........70" -> "Other"
+    cap = _END_PUNCT.sub("", cap.strip()).strip()
+    if not cap or _JUNK.match(cap):
+        return None
+    return cap
+
+
+def caption_options_from_page(doc: pymupdf.Document, widgets: dict[str, dict],
+                              other_rects_by_page: Optional[dict[int, list]] = None) -> int:
+    """Fill missing `caption`s of an option map from the page text. Returns
+    how many were filled. Never overwrites a caption already present."""
+    n = 0
+    for st, block in widgets.items():
+        if block.get("caption"):
+            continue
+        pno = int(block.get("page", 1)) - 1
+        if pno < 0 or pno >= len(doc):
+            continue
+        page = doc[pno]
+        rect = block["rect"]
+        stop = None
+        for r in (other_rects_by_page or {}).get(pno + 1, []):
+            if r[0] > rect[2] + 2 and abs((r[1] + r[3]) / 2 - (rect[1] + rect[3]) / 2) < (rect[3] - rect[1]):
+                stop = r[0] if stop is None else min(stop, r[0])
+        cap = caption_right_of(page, rect, stop_x=stop,
+                               options_rects=(other_rects_by_page or {}).get(pno + 1, []))
+        if cap:
+            block["caption"] = cap
+            block["x_petey_caption_source"] = "page_text"
+            n += 1
+    # a caption must tell the options apart: the same text on two options
+    # of one group (a section header above both, a misread) names neither
+    seen: dict[str, list[str]] = {}
+    for st, block in widgets.items():
+        if block.get("x_petey_caption_source") == "page_text":
+            seen.setdefault(block["caption"].lower(), []).append(st)
+    for cap, sts in seen.items():
+        if len(sts) > 1:
+            for st in sts:
+                widgets[st].pop("caption", None)
+                widgets[st].pop("x_petey_caption_source", None)
+                n -= 1
+    return n

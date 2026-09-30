@@ -681,6 +681,13 @@ def apply_declared(spec: dict, f: XfaField) -> list[str]:
         # the declared captions are paired by position when the states
         # are ordinals, else by declared value.
         states = spec.get("values") or []
+        # A shape-fallback join (index-stripped path) lands on a same-named
+        # SIBLING group: on 526EZ page 13 the branch-of-service group
+        # (8 states) and the checking/savings group both resolved to the
+        # first RadioButtonList, a yes/no, and wore its captions. Declared
+        # captions are applied only from an exact or page-instance join,
+        # and only when the state count matches the member count.
+        trusted = getattr(f, "join", None) != "shape" and not (states and len(states) != len(f.members))
         # caption > declared value when it is a word (YES / NO) > member
         # name. 10-10EZ's section 2 members have no caption, values YES /
         # NO and names YES4 / NO4; the name is the template's, not the page's.
@@ -691,8 +698,10 @@ def apply_declared(spec: dict, f: XfaField) -> list[str]:
             if v and not str(v).isdigit():
                 return str(v)
             return m.get("name")
-        caps = [_cap(m) for m in f.members]
-        if states and len(states) == len(caps) and \
+        caps = [_cap(m) for m in f.members] if trusted else []
+        if not trusted:
+            x["choices"] = {}
+        elif states and len(states) == len(caps) and \
                 list(states) == [str(i) for i in range(len(caps))]:
             x["choices"] = dict(zip(states, caps))
         else:

@@ -431,3 +431,15 @@ expected — that is a reader-mode question, not a blueprint one.
 **Library migration** (`expand_options --apply`, deterministic, from each blank's AcroForm kids and XFA captions):
 43 forms, 376 groups rebuilt (286 single-widget radios, 90 booleans-on-first-kid), 965 options, 882 captioned. Names
 untouched — the CMS-1500 group still answers to `amended_return_ind`; renaming is the reviewer's job.
+
+**Captions, second pass (2026-09-30).** Three sources, in order, none guessed: the XFA member caption from an exact or
+page-instance join whose member count matches the state count (a shape-fallback join lands on a same-named sibling —
+526EZ page 13's branch-of-service and checking/savings groups had worn the neighbouring yes/no captions, now refused);
+the on-state itself when the publisher wrote it as text ("0-5 years", "1 . Single.", "Medicare"); and the printed text
+beside the box (`petey/label/captions.py`: right of the box, else left, else the short column header above, as in
+yes/no grids; item labels, URLs, dot leaders and a sentence-length run are rejected; a caption repeated across options
+of one group is dropped). Measured against XFA-declared captions: 526EZ 48 of 54 exact or prefix, 1 wrong, 5 empty;
+10-10EZ 47 of 51 exact, 2 wrong (a paragraph-long declared caption), 2 empty. Library after the pass: 953 of 965 options captioned,
+12 uncaptioned (two branch-of-service boxes whose text sits off the box's line, and boxes with no printed text near
+them). Flat PDFs: the geometry finder tells ovals from squares but the adapter drops the distinction and nothing
+groups them; radio groups on flat forms are the next gap.

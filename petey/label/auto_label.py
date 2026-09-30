@@ -126,12 +126,14 @@ def caption_options(spec: dict) -> None:
     declared = ((spec.get("x_petey_xfa") or {}).get("choices")) or {}
     for st, block in widgets.items():
         cap = declared.get(st)
-        if not cap and _WORD_STATE.match(st) and st.lower() not in ("on", "off", "yes", "no", "true", "false"):
-            cap = st
-        elif not cap and st.lower() in ("yes", "no"):
-            cap = st.capitalize()
+        if not cap and not _ORDINAL_STATE.match(st) and st.lower() not in ("on", "off", "true", "false"):
+            # "0-5 years", "1 . Single.", "MINOR: BY CLINIC HOSPITAL",
+            # "Medicare": the publisher wrote the state; it is the caption
+            cap = st.capitalize() if st.lower() in ("yes", "no") else st
         if cap:
             block["caption"] = cap
+        else:
+            block.pop("caption", None)
 
 
 def option_group_paths(widgets: list[dict]) -> set[str]:
@@ -816,6 +818,7 @@ def build_blueprint(
 
     fields: dict[str, dict] = {}
     mutex_widgets: dict[str, dict[str, dict]] = {}
+    page_captions: list[dict] = []
     dedup = DedupState()
     n_tooltip_descriptions = 0
     xfa_changes: collections.Counter = collections.Counter()
@@ -904,6 +907,8 @@ def build_blueprint(
                 }
             _overlay_xfa(fields[assigned], w.get("path"))
             caption_options(fields[assigned])
+            if fields[assigned].get("widgets"):
+                page_captions.append(fields[assigned]["widgets"])
             continue
 
         if "." in label:
@@ -926,6 +931,22 @@ def build_blueprint(
             n_tooltip_descriptions += 1
         _overlay_xfa(spec, w.get("path"))
         fields[assigned] = _attach_audit(spec, w["id"])
+
+    # captions still missing after the XFA and on-state rules come from the
+    # page text beside (or above) each option box; nothing else is guessed
+    if page_captions:
+        from petey.label.captions import caption_options_from_page
+        _doc = pymupdf.open(str(blank_pdf))
+        try:
+            _rects: dict[int, list] = {}
+            for _ws in page_captions:
+                for _b in _ws.values():
+                    _rects.setdefault(_b["page"], []).append(_b["rect"])
+            n_page_captions = sum(caption_options_from_page(_doc, _ws, _rects) for _ws in page_captions)
+        finally:
+            _doc.close()
+        if n_page_captions:
+            print(f"  [captions] {n_page_captions} option captions from page text")
 
     for group, val_to_widget in mutex_widgets.items():
         values = sorted(val_to_widget.keys())

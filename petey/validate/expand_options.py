@@ -28,7 +28,10 @@ from pathlib import Path
 import yaml
 
 from petey.label import xfa as xfa_mod
+import pymupdf
+
 from petey.label.auto_label import caption_options, option_group_paths, option_widgets
+from petey.label.captions import caption_options_from_page
 from petey.locate.acroform import enumerate_widgets
 from petey.paths import BLUEPRINTS
 from petey.validate.retype import resolve_blank
@@ -51,11 +54,43 @@ def expand_blueprint(bp: dict, blank: Path) -> collections.Counter:
 
     for name, spec in (bp.get("fields") or {}).items():
         widget = spec.get("widget") or {}
+        if not widget and spec.get("widgets"):
+            widget = next(iter(spec["widgets"].values()))
         path = widget.get("path")
         if not path or path not in grouped:
             continue
         if spec.get("widgets"):
-            continue  # already per-option
+            # already per-option: refresh captions only (declared choices
+            # re-derived with the current join guard, then the state rule)
+            before = {k: b.get("caption") for k, b in spec["widgets"].items()}
+            old_choices = spec.get("x_petey_xfa", {}).pop("choices", None)
+            if old_choices and spec.get("description") == xfa_mod.choices_description(old_choices):
+                # the description IS the old join's choice list, nothing
+                # more; drop it and let the re-derivation (or the describe
+                # pass) put back what holds. A reviewer's rewrite that kept
+                # the source tag (526EZ branch of service) is left alone.
+                spec.pop("description", None)
+                spec.pop("x_petey_description_source", None)
+            if tpl is not None:
+                rec = tpl.lookup(path)
+                if rec is not None and rec.kind == "excl":
+                    probe = {"values": list(spec.get("values") or [])}
+                    xfa_mod.apply_declared(probe, rec)
+                    if probe.get("x_petey_xfa", {}).get("choices"):
+                        spec.setdefault("x_petey_xfa", {})["choices"] = probe["x_petey_xfa"]["choices"]
+                        if probe.get("description") and not spec.get("description"):
+                            spec["description"] = probe["description"]
+                            spec["x_petey_description_source"] = "xfa_choices"
+            if spec.get("x_petey_xfa") == {}:
+                spec.pop("x_petey_xfa")
+            caption_options(spec)
+            after = {k: b.get("caption") for k, b in spec["widgets"].items()}
+            if after != before:
+                changes["recaptioned_groups"] += 1
+                changes["captions_added"] += sum(1 for k in after if after[k] and not before[k])
+                changes["captions_removed"] += sum(1 for k in after if before[k] and not after[k])
+                changes["captions_changed"] += sum(1 for k in after if before[k] and after[k] and before[k] != after[k])
+            continue
         members = sorted(members_by_path[path], key=lambda w: (w["page"], w["id"]))
         states: list[str] = []
         for m in members:
@@ -99,6 +134,23 @@ def expand_blueprint(bp: dict, blank: Path) -> collections.Counter:
             changes["options"] += len(states)
             changes["captioned"] += sum(1 for b in w.values() if b.get("caption"))
         spec["x_petey_retype"] = note
+
+    # page-text captions for options still uncaptioned (a boolean group was
+    # never created here, so this only ever adds)
+    groups = [s["widgets"] for s in (bp.get("fields") or {}).values()
+              if s.get("widgets") and any(b.get("on_state") and not b.get("caption") for b in s["widgets"].values())]
+    if groups:
+        doc = pymupdf.open(str(blank))
+        try:
+            rects: dict[int, list] = {}
+            for s in (bp.get("fields") or {}).values():
+                for b in list((s.get("widgets") or {}).values()):
+                    rects.setdefault(b["page"], []).append(b["rect"])
+            n = sum(caption_options_from_page(doc, ws, rects) for ws in groups)
+        finally:
+            doc.close()
+        if n:
+            changes["captions_from_page"] += n
     return changes
 
 
