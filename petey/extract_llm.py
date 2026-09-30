@@ -33,7 +33,7 @@ from petey.paths import RUNS
 DEFAULT_MODEL = "claude-sonnet-4-6"
 CACHE = RUNS / "_petey_cache"
 MAX_FIELDS_PER_CALL = 120
-MAX_PAGES = 12
+MAX_PAGES = 40   # a hard ceiling; the pages sent are the ones that carry fields
 MAX_TOKENS = 16384
 
 SYSTEM = """You extract values from a COMPLETED form according to a \
@@ -75,19 +75,36 @@ def field_view(bpt: dict) -> list[dict]:
     return out
 
 
-def page_texts(pdf: Path, max_pages: int = MAX_PAGES) -> list[str]:
+def field_pages(bpt: dict, page_count: int) -> list[int]:
+    """1-based pages that carry a field, else every page. The reader used
+    to see the first 12 pages only: on 21-526EZ that hid 116 fields on
+    pages 13-15, and no name could make them findable."""
+    pages = set()
+    for spec in (bpt.get("fields") or {}).values():
+        w = spec.get("widget") or {}
+        if w.get("page"):
+            pages.add(int(w["page"]))
+        for wb in (spec.get("widgets") or {}).values():
+            if wb.get("page"):
+                pages.add(int(wb["page"]))
+    pages = sorted(p for p in pages if 1 <= p <= page_count)
+    return (pages or list(range(1, page_count + 1)))[:MAX_PAGES]
+
+
+def page_texts(pdf: Path, pages: Optional[list[int]] = None) -> list[tuple[int, str]]:
     doc = pymupdf.open(str(pdf))
     try:
-        return [doc[i].get_text("text") for i in range(min(len(doc), max_pages))]
+        pages = pages or list(range(1, min(len(doc), MAX_PAGES) + 1))
+        return [(p, doc[p - 1].get_text("text")) for p in pages]
     finally:
         doc.close()
 
 
-def page_images(pdf: Path, max_pages: int = MAX_PAGES, dpi: int = 150) -> list[bytes]:
+def page_images(pdf: Path, pages: Optional[list[int]] = None, dpi: int = 150) -> list[bytes]:
     doc = pymupdf.open(str(pdf))
     try:
-        return [doc[i].get_pixmap(dpi=dpi).tobytes("png")
-                for i in range(min(len(doc), max_pages))]
+        pages = pages or list(range(1, min(len(doc), MAX_PAGES) + 1))
+        return [doc[p - 1].get_pixmap(dpi=dpi).tobytes("png") for p in pages]
     finally:
         doc.close()
 
@@ -110,7 +127,7 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
     key = hashlib.sha256(
         doc_key + b"\x00" + model.encode() + b"\x00" + parser.encode()
         + b"\x00" + json.dumps(fields, sort_keys=True).encode()
-        + b"\x00fixed-sampling"  # cache namespace: answers sampled at temperature 0 / low effort
+        + b"\x00fixed-sampling-fieldpages"  # cache namespace: answers sampled at temperature 0 / low effort
     ).hexdigest()
     CACHE.mkdir(parents=True, exist_ok=True)
     cached = CACHE / f"{key}.json"
@@ -146,16 +163,18 @@ def extract_llm(
     """`{field_name: value}` for one document, found by meaning."""
     pdf = Path(pdf)
     doc_bytes = pdf.read_bytes()
+    with pymupdf.open(str(pdf)) as _d:
+        pages = field_pages(bpt, len(_d))
     if parser == "image":
         doc_parts = [
             {"type": "image", "source": {"type": "base64",
                                          "media_type": "image/png",
                                          "data": base64.b64encode(p).decode()}}
-            for p in page_images(pdf)
+            for p in page_images(pdf, pages)
         ]
     elif parser == "pymupdf":
-        texts = page_texts(pdf)
-        joined = "\n\n".join(f"=== page {i + 1} ===\n{t}" for i, t in enumerate(texts))
+        texts = page_texts(pdf, pages)
+        joined = "\n\n".join(f"=== page {p} ===\n{t}" for p, t in texts)
         doc_parts = [{"type": "text", "text": "Form content:\n" + joined}]
     else:
         raise ValueError(f"unknown parser {parser!r}; use pymupdf or image")
