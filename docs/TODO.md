@@ -259,11 +259,32 @@ and case sets".
 
 - Non-blueprint documents with standard content and bespoke layouts (medical intake, bank statements) — unchanged.
 
-- **Flat forms through the loop** (part of FLAT_PLAN_v1). Nothing after the labeler has ever run on a flat form (153 in the corpus,
-  verdict `no_widgets`; five flat blueprints in the library, never validated). Needs geometry confidence
-  calibration, then the flat-page fill renderer and anchored ground truth (STRATEGY_v1 §5 step 4, ~100 lines with
-  pymupdf plus a small scorer change). Moved up from Later because the option-group work now needs it to be
-  judged on flat forms at all.
+- **Flat forms through the loop** (part of FLAT_PLAN_v1; parked 2026-09-30, Andrew). No flat form has been
+  through the loop (153 in the corpus, verdict `no_widgets`). The library's two path-less blueprints
+  (`osha300a`, `cms1500_fillable`) are empty (`fields: {}`). Where each stage stands (2026-09-30):
+
+  - Labeling: `auto_label` takes step2flat geometry when there is no AcroForm layer (`petey.locate`; fields get
+    `path: None` and a confidence); not yet used to build a flat blueprint. Geometry confidence is uncalibrated.
+
+  - Case generation and fill: flat-ready since the page-only rebuild (finder, classifier, bank; `render_case`
+    draws text and an X on a widget-less blank, so values land in the text layer). Extraction: the meaning
+    reader works on any PDF; native has text_clip / OCR by rect.
+
+  - Scoring: blocked. `rect_join.case_to_paths` skips fields without a path and the scorer keys ground truth by
+    path, so a flat blueprint scores nothing. Fix: path-less fields keyed by field name (or rect).
+
+  - Option boxes: the radio-recall run (146 AcroForm forms, finder on the unbaked PDF) found 50% of 2,936 option
+    boxes; with widget appearances baked in, the five test forms gave 234 / 234; real flat forms sit between.
+    Grouping still the aligned-runs rule (over-proposes on grids); caption join not built; thin circles need a
+    shape fix. The 153-form `flat_option_survey` run of 2026-09-30 crashed at about form 130 on a non-PDF
+    (overlay drawing) and wrote no results; `overnight.log`'s "exit 0" is masked by `$(date)`.
+
+  - Plan when unparked: (1) label one flat form with step2flat geometry; (2) score path-less fields by field
+    name; (3) calibrate on AcroForm forms baked flat: run the whole flat pipeline and compare with the widget
+    layer (structure) and the existing blueprint (meaning), giving error rates to attach to real flat forms,
+    where blueprint and ground truth both come from the page (one finder for both sides; text vs image readers of
+    one page). Extras: different models for labeler and classifier, so their misreadings do not coincide;
+    Andrew's eleven-form review as the human check on structure.
 
 ## Open taxonomy gaps (no in-place fix yet)
 
