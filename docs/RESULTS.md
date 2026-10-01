@@ -1138,3 +1138,30 @@ Period(s)", which does take ranges. Filler as the trigger, a right decision on t
 
 Implausible case values over all 44 forms: 135 (`runs/judge_eval/implausible_case_values.csv`); commonest caption
 words excise, location, district, qtr, county, township, range.
+
+### The case chain: box -> class -> value (2026-10-01, `petey/validate/field_chain.py`)
+
+Andrew: the case is built box -> class -> value, so a fault early in the chain makes every later signal wrong; check
+in that order. Each field gets the stage where its case breaks: `box` (the inventory check says the case box does
+not line up, or no value reached it), `class` (the classifier's caption for the box is none of the text lines lined
+up with the widget within 36 pt above, below, inside, left or right, nor the nearest lined-up line above it (a
+column header) or to its left (a row label)), else `value`. A box- or class-stage field sends no class, regex or
+judge flag to the reviewer and adds nothing to the loop's per-field status; class and regex disagreement on a bank
+case count as one signal.
+
+Tuned on the hand-checked fields, in four steps: nearest-line only marked 94 of 527 fields on six forms wrong, mostly
+where the classifier was right (captions printed below the box, section headings nearer than the real caption);
+any lined-up line within reach; alignment over the shorter extent (a short caption over a wide box); column headers
+and row labels for table cells, and letter-spaced small caps compared without spaces (KS DO-41 'Y EAR/ P ERIOD').
+
+| over 44 forms, 3,491 fields | |
+|---|---|
+| box stage | 1,012 |
+| class stage | 197 (TX DMV 1756's county checkbox grid, 38 of them, read one column off by the classifier) |
+| value stage | 2,282 |
+| hand-checked fields reaching the reviewer as they should | 16 of 17 |
+
+The one miss is SS-4 `ein`: the classifier read its caption right ('Legal name of entity'), but an 'EIN' label sits
+close enough that the geometry calls it uncertain, so the field no longer reaches the reviewer and the batch-1
+rename (to `entity_legal_nm`) would not happen. The cost of the rule: a right rename deferred, against wrong renames
+stopped (LIC100, Utah WC-122 `time_of_occurrence`). Batch 2's reviewer flags: 228 at the time, 168 with the chain.

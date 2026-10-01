@@ -152,7 +152,19 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
     flags: dict[str, list[dict]] = collections.defaultdict(list)
     native = json.loads((intact / "score_native.json").read_text())
     gt_by_field = {p["field"]: p.get("gt_value") for p in native.get("per_field", [])}
+    # The case was built box -> class -> value (petey/validate/field_chain.py). A field whose box failed or whose
+    # caption the classifier took from a neighbouring box sends no class, regex or judge flag: those signals all
+    # rest on the misreading, and a reviewer acting on them renames a right field (MA LIC100, Utah WC-122).
+    from petey.validate.field_chain import chain_for_run
+    chain = chain_for_run(run_dir, intact.name)
+    held = {f for f, r in chain.items() if r.get("stage") in ("box", "class")}
+    class_tier1 = set()
+    cd0 = intact / "class_disagreements.json"
+    if cd0.exists():
+        class_tier1 = {row["field"] for row in json.loads(cd0.read_text()) if row.get("tier") == 1}
     for f, why in (native.get("gt_shape_mismatches") or {}).items():
+        if f in held or f in class_tier1:      # on a bank case the regex miss restates the class disagreement
+            continue
         flags[f].append({"detector": "shape", "detail": why, "generated_value": gt_by_field.get(f)})
     for rv in native.get("rule_violations") or []:
         for f in rv.get("held", []):
@@ -174,11 +186,13 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
         bp_fields = (yaml.safe_load((run_dir / "blueprint.bpt").read_text(encoding="utf-8")) or {}).get("fields") or {} \
             if (run_dir / "blueprint.bpt").exists() else {}
         for r in method_delta.compare_case(intact, arm):
-            if r.get("cause") not in ("defect", "unlocatable"):
+            if r.get("cause") not in ("defect", "unlocatable") or r["field"] in held:
                 continue
             box = box_for(bp_fields.get(r["field"]) or {}, boxes)
             if name_matches_caption(r["field"], box.get("label")):
                 continue
+            if not (chain.get(r["field"]) or {}).get("verified"):
+                box = {}                       # an unverified caption is not shown to the reviewer as fact
             flags[r["field"]].append({
                 "detector": "name_reader",
                 "detail": ("reader could not find this name on the page" if r["cause"] == "unlocatable"
@@ -193,7 +207,7 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
     cd = intact / "class_disagreements.json"
     if cd.exists():
         for row in json.loads(cd.read_text()):
-            if row.get("tier") != 1:
+            if row.get("tier") != 1 or row["field"] in held:
                 continue
             flags[row["field"]].append({
                 "detector": "page_class",

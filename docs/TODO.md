@@ -242,6 +242,11 @@ and case sets".
   - **Swaps go to the rebind, not to descriptions**: ND 1TP got two descriptions contradicting their names. Find
     why `correct.py` built no 2-cycle there, and stop the reviewer writing a description that contradicts the name.
 
+  - **Case chain built (2026-10-01; RESULTS "The case chain").** `field_chain.py` stages every field box -> class ->
+    value; box- and class-stage fields send no class / regex / judge signal, class and regex count once. 16 of 17
+    hand-checked fields behave; SS-4 `ein` is the known loss (a right rename deferred). The adjudicator for contested
+    renames (a vision model on the rendered crop) is the next step, held until Andrew says.
+
   - **Batch 2 (2026-09-30; RESULTS "Batch 2").** The page-wins fix repaired publisher misplacement (VA RDT-120
     three renames, Utah WC-122 three, all right on the page) and made two wrong renames from captions the
     classifier misattributed (`caption_misattributed`: LIC100, WC-122 `time_of_occurrence`). Next:

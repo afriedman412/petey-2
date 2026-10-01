@@ -181,20 +181,26 @@ def field_status(run_dir: Path) -> dict[str, int]:
     adds 1; the name-based reader's cause adds its rank (wrong value worse
     than not found, not found worse than a format quibble)."""
     status: dict[str, int] = collections.defaultdict(int)
+    from petey.validate.field_chain import chain_for_run
     for intact in intact_dirs(run_dir):
         per_case: dict[str, int] = collections.defaultdict(int)
         native = json.loads((intact / "score_native.json").read_text())
-        for f in native.get("gt_shape_mismatches") or {}:
+        # The case was built box -> class -> value. A field whose box failed, or whose caption the classifier
+        # took from a neighbouring box, has a case that says nothing about the blueprint: its class, regex and
+        # judge signals are one misreading, not evidence (MA LIC100, 2026-09-30: a right field renamed from a
+        # misread caption scored 'better' because the flags built on that caption cleared).
+        held = {f for f, r in chain_for_run(run_dir, intact.name).items() if r.get("stage") in ("box", "class")}
+        disagree = set(native.get("gt_shape_mismatches") or {})
+        cd = intact / "class_disagreements.json"
+        if cd.exists():
+            disagree |= {row["field"] for row in json.loads(cd.read_text()) if row.get("tier") == 1}
+        for f in disagree - held:          # class and regex disagreement on a bank case: one signal, counted once
             per_case[f] += 1
         arm = method_delta.preferred_judge(intact)
         if arm:
             for r in method_delta.compare_case(intact, arm):
-                per_case[r["field"]] += _RANK.get(r.get("cause") or "", 2)
-        cd = intact / "class_disagreements.json"
-        if cd.exists():
-            for row in json.loads(cd.read_text()):
-                if row.get("tier") == 1:
-                    per_case[row["field"]] += 1
+                if r["field"] not in held:
+                    per_case[r["field"]] += _RANK.get(r.get("cause") or "", 2)
         for f, v in per_case.items():
             status[f] = max(status[f], v)
     return status

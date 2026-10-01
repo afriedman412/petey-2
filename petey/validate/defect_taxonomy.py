@@ -844,7 +844,10 @@ REGISTRY: tuple[DefectClass, ...] = (
         fix="the caption used for review and for the gate comes from the page geometry (words inside the box's rect, "
             "else directly above it within its cell), cross-checked with the classifier's label; when they disagree "
             "the caption is uncertain and no rename rests on it",
-        detector=None,
+        detector="petey/validate/field_chain.py (stage 'class': the classifier's caption is none of the lines lined up "
+                 "with the widget, nor its column header or row label)",
+        inline_fix="review.flags_from_run and iterate.field_status drop the class, regex and judge signals of a "
+                   "class-stage field, so no rename or verdict rests on the misreading",
         notes="Found 2026-09-30, batch 2: two wrong renames (LIC100, Utah WC-122 time_of_occurrence -> "
               "date_of_injury_illness). LIC100 shows a run of them, every mailing-address box one caption off.",
     ),
