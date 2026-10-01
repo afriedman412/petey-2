@@ -13,7 +13,10 @@ path; it used to be the external `petey` CLI and now runs in this repo.
     parser="image"    page images go to the model (for flattened scans)
 
 Responses are cached under runs/_petey_cache keyed by (fields, document
-bytes, parser, model), so re-scoring a run costs nothing.
+bytes, parser, model), so re-scoring a run costs nothing. A non-empty
+`cache_salt` adds itself to the key: repeated reads of one document under
+different salts are fresh calls (eval/reader_stability.py), and an empty
+salt leaves every existing key unchanged.
 """
 from __future__ import annotations
 
@@ -256,11 +259,12 @@ def _ask_local(model: str, fields: list[dict], doc_parts: list[dict]) -> str:
 
 
 def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
-         doc_key: bytes, parser: str) -> dict:
+         doc_key: bytes, parser: str, salt: str = "") -> dict:
     key = hashlib.sha256(
         doc_key + b"\x00" + model.encode() + b"\x00" + parser.encode()
         + b"\x00" + json.dumps(fields, sort_keys=True).encode()
         + b"\x00fixed-sampling-fieldpages"  # cache namespace: answers sampled at temperature 0 / low effort
+        + (b"\x00salt:" + salt.encode() if salt else b"")
     ).hexdigest()
     CACHE.mkdir(parents=True, exist_ok=True)
     cached = CACHE / f"{key}.json"
@@ -298,7 +302,7 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
 
 def extract_llm(
     bpt: dict, pdf: Path, *, parser: str = "pymupdf",
-    model: str = DEFAULT_MODEL, client: Any = None,
+    model: str = DEFAULT_MODEL, client: Any = None, cache_salt: str = "",
 ) -> dict[str, Any]:
     """`{field_name: value}` for one document, found by meaning."""
     pdf = Path(pdf)
@@ -332,7 +336,7 @@ def extract_llm(
     values: dict[str, Any] = {}
     for i in range(0, len(fields), MAX_FIELDS_PER_CALL):
         batch = fields[i:i + MAX_FIELDS_PER_CALL]
-        got = _ask(client, model, batch, doc_parts, doc_bytes, parser)
+        got = _ask(client, model, batch, doc_parts, doc_bytes, parser, salt=cache_salt)
         for f in batch:
             values[f["name"]] = got.get(f["name"])
     return values

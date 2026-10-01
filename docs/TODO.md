@@ -150,14 +150,36 @@ and case sets".
 
 ## Now
 
-- **Reader stability, measured, not floored.** The loop's judge is the name-based reader, an LLM call; the same
-  blueprint and filled PDF gave 40 and 45 detections on two runs (I-765, temperature 0). Andrew: no noise floor;
-  find out what is and is not stable and debug it. Step 1: read the same I-765 document five times and record,
-  per field, whether the verdict holds or flips. Hypothesis to test: flips concentrate on fields the blueprint
-  leaves ambiguous (repeated sections, identical captions), so instability is blueprint signal, not model noise.
-  Step 2, depending on what step 1 shows: the judge treats a flipping field as unresolved rather than better or
-  worse; a change on a stable field is signal; and the whole-form check (I-765 went 37 -> 51 while every reviewed
-  field scored "same") becomes "any stable field got worse -> restore the round", with no threshold.
+- **Reader stability, measured, not floored (next, once the finder fix lands; Andrew).** The loop's judge is the
+  name-based reader, an LLM call; the same blueprint and filled PDF gave 40 and 45 detections on two runs (I-765,
+  temperature 0). Andrew: no noise floor; measure what is and is not stable and debug it. Wait for the finder work:
+  the cases come from the finder, so set 2 is regenerated when it changes.
+
+  - **Step 1, ready to run:** `eval/reader_stability.py --form i765 --case-set 2 --cases 3 --reads 5` (30 reader
+    calls at Sonnet 4.6; `--dry-run` prints the plan). Each read bypasses the reader cache through a salt
+    (`extract_llm(cache_salt=...)`, empty salt = old keys), so reruns of the script replay for free. Per field per
+    case: stable_right / stable_wrong / flipping; across cases: flips on every case (a field property) or on
+    some (a value property); wrong answers traced by value identity to the box they came from; ambiguity proxies
+    (numbered sibling, shared description) to test the hypothesis that flips sit on fields the blueprint leaves
+    ambiguous. Limitation: the bank gives an entity's other-name boxes its own name (I-765 Lines 1a / 2a / 3a all
+    hold the applicant's family name), so tracing among those is a candidate list, and a slide between them
+    cannot show.
+
+  - **Why the 40 / 45 happens in the loop:** the reader cache keys on the PDF bytes, model, parser and the batch
+    of up to 120 fields sent in the call (`extract_llm._ask`). An unchanged rerun replays; one edited field
+    re-keys its whole batch, so every other field in it is read fresh. A review round's before / after therefore
+    compares mostly re-read fields, which fits I-765 going 37 -> 51 while every reviewed field scored "same".
+    Per-field cache entries (the document plus that field's name, type, description and values; one cache file
+    per document holding the per-field table; still one call per batch) would stop the spread to untouched
+    fields, with any untouched field whose fresh answer moved reported as "moved without an edit". That hides
+    noise, it does not remove it; it comes after step 1. Same-key loose end: in text mode the document sent
+    depends on the blueprint (pages, `[x]` tokens at its option boxes) but the key hashes the PDF bytes; hash the
+    text sent.
+
+  - **Step 2, depending on step 1:** if flips cluster on ambiguous fields, flipping is a blueprint signal and
+    becomes a detector; if they are scattered, read each field 3-5 times and vote, a field without a majority
+    is unresolved rather than better or worse. Either way the whole-form check (the I-765 37 -> 51 round) becomes
+    "any stable field got worse -> restore the round", with no threshold.
 
 - **Reviewer: publisher descriptions are not removable.** The description is its own field on the spec (verbatim
   tooltip or XFA caption text, tagged `x_petey_description_source: tooltip | xfa_choices`); names are separate
