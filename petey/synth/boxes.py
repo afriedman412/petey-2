@@ -28,7 +28,77 @@ from typing import Optional
 from petey.paths import REPO, RUNS
 
 CACHE_DIR = RUNS / "_gen_cache" / "boxes"
-FINDER_VERSION = "step2flat-2"   # comb groups outrank lattice single cells
+
+# The finder's version (Andrew, 2026-10-01: a finder change is a versioned event, not a regeneration of the
+# library; every blueprint, run and case set records the finder it was built with, and "rebuild it with the
+# current finder" is the first step when a form misbehaves). Three parts:
+#   FINDER_LABEL     bumped by hand when the finder's behaviour is meant to change (the comb tier, 2026-09-30);
+#   FINDER_CODE_SHA  the sha of step2flat/*.py the label describes: code edited without a bump makes the version
+#                    `<label>+code<sha>`, so caches re-key instead of serving boxes the code no longer produces;
+#   FINDER_ENV       pymupdf (drawings, words) and tesseract (the raster reader erases OCR'd text before it looks
+#                    for boxes) as the label was read; another environment makes the version `<label>+env<sha>`.
+# `FINDER_VERSION` is the string every cache keys on; `finder_stamp()` is what provenance records.
+FINDER_LABEL = "step2flat-2"     # comb groups outrank lattice single cells
+FINDER_CODE_SHA = "77d351674bd6"
+FINDER_ENV = "pymupdf 1.28.2; tesseract 5.5.3"
+
+
+def _code_sha() -> str:
+    """The sha of step2flat's code as parsed, docstrings dropped: a comment or docstring edit is not a finder
+    change and must not re-key every cache (Andrew, 2026-10-01). A file that does not parse hashes as bytes."""
+    import ast
+    h = hashlib.sha256()
+    for p in sorted((REPO / "step2flat").glob("*.py")):
+        src = p.read_bytes()
+        try:
+            tree = ast.parse(src)
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.Module, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) \
+                        and node.body and isinstance(node.body[0], ast.Expr) \
+                        and isinstance(getattr(node.body[0], "value", None), ast.Constant) \
+                        and isinstance(node.body[0].value.value, str):
+                    node.body = node.body[1:] or [ast.Pass()]
+            body = ast.dump(tree, include_attributes=False).encode()
+        except SyntaxError:
+            body = src
+        h.update(p.name.encode() + b"\x00" + body + b"\x00")
+    return h.hexdigest()[:12]
+
+
+def _env() -> str:
+    try:
+        import pymupdf
+        mu = pymupdf.__version__
+    except Exception:
+        mu = "unknown"
+    try:
+        import pytesseract
+        tess = str(pytesseract.get_tesseract_version())
+    except Exception:
+        tess = "unknown"
+    return f"pymupdf {mu}; tesseract {tess}"
+
+
+def finder_stamp() -> dict:
+    """`{label, code_sha, env, version, drift}`: `version` is the cache key; `drift` names what moved since the
+    label was set (empty when the code and the environment are the ones the label describes)."""
+    sha, env = _code_sha(), _env()
+    drift, version = [], FINDER_LABEL
+    if sha != FINDER_CODE_SHA:
+        drift.append(f"code {FINDER_CODE_SHA} -> {sha}")
+        version += f"+code{sha}"
+    if env != FINDER_ENV:
+        drift.append(f"env '{FINDER_ENV}' -> '{env}'")
+        version += "+env" + hashlib.sha256(env.encode()).hexdigest()[:6]
+    return {"label": FINDER_LABEL, "code_sha": sha, "env": env, "version": version, "drift": drift}
+
+
+_STAMP = finder_stamp()
+FINDER_VERSION = _STAMP["version"]
+if _STAMP["drift"]:
+    print(f"[finder] version {FINDER_VERSION}: {'; '.join(_STAMP['drift'])}. Caches re-key under this version. "
+          f"If the change is meant, set FINDER_LABEL and FINDER_CODE_SHA / FINDER_ENV in petey/synth/boxes.py.",
+          file=sys.stderr)
 
 
 def _rect_key(page: int, rect) -> str:

@@ -1,73 +1,74 @@
 # TODO
 
 Edited in place; the history is `git log --follow -- docs/TODO.md`. Priorities are Andrew's; the ordering is a
-proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`.
+proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`; terms: `docs/GLOSSARY.md`.
 
-## Handoff: next two items (2026-10-01, Andrew)
+## Handoff: the two items, where they stand (2026-10-01, evening)
 
-Context in one paragraph: the loop validates a blueprint against synthetic cases generated from the page alone
-(finder boxes -> classifier class -> bank value). Over 44 new forms (`runs/judge_eval/`, RESULTS sections "How
-informative is the judge?" through "The case chain"), the judge's real catches are opaque names, widgets the
-publisher placed in the wrong box, and swapped names; the reviewer now renames by the box's caption; and
-`petey/validate/field_chain.py` stages every field box -> class -> value so signals built on a failed box or a
-misread caption reach neither the reviewer nor the loop's verdict. Two things are left.
+Numbers and the full reading: RESULTS "The rename adjudicator, and the box stage measured". Direction from Andrew
+today: lean on the agentic side of the loop rather than on more hard-wired rules, do not fix one form's problem in a
+way that moves another's, and do not over-index on a few difficult forms (every number below is over the 44 forms
+in `runs/judge_eval/forms44.txt`).
 
-- **1. Adjudicator for contested renames (the taxonomy's tier 3, applied to the loop's own edits).** The loop's
-  per-field before/after cannot judge a rename whose evidence all comes from one reading (MA LIC100: a right field
-  renamed from a misread caption scored 'better' because every flag built on that caption cleared). Build one
-  step, independent of the classifier:
+- **1. Adjudicator for contested renames: built, tested, wired.** `petey/validate/adjudicate.py`; the fixture is
+  `eval/adjudicator_test.py` (nineteen hand-checked fields; Sonnet 4.6 and Opus 5 agree with all nineteen once the
+  SS-4 expectation was corrected: the widget is the header's EIN box, so `ein` was right and the batch-1 rename
+  wrong; the side copy `runs/judge_eval/blueprints/form_ss_4.bpt` still carries `entity_legal_nm`). Default model
+  Sonnet 4.6, about $0.006 a call. On by default in `review` and `iterate` (`--no-adjudicate`,
+  `--adjudicator-model`). Two loop changes with it: class-stage fields reach the reviewer on judge flags again
+  (caption withheld, rename contested) and `judge_review` keeps an adjudicated rename it would restore as 'same'.
 
-  - **When:** the reviewer proposes a rename (optionally a type change) on a field the chain does not settle: its
-    caption is unverified (`verified` False / None in `field_chain`), or the publisher's tooltip / path and the
-    caption disagree.
+  - Next: a loop pass with the adjudicator on a few forms (DO-10, SS-4, LIC100, WC-122 side copies, from their
+    `_v0.bpt`) to see the adjudication tallies and `needs_person` flags land in `x_petey_adjudication`; the review
+    pairs record the adjudication with each decision.
 
-  - **Input:** a crop of the rendered BLANK page with the widget's own rect outlined (from the blueprint, not the
-    finder or the classifier) and enough context to show neighbouring captions and table headers; the current
-    name, the proposed name, the reviewer's reason, the tooltip / description.
+- **2. The box stage: measured; two finder patches ready, neither landed.** `eval/finder_vs_widgets.py` is
+  size-aware (a hit is within 3x the widget's area; region boxes reported on their own). Before number over the 44
+  forms: text 78%, options 52%, 250 widgets inside 45 region boxes, 832 missed; misses spread over the set (the six
+  worst forms hold 44%). Families, from the finder's raw candidates:
 
-  - **Question:** what would a filer write in the outlined box; does the current or the proposed name describe it?
-    Answer `current` / `proposed` / `unclear` with a one-line reason. The rename lands only on `proposed`;
-    `unclear` keeps the name and flags the field for a person.
+  - **Region rows that exist only in the widget layer** (ND 10RR, SFN 18668: 188 of the 250 in-region widgets).
+    Unlined list columns: a layout, not a finder defect. Andrew (2026-10-01): outliers, set aside. Their fields
+    stay at the box stage (`merged_box`) and are reported as such.
 
-  - **Where:** between the reviewer's decisions (`review.ask`) and `review.apply_decisions`, or in `iterate.judge_review` for
-    renames (which today restores every rename judged 'same').
+  - **`$____` line cues** (B106I, B410): `eval/finder_experiment.py --patch linecue`, +61 text hits on those two
+    forms, nothing else moves. Ready to land.
 
-  - **Test before use, on the fields checked by eye on 2026-09-30 / 10-01 (side copies under
-    `runs/judge_eval/blueprints/<form>_v0.bpt`):** approve KS DO-10 `ein_ssn_ptin`, `representative1_phone_number`,
-    `representative1_ein_ssn_ptin` (and the two representative2 boxes) to the captions of their cells (Area Code &
-    Phone Number, EIN/SSN/PTIN, Fax Number); VA RDT-120 `individual_account_nm` -> legal business name,
-    `doing_business_as_nm` -> state business formed in, `corporation_state_formed_in` -> total qualified vehicles;
-    Utah WC-122 `claim_number` -> employer phone, `date_sent_to_labor_commission` -> location number,
-    `employer_name_address` -> employer location address; SS-4 `ein` -> entity legal name (the chain now blocks
-    this right rename, the adjudicator should recover it); ND 1TP `process_types` / `primary_waste_streams` swap;
-    TX DMV 1756 `control` ... `control_15` -> a Year / Make name. Reject MA LIC100
-    `out_of_state_state_abbreviation_cd` -> `applicant_nm` (it sits under C5. State) and Utah WC-122
-    `time_of_occurrence` -> `date_of_injury_illness` (it sits under TIME OF OCCURRENCE).
+  - **Glyph checkboxes** (ZapfDingbats / Wingdings squares: LA 7006, TX RRC R-32, B410, KS DO-41, LA 16019 and
+    1048, LIC100, HK IRD): `--patch glyph` adds them as candidates and stops them counting as text. Both patches
+    together over the 44 forms: options 52% -> 85%, text 78% -> 80%, misses 832 -> 477, thirteen forms change
+    and none gets worse; 32 new extras, 23 of them LIC100's printed squares that no widget backs. Ready to land
+    with the line-cue patch.
 
-  - **Model and cost:** a vision model (Sonnet 4.6 or Opus 5), one call per contested rename; batch 2 had 11
-    renames over 20 forms.
+  - **Form 5500's sub-point borders** (51 widgets with no candidate from either reader): not reduced to a fix.
 
-- **2. The box stage: 29% of fields are never tested.** Over the 44 forms, 1,012 of 3,491 fields stop at the box
-  stage (1,002 `box_unreached`, 10 ties; 658 text, 268 checkbox, 84 option groups): no case value landed on them,
-  so the case says nothing about them. Worst: ND Form 10RR 98 / 117, Form 5500 85 / 120, ND SFN 18668 84 / 107, LA
-  7006 68 / 160, TX RRC R-32 66 / 156, B106I 60 / 81. Two finder failures behind it:
+  - Landing a patch = `FINDER_VERSION` bump in `petey/synth/boxes.py`. Not codified anywhere yet; checked in the
+    code: the box, classifier and blind-generator caches re-key (every form classified again, one call per page),
+    but the bank cases and the frozen case sets (`runs/_gen_cache/sets/`, 59 forms) do NOT, and their values are
+    keyed by the old finder's rects, so set 1 would silently misalign (RESULTS, "What a FINDER_VERSION bump
+    entails"). Before any bump: put the finder version into the bank case / set cache key so a stale set refuses
+    to load, then bump once with both patches and regenerate set 1. Andrew's call on timing.
+    **Done 2026-10-01 late (RESULTS "Versioning the finder", "step2flat-3 landed"):** the finder version is
+    derived (label + AST sha + environment), bank cases and set manifests carry the case basis, a stale set
+    refuses to load (`--rebuild-set`; a set whose boxes are identical under the new finder migrates with its
+    files), runs and blueprints carry `x_petey_build`. Both patches landed as `step2flat-3`; set 1 rebuilt on the
+    six diagnosis forms (B410, B106I, LA 7006, TX RRC R-32, KS DO-41, KS DO-10): box stage 289 -> 56 fields.
 
-  - **Table regions not split into cells.** ND 10RR: 4 finder boxes each cover a whole table region and hold 100
-    of its 117 widgets; SFN 18668: 4 boxes hold 85 of 107. The filler writes one widget per box, so every other
-    cell is unreached. Fix in the finder: split a region at the rules printed inside it (the finder granularity
-    list in the synthetic-data section has the same item for ACORD address blocks).
+  - **Class stage now tests the class, not the caption** (RESULTS "The class stage tests the class"): a
+    misattributed caption holds a field only when its class disagrees with the blueprint. On the six rebuilt forms
+    the class stage went 171 -> 32 and the value stage 443 -> 582; LIC100 / SS-4 / WC-122 still held. What is
+    left at the class stage (7006: 27, B106I: 1) is where the one-row-off caption did change the class. For those,
+    the caption pass: the adjudicator's crop around the box, the model reads the caption, the class map is
+    corrected; a versioned event on the classifier half of the basis. Agreed in principle 2026-10-01; not built,
+    and smaller than it was.
 
-  - **Cells missed.** Form 5500 page 2: 79 widgets, 36 finder boxes, none of them swallowing several widgets;
-    B106I page 2: 54 widgets, 15 boxes. Look at what these cells are (underlines, unruled cells, thin rules) in the
-    finder's raw candidates before changing tiers.
+  - `classify_form` has no retry on a malformed model reply (Form 5500 page 3, a stray brace); one retry with the
+    parse error quoted back would have finished that form.
 
-  - **Measure first, with a size-aware yardstick.** `eval/finder_vs_widgets.py` matches with `boxes.match_rect`
-    (intersection over the smaller area), so a widget inside a big region box counts as found and recall on table
-    forms is overstated. Require the finder box to be comparable in size to the widget (say within 3x area) for
-    a hit, report region boxes separately, and rerun it over the 44 forms as the before number.
+  - The migration path for unchanged forms (`validate._check_set`, identical boxes -> set and class map carried
+    over) has not run on a real form yet; the first validate of any of the 31 will exercise it.
 
-  - Not the cause here: the bank's deliberate blanks (an empty value still lands and is not `box_unreached`),
-    and the classifier's `none` (2 of ND 10RR's 98).
+  - Rebuilt as a side effect before the loop was stopped: OCC 1014cs (old build in its manifest's history).
 
 ## Done
 

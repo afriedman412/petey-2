@@ -9,7 +9,10 @@ per field, and asks for a verdict: the spec is right, or here is the fix.
 
 The model does not judge its own work. `iterate.py` re-validates after the
 fixes land and reverts them if detections did not go down; the generator
-stays blind and the name-based reader never sees geometry.
+stays blind and the name-based reader never sees geometry. A proposed rename
+the case chain does not settle (caption unverified, or tooltip and caption
+at odds) goes to `adjudicate.py` first, which reads the blank page around
+the widget and upholds or drops it (2026-10-01).
 
 Evidence per field (no ground truth beyond what the loop already produced):
   - the current spec: name, type, semantic_type, pattern, values, description
@@ -158,6 +161,10 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
     from petey.validate.field_chain import chain_for_run
     chain = chain_for_run(run_dir, intact.name)
     held = {f for f, r in chain.items() if r.get("stage") in ("box", "class")}
+    # The judge's reading is of the filled page, not of the classifier's caption, so a class-stage field (box
+    # lined up, caption unverified) still reaches the reviewer on a judge flag, with the caption withheld; any
+    # rename on it is contested and goes to the adjudicator (`adjudicate.py`), which reads the page itself.
+    held_box = {f for f, r in chain.items() if r.get("stage") == "box"}
     class_tier1 = set()
     cd0 = intact / "class_disagreements.json"
     if cd0.exists():
@@ -186,12 +193,15 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
         bp_fields = (yaml.safe_load((run_dir / "blueprint.bpt").read_text(encoding="utf-8")) or {}).get("fields") or {} \
             if (run_dir / "blueprint.bpt").exists() else {}
         for r in method_delta.compare_case(intact, arm):
-            if r.get("cause") not in ("defect", "unlocatable") or r["field"] in held:
+            if r.get("cause") not in ("defect", "unlocatable") or r["field"] in held_box:
                 continue
+            rec = chain.get(r["field"]) or {}
             box = box_for(bp_fields.get(r["field"]) or {}, boxes)
-            if name_matches_caption(r["field"], box.get("label")):
+            # a caption the chain found wrong gates nothing (SS-4 `ein` on the legal-name box: the caption
+            # mentions the EIN, the name matched it, and the right rename never reached the reviewer)
+            if rec.get("verified") is not False and name_matches_caption(r["field"], box.get("label")):
                 continue
-            if not (chain.get(r["field"]) or {}).get("verified"):
+            if not rec.get("verified"):
                 box = {}                       # an unverified caption is not shown to the reviewer as fact
             flags[r["field"]].append({
                 "detector": "name_reader",
@@ -465,6 +475,13 @@ def apply_decisions(bp: dict, decisions: list[dict], model: str) -> collections.
         if bad:
             changes[f"rejected:{bad}"] += 1
             continue
+        adj = d.get("adjudication")
+        if adj:
+            # the adjudicator's verdict on the proposed rename (adjudicate.py); `unclear` is a flag for a person
+            spec["x_petey_adjudication"] = {k: adj.get(k) for k in ("verdict", "proposed", "reason", "model", "contested")}
+            if adj.get("verdict") == "unclear":
+                spec["x_petey_adjudication"]["needs_person"] = True
+            changes[f"adjudicated:{adj.get('verdict')}"] += 1
         before = {k: copy.deepcopy(spec.get(k)) for k in ("type", "semantic_type", "pattern", "values", "description")}
         touched = []
         for k in ("type", "semantic_type", "pattern", "values", "description"):
@@ -492,7 +509,8 @@ def apply_decisions(bp: dict, decisions: list[dict], model: str) -> collections.
         if touched:
             spec["x_petey_review"] = {"model": model, "changed": touched, "reason": d.get("reason", "")[:300],
                                       "before": {k: v for k, v in before.items() if v is not None},
-                                      **({"old_name": name} if "name" in touched else {})}
+                                      **({"old_name": name} if "name" in touched else {}),
+                                      **({"adjudicated": "proposed"} if "name" in touched and adj else {})}
             for k in touched:
                 changes[k] += 1
     if renames:
@@ -507,7 +525,11 @@ def apply_decisions(bp: dict, decisions: list[dict], model: str) -> collections.
 
 def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
            model: str = DEFAULT_MODEL, effort: str = "medium", apply: bool = False,
-           bpt_path: Optional[Path] = None) -> dict:
+           bpt_path: Optional[Path] = None, adjudicate: bool = True,
+           adjudicator_model: Optional[str] = None) -> dict:
+    """Flags from the run -> evidence -> the model's decisions -> (contested renames to the adjudicator) ->
+    apply. `adjudicate` sends every proposed rename the case chain does not settle to `adjudicate.py`, which
+    reads the blank page around the widget; a rename it does not uphold is dropped from the decision."""
     bpt_path = bpt_path or (BLUEPRINTS / f"{form}.bpt")
     bp = yaml.safe_load(bpt_path.read_text(encoding="utf-8"))
     blank = resolve_blank(bp)
@@ -526,6 +548,14 @@ def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
         decisions.extend(ask_split(client, model, effort, title, chunk, usage_total))
     pin, pout = PRICES.get(model, (0.0, 0.0))
     cost = usage_total["input_tokens"] / 1e6 * pin + usage_total["output_tokens"] / 1e6 * pout
+    adjudicated = None
+    if adjudicate and decisions and run_dir is not None:
+        from petey.validate import adjudicate as adjudicate_mod
+        from petey.validate.field_chain import chain_for_run
+        adjudicated = adjudicate_mod.adjudicate_decisions(
+            bp, blank, decisions, chain_for_run(run_dir), limits=widget_limits(blank),
+            model=adjudicator_model or adjudicate_mod.MODEL, tag=f"adjudicate/{form}")
+        cost += adjudicated["cost_usd"]
     changes = collections.Counter()
     if apply and decisions:
         changes = apply_decisions(bp, decisions, model)
@@ -536,6 +566,7 @@ def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
             "effort": effort, "fields_reviewed": len(evidence), "flagged": len(flags),
             "verdicts": dict(verdicts), "applied": dict(changes), "usage": dict(usage_total),
             "cost_usd": round(cost, 4), "seconds": round(time.time() - t0, 1),
+            "adjudicated": adjudicated,
             "decisions": decisions, "evidence": evidence}
 
 
@@ -547,14 +578,17 @@ def main() -> int:
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--effort", default="medium", choices=["low", "medium", "high", "xhigh", "max"])
     ap.add_argument("--apply", action="store_true")
+    ap.add_argument("--no-adjudicate", action="store_true", help="land contested renames without the adjudicator")
+    ap.add_argument("--adjudicator-model", default=None)
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--show", type=int, default=12, help="print this many decisions")
     args = ap.parse_args()
     res = review(args.form, run_dir=args.run_dir, scope=args.scope, model=args.model,
-                 effort=args.effort, apply=args.apply)
+                 effort=args.effort, apply=args.apply, adjudicate=not args.no_adjudicate,
+                 adjudicator_model=args.adjudicator_model)
     out = args.out or (RUNS / f"review_{args.form}_{args.model}.json")
     out.write_text(json.dumps(res, indent=1, default=str))
-    print(json.dumps({k: v for k, v in res.items() if k != "decisions"}, indent=1))
+    print(json.dumps({k: v for k, v in res.items() if k not in ("decisions", "evidence")}, indent=1))
     for d in res["decisions"][:args.show]:
         if d.get("verdict") == "fix":
             ch = {k: d[k] for k in ("name", "type", "semantic_type", "pattern") if d.get(k)}

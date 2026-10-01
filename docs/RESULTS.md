@@ -1165,3 +1165,238 @@ The one miss is SS-4 `ein`: the classifier read its caption right ('Legal name o
 close enough that the geometry calls it uncertain, so the field no longer reaches the reviewer and the batch-1
 rename (to `entity_legal_nm`) would not happen. The cost of the rule: a right rename deferred, against wrong renames
 stopped (LIC100, Utah WC-122 `time_of_occurrence`). Batch 2's reviewer flags: 228 at the time, 168 with the chain.
+
+## The rename adjudicator, and the box stage measured (2026-10-01, `petey/validate/adjudicate.py`, `eval/finder_vs_widgets.py`)
+
+Andrew: lean on the agentic side of the loop rather than on more hard-wired rules, and do not fix one form's problem
+in a way that moves another's. Both items of the 2026-10-01 handoff were taken that way: the contested renames go to
+a model that reads the page, and the finder is measured over all 44 forms before anything in it changes.
+
+### Adjudicator for contested renames (`adjudicate.py`, `eval/adjudicator_test.py`)
+
+One vision call per contested rename, between the reviewer's decisions and `apply_decisions`: a crop of the rendered
+blank, full page width, the widget's own rect (from the blueprint) outlined in red, reaching up to the nearest
+lined-up line above the box so a table's column header is in view (TX DMV 1756, fifteen rows down); the current
+name, the proposed name, the reviewer's reason, the tooltip / path, the description. The question is what a filer
+writes in the outlined box and which name describes it: `current` / `proposed` / `unclear`. A rename is contested
+when the chain's caption is unverified (`verified` False or None) or the publisher's tooltip / path and the caption
+share no word; `unclear` keeps the name and sets `x_petey_adjudication.needs_person`.
+
+Tested on the nineteen fields checked by eye on 2026-09-30 / 10-01, forced on every case:
+
+| model | agree with the hand check | cost |
+|---|---|---|
+| Sonnet 4.6 | 18 / 19 | $0.12 |
+| Opus 5 | 18 / 19 | $0.22 |
+
+**The one disagreement was the hand check's error, not the model's.** Both models answered `current` for SS-4 `ein`
+-> `entity_legal_nm`, and the crop shows why: the widget sits in the header's EIN box (under the printed "EIN",
+beside the OMB number), not on line 1. The classifier had read line 1's caption for the header box, the batch-1
+reviewer followed it, the loop scored the rename 'better', and the 2026-09-30 note called it right. The fixture's
+expectation was corrected; both models then agree with all nineteen. Everything else came out as expected: KS
+DO-10's five publisher misplacements upheld to the captions of their cells; RDT-120, WC-122 and 1TP's right renames
+upheld; DMV 1756's `control` cells to a Year / Make name (both models noticed that `control_2` is row 15 and
+`control_15` row 2 and judged the kind of value, as asked); the two wrong renames from misattributed captions
+(WC-122 `time_of_occurrence`, LIC100 `out_of_state_state_abbreviation_cd`) rejected. Sonnet 4.6 is the default.
+
+Of the nineteen, the loop would have contested eleven (DO-10's five and DMV 1756's three by tooltip-vs-caption
+disagreement; SS-4, WC-122 `time_of_occurrence` and LIC100 by the chain) and landed eight without a call (the
+RDT-120 and WC-122 renames whose tooltip shares a word with the caption, 1TP's swap).
+
+**Wiring.** `review.review()` adjudicates by default (`--no-adjudicate`, `--adjudicator-model` on `review` and
+`iterate`); a rename not upheld is dropped from the decision and the rest of it (type, pattern, description)
+stands; every adjudicated field carries `x_petey_adjudication`. Two loop changes go with it, both in the direction
+of letting the model decide instead of a rule: a class-stage field (box lined up, caption unverified) now reaches
+the reviewer again on a judge flag, with the caption withheld, and any rename on it is contested, so SS-4's field
+is no longer silently held (and is now kept, for the right reason); and `judge_review` keeps an adjudicated rename
+it would otherwise restore as 'same', since a class-stage field's before and after are both zero by construction.
+Shape and class flags on class-stage fields stay held: they rest on the misread caption. End to end on KS DO-10's
+existing run (`review` without `--apply`): the reviewer (Opus 5) proposed the five renames, all five were contested
+and upheld.
+
+### The box stage, measured with a size-aware yardstick (`eval/finder_vs_widgets.py --list runs/judge_eval/forms44.txt`)
+
+`match_rect` scores intersection over the smaller area, so a widget inside a region box counted as found. The
+yardstick now calls a widget `hit` only when its best box is within 3x of its area either way, `in_region` when
+the box is more than 3x larger, `part` when more than 3x smaller, and reports the region boxes with the widgets
+they hold. Over the 44 forms (`runs/judge_eval/finder_vs_widgets_before.json`):
+
+| 44 forms, 3,795 widgets, 3,644 finder boxes | old yardstick | size-aware |
+|---|---|---|
+| text widgets found | 86% | 2,212 / 2,853 = 78% |
+| option widgets found | 55% | 488 / 942 = 52% |
+| widgets inside region boxes | counted as found | 250, in 45 boxes |
+| widgets under part boxes | | 13 |
+| missed | | 832 |
+
+Not concentrated: the six worst forms carry 44% of the misses, 22 of the 44 forms find at least 90% of their text
+widgets, 11 miss five or fewer. Read from the finder's raw candidates (`pipeline.run`'s scored list) under the
+missed widgets, the misses fall into four families:
+
+1. **Region boxes whose rows exist only in the widget layer** (ND 10RR 102 widgets in 4 boxes, SFN 18668 86 in 4;
+   together 75% of all in-region widgets). The 10RR region is one tall printed cell under "Transporter" with no
+   rule between its 25 rows: zero drawings inside it on the page, and the baked widget appearances draw nothing.
+   SFN 18668's region has one dashed column divider (Volume | Bbls or MCF) and no row rules. The handoff's fix,
+   split a region at the rules printed inside it, has nothing to split on here; the rows are not on the page, and
+   a page-only finder cannot know there are 25 of them. What would recover them is fill-time, where the widget
+   layer is allowed: a region value written as lines, one per widget stacked inside the region. Not built; a
+   design decision for Andrew.
+
+2. **Typed line cues with a currency sign** (B106I 44 of its 61 misses, B410 12). The text layer carries the word
+   `$___________`; `features.LINE_CUE` excludes words made purely of line characters, so this one counts as printed
+   text (coverage 0.58) and `text_filled` sinks the underline candidate from 0.70 to 0.40. Patch: let one leading
+   non-word character precede the run. Measured with `eval/finder_experiment.py --patch linecue` (the change
+   monkeypatched, boxes into a scratch cache, nothing in `runs/_gen_cache/` touched):
+
+   | | before | after |
+   |---|---|---|
+   | text widgets found | 2,212 | 2,273 |
+   | forms that changed | | B106I 23 -> 72 of 81, B410 31 -> 43 of 55 |
+   | any other form, option recall, extras | | unchanged (930 extras before and after) |
+
+3. **Checkbox squares that are text glyphs**: ZapfDingbats '■' on LA 7006 (68 option widgets, 0 found),
+   Wingdings2 0xF0A3 on TX RRC R-32 (78, 12 found), Wingdings on B410 (33) and KS DO-41 (19). The frozen raster
+   reader erases text before it looks for boxes, so the square leaves no candidate; where the lattice has one
+   (7006), the glyph makes it `text_filled` and, being bold, `header`, and it sinks to 0.45. Patch: drop such
+   glyphs from the words the features count and add each as a `lat:glyph` candidate at 0.75, a square of the
+   character's advance width centred on its bbox (the bbox is the font's line height; with the full bbox KS
+   DO-41's 7 pt radios sat inside boxes over 3x their area). Both patches together, over the 44 forms
+   (`eval/finder_experiment.py --patch both`, `runs/judge_eval/finder_vs_widgets_after_both.json`):
+
+   | | before | linecue + glyph |
+   |---|---|---|
+   | text widgets found | 2,212 / 2,853 (78%) | 2,275 (80%) |
+   | option widgets found | 488 / 942 (52%) | 800 (85%) |
+   | missed | 832 | 477 |
+   | widgets inside region boxes | 250 | 233 |
+   | extras (finder boxes with no widget) | 930 | 962 |
+   | forms that changed | | 13 |
+   | forms worse on text or option recall | | none |
+
+   Thirteen forms change, none for the worse: LA 7006 0 -> 68 of 68 options, TX RRC R-32 12 -> 78 of 78, B410
+   0 -> 33 of 33, LA 16019 0 -> 33 of 33, LA 1048 0 -> 14 of 14, KS DO-41 0 -> 19 of 19, KS DO-10 0 -> 8 of 8,
+   LIC100 20 -> 66 of 68, HK IRD 26 -> 33 of 33, OCC 1014cs / 1022a 4 -> 9 and 3 -> 9. The 32 new extras are 23
+   on LIC100 (printed squares in its A1 to A4, C2 and D rows that no widget backs: real boxes on the page, the
+   inventory check's `unbacked_box`), 5 on DO-41, 2 on Form 5500, 1 each on B106I and LA 1048.
+
+4. **Form 5500**: 51 of its page-2 misses have no candidate from either reader: the 8a / 8b feature-code combs
+   (32 cells), the administrator address block, the header checkbox. Their borders are drawn as sub-point filled
+   slivers; the lattice drops segments narrower than 3 pt and the frozen reader (sha-pinned) sees nothing. Nine
+   more are small enclosed boxes with an 'X' in the text layer (`text_filled` + `header`). Not reduced to a fix.
+
+**What a `FINDER_VERSION` bump entails (checked in the code, 2026-10-01, after Andrew asked).** Nothing codifies
+it; it is one constant in `petey/synth/boxes.py` and the caches that hash it. The one bump so far (`step2flat-1`
+-> `-2`, the comb tier, 2026-09-30) is a line in the TODO. Keyed on it: the box cache (`runs/_gen_cache/boxes/`,
+local, 15-20 s a page), the classifier cache (`runs/_gen_cache/classify/`, one call per page per form), and the
+blind generator's cache (`generate.py`, only when that generator is used). NOT keyed on it: the bank cases
+(`validate._bank_cache_path`: blank bytes + `bank` + case key) and the case-set manifests
+(`runs/_gen_cache/sets/<form>_set1.json`, 59 forms), whose values are stored by the OLD finder's rect keys
+(`p1:464.6,108.5,570.7,118.1`). After a bump, set 1 stays on disk and silently misaligns: the new boxes have no
+values, the dropped boxes keep orphan values, and the inventory check reads it as the finder's fault. So a bump
+is three things: re-run the finder, re-classify every form, and regenerate (or version) the frozen case sets,
+which Andrew froze deliberately. The patches stay in the experiment harness until he decides; the sets' cache key
+should carry the finder version before any bump, so a stale set refuses to load rather than scoring.
+
+### Versioning the finder, and what was already stale (2026-10-01, late; `petey/synth/boxes.py`, `petey/validate/provenance.py`)
+
+Andrew: do not regenerate the library when the finder changes; re-run the forms being addressed, record on every
+blueprint which finder built it, and make "rebuild it with the current finder" the first step when a form
+misbehaves. Codified as follows.
+
+- **Finder version** is derived, not typed: `FINDER_LABEL` (bumped by hand when behaviour is meant to change) plus
+  `+code<sha>` when `step2flat/*.py` differs from the sha the label describes, plus `+env<sha>` when pymupdf or
+  tesseract differ from the environment it was read under (the raster reader erases OCR'd text before it looks
+  for boxes, so tesseract is part of the function). Code edited without a bump re-keys the caches and prints
+  why, instead of serving boxes the code no longer produces. The finder is deterministic (DO-10 twice: identical).
+- **Case basis** `<finder>|<classifier model>|<prompt version>`: everything a bank case depends on besides the
+  blank and the case key. Bank cases are now cached under it; set manifests record it; a set on another basis
+  refuses to load (`validate --rebuild-set` draws it again under the current basis, same id, old build kept in
+  the manifest's history and its files on disk).
+- **Build stamp**: the run's `summary.json` carries the basis spelled out plus generator, set and run;
+  `iterate` writes the same onto the blueprint as `x_petey_build` after every validate.
+- **Frozen files stay frozen.** Stored case values are the filler's effective values (merged and truncated), so a
+  fresh draw is not the same file (DO-10 set 1 case 1: 19 of 57 differ, RDT-120: 9 of 127). A set whose manifest
+  basis equals the current one adopts its pre-basis files by copy; nothing is redrawn.
+
+**What the check found on the 59 manifests:** 50 are on the current basis (all 44 judge-eval sets, the five
+forms' set 3). Nine are not: fw9, acord25, i765, 526EZ and 10-10EZ sets 1 and 2 were drawn under `step2flat-1`
+(two of them before the manifest recorded enough to tell) and have been readable against `step2flat-2` class maps
+ever since the comb-tier bump. They are the retired sets (set 3 replaced them), so nothing scored since depends
+on them, but it is the exact failure the basis check exists for, and it had already happened once.
+
+Terms are now defined in one place, `docs/GLOSSARY.md`.
+
+### step2flat-3 landed, rebuilt on the forms it was diagnosed on (2026-10-01, late)
+
+Andrew: re-run only the forms being addressed; the others stay on the finder they were built with. The line-cue and
+glyph patches moved from the experiment harness into `step2flat/` (`features.LINE_CUE`, `features.glyph_rects`,
+`lattice.lattice_fields`, `confidence.TIER['lat:glyph']`), `FINDER_LABEL` became `step2flat-3` (code sha
+`93d5efe257db`; the sha is now over the parsed AST with docstrings dropped, so a comment edit is not drift), and set
+1 was rebuilt with `validate --rebuild-set` (native reader only; the classifier call per page was the only API use)
+on the six forms the patches were diagnosed on. The rebuild moves the old build into the manifest's history only
+once the new set is recorded, so a failed rebuild leaves the manifest as it was (learned on Form 5500, below).
+
+The landed code gives exactly the experiment's boxes on all six:
+
+| form | text found, before -> landed | options found, before -> landed | extras |
+|---|---|---|---|
+| B410 | 31 / 55 -> 43 / 55 | 0 / 33 -> 33 / 33 | 12 -> 12 |
+| B106I | 23 / 81 -> 72 / 81 | 0 / 8 -> 7 / 8 | 17 -> 18 |
+| LA 7006 | 92 / 92 | 0 / 68 -> 68 / 68 | 35 -> 35 |
+| TX RRC R-32 | 78 / 78 | 12 / 78 -> 78 / 78 | 30 -> 30 |
+| KS DO-41 | 97 / 117 | 0 / 19 -> 19 / 19 | 17 -> 22 |
+| KS DO-10 | 56 / 56 | 0 / 8 -> 8 / 8 | 4 -> 4 |
+
+What that did to the case chain on the same six forms (set 1 rebuilt, side-copy blueprints as they stand):
+
+| form | fields | box stage, before -> after | class stage | value stage |
+|---|---|---|---|---|
+| B410 | 75 | 45 -> 14 | 1 -> 2 | 29 -> 59 |
+| B106I | 81 | 60 -> 8 | 4 -> 44 | 17 -> 29 |
+| LA 7006 | 160 | 68 -> 2 | 0 -> 78 | 92 -> 80 |
+| TX RRC R-32 | 156 | 66 -> 2 | 24 -> 24 | 66 -> 130 |
+| KS DO-41 | 136 | 44 -> 30 | 16 -> 22 | 76 -> 84 |
+| KS DO-10 | 62 | 6 -> 0 | 0 -> 1 | 56 -> 61 |
+| six forms | 670 | 289 -> 56 | 45 -> 171 | 336 -> 443 |
+
+**The box stage is no longer the bottleneck on these forms; the classifier is, on two of them.** 233 fields left
+the box stage; 107 reached the value stage and 126 stopped at the class stage, almost all on LA 7006 (78) and B106I
+(40). On 7006 the newly found checkboxes sit in dense lists and the classifier captions them one row off (the box
+beside "Audit - Natural Gas Franchise" gets "Audit - Motor Vehicle Sales"), which the chain catches: those fields
+now send no class, regex or judge flag, and a rename on one would be contested. The agentic repair is the one
+already built for renames (a crop with the box outlined, a model that reads it); whether the classifier gets a
+caption pass of that kind, or a prompt version, is the next decision. R-32 and B410 converted cleanly.
+
+**Not done, by design or by accident.** The other eight forms whose boxes change under `step2flat-3` (OCC 1014cs
+and 1022a, Form 5500, LIC100, LA 16019 and 1048, HK IRD) stay on `step2flat-2` until someone addresses them; a
+first loop over the thirteen was stopped after the point was made, by which time OCC 1014cs had been rebuilt (its
+old build is in its manifest's history) and Form 5500's rebuild had failed on a classifier parse error (Sonnet 4.6
+returned a stray brace on page 3; `classify_form` does not retry); its manifest was restored. The 31 forms whose
+boxes do not change are not touched at all: if one is validated later, `_check_set` compares that one blank's boxes
+with the old cached list, migrates the set and its class map when identical, and otherwise refuses. That migration
+path is written and its cache-key mirror checked, but it has not yet run on a real form.
+
+### The class stage tests the class, not the caption (2026-10-01, late; `field_chain.py`)
+
+Andrew: a naming problem should not become a class problem; a checkbox is a checkbox. Of LA 7006's 78 class-stage
+fields after the rebuild, 54 were checkboxes the classifier classed `option` and 24 text; B106I's 44 were 43 amount
+cells classed `money`. The chain had been holding a field whenever the classifier's caption was not the text at the
+widget, on the theory that a wrong caption means a wrong class and a wrong value. For a checkbox the caption plays
+no part in the case (the class comes from the shape, the value is a mark), and row 5a's caption on row 5b's amount
+cell still gives `money`. The rule is now: a misattributed caption holds the field only when the class it produced
+disagrees with the blueprint's type (the run's `class_disagreements.json`), because then nothing downstream can
+tell whether the blueprint or the caption is wrong. When the classes agree the signals flow; the caption stays
+unverified for the reviewer, which withholds it, and a rename on the field is still contested.
+
+The three cases the chain was built on are still held: LIC100's state box captioned "B16. Name" (classed as a
+name against a code), SS-4's header box captioned with line 1 (a business name against an EIN), WC-122's time box
+captioned DATE OF INJURY (a date against a string). On the six rebuilt forms:
+
+| six forms, 670 fields | box stage | class stage | value stage |
+|---|---|---|---|
+| before step2flat-3 | 289 | 45 | 336 |
+| after the rebuild | 56 | 171 | 443 |
+| with the class-stage rule | 56 | 32 | 582 |
+
+LA 7006 keeps 27 at the class stage and B106I 1; those are the fields where the misattributed caption did change
+the class, and the caption pass (TODO) is for them.

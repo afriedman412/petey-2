@@ -45,6 +45,7 @@ from petey.paths import BLUEPRINTS, RUNS
 from petey.synth.local import widget_limits
 from petey.validate import correct as correct_mod
 from petey.validate import method_delta
+from petey.validate import provenance
 from petey.validate.retype import describe_blueprint, resolve_blank, retype_blueprint
 
 # detector reason -> taxonomy classes it can be (the class that applies is a
@@ -212,7 +213,10 @@ def judge_review(bp_path: Path, snapshot: str, before: dict[str, int], after: di
     A field is identified across the rename by `x_petey_review.old_name`.
     better -> keep; worse -> restore the old spec and name; same -> keep a
     declaration change (type / pattern / description: harmless to the reader
-    and judged by shape) but restore a rename, which has shown nothing."""
+    and judged by shape) but restore a rename, which has shown nothing,
+    unless the adjudicator upheld it from the page (`adjudicated: proposed`):
+    that evidence is independent of the case, and a class-stage field's
+    before and after are both zero by construction."""
     cur = yaml.safe_load(bp_path.read_text(encoding="utf-8"))
     old = yaml.safe_load(snapshot)
     fields = cur["fields"]
@@ -230,7 +234,7 @@ def judge_review(bp_path: Path, snapshot: str, before: dict[str, int], after: di
             verdict["better"] += 1
             rv["judged"] = f"kept: {b} -> {a}"
             outcomes[old_name] = {"outcome": "kept_better", "before": b, "after": a, "new_name": name}
-        elif a > b or renamed:
+        elif a > b or (renamed and rv.get("adjudicated") != "proposed"):
             verdict["worse" if a > b else "same_rename"] += 1
             if old_name in old["fields"]:
                 restore[name] = (old_name, old["fields"][old_name])
@@ -330,7 +334,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
             review: str = "none", review_model: str = "claude-opus-5",
             review_effort: str = "medium", review_rounds: int = 1,
             allow_dirty: bool = False, case_set: Optional[int] = None,
-            n_cases: Optional[int] = None, bpt: Optional[Path] = None) -> dict:
+            n_cases: Optional[int] = None, bpt: Optional[Path] = None,
+            adjudicate: bool = True, adjudicator_model: Optional[str] = None) -> dict:
     """See the module docstring. With `review` != "none", after the rule
     fixes the LLM reviewer (`review.py`) looks at the flagged fields and its
     fixes are applied; the NEXT validation judges them. If detections did
@@ -354,6 +359,11 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         run_dir = run_validate(form, blank, gen_model=gen_model, methods=methods, n_flat=n_flat,
                                gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key,
                                case_set=case_set, n_cases=n_cases, bpt=bpt)
+        build = provenance.build_of_run(run_dir)
+        if build:
+            # the blueprint carries the build of its latest validation (finder, classifier, set, run): "rebuild it
+            # with the current finder" is the first step when a form misbehaves (Andrew, 2026-10-01)
+            provenance.stamp_blueprint(bp_path, build)
         det = detect(form, run_dir)
         if det.get("generation"):
             history.append({"iteration": i, "run": run_dir.name, "blocked": det["generation"]})
@@ -386,10 +396,13 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
             from petey.validate.review import review as run_review
             snapshot = bp_path.read_text(encoding="utf-8")
             res = run_review(form, run_dir=run_dir, scope=review, model=review_model,
-                             effort=review_effort, apply=True, bpt_path=bpt)
+                             effort=review_effort, apply=True, bpt_path=bpt, adjudicate=adjudicate,
+                             adjudicator_model=adjudicator_model)
             rounds_done += 1
             applied = {k: v for k, v in res["applied"].items() if k != "ok" and not k.startswith("rejected")}
             review_rec = {k: res[k] for k in ("fields_reviewed", "verdicts", "applied", "usage", "cost_usd")}
+            if res.get("adjudicated"):
+                review_rec["adjudicated"] = {k: res["adjudicated"][k] for k in ("model", "tally", "cost_usd", "records")}
             print(f"[{form}] review ({review_model}, {review_effort}): {res['fields_reviewed']} fields, "
                   f"{res['verdicts']} -> applied {res['applied']} (${res['cost_usd']})")
             if applied:
@@ -453,11 +466,15 @@ def main() -> int:
     ap.add_argument("--review-rounds", type=int, default=1)
     ap.add_argument("--allow-dirty", action="store_true",
                     help="allow a review run on a blueprint with uncommitted review changes")
+    ap.add_argument("--no-adjudicate", action="store_true",
+                    help="land the reviewer's contested renames without the page adjudicator")
+    ap.add_argument("--adjudicator-model", default=None, help="vision model for contested renames (adjudicate.MODEL)")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     rv = dict(review=args.review, review_model=args.review_model,
               review_effort=args.review_effort, review_rounds=args.review_rounds, case_set=args.case_set, n_cases=args.n_cases, bpt=args.bpt,
-              allow_dirty=args.allow_dirty)
+              allow_dirty=args.allow_dirty, adjudicate=not args.no_adjudicate,
+              adjudicator_model=args.adjudicator_model)
     if args.all or args.forms:
         from petey.validate.run_all import ready_targets
         targets = ready_targets()

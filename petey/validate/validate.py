@@ -45,6 +45,8 @@ from petey.synth.bank import generate_from_bank  # noqa: E402
 from petey.synth.render import render_case  # noqa: E402
 from petey.validate.rect_join import case_to_paths, unreached_fields  # noqa: E402
 from petey.synth.classify import classify_form  # noqa: E402
+from petey.synth.boxes import FINDER_VERSION  # noqa: E402
+from petey.validate.provenance import build_record  # noqa: E402
 
 from petey.extract import extract, load_blueprint  # noqa: E402
 from petey.extract_llm import extract_llm  # noqa: E402
@@ -112,40 +114,171 @@ def _classes_of(cmap: dict) -> dict[str, str]:
     return {k: b.get("class") for k, b in (cmap.get("boxes") or {}).items()}
 
 
-def _bank_cache_path(cache_dir: Optional[Path], blank_pdf: Path, key: Optional[str]) -> Optional[Path]:
+def _bank_cache_path(cache_dir: Optional[Path], blank_pdf: Path, key: Optional[str],
+                     basis: Optional[str] = None) -> Optional[Path]:
     """Where a bank case's ground truth is frozen: same directory as the
-    generator cache, keyed on the blank's bytes, the generator name and the
-    case key (`<gen_key>_set<N>_case<K>` for a set member)."""
+    generator cache, keyed on the blank's bytes, the case basis (finder
+    version, classifier model and prompt: everything the values depend on
+    besides the blank; `provenance.case_basis`) and the case key
+    (`<gen_key>_set<N>_case<K>` for a set member). `basis=None` is the
+    pre-2026-10-01 key, kept so a set built under the current basis can
+    adopt its frozen files instead of regenerating (`_adopt_legacy_case`)."""
     if cache_dir is None:
         return None
     import hashlib
     h = hashlib.sha256()
     h.update(blank_pdf.read_bytes())
     h.update(b"\x00bank\x00")
+    if basis:
+        h.update(basis.encode("utf-8") + b"\x00")
     h.update((key or "").encode("utf-8"))
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir / f"{h.hexdigest()}.json"
 
 
+def _adopt_legacy_case(cache_dir: Optional[Path], blank_pdf: Path, key: Optional[str], basis: str,
+                       adopt_from: list[Optional[str]]) -> Optional[Path]:
+    """The current-basis path for a bank case; when it is missing and a file
+    under one of `adopt_from` (earlier bases this set's values are known to
+    be valid for: the pre-basis key `None`, or a finder version whose boxes
+    were identical, see `_check_set`) exists, it is copied over rather than
+    regenerated: the frozen values stay frozen."""
+    cp = _bank_cache_path(cache_dir, blank_pdf, key, basis)
+    if cp is None or cp.exists():
+        return cp
+    for old in adopt_from:
+        legacy = _bank_cache_path(cache_dir, blank_pdf, key, old)
+        if legacy is not None and legacy.exists():
+            shutil.copy(legacy, cp)
+            print(f"    [set   ] adopted frozen case {key} (from basis {old or 'pre-basis'}) under {basis}")
+            break
+    return cp
+
+
+def _migrate_class_map(blank_pdf: Path, old_finder: str) -> bool:
+    """Carry a form's cached class map from `old_finder` to the current finder
+    version when the boxes are identical (the caller checked): the classes
+    are a fact about the same boxes, so the classifier is not run again.
+    Mirrors `classify.cache_path`, which keys on the finder version."""
+    import hashlib
+    from petey.synth import classify
+    pdf_bytes = blank_pdf.read_bytes()
+    def _cp(finder):
+        h = hashlib.sha256()
+        for part in (pdf_bytes, b"\x00classify\x00", finder.encode(), b"\x00", classify.MODEL.encode(), b"\x00",
+                     classify.PROMPT_VERSION.encode()):
+            h.update(part)
+        return classify.CACHE_DIR / f"{h.hexdigest()}.json"
+    new_cp = classify.cache_path(pdf_bytes, classify.MODEL)
+    if new_cp.exists():
+        return True
+    old_cp = _cp(old_finder)
+    if not old_cp.exists():
+        return False
+    cmap = json.loads(old_cp.read_text(encoding="utf-8"))
+    cmap["finder"] = FINDER_VERSION
+    cmap.setdefault("finder_history", []).append(old_finder)
+    new_cp.write_text(json.dumps(cmap, indent=1), encoding="utf-8")
+    return True
+
+
+def _boxes_unchanged(blank_pdf: Path, old_finder: str) -> Optional[bool]:
+    """Whether the current finder gives the same boxes for this blank as
+    `old_finder` did (its cached list). None when the old list is not cached,
+    so nothing can be proved. Running the current finder is local."""
+    import hashlib
+    from petey.synth.boxes import CACHE_DIR, find_boxes
+    pdf_bytes = blank_pdf.read_bytes()
+    old_cp = CACHE_DIR / f"{hashlib.sha256(pdf_bytes + b'\x00boxes\x00' + old_finder.encode()).hexdigest()}.json"
+    if not old_cp.exists():
+        return None
+    sig = lambda bs: [(b["page"], tuple(b["rect"]), b["kind"]) for b in bs]
+    return sig(json.loads(old_cp.read_text(encoding="utf-8"))) == sig(find_boxes(blank_pdf))
+
+
 SETS_DIR = RUNS / "_gen_cache" / "sets"
 
 
-def _record_set(form_id: str, set_id: int, keys: list[str], gen_model: str, run_dir: Path) -> None:
+def _set_manifest_path(form_id: str, set_id: int) -> Path:
+    return SETS_DIR / f"{form_id}_set{set_id}.json"
+
+
+def _check_set(form_id: str, set_id: int, rebuild: bool, blank_pdf: Optional[Path] = None) -> tuple[Optional[str], list, Optional[dict]]:
+    """Before a set's cases are drawn or read: the basis the set was built on
+    against the current one (`provenance.case_basis`). Returns
+    (recorded basis, earlier bases whose frozen files may be adopted, the
+    previous manifest when the set is being rebuilt).
+
+    Same basis: adopt the pre-basis files. A basis that differs only in the
+    finder, where the current finder gives this blank the SAME boxes as the
+    old one did: the set migrates (manifest rewritten with the new basis and
+    a `basis_history` entry) and keeps its files; a finder bump then disturbs
+    only the forms whose boxes actually change (Andrew, 2026-10-01). Any
+    other difference refuses to load: the values are keyed by another
+    finder's boxes and would misalign. `--rebuild-set` keeps the set id,
+    moves the old build into the manifest's `history` and draws the set
+    again; the old frozen files stay on disk under their own key."""
+    from petey.validate.provenance import case_basis, manifest_basis
+    mp = _set_manifest_path(form_id, set_id)
+    if not mp.exists():
+        return None, [], None
+    m = json.loads(mp.read_text(encoding="utf-8"))
+    recorded = manifest_basis(m)
+    current = case_basis()
+    if recorded == current:
+        return recorded, [None], None
+    if recorded and blank_pdf is not None and not rebuild:
+        old_finder, old_rest = recorded.split("|", 1)
+        if old_rest == current.split("|", 1)[1] and _boxes_unchanged(blank_pdf, old_finder):
+            _migrate_class_map(blank_pdf, old_finder)
+            m.setdefault("basis_history", []).append({"from": recorded, "to": current, "reason": "finder boxes identical",
+                                                      "when": time.strftime("%Y-%m-%d %H:%M:%S")})
+            m.update(basis=current, finder=FINDER_VERSION)
+            mp.write_text(json.dumps(m, indent=1))
+            print(f"[set   ] {mp.name}: finder {old_finder} -> {FINDER_VERSION} gives the same boxes; set migrated, files kept")
+            return current, [recorded, None], None
+    if rebuild:
+        # nothing is written here: the old build stays in place until the new set is recorded (`_record_set` with
+        # `previous`), so a rebuild that fails part-way (a classifier parse error, Form 5500 2026-10-01) leaves
+        # the manifest as it was
+        print(f"[set   ] rebuilding {mp.name}: was on basis {recorded!r}, now {current!r}; previous build kept in history")
+        return None, [], (m | ({"basis_backfilled": recorded} if not m.get("basis") else {}))
+    raise SystemExit(
+        f"[set   ] {mp.name} was built on basis {recorded!r} (finder | classifier model | prompt); this code is "
+        f"{current!r}. Its values are keyed by that finder's boxes and would misalign here. Either run the finder "
+        f"and classifier that built it, or rebuild this set under the current basis with --rebuild-set (same set "
+        f"id; the previous build is kept in the manifest's history).")
+
+
+def _record_set(form_id: str, set_id: int, keys: list[str], gen_model: str, run_dir: Path,
+                previous: Optional[dict] = None) -> None:
     """The set manifest: which case keys make up `<form>_set<N>`, under which
-    generator. Written once; later runs of the same set append themselves
-    and a generator change is recorded, not silently absorbed."""
+    generator and on which basis. Written once; later runs of the same set
+    append themselves and a generator change is recorded, not silently
+    absorbed. A basis change is refused or rebuilt in `_check_set`."""
+    from petey.validate.provenance import CLASSIFIER_MODEL, CLASSIFIER_PROMPT, case_basis
     SETS_DIR.mkdir(parents=True, exist_ok=True)
-    mp = SETS_DIR / f"{form_id}_set{set_id}.json"
-    if mp.exists():
-        m = json.loads(mp.read_text(encoding="utf-8"))
+    mp = _set_manifest_path(form_id, set_id)
+    if previous is not None:
+        # a rebuild that completed: the previous build moves into history now
+        m = {"form": form_id, "set": set_id, "history": previous.get("history", []) + [
+            {k: previous.get(k) for k in ("basis", "basis_backfilled", "finder", "classifier", "generator", "cases",
+                                          "created", "runs") if previous.get(k) is not None}]}
+    else:
+        m = json.loads(mp.read_text(encoding="utf-8")) if mp.exists() else {"form": form_id, "set": set_id}
+    if m.get("cases"):
         if m.get("generator") != gen_model:
             print(f"[set   ] WARNING: {mp.name} was created with generator {m.get('generator')!r}, "
                   f"this run uses {gen_model!r}; the cached ground truth is the frozen one")
             m.setdefault("generator_conflicts", []).append({"generator": gen_model, "run": run_dir.name})
         m.setdefault("runs", []).append(run_dir.name)
+        m.setdefault("basis", case_basis())
     else:
-        m = {"form": form_id, "set": set_id, "generator": gen_model, "cases": keys,
-             "created": time.strftime("%Y-%m-%d %H:%M:%S"), "runs": [run_dir.name]}
+        m.update({"generator": gen_model, "cases": keys, "basis": case_basis(), "finder": FINDER_VERSION,
+                  "classifier": {"model": CLASSIFIER_MODEL, "prompt_version": CLASSIFIER_PROMPT},
+                  "created": time.strftime("%Y-%m-%d %H:%M:%S"), "runs": [run_dir.name]})
+    m.setdefault("finder", FINDER_VERSION)
+    m.setdefault("classifier", {"model": CLASSIFIER_MODEL, "prompt_version": CLASSIFIER_PROMPT})
     mp.write_text(json.dumps(m, indent=1))
 
 
@@ -181,8 +314,11 @@ def _run_case(
     gen_cache_key: Optional[str] = None,
     datalab_max_fields: int = 400,
     gen_cache_only: bool = False,
+    adopt_from: Optional[list] = None,
 ) -> dict:
-    """Run one case end-to-end. Returns the case's scores per method."""
+    """Run one case end-to-end. Returns the case's scores per method.
+    `adopt_from`: earlier bases whose frozen files this set may adopt, as
+    `_check_set` established (`_adopt_legacy_case`)."""
     case_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Ground truth
@@ -208,7 +344,9 @@ def _run_case(
             print(f"    [{variant}] no cached classification; skipping (--gen-cache-only)")
             return {"_gen_error": "no_cached_classification"}
         filled = case_dir / "filled_intact.pdf"
-        bank_cp = _bank_cache_path(gen_cache_dir, blank_pdf, gen_cache_key)
+        from petey.validate.provenance import case_basis
+        bank_cp = (_adopt_legacy_case(gen_cache_dir, blank_pdf, gen_cache_key, case_basis(), adopt_from) if adopt_from
+                   else _bank_cache_path(gen_cache_dir, blank_pdf, gen_cache_key, case_basis()))
         if bank_cp is not None and bank_cp.exists():
             # Frozen once written: a case set must not drift when the class
             # map or the bank changes; regenerate a new set instead.
@@ -624,6 +762,9 @@ def main() -> int:
     ap.add_argument("--case-set", type=int, default=None, metavar="N",
                     help="run a versioned case set: --n-cases intact cases keyed "
                          "<gen-key>_setN_caseK, frozen once generated (TODO, synthetic data step 3)")
+    ap.add_argument("--rebuild-set", action="store_true",
+                    help="draw --case-set again under the current case basis (finder | classifier) when the "
+                         "manifest says it was built on another; same set id, previous build kept in history")
     ap.add_argument("--n-cases", type=int, default=None,
                     help="intact cases in the set (default 3 with --case-set, else 1)")
     ap.add_argument("--fresh-flat-gt", action="store_true",
@@ -702,7 +843,9 @@ def main() -> int:
     bpt = load_blueprint(bpt_path)
 
     # 2. Cases: K intact (1, or a case set) + N flat
+    adopt_from: list = []
     if args.case_set is not None:
+        _, adopt_from, previous_set = _check_set(form_id, args.case_set, args.rebuild_set, args.blank)
         intact_keys = [f"{gen_key}_set{args.case_set}_case{k:03d}" for k in range(1, n_cases + 1)]
     else:
         intact_keys = [f"{gen_key}_intact_001"] + [f"{gen_key}_intact_{k:03d}" for k in range(2, n_cases + 1)]
@@ -719,9 +862,10 @@ def main() -> int:
             gen_cache_key=key,
             datalab_max_fields=args.datalab_max_fields,
             gen_cache_only=args.gen_cache_only,
+            adopt_from=adopt_from,
         ))
     if args.case_set is not None:
-        _record_set(form_id, args.case_set, intact_keys, args.gen_model or args.model, run_dir)
+        _record_set(form_id, args.case_set, intact_keys, args.gen_model or args.model, run_dir, previous=previous_set)
     intact_reports = list(case_reports)
 
     for i in range(args.n_flat):
@@ -753,6 +897,8 @@ def main() -> int:
                  "per_case": [{m: r.get(m, {}).get("verdicts") for m in methods} for r in intact_reports]}
                 if n_cases > 1 else None),
         "flat_avg": {m: _aggregate(case_reports[n_cases:], m) for m in methods},
+        "build": build_record(generator=args.gen_model or args.model, case_set=args.case_set,
+                              run=run_dir.name, bpt=bpt_path),
     }
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2))
 

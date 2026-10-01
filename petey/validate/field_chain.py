@@ -17,6 +17,13 @@ about a later link is only evidence about the blueprint when the earlier links h
 `verified` is True when the classifier's caption is one of the lines lined up with the widget and near it (above,
 below, inside, left or right), False when there are such lines and it is none of them, None when there are none.
 
+A misattributed caption holds the field at the class stage only when the class it produced disagrees with the
+blueprint's type (the run's `class_disagreements.json`): then the blueprint or the caption is wrong and nothing
+downstream can tell which. When the classes agree the caption changed nothing in the case (Andrew, 2026-10-01: a
+checkbox is `option` from its shape and its value is a mark whatever the caption says; LA 7006's 54 checkboxes and
+B106I's 43 amount cells, captioned one row off, were held for nothing) and the signals flow; the caption stays
+unverified for the reviewer, which withholds it, and a rename on the field is contested.
+
 Lined up, not merely near: Utah WC-122's `time_of_occurrence` sits directly under TIME OF OCCURRENCE, and the
 classifier's DATE OF INJURY/ILLNESS only touches the box's corner. Any line at all, not the nearest one: forms put
 captions above or below the box, and a section heading or the next row's caption is often nearer than the real one
@@ -150,6 +157,9 @@ def field_chain(bpt: dict, case_dir: Path, blank: Optional[Path]) -> dict[str, d
             failed_box.setdefault(f, "box_unreached")
     boxes = caption_boxes(case_dir)
     lines = _page_lines(str(blank)) if blank and Path(blank).exists() else {}
+    cd = case_dir / "class_disagreements.json"
+    disagree: Optional[set] = ({row["field"] for row in json.loads(cd.read_text()) if row.get("field")}
+                               if cd.exists() else None)       # None: no class check in this run; hold as before
     out: dict[str, dict] = {}
     for name, spec in fields.items():
         if name in failed_box:
@@ -169,8 +179,11 @@ def field_chain(bpt: dict, case_dir: Path, blank: Optional[Path]) -> dict[str, d
         else:
             verified = _agrees(label, near) or _agrees(label, heads)
         rec = {"caption_classifier": label, "caption_page": " | ".join(near[:3]) or None, "verified": verified}
-        if verified is False:
-            rec.update(stage="class", why="the classifier's caption is not the text at the widget")
+        if verified is False and (disagree is None or name in disagree):
+            rec.update(stage="class", why="the classifier's caption is not the text at the widget and its class "
+                                          "disagrees with the blueprint")
+        elif verified is False:
+            rec.update(stage="value", why="caption misattributed but the class agrees with the blueprint")
         else:
             rec.update(stage="value", why=None)
         out[name] = rec

@@ -1,5 +1,8 @@
 # Harness and scoring conventions
 
+Terms (finder, judge, reviewer, adjudicator, case, bank, case basis, build stamp) are defined once in
+`docs/GLOSSARY.md`.
+
 - **Flattening bakes appearances.** Anything visible on a real printed form is fair input, not leakage.
 - **GT exclusions** (sealed but never scored): barcode widgets, hidden/NoView widgets, push buttons
   (print/reset/navigation). Read-only widgets are kept: signatures, computed totals and auto-filled fields are extractable.
