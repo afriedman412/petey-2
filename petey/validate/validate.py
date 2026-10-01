@@ -105,6 +105,11 @@ def _extract_petey(
     return values
 
 
+def _classes_of(cmap: dict) -> dict[str, str]:
+    """rect key -> class, for the filler's part-wise split."""
+    return {k: b.get("class") for k, b in (cmap.get("boxes") or {}).items()}
+
+
 def _bank_cache_path(cache_dir: Optional[Path], blank_pdf: Path, key: Optional[str]) -> Optional[Path]:
     """Where a bank case's ground truth is frozen: same directory as the
     generator cache, keyed on the blank's bytes, the generator name and the
@@ -206,10 +211,10 @@ def _run_case(
             # Frozen once written: a case set must not drift when the class
             # map or the bank changes; regenerate a new set instead.
             case_rects = json.loads(bank_cp.read_text(encoding="utf-8"))
-            case_rects, fill_report = render_case(case_rects, blank_pdf, filled)
+            case_rects, fill_report = render_case(case_rects, blank_pdf, filled, classes=_classes_of(cmap))
         else:
             drawn = generate_from_bank(cmap, seed=seed_from_key(gen_cache_key))
-            case_rects, fill_report = render_case(drawn, blank_pdf, filled)
+            case_rects, fill_report = render_case(drawn, blank_pdf, filled, classes=_classes_of(cmap))
             if bank_cp is not None:
                 bank_cp.write_text(json.dumps(case_rects, indent=2))
         (case_dir / "case_rects.json").write_text(json.dumps(case_rects, indent=2))
@@ -245,7 +250,9 @@ def _run_case(
         # old way.
         if case_rects and all(k.startswith("p") and ":" in k for k in case_rects):
             filled = case_dir / "filled_intact.pdf"
-            case_rects, fill_report = render_case(case_rects, blank_pdf, filled)
+            cmap_b = classify_form(blank_pdf, cache_only=True)
+            case_rects, fill_report = render_case(case_rects, blank_pdf, filled,
+                                                  classes=_classes_of(cmap_b) if cmap_b else None)
             (case_dir / "case_rects.json").write_text(json.dumps(case_rects, indent=2))
             targets = fill_report.pop("targets", {})
             (case_dir / "case_targets.json").write_text(json.dumps(targets, indent=1))

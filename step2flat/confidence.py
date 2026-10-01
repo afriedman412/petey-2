@@ -6,7 +6,8 @@ from .geometry import iou
 TIER = {                          # how reliable each cue type is as evidence of an entry area
     'fz:enclosed_small': 0.80,    # closed small box (checkbox) found by the raster reader
     'fz:cell': 0.70,              # closed cell found by the raster reader
-    'fz:comb': 0.60,              # per-character boxes
+    'fz:comb': 0.65,              # per-character boxes; above lattice:empty so a 3-2-4 comb group beats
+                                  # the lattice's single cells over the same run (W-9 SSN, 2026-09-30)
     'lat:lattice:empty': 0.60,    # empty lattice cell
     'lat:lattice:label_top': 0.55,
     'lat:lattice:label_left': 0.45,

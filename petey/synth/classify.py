@@ -303,14 +303,15 @@ def _guard(cmap: dict) -> dict:
     """An "option" needs a small square, circle or cell under it. The finder's
     kind and the rect are page geometry, so they may vote: a wide text line
     the model called an option (the W-9's instruction table: rows of words
-    such as "Corporation", "Partnership") becomes "none"; a small text cell
-    (ACORD 25's ADDL INSD / SUBR WVD squares, where an X is typed) stays an
-    option. Applied on every load, so a cached map gets it too."""
+    such as "Corporation", "Partnership") becomes "none"; a narrow text cell
+    of any height (ACORD 25's ADDL INSD / SUBR WVD columns, where an X is
+    typed per row) stays an option. Applied on every load, so a cached map
+    gets it too."""
     n = 0
     for b in cmap.get("boxes", {}).values():
         r = b.get("rect") or [0, 0, 0, 0]
-        small = (r[2] - r[0]) <= 30 and (r[3] - r[1]) <= 20      # a cell an X fits in
-        if b.get("class") == "option" and b.get("kind") not in _MARK_KINDS and not small:
+        narrow = (r[2] - r[0]) <= 30      # a cell an X or a letter goes in, however tall the column
+        if b.get("class") == "option" and b.get("kind") not in _MARK_KINDS and not narrow:
             b["class"] = "none"
             b["group"] = None
             b["guarded"] = "option_on_text_geometry"

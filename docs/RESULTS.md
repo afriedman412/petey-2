@@ -870,3 +870,43 @@ one blueprint field spanning two printed questions: `currently_homeless_ind` ove
 24A and 24B, `retired_status_cd` over 24C and 25, `branch_of_service_19a` over 19A and 19B. The page reads each
 question as its own group; the blueprint's `widgets` map pools them, which is the labeler merge the three-way
 rule attributes when the metadata shows several radio paths. These are the rows the reviewer should see next.
+
+## Finder list re-read, and set 3 (2026-09-30, late; `step2flat/confidence.py` comb tier, classifier guard, `render._parts_for`)
+
+The inventory cross-reference's "finder list" was re-read against the finder's raw candidates before anything was
+changed. Of the four faults, one was the finder's:
+
+| fault | what the candidates showed | where the fix went |
+|---|---|---|
+| W-9 SSN / EIN combs uneven | the raster pass had the right 3-2-4 and 2-7 groups; the lattice's single cells won the overlap at equal confidence | finder: `fz:comb` 0.60 -> 0.65, version `step2flat-2` |
+| ACORD 25 INSR LTR / ADDL INSD / SUBR WVD cells "merged into columns" | found at the printed granularity, one tall cell per coverage section; the classifier said `none` or `option`, and the geometry guard then rejected the tall narrow ones | classifier guard: any cell up to 30 pt wide keeps `option`, whatever its height |
+| ACORD 25 address blocks, 526EZ three-part dates and dollars / cents as one box | one box on the page; the lines and parts exist only in the widget layer | filler: a value over several widgets under one box splits by its natural parts (date -> month / day / year, money -> dollars / cents, phone 3-3-4, SSN 3-2-4, else commas), driven by the box's class |
+| 10-10EZ page-5 dates missed | nothing drawn: "FROM:" and "TO:" with white space; the widget is invisible once baked | a new finder class, caption-anchored white space; recorded, not built |
+
+Two more filler rules fell out of the rerun, both the same principle (what landed on the page is the truth): a text
+widget is written once, and any later page box over it reports the value already there; the comb-cell join only
+gathers cells smaller than the widget, so it no longer collides with the split rule when a big box and a small
+box overlap one widget.
+
+**Set 3 (finder v2, classifier v4, three bank cases) against set 2, by path:**
+
+| form | fields | set 2 agree + not generated | set 3 agree + not generated | differ |
+|---|---|---|---|---|
+| W-9 | 23 | 21 + 2 | 21 + 2 | 0 |
+| ACORD 25 | 128 | 93 + 35 | 98 + 30 | 0 |
+| I-765 | 140 | 138 + 2 | 138 + 2 | 0 |
+| 21-526EZ | 328 | 320 + 8 (1 differ) | 324 + 4 | 0 |
+| 10-10EZ | 122 | 114 + 8 | 114 + 8 | 0 |
+
+ACORD 25's remaining 30 are the address-block lines the four-part split cannot feed (six line widgets per
+block, four parts), the OTHER-coverage columns and the cells the classifier still reads as `none` (the
+AUTOMOBILE LIABILITY insurer-letter cell among them). 526EZ's remaining four: three "no date" checkboxes and the
+explanation box, all `box_unreached`. Its unbacked count rose from 8 to 41 under the comb tier: the additional
+periods of service table on page 12 is rows of cells with no widgets behind them, now found as combs; real page
+boxes the publisher never made fillable, counted honestly.
+
+A labeler finding on the way: 526EZ's `separation_pay_amount_dollars` carries the rect of the right-hand (cents)
+box and `_cents` the left-hand (dollars) one. The class check cannot see it (both are `money`); the inventory
+check cannot either (each rect is reached). It shows only when a filler writes dollars left and cents right and
+the by-path readback disagrees, which is what the two "differ" rows were before the write-once rule masked them.
+Worth a taxonomy class of its own: two fields of one family with swapped rects.

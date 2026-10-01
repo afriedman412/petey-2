@@ -28,7 +28,7 @@ from typing import Optional
 from petey.paths import REPO, RUNS
 
 CACHE_DIR = RUNS / "_gen_cache" / "boxes"
-FINDER_VERSION = "step2flat-1"
+FINDER_VERSION = "step2flat-2"   # comb groups outrank lattice single cells
 
 
 def _rect_key(page: int, rect) -> str:

@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import pymupdf
 
@@ -249,8 +249,40 @@ def _draw_mark(page, rect) -> None:
                    color=(0, 0, 0), width=1.0)
 
 
+def _parts_for(value: str, cls: Optional[str], n: int) -> list[str]:
+    """How a filer spreads one value over `n` boxes that the page shows as
+    one: a date by month / day / year, an amount by dollars / cents, a
+    phone by area / exchange / line, an SSN 3-2-4, anything else by commas.
+    The last part absorbs the remainder."""
+    v = value.strip()
+    if cls in ("date", "birth_date") and re.fullmatch(r"\d{4}-\d{2}-\d{2}", v):
+        y, m, d = v.split("-")
+        parts = [m, d, y] if n == 3 else ([m, y] if n == 2 else [v])
+    elif cls in ("date", "birth_date") and re.fullmatch(r"\d{1,2}/\d{1,2}/\d{2,4}", v):
+        m, d, y = v.split("/")
+        parts = [m, d, y] if n == 3 else ([m, y] if n == 2 else [v])
+    elif cls == "money" and n == 2:
+        whole, _, cents = v.partition(".")
+        parts = [whole.replace(",", ""), (cents or "00")[:2].ljust(2, "0")]
+    elif cls in ("phone", "phone_part") and n in (2, 3):
+        d = re.sub(r"\D", "", v)
+        parts = [d[:3], d[3:6], d[6:]] if n == 3 else [d[:3], d[3:]]
+    elif cls in ("ssn", "itin") and n == 3:
+        d = re.sub(r"\D", "", v)
+        parts = [d[:3], d[3:5], d[5:]]
+    elif cls == "ein" and n == 2:
+        d = re.sub(r"\D", "", v)
+        parts = [d[:2], d[2:]]
+    else:
+        parts = [pt.strip() for pt in v.split(",") if pt.strip()]
+    if len(parts) > n:
+        parts = parts[:n - 1] + [", ".join(parts[n - 1:])]
+    return parts
+
+
 def render_case(
     case: dict[str, Any], blank_pdf: str | Path, out: str | Path,
+    classes: Optional[dict[str, str]] = None,
 ) -> tuple[dict[str, Any], dict]:
     """Fill a blank from a case keyed by page and rect (`synth.boxes.rect_key`):
     strings for text boxes, True / False marks for option boxes.
@@ -263,9 +295,13 @@ def render_case(
     ground truth. A blank with no widgets at all (a flat form) gets the
     text drawn at the rect and an X drawn across marked option boxes.
 
+    `classes` (rect key -> the classifier's class) lets a value that lands
+    over several widgets split by its natural parts (`_parts_for`).
+
     Returns `(effective_case, report)`.
     """
     from petey.synth.boxes import match_rect, parse_rect_key
+    classes = classes or {}
 
     blank_pdf = Path(blank_pdf)
     out = Path(out)
@@ -277,7 +313,7 @@ def render_case(
     targets: dict[str, list[dict]] = {}
     report: dict[str, Any] = {"text_filled": 0, "marks_on": 0, "marks_off": 0, "drawn": 0,
                               "unmatched": [], "truncated": [], "choice_substituted": [],
-                              "split_across": [], "errors": {}}
+                              "split_across": [], "rewrite_skipped": 0, "errors": {}}
     try:
         widgets = _widgets_by_page(doc)
         flat = not any(widgets.values())
@@ -290,7 +326,11 @@ def render_case(
             for key, value in case.items():
                 page_no, rect = parse_rect_key(key)
                 m = match_rect(rect, widgets.get(page_no, [])) if 1 <= page_no <= len(doc) else None
-                if m is not None and isinstance(value, str):
+                if m is None or not isinstance(value, str):
+                    continue
+                # only a CELL inside the widget joins (a comb the finder split);
+                # a box larger than the widget is the split rule's business
+                if (rect[2] - rect[0]) * (rect[3] - rect[1]) < 0.9 * (m["rect"][2] - m["rect"][0]) * (m["rect"][3] - m["rect"][1]):
                     owners.setdefault(f"{page_no}:{m['xref']}", []).append((rect[1], rect[0], key))
             for xk, members in owners.items():
                 if len(members) > 1:
@@ -300,6 +340,7 @@ def render_case(
                         joined[k] = text
         written: set[str] = set()
         marked_on: set[str] = set()
+        text_written: dict[str, str] = {}     # "page:xref" -> the value on the page
         for key, value in case.items():
             page_no, rect = parse_rect_key(key)
             if page_no < 1 or page_no > len(doc):
@@ -326,15 +367,22 @@ def render_case(
             if isinstance(value, str) and value.strip():
                 inside = [w for w in widgets.get(page_no, [])
                           if w["type"] == pymupdf.PDF_WIDGET_TYPE_TEXT
-                          and _inside(w["rect"], rect) and (w["rect"][2] - w["rect"][0]) < (rect[2] - rect[0]) * 1.05]
-                if len(inside) > 1 and all(abs((w["rect"][2] - w["rect"][0]) - (inside[0]["rect"][2] - inside[0]["rect"][0])) < 40
-                                           for w in inside):
-                    inside.sort(key=lambda w: (w["rect"][1], w["rect"][0]))
-                    parts = [pt.strip() for pt in value.split(",") if pt.strip()]
-                    if len(parts) > len(inside):
-                        parts = parts[:len(inside) - 1] + [", ".join(parts[len(inside) - 1:])]
+                          and _inside(w["rect"], rect)
+                          and (w["rect"][2] - w["rect"][0]) * (w["rect"][3] - w["rect"][1])
+                          < 0.9 * (rect[2] - rect[0]) * (rect[3] - rect[1])]
+                if len(inside) > 1:
+                    # reading order: rows (by top edge, 4pt bands), then left to right
+                    inside.sort(key=lambda w: (round(w["rect"][1] / 4), w["rect"][0]))
+                    parts = _parts_for(value, classes.get(key), len(inside))
                     tg = []
                     for w, part in zip(inside, parts):
+                        xk = f"{page_no}:{w['xref']}"
+                        if xk in text_written:
+                            # a page box over a widget another box already filled: the
+                            # page holds the first value; report that, write nothing
+                            tg.append({"page": page_no, "rect": w["rect"], "value": text_written[xk]})
+                            report["rewrite_skipped"] += 1
+                            continue
                         wid = next((x for x in page.widgets() if x.xref == w["xref"]), None)
                         if wid is None:
                             continue
@@ -343,6 +391,7 @@ def render_case(
                             part = part[:maxlen]
                         wid.field_value = part
                         wid.update()
+                        text_written[xk] = part
                         report["text_filled"] += 1
                         tg.append({"page": page_no, "rect": w["rect"], "value": part})
                     effective[key] = ", ".join(t["value"] for t in tg)
@@ -404,13 +453,20 @@ def render_case(
                         report["marks_off"] += 1
                     effective[key] = value
                 elif wt == pymupdf.PDF_WIDGET_TYPE_TEXT:
+                    xk = f"{page_no}:{m['xref']}"
                     if key in joined:
                         value = joined[key]
                         effective[key] = value
-                        xk = f"{page_no}:{m['xref']}"
                         if xk in written:
                             continue          # the shared widget was written once
                         written.add(xk)
+                    elif xk in text_written:
+                        # another page box already filled this widget: the page
+                        # holds that value, so this box reports it and writes nothing
+                        effective[key] = text_written[xk]
+                        targets[key] = [{"page": page_no, "rect": m["rect"], "value": text_written[xk]}]
+                        report["rewrite_skipped"] += 1
+                        continue
                     if value in (None, "", False):
                         effective[key] = ""
                         continue
@@ -423,6 +479,7 @@ def render_case(
                         s = s2
                     w.field_value = s
                     w.update()
+                    text_written[xk] = s
                     report["text_filled"] += 1
                     if key not in joined:
                         effective[key] = s

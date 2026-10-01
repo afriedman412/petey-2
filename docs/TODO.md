@@ -30,10 +30,11 @@ proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonom
 ### Where it stands (2026-09-30, late)
 
 Case generation reads nothing from the AcroForm layer or the blueprint,
-not even where the boxes are; widgets are touched only to fill. Set 2 (bank, three cases, rect-keyed) scores by
-path W-9 23/23, ACORD 25 128/128, I-765 140/140, 10-10EZ 122/122, 526EZ 327/328 mean (RESULTS "Synthetic cases
-from the page alone"); see the cross-reference item below before trusting those numbers. The path-keyed first pass
-(set 1) is retired; its numbers and class-check findings are in RESULTS "Page-grounded classification, value bank
+not even where the boxes are; widgets are touched only to fill. Set 3 (bank, three cases, rect-keyed, finder v2)
+is the current set, read with the `not_generated` verdict so coverage is a number: W-9 21 + 2, ACORD 25 98 + 30,
+I-765 138 + 2, 526EZ 324 + 4, 10-10EZ 114 + 8, no disagreements (RESULTS "Finder list re-read, and set 3"). Set 2
+was the same keying before the finder tier and the guard fix (RESULTS "Inventory cross-reference"); set 1, the
+path-keyed first pass, is retired, its class-check findings in RESULTS "Page-grounded classification, value bank
 and case sets".
 
 - Boxes: `petey/synth/boxes.py` runs step2flat's finder on the rendered blank, so AcroForm and flat blanks share
@@ -92,10 +93,25 @@ and case sets".
   93 + 35 of 128; I-765 138 + 2 of 140; 526EZ 320 + 8 of 328; 10-10EZ 114 + 8 of 122. Numbers and per-form
   tables: RESULTS.md "Inventory cross-reference". Follow-ups:
 
-  - **Finder list, from the other side**: ACORD 25's INSR LTR / ADDL INSD / SUBR WVD cells come back as tall
-    column boxes (the classifier rightly refuses them as options) and its address blocks and OTHER-coverage columns
-    as one box each: that is 35 of ACORD's 128 fields not generated. 526EZ's three split dates and the dollars /
-    cents pair merge the same way. Splitting a box at the rules printed inside it is the finder fix.
+  - **Finder list, re-read against the raw candidates (2026-09-30, late).** Less of it is the finder than it
+    looked. (a) W-9 combs: the raster pass has the right 3-2-4 and 2-7 groups; the lattice's single cells won the
+    overlap at equal confidence. Fixed: `fz:comb` tier 0.60 -> 0.65 (`step2flat/confidence.py`), finder version
+    `step2flat-2`. (b) ACORD 25's INSR LTR / ADDL INSD / SUBR WVD cells ARE found at the right granularity (one
+    tall cell per coverage section, as printed); the classifier called them `none` or `option` and the geometry
+    guard then rejected the tall narrow ones. Fixed: the guard now spares any cell up to 30 pt wide whatever its
+    height. (c) ACORD's address blocks and 526EZ's three-part dates and dollars / cents pair are ONE box on the
+    page; the lines and parts exist only in the widget layer, so the finder is right and the filler now splits a
+    value over the widgets under one box by its natural parts (date -> month / day / year, money -> dollars /
+    cents, phone 3-3-4, SSN 3-2-4, else commas), driven by the box's class. (d) 10-10EZ page-5 dates have no box
+    on the page at all: "FROM:" and "TO:" with whitespace, the widget invisible when baked. A new finder class,
+    caption-anchored whitespace (caption, then blank run to the next caption or rule); not built; `box_unreached`
+    counts it honestly meanwhile. (e) `insr_ltr_2_cd`'s cell read as `none` with caption AUTOMOBILE LIABILITY: a
+    classifier miss, left as is. (f) Two filler rules from the set-3 rerun: a text widget is written once (later
+    boxes over it report the page's value); the comb-cell join only gathers cells smaller than the widget.
+    (g) Labeler finding: 526EZ `separation_pay_amount_dollars` / `_cents` carry each other's rects; neither the
+    class check nor the inventory check can see a swap within one family. Candidate taxonomy class:
+    `swapped_rects_same_family`; detector = a by-path differ on two same-family fields whose values are each
+    other's.
 
   - **526EZ option groups**: 14 `option_group_mismatch` rows, none on the other four forms; most are one blueprint
     field over two printed questions (14A/14B, 21A/21B, 24A/24B, 24C/25, 19A/19B): the three-way rule's labeler
