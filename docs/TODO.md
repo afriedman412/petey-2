@@ -83,7 +83,7 @@ and case sets".
   `not_generated` for a field no value landed on (`rect_join.unreached_fields`, stored as `case_unreached.json`;
   rescore derives it for older rect runs); it stays out of agreement and is summed over a set. Widget layer read
   only here, after the case exists, for attribution. Set 2 honestly: W-9 21 + 2 not generated of 23; ACORD 25
-  92 + 35 of 128; I-765 138 + 2 of 140; 526EZ 320 + 8 of 328; 10-10EZ 114 + 8 of 122. Numbers and per-form
+  93 + 35 of 128; I-765 138 + 2 of 140; 526EZ 320 + 8 of 328; 10-10EZ 114 + 8 of 122. Numbers and per-form
   tables: RESULTS.md "Inventory cross-reference". Follow-ups:
 
   - **Finder list, from the other side**: ACORD 25's INSR LTR / ADDL INSD / SUBR WVD cells come back as tall
