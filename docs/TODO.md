@@ -23,29 +23,43 @@ proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonom
 
 ## Synthetic data — next workstream (self-contained; pick up here)
 
-**What exists.**
+**What exists (2026-09-30, late; after the geometry change).**
 
-- Blind generator `petey/synth/generate.py`: per page, the model sees the page image with numbered red boxes and an
-  inventory of box ids + control types (no names, no export values); returns `{box: value}`; `unblind` maps back to
-  AcroForm paths; cached in `runs/_gen_cache/<sha>.json` keyed on blank bytes + model + case key + blind flag.
-  Backends: Anthropic plus OpenAI-compatible (OpenAI, Gemini, DeepSeek, Mistral, Fireworks; keys from `.env` or
-  `petey-master/.env`; `PROVIDERS` table). Usage logged per call under `runs/_calls/generate/<key>/<model>/`.
-  Since 2026-09-30 the inventory groups checkbox-flagged kid fields as radio groups.
+- Boxes from the page: `petey/synth/boxes.py` runs step2flat's finder on the rendered blank (widgets baked in,
+  then stripped), so AcroForm and flat blanks share one path; `{id, page, rect, kind}`, cached per blank. Nothing
+  from the widget layer reaches generation, not even box positions (Andrew). `eval/finder_vs_widgets.py` compares
+  the finder to the widget layer per form; a debugging yardstick that feeds nothing.
 
-- Local generator `petey/synth/local.py` (`--gen-model local`): API-free smoke path; draws values by type/name
-  heuristics from the blueprint. The place the value bank goes.
+- Classifier `petey/synth/classify.py` (prompt v4): the model sees the numbered page image and the box ids, nothing
+  else; per box `{label, class, entity, group}` from a closed vocabulary (38 value classes plus `option` and
+  `none`); cached per blank + finder + model + prompt version under `runs/_gen_cache/classify/`. Five forms, 1,228
+  boxes, no off-vocabulary answer.
 
-- Filler `petey/synth/render.py`: fills by path; decodes escaped on-states (`#20APT#20`); checkbox-kid groups set
-  only the matching kid.
+- Value bank `petey/synth/bank.yaml` + `bank.py`: 24 personas, 12 businesses, pools, `id_kinds` (caption keyword
+  -> identifier shape, one YAML line per kind). Cases keyed by page and rect, True / False marks for options, one
+  persona per entity, part runs split by cell boundaries. `--gen-model bank`; no API.
 
-- Working ground truth for the library: `runs/_gen_cache/imported.json` — 134 forms imported from petey-master
-  runs, generated NON-blind (the model saw AcroForm field names). All four target forms' cached cases are from
-  this set. This week's blind cases live under separate keys (`<form>_gm...`) and are not what the loop uses.
+- Blind generator `petey/synth/generate.py` on the same footing: ids and image only, bools for marks, cases by
+  rect; OpenAI-compatible backends unchanged. Its full-inventory mode (widget paths to the model) is debugging only.
 
-- Harness `eval/generator_models.py` (loop as judge; reports reader agreement on FILLED fields, tokens, dollars).
+- Filler `render.render_case`: rect to widget by best overlap, writes by widget type, draws on a widget-less blank;
+  concatenates cells sharing a widget, splits a block across stacked lines, ORs duplicate marks; reports where each
+  value landed. `validate/rect_join.case_to_paths` joins blueprint fields to the landing rects for the scorer.
 
-- Coverage audit (RESULTS.md 2026-09-30): 14-23 distinct cases per target form cover 94-97% of fields; one case
-  covers 60-80%; never-filled fields are the legitimately rare ones.
+- Case sets: `validate --case-set N [--n-cases K]` (iterate passes through), frozen per key under
+  `runs/_gen_cache`, manifest in `runs/_gen_cache/sets/`. Set 2 is the rect-keyed set (set 1, path-keyed, is
+  retired). `validate --bpt` runs a side-copy blueprint (10-10EZ).
+
+- Class check `petey/validate/class_check.py`, a scoring step for any generator: page class vs blueprint type by
+  rect, tiers 1 / 2 / 3; tier 1 reaches the reviewer as `page_class`.
+
+- Legacy: `runs/_gen_cache/imported.json`, 134 forms generated NON-blind from petey-master (the model saw field
+  names); path-keyed; still what `--gen-cache-only` runs without a set fall back to. Retired by step 6.
+  `petey/synth/local.py` (`--gen-model local`, blueprint-typed values) stays as the API-free smoke path for a form
+  with no classification yet; it reads the blueprint and is not a generator for judging one.
+
+- Harness `eval/generator_models.py` (loop as judge; reader agreement on FILLED fields, tokens, dollars); coverage
+  audit: 14-23 distinct cases per target form cover 94-97% of fields.
 
 **Findings that shape the design** (RESULTS.md, 2026-09-30 sections).
 
@@ -78,7 +92,7 @@ proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonom
 5. Keep "extract a correct value" and "fix a malformed value" as separate problems (a bank of malformed examples is
    a different, later dataset).
 
-**Steps, in order** (1-4 done 2026-09-30 late, see below).
+**Steps, in order** (1-4 done 2026-09-30, then rebuilt on page geometry the same night; 5-7 open).
 
 1. Classification pass: add a `--classify` mode to the blind generator (same page image + inventory; output
    `{box: class}`), cache per form beside the values cache; write the class map into the run.
@@ -104,34 +118,17 @@ proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonom
    relabeling against the old non-blind cases would fit new blueprints to values invented from publisher names.
    Dev-time batch: tens of dollars for both passes at Sonnet 4.6, a fraction on Gemini 3.8 Flash.
 
-## Synthetic data — done 2026-09-30 late (steps 1-4)
+## Synthetic data — done 2026-09-30 (steps 1-4, first pass, path-keyed; superseded the same night)
 
-- **Classifier** `petey/synth/classify.py`: blind (same annotated page image and id/type inventory as the blind
-  generator), closed 40-class vocabulary, per box `{label, class, entity, group}`; cached once per (blank, model,
-  prompt version) under `runs/_gen_cache/classify/`. Five forms, 776 boxes, every box classed, no off-vocabulary
-  answers. `label` is the caption the model read (null when a box has none of its own: 40 of ACORD 25's 128);
-  `group` names the question a set of checkboxes answers (W-9's seven tax-classification boxes as one group).
-
-- **Value bank** `petey/synth/bank.yaml` + `petey/synth/bank.py`: 24 personas (state / ZIP / area code aligned,
-  reserved 555-01xx phones), 12 businesses, pools. One persona and one business per entity per case; part runs
-  (SSN 3-2-4, EIN 2-7, phone 3-3-4, date month/day/year) filled from one whole; checkbox groups tick at most one;
-  free text from the cached blind case when there is one. `--gen-model bank` in validate/iterate; no API.
-
-- **Case sets** (`validate --case-set N [--n-cases K]`, iterate passes through): intact cases keyed
-  `<gen-key>_setN_caseK`; bank ground truth frozen on disk per key; manifest `runs/_gen_cache/sets/<form>_setN.json`.
-  Over a set `iterate.detect` sums verdicts and counts a shape or class flag once per field; `field_status` takes
-  the worst case per field.
-
-- **Class check** `petey/validate/class_check.py`: page class vs blueprint type per field, family-level, three
-  tiers (1 captioned contradiction -> detection + reviewer flag `page_class`; 2 blueprint untyped, page offers a
-  type -> suggestion; 3 uncaptioned -> a guess on both sides). A scoring step (Andrew: not case generation), run
-  for any generator whose form has a cached classification, on fresh runs and rescores; `class_disagreements.json`
-  per case. Generation reads nothing from the blueprint: the blueprint-typed fallback class map is gone. Found: I-765 `attorney_state_bar_num` typed state_abbr, `employer_everify_company_id`
-  typed business_name; 526EZ's 20+15 `disability_N_nm` typed person_name (the `_nm` slug rule), `va_file_number_2`
-  captioned VETERAN'S NAME; ACORD 25's six insurer names typed person_name, seven policy numbers typed free text.
-
-- Set 1 (bank, 3 cases) by path: W-9 23/23, ACORD 25 128/128, I-765 140/140, 526EZ 328/328, zero ground-truth
-  defects after the group fix. Anthropic client now has a timeout (one stalled stream held a run for three hours).
+Classifier, bank, case sets and class check were first built keyed by AcroForm path with a widget inventory
+(ids, control types, maxlen, choices, radio grouping) going to the model. Set 1 on that footing scored W-9 23/23,
+ACORD 25 128/128, I-765 140/140, 526EZ 328/328 by path. The class check found real blueprint faults on that
+pass: I-765 `attorney_state_bar_num` typed state_abbr and `employer_everify_company_id` typed business_name;
+526EZ's 35 `disability_N_nm` typed person_name (the `_nm` slug rule) and `va_file_number_2` captioned VETERAN'S
+NAME; ACORD 25's six insurer names typed person_name and seven policy numbers typed free text. Andrew's
+corrections that reshaped it: the class check is a scoring step, not case generation; generation reads nothing
+from the blueprint (the blueprint-typed fallback is gone); and the inventory itself was leakage (below). Numbers:
+RESULTS.md "Page-grounded classification, value bank and case sets".
 
 ## Synthetic data — the geometry change (2026-09-30, late; Andrew)
 Case generation takes nothing from the AcroForm layer, including where the boxes are; widgets are touched only
@@ -146,17 +143,35 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
   groups (W-9 SSN); one box over stacked line widgets (ACORD address blocks); duplicate boxes over one checkbox;
   526EZ 27D dollars / cents pair; 10-10EZ page-5 date boxes missed; small cells missed on ACORD 25.
 
-- **Blind generator under-fills on the rect prompt** (W-9: 14 of 26 boxes; names null). Prompt knob; turn it
-  before the blind generator serves as generator (b) in the per-box comparison.
+- **Blind generator under-fills on the rect prompt** (W-9: 14 of 26 fillable boxes; the name boxes came back
+  null). Measured after the rebuild, one draw, one form; not diagnosed. Likely cause: the prompt now says "null
+  for a rectangle that is not a fillable box", and the W-9's name boxes carry their caption on the line above
+  rather than inside, so an uncaptioned box reads as decoration. Position: this is step 5's problem, not a
+  separate one. Before touching the prompt, one draw per form on the five forms (about $1) to see whether it is
+  the W-9 or the prompt; then the fix is in the prompt text (a box under a caption line is that caption's box),
+  and the controlled-density comparison of step 5 runs on the rect prompt. Until then the bank is the only
+  generator the loop should judge with.
 
 - **Classifier on instruction pages**: the W-9's five instruction pages cost five calls to say "none" 40 times.
-  A page with no finder box above a confidence floor could be skipped.
+  Position: accept it. It is dev-time cost (ten cents on the W-9; perhaps a third of calls over the library,
+  which product scale says is not a decision criterion), and the two ways to avoid it both carry risk: skipping
+  pages whose finder boxes are all low-confidence underlines would also skip a signature page; a cheaper model
+  for those pages adds a second model to the cache key for a saving of cents. Revisit only if step 6's bill says
+  otherwise.
 
 - **Option grouping disagreements** (526EZ `living_situation_14b`: the page groups two marks the blueprint keeps
-  apart) are a class-check row waiting for a tier: the page's grouping vs the blueprint's `widgets`.
+  apart): folded into Andrew's inventory cross-reference below as `option_group_mismatch`.
 
-- **Vocabulary**: still the closed 40 names plus `option` / `none`; Andrew's question on open vs closed is open.
-  Keeping a free-text `reading` beside the class is the cheap middle.
+- **Vocabulary, reconsidered.** The question is wider than identifiers: every box's class is one of 38 fixed value
+  names plus `option` / `none`. Two things the closed list is for, and they hold: the bank needs a key it has
+  values behind, and two runs of one form should name a box the same way (the class check and the finder
+  diagnostic both depend on that). What the closed list loses is the model's own words for the box, and that
+  is already half-kept: `label` carries the caption verbatim. Position: keep the vocabulary closed, and add a
+  free-text `reading` beside the class (one prompt line; what the model thinks the box holds in its own words,
+  e.g. "insurer's NAIC code"), used as evidence in the reviewer bundle and in the class-check rows, never as a
+  key. Identifiers stay one class (`other_id`) with `id_kinds` picking the shape from the caption; a new kind is
+  a YAML line, and a kind the bank lacks still gets a plausible generic. Andrew decides; the cost of the middle
+  path is one prompt version.
 
 ## Synthetic data — what is left (steps 4b, 5, 6, 7)
 
@@ -199,12 +214,13 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
 - **Rebinds over the set**: `correct.load_case` reads `case_001` only, so `name_rotation` / `name_slide` edges
   never benefit from the case set. Build edges per case and require them to hold across cases. Code, not a rerun.
 
-- **Donor**: `validate` no longer passes one; the `donor` parameter left in `bank.generate_from_bank` is dead.
-  Andrew: prose is a later problem, a value of the right type is enough, so free text stays on the bank's lines.
+- **Donor**: removed from `bank.generate_from_bank` (2026-09-30, late). Andrew: prose is a later problem, a value
+  of the right type is enough, so free text stays on the bank's lines.
 
-- **Step 4, second half: class flags against the reader's flags** per field on the five sets, with the reader arm
-  (text mode; image on 526EZ). ACORD 25 and I-765 runs are in RESULTS; 526EZ and 10-10EZ still to run (10-10EZ's
-  blueprint is a side copy: `validate` needs a `--bpt` override before it can go through the loop).
+- **Step 4, second half: class flags against the reader's flags** per field on set 2, with the reader arm (text
+  mode; image on 526EZ). W-9, ACORD 25 and I-765 were run on the path-keyed set 1 (RESULTS: disjoint flag sets on
+  ACORD 25, one overlap on I-765); rerun on set 2, and add 526EZ and 10-10EZ (`validate --bpt` exists now; `iterate`
+  still needs to pass it through).
 
 - **Step 5: blind-generator default** (Sonnet 4.6 vs Gemini 3.1 Pro / 3.8 Flash). Unchanged; the bank now covers
   most boxes, so the blind generator's job narrows to free text and to being generator (b) in the per-box
@@ -258,14 +274,6 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
   Run one review round on I-765 and 526EZ with set 1 and judge as usual; the disability-name and bar-number rows
   are the test cases.
 
-- **Value bank + page-grounded classification (Andrew).** Two steps replace blind value generation for most boxes:
-  the model classifies each box from the page image, blind (SSN, city, date, yes/no, free text), cached per form;
-  a bank of a few dozen names, addresses, phone numbers, SSNs, dates and amounts supplies the values, one person
-  per case, so any number of fresh cases cost nothing and header copies of one identifier agree. The model's
-  classification is also a blueprint-independent second opinion on every box's semantic type — a free labeler
-  check. Free-text boxes still take a generated value. Trust is the same as today's blind generator (it reads the
-  page, not the blueprint).
-
 - **Ink-mark detection — its own experiment before it becomes the reader's eyes (Andrew).** Draw marks into a
   blank's option boxes: shape (check, X, dot, filled square, tick), size as a fraction of the box, colour (black,
   blue, grey, red), stroke and density (heavy pen to faint pencil), placement offset; pair every variant with
@@ -279,10 +287,8 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
   -> that page reads in image mode, recorded. Once ink detection passes its experiment: inject detected marks into
   the text-mode document beside the caption so radio states are visible without image tokens.
 
-- **Multi-case sets per form.** Several blind cases per form (3-5), versioned as a set: fixed within any
-  before/after comparison, refreshed as a batch when the generator or its prompt changes; regenerate the
-  petey-master-imported (non-blind) cases in blind mode. Coverage audit 2026-09-30: 14-23 cases cover 94-97% of a
-  form's fields; one case covers 60-80%.
+- **Multi-case sets per form**: done as case sets (set 2, bank, three cases, five forms). Still open from this
+  item: 3-5 cases rather than 3, and the blind regeneration of the imported non-blind cases (step 6).
 
 - **Route the emitter's blind spots to the validator.** Emitter-declared unknowns (uncaptioned option, page-text
   caption, ungroupable run) -> an `unresolved` detector with classes `uncaptioned_option`, `ungrouped_options`,
@@ -290,9 +296,7 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
   evidence (every option's on-state, caption, nearby text, a page crop) -> image-mode reading for pages that carry
   option groups, the only judge that sees a radio state.
 
-- **Generator default.** Decide between Sonnet 4.6 (fills most) and Gemini 3.1 Pro / 3.8 Flash (most precise). If
-  more evidence is wanted first: precision at controlled density (typical vs complete case prompt variants, two or
-  three draws each) on ACORD 25 and I-765; and more than one cached case per form, so the judge is not one draw.
+- **Generator default**: step 5 above; the rect prompt's under-fill is part of it.
 
 - **Reviewer across vendors** — the one slot compared only among Anthropic models.
 

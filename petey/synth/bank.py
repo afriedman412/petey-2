@@ -20,8 +20,8 @@ Where a value comes from:
   * runs of consecutive part boxes (id_part, phone_part, date parts) are
     filled from one whole value split by the known shapes (SSN 3-2-4, EIN
     2-7, phone 3-3-4) by box count, else by the boxes' widths;
-  * free text takes the donor case's value when a donor is given, else a
-    line from the bank;
+  * free text takes a line from the bank (Andrew: a value of the right type
+    is enough; prose is a later problem);
   * option boxes the classifier grouped under one question get at most
     one mark; a standalone option box is marked at `check_rate`.
 
@@ -318,14 +318,13 @@ class _Case:
 
 def generate_from_bank(
     class_map: dict, *, seed: int = 0, bank: Optional[dict] = None,
-    donor: Optional[dict] = None, fill_rate: float = 0.9, check_rate: float = 0.4,
+    fill_rate: float = 0.9, check_rate: float = 0.4,
 ) -> dict[str, Any]:
     """`{rect_key: value}` for every fillable box in the class map. Text boxes
     get strings; option boxes get True / False marks."""
     rng = random.Random(seed)
     bank = bank or load_bank()
     boxes: dict[str, dict] = class_map["boxes"]
-    donor = donor or {}
 
     entities = sorted({(b.get("entity") or "applicant") for b in boxes.values()
                        if b["class"] not in _SKIP})
@@ -359,11 +358,6 @@ def generate_from_bank(
             kind = "date" if cls.startswith("date_") else cls
             parts.setdefault((ent, kind), []).append((int(b.get("box") or 0), key))
             continue
-        if cls in ("other", "free_text"):
-            dv = donor.get(key)
-            if isinstance(dv, str) and dv.strip():
-                gt[key] = fit_width(dv, b)
-                continue
         if cls in _OPTIONAL_CLASSES and rng.random() > fill_rate:
             gt[key] = ""
             continue
