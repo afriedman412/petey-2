@@ -21,9 +21,15 @@ proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonom
   gpt-4.1 and DeepSeek v4-pro over-fill; DeepSeek reasoning exhausts output caps. Labeler: a wash among the top
   four. Defaults unchanged. The generator runs once per new form and is cached; it is never on the extraction path.
 
+- Ink-mark detection: robustness experiment passed on Andrew's 12 pages (precision 0.984, recall 0.952 at
+  threshold 0.01; RESULTS "Ink-mark detection"). The text reader gets a `[x]` / `[ ]` token at every option box,
+  from the widget state with ink as the fallback (RESULTS "Radio and checkbox states in the text reader").
+
 ## Synthetic data (self-contained; pick up here)
 
-**Where it stands (2026-09-30, late).** Case generation reads nothing from the AcroForm layer or the blueprint,
+### Where it stands (2026-09-30, late)
+
+Case generation reads nothing from the AcroForm layer or the blueprint,
 not even where the boxes are; widgets are touched only to fill. Set 2 (bank, three cases, rect-keyed) scores by
 path W-9 23/23, ACORD 25 128/128, I-765 140/140, 10-10EZ 122/122, 526EZ 327/328 mean (RESULTS "Synthetic cases
 from the page alone"); see the cross-reference item below before trusting those numbers. The path-keyed first pass
@@ -62,7 +68,7 @@ and case sets".
   blueprint, so it never judges one. `eval/generator_models.py` compares generators through the loop (reader
   agreement on FILLED fields, tokens, dollars).
 
-**Principles (Andrew, 2026-09-30).**
+### Principles (Andrew, 2026-09-30)
 
 - Generation takes nothing from the widget layer or the blueprint; the class check and every comparison against
   the blueprint are scoring steps.
@@ -74,7 +80,7 @@ and case sets".
   prompt changes. Product scale is a handful of forms; cost and latency are dev numbers. Inputs are clean digital
   PDFs.
 
-**Open.**
+### Open
 
 - **Inventory cross-reference as a scoring step (Andrew, 2026-09-30; before trusting set 2's numbers): done.**
   `petey/validate/inventory_check.py` runs beside the class check and writes `inventory_check.json` per case with
@@ -195,37 +201,25 @@ and case sets".
 ## Next
 
 - **Reviewer on the class flags.** The reviewer now receives `page_class` flags with the caption the model read.
-  Run one review round on I-765 and 526EZ with set 1 and judge as usual; the disability-name and bar-number rows
+  Run one review round on I-765 and 526EZ with set 2 (set 1 is retired) and judge as usual; the disability-name and bar-number rows
   are the test cases.
 
-- **Ink-mark detection — its own experiment before it becomes the reader's eyes (Andrew).** Draw marks into a
-  blank's option boxes: shape (check, X, dot, filled square, tick), size as a fraction of the box, colour (black,
-  blue, grey, red), stroke and density (heavy pen to faint pencil), placement offset; pair every variant with
-  untouched boxes, thick and thin borders and adjacent printed text for the false-positive side; then the same
-  detector on real filled PDFs (AcroForm appearance glyphs: check, circle, cross, square, star). Report precision /
-  recall per variant and the ink threshold that holds. Andrew is picking pages with varied box styles and,
-  if available, hand-marked scans for the uncontrolled half. Method: pymupdf pixmap of each option box against the
-  blank's same crop, numpy dark-pixel count.
+- **Reader-mode guard: text-layer coverage.** Per run, count ground-truth strings present in the filled PDF's text
+  layer; any missing -> that page reads in image mode, recorded. (The other half, option marks in the text the
+  reader sees, is done: see Done.)
 
-- **Reader-mode guards.** Per run, count ground-truth strings present in the filled PDF's text layer; any missing
-  -> that page reads in image mode, recorded. Once ink detection passes its experiment: inject detected marks into
-  the text-mode document beside the caption so radio states are visible without image tokens.
-
-- **Multi-case sets per form**: done as case sets (set 2, bank, three cases, five forms). Still open from this
-  item: 3-5 cases rather than 3, and the blind regeneration of the imported non-blind cases (step 6).
+- **Synthetic data**: its own Open list above, plus two leftovers from older items here: 3-5 cases per set rather
+  than 3, and one value for repeated copies of an identifier in blind cases (bank cases already do it, one persona
+  per entity).
 
 - **Route the emitter's blind spots to the validator.** Emitter-declared unknowns (uncaptioned option, page-text
   caption, ungroupable run) -> an `unresolved` detector with classes `uncaptioned_option`, `ungrouped_options`,
   `group_name_mismatch` (deterministic: `amended_return_ind` over Medicare / Medicaid / ...) -> per-option reviewer
-  evidence (every option's on-state, caption, nearby text, a page crop) -> image-mode reading for pages that carry
-  option groups, the only judge that sees a radio state.
-
-- **Generator default**: step 5 above; the rect prompt's under-fill is part of it.
+  evidence (every option's on-state, caption, nearby text, a page crop). The two grouping classes are now aliases
+  of the taxonomy's `option_group_mismatch`, which the synthetic inventory check reports; the text reader sees
+  radio and checkbox states through its `[x]` / `[ ]` tokens, so image mode is no longer the only judge of them.
 
 - **Reviewer across vendors** — the one slot compared only among Anthropic models.
-
-- **Generator: repeated copies of one identifier** (the SSN on every 526EZ page should hold one value). Done for
-  bank cases (one persona per entity); still open for blind cases.
 
 - **Library fixes waiting on a decision:** rename ACORD 25's six phone fields (or replace the blueprint with the
   relabel); add 10-10EZ (`runs/relabel/blueprints/va_form_10_10ez_relabel2.bpt`, 0 contradictions, 0 name defects
