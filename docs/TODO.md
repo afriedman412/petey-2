@@ -126,13 +126,13 @@ and case sets".
     (`one_path` / `several_paths` / `flat_blank_no_metadata`). Not yet used to drive mechanics; the filler still
     marks one box per page group and relies on the widget's own on-state at write time.
 
-- **Rebinds over the set**: `correct.load_case` reads `case_001` only, so `name_rotation` / `name_slide` edges
-  never benefit from the case set. Build edges per case and require them to hold across cases. Code, not a rerun.
+- **Rebinds over the set**: done (2026-09-30, late). `correct.analyse_run` builds edges per intact case and keeps
+  only those every case draws; `stats["edges_unstable"]` counts the rest. `load_case` stays for one-case callers.
 
-- **Step 4, second half: class flags against the reader's flags** per field on set 2, with the reader arm (text
+- **Step 4, second half: class flags against the reader's flags** per field on set 3, with the reader arm (text
   mode; image on 526EZ). W-9, ACORD 25 and I-765 were run on the retired set 1 (disjoint flag sets on ACORD 25,
-  one overlap on I-765); rerun on set 2, and add 526EZ and 10-10EZ (`iterate` still needs to pass `--bpt`
-  through).
+  one overlap on I-765). Code is in place (2026-09-30, late): `iterate --bpt` runs 10-10EZ from its side copy;
+  `eval/flags_overlap.py` prints reader / class / option-group flags and their overlaps per run. Left: the runs.
 
 - **Step 5: blind-generator default** (Sonnet 4.6 vs Gemini 3.1 Pro / 3.8 Flash). The bank covers most boxes, so
   the blind generator's job narrows to being generator (b) in the per-box comparison; decide after step 4 says
@@ -216,9 +216,12 @@ and case sets".
 
 ## Next
 
-- **Reviewer on the class flags.** The reviewer now receives `page_class` flags with the caption the model read.
-  Run one review round on I-765 and 526EZ with set 2 (set 1 is retired) and judge as usual; the disability-name and bar-number rows
-  are the test cases.
+- **Reviewer on the class and option-group flags.** The reviewer receives `page_class` flags (caption read, page
+  class, blueprint type) and, since 2026-09-30 late, `option_group` flags from the inventory check (the page's
+  question vs the blueprint's `widgets`, with the widget-layer attribution). Run one review round on I-765 and
+  526EZ with set 3 and judge as usual; the disability names, the bar number and the fields spanning two printed
+  questions are the test cases. Missing on the apply side: an operation that splits one `widgets` map into two
+  fields or merges two, which is what the option-group rows call for; the reviewer can only report them today.
 
 - **Reader-mode guard: text-layer coverage.** Per run, count ground-truth strings present in the filled PDF's text
   layer; any missing -> that page reads in image mode, recorded. (The other half, option marks in the text the

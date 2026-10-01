@@ -175,6 +175,31 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
                            f"(caption {row.get('label')!r}); the blueprint types it "
                            f"{row.get('semantic_type') or row.get('type') or 'untyped'}"),
                 "generated_value": gt_by_field.get(row["field"])})
+    # Inventory cross-reference: the page's option groups (the classifier's
+    # `group`) against the blueprint's `widgets` maps. A field that spans two
+    # printed questions, or a question the blueprint splits in two, is the
+    # labeler's to look at; the widget layer only says which side the
+    # publisher's radio paths take.
+    inv = intact / "inventory_check.json"
+    if inv.exists():
+        for row in json.loads(inv.read_text()).get("rows", []):
+            if row.get("class") != "option_group_mismatch":
+                continue
+            pg = row.get("page_group")
+            pg = " / ".join(pg) if isinstance(pg, list) else pg
+            flags[row["field"]].append({
+                "detector": "option_group",
+                "detail": {
+                    "blueprint_field_spans_page_groups": f"the page reads this field's options as {row.get('page_groups')} "
+                                                         f"separate questions ({pg}); the blueprint pools them as one field",
+                    "page_group_wider": f"the page's question ({pg}) has {row.get('page_members')} option boxes; this field "
+                                        f"declares {row.get('blueprint_members')}",
+                    "blueprint_options_unreached": f"{row.get('unreached_options')} of this field's options have no box on the "
+                                                   f"page the classifier called an option",
+                    "page_sees_no_group": "the page does not read these boxes as one question",
+                }.get(row.get("shape"), row.get("shape")),
+                "attribution": row.get("attribution"),
+                "radio_paths": row.get("radio_paths")})
     return flags
 
 

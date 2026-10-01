@@ -67,9 +67,9 @@ CLASS_OF = {
 def run_validate(form: str, blank: Optional[Path], *, gen_model: str, methods: str,
                  n_flat: int, gen_cache_only: bool, label_model: Optional[str],
                  gen_key: Optional[str], case_set: Optional[int] = None,
-                 n_cases: Optional[int] = None) -> Path:
+                 n_cases: Optional[int] = None, bpt: Optional[Path] = None) -> Path:
     if blank is None:
-        bp = yaml.safe_load((BLUEPRINTS / f"{form}.bpt").read_text(encoding="utf-8"))
+        bp = yaml.safe_load((bpt or BLUEPRINTS / f"{form}.bpt").read_text(encoding="utf-8"))
         blank = resolve_blank(bp)
         if blank is None:
             raise SystemExit(f"{form}: no blank PDF found for source_pdf={bp.get('source_pdf')!r}")
@@ -86,6 +86,8 @@ def run_validate(form: str, blank: Optional[Path], *, gen_model: str, methods: s
         cmd += ["--case-set", str(case_set)]
     if n_cases:
         cmd += ["--n-cases", str(n_cases)]
+    if bpt is not None:
+        cmd += ["--bpt", str(bpt)]
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
     m = re.search(r"run_dir=(\S+)", proc.stdout or "")
     if proc.returncode != 0 or not m:
@@ -277,8 +279,9 @@ def record_pairs(form: str, run_dir: Path, pending: dict, outcomes: dict) -> int
     return n
 
 
-def fix(form: str, detection: dict, *, describe: bool, apply_correct: bool) -> collections.Counter:
-    bp_path = BLUEPRINTS / f"{form}.bpt"
+def fix(form: str, detection: dict, *, describe: bool, apply_correct: bool,
+        bpt: Optional[Path] = None) -> collections.Counter:
+    bp_path = bpt or BLUEPRINTS / f"{form}.bpt"
     bp = yaml.safe_load(bp_path.read_text(encoding="utf-8"))
     blank = resolve_blank(bp)
     limits = widget_limits(blank) if blank else {}
@@ -322,7 +325,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
             review: str = "none", review_model: str = "claude-opus-5",
             review_effort: str = "medium", review_rounds: int = 1,
             allow_dirty: bool = False, case_set: Optional[int] = None,
-            n_cases: Optional[int] = None) -> dict:
+            n_cases: Optional[int] = None, bpt: Optional[Path] = None) -> dict:
     """See the module docstring. With `review` != "none", after the rule
     fixes the LLM reviewer (`review.py`) looks at the flagged fields and its
     fixes are applied; the NEXT validation judges them. If detections did
@@ -330,7 +333,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
     model never grades its own work."""
     history = []
     status = "max_iter"
-    bp_path = BLUEPRINTS / f"{form}.bpt"
+    bp_path = bpt or BLUEPRINTS / f"{form}.bpt"   # a side copy (validate --bpt) runs the loop outside the library
     pending: Optional[dict] = None   # a review awaiting the loop's verdict
     rounds_done = 0
     start = starting_state(bp_path)
@@ -345,7 +348,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         t0 = time.time()
         run_dir = run_validate(form, blank, gen_model=gen_model, methods=methods, n_flat=n_flat,
                                gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key,
-                               case_set=case_set, n_cases=n_cases)
+                               case_set=case_set, n_cases=n_cases, bpt=bpt)
         det = detect(form, run_dir)
         if det.get("generation"):
             history.append({"iteration": i, "run": run_dir.name, "blocked": det["generation"]})
@@ -372,13 +375,13 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
                 print(f"[{form}] iter {i}: detected={det['total']} delta={det['delta']} "
                       f"-> restored {judged['restored']} reviewed fields")
                 continue
-        changes = fix(form, det, describe=describe, apply_correct=apply_correct)
+        changes = fix(form, det, describe=describe, apply_correct=apply_correct, bpt=bpt)
         review_rec = None
         if review != "none" and rounds_done < review_rounds and det["total"] > 0:
             from petey.validate.review import review as run_review
             snapshot = bp_path.read_text(encoding="utf-8")
             res = run_review(form, run_dir=run_dir, scope=review, model=review_model,
-                             effort=review_effort, apply=True)
+                             effort=review_effort, apply=True, bpt_path=bpt)
             rounds_done += 1
             applied = {k: v for k, v in res["applied"].items() if k != "ok" and not k.startswith("rejected")}
             review_rec = {k: res[k] for k in ("fields_reviewed", "verdicts", "applied", "usage", "cost_usd")}
@@ -426,6 +429,8 @@ def main() -> int:
     ap.add_argument("--gen-model", default="local", help="'local' (no API) or a model id")
     ap.add_argument("--gen-cache-only", action="store_true")
     ap.add_argument("--gen-key", default=None)
+    ap.add_argument("--bpt", type=Path, default=None,
+                    help="blueprint to run instead of blueprints/<form>.bpt (a side copy, e.g. the 10-10EZ relabel)")
     ap.add_argument("--case-set", type=int, default=None, help="versioned case set id (validate --case-set)")
     ap.add_argument("--n-cases", type=int, default=None, help="intact cases in the set (default 3)")
     ap.add_argument("--methods", default="native")
@@ -446,7 +451,7 @@ def main() -> int:
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     rv = dict(review=args.review, review_model=args.review_model,
-              review_effort=args.review_effort, review_rounds=args.review_rounds, case_set=args.case_set, n_cases=args.n_cases,
+              review_effort=args.review_effort, review_rounds=args.review_rounds, case_set=args.case_set, n_cases=args.n_cases, bpt=args.bpt,
               allow_dirty=args.allow_dirty)
     if args.all or args.forms:
         from petey.validate.run_all import ready_targets
