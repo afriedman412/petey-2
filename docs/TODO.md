@@ -216,6 +216,15 @@ and case sets".
     depends on the blueprint (pages, `[x]` tokens at its option boxes) but the key hashes the PDF bytes; hash the
     text sent.
 
+  - **Bug: text mode reads a form with no option boxes in stored order (found 2026-09-30, OCC 1003).**
+    `extract_llm` sorts words into reading order only on the `page_texts_with_marks` path, which runs when the
+    blueprint has option boxes; otherwise `page_texts` passes `get_text()` through, and on a filled AcroForm the
+    widget values come out as one block after the page's printed text, away from their labels. OCC 1003 (no
+    option boxes): every filled value present in the text layer, the judge missed 73-81 of 113 judged fields per
+    case. None of the five test forms lacks option boxes, so it never showed. Fix: the same line sort on every
+    text-mode page, together with keying the cache on the text sent (above), or a fix would replay the cached
+    answers. OCC 1003 was dropped from the judge-informativeness round (Andrew); rerun it after the fix.
+
 - **Reviewer: publisher descriptions are not removable.** The description is its own field on the spec (verbatim
   tooltip or XFA caption text, tagged `x_petey_description_source: tooltip | xfa_choices`); names are separate
   slugs the labeler derives with the tooltip as evidence. The reviewer's apply step honours `remove: [description]`
