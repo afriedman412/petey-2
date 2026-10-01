@@ -21,180 +21,79 @@ proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonom
   gpt-4.1 and DeepSeek v4-pro over-fill; DeepSeek reasoning exhausts output caps. Labeler: a wash among the top
   four. Defaults unchanged. The generator runs once per new form and is cached; it is never on the extraction path.
 
-## Synthetic data — next workstream (self-contained; pick up here)
+## Synthetic data (self-contained; pick up here)
 
-**What exists (2026-09-30, late; after the geometry change).**
+**Where it stands (2026-09-30, late).** Case generation reads nothing from the AcroForm layer or the blueprint,
+not even where the boxes are; widgets are touched only to fill. Set 2 (bank, three cases, rect-keyed) scores by
+path W-9 23/23, ACORD 25 128/128, I-765 140/140, 10-10EZ 122/122, 526EZ 327/328 mean (RESULTS "Synthetic cases
+from the page alone"); see the cross-reference item below before trusting those numbers. The path-keyed first pass
+(set 1) is retired; its numbers and class-check findings are in RESULTS "Page-grounded classification, value bank
+and case sets".
 
-- Boxes from the page: `petey/synth/boxes.py` runs step2flat's finder on the rendered blank (widgets baked in,
-  then stripped), so AcroForm and flat blanks share one path; `{id, page, rect, kind}`, cached per blank. Nothing
-  from the widget layer reaches generation, not even box positions (Andrew). `eval/finder_vs_widgets.py` compares
-  the finder to the widget layer per form; a debugging yardstick that feeds nothing.
+- Boxes: `petey/synth/boxes.py` runs step2flat's finder on the rendered blank, so AcroForm and flat blanks share
+  one path; cached per blank. `eval/finder_vs_widgets.py` compares the finder to the widget layer, a debugging
+  yardstick that feeds nothing.
 
-- Classifier `petey/synth/classify.py` (prompt v4): the model sees the numbered page image and the box ids, nothing
-  else; per box `{label, class, entity, group}` from a closed vocabulary (38 value classes plus `option` and
-  `none`); cached per blank + finder + model + prompt version under `runs/_gen_cache/classify/`. Five forms, 1,228
-  boxes, no off-vocabulary answer.
+- Classifier `petey/synth/classify.py` (prompt v4): numbered page image and box ids only; per box `{label, class,
+  entity, group}` from a closed vocabulary (38 value classes plus `option` and `none`); cached per blank + finder +
+  model + prompt version under `runs/_gen_cache/classify/`.
 
-- Value bank `petey/synth/bank.yaml` + `bank.py`: 24 personas, 12 businesses, pools, `id_kinds` (caption keyword
-  -> identifier shape, one YAML line per kind). Cases keyed by page and rect, True / False marks for options, one
-  persona per entity, part runs split by cell boundaries. `--gen-model bank`; no API.
+- Value bank `petey/synth/bank.yaml` + `bank.py`: 24 personas, 12 businesses, pools, `id_kinds`; one persona per
+  entity per case; part runs split by cell boundaries; marks for options; free text from the bank's lines (no
+  donor). `--gen-model bank`; no API.
 
-- Blind generator `petey/synth/generate.py` on the same footing: ids and image only, bools for marks, cases by
-  rect; OpenAI-compatible backends unchanged. Its full-inventory mode (widget paths to the model) is debugging only.
+- Blind generator `petey/synth/generate.py` on the same footing (ids and image only, cases by rect); its
+  full-inventory mode is debugging only.
 
-- Filler `render.render_case`: rect to widget by best overlap, writes by widget type, draws on a widget-less blank;
-  concatenates cells sharing a widget, splits a block across stacked lines, ORs duplicate marks; reports where each
-  value landed. `validate/rect_join.case_to_paths` joins blueprint fields to the landing rects for the scorer.
+- Filler `render.render_case` (rect to widget by best overlap, or drawn on a widget-less blank; reports where each
+  value landed) and `validate/rect_join.case_to_paths` (fields joined to the landing rects for the scorer).
 
-- Case sets: `validate --case-set N [--n-cases K]` (iterate passes through), frozen per key under
-  `runs/_gen_cache`, manifest in `runs/_gen_cache/sets/`. Set 2 is the rect-keyed set (set 1, path-keyed, is
-  retired). `validate --bpt` runs a side-copy blueprint (10-10EZ).
+- Case sets: `validate --case-set N [--n-cases K]`, frozen per key, manifests in `runs/_gen_cache/sets/`;
+  `validate --bpt` for side-copy blueprints.
 
-- Class check `petey/validate/class_check.py`, a scoring step for any generator: page class vs blueprint type by
+- Class check `petey/validate/class_check.py`: a scoring step for any generator; page class vs blueprint type by
   rect, tiers 1 / 2 / 3; tier 1 reaches the reviewer as `page_class`.
 
-- Legacy: `runs/_gen_cache/imported.json`, 134 forms generated NON-blind from petey-master (the model saw field
-  names); path-keyed; still what `--gen-cache-only` runs without a set fall back to. Retired by step 6.
-  `petey/synth/local.py` (`--gen-model local`, blueprint-typed values) stays as the API-free smoke path for a form
-  with no classification yet; it reads the blueprint and is not a generator for judging one.
+- Taxonomy: six inventory-mismatch classes (`box_unreached`, `merged_box`, `split_box`, `uncovered_widget`,
+  `unbacked_box`, `option_group_mismatch`), no detectors yet.
 
-- Harness `eval/generator_models.py` (loop as judge; reader agreement on FILLED fields, tokens, dollars); coverage
-  audit: 14-23 distinct cases per target form cover 94-97% of fields.
+- Legacy: `runs/_gen_cache/imported.json` (134 forms, NON-blind, path-keyed) is still what `--gen-cache-only` runs
+  without a set fall back to, until step 6. `--gen-model local` stays as the API-free smoke path; it reads the
+  blueprint, so it never judges one. `eval/generator_models.py` compares generators through the loop (reader
+  agreement on FILLED fields, tokens, dollars).
 
-**Findings that shape the design** (RESULTS.md, 2026-09-30 sections).
+**Principles (Andrew, 2026-09-30).**
 
-- Fill count is a prompt knob, not a model trait; the model's signal is precision on the boxes it filled. On that
-  Gemini 3.1 Pro / 3.8 Flash >= Sonnet 4.6; gpt-5.5 ties 3.1 Pro at 10x price; gpt-4.1 / DeepSeek v4-pro over-fill
-  with ill-formed values; DeepSeek reasoning exhausts the 32k output cap. Default (Sonnet 4.6) unchanged.
+- Generation takes nothing from the widget layer or the blueprint; the class check and every comparison against
+  the blueprint are scoring steps.
 
-- The generator is dev-time: one cached case per form reused by every run; a poor case is baked in until
-  regenerated. Product scale is a handful of forms; per-dollar and latency are dev numbers.
+- A value of the right type is enough; realistic prose is a later problem. "Extract a correct value" and "fix a
+  malformed value" stay separate problems.
 
-- Product inputs are clean digital PDFs; scans and handwriting are out of scope.
+- The generator is dev-time: cases are cached and frozen per set, refreshed as a batch when the generator or its
+  prompt changes. Product scale is a handful of forms; cost and latency are dev numbers. Inputs are clean digital
+  PDFs.
 
-**The design (Andrew, 2026-09-30).**
-
-1. Two generators, compared per box: (a) values from the blueprint's typing (the bank, below) and (b) values from
-   the publisher metadata / the page itself (blind). A box the two disagree on is a labeler flag. This sits beside
-   the extraction comparison the loop already runs.
-
-2. Page-grounded classification, cached per form: the model classifies each box from the page image, blind (SSN,
-   city, date, yes/no, money, free text); a value bank supplies the values. Any number of fresh cases then cost
-   nothing; one person per case, so header copies of one identifier (the SSN on every 526EZ page) agree. The
-   classification is also a blueprint-independent second opinion on every box's semantic type.
-
-3. Value bank: a file of a few dozen names, addresses, phone numbers, SSNs, EINs, dates, amounts, emails; drawn by
-   class; consistent within a case. Free-text boxes still take a generated value.
-
-4. Multi-case sets per form (3-5), versioned: fixed within any before/after comparison, refreshed as a batch when
-   the generator or its prompt changes. Regenerate the imported non-blind working set blind.
-
-5. Keep "extract a correct value" and "fix a malformed value" as separate problems (a bank of malformed examples is
-   a different, later dataset).
-
-**Steps, in order** (1-4 done 2026-09-30, then rebuilt on page geometry the same night; 5-7 open).
-
-1. Classification pass: add a `--classify` mode to the blind generator (same page image + inventory; output
-   `{box: class}`), cache per form beside the values cache; write the class map into the run.
-
-2. Value bank file (`petey/synth/bank.yaml`) and a bank-backed case builder in `synth/local.py` keyed by the class
-   map (fallback: blueprint semantic type when no class map exists).
-
-3. Case sets: `runs/_gen_cache` gets a set id per form (`<form>_setN_caseK`); `validate`/`iterate` take `--case-set`;
-   scores aggregate over the set.
-
-4. Compare the two generators per box on the target forms (fw9, acord25, i765, vba21526ez, 10-10EZ); disagreement
-   -> `unresolved` flag for the reviewer; compare with the reader's flags.
-
-5. Decide the blind generator default (Sonnet 4.6 vs Gemini 3.1 Pro / 3.8 Flash); if more evidence is wanted,
-   precision at controlled density (typical vs complete case prompts, 2-3 draws) on ACORD 25 and I-765.
-
-6. Regenerate the library's working set blind with the chosen generator, as set 1 (retires the 134 imported
-   non-blind cases).
-
-7. **Regenerate everything from scratch (Andrew, 2026-09-30), in this order:** ground truth first (step 6), then
-   relabel the whole library with the current emitter and judge each fresh blueprint against the new case sets
-   alongside its old blueprint; a form where the old blueprint wins gets looked at, not overwritten. Order matters:
-   relabeling against the old non-blind cases would fit new blueprints to values invented from publisher names.
-   Dev-time batch: tens of dollars for both passes at Sonnet 4.6, a fraction on Gemini 3.8 Flash.
-
-## Synthetic data — done 2026-09-30 (steps 1-4, first pass, path-keyed; superseded the same night)
-
-Classifier, bank, case sets and class check were first built keyed by AcroForm path with a widget inventory
-(ids, control types, maxlen, choices, radio grouping) going to the model. Set 1 on that footing scored W-9 23/23,
-ACORD 25 128/128, I-765 140/140, 526EZ 328/328 by path. The class check found real blueprint faults on that
-pass: I-765 `attorney_state_bar_num` typed state_abbr and `employer_everify_company_id` typed business_name;
-526EZ's 35 `disability_N_nm` typed person_name (the `_nm` slug rule) and `va_file_number_2` captioned VETERAN'S
-NAME; ACORD 25's six insurer names typed person_name and seven policy numbers typed free text. Andrew's
-corrections that reshaped it: the class check is a scoring step, not case generation; generation reads nothing
-from the blueprint (the blueprint-typed fallback is gone); and the inventory itself was leakage (below). Numbers:
-RESULTS.md "Page-grounded classification, value bank and case sets".
-
-## Synthetic data — the geometry change (2026-09-30, late; Andrew)
-Case generation takes nothing from the AcroForm layer, including where the boxes are; widgets are touched only
-to fill. Done: `petey/synth/boxes.py` (step2flat's finder on the rendered blank, cached), classifier v4 and blind
-generator on ids-and-image only, cases keyed by page and rect with marks for options, `render.render_case`
-(best-overlap rect to widget, or draw on a flat blank; reports where each value landed), `validate/rect_join.py`
-(scorer joins on the landing rects), `validate --bpt` for side-copy blueprints, `eval/finder_vs_widgets.py` as the
-debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I-765 140/140, 10-10EZ 122/122,
-526EZ 327/328 mean. Numbers: RESULTS.md "Synthetic cases from the page alone".
-
-- **Finder granularity list** (fix in the finder, not with more fill-time rules): comb cells returned as uneven
-  groups (W-9 SSN); one box over stacked line widgets (ACORD address blocks); duplicate boxes over one checkbox;
-  526EZ 27D dollars / cents pair; 10-10EZ page-5 date boxes missed; small cells missed on ACORD 25.
-
-- **Blind generator under-fills on the rect prompt** (W-9: 14 of 26 fillable boxes; the name boxes came back
-  null). Measured after the rebuild, one draw, one form; not diagnosed. Likely cause: the prompt now says "null
-  for a rectangle that is not a fillable box", and the W-9's name boxes carry their caption on the line above
-  rather than inside, so an uncaptioned box reads as decoration. Position: this is step 5's problem, not a
-  separate one. Before touching the prompt, one draw per form on the five forms (about $1) to see whether it is
-  the W-9 or the prompt; then the fix is in the prompt text (a box under a caption line is that caption's box),
-  and the controlled-density comparison of step 5 runs on the rect prompt. Until then the bank is the only
-  generator the loop should judge with.
-
-- **Classifier on instruction pages**: the W-9's five instruction pages cost five calls to say "none" 40 times.
-  Position: accept it. It is dev-time cost (ten cents on the W-9; perhaps a third of calls over the library,
-  which product scale says is not a decision criterion), and the two ways to avoid it both carry risk: skipping
-  pages whose finder boxes are all low-confidence underlines would also skip a signature page; a cheaper model
-  for those pages adds a second model to the cache key for a saving of cents. Revisit only if step 6's bill says
-  otherwise.
-
-- **Option grouping disagreements** (526EZ `living_situation_14b`: the page groups two marks the blueprint keeps
-  apart): folded into Andrew's inventory cross-reference below as `option_group_mismatch`.
-
-- **Vocabulary, reconsidered.** The question is wider than identifiers: every box's class is one of 38 fixed value
-  names plus `option` / `none`. Two things the closed list is for, and they hold: the bank needs a key it has
-  values behind, and two runs of one form should name a box the same way (the class check and the finder
-  diagnostic both depend on that). What the closed list loses is the model's own words for the box, and that
-  is already half-kept: `label` carries the caption verbatim. Position: keep the vocabulary closed, and add a
-  free-text `reading` beside the class (one prompt line; what the model thinks the box holds in its own words,
-  e.g. "insurer's NAIC code"), used as evidence in the reviewer bundle and in the class-check rows, never as a
-  key. Identifiers stay one class (`other_id`) with `id_kinds` picking the shape from the caption; a new kind is
-  a YAML line, and a kind the bank lacks still gets a plausible generic. Andrew decides; the cost of the middle
-  path is one prompt version.
-
-## Synthetic data — what is left (steps 4b, 5, 6, 7)
+**Open.**
 
 - **Inventory cross-reference as a scoring step (Andrew, 2026-09-30; before trusting set 2's numbers).** Score the
   case inventory (finder boxes the classifier kept) against the blueprint inventory (fields and option widgets, by
-  rect), both directions plus many-to-one, and give every mismatch a taxonomy class (added to
-  `defect_taxonomy.py`, no detectors yet): `box_unreached` (field, no case box), `merged_box` (one case box holds
-  two or more field rects), `split_box` (several case boxes in one field; benign, `rect_join` concatenates),
-  `uncovered_widget` (case box, no field, a widget under it), `unbacked_box` (case box, no field, no widget),
-  `option_group_mismatch` (the classifier's `group` and the blueprint's groups partition the boxes differently;
-  the 526EZ `living_situation_14b` row above is one). Today `rect_join` returns only the unclaimed boxes; a field no
-  box reached is left out of the ground truth and scored as AGREE on empty, which is why 10-10EZ reads 122/122
-  while the finder misses seven of its page-5 boxes. Such fields get their own verdict (`not_generated`), stay out
-  of agreement, and are reported per form as a coverage count beside the value verdicts. Measured on the five
-  forms (`eval/finder_vs_widgets.py` plus an ambiguity pass): 14 widgets with no finder box, 21 finder boxes that
-  contain two or more widgets (ACORD 25 address lines, 526EZ date-of-birth parts, 10-10EZ), 93 widgets split across
-  several boxes, 442 finder boxes with no widget.
+  rect), both directions plus many-to-one, and give every mismatch its taxonomy class: `box_unreached` (field, no
+  case box), `merged_box` (one case box holds two or more field rects), `split_box` (several case boxes in one
+  field; benign, `rect_join` concatenates), `uncovered_widget` (case box, no field, a widget under it),
+  `unbacked_box` (case box, no field, no widget), `option_group_mismatch` (the classifier's `group` and the
+  blueprint's groups partition the boxes differently; 526EZ `living_situation_14b` is one). Today `rect_join`
+  returns only the unclaimed boxes; a field no box reached is left out of the ground truth and scored as AGREE on
+  empty, which is why 10-10EZ reads 122/122 while the finder misses seven of its page-5 boxes. Such fields get
+  their own verdict (`not_generated`), stay out of agreement, and are reported per form as a coverage count beside
+  the value verdicts. Measured on the five forms (`eval/finder_vs_widgets.py` plus an ambiguity pass): 14 widgets
+  with no finder box, 21 finder boxes that contain two or more widgets (ACORD 25 address lines, 526EZ
+  date-of-birth parts, 10-10EZ), 93 widgets split across several boxes, 442 finder boxes with no widget.
 
   - **Which box ate which** is resolvable without the widget layer: the blueprint's own field rects inside a merged
     case box name exactly the fields it swallowed, so it works on flat forms too. `boxes.match_rect` scores
     intersection over the smaller area, so containment ties at 1.0 and list order picks the widget; record the
-    tie (both candidates) instead of resolving it silently. The repair stays in the finder (split a box at the
-    rules printed inside it), per the finder granularity list above.
+    tie (both candidates) instead of resolving it silently. The repair stays in the finder (next item).
 
   - **Attribution**: on an AcroForm the widget layer is the third reference that says whether the finder or the
     labeler is wrong (a diagnosis after the case is made, never an input to it); on a flat form the mismatch is a
@@ -211,40 +110,53 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
     Never take option MEANING from the metadata: captions and option identity come from the page, because export
     words can contradict the printed captions (`export_caption_mismatch`: I-765's "Apt." box exports `FLR`).
 
+- **Finder granularity** (fix in the finder, not with more fill-time rules): comb cells returned as uneven groups
+  (W-9 SSN); one box over stacked line widgets (ACORD address blocks); duplicate boxes over one checkbox; 526EZ 27D
+  dollars / cents pair; 10-10EZ page-5 date boxes missed; small cells missed on ACORD 25.
+
 - **Rebinds over the set**: `correct.load_case` reads `case_001` only, so `name_rotation` / `name_slide` edges
   never benefit from the case set. Build edges per case and require them to hold across cases. Code, not a rerun.
 
-- **Donor**: removed from `bank.generate_from_bank` (2026-09-30, late). Andrew: prose is a later problem, a value
-  of the right type is enough, so free text stays on the bank's lines.
-
 - **Step 4, second half: class flags against the reader's flags** per field on set 2, with the reader arm (text
-  mode; image on 526EZ). W-9, ACORD 25 and I-765 were run on the path-keyed set 1 (RESULTS: disjoint flag sets on
-  ACORD 25, one overlap on I-765); rerun on set 2, and add 526EZ and 10-10EZ (`validate --bpt` exists now; `iterate`
-  still needs to pass it through).
+  mode; image on 526EZ). W-9, ACORD 25 and I-765 were run on the retired set 1 (disjoint flag sets on ACORD 25,
+  one overlap on I-765); rerun on set 2, and add 526EZ and 10-10EZ (`iterate` still needs to pass `--bpt`
+  through).
 
-- **Step 5: blind-generator default** (Sonnet 4.6 vs Gemini 3.1 Pro / 3.8 Flash). Unchanged; the bank now covers
-  most boxes, so the blind generator's job narrows to free text and to being generator (b) in the per-box
-  comparison. Decide after step 4 says how much the blind values add.
+- **Step 5: blind-generator default** (Sonnet 4.6 vs Gemini 3.1 Pro / 3.8 Flash). The bank covers most boxes, so
+  the blind generator's job narrows to being generator (b) in the per-box comparison; decide after step 4 says
+  how much the blind values add. Part of it: the blind generator under-fills on the rect prompt (W-9: 14 of 26
+  fillable boxes, the name boxes null; one draw, not diagnosed; likely the "null for a rectangle that is not a
+  fillable box" line meeting captions printed above the box). One draw per form on the five forms (about $1) to
+  tell the W-9 from the prompt, then fix the prompt text, then the controlled-density comparison on the rect
+  prompt (typical vs complete case prompts, 2-3 draws, ACORD 25 and I-765). Until then the bank is the only generator the loop judges with.
 
-- **Step 6: regenerate the library's working set** as set 1 — bank cases need only a classification per form
-  (about 2 cents a page, Sonnet 4.6; the five forms cost $1.80 over three prompt versions). Blind cases per form
-  stay optional. Needs Andrew's go-ahead: 134 forms. **Step 7**: relabel the library only after that, judged
-  against the new sets.
+- **Step 6: regenerate the library's working set** as a bank set (a classification per form, about 2 cents a
+  page at Sonnet 4.6), retiring the 134 imported non-blind cases. Needs Andrew's go-ahead. **Step 7**, after it:
+  relabel the whole library with the current emitter and judge each fresh blueprint against the new sets beside
+  its old blueprint; a form where the old blueprint wins gets looked at, not overwritten. Order matters:
+  relabeling against the old non-blind cases would fit new blueprints to values invented from publisher names.
 
 - **Classifier stability**: the same page classified twice (v2 -> v3 prompt) moved ACORD 25's uncaptioned insured
   block from a two-line slide to the conventional order; measure re-run agreement per box before the class check
   gates anything automatically. Same question as the reader-stability item below.
 
-- **Vocabulary gaps seen**: a split dollars/cents amount reads as `id_part` (526EZ 27D); `unit` vs the blueprint's
-  `text` for Apt/Ste/Flr numbers is a tier-1 row that is really a suggestion; `signature` sits in the name family.
+- **Vocabulary.** Position: keep it closed (the bank needs keys with values behind them; two runs of one form must
+  name a box the same way) and add a free-text `reading` beside the class (one prompt line, the model's own words
+  for the box), used as evidence in the reviewer bundle and the class-check rows, never as a key. Identifiers stay
+  one class (`other_id`) with `id_kinds` picking the shape. Andrew decides; the cost is one prompt version. Gaps
+  seen: a split dollars / cents amount reads as `id_part` (526EZ 27D); `unit` vs the blueprint's `text` for Apt /
+  Ste / Flr numbers is a tier-1 row that is really a suggestion; `signature` sits in the name family.
 
 - **Untyped fields (tier 2)**: 4 / 21 / 10 / 52 / 11 on the five forms. The page's class is a free semantic type
   for each; an emitter rule could take it when the blueprint has none (page class -> `semantic_type` via
   `SEMANTIC_TO_CLASS` inverted), keeping the blueprint's own typing where it exists.
 
-- **Entities**: the classifier's `entity` slugs (applicant / spouse / preparer / insured / producer / certificate
-  holder ...) are consistent within a form; not yet used by anything but the bank. A repeated-identifier check
-  (the SSN on every 526EZ page) falls out of them for free.
+- **Entities**: the classifier's `entity` slugs are consistent within a form; only the bank uses them. A
+  repeated-identifier check (the SSN on every 526EZ page) falls out of them for free.
+
+- Decided, no action: the classifier spends calls on instruction pages (the W-9's five pages say "none" 40 times).
+  Accepted as dev-time cost; skipping low-confidence pages would also skip a signature page. Revisit only if step
+  6's bill says otherwise.
 
 ## Now
 
