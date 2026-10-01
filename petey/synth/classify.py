@@ -244,6 +244,14 @@ def classify_form(
         text = call_page(client, model, pngs[page_no], system, user_text, tag)
         parsed = _extract_json_object(text)
         if not parsed or not isinstance(parsed.get("boxes"), dict):
+            # one retry with the bad reply quoted back: Sonnet 4.6 returned a stray brace on Form 5500 page 3 twice
+            # on 2026-10-01, and a dead page took the whole form's set rebuild with it
+            retry = (user_text + "\n\nYour previous reply was not one valid JSON object (it began: "
+                     + text[:200].replace("\n", " ") + " ...). Return exactly one JSON object of the shape above, "
+                     "with every box number once, and nothing else.")
+            text = call_page(client, model, pngs[page_no], system, retry, tag + "/retry")
+            parsed = _extract_json_object(text)
+        if not parsed or not isinstance(parsed.get("boxes"), dict):
             raise RuntimeError(f"classifier did not return {{'boxes': {{...}}}} on page {page_no}.\n"
                                f"Got: {text[:500]}")
         raw[str(page_no)] = parsed["boxes"]
