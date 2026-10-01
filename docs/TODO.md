@@ -20,14 +20,18 @@ misread caption reach neither the reviewer nor the loop's verdict. Two things ar
   - **When:** the reviewer proposes a rename (optionally a type change) on a field the chain does not settle: its
     caption is unverified (`verified` False / None in `field_chain`), or the publisher's tooltip / path and the
     caption disagree.
+
   - **Input:** a crop of the rendered BLANK page with the widget's own rect outlined (from the blueprint, not the
     finder or the classifier) and enough context to show neighbouring captions and table headers; the current
     name, the proposed name, the reviewer's reason, the tooltip / description.
+
   - **Question:** what would a filer write in the outlined box; does the current or the proposed name describe it?
     Answer `current` / `proposed` / `unclear` with a one-line reason. The rename lands only on `proposed`;
     `unclear` keeps the name and flags the field for a person.
+
   - **Where:** between `review.review_fields`' decision and its apply step, or in `iterate.judge_review` for
     renames (which today restores every rename judged 'same').
+
   - **Test before use, on the fields checked by eye on 2026-09-30 / 10-01 (side copies under
     `runs/judge_eval/blueprints/<form>_v0.bpt`):** approve KS DO-10 `ein_ssn_ptin`, `representative1_phone_number`,
     `representative1_ein_ssn_ptin` (and the two representative2 boxes) to the captions of their cells (Area Code &
@@ -39,6 +43,7 @@ misread caption reach neither the reviewer nor the loop's verdict. Two things ar
     TX DMV 1756 `control` ... `control_15` -> a Year / Make name. Reject MA LIC100
     `out_of_state_state_abbreviation_cd` -> `applicant_nm` (it sits under C5. State) and Utah WC-122
     `time_of_occurrence` -> `date_of_injury_illness` (it sits under TIME OF OCCURRENCE).
+
   - **Model and cost:** a vision model (Sonnet 4.6 or Opus 5), one call per contested rename; batch 2 had 11
     renames over 20 forms.
 
@@ -51,13 +56,16 @@ misread caption reach neither the reviewer nor the loop's verdict. Two things ar
     of its 117 widgets; SFN 18668: 4 boxes hold 85 of 107. The filler writes one widget per box, so every other
     cell is unreached. Fix in the finder: split a region at the rules printed inside it (the finder granularity
     list in the synthetic-data section has the same item for ACORD address blocks).
+
   - **Cells missed.** Form 5500 page 2: 79 widgets, 36 finder boxes, none of them swallowing several widgets;
     B106I page 2: 54 widgets, 15 boxes. Look at what these cells are (underlines, unruled cells, thin rules) in the
     finder's raw candidates before changing tiers.
+
   - **Measure first, with a size-aware yardstick.** `eval/finder_vs_widgets.py` matches with `boxes.match_rect`
     (intersection over the smaller area), so a widget inside a big region box counts as found and recall on table
     forms is overstated. Require the finder box to be comparable in size to the widget (say within 3x area) for
     a hit, report region boxes separately, and rerun it over the 44 forms as the before number.
+
   - Not the cause here: the bank's deliberate blanks (an empty value still lands and is not `box_unreached`),
     and the classifier's `none` (2 of ND 10RR's 98).
 
