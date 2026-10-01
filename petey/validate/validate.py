@@ -227,7 +227,7 @@ def _check_set(form_id: str, set_id: int, rebuild: bool, blank_pdf: Optional[Pat
     current = case_basis()
     if recorded == current:
         return recorded, [None], None
-    if recorded and blank_pdf is not None and not rebuild:
+    if recorded and blank_pdf is not None:        # migration first, even under --rebuild-set: frozen values stay
         old_finder, old_rest = recorded.split("|", 1)
         if old_rest == current.split("|", 1)[1] and _boxes_unchanged(blank_pdf, old_finder):
             _migrate_class_map(blank_pdf, old_finder)

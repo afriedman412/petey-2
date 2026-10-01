@@ -68,7 +68,8 @@ CLASS_OF = {
 def run_validate(form: str, blank: Optional[Path], *, gen_model: str, methods: str,
                  n_flat: int, gen_cache_only: bool, label_model: Optional[str],
                  gen_key: Optional[str], case_set: Optional[int] = None,
-                 n_cases: Optional[int] = None, bpt: Optional[Path] = None) -> Path:
+                 n_cases: Optional[int] = None, bpt: Optional[Path] = None,
+                 rebuild_set: bool = False) -> Path:
     if blank is None:
         bp = yaml.safe_load((bpt or BLUEPRINTS / f"{form}.bpt").read_text(encoding="utf-8"))
         blank = resolve_blank(bp)
@@ -89,6 +90,8 @@ def run_validate(form: str, blank: Optional[Path], *, gen_model: str, methods: s
         cmd += ["--n-cases", str(n_cases)]
     if bpt is not None:
         cmd += ["--bpt", str(bpt)]
+    if rebuild_set:
+        cmd.append("--rebuild-set")
     proc = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
     m = re.search(r"run_dir=(\S+)", proc.stdout or "")
     if proc.returncode != 0 or not m:
@@ -335,7 +338,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
             review_effort: str = "medium", review_rounds: int = 1,
             allow_dirty: bool = False, case_set: Optional[int] = None,
             n_cases: Optional[int] = None, bpt: Optional[Path] = None,
-            adjudicate: bool = True, adjudicator_model: Optional[str] = None) -> dict:
+            adjudicate: bool = True, adjudicator_model: Optional[str] = None,
+            rebuild_set: bool = False) -> dict:
     """See the module docstring. With `review` != "none", after the rule
     fixes the LLM reviewer (`review.py`) looks at the flagged fields and its
     fixes are applied; the NEXT validation judges them. If detections did
@@ -358,7 +362,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         t0 = time.time()
         run_dir = run_validate(form, blank, gen_model=gen_model, methods=methods, n_flat=n_flat,
                                gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key,
-                               case_set=case_set, n_cases=n_cases, bpt=bpt)
+                               case_set=case_set, n_cases=n_cases, bpt=bpt, rebuild_set=rebuild_set and i == 1)
         build = provenance.build_of_run(run_dir)
         if build:
             # the blueprint carries the build of its latest validation (finder, classifier, set, run): "rebuild it
@@ -469,12 +473,14 @@ def main() -> int:
     ap.add_argument("--no-adjudicate", action="store_true",
                     help="land the reviewer's contested renames without the page adjudicator")
     ap.add_argument("--adjudicator-model", default=None, help="vision model for contested renames (adjudicate.MODEL)")
+    ap.add_argument("--rebuild-set", action="store_true",
+                    help="first validate passes --rebuild-set: draw the case set again under the current basis")
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
     rv = dict(review=args.review, review_model=args.review_model,
               review_effort=args.review_effort, review_rounds=args.review_rounds, case_set=args.case_set, n_cases=args.n_cases, bpt=args.bpt,
               allow_dirty=args.allow_dirty, adjudicate=not args.no_adjudicate,
-              adjudicator_model=args.adjudicator_model)
+              adjudicator_model=args.adjudicator_model, rebuild_set=args.rebuild_set)
     if args.all or args.forms:
         from petey.validate.run_all import ready_targets
         targets = ready_targets()
