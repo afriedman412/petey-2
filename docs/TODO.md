@@ -225,6 +225,26 @@ and case sets".
     text-mode page, together with keying the cache on the text sent (above), or a fix would replay the cached
     answers. OCC 1003 was dropped from the judge-informativeness round (Andrew); rerun it after the fix.
 
+- **Judge informativeness (2026-09-30; RESULTS "How informative is the judge?" and "Twenty more forms").** 24
+  new forms, 1,740 fields, 308 judge disagreements; about 25 are naming defects (opaque `control` names on TX DMV
+  1756, KS DO-10 widgets the publisher placed one row off, a swapped pair on ND 1TP), the rest presentation and
+  case values. Follow-ups, in order:
+
+  - **The page wins on position.** The labeler's evidence ranking (tooltip > path > nearby text, "the publisher
+    wins") and the reviewer both defer to publisher metadata; on DO-10 and ACORD 25 the publisher put the widget
+    in the wrong box and the blueprint copied it, and the reviewer then kept it. A box's printed caption decides
+    what it holds; the publisher's name and tooltip are evidence, overruled when the page disagrees. Applies to
+    the labeler prompt, the reviewer prompt, and the planned path-to-labeler change.
+
+  - **Opaque names are a defect the reviewer must fix**: DMV 1756's 15 `control` fields were passed as "ok". The
+    taxonomy has `opaque_widget_name`; the reviewer prompt should rename them from the page.
+
+  - **Swaps go to the rebind, not to descriptions**: ND 1TP got two descriptions contradicting their names. Find
+    why `correct.py` built no 2-cycle there, and stop the reviewer writing a description that contradicts the name.
+
+  - **Filter the judge's flags by cause before the reviewer**: the layout-shift and implausible-value families
+    (most of the 308) should not reach the reviewer as name defects until the presentation fixes land.
+
 - **Reviewer: publisher descriptions are not removable.** The description is its own field on the spec (verbatim
   tooltip or XFA caption text, tagged `x_petey_description_source: tooltip | xfa_choices`); names are separate
   slugs the labeler derives with the tooltip as evidence. The reviewer's apply step honours `remove: [description]`

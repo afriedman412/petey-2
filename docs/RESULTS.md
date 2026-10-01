@@ -1053,3 +1053,48 @@ disagreements measure the presentation of the page (empty cells, code and mark c
 the generated values far more than the names. The class check carried the loop's useful edits. Not shown here:
 whether the judge would catch a misname on a page it reads cleanly (the stability runs' I-765 and ACORD 25
 blueprints are older and partly tuned on); planted misnamings would answer that directly.
+
+### Twenty more forms (2026-09-30, `eval/judge_informativeness.py`)
+
+The same pipeline on 20 more new AcroForm forms (13 verticals, random pick with at most two per vertical, each with
+at least one option box so the text-mode ordering bug does not apply; list in `runs/judge_eval/batch20.txt`), three
+workers, about 30 minutes; reviewer cost $2.20 over the batch. With the first four, 24 forms and 1,740 fields.
+
+| | count |
+|---|---|
+| judge disagreements | 308 |
+| sorted by rule: layout shift / implausible value / format / code cell / mark cell / unexplained | 193 / 46 / 34 / 6 / 2 / 27 |
+| flags to the reviewer: judge / class check / shape / option group | 183 / 132 / 45 / 23 |
+| kept edits | 102: 81 on flags the judge did not raise (mostly the class check), 21 on judge flags (10 judge only) |
+
+**The judge does find naming defects; they are about one disagreement in twelve.** Read by hand from the
+disagreements and from a name-vs-caption screen (60 candidates, most of them noise: abbreviations, caption
+fragments, captions read one box off):
+
+- **TX DMV 1756**: 15 fields named `control` ... `control_15` in a Year / Make table (the labeler kept an opaque
+  path name). The judge disagreed on all 15.
+- **KS DO-10**: five widgets the publisher placed one row off: `ein_ssn_ptin` sits in the box captioned Area Code &
+  Phone Number, `representative1_phone_number` in the EIN/SSN/PTIN box, `representative1_ein_ssn_ptin` in the Fax
+  Number box (confirmed on the rendered page; captions print at the top of their own box). A filer types by
+  position, so the blueprint's names, copied from the publisher, are wrong. The judge disagreed on all five. The
+  ACORD 25 phone / ZIP pattern again.
+- **ND 1TP**: `process_types` and `primary_waste_streams` swapped. The judge disagreed on both.
+- **SS-4** (`ein` on the legal-name box), **ID STC-06** (phone-number name on a name-and-phone box), **TX DWC-001**
+  (a months / years pair crossed, one of the two): judge disagreements, the first two also flagged by other checks.
+- Missed: AL 2848A `taxpayer_signature` on the `SignatureDate` box (the judge agreed); the other DWC-001 field.
+
+About 25 of the 308 disagreements are naming defects; the rest are the presentation and value families above.
+
+**The loop under-repairs what the judge finds.** SS-4 and STC-06 were renamed correctly. 1TP got descriptions that
+describe each box correctly beside the swapped names, so each field now contradicts itself; the repair is a
+rebind (`correct.py`), which did not fire. DO-10: the reviewer kept the publisher's names, citing the rule that
+publisher metadata outranks nearby text, which is exactly backwards when the publisher placed the widget wrong.
+DMV 1756: the reviewer passed all 15 `control` fields as "ok".
+
+**Noise from the batch cache, seen in passing.** DMV 1756: one description edit, and the next round's detections
+rose from 63 to 71: the edit re-keyed the 120-field batch and every field was read again.
+
+**Reading.** The judge is informative but low-precision: its naming signal (opaque names, publisher misplacement,
+swaps) is real and sits under a much larger layer of presentation and value disagreements, which the presentation
+fixes and plausible case values should remove. The larger loss is downstream: the reviewer defers to publisher
+metadata and does not rename opaque names, so the judge's best catches are not repaired.
