@@ -242,6 +242,14 @@ and case sets".
   - **Swaps go to the rebind, not to descriptions**: ND 1TP got two descriptions contradicting their names. Find
     why `correct.py` built no 2-cycle there, and stop the reviewer writing a description that contradicts the name.
 
+  - **Batch 2 (2026-09-30; RESULTS "Batch 2").** The page-wins fix repaired publisher misplacement (VA RDT-120
+    three renames, Utah WC-122 three, all right on the page) and made two wrong renames from captions the
+    classifier misattributed (`caption_misattributed`: LIC100, WC-122 `time_of_occurrence`). Next:
+    (1) the caption for the gate and the reviewer comes from page geometry (words inside the box, else directly
+    above it in its cell), cross-checked with the classifier's label; on disagreement no rename rests on it.
+    (2) The path-to-labeler change (decided earlier, not built) would have prevented WC-122's misnames: its paths
+    are readable ("Employer Tel #", "Location", "Time of Occ").
+
   - **implausible_case_value, logged, decide later (Andrew, 2026-09-30).** Boxes the classifier calls `other` /
     `free_text` get bank filler ("Services maintenance" as an Issuing Authority, "Maintenance" for a Month/Year),
     which the judge rightly refuses. No new classes for now (county and survey township / range considered and

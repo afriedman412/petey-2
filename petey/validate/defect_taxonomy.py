@@ -834,6 +834,21 @@ REGISTRY: tuple[DefectClass, ...] = (
         notes="None of the five test forms lacks option boxes, so it never showed before 2026-09-30.",
     ),
     DefectClass(
+        name="caption_misattributed",
+        owner="generator", tier=None,
+        canonical="lic100:out_of_state_state_abbreviation_cd — the box sits under 'C5. State'; the page classifier gave it "
+                  "the caption 'B16. Name' (two rows up) and the reviewer renamed a right field to applicant_nm",
+        validation="external",
+        signature="the classifier's caption for a box is a neighbouring box's caption; the finder box and the widget "
+                  "align, so the rect join is right and the reading is wrong",
+        fix="the caption used for review and for the gate comes from the page geometry (words inside the box's rect, "
+            "else directly above it within its cell), cross-checked with the classifier's label; when they disagree "
+            "the caption is uncertain and no rename rests on it",
+        detector=None,
+        notes="Found 2026-09-30, batch 2: two wrong renames (LIC100, Utah WC-122 time_of_occurrence -> "
+              "date_of_injury_illness). LIC100 shows a run of them, every mailing-address box one caption off.",
+    ),
+    DefectClass(
         name="implausible_case_value",
         owner="generator", tier=None,
         canonical="i_9:list_b_issuing_authority — the bank wrote 'Services maintenance' into a box captioned Issuing "

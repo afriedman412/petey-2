@@ -1098,3 +1098,43 @@ rose from 63 to 71: the edit re-keyed the 120-field batch and every field was re
 swaps) is real and sits under a much larger layer of presentation and value disagreements, which the presentation
 fixes and plausible case values should remove. The larger loss is downstream: the reviewer defers to publisher
 metadata and does not rename opaque names, so the judge's best catches are not repaired.
+
+### Batch 2: twenty more forms with the fixes in (2026-09-30)
+
+Same pipeline after commit 21dff12 (the page wins on position, opaque names renamed, swaps not described, judge
+flags gated by caption, unique bank free text). 20 new forms (`runs/judge_eval/batch20b.txt`), 1,751 fields,
+about 25 minutes on three workers.
+
+| | batch 1 (24 forms) | batch 2 (20 forms) |
+|---|---|---|
+| fields | 1,740 | 1,751 |
+| judge disagreements | 308 | 428 |
+| by rule: layout / implausible / format / unexplained / code+mark | 193 / 46 / 34 / 27 / 8 | 239 / 89 / 61 / 36 / 3 |
+| renames kept by the loop | 2 | 11 |
+
+**The fixes repaired publisher misplacement.** VA DMV RDT-120: the widgets whose tooltips say DOING BUSINESS AS
+NAME and CORPORATION STATE sit in the boxes captioned STATE BUSINESS FORMED IN and TOTAL NUMBER OF QUALIFIED
+VEHICLES; the reviewer renamed both, and `individual_account_nm` to `legal_business_nm`, all three right on the
+rendered page. Utah WC-122: `claim_number` on the PHONE # box (its path is "Employer Tel #"), the labor-commission
+date on LOCATION #, the employer address on EMPLOYERS LOCATION ADDRESS: renamed, all right.
+
+**And it made two wrong renames, from a misread caption.** WC-122 `time_of_occurrence` sits under the printed
+TIME OF OCCURRENCE and was renamed `date_of_injury_illness` (the neighbouring cell's caption). MA LIC100
+`out_of_state_state_abbreviation_cd` sits under C5. State and was renamed `applicant_nm`: the classifier gave
+that box the caption "B16. Name", two rows up. The finder box and the widget align; the classifier misattributes
+captions on dense forms (on LIC100 a run of them: `ssn` against "B4. Suffix", the mailing address one box off),
+and both the review gate and the reviewer's `caption_printed_for_this_box` take its word. The reviewer left
+LIC100's other offset fields alone.
+
+**The labeler would not have made the WC-122 errors with the path.** Its paths are readable ("Employer Tel #",
+"Location", "Time of Occ") and the labeler never sees them (the path-to-labeler change, decided 2026-09-30, not
+yet built).
+
+**Louisiana 7006's 52 edits are mostly defensible.** 50 came from shape flags that bank filler set off ("Quarterly
+renewal" in a box typed year); the reviewer loosened the type citing the printed column caption "Year(s) or
+Period(s)", which does take ranges. Filler as the trigger, a right decision on the caption.
+
+**Irish MED2**: 83 of its 84 disagreements are layout shifts (a table of expenses with empty cells).
+
+Implausible case values over all 44 forms: 135 (`runs/judge_eval/implausible_case_values.csv`); commonest caption
+words excise, location, district, qtr, county, township, range.
