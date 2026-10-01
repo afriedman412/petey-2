@@ -910,3 +910,52 @@ box and `_cents` the left-hand (dollars) one. The class check cannot see it (bot
 check cannot either (each rect is reached). It shows only when a filler writes dollars left and cents right and
 the by-path readback disagrees, which is what the two "differ" rows were before the write-once rule masked them.
 Worth a taxonomy class of its own: two fields of one family with swapped rects.
+
+## Reader stability (2026-09-30, `eval/reader_stability.py`, I-765 set 3)
+
+The loop's name-based reader (the dev-time judge of the blueprint's names; product extraction is the native path)
+once gave 40 and 45 detections on the same I-765 blueprint and document. Andrew: no noise floor, measure it. Three
+cases of the frozen bank set 3, each read five times with the reader cache bypassed (a salt per read), text mode,
+Sonnet 4.6 at temperature 0; every read scored as validate scores. 30 calls, 329k in / 38k out tokens, $1.55.
+
+| case | detections per read (differ + miss) |
+|---|---|
+| case 1 | 4, 4, 4, 6, 5 |
+| case 2 | 4, 4, 4, 4, 4 |
+| case 3 | 7, 7, 7, 8, 8 |
+
+| per field, across the three cases | fields |
+|---|---|
+| stable and right | 125 |
+| stable and wrong | 9 |
+| flips on some case | 4 |
+| flips on every case | 0 |
+
+The reader is mostly stable, and its instability is not scattered. Three of the four flipping fields are
+stable-wrong on the other cases, and the fourth (`item_6c_item_number`) is the neighbour of a slid cell: a flip is
+the borderline case of a systematic fault, not noise on a sound field. The faults:
+
+- **Empty cells in a table row (9 of the 13 non-stable-right fields).** I-765 Part 6's page / part / item number
+  rows: when the bank leaves the page number empty, the text layer shows `475 206` under the three headers with no
+  sign of which cell is empty, and the reader shifts the values one column left (`item_5a_page_number` reads 475,
+  `item_5b_part_number` reads 206, `item_5c_item_number` reads nothing). Stable when the shift is unambiguous,
+  flipping when it is not (`item_6b_part_number` read 64 once in five). A text-mode representation gap, not a
+  naming defect: the names are right.
+- **Unit type** (`mailing_` / `physical_address_unit_type`): the reader answers the printed caption beside the
+  `[x]` (ste), the ground truth carries the export word (flr). The known `export_caption_mismatch` class; stable.
+  One read of an empty group answered `ste_ind` (a flip on case 1).
+- **`attorney_state_bar_num`**: missed on cases 1 and 2 (bank values `A968179675`, `ACCT450740399`), found three
+  times in five on case 3 (`VA524200606`). The field is typed `state_abbr` (a class-check tier-1 row) and the
+  bank's identifier shapes are not bar numbers; both make it borderline.
+- **Filling an empty field from context**: `place_of_last_arrival_txt` empty in the ground truth, read as
+  'Richmond' (the applicant's city) in every read.
+
+The ambiguity proxies (numbered sibling, shared description) flag 2 of 32 fields flipping against 2 of 106
+without: too crude to test the hypothesis that flips sit on fields the blueprint leaves ambiguous; "wrong on
+another case" predicts the flips better than either proxy.
+
+Consequence for the loop: the 40 / 45 swing is mostly the batch cache re-reading every field of a 120-field batch
+after one edit, landing on the few borderline fields, rather than a judge that is unreliable across the board.
+Next: empty-box tokens in text mode (as the `[x]` / `[ ]` option tokens), then rerun; the whole-form check
+compares only fields whose verdict held and confirms changed verdicts with two extra reads; the same measurement
+on ACORD 25 and 526EZ before generalising.

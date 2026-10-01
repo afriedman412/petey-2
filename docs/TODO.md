@@ -172,20 +172,30 @@ and case sets".
 
 ## Now
 
-- **Reader stability, measured, not floored (next, once the finder fix lands; Andrew).** The loop's judge is the
-  name-based reader, an LLM call; the same blueprint and filled PDF gave 40 and 45 detections on two runs (I-765,
-  temperature 0). Andrew: no noise floor; measure what is and is not stable and debug it. Wait for the finder work:
-  the cases come from the finder, so set 2 is regenerated when it changes.
+- **Reader stability, measured, not floored (Andrew).** The loop's judge is the name-based reader, an LLM call (a
+  dev-time judge of the blueprint's names; product extraction is the native path, no LLM). The same blueprint and
+  filled PDF once gave 40 and 45 detections (I-765, temperature 0). Andrew: no noise floor; measure what is and is
+  not stable and debug it.
 
-  - **Step 1, ready to run:** `eval/reader_stability.py --form i765 --case-set 2 --cases 3 --reads 5` (30 reader
-    calls at Sonnet 4.6; `--dry-run` prints the plan). Each read bypasses the reader cache through a salt
-    (`extract_llm(cache_salt=...)`, empty salt = old keys), so reruns of the script replay for free. Per field per
-    case: stable_right / stable_wrong / flipping; across cases: flips on every case (a field property) or on
-    some (a value property); wrong answers traced by value identity to the box they came from; ambiguity proxies
-    (numbered sibling, shared description) to test the hypothesis that flips sit on fields the blueprint leaves
-    ambiguous. Limitation: the bank gives an entity's other-name boxes its own name (I-765 Lines 1a / 2a / 3a all
-    hold the applicant's family name), so tracing among those is a candidate list, and a slide between them
-    cannot show.
+  - **Step 1 done (2026-09-30; RESULTS "Reader stability").** `eval/reader_stability.py`, I-765 set 3, three cases
+    x five fresh reads (cache bypassed by salt), Sonnet 4.6, $1.55. 125 of 138 fields stable and right, 9 stable
+    and wrong, 4 flip on some case, none on every case; detections per read 4-6 / 4 / 7-8. Flips are not scattered:
+    three of the four flipping fields are stable-wrong on the other cases and the fourth is the neighbour of a slid
+    cell, so a flip marks the borderline case of a systematic fault. The faults: (a) the Part 6 page / part / item
+    number rows, where the text layer gives "475 206" under three headers with no sign of which cell is empty, so
+    the reader shifts values left (7 of the 9 stable-wrong rows and 2 of the 4 flips); (b) unit type read as the
+    printed caption against ground truth from the export word (`export_caption_mismatch`, known); (c)
+    `attorney_state_bar_num`, typed state_abbr (a class-check row already) with bank values like 'ACCT450740399';
+    (d) the reader filling an empty field from context (place of last arrival 'Richmond'; one unit-type read).
+    The numbered-sibling / shared-description proxies are too crude to test the hypothesis (2 / 32 vs 2 / 106).
+
+  - **Step 2, from step 1:** fix the causes before building voting. (1) Text mode marks empty text boxes the way
+    it marks option boxes (`[ ]` or a blank token at every empty box, from the widget state), so a row with an
+    empty first cell reads unambiguously; rerun step 1 to confirm the Part 6 cluster goes. (2) The whole-form check
+    in `iterate` compares only fields whose verdict held, and confirms any field whose verdict changed in a round by
+    two extra reads of that field (cheap), restoring the round when a confirmed stable field got worse; no
+    threshold. (3) Before generalising, the same measurement on ACORD 25 (uncaptioned blocks) and 526EZ (image
+    mode). Voting over every read stays in reserve: on I-765 it would buy little.
 
   - **Why the 40 / 45 happens in the loop:** the reader cache keys on the PDF bytes, model, parser and the batch
     of up to 120 fields sent in the call (`extract_llm._ask`). An unchanged rerun replays; one edited field
@@ -197,11 +207,6 @@ and case sets".
     noise, it does not remove it; it comes after step 1. Same-key loose end: in text mode the document sent
     depends on the blueprint (pages, `[x]` tokens at its option boxes) but the key hashes the PDF bytes; hash the
     text sent.
-
-  - **Step 2, depending on step 1:** if flips cluster on ambiguous fields, flipping is a blueprint signal and
-    becomes a detector; if they are scattered, read each field 3-5 times and vote, a field without a majority
-    is unresolved rather than better or worse. Either way the whole-form check (the I-765 37 -> 51 round) becomes
-    "any stable field got worse -> restore the round", with no threshold.
 
 - **Reviewer: publisher descriptions are not removable.** The description is its own field on the spec (verbatim
   tooltip or XFA caption text, tagged `x_petey_description_source: tooltip | xfa_choices`); names are separate
