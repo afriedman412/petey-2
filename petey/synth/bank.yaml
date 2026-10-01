@@ -64,3 +64,23 @@ free_text:
   - Household of three, one dependent
   - Sole proprietor, no employees
   - Relocated for employment in 2024
+
+# Identifier kinds for boxes the classifier calls other_id. The first entry
+# whose `match` term appears in the box's caption (lowercased) gives the
+# shape: # is a digit, A a letter, anything else literal. Add a line per
+# new kind; the generic fallback is a prefix from id_prefixes plus nine
+# digits.
+id_kinds:
+  - {match: [a-number, alien registration, uscis number], shape: "A#########"}
+  - {match: [naic], shape: "#####"}
+  - {match: [sevis], shape: "N##########"}
+  - {match: [i-94], shape: "###########"}
+  - {match: [receipt number], shape: "IOE##########"}
+  - {match: [passport], shape: "#########"}
+  - {match: [medicare], shape: "#AA#-AA#-AA##"}
+  - {match: [va file, file number, claim number], shape: "C########"}
+  - {match: [policy], shape: "POL-########"}
+  - {match: [certificate number], shape: "CERT-######"}
+  - {match: [license, driver], shape: "A########"}
+  - {match: [account], shape: "###########"}
+  - {match: [service number, dod id], shape: "##########"}

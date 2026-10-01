@@ -102,6 +102,26 @@ proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonom
 - Set 1 (bank, 3 cases) by path: W-9 23/23, ACORD 25 128/128, I-765 140/140, 526EZ 328/328, zero ground-truth
   defects after the group fix. Anthropic client now has a timeout (one stalled stream held a run for three hours).
 
+## Synthetic data — the geometry change (2026-09-30, late; Andrew)
+Case generation takes nothing from the AcroForm layer, including where the boxes are; widgets are touched only
+to fill. Done: `petey/synth/boxes.py` (step2flat's finder on the rendered blank, cached), classifier v4 and blind
+generator on ids-and-image only, cases keyed by page and rect with marks for options, `render.render_case`
+(best-overlap rect to widget, or draw on a flat blank; reports where each value landed), `validate/rect_join.py`
+(scorer joins on the landing rects), `validate --bpt` for side-copy blueprints, `eval/finder_vs_widgets.py` as the
+debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I-765 140/140, 10-10EZ 122/122,
+526EZ 327/328 mean. Numbers: RESULTS.md "Synthetic cases from the page alone".
+- **Finder granularity list** (fix in the finder, not with more fill-time rules): comb cells returned as uneven
+  groups (W-9 SSN); one box over stacked line widgets (ACORD address blocks); duplicate boxes over one checkbox;
+  526EZ 27D dollars / cents pair; 10-10EZ page-5 date boxes missed; small cells missed on ACORD 25.
+- **Blind generator under-fills on the rect prompt** (W-9: 14 of 26 boxes; names null). Prompt knob; turn it
+  before the blind generator serves as generator (b) in the per-box comparison.
+- **Classifier on instruction pages**: the W-9's five instruction pages cost five calls to say "none" 40 times.
+  A page with no finder box above a confidence floor could be skipped.
+- **Option grouping disagreements** (526EZ `living_situation_14b`: the page groups two marks the blueprint keeps
+  apart) are a class-check row waiting for a tier: the page's grouping vs the blueprint's `widgets`.
+- **Vocabulary**: still the closed 40 names plus `option` / `none`; Andrew's question on open vs closed is open.
+  Keeping a free-text `reading` beside the class is the cheap middle.
+
 ## Synthetic data — what is left (steps 4b, 5, 6, 7)
 - **Step 4, second half: class flags against the reader's flags** per field on the five sets, with the reader arm
   (text mode; image on 526EZ). ACORD 25 and I-765 runs are in RESULTS; 526EZ and 10-10EZ still to run (10-10EZ's

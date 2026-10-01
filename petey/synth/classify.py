@@ -1,21 +1,24 @@
 """Page-grounded box classification (TODO v6, synthetic data step 1).
 
-The model sees exactly what the blind generator sees: the page image with a
-numbered red box on every widget and an inventory of box ids and control
-types. No AcroForm names, no export values. It returns, per box, a class
-from the closed vocabulary below and an entity slug (whose SSN is this).
+The model sees the page image with a numbered red box on every fillable box
+the page finder found (`synth.boxes`, run on the rendered blank; nothing
+from the AcroForm layer) and an inventory that is nothing but the box ids.
+It returns, per box, the caption it read, a class from the closed
+vocabulary below, whose value it is (`entity`), and for option boxes the
+question a set of them answers (`group`). It decides for itself whether a
+box takes text or a mark, and which marks belong together.
 
 Two consumers:
   * the value bank (`synth.bank`): a class map plus a bank of names,
     addresses and numbers builds any number of cases for free, one
     persona per entity, so header copies of one identifier agree;
-  * the labeler check: the class is a blueprint-independent second
-    opinion on every box's semantic type (`SEMANTIC_TO_CLASS` maps the
-    blueprint's vocabulary onto this one for the comparison).
+  * the class check (`validate.class_check`, a scoring step): the class is a
+    blueprint-independent second opinion on every box's semantic type
+    (`SEMANTIC_TO_CLASS` maps the blueprint's vocabulary onto this one).
 
-Cached once per (blank bytes, model, prompt version) under
-`runs/_gen_cache/classify/`; no case key, the classification is a fact
-about the form. Written into runs as `class_map.json`.
+Everything is keyed by the box's page and rect (`boxes.rect_key`), never by
+an AcroForm path. Cached once per (blank bytes, finder version, model,
+prompt version) under `runs/_gen_cache/classify/`.
 """
 from __future__ import annotations
 
@@ -26,12 +29,10 @@ from pathlib import Path
 from typing import Any, Optional
 
 from petey.paths import RUNS
-from petey.synth.generate import (
-    MODEL, _extract_json_object, _model_view, blind_inventory, call_page,
-    make_client, render_annotated_pages,
-)
+from petey.synth.boxes import FINDER_VERSION, find_boxes, render_numbered_pages
+from petey.synth.generate import MODEL, _extract_json_object, call_page, make_client
 
-PROMPT_VERSION = "3"
+PROMPT_VERSION = "4"
 CACHE_DIR = RUNS / "_gen_cache" / "classify"
 
 # class -> what it means. Order is the order shown to the model.
@@ -70,13 +71,11 @@ CLASSES: dict[str, str] = {
     "number": "another numeric value (age, weight, mileage, rate)",
     "title": "a job title, role, or relationship word (Spouse, Owner, Director)",
     "signature": "a signature box (drawn or typed)",
-    "mark": "a small text box where the filer types an X, Y or check mark to mark a column (ADDL INSD, SUBR WVD, OTHER); not a checkbox control",
     "free_text": "prose or a description the filer writes in their own words",
-    "other": "none of the above",
-    # controls (the model still classes them, so a yes/no pair is known as one)
-    "yes_no": "a radio group or combobox whose options are Yes / No (or True / False)",
-    "choice": "any other radio group or combobox: one option from a printed list",
-    "checkbox": "a standalone checkbox",
+    "other": "a fillable box whose kind you cannot tell",
+    # marks and non-boxes: the model decides these from the page
+    "option": "a box that takes a MARK, not text: a checkbox square, a radio circle, or a small cell where an X is typed to pick a column",
+    "none": "not a fillable box at all: a heading, an instruction line, a printed label, a table cell that holds no filer value",
 }
 
 # Persona-bearing classes: the bank draws these from one persona per entity.
@@ -97,38 +96,39 @@ SEMANTIC_TO_CLASS: dict[str, str] = {
     "street_address": "street", "entity_name": "business_name",
     "business_name": "business_name", "first_name": "first_name", "last_name": "last_name",
     "person_name": "full_name", "description": "free_text", "text": "free_text",
-    "indicator": "checkbox",
+    "indicator": "option",
 }
 
 # Classes that agree with each other for the labeler comparison (a whole
 # name typed person_name is not wrong because the page says last_name).
 CLASS_FAMILY: dict[str, str] = {
     "first_name": "name", "middle_name": "name", "last_name": "name", "full_name": "name",
+    "signature": "name",
     "date": "date", "birth_date": "date",
-    "date_month": "date_part", "date_day": "date_part", "date_year": "date_part",
+    "date_month": "date_part", "date_day": "date_part", "date_year": "date_part", "year": "date_part",
     "ssn": "tax_id", "itin": "tax_id", "ein": "tax_id",
     "money": "number", "percent": "number", "count": "number", "number": "number",
     "street": "address", "unit": "address", "address_block": "address", "city_state_zip": "address",
-    "year": "date_part", "code": "code", "mark": "control",
-    "yes_no": "control", "choice": "control", "checkbox": "control",
-    "signature": "name", "id_part": "id_part", "phone_part": "id_part",
+    "id_part": "id_part", "phone_part": "id_part",
+    "option": "control", "checkbox": "control", "yes_no": "control", "choice": "control", "mark": "control",
+    "code": "code",
 }
 
 _ENTITIES = ("applicant", "spouse", "dependent_1", "dependent_2", "employer", "preparer",
              "representative", "insured", "producer", "insurer", "certificate_holder",
              "provider", "contact", "payer", "recipient", "other")
 
-SYSTEM_PROMPT = """You classify the fillable boxes on a blank form. You see \
-the page image with a numbered red box drawn on every fillable widget, and \
-an inventory listing each box number with its control type. Read the \
-printed label next to each box and say what KIND of value belongs there \
-and WHOSE value it is.
+SYSTEM_PROMPT = """You classify the boxes on a blank form. You see the page \
+image with a numbered red rectangle drawn on every box a layout pass found, \
+and a list of the box numbers. Nothing else is known about the boxes: read \
+the page and say, for each one, what KIND of value belongs there and WHOSE \
+value it is. Some rectangles are not fillable boxes at all (the layout pass \
+over-proposes); say so with the class "none".
 
 OUTPUT SHAPE:
 - Return JSON only. No prose, no markdown, no code fences.
 - Top-level shape: {{"boxes": {{"<box number>": {{"label": "<caption or null>", "class": "<class>", "entity": "<entity or null>", "group": "<question or null>"}}, ...}}}}
-- One entry per box in the inventory. Radio groups are one box (the group \
-id); classify the group, not its options.
+- One entry per box number in the list.
 
 LABEL: the caption printed for THIS box, verbatim (a column heading counts \
 when the box sits under it). null when the box has no caption of its own: \
@@ -140,35 +140,33 @@ not by caption.
 
 CLASS: exactly one of the names below. Pick the most specific that fits. \
 A box that holds one part of a split value (month of a date, first three \
-digits of an SSN, area code) takes the PART class, never the whole one. \
-A box whose label you cannot read confidently is "other".
+digits of an SSN, area code) takes the PART class, never the whole one. A \
+small square, circle or cell that is ticked rather than written in is \
+"option". A rectangle that is not a place for the filer to put anything is \
+"none". A fillable box whose kind you cannot tell is "other".
 
 {classes}
 
-GROUP: for a checkbox only. When several checkboxes on the page are the \
-options of ONE question (Apt / Ste / Flr; Single / Married / Divorced / \
-Widowed; the entity-type boxes on a W-9), give every box of that set the \
-same short string, the question's printed text (e.g. "Marital Status", \
-"Unit type, physical address", "Federal tax classification"). null for a \
-standalone checkbox and for every non-checkbox box. Boxes of one set share \
-a group even when the form allows more than one to be checked.
+GROUP: for "option" boxes only. When several option boxes on the page are \
+the choices of ONE question (Apt / Ste / Flr; Single / Married / Divorced / \
+Widowed; Yes / No; the entity-type boxes on a W-9), give every box of that \
+set the same short string, the question's printed text (e.g. "Marital \
+Status", "Unit type, physical address", "Federal tax classification"). null \
+for a standalone option box and for every non-option box. Boxes of one set \
+share a group even when the form allows more than one to be checked.
 
 ENTITY: whose value the box holds, as a short slug. Use the form's own \
 words for the role when it prints them (Insured, Producer, Certificate \
 Holder, Preparer, Spouse, Dependent 1). Prefer these slugs when they fit: \
 {entities}. The filer of the form is "applicant". A box that belongs to \
-no person or organization (a plain date, an amount, free text, a control) \
+no person or organization (a plain date, an amount, free text, an option) \
 takes entity null.
 
 Ground every answer in this page. You may recognize the form; the page \
-image and inventory supplied here are authoritative for this file.
+image supplied here is authoritative for this file.
 """
 
-USER_TEMPLATE = """Boxes on this page:
-
-```json
-{inventory_json}
-```
+USER_TEMPLATE = """Box numbers on this page: {ids}
 
 The page image is attached with each box number drawn at the top-left \
 corner of its red rectangle. Classify every box. Return JSON:
@@ -186,14 +184,23 @@ def cache_path(pdf_bytes: bytes, model: str, cache_dir: Path = CACHE_DIR) -> Pat
     h = hashlib.sha256()
     h.update(pdf_bytes)
     h.update(b"\x00classify\x00")
+    h.update(FINDER_VERSION.encode("utf-8"))
+    h.update(b"\x00")
     h.update(model.encode("utf-8"))
     h.update(b"\x00")
     h.update(PROMPT_VERSION.encode("utf-8"))
     return cache_dir / f"{h.hexdigest()}.json"
 
 
-def _control_type(box: dict) -> str:
-    return box["type"]
+def dry_run(pdf_path: Path, out_dir: Path) -> dict:
+    """Write the numbered pages and the box list the model would see; no API."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    boxes = find_boxes(pdf_path)
+    pngs = render_numbered_pages(pdf_path, boxes)
+    for page_no, png in pngs.items():
+        (out_dir / f"page_{page_no:02d}.png").write_bytes(png)
+    (out_dir / "boxes.json").write_text(json.dumps(boxes, indent=1))
+    return {"pages": len(pngs), "boxes": len(boxes), "out": str(out_dir)}
 
 
 def classify_form(
@@ -202,9 +209,11 @@ def classify_form(
 ) -> Optional[dict]:
     """The class map for one blank form, from cache or one call per page.
 
-    Returns `{"boxes": {acroform_path: {class, entity, box, page, control}},
-    "raw": {page: model output}, "unknown_boxes": [...], "unclassified": [...],
-    ...provenance}`, or None when `cache_only` and nothing is cached.
+    Returns `{"boxes": {rect_key: {class, entity, label, group, box, page,
+    rect, kind}}, "raw": {page: model output}, ...provenance}`, or None when
+    `cache_only` and nothing is cached. `kind` is the finder's own guess
+    (text / checkbox / radio), kept for the diagnostic, not shown to the
+    model.
     """
     pdf_path = Path(pdf_path)
     if not pdf_path.exists():
@@ -212,77 +221,105 @@ def classify_form(
     pdf_bytes = pdf_path.read_bytes()
     cp = cache_path(pdf_bytes, model, cache_dir)
     if cp.exists():
-        return json.loads(cp.read_text(encoding="utf-8"))
+        return _guard(json.loads(cp.read_text(encoding="utf-8")))
     if cache_only:
         return None
 
-    per_page, key = blind_inventory(pdf_path)
-    pngs = render_annotated_pages(pdf_path, per_page)
+    boxes = find_boxes(pdf_path)
+    by_id = {b["id"]: b for b in boxes}
+    pngs = render_numbered_pages(pdf_path, boxes)
     if client is None:
         client = make_client(model)
     tag = f"classify/{form_id or pdf_path.stem}/{model.replace('/', '_')}"
     system = _system_prompt()
 
-    boxes: dict[str, dict] = {}
+    out_boxes: dict[str, dict] = {}
     raw: dict[str, Any] = {}
     unknown: list[str] = []
     bad_class: dict[str, str] = {}
     seen: set[str] = set()
-    for page_no in sorted(per_page):
-        view = _model_view(per_page[page_no])
-        if not view:
-            continue
-        user_text = USER_TEMPLATE.format(inventory_json=json.dumps(view, indent=2))
-        text = call_page(client, model, pngs[page_no - 1], system, user_text, tag)
+    for page_no in sorted(pngs):
+        ids = [b["id"] for b in boxes if b["page"] == page_no]
+        user_text = USER_TEMPLATE.format(ids=", ".join(ids))
+        text = call_page(client, model, pngs[page_no], system, user_text, tag)
         parsed = _extract_json_object(text)
         if not parsed or not isinstance(parsed.get("boxes"), dict):
             raise RuntimeError(f"classifier did not return {{'boxes': {{...}}}} on page {page_no}.\n"
                                f"Got: {text[:500]}")
         raw[str(page_no)] = parsed["boxes"]
-        control_of = {b["id"]: _control_type(b) for b in view}
+        page_ids = set(ids)
         for bid, ans in parsed["boxes"].items():
             bid = str(bid)
-            k = key.get(bid)
-            if k is None or k["type"] == "radio_option" or bid not in control_of:
+            if bid not in page_ids:
                 unknown.append(bid)
                 continue
             if isinstance(ans, str):
-                ans = {"class": ans, "entity": None, "label": None}
-            cls = str((ans or {}).get("class") or "").strip()
-            ent = (ans or {}).get("entity")
-            label = (ans or {}).get("label")
-            label = str(label).strip() if label not in (None, "", "null") else None
-            group = (ans or {}).get("group")
-            group = str(group).strip() if group not in (None, "", "null") else None
+                ans = {"class": ans}
+            ans = ans or {}
+            cls = str(ans.get("class") or "").strip()
             if cls not in CLASSES:
                 bad_class[bid] = cls
                 cls = "other"
-            ent = str(ent).strip().lower().replace(" ", "_") if ent not in (None, "", "null") else None
+
+            def _s(v):
+                return str(v).strip() if v not in (None, "", "null") else None
+            ent = _s(ans.get("entity"))
+            ent = ent.lower().replace(" ", "_") if ent else None
+            b = by_id[bid]
             seen.add(bid)
-            boxes[k["path"]] = {"class": cls, "entity": ent, "label": label, "box": bid,
-                                "page": page_no, "control": control_of[bid],
-                                "group": group if control_of[bid] == "checkbox" else None}
-    unclassified = [b["id"] for p in per_page.values() for b in _model_view(p) if b["id"] not in seen]
+            out_boxes[b["key"]] = {"class": cls, "entity": ent, "label": _s(ans.get("label")),
+                                   "group": _s(ans.get("group")) if cls == "option" else None,
+                                   "box": bid, "page": page_no, "rect": b["rect"], "kind": b["kind"]}
+    unclassified = [b["id"] for b in boxes if b["id"] not in seen]
 
     result = {
         "form": form_id or pdf_path.stem,
         "blank": str(pdf_path),
         "blank_sha": hashlib.sha256(pdf_bytes).hexdigest()[:16],
+        "finder": FINDER_VERSION,
         "model": model,
         "prompt_version": PROMPT_VERSION,
         "when": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "n_boxes": len(boxes),
-        "n_unlabeled": sum(1 for b in boxes.values() if b["label"] is None),
-        "n_checkbox_groups": len({(b["page"], b["group"]) for b in boxes.values() if b.get("group")}),
+        "n_boxes": len(out_boxes),
+        "n_none": sum(1 for b in out_boxes.values() if b["class"] == "none"),
+        "n_option": sum(1 for b in out_boxes.values() if b["class"] == "option"),
+        "n_unlabeled": sum(1 for b in out_boxes.values() if b["label"] is None and b["class"] != "none"),
+        "n_option_groups": len({(b["page"], b["group"]) for b in out_boxes.values() if b.get("group")}),
         "unknown_boxes": unknown,
         "unclassified": unclassified,
         "bad_class": bad_class,
-        "boxes": boxes,
+        "boxes": out_boxes,
         "raw": raw,
     }
     cache_dir.mkdir(parents=True, exist_ok=True)
     cp.write_text(json.dumps(result, indent=1))
-    return result
+    return _guard(result)
+
+
+_MARK_KINDS = {"checkbox", "radio", "comb"}
+
+
+def _guard(cmap: dict) -> dict:
+    """An "option" needs a small square, circle or cell under it. The finder's
+    kind and the rect are page geometry, so they may vote: a wide text line
+    the model called an option (the W-9's instruction table: rows of words
+    such as "Corporation", "Partnership") becomes "none"; a small text cell
+    (ACORD 25's ADDL INSD / SUBR WVD squares, where an X is typed) stays an
+    option. Applied on every load, so a cached map gets it too."""
+    n = 0
+    for b in cmap.get("boxes", {}).values():
+        r = b.get("rect") or [0, 0, 0, 0]
+        small = (r[2] - r[0]) <= 30 and (r[3] - r[1]) <= 20      # a cell an X fits in
+        if b.get("class") == "option" and b.get("kind") not in _MARK_KINDS and not small:
+            b["class"] = "none"
+            b["group"] = None
+            b["guarded"] = "option_on_text_geometry"
+            n += 1
+    cmap["n_guarded"] = n
+    cmap["n_none"] = sum(1 for b in cmap["boxes"].values() if b["class"] == "none")
+    cmap["n_option"] = sum(1 for b in cmap["boxes"].values() if b["class"] == "option")
+    cmap["n_option_groups"] = len({(b["page"], b["group"]) for b in cmap["boxes"].values() if b.get("group")})
+    return cmap
 
 
 def class_counts(cmap: dict) -> dict[str, int]:
@@ -302,19 +339,25 @@ def main() -> int:
     ap.add_argument("--model", default=MODEL)
     ap.add_argument("--form-id", default=None)
     ap.add_argument("--cache-only", action="store_true")
+    ap.add_argument("--dry-run", type=Path, metavar="DIR",
+                    help="write the numbered pages and box list to DIR and stop; no API call")
     ap.add_argument("--out", type=Path, help="also write the class map here")
     args = ap.parse_args()
+    if args.dry_run:
+        print(dry_run(args.pdf, args.dry_run))
+        return 0
     cmap = classify_form(args.pdf, model=args.model, form_id=args.form_id, cache_only=args.cache_only)
     if cmap is None:
         print("no cached classification")
         return 1
     if args.out:
         args.out.write_text(json.dumps(cmap, indent=1))
-    print(json.dumps({"form": cmap["form"], "model": cmap["model"], "n_boxes": cmap["n_boxes"],
-                      "unlabeled": cmap.get("n_unlabeled"), "checkbox_groups": cmap.get("n_checkbox_groups"),
-                      "unknown": len(cmap["unknown_boxes"]), "unclassified": len(cmap["unclassified"]),
-                      "bad_class": cmap["bad_class"], "classes": class_counts(cmap),
-                      "entities": entity_counts(cmap)}, indent=1))
+    summary = {k: cmap.get(k) for k in ("form", "model", "n_boxes", "n_none", "n_option", "n_unlabeled",
+                                        "n_option_groups", "n_guarded")}
+    summary.update({"unknown": len(cmap["unknown_boxes"]), "unclassified": len(cmap["unclassified"]),
+                    "bad_class": cmap["bad_class"], "classes": class_counts(cmap),
+                    "entities": entity_counts(cmap)})
+    print(json.dumps(summary, indent=1))
     return 0
 
 

@@ -42,6 +42,8 @@ from typing import Optional
 
 from petey.synth import generate_from_pdf, render_pdf, generate_local, seed_from_key  # noqa: E402
 from petey.synth.bank import generate_from_bank  # noqa: E402
+from petey.synth.render import render_case  # noqa: E402
+from petey.validate.rect_join import case_to_paths  # noqa: E402
 from petey.synth.classify import classify_form  # noqa: E402
 
 from petey.extract import extract, load_blueprint  # noqa: E402
@@ -173,38 +175,48 @@ def _run_case(
 
     # 1. Ground truth
     print(f"    [{variant}] gen ground truth...")
+    prefilled = False
     if (gen_model or model) == "local":
         # Model-free: values drawn from the blueprint's own types,
         # patterns, semantic types and rules (STRATEGY_v1 §3.6). Keyed
         # on the case key so reruns reproduce.
         gt = generate_local(bpt, blank_pdf, seed=seed_from_key(gen_cache_key))
     elif (gen_model or model) == "bank":
-        # Value bank keyed by the page-grounded class map (TODO, synthetic
-        # data, steps 1-2). The classification is one cached call per form.
-        # Nothing here reads the blueprint: an uncached form under
+        # Value bank keyed by the page-grounded class map (TODO v6 synthetic
+        # data, steps 1-2), everything by page and rect: the page finder's
+        # boxes, the classifier's classes, the bank's values. Nothing here
+        # reads the blueprint or the widget layer; the filler is the only
+        # step that touches widgets, and the EFFECTIVE values it wrote are
+        # the ground truth. An uncached classification under
         # --gen-cache-only is skipped, never typed from the blueprint.
         cmap = classify_form(blank_pdf, cache_only=gen_cache_only,
                              form_id=(gen_cache_key or "").rsplit("_intact", 1)[0] or None)
         if cmap is None:
             print(f"    [{variant}] no cached classification; skipping (--gen-cache-only)")
             return {"_gen_error": "no_cached_classification"}
-        donor = None
-        if gen_cache_dir is not None:
-            for blind in (True, False):
-                hit = generate_from_pdf(blank_pdf, n=1, model=DEFAULT_MODEL, cache_dir=gen_cache_dir,
-                                        cache_key_prefix=gen_cache_key, blind=blind, cache_only=True)
-                if hit:
-                    donor = hit[0]
-                    break
-        # Frozen once written: a case set must not drift when the class map
-        # or the bank changes; regenerate a new set instead.
+        filled = case_dir / "filled_intact.pdf"
         bank_cp = _bank_cache_path(gen_cache_dir, blank_pdf, gen_cache_key)
         if bank_cp is not None and bank_cp.exists():
-            gt = json.loads(bank_cp.read_text(encoding="utf-8"))
+            # Frozen once written: a case set must not drift when the class
+            # map or the bank changes; regenerate a new set instead.
+            case_rects = json.loads(bank_cp.read_text(encoding="utf-8"))
+            case_rects, fill_report = render_case(case_rects, blank_pdf, filled)
         else:
-            gt = generate_from_bank(cmap, blank_pdf, seed=seed_from_key(gen_cache_key), donor=donor)
+            drawn = generate_from_bank(cmap, seed=seed_from_key(gen_cache_key))
+            case_rects, fill_report = render_case(drawn, blank_pdf, filled)
             if bank_cp is not None:
-                bank_cp.write_text(json.dumps(gt, indent=2))
+                bank_cp.write_text(json.dumps(case_rects, indent=2))
+        (case_dir / "case_rects.json").write_text(json.dumps(case_rects, indent=2))
+        targets = fill_report.pop("targets", {})
+        (case_dir / "case_targets.json").write_text(json.dumps(targets, indent=1))
+        (case_dir / "fill_report.json").write_text(json.dumps(fill_report, indent=2))
+        gt, unclaimed = case_to_paths(bpt, case_rects, targets)
+        (case_dir / "case_unclaimed.json").write_text(json.dumps(unclaimed, indent=2))
+        print(f"    [{variant}] filled by rect: text={fill_report['text_filled']} marks_on={fill_report['marks_on']} "
+              f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
+              f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims")
+        (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
+        prefilled = True
     else:
         if gen_cache_only and not generate_from_pdf(
                 blank_pdf, n=1, model=gen_model or model,
@@ -213,30 +225,53 @@ def _run_case(
             print(f"    [{variant}] no cached ground truth; skipping "
                   f"(--gen-cache-only)")
             return {"_gen_error": "no_cached_ground_truth"}
-        gt = generate_from_pdf(
+        case_rects = generate_from_pdf(
             blank_pdf, n=1, model=gen_model or model,
             cache_dir=gen_cache_dir, cache_key_prefix=gen_cache_key,
         )[0]
-    (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
+        # Blind cases are keyed by page and rect like bank cases (nothing
+        # from the widget layer reached the model); the same filler and
+        # the same scoring join apply. A legacy path-keyed case (the
+        # imported non-blind set) is recognised by its keys and filled the
+        # old way.
+        if case_rects and all(k.startswith("p") and ":" in k for k in case_rects):
+            filled = case_dir / "filled_intact.pdf"
+            case_rects, fill_report = render_case(case_rects, blank_pdf, filled)
+            (case_dir / "case_rects.json").write_text(json.dumps(case_rects, indent=2))
+            targets = fill_report.pop("targets", {})
+            (case_dir / "case_targets.json").write_text(json.dumps(targets, indent=1))
+            (case_dir / "fill_report.json").write_text(json.dumps(fill_report, indent=2))
+            gt, unclaimed = case_to_paths(bpt, case_rects, targets)
+            (case_dir / "case_unclaimed.json").write_text(json.dumps(unclaimed, indent=2))
+            print(f"    [{variant}] filled by rect: text={fill_report['text_filled']} marks_on={fill_report['marks_on']} "
+                  f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
+                  f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims")
+            (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
+            prefilled = True
+        else:
+            gt = case_rects
+    if not prefilled:
+        (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
 
-    # 2. Fill intact
+    # 2. Fill intact (the rect-keyed path has already filled)
     filled = case_dir / "filled_intact.pdf"
-    try:
-        fill_report = render_pdf(gt, blank_pdf=blank_pdf, out=filled)
-    except RuntimeError as e:
-        # render_pdf shells to fill_pdf.mjs (pdf-lib), which crashes on
-        # XFA-hybrid or broken-xref PDFs. Log and skip this case; the
-        # whole form is dead-on-arrival to the pdf-lib fill path.
-        msg = str(e).splitlines()[0][:200]
-        print(f"    [{variant}] fill FAILED: {msg}")
-        return {"_fill_error": msg}
-    (case_dir / "fill_report.json").write_text(
-        json.dumps(fill_report, indent=2)
-    )
-    print(f"    [{variant}] filled: text={fill_report.get('text_filled')} "
-          f"cb={fill_report.get('checkbox_filled')} "
-          f"radio={fill_report.get('radio_filled')} "
-          f"skipped_radio={fill_report.get('radio_skipped')}")
+    if not prefilled:
+        try:
+            fill_report = render_pdf(gt, blank_pdf=blank_pdf, out=filled)
+        except RuntimeError as e:
+            # render_pdf shells to fill_pdf.mjs (pdf-lib), which crashes on
+            # XFA-hybrid or broken-xref PDFs. Log and skip this case; the
+            # whole form is dead-on-arrival to the pdf-lib fill path.
+            msg = str(e).splitlines()[0][:200]
+            print(f"    [{variant}] fill FAILED: {msg}")
+            return {"_fill_error": msg}
+        (case_dir / "fill_report.json").write_text(
+            json.dumps(fill_report, indent=2)
+        )
+        print(f"    [{variant}] filled: text={fill_report.get('text_filled')} "
+              f"cb={fill_report.get('checkbox_filled')} "
+              f"radio={fill_report.get('radio_filled')} "
+              f"skipped_radio={fill_report.get('radio_skipped')}")
 
     # 3. Variant transformation
     if variant == "flat":
@@ -547,6 +582,9 @@ def main() -> int:
     ap.add_argument("--gen-cache-only", action="store_true",
                     help="never call the generator API: use cached ground "
                          "truth or skip the case")
+    ap.add_argument("--bpt", type=Path, default=None,
+                    help="blueprint to validate instead of blueprints/<form-id>.bpt (a side copy "
+                         "such as the 10-10EZ relabel); never labels")
     ap.add_argument("--case-set", type=int, default=None, metavar="N",
                     help="run a versioned case set: --n-cases intact cases keyed "
                          "<gen-key>_setN_caseK, frozen once generated (TODO, synthetic data step 3)")
@@ -599,8 +637,12 @@ def main() -> int:
 
     # 1. Labeling
     label_model = args.label_model or args.model
-    bpt_path = BLUEPRINTS / f"{form_id}.bpt"
-    if args.relabel or not bpt_path.exists():
+    bpt_path = args.bpt or BLUEPRINTS / f"{form_id}.bpt"
+    if args.bpt and not bpt_path.exists():
+        ap.error(f"--bpt {bpt_path} not found")
+    if args.bpt:
+        print(f"[label ] using blueprint {bpt_path}")
+    elif args.relabel or not bpt_path.exists():
         print(f"[label ] running auto_label → {bpt_path}")
         label_cmd = [
             sys.executable, "-m", "petey.label.auto_label",

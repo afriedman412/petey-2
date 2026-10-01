@@ -747,3 +747,75 @@ that was before the combobox fix, when I-765's state boxes held pairs.)
 Not run: 526EZ and 10-10EZ with the reader arm (image mode on 526EZ; 10-10EZ's blueprint is a side copy and
 `validate` has no `--bpt` override). The blind-generator default (step 5) and the library-wide set (step 6, 134
 forms, a classification per form at about 2 cents a page) wait on Andrew.
+
+## Synthetic cases from the page alone: finder boxes, rect-keyed cases, widgets only at fill time (2026-09-30, late; `petey/synth/boxes.py`, `render.render_case`, `validate/rect_join.py`)
+
+Andrew's correction to the section above: case generation may take nothing from the AcroForm layer, not names,
+not export values, not control types or MaxLen or choice lists, and not where the boxes are. Walking the widgets
+to fill the form is plumbing and is fine; an inventory of them going to the model is leakage, and it also leaves
+flat forms with no path. So the synthetic path was rebuilt on page geometry:
+
+1. **Boxes come from the page.** step2flat's finder runs on the rendered blank (widget appearances baked in, widgets
+   stripped), so an AcroForm blank and a flat blank go through the same code. Each box is a page and a rect.
+2. **The model sees ids and the image, nothing else.** Classifier and blind generator alike: a numbered red
+   rectangle per finder box and the list of numbers. The classifier decides for itself which boxes take a mark
+   (`option`), which are not boxes at all (`none`, the finder over-proposes), and which marks form one question
+   (`group`). The bank builds a case keyed by rect: strings for text, True / False for marks, no on-states anywhere.
+3. **Widgets at fill time only.** `render_case` matches each rect to the widget that best overlaps it (not the
+   first hit: neighbouring widgets share strips) and writes through it; on a blank with no widgets it draws the
+   text or an X at the rect. It reports where each value landed, and that report is the ground truth.
+4. **Scoring joins on the landing rects.** Every blueprint widget and option carries a rect, so a field is credited
+   with what its own widget holds. The blind generator was moved to the same footing (ids only, bools for marks,
+   cases by rect). Set 1 (path-keyed) is retired; set 2 is the rect-keyed set.
+
+**The finder against the widget layer** (`eval/finder_vs_widgets.py`, a debugging yardstick, feeds nothing):
+
+| form | widgets | finder boxes | text recall | option recall | extras |
+|---|---|---|---|---|---|
+| W-9 | 23 | 70 | 13 / 15 | 8 / 8 | 49 (instruction pages) |
+| ACORD 25 | 128 | 121 | 100 / 104 | 24 / 24 | 16 |
+| I-765 | 161 | 241 | 116 / 123 | 38 / 38 | 87 |
+| 21-526EZ | 385 | 623 | 291 / 292 | 93 / 93 | 253 |
+| 10-10EZ | 151 | 173 | 73 / 80 | 71 / 71 | 37 |
+
+Every option box on all five forms; the text misses are the I-765's seven barcode widgets, 10-10EZ's six date
+boxes on page 5 and a handful of small cells. The extras are what the `none` class absorbs. Recall is counted
+widget by widget, so the finder's different granularity (below) does not show here.
+
+**Classification v4 (ids only, Sonnet 4.6):** W-9 70 boxes, 44 none, 8 options in one group; ACORD 25 121 /
+23 / 20 options in 10 groups (8 "options" on wide text lines turned back to none by a geometry guard, its small
+typed-X cells kept); I-765 241 / 27 / 38 in 15 groups; 526EZ 623 / 171 / 85 in 29 groups; 10-10EZ 173 / 30 / 70
+in 25 groups. No off-vocabulary answer, no unknown id, on 1,228 boxes.
+
+**Where the page's boxes and the widget layer disagree in granularity**, and the one rule that covers it (the
+filler reports where a value landed; the scorer joins on that):
+
+- several page cells over one comb widget (the W-9's SSN came back as a 3-cell box, two single cells and a 4-cell
+  box): the filler writes their concatenation in reading order, the bank splits the SSN by cell boundaries;
+- one page box over several stacked line widgets (ACORD 25's PRODUCER / INSURED / CERTIFICATE HOLDER blocks: one
+  bordered cell, four lines): the filler splits the value on commas across the lines, as a filer would;
+- two page boxes over one checkbox (a finder duplicate): the widget holds the OR of the marks and both report it;
+- a small text cell the model calls an option (ACORD 25's ADDL INSD / SUBR WVD): the filler types an X.
+
+**Set 2, three bank cases per form, by-path readback** (`validate --gen-model bank --case-set 2`):
+
+| form | agree | residue |
+|---|---|---|
+| W-9 | 23 / 23 on all three | none; the signature and date lines are page boxes with no widget (correct) |
+| ACORD 25 | 128 / 128 on all three | none |
+| I-765 | 140 / 140 on all three | none |
+| 21-526EZ | 328, 326, 327 of 328 | the dollars / cents pair of 27D (two cells, one more granularity case); one option group the page groups differently from the blueprint (`living_situation_14b`, two marks) |
+| 10-10EZ (side copy, `validate --bpt`) | 122 / 122 on all three | none |
+
+The blind generator on the same footing, one W-9 case: 23 / 23 by path, but it filled 14 of the 26 fillable
+boxes (names and codes came back null), where the bank fills them all. Fill count was already known to be a
+prompt knob; on the rect prompt it needs turning before the blind generator is generator (b) in a per-box
+comparison.
+
+**Class check under v4** (page class vs blueprint type, scoring step, tier 1 / 2 / 3): W-9 0 / 4 / 0, ACORD 25
+21 / 15 / 0, I-765 8 / 24 / 8, 526EZ 45 / 53 / 3, 10-10EZ 9 / 5 / 0. The join is by rect now, so a field whose
+rect the finder merged with a neighbour's compares against the merged box's class; the ACORD rise from 13 to 21
+is mostly the address blocks (one `address_block` box against four line fields typed street / city / phone).
+
+Cost of the day's classification: 60 page calls under v1-v3 ($1.80), then v4 on finder boxes over 35 pages
+(the W-9's five instruction pages included; about $1.30). The finder takes 5-50 s a form and is cached.

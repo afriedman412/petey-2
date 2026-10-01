@@ -25,11 +25,12 @@ from typing import Optional
 import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
+from petey.synth.boxes import match_rect
 from petey.synth.classify import CLASS_FAMILY, SEMANTIC_TO_CLASS, classify_form
 
-_TYPE_CLASS = {"date": "date", "number": "money", "integer": "count", "boolean": "checkbox",
-               "category": "choice", "multi_category": "choice"}
-_CONTROL_CLASSES = {"yes_no", "choice", "checkbox", "mark"}
+_TYPE_CLASS = {"date": "date", "number": "money", "integer": "count", "boolean": "option",
+               "category": "option", "multi_category": "option"}
+_CONTROL_CLASSES = {"option", "yes_no", "choice", "checkbox", "mark"}
 
 
 def _family(cls: Optional[str]) -> Optional[str]:
@@ -41,7 +42,7 @@ def _family(cls: Optional[str]) -> Optional[str]:
 def blueprint_class(name: str, spec: dict) -> tuple[Optional[str], str]:
     """(class in the page vocabulary, how it was derived) for one field."""
     if spec.get("widgets"):
-        return "choice", "option_group"
+        return "option", "option_group"
     st = spec.get("semantic_type")
     if st and st in SEMANTIC_TO_CLASS:
         return SEMANTIC_TO_CLASS[st], "semantic_type"
@@ -61,19 +62,29 @@ def compare(bpt: dict, cmap: dict) -> list[dict]:
     families. Untyped blueprint fields (plain `string`, no semantic type)
     are reported too, tagged `untyped`, since the page offers a type the
     blueprint lacks; they are `weak` unless the page read a caption."""
-    boxes = cmap["boxes"]
+    # the class map is keyed by page and rect; join on the field's own rect
+    by_page: dict[int, list[dict]] = {}
+    for key, b in cmap["boxes"].items():
+        by_page.setdefault(b["page"], []).append({**b, "key": key})
     rows = []
     for name, spec in (bpt.get("fields") or {}).items():
         if spec.get("widgets"):
-            paths = [wb["path"] for wb in spec["widgets"].values() if wb.get("path")]
+            blocks = [wb for wb in spec["widgets"].values() if wb.get("rect") or wb.get("box")]
         else:
-            path = (spec.get("widget") or {}).get("path")
-            paths = [path] if path else []
-        hits = [boxes[p] for p in paths if p in boxes]
+            w = spec.get("widget") or {}
+            blocks = [w] if w.get("rect") else []
+        hits = []
+        for wb in blocks:
+            m = match_rect(wb.get("rect") or wb.get("box"), by_page.get(wb.get("page"), []))
+            if m is not None:
+                hits.append(m)
         if not hits:
             continue
         b = hits[0]
+        paths = [wb.get("path") for wb in blocks]
         page_cls = b["class"]
+        if page_cls == "none":
+            continue  # the page says nothing goes here; counted separately below
         bp_cls, how = blueprint_class(name, spec)
         if page_cls in _CONTROL_CLASSES and (bp_cls in _CONTROL_CLASSES or spec.get("type") == "boolean"):
             continue
@@ -83,7 +94,8 @@ def compare(bpt: dict, cmap: dict) -> list[dict]:
             continue  # the page could not say either
         rows.append({
             "field": name,
-            "path": paths[0],
+            "path": paths[0] if paths else None,
+            "rect_key": b.get("key"),
             "page": b.get("page"),
             "box": b.get("box"),
             "label": b.get("label"),
