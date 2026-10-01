@@ -189,6 +189,14 @@ and case sets".
     (d) the reader filling an empty field from context (place of last arrival 'Richmond'; one unit-type read).
     The numbered-sibling / shared-description proxies are too crude to test the hypothesis (2 / 32 vs 2 / 106).
 
+  - **Three forms, two judges (2026-09-30; RESULTS "Three forms, two judges").** ACORD 25 and 10-10EZ added,
+    Haiku 4.5 beside Sonnet 4.6, $5.04. No field flips on every case anywhere; Sonnet's flips are fields Haiku is
+    stuck wrong on; Haiku is as repeatable but stably wrong far more often, so Sonnet 4.6 stays the judge and
+    stability alone cannot choose one. Most wrong verdicts are not about names: empty cells in rows and columns
+    (largest group on all three forms), ground-truth defects from case generation (ACORD's uncaptioned blocks,
+    10-10EZ's home address slid one box), typed-X mark cells and checkbox grids. Until the presentation fixes
+    land, the judge's flags on those fields should not reach the reviewer as name defects.
+
   - **Step 2, from step 1:** fix the causes before building voting. (1) Text mode marks empty text boxes the way
     it marks option boxes (`[ ]` or a blank token at every empty box, from the widget state), so a row with an
     empty first cell reads unambiguously; rerun step 1 to confirm the Part 6 cluster goes. (2) The whole-form check

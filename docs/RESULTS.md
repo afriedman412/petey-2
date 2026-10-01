@@ -960,3 +960,50 @@ here.
 Next: empty-box tokens in text mode (as the `[x]` / `[ ]` option tokens), then rerun; the whole-form check
 compares only fields whose verdict held and confirms changed verdicts with two extra reads; the same measurement
 on ACORD 25 and 526EZ before generalising.
+
+### Three forms, two judges (2026-09-30, same script, set 3)
+
+ACORD 25 and 10-10EZ added, and Haiku 4.5 (also temperature 0) beside Sonnet 4.6 on all three. Three cases x five
+fresh reads each, text mode. Six runs, 180 calls, $5.04.
+
+| form | judge | stable right | stable wrong | flipping | detections per read, case 1 / 2 / 3 | $ |
+|---|---|---|---|---|---|---|
+| I-765 (138 judged) | Sonnet 4.6 | 125 | 9 | 4 | 4-6 / 4 / 7-8 | 1.55 |
+| I-765 | Haiku 4.5 | 114 | 23 | 1 | 14 / 11 / 18-19 | 0.53 |
+| ACORD 25 (98 judged; 30 not_generated) | Sonnet 4.6 | 66 | 24 | 8 | 14-16 / 13-15 / 14-15 | 1.03 |
+| ACORD 25 | Haiku 4.5 | 57 | 37 | 4 | 32 / 23-24 / 28-31 | 0.34 |
+| 10-10EZ (115 judged) | Sonnet 4.6 | 99 | 15 | 1 | 6 / 6 / 8-9 | 1.18 |
+| 10-10EZ | Haiku 4.5 | 97 | 16 | 2 | 7-9 / 4 / 10 | 0.41 |
+
+**Randomness is small and sits on hard fields.** No field flips on every case, on any form, for either judge;
+detections move by at most three between reads of one case. Sonnet's flips are fields Haiku is stuck wrong on (I-765
+4 of 4, ACORD 25 6 of 8, 10-10EZ 1 of 1): a flip on the better judge marks a field that is hard, not a coin toss.
+Haiku's flips are mostly fields Sonnet gets right (5 of 7): Haiku's own weakness.
+
+**Stable is not right.** Haiku flips about as little as Sonnet but is stably wrong far more often (I-765 23 against
+9; ACORD 25 37 against 24). Stability alone cannot choose the judge; Sonnet 4.6 is the more accurate on all three
+forms. Most of Sonnet's wrong fields are wrong for Haiku too (I-765 12 of 13, ACORD 25 29 of 32, 10-10EZ 10 of 16):
+field-level causes, not model noise.
+
+**Few of the wrong verdicts are about names.** Sonnet's not-right fields on the three forms, by cause:
+
+- **Empty cells in rows and columns** (the largest group on every form). The text layer keeps the filled values of
+  a row in order but drops the empty boxes, so the judge shifts values into the empty slot: I-765 Part 6 page /
+  part / item; ACORD 25 policy effective / expiration dates (effective empty, expiration read into it) and the
+  umbrella and general-liability limit columns; 10-10EZ discharge dates and the spouse / child income columns.
+- **Ground-truth defects from case generation**, where the judge is right: ACORD 25's insured address line holding
+  an insurer's name and insurer C holding the insured's business (the uncaptioned blocks classified by position);
+  10-10EZ's home address slid one box (city 'Columbus', state 'ma', ZIP 'OH', county '43215'; the judge reads
+  Columbus / OH / 43215); free text in an ADDL INSD cell; a name inside a next-of-kin address.
+- **Mark cells and checkbox grids.** ACORD 25's ADDL INSD / SUBR WVD / INSR LTR cells take a typed X that sits in
+  the text with nothing tying it to its row; the automobile and umbrella checkboxes and 10-10EZ's race boxes
+  (Black vs Native Hawaiian) read against the wrong caption in a grid.
+- **Known classes**: I-765 unit type (`export_caption_mismatch`), `attorney_state_bar_num` (typed state_abbr).
+- **Left over**: a handful (ACORD `revision_number_txt` missed; 10-10EZ next of kin read without the middle
+  initial).
+
+So in text mode the judge mostly reports how the page is presented to it, and in a few places the case itself,
+not the blueprint's names; a reviewer handed these as name defects would rename correct fields. The empty-cell and
+mark-cell groups are the target of the next change (tokens for empty boxes and typed marks in text mode, or
+image mode for grid pages); the ground-truth group goes to the case generator (ACORD's uncaptioned blocks,
+10-10EZ's address run).
