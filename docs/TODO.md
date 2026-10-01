@@ -29,7 +29,7 @@ misread caption reach neither the reviewer nor the loop's verdict. Two things ar
     Answer `current` / `proposed` / `unclear` with a one-line reason. The rename lands only on `proposed`;
     `unclear` keeps the name and flags the field for a person.
 
-  - **Where:** between `review.review_fields`' decision and its apply step, or in `iterate.judge_review` for
+  - **Where:** between the reviewer's decisions (`review.ask`) and `review.apply_decisions`, or in `iterate.judge_review` for
     renames (which today restores every rename judged 'same').
 
   - **Test before use, on the fields checked by eye on 2026-09-30 / 10-01 (side copies under
