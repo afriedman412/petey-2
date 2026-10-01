@@ -242,6 +242,12 @@ and case sets".
   - **Swaps go to the rebind, not to descriptions**: ND 1TP got two descriptions contradicting their names. Find
     why `correct.py` built no 2-cycle there, and stop the reviewer writing a description that contradicts the name.
 
+  - **implausible_case_value, logged, decide later (Andrew, 2026-09-30).** Boxes the classifier calls `other` /
+    `free_text` get bank filler ("Services maintenance" as an Issuing Authority, "Maintenance" for a Month/Year),
+    which the judge rightly refuses. No new classes for now (county and survey township / range considered and
+    dropped). `eval/judge_informativeness.py` writes every hit to `runs/judge_eval/implausible_case_values.csv`
+    (form, field, caption, page class, case value) with the commonest caption words; 46 in the first 24 forms.
+
   - **Filter the judge's flags by cause before the reviewer**: the layout-shift and implausible-value families
     (most of the 308) should not reach the reviewer as name defects until the presentation fixes land.
 

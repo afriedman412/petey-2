@@ -142,7 +142,12 @@ def analyse(form: str) -> dict:
                     "gt": rows_by_field[f].get("gt"), "judge": rows_by_field[f].get("judge"),
                     "cause_raw": rows_by_field[f].get("cause"), "description": (fields0.get(f) or {}).get("description")}
                    for f, c in causes.items() if c == "unexplained"]
+    implausible = [{"form": form, "field": f, "caption": page_box(fields0.get(f, {}), boxes).get("label"),
+                    "page_class": page_box(fields0.get(f, {}), boxes).get("class"),
+                    "case_value": rows_by_field[f].get("gt"), "judge": rows_by_field[f].get("judge")}
+                   for f, c in causes.items() if c == "implausible"]
     return {"form": form, "run": run.name, "fields": len(fields0), "status": loop["status"],
+            "implausible": implausible,
             "disagreements": len(causes), "by_cause": dict(collections.Counter(causes.values())),
             "unexplained": unexplained, "misname_screen": screen,
             "screen_judged": sum(1 for s in screen if s["judge_disagrees"]),
@@ -154,6 +159,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--forms", default=None, help="default: every form with a loop result under runs/judge_eval")
     ap.add_argument("--out", type=Path, default=EVAL / "informativeness.json")
+    ap.add_argument("--implausible-log", type=Path, default=EVAL / "implausible_case_values.csv",
+                    help="every implausible_case_value hit, for working out later which box kinds need better values")
     args = ap.parse_args()
     forms = (args.forms.split(",") if args.forms else
              sorted(p.name[:-len("_loop.json")] for p in EVAL.glob("*_loop.json")))
@@ -178,6 +185,16 @@ def main() -> int:
     print("\ntotals:", {k: v for k, v in tot.items() if k.startswith("_")})
     print("disagreements by cause:", {k: v for k, v in tot.most_common() if not k.startswith("_")})
     args.out.write_text(json.dumps(res, indent=1, default=str))
+    # implausible_case_value hits: one row each, plus the caption words they share most
+    import csv
+    hits = [h for r in res for h in r.get("implausible", [])]
+    with open(args.implausible_log, "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["form", "field", "caption", "page_class", "case_value", "judge"])
+        w.writeheader()
+        w.writerows(hits)
+    words = collections.Counter(t for h in hits for t in tokens(h.get("caption") or ""))
+    print(f"implausible_case_value: {len(hits)} hits -> {args.implausible_log}; caption words "
+          f"{dict(words.most_common(12))}")
     print(f"[ok] {args.out}")
     return 0
 
