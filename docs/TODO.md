@@ -183,7 +183,7 @@ and case sets".
     three of the four flipping fields are stable-wrong on the other cases and the fourth is the neighbour of a slid
     cell, so a flip marks the borderline case of a systematic fault. The faults: (a) the Part 6 page / part / item
     number rows, where the text layer gives "475 206" under three headers with no sign of which cell is empty, so
-    the reader shifts values left (7 of the 9 stable-wrong rows and 2 of the 4 flips); (b) unit type read as the
+    the reader shifts values left (6 of the 9 stable-wrong fields and 2 of the 4 flips); (b) unit type read as the
     printed caption against ground truth from the export word (`export_caption_mismatch`, known); (c)
     `attorney_state_bar_num`, typed state_abbr (a class-check row already) with bank values like 'ACCT450740399';
     (d) the reader filling an empty field from context (place of last arrival 'Richmond'; one unit-type read).

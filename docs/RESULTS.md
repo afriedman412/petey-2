@@ -935,7 +935,7 @@ The reader is mostly stable, and its instability is not scattered. Three of the 
 stable-wrong on the other cases, and the fourth (`item_6c_item_number`) is the neighbour of a slid cell: a flip is
 the borderline case of a systematic fault, not noise on a sound field. The faults:
 
-- **Empty cells in a table row (9 of the 13 non-stable-right fields).** I-765 Part 6's page / part / item number
+- **Empty cells in a table row (8 of the 13 fields that are not stable and right).** I-765 Part 6's page / part / item number
   rows: when the bank leaves the page number empty, the text layer shows `475 206` under the three headers with no
   sign of which cell is empty, and the reader shifts the values one column left (`item_5a_page_number` reads 475,
   `item_5b_part_number` reads 206, `item_5c_item_number` reads nothing). Stable when the shift is unambiguous,
@@ -954,8 +954,9 @@ The ambiguity proxies (numbered sibling, shared description) flag 2 of 32 fields
 without: too crude to test the hypothesis that flips sit on fields the blueprint leaves ambiguous; "wrong on
 another case" predicts the flips better than either proxy.
 
-Consequence for the loop: the 40 / 45 swing is mostly the batch cache re-reading every field of a 120-field batch
-after one edit, landing on the few borderline fields, rather than a judge that is unreliable across the board.
+Consequence for the loop: a judge this stable is consistent with the 40 / 45 swing coming from the batch cache
+(one edit re-reads every field of a 120-field batch) landing on the few borderline fields; that was not measured
+here.
 Next: empty-box tokens in text mode (as the `[x]` / `[ ]` option tokens), then rerun; the whole-form check
 compares only fields whose verdict held and confirms changed verdicts with two extra reads; the same measurement
 on ACORD 25 and 526EZ before generalising.
