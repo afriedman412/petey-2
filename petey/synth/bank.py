@@ -346,6 +346,7 @@ def generate_from_bank(
         for m in members:
             marked[m] = (m == pick)
 
+    used_text: set[str] = set()
     for key, b in boxes.items():
         cls = b["class"]
         ent = b.get("entity") or "applicant"
@@ -362,7 +363,19 @@ def generate_from_bank(
             gt[key] = ""
             continue
         v = case.value(cls, ent, b)
-        gt[key] = fit_width(v, b, is_date=cls in ("date", "birth_date")) if isinstance(v, str) else ""
+        val = fit_width(v, b, is_date=cls in ("date", "birth_date")) if isinstance(v, str) else ""
+        # Free text and unclassed boxes draw from small pools (ten free-text lines), so two boxes of one case can
+        # hold the same string, and then a value no longer identifies its box: correct.py drops the edge as an
+        # ambiguous target and the judge's answers cannot be traced (ND 1TP's swapped pair, 2026-09-30). Persona
+        # values repeat on purpose (header copies), so only these classes are made unique, by a number prefix that
+        # survives the width cut.
+        if cls in ("free_text", "other") and val:
+            tries = 0
+            while val.strip().lower() in used_text and tries < 20:
+                val = fit_width(f"{rng.randint(10, 999)} {v}", b)
+                tries += 1
+            used_text.add(val.strip().lower())
+        gt[key] = val
 
     # Part runs: consecutive boxes of one kind for one entity share a whole.
     for (ent, kind), items in parts.items():

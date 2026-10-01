@@ -77,13 +77,27 @@ rows) and needs the copy or row in it.
 For each field decide: "ok" if the definition is right and the flag is the \
 generator's or reader's fault, or "fix" with only the attributes that should \
 change (null means unchanged; list an attribute in `remove` to drop it, e.g. a \
-wrong semantic_type). Publisher evidence (tooltip, XFA declaration, readable field name) \
-outranks printed text, which outranks the current name. A box that holds part of \
-a value (month, day, year, one segment of an SSN or phone) is a string with a \
-digit pattern and a name that says which part.
+wrong semantic_type).
 
-Rename only when the current name describes something other than what this box \
-holds, or cannot tell this box apart from another field on the form. Never rename \
+WHAT THE BOX HOLDS: the caption printed for THIS box (inside it, or directly \
+above or beside it as the form lays out its captions) says what a filer writes \
+there, and a filer types by position. When the publisher's tooltip or field name \
+says something else, the publisher placed the widget in the wrong box and the \
+caption wins: name the field for the caption. Publisher evidence (tooltip, XFA \
+declaration, readable field name) outranks printed text that is merely NEARBY (a \
+neighbouring box's caption, a section heading), and all of it outranks the \
+current name. A box that holds part of a value (month, day, year, one segment of \
+an SSN or phone) is a string with a digit pattern and a name that says which part.
+
+Rename when the current name describes something other than what this box holds, \
+when it cannot tell this box apart from another field on the form, or when it says \
+nothing about the value at all (control, text16, field_3, check_box_1: a \
+generator default or a one-word tooltip copied into the name); an uninformative \
+name is a defect even when no other field claims the box. When two flagged \
+fields each hold what the other's name says, the names are swapped: fix both \
+names. Never write a description that contradicts the field's name; if the \
+description you would write describes a different value than the name does, the \
+name is what must change. Never rename \
 to adjust a suffix, normalize style, or add words that do not change what the name \
 points at: the name is how a reader finds the box, and a working name is worth \
 keeping. When a section repeats (veteran and claimant, several employers, table \
@@ -148,16 +162,29 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
     # about the NAME. Substring / punctuation / boolean disagreements are
     # reading or format noise, not evidence against the field definition.
     from petey.validate import method_delta
+    from petey.validate.name_caption import box_for, caption_boxes, name_matches_caption
     arm = method_delta.preferred_judge(intact)
     if arm:
+        # A field whose name agrees with the caption printed for its box is about that box: when the reader
+        # misses it, the cause is the page's presentation (empty cells, columns, code cells) or the case value,
+        # and a reviewer handed it as a name defect renames a correct field (2026-09-30: of 308 judge
+        # disagreements on 24 new forms, about 25 were naming defects, and every one of those had a name that
+        # shares nothing with its box's caption). Uncaptioned boxes stay flagged.
+        boxes = caption_boxes(intact)
+        bp_fields = (yaml.safe_load((run_dir / "blueprint.bpt").read_text(encoding="utf-8")) or {}).get("fields") or {} \
+            if (run_dir / "blueprint.bpt").exists() else {}
         for r in method_delta.compare_case(intact, arm):
             if r.get("cause") not in ("defect", "unlocatable"):
+                continue
+            box = box_for(bp_fields.get(r["field"]) or {}, boxes)
+            if name_matches_caption(r["field"], box.get("label")):
                 continue
             flags[r["field"]].append({
                 "detector": "name_reader",
                 "detail": ("reader could not find this name on the page" if r["cause"] == "unlocatable"
                            else "reader found a different box's value for this name"),
                 "generated_value": r.get("gt"), "reader_value": r.get("judge", r.get("petey")),
+                **({"caption_printed_for_this_box": box["label"]} if box.get("label") else {}),
                 **({"reader_value_belongs_to": r["swap_with"]} if r.get("swap_with") else {})})
     # Page-grounded classification (synth.classify) against the blueprint's
     # typing: the second opinion on what kind of value the box holds. Only

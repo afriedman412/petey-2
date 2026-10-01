@@ -313,13 +313,26 @@ words, ignore it when it does not.
 sometimes to the LEFT. This is the weakest evidence, because nearby text \
 only happens to sit close by, while 1 and 2 were written ABOUT this \
 widget.
-When the path or tooltip names the field and the nearby text disagrees, \
-the publisher wins.
+When the path or tooltip names the field and merely NEARBY text disagrees \
+(a neighbouring box's caption, a section heading), the publisher wins.
+- ONE EXCEPTION, the box's own caption: when printed words lie INSIDE the \
+widget's rect, or the widget sits in a ruled cell whose caption is printed \
+at the top of that same cell, that caption is what a filer reads for this \
+box, and a filer types by position. If the tooltip or path says something \
+else, the publisher placed the widget in the wrong box: name the field for \
+the caption. (Kansas DO-10: a widget whose tooltip says EIN/SSN/PTIN sits \
+inside the cell captioned "Area Code & Phone Number"; it holds a phone \
+number.)
+- A tooltip or path that says nothing about the value carries nothing: a \
+control word or generator default ("Control", "Text16", "Check Box1", \
+"Field", "Button", "Dropdown2"). Name such a widget from its caption, \
+never from that word.
 - A widget may carry `"tooltip"` — the form publisher's own description \
 of that field, embedded in the document. It refers to THAT widget \
 specifically, whereas nearby printed text only happens to sit close by. \
 When a tooltip is present, prefer it over proximity: it is the stronger \
-evidence and it is the publisher's intent, not an inference.
+evidence and it is the publisher's intent, not an inference — except \
+against the box's own caption (above).
 - A tooltip may open with a COPY PREFIX identifying which repetition of \
 the form the widget belongs to: "Slip 1. Employer's name", \
 "Copy B - Wages", "Column (c) Amount". FOLD that prefix into the slug as a \

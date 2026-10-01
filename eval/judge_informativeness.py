@@ -36,30 +36,10 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from petey.synth.boxes import match_rect, parse_rect_key  # noqa: E402
 from petey.validate import method_delta, review  # noqa: E402
+from petey.validate.name_caption import tokens  # noqa: E402
 
 EVAL = Path("runs/judge_eval")
 FORMAT = {"numeric", "substring", "date_format", "punctuation", "boolean"}
-_ABBR = {"nm": "name", "no": "number", "num": "number", "dt": "date", "amt": "amount", "addr": "address",
-         "cd": "code", "ind": "", "txt": "", "cnt": "count", "pct": "percent", "zip": "zip", "st": "state",
-         "acct": "account", "emp": "employer", "tel": "phone", "ph": "phone", "ssn": "ssn", "ein": "ein",
-         "dob": "birth", "yr": "year", "desc": "description", "qty": "quantity", "id": "identification"}
-# a name token that stands for several caption words
-_EXPAND = {"ssn": {"social", "secur"}, "ein": {"emplo", "ident"}, "fein": {"emplo", "ident"},
-           "dob": {"birth"}, "zip": {"postal"}, "tel": {"phone", "telep"}}
-_STOP = {"the", "of", "a", "an", "and", "or", "to", "for", "in", "on", "if", "any", "your", "is", "be", "by", "as",
-         "at", "this", "that", "with", "from", "no", "yes", "mm", "dd", "yyyy", "line", "part", "section", "box"}
-
-
-def tokens(s: str) -> set[str]:
-    out = set()
-    for t in re.findall(r"[a-z]+", (s or "").lower()):
-        out |= _EXPAND.get(t, set())
-        t = _ABBR.get(t, t)
-        if t and t not in _STOP and len(t) > 1:
-            out.add(t[:5])            # crude stem: 'employer' ~ 'employee' ~ 'employment'
-    return out
-
-
 def class_boxes(case: Path) -> dict:
     cm = json.loads((case / "class_map.json").read_text())["boxes"]
     by_page = collections.defaultdict(list)

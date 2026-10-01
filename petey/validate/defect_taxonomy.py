@@ -111,7 +111,7 @@ from typing import Optional
 @dataclass(frozen=True)
 class DefectClass:
     name: str
-    owner: str          # labeler | generator | blueprint | parser | scorer | reader
+    owner: str          # labeler | generator | blueprint | parser | scorer | reader | reviewer
     tier: Optional[int]  # which tier repairs it; None = nothing does yet
     signature: str      # the gt / native / judge relationship that shows it ("petey" in older entries)
     fix: str            # what the repair actually is
@@ -340,6 +340,10 @@ REGISTRY: tuple[DefectClass, ...] = (
               "not unique. cf_2_fillable writes 'LC-2024-TX-00847' into "
               "both established_loc_no and footer_loc_no. Cheap to fix "
               "gen-side and it would convert 39 unknowns into signal.",
+        # 2026-09-30: ND 1TP's swapped pair (process_types / primary_waste_streams) was read swapped by the judge in
+        # all three cases, and correct.py still built no 2-cycle: the bank's free text comes from a ten-line pool,
+        # so the same line sat in two boxes of a case and the edges were dropped as ambiguous. Fix: the bank makes
+        # free-text and unclassed values unique within a case.
     ),
     DefectClass(
         name="similar_entity",
@@ -544,11 +548,11 @@ REGISTRY: tuple[DefectClass, ...] = (
     DefectClass(
         name="opaque_widget_name",
         owner="labeler", tier=None,
-        canonical="1099_nec_blank — every path is `f1_6`-style; the number is a widget index carrying no meaning",
+        canonical="1099_nec_blank — every path is `f1_6`-style; the number is a widget index carrying no meaning. tx_dmv_1756: 15 fields named control ... control_15 because the publisher's tooltip on each is the word 'Control'",
         validation="external",
-        signature="no readable AcroForm name and no /TU tooltip",
-        fix="none available; the labeler has only proximity to work from",
-        detector="name_sources.py",
+        signature="no readable AcroForm name and no /TU tooltip, or a tooltip / path that is a control word or generator default (Control, Text16, Check Box1) copied into the field name",
+        fix="name the box from its own caption: the labeler prompt treats a control-word tooltip or path as no evidence, and the reviewer renames an uninformative name from the caption (2026-09-30)",
+        detector="name_sources.py; the judge (it cannot find a field called `control`) through review's caption gate; name_caption screen",
         observations_class=None,
         notes="32.6% of data widgets corpus-wide, but 80% within tax — the "
               "vertical the library is otherwise measured best on. Not a "
@@ -760,6 +764,88 @@ REGISTRY: tuple[DefectClass, ...] = (
               "attributes it on AcroForms: a page group spanning several radio paths is a publisher split, a "
               "blueprint field spanning several page groups is a labeler merge. Distinct paths per kid (I-765's "
               "marital status and unit type) are why neither the inventory nor the filler saw those groups.",
+    ),
+    # ---- found by the judge-informativeness rounds (2026-09-30, 24 new forms) -
+    DefectClass(
+        name="publisher_misplaced_widget",
+        owner="labeler", tier=0,
+        canonical="ks_dor_do10:ein_ssn_ptin — tooltip and path say EIN/SSN/PTIN, the widget sits inside the cell captioned "
+                  "'Area Code & Phone Number'; the column's five widgets are one row off",
+        validation="judge",
+        signature="the field's name follows the publisher's tooltip / path, which disagree with the caption printed in the "
+                  "widget's own cell; the judge, reading by name, finds the value elsewhere",
+        fix="the box's own caption outranks the publisher's tooltip and path (labeler and reviewer prompts, 2026-09-30); "
+            "a filer types by position, so the value in the widget is what the caption asks for",
+        detector="method_delta.py (judge) through review's caption gate; class_check when the kinds differ",
+        inline_fix="reviewer renames from the caption printed for the box (`caption_printed_for_this_box` in its evidence)",
+        notes="ACORD 25's six 'phone' fields on state / ZIP boxes are the same pattern. Before 2026-09-30 both the labeler "
+              "('the publisher wins') and the reviewer ('publisher evidence outranks printed text') kept the wrong name; "
+              "on DO-10 the reviewer saw the judge's flags and kept all five.",
+    ),
+    DefectClass(
+        name="description_contradicts_name",
+        owner="reviewer", tier=None,
+        canonical="nd_form1tp:process_types — bound to the box captioned 'Identify the Primary Waste Streams'; the "
+                  "reviewer added the description 'Primary waste streams to be accepted' and kept the name",
+        validation="self_scoring",
+        signature="a field whose description describes a different value than its name",
+        fix="reviewer prompt: never write a description that contradicts the name; a swapped pair is renamed (or rebound "
+            "by correct.py), not described",
+        detector=None,
+        notes="The loop scores it AGREE: the judge reads the description and finds the right box, so the contradiction "
+              "passes every later round. A consumer reading the name gets the wrong value.",
+    ),
+    DefectClass(
+        name="empty_cell_shift",
+        owner="reader", tier=None,
+        canonical="al_dor_al8379:line10a_wages_other_spouse_amt — the joint-return column is empty; the text layer "
+                  "drops the empty box and the judge reads column (b)'s value into the joint column",
+        validation="judge",
+        signature="the judge gives a field the value of a neighbouring box (or returns a value where the case left the box "
+                  "empty), the field's name agrees with its box's caption",
+        fix="text mode marks empty text boxes the way it marks option boxes, or image mode for grid pages; the review "
+            "gate keeps these flags from the reviewer while the name agrees with the caption",
+        detector="eval/judge_informativeness.py (layout_shift); review's caption gate",
+        notes="The largest family of judge disagreements: 193 of 308 on 24 new forms. Not a blueprint defect; a reviewer "
+              "handed one renames a correct field.",
+    ),
+    DefectClass(
+        name="unanchored_cell_value",
+        owner="reader", tier=None,
+        canonical="form_5020:source_txt — a one-letter code 'P' in a grid of code columns; acord25 ADDL INSD / SUBR WVD "
+                  "typed X cells",
+        validation="judge",
+        signature="a short value (a code letter, a typed X) in a grid cell, with nothing in the text layer tying it to its "
+                  "column or row; the judge cannot find it",
+        fix="text mode tags each cell's value with its column caption, or image mode for grid pages",
+        detector="eval/judge_informativeness.py (code_cell, mark_cell)",
+    ),
+    DefectClass(
+        name="text_stored_order",
+        owner="reader", tier=None,
+        canonical="ok_occ_1003 — every filled value in the text layer, as one block after the page's printed text; the "
+                  "judge missed 73-81 of 113 fields per case",
+        validation="judge",
+        signature="text mode on a form with no option boxes: `page_texts` passes get_text() through in stored order, and a "
+                  "filled AcroForm lists widget values after the printed text, away from their labels",
+        fix="sort every text-mode page into reading order (as page_texts_with_marks does) and key the reader cache on the "
+            "text sent",
+        detector=None,
+        notes="None of the five test forms lacks option boxes, so it never showed before 2026-09-30.",
+    ),
+    DefectClass(
+        name="implausible_case_value",
+        owner="generator", tier=None,
+        canonical="i_9:list_b_issuing_authority — the bank wrote 'Services maintenance' into a box captioned Issuing "
+                  "Authority; ok_occ_1003 township 'Consulti', pipe size 'North'",
+        validation="judge",
+        signature="the value is in the box (native agrees) but is not a value the caption asks for; the judge, asked by "
+                  "name, does not accept it and returns nothing",
+        fix="the bank needs values for the box's kind: domain classes or pools (township, range, issuing authority), or "
+            "the blind generator for boxes the classifier calls `other`",
+        detector="eval/judge_informativeness.py (implausible); review's caption gate",
+        notes="46 of 308 judge disagreements on 24 new forms. Andrew: a value of the right type is enough; these are the "
+              "boxes where the bank's type is too coarse.",
     ),
 )
 
