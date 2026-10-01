@@ -1007,3 +1007,49 @@ not the blueprint's names; a reviewer handed these as name defects would rename 
 mark-cell groups are the target of the next change (tokens for empty boxes and typed marks in text mode, or
 image mode for grid pages); the ground-truth group goes to the case generator (ACORD's uncaptioned blocks,
 10-10EZ's address run).
+
+## How informative is the judge? Four new forms through the whole pipeline (2026-09-30)
+
+Andrew: before changing the judge, see how often it disagrees and whether the disagreements are useful. Four AcroForm
+forms new to the loop (I-9; WC Form 5020; Alabama AL8379, almost no tooltips; Form 5500-EZ) went through the whole
+pipeline as side copies (`runs/judge_eval/`): fresh label (Sonnet 4.6, `--no-register --no-retrieval`), blind
+classification, a bank case set of three, then `iterate --review flagged --apply-correct` with the judge
+(`judge:pymupdf`, Sonnet 4.6) and the default reviewer (Opus 5). OCC 1003 was dropped after a text-mode bug (TODO:
+pages with no option boxes read in stored order). The blueprints before the loop are kept as `<form>_v0.bpt`.
+Evidence per disagreement: the caption the classifier read for the box, ground truth, native, the judge's answer.
+
+| form | fields | judge disagreements | judge flags to the reviewer | edits on judge flags | edits on other flags (source) |
+|---|---|---|---|---|---|
+| I-9 | 125 | 9 | 5 | 0 | 1 (class check) |
+| WC 5020 | 77 | 22 | 14 | 2, neither improved the judge's own count | 9 (7 class check, 1 shape, 1 option group) |
+| AL8379 | 58 | 16 | 1 | 0 | 0 |
+| 5500-EZ | 88 | 6 | 4 | 0 | 1 (class check) |
+| total | 348 | 53 | 24 | 2 | 11 |
+
+The 53 fields the judge disagreed on, by cause:
+
+| cause | fields | examples |
+|---|---|---|
+| empty cells / column layout in the text layer | 27 | AL8379 injured-spouse / other-spouse / joint columns (15); 5500-EZ participant counts 5a / 5b x (1) / (2); 5020 date pairs |
+| case values implausible for the box | 8 | I-9 "Issuing Authority" = 'Services maintenance'; 5020 county = 'Invoice renewal' |
+| single-letter code cells | 7 | 5020 EVENT / SOURCE / PART OF BODY codes 'E', 'P', 'C' with nothing tying them to their column |
+| typed-X mark cells | 3 | 5020 AM / PM |
+| judge answers an unmarked option group | 3 | 5020 on-premises 'No', type of employer 'City' |
+| scorer / format | 3 | address blocks with the name prepended |
+| occasional misses (1 of 3 cases) | 2 | I-9 List B document number, expiration date |
+| a wrong name | 0 | |
+
+Two fields look misnamed on inspection, and the judge disagreed on neither for that reason: WC 5020
+`mail_to_address_txt` sits on a box captioned FIRM NAME (the judge returned the firm name with extra text, a
+`substring` row), and `industry_txt` on one captioned OCCUPATION (the judge could not find the one-character
+code value). Every kept edit that the loop scored better came from another check, mostly the class check
+(passport number typed as a country; prior plan name typed as a person; hours and days typed as text). Their "better"
+is partly by construction, since a type fix clears the class-check flag that counted against the field, but each
+reads right on inspection.
+
+**Reading.** On these forms, with this case generator and in text mode, the judge raised 53 disagreements and none
+was a naming error; the 24 that reached the reviewer produced two description edits with no measured gain. Its
+disagreements measure the presentation of the page (empty cells, code and mark cells) and the plausibility of
+the generated values far more than the names. The class check carried the loop's useful edits. Not shown here:
+whether the judge would catch a misname on a page it reads cleanly (the stability runs' I-765 and ACORD 25
+blueprints are older and partly tuned on); planted misnamings would answer that directly.
