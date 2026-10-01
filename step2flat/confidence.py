@@ -5,6 +5,8 @@ from .geometry import iou
 
 TIER = {                          # how reliable each cue type is as evidence of an entry area
     'fz:enclosed_small': 0.80,    # closed small box (checkbox) found by the raster reader
+    'lat:glyph': 0.75,            # checkbox square drawn as a symbol-font glyph (features.glyph_rects); the raster
+                                  # reader erases it as text, so this is its only candidate (2026-10-01)
     'fz:cell': 0.70,              # closed cell found by the raster reader
     'fz:comb': 0.65,              # per-character boxes; above lattice:empty so a 3-2-4 comb group beats
                                   # the lattice's single cells over the same run (W-9 SSN, 2026-09-30)

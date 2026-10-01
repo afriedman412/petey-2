@@ -38,8 +38,8 @@ CACHE_DIR = RUNS / "_gen_cache" / "boxes"
 #   FINDER_ENV       pymupdf (drawings, words) and tesseract (the raster reader erases OCR'd text before it looks
 #                    for boxes) as the label was read; another environment makes the version `<label>+env<sha>`.
 # `FINDER_VERSION` is the string every cache keys on; `finder_stamp()` is what provenance records.
-FINDER_LABEL = "step2flat-2"     # comb groups outrank lattice single cells
-FINDER_CODE_SHA = "77d351674bd6"
+FINDER_LABEL = "step2flat-3"     # line cues with a leading sign; checkbox squares drawn as glyphs (2026-10-01)
+FINDER_CODE_SHA = "93d5efe257db"
 FINDER_ENV = "pymupdf 1.28.2; tesseract 5.5.3"
 
 
