@@ -3,6 +3,10 @@
 Terms (finder, judge, reviewer, adjudicator, case, bank, case basis, build stamp) are defined once in
 `docs/GLOSSARY.md`.
 
+**Blanks live in S3, not in git** (2026-10-01): `s3://petey-source-pdfs-2026/source_pdfs/` mirrors `source_pdfs/`
+with the same relative paths, private and versioned. `scripts/fetch_blanks.sh` pulls everything or only the blanks
+a form list names; `scripts/push_blanks.sh` mirrors new local blanks up. Needs AWS credentials (`aws configure`).
+
 - **Flattening bakes appearances.** Anything visible on a real printed form is fair input, not leakage.
 - **GT exclusions** (sealed but never scored): barcode widgets, hidden/NoView widgets, push buttons
   (print/reset/navigation). Read-only widgets are kept: signatures, computed totals and auto-filled fields are extractable.
