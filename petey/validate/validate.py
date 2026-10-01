@@ -49,6 +49,7 @@ from petey.synth.classify import classify_form  # noqa: E402
 from petey.extract import extract, load_blueprint  # noqa: E402
 from petey.extract_llm import extract_llm  # noqa: E402
 from petey.validate.score import score  # noqa: E402
+from petey.validate.method_delta import is_judge, judge_name, legacy_name  # noqa: E402
 
 from petey.paths import REPO, RUNS, BLUEPRINTS
 DEFAULT_MODEL = "claude-sonnet-4-6"
@@ -88,10 +89,11 @@ def _extract_native(bpt: dict, pdf: Path) -> tuple[dict, dict]:
     return ex, dispatch
 
 
-def _extract_petey(
+def _extract_judge(
     bpt_path: Path, pdf: Path, *, parser: str, model: str,
 ) -> dict:
-    """The meaning-based arm, in-process (`petey/extract_llm.py`).
+    """The judge: the meaning-based arm, in-process (`petey/extract_llm.py`).
+    A dev-time judge of the blueprint's names, not product extraction.
 
     Reads by field NAME with no access to the widget layer, so it can see
     a mislabeled field that the geometry arm cannot. Used to shell out to
@@ -99,7 +101,7 @@ def _extract_petey(
     are cached by (fields, pdf bytes, parser, model) inside extract_llm.
     """
     bpt = load_blueprint(bpt_path)
-    out_path = pdf.with_suffix(f".petey_{parser}.json")
+    out_path = pdf.with_suffix(f".judge_{parser}.json")
     values = extract_llm(bpt, pdf, parser=parser, model=model)
     out_path.write_text(json.dumps(values, indent=2, default=str))
     return values
@@ -313,14 +315,14 @@ def _run_case(
         try:
             if method == "native":
                 ex, dispatch = _extract_native(bpt, target)
-            elif method.startswith("petey") or method == "datalab":
-                # `petey` runs the .bpt-dependent, meaning-based path. The
-                # parser is a suffix — `petey:pymupdf` reads the page's
-                # text layer, `petey:image` its rendered pages. `datalab`
+            elif is_judge(method) or method == "datalab":
+                # The judge runs the .bpt-dependent, meaning-based path. The
+                # parser is a suffix — `judge:pymupdf` reads the page's
+                # text layer, `judge:image` its rendered pages. `datalab`
                 # is a historical alias that now means the text layer.
                 parser = ("pymupdf" if method == "datalab"
                           else (method.split(":", 1) + ["pymupdf"])[1])
-                # Skip on forms known to overflow Petey's LLM output tokens
+                # Skip on forms known to overflow the judge's LLM output tokens
                 # (760+ missing rate on >=400-field forms in prior runs).
                 # See --datalab-max-fields. Silent truncation is worse than
                 # an explicit skip.
@@ -334,7 +336,7 @@ def _run_case(
                         "verdicts": None,
                     }
                     continue
-                ex = _extract_petey(
+                ex = _extract_judge(
                     bpt_path, target, parser=parser, model=model,
                 )
                 dispatch = {}
@@ -450,8 +452,12 @@ def _run_rescore(
         per_method: dict[str, dict] = {}
         for method in methods:
             ex_path = case_dir / f"extract_{method}.json"
+            if is_judge(method) and not ex_path.exists():
+                old = case_dir / f"extract_{legacy_name(method)}.json"
+                if old.exists():
+                    ex_path = old      # a run written before the rename
 
-            if reextract and (method.startswith("petey")
+            if reextract and (is_judge(method)
                               or method == "datalab") and not ex_path.exists():
                 # The whole point of the sweep: `native` reads back through
                 # the same AcroForm path the generator wrote by, so it cannot
@@ -474,7 +480,7 @@ def _run_rescore(
                 parser = ("datalab" if method == "datalab"
                           else (method.split(":", 1) + ["pymupdf"])[1])
                 try:
-                    ex = _extract_petey(bpt_path, pdf_path, parser=parser,
+                    ex = _extract_judge(bpt_path, pdf_path, parser=parser,
                                         model=model or DEFAULT_MODEL)
                 except Exception as e:
                     print(f"  [{case_dir.name}] {method} FAILED: {e!r}")
@@ -484,7 +490,7 @@ def _run_rescore(
                 ex_path.write_text(json.dumps(ex, indent=2, default=str))
                 ex_scoreable = {k: v for k, v in ex.items()
                                 if not k.startswith("_")}
-                dispatch = {}      # petey reports no per-field dispatch
+                dispatch = {}      # the judge reports no per-field dispatch
             elif reextract and method == "native":
                 if not pdf_path.exists():
                     per_method[method] = {
@@ -578,12 +584,13 @@ def main() -> int:
     ap.add_argument("--n-flat", type=int, default=5,
                     help="number of flattened cases (default 5)")
     ap.add_argument("--methods", type=str, default="native",
-                    help="comma-separated: native, petey[:parser], datalab. "
+                    help="comma-separated: native, judge[:parser], datalab. "
                          "native reads back through AcroForm paths and so "
-                         "cannot see a mislabeled field; petey:<parser> "
-                         "navigates by meaning and can. "
-                         "Default 'native' — the petey methods are metered; "
-                         "opt in explicitly when comparing methods.")
+                         "cannot see a mislabeled field; judge:<parser> "
+                         "navigates by meaning and can (a dev-time judge, "
+                         "not product extraction; `petey:<parser>` is "
+                         "accepted as its old name). Default 'native' — the "
+                         "judge is metered; opt in explicitly.")
     ap.add_argument("--model", type=str, default=DEFAULT_MODEL,
                     help="datalab-side LLM model (default sonnet-4.6)")
     ap.add_argument("--gen-model", type=str, default=None,
@@ -641,6 +648,10 @@ def main() -> int:
         pass
 
     methods = [m.strip() for m in args.methods.split(",") if m.strip()]
+    renamed = [m for m in methods if judge_name(m) != m]
+    if renamed:
+        print(f"[methods] {', '.join(renamed)} is now {', '.join(judge_name(m) for m in renamed)} (the judge)")
+        methods = [judge_name(m) for m in methods]
 
     # Rescore/reextract mode: skip gen/fill/flatten entirely; walk
     # existing case dirs, reload gt (+ optionally re-extract), re-score.

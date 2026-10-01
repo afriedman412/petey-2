@@ -33,8 +33,7 @@ def collect(run: Path) -> dict:
     n = 0
     for d in sorted(run.glob("case_*_intact")):
         n += 1
-        arms = method_delta.meaning_methods(d)
-        arm = "petey:image" if "petey:image" in arms else (arms[0] if arms else None)
+        arm = method_delta.preferred_judge(d)
         if arm:
             for r in method_delta.compare_case(d, arm):
                 if r.get("cause") in ("defect", "unlocatable"):

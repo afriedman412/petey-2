@@ -27,7 +27,7 @@ from eval.generator_models import PRICES, reader_on_filled
 from petey.validate.test_forms import TEST_FORMS, forms
 
 OUT = RUNS / "labelmodels"
-IMAGE_FORMS = {"ma1", "va760"} | {f.stem for f in TEST_FORMS if f.reader == "petey:image"}
+IMAGE_FORMS = {"ma1", "va760"} | {f.stem for f in TEST_FORMS if f.reader == "judge:image"}
 BLANKS = {f.stem: str(f.blank_path) for f in TEST_FORMS}
 
 
@@ -51,7 +51,7 @@ def run_one(form: str, model: str) -> tuple[Path, Path]:
         if kept.exists() and not bpt.exists():
             shutil.copy(kept, bpt)
         if bpt.exists():
-            reader = "petey:image" if form in IMAGE_FORMS else "petey:pymupdf"
+            reader = "judge:image" if form in IMAGE_FORMS else "judge:pymupdf"
             subprocess.run([sys.executable, "-u", "-m", "petey.validate.iterate", "--form", stem, "--gen-model",
                             "claude-sonnet-4-6", "--gen-cache-only", "--gen-key", form, "--methods", f"native,{reader}",
                             "--n-flat", "0", "--max-iter", "1", "--out", str(out)],

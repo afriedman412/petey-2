@@ -129,8 +129,8 @@ def latest_scored_run(form: str) -> Optional[Path]:
     """Most recent run for this form with an intact score; prefer one that
     also carries a meaning-arm score."""
     dirs = sorted(d for d in RUNS.glob(f"{form}_2*") if (d / "case_001_intact" / "score_native.json").exists())
-    with_petey = [d for d in dirs if any((d / "case_001_intact").glob("score_petey*.json"))]
-    return (with_petey or dirs or [None])[-1]
+    with_judge = [d for d in dirs if method_delta.judge_scores(d / "case_001_intact")]
+    return (with_judge or dirs or [None])[-1]
 
 
 def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
@@ -148,8 +148,7 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
     # about the NAME. Substring / punctuation / boolean disagreements are
     # reading or format noise, not evidence against the field definition.
     from petey.validate import method_delta
-    arms = method_delta.meaning_methods(intact)
-    arm = "petey:image" if "petey:image" in arms else (arms[0] if arms else None)
+    arm = method_delta.preferred_judge(intact)
     if arm:
         for r in method_delta.compare_case(intact, arm):
             if r.get("cause") not in ("defect", "unlocatable"):
@@ -158,7 +157,7 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
                 "detector": "name_reader",
                 "detail": ("reader could not find this name on the page" if r["cause"] == "unlocatable"
                            else "reader found a different box's value for this name"),
-                "generated_value": r.get("gt"), "reader_value": r.get("petey"),
+                "generated_value": r.get("gt"), "reader_value": r.get("judge", r.get("petey")),
                 **({"reader_value_belongs_to": r["swap_with"]} if r.get("swap_with") else {})})
     # Page-grounded classification (synth.classify) against the blueprint's
     # typing: the second opinion on what kind of value the box holds. Only

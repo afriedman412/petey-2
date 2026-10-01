@@ -2,8 +2,9 @@
 
 `native` reads each value back through the same AcroForm path the generator
 wrote it by, so a mislabeled field cancels on both sides and scores `agree`.
-`petey:<parser>` never sees the widget layer and has to find each value by
-name. Their disagreement set is therefore the candidate-defect list, and it
+`judge:<parser>` (the loop's judge of the blueprint's names; named
+`petey:<parser>` before 2026-09-30) never sees the widget layer and has to
+find each value by name. Their disagreement set is therefore the candidate-defect list, and it
 costs nothing beyond a validate run that already happened.
 
 ## Reading a row
@@ -12,10 +13,10 @@ Three values per field, and the relationship between them is the diagnosis:
 
     gt      what the generator intended to put at path P
     native  what is actually readable at path P
-    petey   what petey found on the page when it went looking for this NAME
+    judge   what the judge found on the page when it went looking for this NAME
 
-  gt == native != petey
-      The value is where it was put. Something about the NAME sent petey
+  gt == native != judge
+      The value is where it was put. Something about the NAME sent the judge
       elsewhere — the blueprint's label, or a neighbouring field that
       matches the name better. This is the blueprint-defect shape.
 
@@ -23,7 +24,7 @@ Three values per field, and the relationship between them is the diagnosis:
       The generator and the document already disagree before naming enters
       it. Fill-side or extract-side; not evidence about the label.
 
-  petey == some OTHER field's gt
+  judge == some OTHER field's gt
       A swap. Reported explicitly as `swap_with`, since a reciprocal pair
       is one defect and itemising it twice invites two uncoordinated fixes.
 
@@ -47,6 +48,44 @@ import re
 from pathlib import Path
 
 from petey.paths import RUNS
+
+# The name-based reader is the loop's JUDGE of the blueprint's names: a
+# dev-time LLM arm, not product extraction (that is `native`). Runs written
+# before 2026-09-30 call it `petey:<parser>`; both names are read, `judge:`
+# is written.
+JUDGE = "judge"
+LEGACY_JUDGE = "petey"
+
+
+def is_judge(method: str) -> bool:
+    return method.split(":", 1)[0] in (JUDGE, LEGACY_JUDGE)
+
+
+def judge_name(method: str) -> str:
+    """`petey[:<parser>]` -> `judge:<parser>` (bare means pymupdf); anything
+    else unchanged."""
+    head, _, parser = method.partition(":")
+    return f"{JUDGE}:{parser or 'pymupdf'}" if head == LEGACY_JUDGE else method
+
+
+def legacy_name(method: str) -> str:
+    """`judge:<parser>` -> `petey:<parser>`, for reading runs written before
+    the rename."""
+    head, _, parser = method.partition(":")
+    return f"{LEGACY_JUDGE}:{parser}" if head == JUDGE else method
+
+
+def judge_scores(case_dir: Path) -> list[Path]:
+    """The judge's score files in a case dir, under either name."""
+    return sorted(case_dir.glob(f"score_{JUDGE}*.json")) + sorted(case_dir.glob(f"score_{LEGACY_JUDGE}*.json"))
+
+
+def preferred_judge(case_dir: Path) -> "str | None":
+    """The judge arm to use for a case: image mode when the case has it
+    (the text layer misses some forms' values), else the first found."""
+    arms = meaning_methods(case_dir)
+    image = [a for a in arms if a.endswith(":image")]
+    return (image or arms or [None])[0]
 HERE = Path(__file__).resolve().parent
 
 BLIND = "native"
@@ -168,7 +207,7 @@ def meaning_methods(case_dir: Path) -> list[str]:
 
     Taking one method name at a time hid most of the corpus: this pass
     reported 23 forms while far more were comparable, because it only ever
-    asked for `petey:pymupdf`.
+    asked for one arm name (`petey:pymupdf`, now `judge:pymupdf`).
 
     `datalab` is deliberately not included. It is a metered third-party OCR
     service and it buys nothing on this corpus -- these are AcroForm PDFs
@@ -179,8 +218,7 @@ def meaning_methods(case_dir: Path) -> list[str]:
     evidence, and counting it inflated the disagreement total twelve-fold.
     A form whose only arm is datalab has NO arm.
     """
-    return [p.name[len("score_"):-len(".json")]
-            for p in sorted(case_dir.glob("score_petey*.json"))]
+    return [p.name[len("score_"):-len(".json")] for p in judge_scores(case_dir)]
 
 
 def compare_case(case_dir: Path, method: str) -> list[dict]:
@@ -223,7 +261,7 @@ def compare_case(case_dir: Path, method: str) -> list[dict]:
             "verdict": s["verdict"],
             "gt": b.get("gt_value"),
             "native": b.get("extracted_value"),
-            "petey": s.get("extracted_value"),
+            "judge": s.get("extracted_value"),
             "swap_with": swap_with,
             "cause": classify(b.get("gt_value"), s.get("extracted_value")),
         })
@@ -280,7 +318,7 @@ def main() -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--runs", type=Path, default=RUNS)
     ap.add_argument("--method", default="auto",
-                    help="'auto' uses whichever score_petey* arm each case "
+                    help="'auto' uses whichever judge arm each case "
                          "has. datalab is excluded -- see meaning_methods. "
                          "Name a method explicitly to override.")
     ap.add_argument("--form", help="substring match on run dir name")
@@ -298,8 +336,8 @@ def main() -> int:
     latest: dict[str, Path] = {}
     for d in dirs:
         form = d.name.rsplit("_", 2)[0]
-        has_petey = any(d.glob("case_*/score_petey*.json"))
-        if has_petey or form not in latest:
+        has_judge = any(judge_scores(c) for c in d.glob("case_*"))
+        if has_judge or form not in latest:
             latest[form] = d
 
     results, counts = [], collections.Counter()
@@ -383,7 +421,7 @@ def main() -> int:
                 print(f"  {f['field']:<40} {tag}")
                 print(f"      gt     {str(f['gt'])[:64]!r}")
                 print(f"      native {str(f['native'])[:64]!r}")
-                print(f"      petey  {str(f['petey'])[:64]!r}")
+                print(f"      judge  {str(f.get('judge', f.get('petey')))[:64]!r}")
 
     if args.out:
         args.out.write_text(json.dumps(results, indent=1))

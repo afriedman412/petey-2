@@ -27,9 +27,10 @@ dispatch. It is TRI-STATE, and the distinction is load-bearing:
   * null   — no dispatch instrumentation exists for this run at all.
              Says nothing about the field.
 
-`null` is NOT `false`. Only `extract.py` emits a dispatch; the
-meaning-based methods (`petey:<parser>`) shell out to the Petey CLI,
-which does not. Collapsing the two made every petey `agree` count as
+`null` is NOT `false`. Only `extract.py` emits a dispatch; the judge
+(`judge:<parser>`, the meaning-based arm, which once shelled out to the
+Petey CLI as `petey:<parser>`) does not. Collapsing the two made every
+judge `agree` count as
 `agree_by_absence` — a run where all 48 fields matched on real values
 reported 45 matches "only because both are null." A perfect run and an
 empty one were indistinguishable.

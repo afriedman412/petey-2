@@ -1,8 +1,9 @@
 """Add the meaning-based arm to every finished VLM-ground-truth run.
 
 For each form that `run_all --gen-model <model>` completed, take its latest
-run dir and, if it has no `score_petey*.json` yet, re-extract with
-`native,petey:<parser>` (validate --reextract). Each form is one to three
+run dir and, if it has no judge score yet (`score_judge*.json`, or the old
+`score_petey*.json`), re-extract with `native,judge:<parser>` (validate
+--reextract). Each form is one to three
 model calls over its page text; responses are cached, so re-running is free.
 Then `method_delta` reads the whole library.
 
@@ -18,6 +19,7 @@ import time
 from pathlib import Path
 
 from petey.paths import RUNS
+from petey.validate import method_delta
 
 
 def latest_run(form: str) -> Path | None:
@@ -41,14 +43,14 @@ def main() -> int:
         d = latest_run(form)
         if d is None:
             continue
-        if any(d.glob("case_*/score_petey*.json")):
+        if any(method_delta.judge_scores(c) for c in d.glob("case_*")):
             log.setdefault(form, {"run": str(d), "status": "present"})
             continue
         cmd = [sys.executable, "-m", "petey.validate.validate", "--reextract",
-               "--run-dir", str(d), "--methods", f"native,petey:{args.parser}"]
+               "--run-dir", str(d), "--methods", f"native,judge:{args.parser}"]
         t = time.time()
         proc = subprocess.run(cmd, capture_output=True, text=True, timeout=1800)
-        ok = proc.returncode == 0 and any(d.glob("case_*/score_petey*.json"))
+        ok = proc.returncode == 0 and any(method_delta.judge_scores(c) for c in d.glob("case_*"))
         log[form] = {"run": str(d), "status": "ok" if ok else "failed",
                      "seconds": round(time.time() - t, 1),
                      "tail": (proc.stdout or proc.stderr or "")[-300:]}

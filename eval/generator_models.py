@@ -27,6 +27,7 @@ import sys
 from pathlib import Path
 
 from petey.paths import RUNS
+from petey.validate import method_delta
 from petey.validate.test_forms import TEST_FORMS, by_stem, forms
 
 OUT = RUNS / "genmodels"
@@ -35,14 +36,14 @@ PRICES = {"claude-sonnet-4-6": (3.0, 15.0), "claude-sonnet-5": (2.0, 10.0), "cla
           "gpt-5.5": (5.0, 30.0), "gpt-4.1": (2.0, 8.0),
           "gemini-3.1-pro-preview": (2.0, 12.0), "gemini-3.8-flash": (0.75, 3.75),
           "deepseek-flash": (0.3, 1.2), "deepseek-v4-pro": (1.32, 3.96)}
-IMAGE_FORMS = {"vba21526ez", "ma1", "va760"} | {f.stem for f in TEST_FORMS if f.reader == "petey:image"}
+IMAGE_FORMS = {"vba21526ez", "ma1", "va760"} | {f.stem for f in TEST_FORMS if f.reader == "judge:image"}
 
 
 def run_one(form: str, model: str, blank: str | None) -> Path:
     out = OUT / f"iterate_{form}_{model.replace('/', '_')}.json"
     if out.exists():
         return out
-    reader = "petey:image" if any(form.startswith(f) for f in IMAGE_FORMS) else "petey:pymupdf"
+    reader = "judge:image" if any(form.startswith(f) for f in IMAGE_FORMS) else "judge:pymupdf"
     cmd = [sys.executable, "-u", "-m", "petey.validate.iterate", "--form", form, "--gen-model", model,
            "--gen-key", f"{form}_gm", "--methods", f"native,{reader}", "--n-flat", "0", "--max-iter", "1",
            "--out", str(out)]
@@ -74,7 +75,7 @@ def reader_on_filled(run: str) -> dict:
     hands a sparse generator agreement for free (526EZ: Gemini 3.1 Pro filled
     156 of 328 and 'agreed' on 318)."""
     d = RUNS / run / "case_001_intact"
-    files = list(d.glob("score_petey*.json"))
+    files = method_delta.judge_scores(d)
     if not files:
         return {}
     sc = json.load(open(files[0])); pf = sc["per_field"]; pf = list(pf.values()) if isinstance(pf, dict) else pf

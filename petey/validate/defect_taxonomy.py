@@ -59,19 +59,22 @@ arms and they see different defects:
 
     native   reads each value back through the SAME AcroForm path the
              generator wrote it by. Grades the plumbing.
-    petey    never sees the widget layer; finds each value on the page by
-             the blueprint's own name and description.
+    judge    never sees the widget layer; finds each value on the page by
+             the blueprint's own name and description. A dev-time LLM
+             judge of the names, not product extraction. Named `petey`
+             before 2026-09-30, and the signatures, canonical cases and
+             notes below still use that name for it.
 
 Ground truth is keyed by AcroForm path, and the blueprint's binding decides
 which ground-truth value a field is graded against. So under `native` alone a
 wrong name REDEFINES the target instead of failing it — the arm that reports
 95.1% agreement across 40,230 field-instances is structurally incapable of
-seeing a misbinding. `petey` is the escape, and it has run on 74 of 796 cases.
+seeing a misbinding. The judge is the escape, and it has run on 74 of 796 cases.
 
 `validation` records that, per class:
 
     native         the blind arm's own verdicts surface it
-    petey          needs the meaning-based arm; native cancels it out
+    judge          needs the judge (meaning-based arm); native cancels it out
     external       VALIDATION-PROOF. No run of any arm reveals it; it takes
                    evidence from outside the loop — the publisher's AcroForm
                    name or tooltip, a VLM, or a person.
@@ -110,7 +113,7 @@ class DefectClass:
     name: str
     owner: str          # labeler | generator | blueprint | parser | scorer | reader
     tier: Optional[int]  # which tier repairs it; None = nothing does yet
-    signature: str      # the gt / native / petey relationship that shows it
+    signature: str      # the gt / native / judge relationship that shows it ("petey" in older entries)
     fix: str            # what the repair actually is
     # Which arm of the validation loop can SEE this class. See the module
     # docstring: `external` means validation is structurally blind to it and
@@ -144,7 +147,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="name_rotation",
         owner="labeler", tier=2,
         canonical="cf_1_fillable — a 4-long cycle spanning two pages, which is why the geometric pass cannot see it",
-        validation="petey",
+        validation="judge",
         signature="edges petey[A]==gt[path_B] close a cycle",
         fix="permute the widget blocks around the cycle",
         detector="correct.py",
@@ -160,7 +163,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="name_slide",
         owner="labeler", tier=2,
         canonical="2022_rev_form_1014r:city_nm — its gt is an EMAIL; the chain slides email -> city -> state by one widget",
-        validation="petey",
+        validation="judge",
         signature="the same edges form an open chain",
         fix="rebind along the chain; the tail widget is orphaned",
         detector="correct.py; also publisher_name.py --types where it "
@@ -192,7 +195,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         conflicts_with=("name_rotation", "name_slide",),
         precedence="RENUMBER BEFORE PERMUTING. Both want the same 42 fields on 2025-schedule-a. The corrector infers rebindings from value identity, which on five interchangeable broker blocks is near-worthless -- any broker's name matches any slot -- so it manufactures cycles. The publisher's ordinal is deterministic. Renumber from it, THEN run the corrector on what is left.",
         canonical="2025-schedule-a:agent_broker_1a_name_address_line_1_txt — bound to the publisher's insBrokerName_03, i.e. broker 3",
-        validation="petey",
+        validation="judge",
         signature="inside one publisher-numbered repeating block, our row "
                   "index RESTARTS, so two rows claim the same index",
         fix="take the row index from the publisher's own ordinal",
@@ -252,7 +255,7 @@ REGISTRY: tuple[DefectClass, ...] = (
     DefectClass(
         name="wrong_widget",
         owner="labeler", tier=3,
-        validation="petey",
+        validation="judge",
         signature="gt==native!=petey with no edge to any other widget",
         fix="relabel from the page; no permutation explains it",
         detector="method_delta.py",
@@ -327,7 +330,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="ambiguous_target",
         owner="generator", tier=None,
         canonical="cf_2_fillable:established_loc_no vs footer_loc_no — one value, two fields that could take it",
-        validation="petey",
+        validation="judge",
         signature="the value petey returned was written into 2+ widgets",
         fix="generator: distinct values per widget, so diagnosis is possible",
         detector="correct.py",
@@ -342,7 +345,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="similar_entity",
         owner="blueprint", tier=3,
         canonical="principal_organization_nm — petey returns 'Lone Star Compression LLC' where gt is 'Lone Star Energy Services LLC'; name and type are both right",
-        validation="petey",
+        validation="judge",
         signature="gt and petey are both valid values of the same kind",
         fix="prose: a description saying which of the two is meant",
         detector="s2_meaning.py — a model is shown the filled page and the "
@@ -364,7 +367,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         conflicts_with=("name_rotation", "name_slide",),
         precedence="NEITHER WINS; the comparison is tiered instead. Garble breaks exact value identity and so HIDES real rebindings, while tolerating it manufactures false ones. correct.py therefore compares in three tiers (exact, punct, fuzzy) and never applies a fuzzy edge that name_agrees does not independently support.",
         canonical="1099_nec_blank:recipient_nm — petey returns 'Cll J R' for 'Calloway, James R'; characters dropped, not a different field",
-        validation="petey",
+        validation="judge",
         signature="petey's value is a near-miss of the right one",
         fix="scorer: absorb it via is_transcription_noise",
         detector="worklist.py",
@@ -460,7 +463,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         owner="blueprint", tier=1,
         canonical="i765:preparer_unit_type — the box printed 'Apt.' exports ' FLR ', 'Ste.' exports ' APT ', "
                   "'Flr.' exports ' STE ': the publisher's export values are rotated one place against the captions",
-        validation="petey",
+        validation="judge",
         signature="an option's on-state word disagrees with the caption printed beside its box",
         fix="caption from the page text; keep the export word as x_petey_on_state_word; never fill, "
             "caption or bank values by the export word",
@@ -474,7 +477,7 @@ REGISTRY: tuple[DefectClass, ...] = (
     DefectClass(
         name="yn_column",
         owner="parser", tier=1,
-        validation="petey",
+        validation="judge",
         signature="paired Yes/No checkboxes with export_value Yes/No",
         fix="extract: radio/checkbox group handling",
         detector=None,
@@ -573,7 +576,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="part_typed_as_whole",
         owner="labeler", tier=0,
         canonical="vba21526ez:birth_dt_mm — a 2-digit month box typed `date` because `_dt` matched; 79 of 328 fields on that form",
-        validation="petey",
+        validation="judge",
         signature="gt == native; value shorter than the declared pattern's minimum width, or a date/number type on a box whose maxlen/width cannot hold one",
         fix="semantic_types: date_month / date_day / date_year / id_part rules BEFORE the whole-value rules; parts are strings with their own shape",
         detector="score.shape_mismatch (date_type_vs_value, pattern_vs_value); retype.py (part_by_name, part_by_maxlen, date_narrow_widget)",
@@ -585,7 +588,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="short_shape_on_wide_box",
         owner="labeler", tier=2,
         canonical="1099_nec_blank:recipient_city_state_zip_txt — `_state` matched inside the name, so a 2-letter pattern sits on a box 200pt wide holding 'Nashville, TN 37203'",
-        validation="petey",
+        validation="judge",
         signature="pattern max width <= 5 on a text box wider than 120pt with no maxlen",
         fix="none at the labeler yet: the registry's token match (`_state`, `_zip`) fires inside compound names",
         detector="score.shape_mismatch (pattern_vs_value); retype.py (wide_widget_short_pattern)",
@@ -596,7 +599,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="missing_description",
         owner="labeler", tier=0,
         canonical="vba21526ez — 322 widgets with a publisher tooltip, 0 descriptions in the committed blueprint; 51 fields unlocatable by name for the meaning-based reader",
-        validation="petey",
+        validation="judge",
         signature="method_delta: petey returns null for a field whose name alone does not locate it (unlocatable)",
         fix="auto_label carries /TU tooltips and XFA radio captions into `description`",
         detector="method_delta.py (unlocatable)",
@@ -607,7 +610,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="repeated_section_ambiguity",
         owner="labeler", tier=None,
         canonical="vba21526ez:veteran_ssn_part1_3 — the by-name reader returns the FIRST SSN on the form; correct.py marks every such chain contradicted",
-        validation="petey",
+        validation="judge",
         signature="gt == native != petey, and petey's value equals another copy of the same field (veteran vs claimant, table rows)",
         fix="a naming convention that carries the copy or row (section/row prefix), applied at labeling time",
         detector="correct.py (contradicted chains); method_delta.py (unlocatable/substring)",
@@ -618,7 +621,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="nonnumeric_in_numeric_field",
         owner="blueprint", tier=None,
         canonical="f720:irs_no_79_other_fuels_rate — a `percent` column whose printed value is 'Various' or 'Free' (24 on f720, 85 on CBP 7501)",
-        validation="petey",
+        validation="judge",
         signature="type number/integer; label-grounded value is a word",
         fix="type string with a pattern that admits the printed vocabulary, or a `values` list where the column is closed",
         detector="score.shape_mismatch (number_type_vs_value)",
@@ -629,7 +632,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="approximate_date_month_year",
         owner="generator", tier=None,
         canonical="vba21526ez:disability_1_approximate_onset_dt — tooltip asks for MM/DD/YYYY, the printed label says 'approximate', the generator wrote 03/2008",
-        validation="petey",
+        validation="judge",
         signature="type date; value matches MM/YYYY or YYYY-MM",
         fix="generator: honour the tooltip's format when the label is looser; or blueprint: `date` with a month precision flag (spec question)",
         detector="score.shape_mismatch (date_type_vs_value)",
@@ -872,7 +875,7 @@ def main() -> int:
         corr = "yes" if d.fix else "-- NONE --"
         retro = "yes" if d.inline_fix else ("n/a" if d.owner not in
                                             ("labeler", "blueprint") else "NO")
-        vis = {"native": "native", "petey": "petey arm",
+        vis = {"native": "native", "judge": "judge arm",
                "external": "NO - external", "self_scoring": "NO - PASSES IT",
                None: "-- unset --"}[d.validation]
         print(f"{d.name:22s} {d.owner:10s} {t:>4}  "
@@ -904,7 +907,7 @@ def main() -> int:
     print()
     print("  what the validation loop can see:")
     for k, label in (("native", "the blind arm's own verdicts"),
-                     ("petey", "only the meaning-based arm"),
+                     ("judge", "only the judge (meaning-based arm)"),
                      ("external", "NOTHING in the loop — needs outside "
                                   "evidence"),
                      ("self_scoring", "the loop PASSES it — a green run "
@@ -916,7 +919,7 @@ def main() -> int:
     if unset:
         print(f"    !! {len(unset)} unset: {', '.join(unset)}")
     print(f"  {len(blind)} of {len(REGISTRY)} classes are validation-proof; "
-          f"the petey arm has run on 74 of 796 cases")
+          f"the judge arm (then `petey`) has run on 74 of 796 cases")
 
     print()
     by_tier = collections.Counter(

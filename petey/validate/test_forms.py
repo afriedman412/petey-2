@@ -29,7 +29,7 @@ class TestForm:
     blank: str           # under source_pdfs/
     pages: int
     fields: int          # committed blueprint's field count (or the side copy's)
-    reader: str          # "petey:pymupdf" or "petey:image" (values missing from the text layer)
+    reader: str          # "judge:pymupdf" or "judge:image" (values missing from the text layer)
     tier: str            # smoke | core | full
     side_copy: Optional[str] = None   # blueprint kept outside the library, under runs/
     why: str = ""
@@ -53,15 +53,15 @@ class TestForm:
 
 
 TEST_FORMS: tuple[TestForm, ...] = (
-    TestForm("fw9", "tax/fw9.pdf", 1, 23, "petey:pymupdf", "smoke",
+    TestForm("fw9", "tax/fw9.pdf", 1, 23, "judge:pymupdf", "smoke",
              why="one page, cheapest; the smoke check"),
-    TestForm("acord25", "acord25_blank.pdf", 1, 128, "petey:pymupdf", "core",
+    TestForm("acord25", "acord25_blank.pdf", 1, 128, "judge:pymupdf", "core",
              why="insurance certificate with a dense coverage grid; five automobile boxes named one row off (name_slide)"),
-    TestForm("i765", "immigration/i-765.pdf", 7, 140, "petey:pymupdf", "core",
+    TestForm("i765", "immigration/i-765.pdf", 7, 140, "judge:pymupdf", "core",
              why="XFA hybrid; repeated sections; the hard reference form"),
-    TestForm("vba21526ez", "vba-21-526ez-are.pdf", 15, 328, "petey:image", "full",
+    TestForm("vba21526ez", "vba-21-526ez-are.pdf", 15, 328, "judge:image", "full",
              why="XFA hybrid; 35 date parts, 23 radio groups; filled values missing from its text layer"),
-    TestForm("va_form_10_10ez", "VA Form 10-10EZ.pdf", 6, 122, "petey:pymupdf", "full",
+    TestForm("va_form_10_10ez", "VA Form 10-10EZ.pdf", 6, 122, "judge:pymupdf", "full",
              side_copy="relabel/blueprints/va_form_10_10ez_relabel2.bpt",
              why="XFA; 22 radio groups; not in the library yet (per-option side copy from the relabel test)"),
 )

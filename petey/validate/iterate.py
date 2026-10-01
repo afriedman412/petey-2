@@ -10,7 +10,7 @@ copies it, so each iteration is scored against its own snapshot.
     python -m petey.validate.iterate --form va_form_10_10ez --blank "source_pdfs/VA Form 10-10EZ.pdf" \\
         --label-model none --gen-model local           # no blueprint yet: label first, no API
     python -m petey.validate.iterate --form vba21526ez --gen-model claude-sonnet-4-6 --gen-cache-only \\
-        --methods native,petey:pymupdf --apply-correct  # with the meaning arm and cycle rebinds
+        --methods native,judge:pymupdf --apply-correct  # with the judge arm and cycle rebinds
 
 Per iteration:
   1. validate  — `petey.validate.validate` (label if the blueprint is missing;
@@ -134,7 +134,7 @@ def detect(form: str, run_dir: Path) -> dict:
         out["class_disagree"] = sum(1 for r in rows if r.get("tier") == 1)
         out["class_suggest"] = sum(1 for r in rows if r.get("tier") == 2)
         out["class_uncaptioned"] = sum(1 for r in rows if r.get("tier") == 3)
-    if any(intact.glob("score_petey*.json")):
+    if method_delta.judge_scores(intact):
         res = method_delta.compare_run(run_dir, "auto")
         # method_delta rows carry `verdict` (differ / extract_miss) AND `cause`
         # (defect / unlocatable / substring / ...); the loop judges by cause.
@@ -186,8 +186,7 @@ def field_status(run_dir: Path) -> dict[str, int]:
         native = json.loads((intact / "score_native.json").read_text())
         for f in native.get("gt_shape_mismatches") or {}:
             per_case[f] += 1
-        arms = method_delta.meaning_methods(intact)
-        arm = "petey:image" if "petey:image" in arms else (arms[0] if arms else None)
+        arm = method_delta.preferred_judge(intact)
         if arm:
             for r in method_delta.compare_case(intact, arm):
                 per_case[r["field"]] += _RANK.get(r.get("cause") or "", 2)

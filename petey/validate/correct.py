@@ -141,7 +141,8 @@ def load_cases(run_dir: Path) -> Optional[tuple[dict, list[tuple[dict, dict]]]]:
     pairs = []
     for case in cases:
         gt_path = case / "ground_truth.json"
-        pet = next(iter(sorted(case.glob("extract_petey:*.json"))), None)
+        # the judge's extract, under its name since 2026-09-30 or the old one
+        pet = next(iter(sorted(case.glob("extract_judge:*.json")) + sorted(case.glob("extract_petey:*.json"))), None)
         if not gt_path.exists() or pet is None:
             continue
         try:
