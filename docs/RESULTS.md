@@ -819,3 +819,54 @@ is mostly the address blocks (one `address_block` box against four line fields t
 
 Cost of the day's classification: 60 page calls under v1-v3 ($1.80), then v4 on finder boxes over 35 pages
 (the W-9's five instruction pages included; about $1.30). The finder takes 5-50 s a form and is cached.
+
+## Inventory cross-reference: what set 2's clean numbers were hiding (2026-09-30, late; `petey/validate/inventory_check.py`, `score` verdict `not_generated`)
+
+Andrew's condition before trusting set 2: score the case inventory against the blueprint inventory, by rect, both
+directions and many-to-one, with a taxonomy class per mismatch. The reason: a field no page box reached was left
+out of the ground truth and scored as agree-on-empty, so a form could read 100% while the finder had missed a
+tenth of it. Two things changed. The scorer gained a verdict, `not_generated`, for a field whose rect no value
+landed on (derived from the filler's landing report; stored per case; rescore derives it for older rect runs).
+And a scoring step writes `inventory_check.json` per case with the classes `box_unreached`, `merged_box`,
+`split_box`, `uncovered_widget`, `unbacked_box`, `option_group_mismatch`, plus `tie` where two case boxes overlap a
+field rect equally (recorded, not resolved). The widget layer is read here, after the case exists, only to say
+whether the finder or the labeler is the one off.
+
+**Set 2 rescored** (three bank cases each; by path):
+
+| form | fields | agree | not_generated | differ / defect | why not generated |
+|---|---|---|---|---|---|
+| W-9 | 23 | 21 | 2 | 0 | "Other" classification text and the requester box: no finder box |
+| ACORD 25 | 128 | 93 | 35 | 0 | finder merges the INSR LTR / ADDL INSD / SUBR WVD cells into tall column boxes (the classifier then rightly refuses them as options) and each address block into one box, so lines two to five never receive a value; the OTHER coverage rows merge likewise |
+| I-765 | 140 | 138 | 2 | 0 | two small boxes |
+| 21-526EZ | 328 | 320 | 8 | 1 / 1 | three "no date" checkboxes, two yes/no options, one explanation box; the 27D dollars / cents pair |
+| 10-10EZ (side copy) | 122 | 114 | 8 | 0 | the six page-5 date boxes the finder misses, plus two |
+
+So the honest coverage of set 2 is 93 / 128 on ACORD 25, not 128 / 128. The same verdict puts a number on the
+blind generator's under-fill: its one W-9 case, 23 / 23 before, reads 13 agree and 10 not generated. Everything the cases DO fill still reads
+back by path; what they do not fill is now a number.
+
+**Inventory classes per form** (from the class map, before filling):
+
+| form | case boxes | box_unreached | merged | split | uncovered widget | unbacked | option-group mismatch | ties |
+|---|---|---|---|---|---|---|---|---|
+| W-9 | 26 | 2 | 0 | 2 | 0 | 3 | 0 | 2 |
+| ACORD 25 | 99 | 16 | 5 | 0 | 1 | 5 | 0 | 0 |
+| I-765 | 214 | 2 | 0 | 13 | 0 | 12 | 0 | 13 |
+| 21-526EZ | 452 | 10 | 4 | 59 | 4 | 8 | 14 | 65 |
+| 10-10EZ | 143 | 8 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+Two counts of "unreached" and both are right: `box_unreached` (16 on ACORD 25) is a field rect no case box
+covers; `not_generated` (35) is a field no value landed on, which adds the lines inside a merged box the split
+could not feed. The merged boxes are the finder list's items seen from the other side: ACORD's three address
+blocks and two OTHER-coverage columns, 526EZ's three split dates and the dollars / cents pair. `unbacked_box`
+rows are page boxes with neither a field nor a widget under them: the W-9's signature and date lines, I-765's
+twelve, legitimate boxes the publisher never made fillable. `uncovered_widget` (ACORD 25 one, 526EZ four) is a
+widget with no blueprint field, a labeler miss.
+
+**Option groups, three-way.** 526EZ has 14 `option_group_mismatch` rows and the other four forms none. Most are
+one blueprint field spanning two printed questions: `currently_homeless_ind` over 14A and 14B,
+`currently_serving_reserves_or_national_guard_ind` over 21A and 21B, `receiving_military_retired_pay_ind` over
+24A and 24B, `retired_status_cd` over 24C and 25, `branch_of_service_19a` over 19A and 19B. The page reads each
+question as its own group; the blueprint's `widgets` map pools them, which is the labeler merge the three-way
+rule attributes when the metadata shows several radio paths. These are the rows the reviewer should see next.

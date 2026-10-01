@@ -38,6 +38,21 @@ def _target_rows(targets: dict[str, list[dict]]) -> dict[int, list[dict]]:
     return by_page
 
 
+def unreached_fields(bpt: dict, gt: dict[str, Any]) -> set[str]:
+    """Blueprint fields none of whose widget paths the join reached: no
+    synthetic box landed on them, so the case says nothing about them."""
+    out = set()
+    for name, spec in (bpt.get("fields") or {}).items():
+        if spec.get("widgets"):
+            paths = [wb.get("path") for wb in spec["widgets"].values() if wb.get("path")]
+        else:
+            paths = [(spec.get("widget") or {}).get("path")]
+        paths = [p for p in paths if p]
+        if paths and not any(p in gt for p in paths):
+            out.add(name)
+    return out
+
+
 def case_to_paths(bpt: dict, case: dict[str, Any],
                   targets: Optional[dict[str, list[dict]]] = None) -> tuple[dict[str, Any], dict[str, Any]]:
     """`(gt_by_path, unclaimed)`: the case in the path-keyed shape the scorer

@@ -479,9 +479,17 @@ def score(
     ground_truth: dict[str, Any],
     extracted: dict[str, Any],
     dispatch_per_field: Optional[dict[str, Any]] = None,
+    unreached: Optional[set[str]] = None,
 ) -> dict:
-    """Emit a per-field verdict report."""
+    """Emit a per-field verdict report.
+
+    `unreached` names the fields no synthetic box reached (the page finder
+    found nothing at their rect, so the case never filled them). They get
+    their own verdict, `not_generated`, and stay out of agreement: an empty
+    ground truth against an empty extraction says nothing about the field.
+    """
     fields = bpt.get("fields", {})
+    unreached = unreached or set()
     gt_by_name: dict[str, Any] = {}
     shape_mismatches: dict[str, str] = {}
     dispatch = dispatch_per_field or {}
@@ -490,7 +498,7 @@ def score(
     # docstring.
     instrumented = bool(dispatch)
     per_field: list[dict] = []
-    verdicts = {"agree": 0, "differ": 0, "extract_miss": 0, "gt_defect": 0}
+    verdicts = {"agree": 0, "differ": 0, "extract_miss": 0, "gt_defect": 0, "not_generated": 0}
     agree_confirmed = 0
     agree_by_absence = 0
 
@@ -512,7 +520,9 @@ def score(
             ftype == "boolean" and _coerce_bool(ex_value) is False
         ) or (ftype == "multi_category" and not ex_value)
 
-        if defect is not None:
+        if name in unreached and gt_absent:
+            verdict = "not_generated"
+        elif defect is not None:
             verdict = "gt_defect"
         elif gt_absent and ex_absent:
             verdict = "agree"

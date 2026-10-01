@@ -109,6 +109,16 @@ def overlap(a, b) -> float:
     return inter / min(area_a, area_b)
 
 
+def match_rect_scored(rect, candidates: list[dict], min_overlap: float = 0.5) -> list[tuple[float, dict]]:
+    """Every candidate at or above `min_overlap`, best first. The caller sees
+    ties (two candidates at 1.0 when both are contained) instead of having
+    them resolved by list order."""
+    scored = [(overlap(rect, c["rect"]), c) for c in candidates]
+    scored = [(s, c) for s, c in scored if s >= min_overlap]
+    scored.sort(key=lambda t: -t[0])
+    return scored
+
+
 def match_rect(rect, candidates: list[dict], min_overlap: float = 0.5) -> Optional[dict]:
     """The candidate whose rect best overlaps `rect` (each candidate carries
     `rect`), or None below `min_overlap` of the smaller area."""

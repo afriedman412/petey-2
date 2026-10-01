@@ -43,7 +43,7 @@ from typing import Optional
 from petey.synth import generate_from_pdf, render_pdf, generate_local, seed_from_key  # noqa: E402
 from petey.synth.bank import generate_from_bank  # noqa: E402
 from petey.synth.render import render_case  # noqa: E402
-from petey.validate.rect_join import case_to_paths  # noqa: E402
+from petey.validate.rect_join import case_to_paths, unreached_fields  # noqa: E402
 from petey.synth.classify import classify_form  # noqa: E402
 
 from petey.extract import extract, load_blueprint  # noqa: E402
@@ -152,12 +152,17 @@ def _class_score(bpt: dict, blank_pdf: Path, case_dir: Path, tag: str) -> None:
     if cmap is None:
         return
     from petey.validate.class_check import check_run_case
+    from petey.validate.inventory_check import check_case
     (case_dir / "class_map.json").write_text(json.dumps(
         {k: v for k, v in cmap.items() if k != "raw"}, indent=1))
     rows = check_run_case(bpt, cmap, case_dir)
     t = collections.Counter(r["tier"] for r in rows)
     print(f"    [{tag}] class check: {t[1]} contradictions, {t[2]} type suggestions, "
           f"{t[3]} uncaptioned")
+    inv = check_case(bpt, cmap, case_dir, blank_pdf)["summary"]
+    print(f"    [{tag}] inventory: {inv['fields_unreached']} fields unreached, {inv['merged_box']} merged, "
+          f"{inv['split_box']} split, {inv['uncovered_widget']} uncovered widgets, {inv['unbacked_box']} unbacked, "
+          f"{inv['option_group_mismatch']} option-group mismatches, {inv['tie']} ties")
 
 
 def _run_case(
@@ -176,6 +181,7 @@ def _run_case(
     # 1. Ground truth
     print(f"    [{variant}] gen ground truth...")
     prefilled = False
+    unreached: set[str] = set()
     if (gen_model or model) == "local":
         # Model-free: values drawn from the blueprint's own types,
         # patterns, semantic types and rules (STRATEGY_v1 §3.6). Keyed
@@ -212,9 +218,12 @@ def _run_case(
         (case_dir / "fill_report.json").write_text(json.dumps(fill_report, indent=2))
         gt, unclaimed = case_to_paths(bpt, case_rects, targets)
         (case_dir / "case_unclaimed.json").write_text(json.dumps(unclaimed, indent=2))
+        unreached = unreached_fields(bpt, gt)
+        (case_dir / "case_unreached.json").write_text(json.dumps(sorted(unreached), indent=1))
         print(f"    [{variant}] filled by rect: text={fill_report['text_filled']} marks_on={fill_report['marks_on']} "
               f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
-              f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims")
+              f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims, "
+              f"{len(unreached)} fields no box reached")
         (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
         prefilled = True
     else:
@@ -243,9 +252,12 @@ def _run_case(
             (case_dir / "fill_report.json").write_text(json.dumps(fill_report, indent=2))
             gt, unclaimed = case_to_paths(bpt, case_rects, targets)
             (case_dir / "case_unclaimed.json").write_text(json.dumps(unclaimed, indent=2))
+            unreached = unreached_fields(bpt, gt)
+            (case_dir / "case_unreached.json").write_text(json.dumps(sorted(unreached), indent=1))
             print(f"    [{variant}] filled by rect: text={fill_report['text_filled']} marks_on={fill_report['marks_on']} "
                   f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
-                  f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims")
+                  f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims, "
+              f"{len(unreached)} fields no box reached")
             (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
             prefilled = True
         else:
@@ -334,7 +346,7 @@ def _run_case(
         (case_dir / f"extract_{method}.json").write_text(
             json.dumps(ex, indent=2, default=str)
         )
-        report = score(bpt, gt, ex, dispatch_per_field=dispatch)
+        report = score(bpt, gt, ex, dispatch_per_field=dispatch, unreached=unreached)
         (case_dir / f"score_{method}.json").write_text(
             json.dumps(report, indent=2, default=str)
         )
@@ -344,7 +356,8 @@ def _run_case(
         print(f"    [{variant}] method={method}: "
               f"agree={v['agree']} differ={v['differ']} "
               f"miss={v['extract_miss']} defect={v['gt_defect']} "
-              f"conf={'n/a' if conf is None else conf}")
+              f"conf={'n/a' if conf is None else conf}"
+              + (f" not_generated={v['not_generated']}" if v.get('not_generated') else ""))
 
     _class_score(bpt, blank_pdf, case_dir, variant)
     return per_method_scores
@@ -358,7 +371,7 @@ def _aggregate(case_reports: list[dict], method: str) -> dict:
     if not valid:
         return {"n_cases": 0}
     verdicts_keys = ["agree", "differ", "extract_miss", "gt_defect",
-                     "rule_violation"]
+                     "rule_violation", "not_generated"]
     # .get: reports scored before a verdict existed lack its key
     avg = {k: mean(r["verdicts"].get(k, 0) for r in valid)
            for k in verdicts_keys}
@@ -495,8 +508,16 @@ def _run_rescore(
                 dispatch = meta.get("dispatch_per_field") or {}
                 ex_scoreable = ex
 
+            ur_path = case_dir / "case_unreached.json"
+            if ur_path.exists():
+                unreached = set(json.loads(ur_path.read_text()))
+            elif (case_dir / "case_rects.json").exists():
+                unreached = unreached_fields(bpt, gt)      # a rect-keyed run from before the file
+                ur_path.write_text(json.dumps(sorted(unreached), indent=1))
+            else:
+                unreached = set()
             report = score(bpt, gt, ex_scoreable,
-                           dispatch_per_field=dispatch)
+                           dispatch_per_field=dispatch, unreached=unreached)
             (case_dir / f"score_{method}.json").write_text(
                 json.dumps(report, indent=2, default=str)
             )
@@ -504,7 +525,8 @@ def _run_rescore(
             v = report["verdicts"]
             print(f"  [{case_dir.name}] method={method} "
                   f"agree={v['agree']} differ={v['differ']} "
-                  f"miss={v['extract_miss']} defect={v['gt_defect']}")
+                  f"miss={v['extract_miss']} defect={v['gt_defect']}"
+                  + (f" not_generated={v['not_generated']}" if v.get('not_generated') else ""))
         if blank_pdf is not None:
             _class_score(bpt, blank_pdf, case_dir, case_dir.name)
         case_reports.append(per_method)
@@ -731,7 +753,8 @@ def main() -> int:
         c = v.get("agree_confirmed_count")
         conf = "n/a" if c is None else str(c)
         print(f"  {m:<10} {vd['agree']:<8} {vd['differ']:<8} "
-              f"{vd['extract_miss']:<8} {vd['gt_defect']:<8} {conf:<10}")
+              f"{vd['extract_miss']:<8} {vd['gt_defect']:<8} {conf:<10}"
+              + (f" not_generated={vd['not_generated']}" if vd.get('not_generated') else ""))
 
     if summary["set"]:
         print(f"\nCASE SET {args.case_set} ({n_cases} intact cases, mean):")
@@ -741,7 +764,8 @@ def main() -> int:
                 print(f"  {m:<10} no valid cases")
                 continue
             print(f"  {m:<10} agree {a['agree']:.1f}  differ {a['differ']:.1f}  "
-                  f"miss {a['extract_miss']:.1f}  defect {a['gt_defect']:.1f}")
+                  f"miss {a['extract_miss']:.1f}  defect {a['gt_defect']:.1f}  "
+                  f"not_generated {a.get('not_generated', 0):.1f}")
 
     if args.n_flat:
         print(f"\nFLATTENED ({args.n_flat} cases, mean):")

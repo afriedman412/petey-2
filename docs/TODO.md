@@ -76,43 +76,33 @@ and case sets".
 
 **Open.**
 
-- **Inventory cross-reference as a scoring step (Andrew, 2026-09-30; before trusting set 2's numbers).** Score the
-  case inventory (finder boxes the classifier kept) against the blueprint inventory (fields and option widgets, by
-  rect), both directions plus many-to-one, and give every mismatch its taxonomy class: `box_unreached` (field, no
-  case box), `merged_box` (one case box holds two or more field rects), `split_box` (several case boxes in one
-  field; benign, `rect_join` concatenates), `uncovered_widget` (case box, no field, a widget under it),
-  `unbacked_box` (case box, no field, no widget), `option_group_mismatch` (the classifier's `group` and the
-  blueprint's groups partition the boxes differently; 526EZ `living_situation_14b` is one). Today `rect_join`
-  returns only the unclaimed boxes; a field no box reached is left out of the ground truth and scored as AGREE on
-  empty, which is why 10-10EZ reads 122/122 while the finder misses seven of its page-5 boxes. Such fields get
-  their own verdict (`not_generated`), stay out of agreement, and are reported per form as a coverage count beside
-  the value verdicts. Measured on the five forms (`eval/finder_vs_widgets.py` plus an ambiguity pass): 14 widgets
-  with no finder box, 21 finder boxes that contain two or more widgets (ACORD 25 address lines, 526EZ
-  date-of-birth parts, 10-10EZ), 93 widgets split across several boxes, 442 finder boxes with no widget.
+- **Inventory cross-reference as a scoring step (Andrew, 2026-09-30; before trusting set 2's numbers): done.**
+  `petey/validate/inventory_check.py` runs beside the class check and writes `inventory_check.json` per case with
+  `box_unreached`, `merged_box`, `split_box`, `uncovered_widget`, `unbacked_box`, `option_group_mismatch` and
+  `tie` (two case boxes over one field rect at equal overlap, recorded not resolved). The scorer has the verdict
+  `not_generated` for a field no value landed on (`rect_join.unreached_fields`, stored as `case_unreached.json`;
+  rescore derives it for older rect runs); it stays out of agreement and is summed over a set. Widget layer read
+  only here, after the case exists, for attribution. Set 2 honestly: W-9 21 + 2 not generated of 23; ACORD 25
+  92 + 35 of 128; I-765 138 + 2 of 140; 526EZ 320 + 8 of 328; 10-10EZ 114 + 8 of 122. Numbers and per-form
+  tables: RESULTS.md "Inventory cross-reference". Follow-ups:
 
-  - **Which box ate which** is resolvable without the widget layer: the blueprint's own field rects inside a merged
-    case box name exactly the fields it swallowed, so it works on flat forms too. `boxes.match_rect` scores
-    intersection over the smaller area, so containment ties at 1.0 and list order picks the widget; record the
-    tie (both candidates) instead of resolving it silently. The repair stays in the finder (next item).
+  - **Finder list, from the other side**: ACORD 25's INSR LTR / ADDL INSD / SUBR WVD cells come back as tall
+    column boxes (the classifier rightly refuses them as options) and its address blocks and OTHER-coverage columns
+    as one box each: that is 35 of ACORD's 128 fields not generated. 526EZ's three split dates and the dollars /
+    cents pair merge the same way. Splitting a box at the rules printed inside it is the finder fix.
 
-  - **Attribution**: on an AcroForm the widget layer is the third reference that says whether the finder or the
-    labeler is wrong (a diagnosis after the case is made, never an input to it); on a flat form the mismatch is a
-    flag for review.
+  - **526EZ option groups**: 14 `option_group_mismatch` rows, none on the other four forms; most are one blueprint
+    field over two printed questions (14A/14B, 21A/21B, 24A/24B, 24C/25, 19A/19B): the three-way rule's labeler
+    merge. Hand them to the reviewer as the next test case alongside the `page_class` flags.
 
-  - **Option groups: metadata after agreement (Andrew, 2026-09-30).** Membership is settled by the page (the
-    classifier's `group`) and the blueprint (`widgets`) agreeing on the same member boxes; only then may the
-    metadata (shared radio path, on-states) drive the mechanics: one mark per radio path at fill time, which
-    on-state to write, marks to field value at scoring. Three-way rule: page, blueprint and metadata agree ->
-    confirmed, metadata drives; page and blueprint agree, metadata silent (I-765 marital status and unit type,
-    a distinct path per box) -> confirmed, the page drives; page and blueprint disagree (526EZ
-    `living_situation_14b`) -> `option_group_mismatch`, and the metadata only attributes it (a page group across
-    several radio paths is a publisher split; a blueprint field across several page groups is a labeler merge).
-    Never take option MEANING from the metadata: captions and option identity come from the page, because export
-    words can contradict the printed captions (`export_caption_mismatch`: I-765's "Apt." box exports `FLR`).
+  - **Ties**: 65 on 526EZ, 13 on I-765, 2 on W-9; all comb cells (several small case boxes fully inside one field
+    rect, each at overlap 1.0). Harmless while the filler concatenates; worth watching if a tie ever crosses two
+    fields.
 
-- **Finder granularity** (fix in the finder, not with more fill-time rules): comb cells returned as uneven groups
-  (W-9 SSN); one box over stacked line widgets (ACORD address blocks); duplicate boxes over one checkbox; 526EZ 27D
-  dollars / cents pair; 10-10EZ page-5 date boxes missed; small cells missed on ACORD 25.
+  - **Option groups: metadata after agreement (Andrew).** Rule as written stands; `_option_groups` in
+    `inventory_check.py` implements the three-way classification with the widget layer as attribution only
+    (`one_path` / `several_paths` / `flat_blank_no_metadata`). Not yet used to drive mechanics; the filler still
+    marks one box per page group and relies on the widget's own on-state at write time.
 
 - **Rebinds over the set**: `correct.load_case` reads `case_001` only, so `name_rotation` / `name_slide` edges
   never benefit from the case set. Build edges per case and require them to hold across cases. Code, not a rerun.
