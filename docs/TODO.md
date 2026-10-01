@@ -123,6 +123,32 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
   Keeping a free-text `reading` beside the class is the cheap middle.
 
 ## Synthetic data — what is left (steps 4b, 5, 6, 7)
+- **Inventory cross-reference as a scoring step (Andrew, 2026-09-30; before trusting set 2's numbers).** Score the
+  case inventory (finder boxes the classifier kept) against the blueprint inventory (fields and option widgets, by
+  rect), both directions plus many-to-one, and give every mismatch a taxonomy class (added to
+  `defect_taxonomy.py`, no detectors yet): `box_unreached` (field, no case box), `merged_box` (one case box holds
+  two or more field rects), `split_box` (several case boxes in one field; benign, `rect_join` concatenates),
+  `uncovered_widget` (case box, no field, a widget under it), `unbacked_box` (case box, no field, no widget),
+  `option_group_mismatch` (the classifier's `group` and the blueprint's groups partition the boxes differently;
+  the 526EZ `living_situation_14b` row above is one). Today `rect_join` returns only the unclaimed boxes; a field no
+  box reached is left out of the ground truth and scored as AGREE on empty, which is why 10-10EZ reads 122/122
+  while the finder misses seven of its page-5 boxes. Such fields get their own verdict (`not_generated`), stay out
+  of agreement, and are reported per form as a coverage count beside the value verdicts. Measured on the five
+  forms (`eval/finder_vs_widgets.py` plus an ambiguity pass): 14 widgets with no finder box, 21 finder boxes that
+  contain two or more widgets (ACORD 25 address lines, 526EZ date-of-birth parts, 10-10EZ), 93 widgets split across
+  several boxes, 442 finder boxes with no widget.
+  - **Which box ate which** is resolvable without the widget layer: the blueprint's own field rects inside a merged
+    case box name exactly the fields it swallowed, so it works on flat forms too. `boxes.match_rect` scores
+    intersection over the smaller area, so containment ties at 1.0 and list order picks the widget; record the
+    tie (both candidates) instead of resolving it silently. The repair stays in the finder (split a box at the
+    rules printed inside it), per the finder granularity list above.
+  - **Attribution**: on an AcroForm the widget layer is the third reference that says whether the finder or the
+    labeler is wrong (a diagnosis after the case is made, never an input to it); on a flat form the mismatch is a
+    flag for review.
+- **Rebinds over the set**: `correct.load_case` reads `case_001` only, so `name_rotation` / `name_slide` edges
+  never benefit from the case set. Build edges per case and require them to hold across cases. Code, not a rerun.
+- **Donor**: `validate` no longer passes one; the `donor` parameter left in `bank.generate_from_bank` is dead.
+  Andrew: prose is a later problem, a value of the right type is enough, so free text stays on the bank's lines.
 - **Step 4, second half: class flags against the reader's flags** per field on the five sets, with the reader arm
   (text mode; image on 526EZ). ACORD 25 and I-765 runs are in RESULTS; 526EZ and 10-10EZ still to run (10-10EZ's
   blueprint is a side copy: `validate` needs a `--bpt` override before it can go through the loop).

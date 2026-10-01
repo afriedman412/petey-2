@@ -658,6 +658,106 @@ REGISTRY: tuple[DefectClass, ...] = (
         inline_fix=None,
         notes="Rules come from reciprocal XFA clear-others scripts (30 checkbox groups on 5 hybrids, 2026-09-28); the emitter writes them as x_petey_rules.",
     ),
+
+    # ---- case inventory vs blueprint inventory ------------------------
+    # The rect-keyed synthetic path finds its boxes on the page (synth.boxes)
+    # and never reads the widget layer; the blueprint's fields carry rects
+    # from it. Scoring cross-references the two inventories, and every
+    # mismatch is one of these. A mismatch says THAT the inventories
+    # disagree, not who is wrong: on an AcroForm the widget layer is the
+    # third reference that attributes it (a diagnosis after the case is
+    # made, never an input to it); on a flat form it stays a flag.
+    # Measured 2026-09-30 on the five test forms by eval/finder_vs_widgets.py.
+    DefectClass(
+        name="box_unreached",
+        owner="generator", tier=None,
+        canonical="va_form_10_10ez:DateFrom1 — page 5's seven date / specify boxes have no finder box; "
+                  "the widgets are never filled and their fields score AGREE on empty",
+        validation="self_scoring",
+        signature="a blueprint field whose rect matches no case box; the filler never wrote its widget",
+        fix="page finder recall (synth.boxes); until then the field is untested, not empty",
+        detector=None,
+        notes="14 of ~830 widgets on the five forms (W-9 2, ACORD 25 4, 526EZ 1, 10-10EZ 7; I-765's seven are its "
+              "barcode, which no field claims). Today rect_join leaves the field out of the ground truth, the "
+              "scorer reads that as empty and the reader finds nothing: a pass. The cross-reference gives such "
+              "fields their own verdict (`not_generated`) and keeps them out of agreement. A field whose widget is "
+              "a caption or a button is `caption_field` / `pushbutton_field`, not this. The same verdict covers a "
+              "box the classifier wrongly called `none`.",
+    ),
+    DefectClass(
+        name="merged_box",
+        owner="generator", tier=None,
+        canonical="acord25:Producer_MailingAddress_LineOne_A + LineTwo_A — one finder box contains both widgets "
+                  "(overlap 1.0 each); one line is written, the other never",
+        validation="self_scoring",
+        signature="one case box contains the rects of two or more blueprint fields (or widgets)",
+        fix="finder splits a box at the rules printed inside it; at scoring, the fields whose rects sit inside "
+            "the box name exactly which boxes it ate",
+        detector=None,
+        notes="ACORD 25 6, 526EZ 8 (Date_Of_Birth day / year inside one box), 10-10EZ 7. `match_rect` scores "
+              "intersection over the SMALLER area, so containment ties at 1.0 and list order picks the widget. "
+              "Two faults at once: the eaten siblings are `box_unreached` in effect (scored agree on empty), and "
+              "the written widget holds a value classed for the whole box (a whole date in the year box, cut by "
+              "MaxLen), which surfaces as a false blueprint flag. Resolving which boxes were eaten needs no widget "
+              "layer: the blueprint's own field rects inside the box name them, so it works on flat forms too.",
+    ),
+    DefectClass(
+        name="split_box",
+        owner="generator", tier=1,
+        canonical="vba21526ez — 69 widgets each claimed by several finder boxes, mostly comb cells (SSN, phone, dates)",
+        validation="native",
+        signature="several case boxes inside one blueprint field's rect",
+        fix="rect_join concatenates the cells in reading order, as the filler wrote them",
+        detector="rect_join.case_to_paths (the `inside` join)",
+        notes="Benign while the classifier classes the cells as parts of one value; a fault only when cells of one "
+              "widget get unrelated classes and the bank fills them independently (I-765 13, 10-10EZ 8, W-9 2, "
+              "ACORD 25 1).",
+    ),
+    DefectClass(
+        name="uncovered_widget",
+        owner="labeler", tier=None,
+        canonical=None,
+        validation="external",
+        signature="a case box with no blueprint field, and a widget under it",
+        fix="the labeler names every data widget; inline: add a field named from the path / tooltip, else escalate",
+        detector=None,
+        aliases=("labeler_miss",),
+        notes="The page and the widget layer agree a box is there; the blueprint dropped it. score.py's "
+              "`labeler_miss_paths` counts the path-keyed version of this; the cross-reference is the rect-keyed one. "
+              "No canonical case until the cross-reference runs.",
+    ),
+    DefectClass(
+        name="unbacked_box",
+        owner="generator", tier=None,
+        canonical="fw9 — 49 finder boxes with no widget behind them (526EZ 253, I-765 87); how many the classifier "
+                  "keeps as fillable is unmeasured",
+        validation="native",
+        signature="a case box classed fillable, with no blueprint field and no widget under it",
+        fix="the classifier's `none` class rejects finder over-proposals; a box the page prints but the publisher "
+            "never made fillable is recorded, not filled",
+        detector=None,
+        notes="Harmless on an AcroForm (the filler has no widget to write; the value is dropped). On a flat form the "
+              "value is drawn on the page, so a false box becomes a false value the reader may find. Two causes, "
+              "attributed by eye for now: finder over-proposal kept by the classifier, or a real printed box with "
+              "no widget (a structure fact about the form).",
+    ),
+    DefectClass(
+        name="option_group_mismatch",
+        owner="labeler", tier=None,
+        canonical=None,
+        validation="external",
+        signature="the classifier's `group` for a set of option boxes and the blueprint's option groups partition "
+                  "the same boxes differently (one page group across several fields, or one field across several "
+                  "page groups)",
+        fix="group by the page's question (the classifier's group, the printed caption run); the widget layer's "
+            "shared path is evidence, not the answer",
+        detector=None,
+        aliases=("ungrouped_options", "group_name_mismatch"),
+        notes="The group-level form of the cross-reference; falls out of the same rect join. The widget layer "
+              "attributes it on AcroForms: a page group spanning several radio paths is a publisher split, a "
+              "blueprint field spanning several page groups is a labeler merge. Distinct paths per kid (I-765's "
+              "marital status and unit type) are why neither the inventory nor the filler saw those groups.",
+    ),
 )
 
 BY_NAME = {d.name: d for d in REGISTRY}
