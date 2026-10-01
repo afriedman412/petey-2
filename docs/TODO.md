@@ -185,6 +185,17 @@ debugging yardstick. Set 2 is the rect-keyed set: W-9 23/23, ACORD 25 128/128, I
     labeler is wrong (a diagnosis after the case is made, never an input to it); on a flat form the mismatch is a
     flag for review.
 
+  - **Option groups: metadata after agreement (Andrew, 2026-09-30).** Membership is settled by the page (the
+    classifier's `group`) and the blueprint (`widgets`) agreeing on the same member boxes; only then may the
+    metadata (shared radio path, on-states) drive the mechanics: one mark per radio path at fill time, which
+    on-state to write, marks to field value at scoring. Three-way rule: page, blueprint and metadata agree ->
+    confirmed, metadata drives; page and blueprint agree, metadata silent (I-765 marital status and unit type,
+    a distinct path per box) -> confirmed, the page drives; page and blueprint disagree (526EZ
+    `living_situation_14b`) -> `option_group_mismatch`, and the metadata only attributes it (a page group across
+    several radio paths is a publisher split; a blueprint field across several page groups is a labeler merge).
+    Never take option MEANING from the metadata: captions and option identity come from the page, because export
+    words can contradict the printed captions (`export_caption_mismatch`: I-765's "Apt." box exports `FLR`).
+
 - **Rebinds over the set**: `correct.load_case` reads `case_001` only, so `name_rotation` / `name_slide` edges
   never benefit from the case set. Build edges per case and require them to hold across cases. Code, not a rerun.
 
