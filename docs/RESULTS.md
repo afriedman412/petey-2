@@ -1400,3 +1400,49 @@ captioned DATE OF INJURY (a date against a string). On the six rebuilt forms:
 
 LA 7006 keeps 27 at the class stage and B106I 1; those are the fields where the misattributed caption did change
 the class, and the caption pass (TODO) is for them.
+
+### Batch 3: twenty new forms through the whole pipeline, and LA 7006 re-run (2026-10-01, evening; `eval/loop_compare.py`, `eval/judge_informativeness.py --forms`)
+
+Twenty forms new to the loop (`runs/judge_eval/batch20c.txt`: unused AcroForm blanks with at least fifteen text
+widgets, one option box and at most eight pages, at most two per vertical, eighteen verticals), through label
+(Sonnet 4.6), validate (bank set 1 under `step2flat-3`), and `iterate --review flagged --apply-correct` with the
+judge, the reviewer (Opus 5) and the adjudicator (Sonnet 4.6). Plus LA 7006 re-run from its pre-loop blueprint.
+Andrew's scope was these plus SS-4; 31 further re-runs of the earlier batches went through before the scope was
+narrowed (their loop-2 results are in `<form>_loop2.json`; summarised at the end).
+
+| 20 new forms | |
+|---|---|
+| fields | 2,034 |
+| judge disagreements: layout / format / implausible / unexplained | 654: 413 / 143 / 62 / 36 |
+| name-vs-caption screen candidates (judged) | 36 (20) |
+| edits kept: on judge flags / on other flags | 31 / 106 |
+| renames proposed | 12; adjudicated: proposed 7, current 3, unclear 2, settled 5 |
+| reviewer + adjudicator cost | $1.87 (labeler, classifier and judge calls not logged here) |
+| chain: box / class / value stage | 511 / 100 / 1,423 (box stage 25%; 11% without A-1 and EP-5, below) |
+
+**The adjudicator in the wild.** Twelve renames on forms it had never seen. It upheld seven that read right on the
+crop (two checkbox fields named for their option, a lodging-or-tips description, a tax-years box, a lease-and-field
+column). It stopped three as `current`: the identity-theft affidavit's `taxpayer_current_mailing_address` proposed
+as `taxpayer_first_nm` (the box holds the mailing address), and two P-17 renames from `rrc_identifier_row_42` to
+`rrc_identifier_row42`, style-only changes the reviewer's own prompt forbids; the adjudicator does not police
+style, it asked what the box holds and found the current name already said so. It answered `unclear` on two P-17
+`well_no` renames that turned on a row index, which keeps the name and flags the field. One upheld rename is a
+suffix-only change (`ou_manager` -> `ou_manager_nm`): the adjudicator judges the kind of value, as asked, so a
+cosmetic rename that does not change the kind passes it; that remains the reviewer's rule to keep.
+
+**Box stage on the new forms is two forms.** 320 of the 511 box-stage fields are Alabama A-1 (247 of 247) and TX
+RRC EP-5 (73 of 74). A-1 is a dynamic XFA form: its page content is the "open this in Adobe Reader" notice, the
+form exists only in the XFA template, and the finder correctly finds nothing to fill (26 boxes, all `none`). It
+should never have been in the pick; the corpus probe needs an exclusion for XFA-only pages. EP-5 is an underline
+form whose text widgets sit off the printed underscore runs: 106 finder boxes, 79 widgets, 41 case boxes with no
+widget under them, 77 fields no box reached. A yardstick family (widget above the line it belongs to), not
+diagnosed to a fix. The other eighteen forms: 191 box-stage fields of 1,713. P-17 (418 fields, a two-page table)
+carries 68 of the 100 class-stage fields.
+
+**LA 7006, re-run from v0 under step2flat-3:** detected 150 -> 80 over the loop (loop 1 was 114 -> 33 with 68
+option widgets never reached), 36 reviewed fields kept, 3 restored, no renames.
+
+**The 31 incidental re-runs** (not asked for; the forms from batches 1 and 2 other than 7006 and SS-4, from their
+v0 blueprints): 24 renames against 26 in loop 1, but now adjudicated: 23 upheld, 2 stopped; restores 6 against 15.
+TX DMV 1756's fifteen `control` fields became the Year/Make column (loop 1 had passed all fifteen as ok) and KS
+DO-10's five publisher misplacements were renamed to their cells' captions and upheld. $2.28 reviewer + adjudicator.

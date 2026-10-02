@@ -18,9 +18,19 @@ in `runs/judge_eval/forms44.txt`).
   `--adjudicator-model`). Two loop changes with it: class-stage fields reach the reviewer on judge flags again
   (caption withheld, rename contested) and `judge_review` keeps an adjudicated rename it would restore as 'same'.
 
-  - Next: a loop pass with the adjudicator on a few forms (DO-10, SS-4, LIC100, WC-122 side copies, from their
-    `_v0.bpt`) to see the adjudication tallies and `needs_person` flags land in `x_petey_adjudication`; the review
-    pairs record the adjudication with each decision.
+  - Done 2026-10-01 evening (RESULTS "Batch 3"): twenty new forms and LA 7006 through the loop with the
+    adjudicator; 12 renames on the new forms, 7 upheld, 3 stopped, 2 unclear. Open from it:
+
+    - The corpus probe should exclude XFA-only pages (AL A-1: the page is the Adobe Reader notice, 247 fields
+      with nothing printed to find).
+
+    - Underline forms whose text widgets sit above the printed underscore run (TX RRC EP-5: 77 of 74 fields'
+      rects unreached, 41 finder boxes with no widget under them): a yardstick family to look at.
+
+    - The reviewer still proposes style-only renames (P-17 `rrc_identifier_row_42` -> `row42`, stopped by the
+      adjudicator; `ou_manager` -> `ou_manager_nm`, upheld because the adjudicator judges the kind of value, not
+      the style). The reviewer prompt forbids these; a cheap check in `apply_decisions` (same tokens after
+      normalising underscores and MeF suffixes -> not a rename) would stop them without a call.
 
 - **2. The box stage: measured; two finder patches ready, neither landed.** `eval/finder_vs_widgets.py` is
   size-aware (a hit is within 3x the widget's area; region boxes reported on their own). Before number over the 44
