@@ -1481,3 +1481,12 @@ closes after one loop iteration on the fresh label.
 meaning the fresh label is right on the cases checked (ACORD 25). The class layer is where the churn is: the emitter
 over-types `_nm` as `person_name` and under-types what the retype pass later adds; the loop corrects both, at a
 cost per form. ACORD 25's fresh label is the first candidate to replace a committed blueprint.
+
+**Side copies against the library, matched by PDF hash (2026-10-02).** Nine of the 65 judge-eval forms share a blank
+with a library blueprint (twelve pairs: Form 5500, 5500-EZ and I-9 each have two library copies, ported 2026-09-28
+under two naming schemes). Library vs the side copy as labeled: names identical or same words on 46 to 80% of
+fields, the rest reworded; different in meaning on 0 fields for seven forms, 9 on DA 4187 (79 vs 93 fields; the
+approver blocks are cut differently) and 3 to 4 on Form 5500 (participant-count rows). The loop added little on top
+of these nine labels: one to three type changes and a handful of descriptions per form against the as-labeled copy.
+The duplicate library copies are not identical to each other (5500: 57 vs 58 names identical to the side copy; I-9:
+`i9` 100 of 125, `i-9` 94 of 124).
