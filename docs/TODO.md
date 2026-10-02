@@ -80,6 +80,19 @@ in `runs/judge_eval/forms44.txt`).
 
   - Rebuilt as a side effect before the loop was stopped: OCC 1014cs (old build in its manifest's history).
 
+- **From the bpt-to-bpt diff (2026-10-02, RESULTS "Blueprint to blueprint"):**
+
+  - Emitter: stop typing every `_nm` field `person_name`; thing-name columns (lease and field name, well name,
+    formation name) should get no semantic type or a name class. 89 reviewer deletions over 65 forms came from
+    this one rule.
+
+  - Emitter: the semantic types the retype pass adds (`text` defaults, `year`, date parts) could be emitted
+    directly; today a fresh label lacks 128 of 526EZ's committed types until the loop runs once.
+
+  - ACORD 25: today's label (`runs/relabel/blueprints/acord25_relabel3.bpt`) fixes the library's known defects
+    (phone -> ZIP, the coverage grid's column slide). Candidate to replace `blueprints/acord25.bpt` after one
+    loop pass; Andrew's call.
+
 ## Done
 
 - Loop repairs baked into the emitter; registry ingestion in the generator.

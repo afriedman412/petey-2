@@ -1446,3 +1446,38 @@ option widgets never reached), 36 reviewed fields kept, 3 restored, no renames.
 v0 blueprints): 24 renames against 26 in loop 1, but now adjudicated: 23 upheld, 2 stopped; restores 6 against 15.
 TX DMV 1756's fifteen `control` fields became the Year/Make column (loop 1 had passed all fifteen as ok) and KS
 DO-10's five publisher misplacements were renamed to their cells' captions and upheld. $2.28 reviewer + adjudicator.
+
+### Blueprint to blueprint, no loop (2026-10-02, `eval/bpt_diff.py`)
+
+Andrew: compare the last generation's blueprints with ones the new code produces, file to file, as a cheap way to see
+whether the classes change. `eval/bpt_diff.py` matches fields across two blueprints of the same blank by widget
+path (an option group by its option paths and on-states) and compares name, type, semantic_type, pattern,
+description and option captions. Three readings.
+
+**1. What the loop changes (`--loop`: pre-loop `_v0` vs post-loop, the 65 judge-eval side copies, 5,647 fields).**
+Renamed 39; type or semantic_type changed 277; pattern changed 105; descriptions added 80, changed 82, removed 0.
+The commonest type edit is a deletion: `person_name` -> none 89 times, `year` -> none 34, `phone` 11, `ssn` 8;
+183 semantic types dropped to nothing in all. Sampled with the reviewer's reasons, the drops are right: "lease and
+field name", "well name and number" and "formation name" are not person names; "Year(s) or Period(s)" takes ranges;
+a box that accepts SSN or EIN is not an SSN. The cause is upstream: the emitter types any `_nm` field `person_name`,
+wrong for every thing-name column, and two table forms (P-17, OCC 1029a) account for 73 of the 89. An emitter rule
+to fix once, instead of a reviewer call per form.
+
+**2. Labeler stability (the 09-29 relabel vs today's label of the same blank, `_relabel3.bpt`).** Names: W-9 17 of
+17 identical; ACORD 25 105 identical, 23 reworded, 0 different in meaning; I-765 105 / 32 / 1; 526EZ 220 / 102 / 0;
+10-10EZ 85 of 100 identical, 0 different. Wording drifts on 15 to 30% of fields between two labels of the same
+blank (`telephone` / `phone`, a `_limit_` added); meaning holds. Today's emitter adds semantic types the 09-29 one
+left blank (526EZ 48, I-765 13, 10-10EZ 8). Labeling the five cost $0.60.
+
+**3. Committed library vs today's label.** ACORD 25: 37 names identical, 70 reworded, 21 different in meaning, and
+the 21 are the library's known defects: `insured_phone_nbr` and `producer_phone_nbr` are ZIP boxes (today:
+`insured_zip_cd`, `producer_zip_cd`), and the coverage-grid cells the committed blueprint names one column off
+(`gl_addl_insd_ind` on the OtherCoverage path) get their path's column today. I-765: 1 different; 526EZ: 19. Every
+semantic type the committed library carries and a fresh label lacks (526EZ 128, I-765 26, ACORD 11) came from the
+loop's retype pass (`x_petey_retype` on all of them), so that gap is the loop's work, not emitter regression, and
+closes after one loop iteration on the fresh label.
+
+**Reading.** The names are stable in meaning across labeler generations, and where committed and fresh differ in
+meaning the fresh label is right on the cases checked (ACORD 25). The class layer is where the churn is: the emitter
+over-types `_nm` as `person_name` and under-types what the retype pass later adds; the loop corrects both, at a
+cost per form. ACORD 25's fresh label is the first candidate to replace a committed blueprint.
