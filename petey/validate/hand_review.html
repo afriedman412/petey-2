@@ -17,9 +17,9 @@
   #stage { flex:1; overflow:auto; background:#efefef; position:relative; }
   #canvas { position:relative; margin:12px; display:inline-block; box-shadow:0 1px 4px rgba(0,0,0,.25); }
   #canvas img { display:block; }
-  .rect { position:absolute; border:1.5px solid var(--none); background:rgba(138,138,138,.08); cursor:pointer; }
-  .rect.accept { border-color:var(--accept); background:rgba(30,142,62,.10); }
-  .rect.flag { border-color:var(--flag); background:rgba(197,34,31,.14); }
+  .rect { position:absolute; border:1.5px solid var(--none); background:transparent; cursor:pointer; }
+  .rect.accept { border-color:var(--accept); }
+  .rect.flag { border-color:var(--flag); background:rgba(197,34,31,.06); }
   .rect.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
   .rect .tag { position:absolute; left:0; top:-14px; font-size:10px; line-height:12px; background:rgba(255,255,255,.9); color:var(--fg); padding:0 3px; white-space:nowrap; pointer-events:none; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
   aside { width:400px; border-left:1px solid var(--line); overflow:auto; padding:12px 14px; }
@@ -127,12 +127,8 @@ function placeRects() {
       d.className = 'rect ' + verdictOf(f.name) + (selected === f.name ? ' sel' : '');
       d.style.left = (x0 * scale) + 'px'; d.style.top = (y0 * scale) + 'px';
       d.style.width = Math.max(4, (x1 - x0) * scale) + 'px'; d.style.height = Math.max(4, (y1 - y0) * scale) + 'px';
-      d.title = f.name; d.onclick = () => select(f.name);
-      if (i === 0 || f.options.length) {
-        const t = document.createElement('span'); t.className = 'tag';
-        t.textContent = f.options.length && f.options[i] ? `${f.name} · ${f.options[i].caption || f.options[i].on_state}` : f.name;
-        d.appendChild(t);
-      }
+      d.title = f.options.length && f.options[i] ? `${f.name} · ${f.options[i].caption || f.options[i].on_state}` : f.name;
+      d.onclick = () => select(f.name);
       canvas.appendChild(d);
     });
   }
