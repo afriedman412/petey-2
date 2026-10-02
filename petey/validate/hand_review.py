@@ -34,6 +34,13 @@ from petey.paths import BLUEPRINTS, RUNS
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "hand_review"
+_LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)     # libyaml when present: 10x faster over 229 blueprints
+
+
+def _load(p: Path) -> dict:
+    return yaml.load(p.read_text(encoding="utf-8"), Loader=_LOADER) or {}
+
+
 HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 110
 SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RUNS / "relabel" / "blueprints"}
@@ -100,25 +107,36 @@ class State:
         self.paths = blueprint_paths()
         self.png: dict[tuple[str, int], bytes] = {}
         self.sizes: dict[str, list[dict]] = {}
+        self._index: dict[str, dict] = {}
+
+    def _entry(self, bid: str) -> dict:
+        p = self.paths[bid]
+        bp = _load(p)
+        v = load_verdicts(bid); vs = v.get("verdicts") or {}
+        fields = [n for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)]
+        return {"id": bid, "source": bid.split("__")[0], "form": p.stem, "fields": len(fields),
+                "accepted": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "accept"),
+                "flagged": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "flag"),
+                "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
+                "finder": (bp.get("x_petey_build") or {}).get("finder")}
+
+    def index(self) -> None:
+        """Read every blueprint once at startup; the listing is served from memory and one entry is refreshed
+        when its verdicts change."""
+        t0 = time.time()
+        self._index = {bid: self._entry(bid) for bid in self.paths}
+        print(f"  indexed {len(self._index)} blueprints in {time.time() - t0:.1f}s")
 
     def listing(self) -> list[dict]:
-        out = []
-        for bid, p in self.paths.items():
-            bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-            v = load_verdicts(bid); vs = v.get("verdicts") or {}
-            fields = [n for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)]
-            out.append({"id": bid, "source": bid.split("__")[0], "form": p.stem, "fields": len(fields),
-                        "accepted": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "accept"),
-                        "flagged": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "flag"),
-                        "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
-                        "finder": (bp.get("x_petey_build") or {}).get("finder")})
-        return out
+        if not self._index:
+            self.index()
+        return list(self._index.values())
 
     def detail(self, bid: str) -> Optional[dict]:
         p = self.paths.get(bid)
         if p is None:
             return None
-        bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        bp = _load(p)
         blank = resolve_blank(bp)
         pages = []
         if blank and blank.exists():
@@ -143,7 +161,7 @@ class State:
         p = self.paths.get(bid)
         if p is None:
             return None
-        bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        bp = _load(p)
         blank = resolve_blank(bp)
         if not blank or not blank.exists():
             return None
@@ -162,7 +180,7 @@ class State:
         p = self.paths.get(bid)
         if p is None:
             raise KeyError(bid)
-        bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+        bp = _load(p)
         cur = load_verdicts(bid)
         vs = cur.get("verdicts") or {}
         now = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -175,6 +193,8 @@ class State:
                "updated": now, "verdicts": vs}
         OUT.mkdir(parents=True, exist_ok=True)
         verdict_path(bid).write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")
+        if self._index:
+            self._index[bid] = self._entry(bid)
         return out
 
 
@@ -256,10 +276,12 @@ def main() -> int:
         summary()
         return 0
     STATE = State()
+    print(f"hand review: {len(STATE.paths)} blueprints; verdicts in {OUT}")
+    STATE.index()
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("127.0.0.1", args.port), Handler) as srv:
         url = f"http://127.0.0.1:{args.port}/"
-        print(f"hand review -> {url}  ({len(STATE.paths)} blueprints; verdicts in {OUT})")
+        print(f"hand review -> {url}")
         if not args.no_open:
             webbrowser.open(url)
         try:
