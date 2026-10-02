@@ -87,6 +87,9 @@ module, the module is given. Older documents use some of these loosely; this pag
 - **Taxonomy** (`petey/validate/defect_taxonomy.py`): the named defect classes a residue is sorted into.
 - **Test forms** (`petey/validate/test_forms.py`): the five documents every comparison runs on (tiers `smoke`,
   `core`, `full`). **Development forms**: anything diagnosed on.
+- **Hand review** (`petey/validate/hand_review.py`, a local web page): a person judges a blueprint's fields against
+  the rendered blank, accept / flag / a note per field; verdicts in `runs/hand_review/<id>.json` with the
+  blueprint's sha and build stamp. The check outside the loop that a promotion rests on.
 - **Fixture**: a small frozen list of hand-checked facts that does not depend on the cases, rerun when the
   component it tests changes: the widget layer for the finder (the yardstick), hand-verified fields for the
   adjudicator (`eval/adjudicator_test.py`), and the same pattern for the judge and reviewer. The reference that

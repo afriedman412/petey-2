@@ -93,6 +93,15 @@ in `runs/judge_eval/forms44.txt`).
     (phone -> ZIP, the coverage grid's column slide). Candidate to replace `blueprints/acord25.bpt` after one
     loop pass; Andrew's call.
 
+  - **Promotion rule, proposed (2026-10-02):** a side copy enters the library when its loop converged, the chain
+    puts most fields at the value stage, no field is left `unclear` or `needs_person`, it carries a build stamp,
+    and a person has walked it in the hand-review page (`python -m petey.validate.hand_review`; verdicts in
+    `runs/hand_review/`). ACORD 25 first, since its diff can be checked against known defects; then the 56 side
+    copies with no library counterpart (A-1 and EP-5 excluded by their box-stage counts).
+
+  - Library duplicates to resolve: `f5500` / `2025-form-5500`, `f5500ez` / `2025-form-5500-ez`, `i9` / `i-9`
+    (diverged: 125 vs 128 fields), `fw4` / `fw4_pymupdf`.
+
 ## Done
 
 - Loop repairs baked into the emitter; registry ingestion in the generator.

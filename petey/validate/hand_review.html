@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hand review</title>
+<style>
+  :root { --bg:#fff; --fg:#1b1b1b; --muted:#666; --line:#ddd; --accept:#1e8e3e; --flag:#c5221f; --sel:#1a73e8; --none:#8a8a8a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 13px/1.4 -apple-system, Helvetica, Arial, sans-serif; color:var(--fg); background:var(--bg); height:100vh; display:flex; flex-direction:column; }
+  header { display:flex; gap:12px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  header select { font:inherit; max-width:420px; }
+  .pages button, .btn { font:inherit; padding:3px 9px; border:1px solid var(--line); background:#fafafa; border-radius:4px; cursor:pointer; }
+  .pages button.on { background:#e8f0fe; border-color:var(--sel); }
+  .progress { color:var(--muted); }
+  .progress b { color:var(--fg); }
+  main { flex:1; display:flex; min-height:0; }
+  #stage { flex:1; overflow:auto; background:#efefef; position:relative; }
+  #canvas { position:relative; margin:12px; display:inline-block; box-shadow:0 1px 4px rgba(0,0,0,.25); }
+  #canvas img { display:block; }
+  .rect { position:absolute; border:1.5px solid var(--none); background:rgba(138,138,138,.08); cursor:pointer; }
+  .rect.accept { border-color:var(--accept); background:rgba(30,142,62,.10); }
+  .rect.flag { border-color:var(--flag); background:rgba(197,34,31,.14); }
+  .rect.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
+  .rect .tag { position:absolute; left:0; top:-14px; font-size:10px; line-height:12px; background:rgba(255,255,255,.9); color:var(--fg); padding:0 3px; white-space:nowrap; pointer-events:none; max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+  aside { width:400px; border-left:1px solid var(--line); overflow:auto; padding:12px 14px; }
+  aside h2 { font-size:15px; margin:0 0 6px; word-break:break-all; }
+  dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; }
+  dt { color:var(--muted); }
+  dd { margin:0; word-break:break-word; }
+  .verdict { display:flex; gap:8px; margin:12px 0 6px; }
+  .verdict .btn.accept { border-color:var(--accept); color:var(--accept); }
+  .verdict .btn.flag { border-color:var(--flag); color:var(--flag); }
+  .verdict .btn.on.accept { background:var(--accept); color:#fff; }
+  .verdict .btn.on.flag { background:var(--flag); color:#fff; }
+  textarea { width:100%; font:inherit; min-height:54px; }
+  .loop { background:#fff8e1; border:1px solid #f1e2a8; padding:6px 8px; border-radius:4px; margin:8px 0; }
+  .adj { background:#e8f0fe; border:1px solid #c6d8f7; padding:6px 8px; border-radius:4px; margin:8px 0; }
+  .list { margin-top:12px; border-top:1px solid var(--line); padding-top:8px; max-height:38vh; overflow:auto; }
+  .list div { padding:2px 4px; cursor:pointer; border-left:3px solid transparent; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .list div.accept { border-left-color:var(--accept); }
+  .list div.flag { border-left-color:var(--flag); }
+  .list div.sel { background:#e8f0fe; }
+  .help { color:var(--muted); font-size:12px; }
+  .stale { color:var(--flag); }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1e1e1e; --fg:#eee; --muted:#aaa; --line:#444; } #stage { background:#2a2a2a; } .pages button, .btn { background:#2c2c2c; color:var(--fg); } .loop { background:#3a3420; border-color:#6a5d2a; } .adj { background:#1f2d44; border-color:#2f4d7a; } .list div.sel, .pages button.on { background:#1f2d44; } .rect .tag { background:rgba(30,30,30,.9); } }
+</style>
+</head>
+<body>
+<header>
+  <select id="pick"></select>
+  <span class="pages" id="pages"></span>
+  <span class="progress" id="progress"></span>
+  <label class="help"><input type="checkbox" id="unrev"> unreviewed only (u)</label>
+  <span class="help">a accept · f flag · c clear · n/p next/prev · 1-9 page</span>
+</header>
+<main>
+  <div id="stage"><div id="canvas"><img id="img" alt=""></div></div>
+  <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
+</main>
+<script>
+let BP = null, bid = null, page = 1, selected = null, scale = 1, unrevOnly = false;
+const $ = s => document.querySelector(s);
+
+async function j(url, opts) { const r = await fetch(url, opts); if (!r.ok) throw new Error(await r.text()); return r.json(); }
+
+async function init() {
+  const list = await j('/api/blueprints');
+  const pick = $('#pick');
+  const groups = {lib: 'library', je: 'judge-eval side copies', rl: 'relabels'};
+  for (const src of ['lib', 'je', 'rl']) {
+    const og = document.createElement('optgroup'); og.label = groups[src];
+    for (const b of list.filter(x => x.source === src)) {
+      const o = document.createElement('option'); o.value = b.id;
+      const done = b.accepted + b.flagged;
+      o.textContent = `${b.form}  (${b.fields} fields${done ? `, ${done} reviewed` : ''}${b.stale ? ', stale' : ''})`;
+      og.appendChild(o);
+    }
+    pick.appendChild(og);
+  }
+  pick.addEventListener('change', () => load(pick.value));
+  const hash = decodeURIComponent(location.hash.slice(1));
+  if (hash && list.some(b => b.id === hash)) { pick.value = hash; load(hash); }
+  else if (list.length) { load(pick.value); }
+  window.addEventListener('keydown', onKey);
+  $('#unrev').addEventListener('change', e => { unrevOnly = e.target.checked; renderList(); });
+  window.addEventListener('resize', () => BP && placeRects());
+}
+
+async function load(id) {
+  bid = id; location.hash = encodeURIComponent(id);
+  BP = await j(`/api/blueprints/${encodeURIComponent(id)}`);
+  page = BP.fields.length ? BP.fields[0].page : 1; selected = null;
+  renderPages(); await showPage(); renderPanel(); renderProgress();
+}
+
+function renderPages() {
+  const el = $('#pages'); el.innerHTML = '';
+  for (const p of BP.pages) {
+    const n = BP.fields.filter(f => f.page === p.page).length;
+    if (!n) continue;
+    const b = document.createElement('button'); b.textContent = `p${p.page} (${n})`;
+    b.className = p.page === page ? 'on' : ''; b.onclick = () => { page = p.page; showPage(); renderPages(); };
+    el.appendChild(b);
+  }
+}
+
+async function showPage() {
+  const img = $('#img');
+  await new Promise(res => { img.onload = res; img.src = `/api/blueprints/${encodeURIComponent(bid)}/png/${page}`; });
+  placeRects();
+}
+
+function placeRects() {
+  const img = $('#img'), canvas = $('#canvas');
+  canvas.querySelectorAll('.rect').forEach(e => e.remove());
+  const pinfo = BP.pages.find(p => p.page === page); if (!pinfo) return;
+  scale = img.clientWidth / pinfo.w_pt;
+  for (const f of BP.fields) {
+    if (f.page !== page && !f.rects.some(r => r.page === page)) continue;
+    f.rects.filter(r => r.page === page).forEach((r, i) => {
+      const [x0, y0, x1, y1] = r.rect;
+      const d = document.createElement('div');
+      d.className = 'rect ' + verdictOf(f.name) + (selected === f.name ? ' sel' : '');
+      d.style.left = (x0 * scale) + 'px'; d.style.top = (y0 * scale) + 'px';
+      d.style.width = Math.max(4, (x1 - x0) * scale) + 'px'; d.style.height = Math.max(4, (y1 - y0) * scale) + 'px';
+      d.title = f.name; d.onclick = () => select(f.name);
+      if (i === 0 || f.options.length) {
+        const t = document.createElement('span'); t.className = 'tag';
+        t.textContent = f.options.length && f.options[i] ? `${f.name} · ${f.options[i].caption || f.options[i].on_state}` : f.name;
+        d.appendChild(t);
+      }
+      canvas.appendChild(d);
+    });
+  }
+}
+
+function verdictOf(name) { const v = BP.verdicts[name]; return v ? v.verdict : ''; }
+
+function ordered() { return BP.fields.filter(f => !unrevOnly || !verdictOf(f.name)); }
+
+function select(name, scroll = true) {
+  selected = name;
+  const f = BP.fields.find(x => x.name === name);
+  if (f && f.page !== page) { page = f.page; renderPages(); showPage().then(() => { renderPanel(); renderList(); }); return; }
+  placeRects(); renderPanel(); renderList();
+  if (scroll) { const el = document.querySelector('.rect.sel'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'}); }
+}
+
+function renderPanel() {
+  const a = $('#panel');
+  const f = BP.fields.find(x => x.name === selected);
+  const head = `<div class="help">${BP.path}${BP.stale ? ' <span class="stale">· verdicts predate this file</span>' : ''}${BP.build ? ` · built with ${BP.build.finder}` : ''}</div>`;
+  if (!f) { a.innerHTML = head + '<p class="help">Click a box on the page, or press n.</p>' + listHtml(); bindList(); return; }
+  const v = BP.verdicts[f.name] || {};
+  const opts = f.options.length ? `<dt>options</dt><dd>${f.options.map(o => `${o.on_state}: ${o.caption || '<i>no caption</i>'}`).join('<br>')}</dd>` : '';
+  const loop = f.loop ? `<div class="loop"><b>loop changed</b> ${(f.loop.changed || []).join(', ')}${f.loop.old_name ? ` (was <code>${f.loop.old_name}</code>)` : ''}<br>${f.loop.reason || ''}</div>` : '';
+  const adj = f.adjudication ? `<div class="adj"><b>adjudicator</b> ${f.adjudication.verdict} for <code>${f.adjudication.proposed}</code>: ${f.adjudication.reason || ''}</div>` : '';
+  a.innerHTML = head + `
+    <h2>${f.name}</h2>
+    <dl>
+      <dt>type</dt><dd>${f.type || ''}${f.semantic_type ? ' / ' + f.semantic_type : ''}</dd>
+      ${f.pattern ? `<dt>pattern</dt><dd><code>${escapeHtml(f.pattern)}</code></dd>` : ''}
+      ${f.values ? `<dt>values</dt><dd>${f.values.join(', ')}</dd>` : ''}
+      <dt>description</dt><dd>${f.description ? escapeHtml(f.description) : '<i>none</i>'}</dd>
+      <dt>path</dt><dd><code>${escapeHtml((f.path || '').split('.').slice(-1)[0])}</code></dd>
+      ${opts}
+    </dl>
+    ${loop}${adj}
+    <div class="verdict">
+      <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" onclick="setVerdict('accept')">accept (a)</button>
+      <button class="btn flag ${v.verdict === 'flag' ? 'on' : ''}" onclick="setVerdict('flag')">flag (f)</button>
+      <button class="btn" onclick="setVerdict(null)">clear (c)</button>
+    </div>
+    <textarea id="note" placeholder="what is wrong, or the right name (saved with the verdict)">${escapeHtml(v.note || '')}</textarea>
+    <div class="help">note saves on blur or Enter; Shift+Enter for a newline</div>
+    ${listHtml()}`;
+  const note = $('#note');
+  note.addEventListener('blur', () => saveNote());
+  note.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveNote(); note.blur(); } e.stopPropagation(); });
+  bindList();
+}
+
+function listHtml() {
+  return `<div class="list">${ordered().map(f => `<div data-n="${escapeHtml(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''}">p${f.page} · ${escapeHtml(f.name)}</div>`).join('')}</div>`;
+}
+function bindList() { document.querySelectorAll('.list div').forEach(d => d.onclick = () => select(d.dataset.n)); }
+function renderList() { const old = document.querySelector('.list'); if (!old) return; old.outerHTML = listHtml(); bindList(); }
+
+async function setVerdict(verdict) {
+  if (!selected) return;
+  const note = $('#note') ? $('#note').value : (BP.verdicts[selected] || {}).note || '';
+  await put({[selected]: verdict ? {verdict, note} : null});
+  if (verdict) next();
+  else { placeRects(); renderPanel(); renderProgress(); }
+}
+async function saveNote() {
+  if (!selected || !$('#note')) return;
+  const v = BP.verdicts[selected]; const note = $('#note').value;
+  if (v && v.note !== note) await put({[selected]: {verdict: v.verdict, note}});
+}
+async function put(verdicts) {
+  const out = await j(`/api/blueprints/${encodeURIComponent(bid)}/verdicts`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({verdicts})});
+  BP.verdicts = out.verdicts; BP.stale = false; renderProgress();
+}
+
+function renderProgress() {
+  const n = BP.fields.length, acc = BP.fields.filter(f => verdictOf(f.name) === 'accept').length, flg = BP.fields.filter(f => verdictOf(f.name) === 'flag').length;
+  $('#progress').innerHTML = `<b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}`;
+}
+
+function next(step = 1) {
+  const list = ordered(); if (!list.length) return;
+  let i = list.findIndex(f => f.name === selected);
+  if (i < 0) { const all = BP.fields; const j0 = all.findIndex(f => f.name === selected); i = list.findIndex(f => all.indexOf(f) > j0) - 1; }
+  i = (i + step + list.length) % list.length;
+  select(list[i].name);
+}
+
+function onKey(e) {
+  if (e.target && (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
+  if (!BP) return;
+  if (e.key === 'a') setVerdict('accept');
+  else if (e.key === 'f') setVerdict('flag');
+  else if (e.key === 'c') setVerdict(null);
+  else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
+  else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
+  else if (e.key === 'u') { unrevOnly = !unrevOnly; $('#unrev').checked = unrevOnly; renderList(); }
+  else if (/^[1-9]$/.test(e.key)) { const p = parseInt(e.key); if (BP.pages.some(x => x.page === p)) { page = p; renderPages(); showPage(); } }
+  else return;
+  e.preventDefault();
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+init();
+</script>
+</body>
+</html>
