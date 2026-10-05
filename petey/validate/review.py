@@ -22,6 +22,9 @@ Evidence per field (no ground truth beyond what the loop already produced):
   - printed words around the box on the blank page
   - flags: which detector fired, the label-grounded generated value, and what
     the by-meaning reader returned for this name
+  - witness flags (`witness.against_flags`, 2026-10-05): a text about the
+    widget that belongs to another field; a rename on such a field always
+    goes to the adjudicator
 
     python -m petey.validate.review --form vba21526ez [--run-dir runs/...] [--scope flagged|all]
         [--model claude-opus-5] [--effort medium] [--apply]
@@ -76,6 +79,11 @@ the tooltip asks for MM/DD/YYYY).
 value than the one in this box. Either the name describes another box, or it is \
 too vague to pick this one (a section repeated for veteran and claimant, table \
 rows) and needs the copy or row in it.
+- witness: a text about this box (the publisher's tooltip, the printed caption, \
+or the page classifier's caption, quoted in `text`) describes another field \
+better than this name, and better than that field's own text. Either the two \
+names are swapped or one row off (rename), or the text is the publisher's \
+mistake and the caption printed for this box confirms the current name (ok).
 
 For each field decide: "ok" if the definition is right and the flag is the \
 generator's or reader's fault, or "fix" with only the attributes that should \
@@ -250,6 +258,13 @@ def flags_from_run(run_dir: Path) -> dict[str, list[dict]]:
                 }.get(row.get("shape"), row.get("shape")),
                 "attribution": row.get("attribution"),
                 "radio_paths": row.get("radio_paths")})
+    # Witnesses (`witness.py`, 2026-10-05): a text about this widget (the publisher's tooltip, the caption printed
+    # at it, the classifier's caption) that belongs to another field more than that field's own text does. The
+    # signature of a swap or a widget placed one row off (5500-SF day/month, ACORD 25 phone names on the state and
+    # ZIP boxes), which the judge only sees when the case happens to trip it. Read from the blank, not the case.
+    from petey.validate.witness import against_flags
+    for f, fl in against_flags(run_dir).items():
+        flags[f].extend(fl)
     return flags
 
 
@@ -552,9 +567,11 @@ def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
     if adjudicate and decisions and run_dir is not None:
         from petey.validate import adjudicate as adjudicate_mod
         from petey.validate.field_chain import chain_for_run
+        from petey.validate.witness import contested_fields
         adjudicated = adjudicate_mod.adjudicate_decisions(
             bp, blank, decisions, chain_for_run(run_dir), limits=widget_limits(blank),
-            model=adjudicator_model or adjudicate_mod.MODEL, tag=f"adjudicate/{form}")
+            model=adjudicator_model or adjudicate_mod.MODEL, tag=f"adjudicate/{form}",
+            contested=contested_fields(flags))
         cost += adjudicated["cost_usd"]
     changes = collections.Counter()
     if apply and decisions:

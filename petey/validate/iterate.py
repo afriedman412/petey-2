@@ -153,6 +153,14 @@ def detect(form: str, run_dir: Path) -> dict:
                     + sum(v for k, v in out["delta"].items() if k in ("defect", "unlocatable"))
                     + out["verdicts"].get("differ", 0) + out["verdicts"].get("extract_miss", 0)
                     + out.get("class_disagree", 0))
+    # Witness flags (a widget's text belongs to another field; `witness.against_flags`) open a review round but
+    # stay out of `total`: they come from the blank, not the case, so they cannot judge a round, and counting
+    # them would let a rename made to satisfy them score itself 'better'. The adjudicator judges those renames.
+    try:
+        from petey.validate.witness import against_flags
+        out["witness"] = len(against_flags(run_dir))
+    except Exception as e:
+        out["witness_error"] = f"{type(e).__name__}: {e}"
     return out
 
 
@@ -396,7 +404,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
                 continue
         changes = fix(form, det, describe=describe, apply_correct=apply_correct, bpt=bpt)
         review_rec = None
-        if review != "none" and rounds_done < review_rounds and det["total"] > 0:
+        if review != "none" and rounds_done < review_rounds and (det["total"] > 0 or det.get("witness")):
             from petey.validate.review import review as run_review
             snapshot = bp_path.read_text(encoding="utf-8")
             res = run_review(form, run_dir=run_dir, scope=review, model=review_model,
@@ -419,7 +427,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         rec = {"iteration": i, "run": run_dir.name, "seconds": round(time.time() - t0, 1),
                "verdicts": det["verdicts"], "shape": det["shape"], "delta": det["delta"],
                "rule_violations": det["rule_violations"], "detected": det["total"],
-               "fixed": dict(changes)}
+               "witness": det.get("witness"), "fixed": dict(changes)}
         if review_rec:
             rec["review_run"] = review_rec
         if judged:

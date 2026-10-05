@@ -165,6 +165,21 @@ async function bulkAccept() {
   placeRects(); renderPanel(); renderProgress();
 }
 
+function madeHtml(m) {
+  if (!m) return '';
+  const e = escapeHtml, rows = [];
+  if (m.labeler) rows.push(`labeled by ${e(m.labeler.method || '?')}${m.labeler.model ? ' / ' + e(m.labeler.model) : ''}${m.labeler.when ? ' on ' + e(m.labeler.when) : ' (date not recorded)'}`);
+  else rows.push('labeler not recorded (imported from petey-master)');
+  if (m.origin) rows.push(`made in ${e(m.origin.repo)}: first commit ${e(m.origin.first.when)} by ${e(m.origin.first.who)}, last ${e(m.origin.last.when)} by ${e(m.origin.last.who)}`);
+  if (m.git_first) rows.push(`in git since ${e(m.git_first.when)} by ${e(m.git_first.who)} (${e(m.git_first.commit)}: ${e(m.git_first.subject.slice(0, 60))})`);
+  if (m.git_last && m.git_commits > 1) rows.push(`last commit ${e(m.git_last.when)} by ${e(m.git_last.who)} (${e(m.git_last.commit)}: ${e(m.git_last.subject.slice(0, 60))}); ${m.git_commits} commits`);
+  if (m.uncommitted) rows.push('<span class="stale">uncommitted changes on disk</span>');
+  if (m.file_time) rows.push(`not in git; file last written ${e(m.file_time)}`);
+  if (m.loop_edits) rows.push('loop edits kept: ' + Object.entries(m.loop_edits).map(([k, n]) => `${n} by ${e(k || '?')}`).join(', '));
+  if (m.validated) rows.push(`last validated ${e(m.validated.when || '?')}${m.validated.run ? ' (' + e(m.validated.run) + ')' : ''}`);
+  return `<div class="help made">${rows.join('<br>')}</div>`;
+}
+
 function tierChip(f) { return f.tier ? `<span class="tier ${f.tier}" title="${f.tier}">${TIER_LETTER[f.tier]}</span>` : ''; }
 
 function witnessHtml(f) {
@@ -188,7 +203,7 @@ function select(name, scroll = true) {
 function renderPanel() {
   const a = $('#panel');
   const f = BP.fields.find(x => x.name === selected);
-  const head = `<div class="help">${BP.path}${BP.stale ? ' <span class="stale">· verdicts predate this file</span>' : ''}${BP.build ? ` · built with ${BP.build.finder}` : ''}</div>`;
+  const head = `<div class="help">${BP.path}${BP.stale ? ' <span class="stale">· verdicts predate this file</span>' : ''}${BP.build ? ` · built with ${BP.build.finder}` : ''}</div>${madeHtml(BP.made)}`;
   if (!f) { a.innerHTML = head + '<p class="help">Click a box on the page, or press n.</p>' + listHtml(); bindList(); return; }
   const v = BP.verdicts[f.name] || {};
   const opts = f.options.length ? `<dt>options</dt><dd>${f.options.map(o => `${o.on_state}: ${o.caption || '<i>no caption</i>'}`).join('<br>')}</dd>` : '';

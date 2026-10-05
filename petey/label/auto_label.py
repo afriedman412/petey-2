@@ -1025,6 +1025,9 @@ def build_blueprint(
             "model": model if use_llm else None,
             "geometry": geometry_method,
             "labels": "llm" if use_llm else "placeholder",
+            # when it was labeled (2026-10-05): side copies live under runs/, outside git, and a file's mtime
+            # moves with every loop edit
+            "when": time.strftime("%Y-%m-%d %H:%M:%S"),
         },
         "fields": fields,
     }

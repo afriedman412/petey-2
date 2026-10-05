@@ -202,10 +202,14 @@ def ask(client, model: str, png: bytes, *, field: str, proposed: str, reason: st
 
 def adjudicate_decisions(bp: dict, blank: Path, decisions: list[dict], chain: dict[str, dict], *,
                          limits: dict[str, dict], model: str = MODEL, client=None, force: bool = False,
-                         crop_dir: Optional[Path] = None, tag: str = "adjudicate") -> dict:
+                         crop_dir: Optional[Path] = None, tag: str = "adjudicate",
+                         contested: Optional[dict[str, str]] = None) -> dict:
     """Judge every proposed rename the chain does not settle. Decisions are edited in place: a rename that is not
     upheld loses its `name` (the rest of the decision stands) and every adjudicated decision carries
-    `adjudication` for `apply_decisions` to record. Returns the tally, usage and per-field records."""
+    `adjudication` for `apply_decisions` to record. Returns the tally, usage and per-field records.
+    `contested` (`{field: why}`) names fields whose renames go to the page whatever the chain says: the
+    witness-flagged ones (`witness.contested_fields`), whose evidence the loop's before/after cannot see."""
+    contested = contested or {}
     fields = bp.get("fields") or {}
     tally: collections.Counter = collections.Counter()
     usage_total: collections.Counter = collections.Counter()
@@ -215,7 +219,7 @@ def adjudicate_decisions(bp: dict, blank: Path, decisions: list[dict], chain: di
         if d.get("verdict") != "fix" or not proposed or proposed == field or field not in fields:
             continue
         spec = fields[field]
-        why = contested_because(spec, chain.get(field), limits)
+        why = contested.get(field) or contested_because(spec, chain.get(field), limits)
         if why is None and not force:
             tally["settled"] += 1
             continue

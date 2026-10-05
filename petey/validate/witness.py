@@ -126,7 +126,10 @@ def publisher_words(blank: Path) -> dict[str, list[str]]:
 def _toks(s: str) -> set[str]:
     """`name_caption.tokens`, every token cut to the same five-letter stem: its expansions are whole words
     ('zip' -> 'postal') while caption words are stems ('posta'), so 'zip' never met 'postal code'."""
-    return {t[:5] for t in tokens(s)}
+    return {_MORE_ABBR.get(t, t)[:5] for t in tokens(s)}
+
+
+_MORE_ABBR = {"nbr": "number", "zip": "postal"}     # slugs the labeler writes that `name_caption._ABBR` lacks
 
 
 class Names:
@@ -466,8 +469,10 @@ def tier(ws: dict[str, tuple]) -> str:
     return "settled" if n >= 2 else ("single" if n == 1 else "unknown")
 
 
-def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool = True) -> dict:
-    """`{"run": run name or None, "fields": {name: {"tier", "witnesses": {witness: [verdict, detail]}}}}`."""
+def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool = True,
+              judge: bool = True) -> dict:
+    """`{"run": run name or None, "fields": {name: {"tier", "witnesses": {witness: [verdict, detail]}}}}`.
+    `judge` False skips the run's judge and inventory witnesses (the run's class map is still read)."""
     bpt_path = Path(bpt_path)
     bp = _load(bpt_path)
     blank = resolve_blank(bp)
@@ -475,7 +480,7 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
     lines = _page_lines(str(blank)) if blank and blank.exists() else {}
     if use_run and run_dir is None:
         run_dir = run_for(bpt_path, bp)
-    by_key = run_witnesses(run_dir, blank) if use_run and run_dir else {}
+    by_key = run_witnesses(run_dir, blank) if use_run and judge and run_dir else {}
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     by_page = class_map_boxes(blank, run_dir)
     grouping = {**lined_up_checkboxes(fields), **(grouping_witnesses(fields, by_page) if by_page else {})}
@@ -513,6 +518,44 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
         out[name] = {"tier": tier(ws), "stage": r.get("stage") if same_name else None,
                      "witnesses": {k: [v[0], v[1]] for k, v in ws.items()}}
     return {"blueprint": str(bpt_path), "run": run_dir.name if run_dir else None, "fields": out}
+
+
+# ------------------------------------------------------------------- the loop's view
+
+_FLAG_SOURCE = {"publisher": "the publisher's tooltip / XFA caption for this widget",
+                "page": "the caption printed at this widget",
+                "classifier": "the page classifier's caption for this box"}
+
+
+def against_flags(run_dir: Path) -> dict[str, list[dict]]:
+    """Reviewer flags from the witnesses, for the loop (`review.flags_from_run`): only a text that belongs to
+    another field (a swap, a widget placed one row off), the one witness signal a rename can answer. Witnesses
+    that merely share nothing with the name, the classifier's 'nothing goes here' and checkbox runs stay with
+    the hand-review page: the reviewer cannot delete or merge fields. Read from the blank and the run's class
+    map, not from the case, so a box- or class-stage field is flagged too; a rename on a flagged field always
+    goes to the adjudicator (`contested_fields`), since the loop's before/after is blind to these signals."""
+    bp_path = run_dir / "blueprint.bpt"
+    if not bp_path.exists():
+        return {}
+    res = witnesses(bp_path, run_dir, judge=False)
+    flags: dict[str, list[dict]] = {}
+    for name, f in res["fields"].items():
+        for k, (v, detail) in f["witnesses"].items():
+            if v is not False or k not in _FLAG_SOURCE or "belongs to: " not in (detail or ""):
+                continue
+            text, other = re.match(r"(.*?)(?: ; )?belongs to: (\S+)$", detail).groups()
+            flags.setdefault(name, []).append({
+                "detector": "witness",
+                "detail": f"{_FLAG_SOURCE[k]} describes the field `{other}` better than this name, and better "
+                          f"than `{other}`'s own text does",
+                "text": text})
+    return flags
+
+
+def contested_fields(flags: dict[str, list[dict]]) -> dict[str, str]:
+    """`{field: why}` for `adjudicate.adjudicate_decisions`: witness-flagged fields whose renames need the page."""
+    return {f: "a witness says this widget's text belongs to another field" for f, fl in flags.items()
+            if any(x.get("detector") == "witness" for x in fl)}
 
 
 # ------------------------------------------------------------------- calibration against hand review

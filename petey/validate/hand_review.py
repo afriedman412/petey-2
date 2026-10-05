@@ -24,10 +24,12 @@ from looked-at ones. Reading order is one click away.
 from __future__ import annotations
 
 import argparse
+import collections
 import hashlib
 import http.server
 import json
 import socketserver
+import subprocess
 import time
 import webbrowser
 from pathlib import Path
@@ -109,6 +111,54 @@ def field_rows(bp: dict) -> list[dict]:
     return rows
 
 
+def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
+    try:
+        return subprocess.run(["git", *args], capture_output=True, text=True, cwd=cwd, timeout=10).stdout.strip()
+    except Exception:
+        return ""
+
+
+# where the library was labeled before the port (petey-master's widget-mapper repo, no remote); read when present
+ORIGIN_BLUEPRINTS = Path.home() / "Documents" / "code" / "petey-master" / "widget-mapper" / "blueprints"
+
+
+def _commits(path: Path, cwd: Path) -> list[dict]:
+    log = _git("log", "--follow", "--format=%h|%ad|%an|%s", "--date=format:%Y-%m-%d %H:%M", "--", str(path), cwd=cwd)
+    return [dict(zip(("commit", "when", "who", "subject"), r.split("|", 3))) for r in log.splitlines()]
+
+
+def made(p: Path, bp: dict) -> dict:
+    """When the blueprint was made and by whom, from whatever the file and the repo record (Andrew, 2026-10-05):
+    the labeler's `authoring` block (method, model; `when` since 2026-10-05), git's first and latest commit of the
+    file with their authors (the library came over from petey-master, so its first commit here is the port, not
+    the labeling), the models whose edits the loop kept, and the latest validation's build stamp. Side copies under
+    runs/ are outside git; their file time stands in."""
+    out: dict = {}
+    a = bp.get("authoring") or {}
+    if a:
+        out["labeler"] = {k: a.get(k) for k in ("method", "model", "geometry", "when") if a.get(k)}
+    rows = _commits(p, BLUEPRINTS.parent)
+    if rows:
+        out["git_first"], out["git_last"], out["git_commits"] = rows[-1], rows[0], len(rows)
+        if subprocess.run(["git", "diff", "--quiet", "--", str(p)], cwd=BLUEPRINTS.parent).returncode:
+            out["uncommitted"] = True
+    else:
+        out["file_time"] = time.strftime("%Y-%m-%d %H:%M", time.localtime(p.stat().st_mtime))
+    origin = ORIGIN_BLUEPRINTS / p.name
+    if p.parent.resolve() == BLUEPRINTS.resolve() and origin.exists():
+        orows = _commits(origin, ORIGIN_BLUEPRINTS.parent)
+        if orows:
+            out["origin"] = {"repo": "petey-master/widget-mapper", "first": orows[-1], "last": orows[0]}
+    reviewers = collections.Counter((s.get("x_petey_review") or {}).get("model") for s in (bp.get("fields") or {}).values()
+                                    if isinstance(s, dict) and s.get("x_petey_review"))
+    if reviewers:
+        out["loop_edits"] = dict(reviewers)
+    b = bp.get("x_petey_build") or {}
+    if b:
+        out["validated"] = {k: b.get(k) for k in ("when", "run", "generator", "case_set") if b.get(k)}
+    return out
+
+
 class State:
     def __init__(self) -> None:
         self.paths = blueprint_paths()
@@ -165,7 +215,7 @@ class State:
         return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": _sha(p),
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
                 "verdicts": v.get("verdicts") or {}, "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
-                "witness_run": wit.get("run"), "witness_error": wit.get("error"), "dpi": DPI}
+                "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(p, bp), "dpi": DPI}
 
     def witnesses(self, bid: str, p: Path) -> dict:
         """Per-field witnesses and tier (`witness.py`), once per blueprint version; no API calls."""
