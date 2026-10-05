@@ -12,8 +12,14 @@ files only) and the relabels (`runs/relabel/blueprints/`). Verdicts go to `runs/
 blueprint's path, sha and build stamp, and are keyed by field name; a verdict written against one version of the
 file is reported as stale when the file changes.
 
-Keys on the page: a accept, f flag, c clear, n / p next and previous field in reading order, u toggle unreviewed
-only, 1-9 page. Every verdict saves immediately.
+Keys on the page: a accept, f flag, c clear, n / p next and previous field, u toggle unreviewed only, 1-9 page.
+Every verdict saves immediately.
+
+Fields come in risk order by default (2026-10-05): each carries its witness tier from `witness.py` (contested,
+unknown, single, settled; computed from the blueprint, the blank, the cached class map and the last run, no API
+calls), contested first, and the panel shows which witness disagreed and why. "accept settled" accepts every
+unreviewed settled field in one step, with the note `bulk: settled`, so a later calibration can tell those verdicts
+from looked-at ones. Reading order is one click away.
 """
 from __future__ import annotations
 
@@ -31,6 +37,7 @@ from urllib.parse import unquote, urlparse
 import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
+from petey.validate import witness
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "hand_review"
@@ -108,6 +115,7 @@ class State:
         self.png: dict[tuple[str, int], bytes] = {}
         self.sizes: dict[str, list[dict]] = {}
         self._index: dict[str, dict] = {}
+        self._witness: dict[tuple, dict] = {}
 
     def _entry(self, bid: str) -> dict:
         p = self.paths[bid]
@@ -149,10 +157,25 @@ class State:
                 doc.close()
         self.sizes[bid] = pages
         v = load_verdicts(bid)
+        rows = field_rows(bp)
+        wit = self.witnesses(bid, p)
+        for r in rows:
+            w = (wit.get("fields") or {}).get(r["name"]) or {}
+            r["tier"], r["witnesses"] = w.get("tier"), w.get("witnesses")
         return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": _sha(p),
-                "build": bp.get("x_petey_build"), "pages": pages, "fields": field_rows(bp),
+                "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
                 "verdicts": v.get("verdicts") or {}, "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
-                "dpi": DPI}
+                "witness_run": wit.get("run"), "witness_error": wit.get("error"), "dpi": DPI}
+
+    def witnesses(self, bid: str, p: Path) -> dict:
+        """Per-field witnesses and tier (`witness.py`), once per blueprint version; no API calls."""
+        key = (bid, _sha(p))
+        if key not in self._witness:
+            try:
+                self._witness[key] = witness.witnesses(p)
+            except Exception as e:                 # a page without tiers is still a review page
+                self._witness[key] = {"fields": {}, "error": f"{type(e).__name__}: {e}"}
+        return self._witness[key]
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)

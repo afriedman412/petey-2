@@ -90,6 +90,12 @@ module, the module is given. Older documents use some of these loosely; this pag
 - **Hand review** (`petey/validate/hand_review.py`, a local web page): a person judges a blueprint's fields against
   the rendered blank, accept / flag / a note per field; verdicts in `runs/hand_review/<id>.json` with the
   blueprint's sha and build stamp. The check outside the loop that a promotion rests on.
+- **Witness** (`petey/validate/witness.py`): one independent source's verdict on a field, `for` / `against` /
+  silent: publisher (tooltip, XFA caption), page (printed text at the widget), classifier (class and caption),
+  judge (read back by name), structure (option grouping), adjudicator. **Tier**: `contested` (any against),
+  `settled` (two or more for, none against), `single`, `unknown`; the hand-review page sorts by it and can accept
+  the settled fields in bulk. No API calls.
+
 - **Fixture**: a small frozen list of hand-checked facts that does not depend on the cases, rerun when the
   component it tests changes: the widget layer for the finder (the yardstick), hand-verified fields for the
   adjudicator (`eval/adjudicator_test.py`), and the same pattern for the judge and reviewer. The reference that
