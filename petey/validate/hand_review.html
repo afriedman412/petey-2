@@ -53,6 +53,7 @@
 <body>
 <header>
   <select id="pick"></select>
+  <label class="help">list <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option></select></label>
   <span class="pages" id="pages"></span>
   <span class="progress" id="progress"></span>
   <label class="help"><input type="checkbox" id="unrev"> unreviewed only (u)</label>
@@ -65,7 +66,7 @@
   <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
 </main>
 <script>
-let BP = null, bid = null, page = 1, selected = null, scale = 1, unrevOnly = false, order = 'risk';
+let BP = null, bid = null, page = 1, selected = null, scale = 1, unrevOnly = false, order = 'risk', LIST = [];
 const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
 const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
 const $ = s => document.querySelector(s);
@@ -75,21 +76,12 @@ async function j(url, opts) { const r = await fetch(url, opts); if (!r.ok) throw
 async function init() {
   const pick = $('#pick');
   pick.innerHTML = '<option>loading blueprints…</option>';
-  let list;
-  try { list = await j('/api/blueprints'); }
+  try { LIST = await j('/api/blueprints'); }
   catch (e) { pick.innerHTML = ''; $('#panel').innerHTML = `<p class="stale">Could not load the blueprint list: ${escapeHtml(e.message)}</p>`; return; }
-  pick.innerHTML = '';
-  const groups = {lib: 'library', je: 'judge-eval side copies', rl: 'relabels'};
-  for (const src of ['lib', 'je', 'rl']) {
-    const og = document.createElement('optgroup'); og.label = groups[src];
-    for (const b of list.filter(x => x.source === src)) {
-      const o = document.createElement('option'); o.value = b.id;
-      const done = b.accepted + b.flagged;
-      o.textContent = `${b.form}  (${b.fields} fields${done ? `, ${done} reviewed` : ''}${b.stale ? ', stale' : ''})`;
-      og.appendChild(o);
-    }
-    pick.appendChild(og);
-  }
+  const list = LIST;
+  try { $('#listorder').value = localStorage.getItem('hr_listorder') || 'name'; } catch (e) {}
+  renderPicker();
+  $('#listorder').addEventListener('change', e => { try { localStorage.setItem('hr_listorder', e.target.value); } catch (_) {} renderPicker(); });
   pick.addEventListener('change', () => load(pick.value));
   const hash = decodeURIComponent(location.hash.slice(1));
   if (hash && list.some(b => b.id === hash)) { pick.value = hash; load(hash); }
@@ -101,6 +93,33 @@ async function init() {
   $('#order').addEventListener('change', e => { order = e.target.value; try { localStorage.setItem('hr_order', order); } catch (_) {} renderList(); });
   $('#bulk').addEventListener('click', bulkAccept);
   window.addEventListener('resize', () => BP && placeRects());
+}
+
+// who made the blueprint, when, and what it was last validated on: "petey-master 2026-07-01 · never validated"
+function ageText(a) {
+  if (!a) return '';
+  const v = a.validated ? `validated ${a.validated} on ${a.finder || '?'}${a.finder_current === false ? ' (old finder)' : ''}` : 'never validated';
+  return `${a.by} ${a.when || '?'} · ${v}`;
+}
+
+function renderPicker() {
+  const pick = $('#pick'), keep = pick.value || decodeURIComponent(location.hash.slice(1));
+  pick.innerHTML = '';
+  const groups = {lib: 'library', je: 'judge-eval side copies', rl: 'relabels'};
+  const oldest = $('#listorder').value === 'oldest';
+  for (const src of ['lib', 'je', 'rl']) {
+    const og = document.createElement('optgroup'); og.label = groups[src];
+    const items = LIST.filter(x => x.source === src);
+    if (oldest) items.sort((a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form));
+    for (const b of items) {
+      const o = document.createElement('option'); o.value = b.id;
+      const done = b.accepted + b.flagged;
+      o.textContent = `${b.form}  (${b.fields} fields${done ? `, ${done} reviewed` : ''}${b.stale ? ', stale' : ''})  ·  ${ageText(b.age)}`;
+      og.appendChild(o);
+    }
+    pick.appendChild(og);
+  }
+  if (keep && LIST.some(b => b.id === keep)) pick.value = keep;
 }
 
 async function load(id) {

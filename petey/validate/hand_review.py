@@ -39,6 +39,7 @@ from urllib.parse import unquote, urlparse
 import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
+from petey.synth.boxes import FINDER_LABEL
 from petey.validate import witness
 from petey.validate.retype import resolve_blank
 
@@ -122,6 +123,66 @@ def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
 ORIGIN_BLUEPRINTS = Path.home() / "Documents" / "code" / "petey-master" / "widget-mapper" / "blueprints"
 
 
+def git_dates(repo: Path, subdir: str) -> dict[str, dict]:
+    """`{file name: {first, last, who}}` for every file git has seen under `subdir`, from one `git log` (the picker
+    lists ~230 blueprints; a call per file would undo the fast startup).
+
+    Renames and copies are followed (widget-mapper's `acord25.bpt` was copied from `acord25_blank.bpt`, two months
+    older): history runs newest first, and at a rename or copy the old name's earlier commits are credited to the
+    new file too; `first_as` names the file at its first commit when that differs."""
+    out: dict[str, dict] = {}
+    alias: dict[str, list[str]] = {}       # a name in older history -> the current files it became
+    log = _git("log", "--format=@@%ad|%an", "--date=format:%Y-%m-%d", "--name-status", "-M", "-C",
+               "--find-copies-harder", "--", subdir, cwd=repo)
+    when = who = None
+
+    def credit(name: str, as_name: str) -> None:
+        for t in alias.get(name, [name]):
+            rec = out.setdefault(t, {"last": when, "who": who})
+            rec["first"] = when             # newest first: the last one seen is the first commit
+            if as_name != t:
+                rec["first_as"] = as_name
+            else:
+                rec.pop("first_as", None)
+
+    for line in log.splitlines():
+        if line.startswith("@@"):
+            when, who = line[2:].split("|", 1)
+            continue
+        parts = line.split("\t")
+        if len(parts) == 3 and parts[0][:1] in "RC":
+            old, new = Path(parts[1]).name, Path(parts[2]).name
+            credit(new, new)
+            alias[old] = list(dict.fromkeys(alias.get(old, [old] if parts[0][0] == "C" else [])
+                                            + alias.get(new, [new])))
+        elif len(parts) == 2:
+            name = Path(parts[1]).name
+            credit(name, name)
+    return out
+
+
+def age(p: Path, bp: dict, here: dict[str, dict], origin: dict[str, dict]) -> dict:
+    """Short provenance for the picker: who made the blueprint and when, and what it was last validated on."""
+    a = bp.get("authoring") or {}
+    g = here.get(p.name) if p.parent.resolve() == BLUEPRINTS.resolve() else None
+    o = origin.get(p.name) if p.parent.resolve() == BLUEPRINTS.resolve() else None
+    if a:
+        by = (a.get("model") or a.get("method") or "?").replace("claude-", "")
+        when = (a.get("when") or "")[:10] or (g or {}).get("first")
+    elif o:
+        by, when = "petey-master", o.get("first")
+        if o.get("first_as"):
+            by += f" (as {o['first_as']})"
+    else:
+        by, when = "unrecorded", (g or {}).get("first")
+    if not when:
+        when = time.strftime("%Y-%m-%d", time.localtime(p.stat().st_mtime))
+    b = bp.get("x_petey_build") or {}
+    finder = b.get("finder_label") or (b.get("finder") or "").split("+")[0] or None
+    return {"by": by, "when": when, "validated": (b.get("when") or "")[:10] or None, "finder": finder,
+            "finder_current": finder == FINDER_LABEL if finder else None}
+
+
 def _commits(path: Path, cwd: Path) -> list[dict]:
     log = _git("log", "--follow", "--format=%h|%ad|%an|%s", "--date=format:%Y-%m-%d %H:%M", "--", str(path), cwd=cwd)
     return [dict(zip(("commit", "when", "who", "subject"), r.split("|", 3))) for r in log.splitlines()]
@@ -166,6 +227,8 @@ class State:
         self.sizes: dict[str, list[dict]] = {}
         self._index: dict[str, dict] = {}
         self._witness: dict[tuple, dict] = {}
+        self._git_here: dict[str, dict] = {}
+        self._git_origin: dict[str, dict] = {}
 
     def _entry(self, bid: str) -> dict:
         p = self.paths[bid]
@@ -176,12 +239,15 @@ class State:
                 "accepted": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "accept"),
                 "flagged": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "flag"),
                 "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
-                "finder": (bp.get("x_petey_build") or {}).get("finder")}
+                "finder": (bp.get("x_petey_build") or {}).get("finder"),
+                "age": age(p, bp, self._git_here, self._git_origin)}
 
     def index(self) -> None:
         """Read every blueprint once at startup; the listing is served from memory and one entry is refreshed
         when its verdicts change."""
         t0 = time.time()
+        self._git_here = git_dates(BLUEPRINTS.parent, "blueprints")
+        self._git_origin = git_dates(ORIGIN_BLUEPRINTS.parent, "blueprints") if ORIGIN_BLUEPRINTS.exists() else {}
         self._index = {bid: self._entry(bid) for bid in self.paths}
         print(f"  indexed {len(self._index)} blueprints in {time.time() - t0:.1f}s")
 
