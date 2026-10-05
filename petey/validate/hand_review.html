@@ -95,10 +95,11 @@ async function init() {
   window.addEventListener('resize', () => BP && placeRects());
 }
 
-// who made the blueprint, when, and what it was last validated on: "petey-master 2026-07-01 · never validated"
+// who made the blueprint, when, and what it was last validated on: "petey-master 2026-07-01 · no build stamp"
 function ageText(a) {
   if (!a) return '';
-  const v = a.validated ? `validated ${a.validated} on ${a.finder || '?'}${a.finder_current === false ? ' (old finder)' : ''}` : 'never validated';
+  // no build stamp: never looped since stamps began (2026-10-01); a loop before that left none (1098, 2026-09-30)
+  const v = a.validated ? `validated ${a.validated} on ${a.finder || '?'}${a.finder_current === false ? ' (old finder)' : ''}` : 'no build stamp';
   return `${a.by} ${a.when || '?'} · ${v}`;
 }
 
