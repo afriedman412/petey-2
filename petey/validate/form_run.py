@@ -161,19 +161,24 @@ def neighbours(fields: dict[str, dict], names: set[str]) -> set[str]:
     return out
 
 
-def collisions(fields: dict[str, dict], names: set[str]) -> dict[str, str]:
-    """{changed field: the field it collides with}: two fields whose names differ only by a copy number (`_2`) or
-    a trailing digit, one of them changed this round, on different boxes: two boxes now claim one meaning. A code
-    check, no model."""
-    def stem(n: str) -> str:
-        return re.sub(r"(_\d+|\d+)$", "", n)
+def collisions(fields: dict[str, dict], names: set[str], before: Optional[dict] = None) -> dict[str, str]:
+    """{renamed field: the field it now duplicates}: a field this round renamed (its name is new) to `X_<n>` while `X`
+    exists on another box, or to `X` while `X_<n>` exists: two boxes now claiming one meaning. A code check, no
+    model. Series are never collisions: names that both carry a number (`ssn_part1` / `ssn_part3`, `line1` / `line2`,
+    `digit_1` .. `digit_4`) are how split and repeated fields are named (2026-10-06: the first rule flagged those,
+    11 false flags on VA 21-0966 and B-410S1)."""
+    before = before or {}
     out = {}
     for n in names:
-        if n not in fields:
+        if n not in fields or n in before:            # only names this round introduced
             continue
-        for m in fields:
-            if m != n and stem(m) == stem(n) and _boxes(fields[m]) != _boxes(fields[n]):
-                out[n] = m
+        m = re.fullmatch(r"(.+)_\d+", n)
+        base = m.group(1) if m else None
+        for o in fields:
+            if o == n or _boxes(fields[o]) == _boxes(fields[n]):
+                continue
+            if (base and o == base) or re.fullmatch(re.escape(n) + r"_\d+", o):
+                out[n] = o
                 break
     return out
 
@@ -199,7 +204,7 @@ def round_check(bp: dict, bp_path: Path, rec: Record, model: str, log) -> tuple[
         old = table.get((n, v.get("spec")))
         if v.get("verdict") == "flag" and (old is None or old.get("verdict") != "flag"):
             new[n] = {**v, "knock_on": True}
-    for n, other in collisions(fields, changed).items():
+    for n, other in collisions(fields, changed, rec.fields).items():
         if new.get(n, {}).get("verdict") != "flag":
             new[n] = {"verdict": "flag", "problem": "wrong_name", "spec": page_check.spec_hash(fields[n]),
                       "model": "code", "reason": f"name collides with `{other}` (same name but for a copy number), "
