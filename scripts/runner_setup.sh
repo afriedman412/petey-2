@@ -17,7 +17,7 @@ for i in $(seq 1 30); do
 done
 # zsh: the scripts start with #!/bin/zsh and Ubuntu does not ship it
 gcloud compute ssh $VM --project $PROJECT --zone $ZONE --quiet --command \
-  "sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3.12-venv python3-pip tesseract-ocr rsync tmux zsh >/dev/null"
+  "sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq python3.12-venv python3-pip tesseract-ocr rsync tmux zsh >/dev/null && sudo apt-mark hold tesseract-ocr tesseract-ocr-eng tesseract-ocr-osd libtesseract5 >/dev/null"
 scripts/runner_sync.sh
 # the AWS CLI goes into the venv (Ubuntu 24.04 has no apt package); run_form.sh finds it at venv/bin/aws
 gcloud compute ssh $VM --project $PROJECT --zone $ZONE --quiet --command \

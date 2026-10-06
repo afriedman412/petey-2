@@ -40,7 +40,10 @@ finder is `step2flat-3+env6af728` and its case sets are keyed under that basis. 
 runs (T1 / T2 on 2026-10-06 all used 5.3.4); a case set pulled to the laptop loads there only if the laptop's finder
 finds the same boxes (`validate._check_set` migrates it then), else needs `--rebuild-set`. The PPA
 `ppa:alex-p/tesseract-ocr5` offers 5.5.1, which would still not match. To decide later: build 5.5.3 on the runner,
-or have the finder's version ignore patch-level Tesseract differences (a finder-versioning change, library-wide).
+or have the finder's version ignore patch-level Tesseract differences (a finder-versioning change, library-wide). Until then
+the runner's Tesseract packages are pinned (`sudo apt-mark hold tesseract-ocr tesseract-ocr-eng tesseract-ocr-osd
+libtesseract5`) so no automatic update swaps the OCR engine mid-batch (Andrew: a different version is better than
+runs that stop). `apt-mark unhold` the same list to change it on purpose.
 
 ## Running
 
@@ -54,7 +57,8 @@ or have the finder's version ignore patch-level Tesseract differences (a finder-
 - **Queues:** in tmux sessions, so they survive disconnects. The 2026-10-06 setup:
 
       tmux new -d -s t1 'tr "|" " " < runs/judge_eval/launch_t1_remaining.txt | xargs -P 8 -L 1 scripts/run_form.sh'
-      # t2 waits for "T1 finished" in the progress log, then runs runs/judge_eval/launch_t2.txt the same way
+      # t2 waits for "T1 finished" in the progress log, then runs runs/judge_eval/launch_t2.txt the same way;
+      # "T1 finished" is written when t1's queue ends, whatever the forms' exit codes, so failed forms do not stop T2
 
 - **Progress:** `runs/judge_eval/old_library_progress.log` on the runner, one `start` / `done (exit N)` line per form:
 
