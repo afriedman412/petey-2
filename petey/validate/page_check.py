@@ -14,7 +14,7 @@ from its flags instead of from a blank form (Andrew, 2026-10-05: minimise attent
               type fit it? Accepted fields come back as bare numbers (most of the output was explaining accepts,
               2026-10-06); a flag carries a problem (wrong_name / wrong_type / not_a_field /
               should_group / options / other), a proposed name or type, and a one-line reason.
-    output    `runs/page_check/<source>__<stem>.json`, keyed by field name, each verdict with a hash of the field's
+    output    `runs/page_check/<source>__<stem>__<fields hash>.json` (one per version of the fields), keyed by field name, each verdict with a hash of the field's
               definition; and `x_petey_page_check` on the blueprint (when, model, prompt version, counts, record
               path), the only change it makes to a blueprint. `verdicts(bp)` gives the verdicts still valid for
               the fields as they are now: the `page_check` witness (`witness.py`) and, through it, the loop's
@@ -428,26 +428,35 @@ def spec_hash(spec: dict) -> str:
     return hashlib.sha256(json.dumps(core, sort_keys=True, default=str).encode()).hexdigest()[:10]
 
 
-def record_path(bpt: Path) -> Path:
-    """`runs/page_check/<source>__<stem>.json`, with the hand-review page's source tags (lib / je / rl / fl), so a
-    library blueprint and its side copy of the same name keep separate records."""
+def fields_hash(bp: dict) -> str:
+    """The blueprint's fields as a whole (each by `spec_hash`): one record per version of the fields."""
+    defs = {n: spec_hash(sp) for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict)}
+    return hashlib.sha256(json.dumps(defs, sort_keys=True).encode()).hexdigest()[:8]
+
+
+def record_path(bpt: Path, bp: Optional[dict] = None) -> Path:
+    """`runs/page_check/<source>__<stem>__<fields hash>.json`, with the hand-review page's source tags (lib / je /
+    rl / fl): a library blueprint and its side copy of the same name keep separate records, and so does every
+    version of one file (2026-10-06: the pre-loop copy and the post-loop blueprint shared a record, the post-loop
+    check overwrote the pre-loop verdicts, and a re-run loop from the pre-loop copy lost the page check's flags)."""
     from petey.validate.hand_review import SOURCES
+    if bp is None:
+        bp = yaml.load(bpt.read_text(encoding="utf-8"), Loader=_LOADER) or {}
     rp = bpt.resolve()
-    for tag, d in SOURCES.items():
-        if rp.parent == d.resolve():
-            return OUT / f"{tag}__{bpt.stem}.json"
-    return OUT / f"{bpt.stem}__{hashlib.sha256(str(rp).encode()).hexdigest()[:6]}.json"
+    tag = next((t for t, d in SOURCES.items() if rp.parent == d.resolve()), None)
+    stem = f"{tag}__{bpt.stem}" if tag else f"{bpt.stem}__{hashlib.sha256(str(rp).encode()).hexdigest()[:6]}"
+    return OUT / f"{stem}__{fields_hash(bp)}.json"
 
 
 def save(res: dict, bpt: Path, *, stamp: bool = True) -> Path:
     """Write the record and, unless `stamp` is False, `x_petey_page_check` on the blueprint: when, model, prompt
     version, counts, and where the record is. The stamp travels with copies of the blueprint (a loop's run dir), so
     the witness finds the record from any copy; it changes the file's sha, which hand review reads as stale."""
-    out = record_path(bpt)
+    bp = yaml.safe_load(bpt.read_text(encoding="utf-8")) or {}
+    out = record_path(bpt, bp)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(res, indent=1, ensure_ascii=False))
     if stamp:
-        bp = yaml.safe_load(bpt.read_text(encoding="utf-8")) or {}
         fl = res["fields"].values()
         bp["x_petey_page_check"] = {
             "when": res["when"], "model": res["model"], "prompt": res["prompt"], "pages": res["pages"],

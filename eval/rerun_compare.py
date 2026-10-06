@@ -51,7 +51,7 @@ def flags_of(rec: dict) -> collections.Counter:
 
 
 def label_time(form: str) -> tuple[int | None, float]:
-    """The page check on the fresh label, from the run log (its record is overwritten by the post-loop check)."""
+    """The page check on the fresh label, from the run log."""
     log = EVAL / f"{form}.log"
     if not log.exists():
         return None, 0.0
@@ -71,8 +71,9 @@ def main() -> int:
     details = []
     for form in forms:
         old_p, new_p = BLUEPRINTS / f"{form}.bpt", EVAL / "blueprints" / f"{form}.bpt"
-        old_rec_p = page_check.OUT / f"lib__{form}.json"
-        new_rec_p = page_check.OUT / f"je__{form}.json"
+        old_rec_p = page_check.record_path(old_p)
+        st = (_load(new_p).get("x_petey_page_check") or {}) if new_p.exists() else {}
+        new_rec_p = RUNS.parent / st["record"] if st.get("record") else page_check.OUT / "missing.json"
         if not new_p.exists():
             print(f"{form:22} no fresh blueprint")
             continue
