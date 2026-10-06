@@ -696,91 +696,89 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  audit_at_expiration_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 446.0
-      - 240.0
-      - 461.0
-      - 252.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Audit_AtExpirationIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates audits should be performed
-      for this policy at expiration.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  audit_semi_annual_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 446.0
-      - 252.0
-      - 461.0
-      - 264.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Audit_SemiAnnualIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates audits should be performed
-      for this policy semi-annually.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  audit_quarterly_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 446.0
-      - 264.0
-      - 461.0
-      - 276.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Audit_QuarterlyIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates audits should be performed
-      for this policy quarterly.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  audit_monthly_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 515.0
-      - 240.0
-      - 529.0
-      - 252.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Audit_MonthlyIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates audits should be performed
-      for this policy monthly.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  audit_other_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 515.0
-      - 252.0
-      - 529.0
-      - 264.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Audit_OtherIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates audits should be performed
-      for this policy at a frequency other than those listed.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  audit:
+    type: category
+    values:
+    - audit_at_expiration_ind
+    - audit_monthly_ind
+    - audit_semi_annual_ind
+    - audit_other_ind
+    - audit_quarterly_ind
+    widgets:
+      audit_at_expiration_ind:
+        page: 1
+        rect:
+        - 446.0
+        - 240.0
+        - 461.0
+        - 252.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Audit_AtExpirationIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates audits should be performed
+          for this policy at expiration.'
+        x_petey_caption_source: tooltip
+      audit_monthly_ind:
+        page: 1
+        rect:
+        - 515.0
+        - 240.0
+        - 529.0
+        - 252.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Audit_MonthlyIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates audits should be performed
+          for this policy monthly.'
+        x_petey_caption_source: tooltip
+      audit_semi_annual_ind:
+        page: 1
+        rect:
+        - 446.0
+        - 252.0
+        - 461.0
+        - 264.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Audit_SemiAnnualIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates audits should be performed
+          for this policy semi-annually.'
+        x_petey_caption_source: tooltip
+      audit_other_ind:
+        page: 1
+        rect:
+        - 515.0
+        - 252.0
+        - 529.0
+        - 264.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Audit_OtherIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates audits should be performed
+          for this policy at a frequency other than those listed.'
+        x_petey_caption_source: tooltip
+      audit_quarterly_ind:
+        page: 1
+        rect:
+        - 446.0
+        - 264.0
+        - 461.0
+        - 276.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Audit_QuarterlyIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates audits should be performed
+          for this policy quarterly.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:00'
+      from:
+      - audit_at_expiration_ind
+      - audit_monthly_ind
+      - audit_semi_annual_ind
+      - audit_other_ind
+      - audit_quarterly_ind
   audit_other_txt:
     type: string
     semantic_type: text
@@ -1258,45 +1256,49 @@ fields:
       to take advantage of rate and/or rule changes. For cancelled or short-termed
       polices, enter the original effective date.
     x_petey_description_source: tooltip
-  participating_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 374.0
-      - 384.0
-      - 389.0
-      - 396.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_ParticipatingIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is a participating
-      policy. A Participating policy may result in reduced premiums through the payment
-      of policyholder dividends declared by the insurer. Some policyholder dividends
-      are based on actual experience of the applicant. If such a program is available
-      through the company in the covered state, indicate whether the policy is to
-      be on a Participating or Non-Participating basis. Check with your company on
-      the availability of plans.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  non_participating_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 374.0
-      - 396.0
-      - 389.0
-      - 408.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_NonParticipatingIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is a non-participating
-      policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1:
+    type: category
+    values:
+    - participating_ind
+    - non_participating_ind
+    widgets:
+      participating_ind:
+        page: 1
+        rect:
+        - 374.0
+        - 384.0
+        - 389.0
+        - 396.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_ParticipatingIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is a participating
+          policy. A Participating policy may result in reduced premiums through the
+          payment of policyholder dividends declared by the insurer. Some policyholder
+          dividends are based on actual experience of the applicant. If such a program
+          is available through the company in the covered state, indicate whether
+          the policy is to be on a Participating or Non-Participating basis. Check
+          with your company on the availability of plans.'
+        x_petey_caption_source: tooltip
+      non_participating_ind:
+        page: 1
+        rect:
+        - 374.0
+        - 396.0
+        - 389.0
+        - 408.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_NonParticipatingIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is a non-participating
+          policy.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:00'
+      from:
+      - participating_ind
+      - non_participating_ind
   retro_plan_txt:
     type: string
     semantic_type: text
@@ -1730,61 +1732,63 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  deductible_medical_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 346.0
-      - 420.0
-      - 360.0
-      - 432.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_DeductibleType_MedicalIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the deductible type is
-      Medical in the state where coverage is being applied for. (In Pennsylvania,
-      the deductible is "per claim". The deductible choices are $1,000, $5,000 and
-      $10,000.)'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  deductible_indemnity_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 346.0
-      - 432.0
-      - 360.0
-      - 444.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_DeductibleType_IndemnityIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the deductible type is
-      Indemnity in the state where coverage is being applied for. (In Pennsylvania,
-      the deductible is "per claim". The deductible choices are $1,000, $5,000 and
-      $10,000.)'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  deductible_other_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 346.0
-      - 444.0
-      - 360.0
-      - 456.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_DeductibleType_OtherIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the deductible type is
-      other than those listed.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  deductible:
+    type: category
+    values:
+    - deductible_medical_ind
+    - deductible_indemnity_ind
+    - deductible_other_ind
+    widgets:
+      deductible_medical_ind:
+        page: 1
+        rect:
+        - 346.0
+        - 420.0
+        - 360.0
+        - 432.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_DeductibleType_MedicalIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the deductible type is
+          Medical in the state where coverage is being applied for. (In Pennsylvania,
+          the deductible is "per claim". The deductible choices are $1,000, $5,000
+          and $10,000.)'
+        x_petey_caption_source: tooltip
+      deductible_indemnity_ind:
+        page: 1
+        rect:
+        - 346.0
+        - 432.0
+        - 360.0
+        - 444.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_DeductibleType_IndemnityIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the deductible type is
+          Indemnity in the state where coverage is being applied for. (In Pennsylvania,
+          the deductible is "per claim". The deductible choices are $1,000, $5,000
+          and $10,000.)'
+        x_petey_caption_source: tooltip
+      deductible_other_ind:
+        page: 1
+        rect:
+        - 346.0
+        - 444.0
+        - 360.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_DeductibleType_OtherIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the deductible type is
+          other than those listed.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:00'
+      from:
+      - deductible_medical_ind
+      - deductible_indemnity_ind
+      - deductible_other_ind
   deductible_amount_pct_txt:
     type: number
     semantic_type: money_whole_dollar
@@ -1818,97 +1822,110 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  uslh_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 461.0
-      - 420.0
-      - 475.0
-      - 432.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_Coverage_USLHIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates United States Longshoremen''s
-      & Harbor Worker''s (USL&H) coverage is requested. Exposures for this optional
-      coverages as well as additional coverages should be described in the Specify
-      Additional Coverages/Endorsements section.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  voluntary_comp_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 461.0
-      - 432.0
-      - 475.0
-      - 444.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_Coverage_VoluntaryCompensationIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates Voluntary Compensation
-      coverage is requested. Exposures for this optional coverages as well as additional
-      coverages should be described in the Specify Additional Coverages/Endorsements
-      section.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  foreign_cov_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 461.0
-      - 444.0
-      - 475.0
-      - 456.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_Coverage_ForeignCoverageIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates Foreign coverage is requested.
-      Exposures for this optional coverages as well as additional coverages should
-      be described in the Specify Additional Coverages/Endorsements section.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  managed_care_option_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 526.0
-      - 420.0
-      - 540.0
-      - 432.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_Coverage_ManagedCareOptionIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates Managed Care Option is
-      requested. Exposures for this optional coverages as well as additional coverages
-      should be described in the Specify Additional Coverages/Endorsements section.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_coverage_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 526.0
-      - 432.0
-      - 540.0
-      - 444.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_Coverage_OtherIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates other coverages than those
-      listed are being requested.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1_2:
+    type: category
+    values:
+    - uslh_ind
+    - managed_care_option_ind
+    - voluntary_comp_ind
+    - other_coverage_ind
+    - foreign_cov_ind
+    - other_coverage_2_ind
+    widgets:
+      uslh_ind:
+        page: 1
+        rect:
+        - 461.0
+        - 420.0
+        - 475.0
+        - 432.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_Coverage_USLHIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates United States Longshoremen''s
+          & Harbor Worker''s (USL&H) coverage is requested. Exposures for this optional
+          coverages as well as additional coverages should be described in the Specify
+          Additional Coverages/Endorsements section.'
+        x_petey_caption_source: tooltip
+      managed_care_option_ind:
+        page: 1
+        rect:
+        - 526.0
+        - 420.0
+        - 540.0
+        - 432.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_Coverage_ManagedCareOptionIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates Managed Care Option is
+          requested. Exposures for this optional coverages as well as additional coverages
+          should be described in the Specify Additional Coverages/Endorsements section.'
+        x_petey_caption_source: tooltip
+      voluntary_comp_ind:
+        page: 1
+        rect:
+        - 461.0
+        - 432.0
+        - 475.0
+        - 444.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_Coverage_VoluntaryCompensationIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates Voluntary Compensation
+          coverage is requested. Exposures for this optional coverages as well as
+          additional coverages should be described in the Specify Additional Coverages/Endorsements
+          section.'
+        x_petey_caption_source: tooltip
+      other_coverage_ind:
+        page: 1
+        rect:
+        - 526.0
+        - 432.0
+        - 540.0
+        - 444.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_Coverage_OtherIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates other coverages than those
+          listed are being requested.'
+        x_petey_caption_source: tooltip
+      foreign_cov_ind:
+        page: 1
+        rect:
+        - 461.0
+        - 444.0
+        - 475.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_Coverage_ForeignCoverageIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates Foreign coverage is requested.
+          Exposures for this optional coverages as well as additional coverages should
+          be described in the Specify Additional Coverages/Endorsements section.'
+        x_petey_caption_source: tooltip
+      other_coverage_2_ind:
+        page: 1
+        rect:
+        - 526.0
+        - 444.0
+        - 540.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensation_Coverage_OtherIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates other coverages than those
+          listed are being requested.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:00'
+      from:
+      - uslh_ind
+      - managed_care_option_ind
+      - voluntary_comp_ind
+      - other_coverage_ind
+      - foreign_cov_ind
+      - other_coverage_2_ind
   other_coverage_txt:
     type: string
     semantic_type: text
@@ -1922,23 +1939,6 @@ fields:
       widget_type: text
       path: F[0].P1[0].WorkersCompensation_Coverage_OtherDescription_A[0]
     description: The description of the coverage being requested.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_coverage_2_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 526.0
-      - 444.0
-      - 540.0
-      - 456.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensation_Coverage_OtherIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates other coverages than those
-      listed are being requested.'
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip

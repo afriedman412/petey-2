@@ -44,167 +44,171 @@ fields:
     - description_from_tooltip
     description: Enter end date
     x_petey_description_source: tooltip
-  single_employer_plan_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 115.85400390625
-      - 155.1269989013672
-      - 129.27301025390625
-      widget_type: checkbox
-      path: Check P1-A1
-    description: Mark if this return/report is for a single-employer plan
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  multiple_employer_plan_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 115.85400390625
-      - 278.03399658203125
-      - 129.27301025390625
-      widget_type: checkbox
-      path: Check P1-A2
-    description: Mark if this return/report is for a multiple-employer plan
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  first_return_report_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 153.823974609375
-      - 155.1269989013672
-      - 167.24200439453125
-      widget_type: checkbox
-      path: Check P1-B1
-    description: Mark if this return/report is the first return/report
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  final_return_report_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 153.823974609375
-      - 278.03399658203125
-      - 167.24200439453125
-      widget_type: checkbox
-      path: Check P1-B2
-    description: Mark if this return/report is the final return/report
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  amended_return_report_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 168.448974609375
-      - 155.1269989013672
-      - 181.86700439453125
-      widget_type: checkbox
-      path: Check P1-B3
-    description: Mark if this return/report is an amended return/report
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  short_plan_year_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 168.448974609375
-      - 278.03399658203125
-      - 181.86700439453125
-      widget_type: checkbox
-      path: Check P1-B4
-    description: Mark if this return/report is a short plan year return/report (less
-      than 12 months)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  form_5558_extension_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 188.41802978515625
-      - 155.1269989013672
-      - 201.83599853515625
-      widget_type: checkbox
-      path: Check P1-C1
-    description: Mark if filing under Form 5558
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  automatic_extension_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 188.41802978515625
-      - 278.03399658203125
-      - 201.83599853515625
-      widget_type: checkbox
-      path: Check P1-C2
-    description: Mark if filing under automatic extension
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  dfvc_program_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 421.447998046875
-      - 188.41802978515625
-      - 429.6289978027344
-      - 201.83599853515625
-      widget_type: checkbox
-      path: Check P1-C3
-    description: Mark if filing under DFVC program
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  special_extension_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 202.760986328125
-      - 155.1269989013672
-      - 216.17999267578125
-      widget_type: checkbox
-      path: Check P1-C4
-    description: Mark if filing under a special extension
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1:
+    type: category
+    values:
+    - single_employer_plan_ind
+    - multiple_employer_plan_ind
+    widgets:
+      single_employer_plan_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 115.85400390625
+        - 155.1269989013672
+        - 129.27301025390625
+        widget_type: checkbox
+        path: Check P1-A1
+        on_state: 'Yes'
+        caption: Mark if this return/report is for a single-employer plan
+        x_petey_caption_source: tooltip
+      multiple_employer_plan_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 115.85400390625
+        - 278.03399658203125
+        - 129.27301025390625
+        widget_type: checkbox
+        path: Check P1-A2
+        on_state: 'Yes'
+        caption: Mark if this return/report is for a multiple-employer plan
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - single_employer_plan_ind
+      - multiple_employer_plan_ind
+  group_p1_2:
+    type: category
+    values:
+    - first_return_report_ind
+    - final_return_report_ind
+    - amended_return_report_ind
+    - short_plan_year_ind
+    widgets:
+      first_return_report_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 153.823974609375
+        - 155.1269989013672
+        - 167.24200439453125
+        widget_type: checkbox
+        path: Check P1-B1
+        on_state: 'Yes'
+        caption: Mark if this return/report is the first return/report
+        x_petey_caption_source: tooltip
+      final_return_report_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 153.823974609375
+        - 278.03399658203125
+        - 167.24200439453125
+        widget_type: checkbox
+        path: Check P1-B2
+        on_state: 'Yes'
+        caption: Mark if this return/report is the final return/report
+        x_petey_caption_source: tooltip
+      amended_return_report_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 168.448974609375
+        - 155.1269989013672
+        - 181.86700439453125
+        widget_type: checkbox
+        path: Check P1-B3
+        on_state: 'Yes'
+        caption: Mark if this return/report is an amended return/report
+        x_petey_caption_source: tooltip
+      short_plan_year_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 168.448974609375
+        - 278.03399658203125
+        - 181.86700439453125
+        widget_type: checkbox
+        path: Check P1-B4
+        on_state: 'Yes'
+        caption: Mark if this return/report is a short plan year return/report (less
+          than 12 months)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - first_return_report_ind
+      - final_return_report_ind
+      - amended_return_report_ind
+      - short_plan_year_ind
+  group_p1_3:
+    type: category
+    values:
+    - form_5558_extension_ind
+    - automatic_extension_ind
+    - dfvc_program_ind
+    - special_extension_ind
+    widgets:
+      form_5558_extension_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 188.41802978515625
+        - 155.1269989013672
+        - 201.83599853515625
+        widget_type: checkbox
+        path: Check P1-C1
+        on_state: 'Yes'
+        caption: Mark if filing under Form 5558
+        x_petey_caption_source: tooltip
+      automatic_extension_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 188.41802978515625
+        - 278.03399658203125
+        - 201.83599853515625
+        widget_type: checkbox
+        path: Check P1-C2
+        on_state: 'Yes'
+        caption: Mark if filing under automatic extension
+        x_petey_caption_source: tooltip
+      dfvc_program_ind:
+        page: 1
+        rect:
+        - 421.447998046875
+        - 188.41802978515625
+        - 429.6289978027344
+        - 201.83599853515625
+        widget_type: checkbox
+        path: Check P1-C3
+        on_state: 'Yes'
+        caption: Mark if filing under DFVC program
+        x_petey_caption_source: tooltip
+      special_extension_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 202.760986328125
+        - 155.1269989013672
+        - 216.17999267578125
+        widget_type: checkbox
+        path: Check P1-C4
+        on_state: 'Yes'
+        caption: Mark if filing under a special extension
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - form_5558_extension_ind
+      - automatic_extension_ind
+      - dfvc_program_ind
+      - special_extension_ind
   special_extension_description_txt:
     type: string
     semantic_type: description

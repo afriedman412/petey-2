@@ -1207,38 +1207,42 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attorney_fee_dispute_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 356.6579895019531
-      - 631.593017578125
-      - 365.6579895019531
-      - 640.593017578125
-      widget_type: checkbox
-      path: SC-100[0].Page3[0].List7[0].item7[0].Checkbox60[0]
-    description: Check if your claim is about a client-fee dispute
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  attorney_fee_dispute_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 407.7439880371094
-      - 631.6179809570312
-      - 416.7439880371094
-      - 640.6179809570312
-      widget_type: checkbox
-      path: SC-100[0].Page3[0].List7[0].item7[0].Checkbox60[1]
-    description: Check if your claim is not about a client-fee dispute
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  attorney_fee_dispute:
+    type: category
+    values:
+    - attorney_fee_dispute_yes_ind
+    - attorney_fee_dispute_no_ind
+    widgets:
+      attorney_fee_dispute_yes_ind:
+        page: 3
+        rect:
+        - 356.6579895019531
+        - 631.593017578125
+        - 365.6579895019531
+        - 640.593017578125
+        widget_type: checkbox
+        path: SC-100[0].Page3[0].List7[0].item7[0].Checkbox60[0]
+        on_state: '1'
+        caption: Check if your claim is about a client-fee dispute
+        x_petey_caption_source: tooltip
+      attorney_fee_dispute_no_ind:
+        page: 3
+        rect:
+        - 407.7439880371094
+        - 631.6179809570312
+        - 416.7439880371094
+        - 640.6179809570312
+        widget_type: checkbox
+        path: SC-100[0].Page3[0].List7[0].item7[0].Checkbox60[1]
+        on_state: '2'
+        caption: Check if your claim is not about a client-fee dispute
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - attorney_fee_dispute_yes_ind
+      - attorney_fee_dispute_no_ind
   arbitration_sc101_attached_ind:
     type: boolean
     semantic_type: indicator
@@ -1256,38 +1260,42 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  suing_public_entity_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 242.28799438476562
-      - 665.823974609375
-      - 251.28799438476562
-      - 674.823974609375
-      widget_type: checkbox
-      path: SC-100[0].Page3[0].List8[0].item8[0].Checkbox61[0]
-    description: Check if you are suing a public entity
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  suing_public_entity_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 293.3739929199219
-      - 665.8489990234375
-      - 302.3739929199219
-      - 674.8489990234375
-      widget_type: checkbox
-      path: SC-100[0].Page3[0].List8[0].item8[0].Checkbox61[1]
-    description: Check if you are not suing a public entity
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  suing_public_entity:
+    type: category
+    values:
+    - suing_public_entity_yes_ind
+    - suing_public_entity_no_ind
+    widgets:
+      suing_public_entity_yes_ind:
+        page: 3
+        rect:
+        - 242.28799438476562
+        - 665.823974609375
+        - 251.28799438476562
+        - 674.823974609375
+        widget_type: checkbox
+        path: SC-100[0].Page3[0].List8[0].item8[0].Checkbox61[0]
+        on_state: '1'
+        caption: Check if you are suing a public entity
+        x_petey_caption_source: tooltip
+      suing_public_entity_no_ind:
+        page: 3
+        rect:
+        - 293.3739929199219
+        - 665.8489990234375
+        - 302.3739929199219
+        - 674.8489990234375
+        widget_type: checkbox
+        path: SC-100[0].Page3[0].List8[0].item8[0].Checkbox61[1]
+        on_state: '2'
+        caption: Check if you are not suing a public entity
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - suing_public_entity_yes_ind
+      - suing_public_entity_no_ind
   public_entity_claim_filed_ind:
     type: boolean
     semantic_type: indicator
@@ -1345,72 +1353,80 @@ fields:
       - 73.73199462890625
       widget_type: text
       path: SC-100[0].Page4[0].PxCaption[0].CaseNumber[0]
-  filed_more_than_12_claims_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 63.0
-      - 109.5269775390625
-      - 72.0
-      - 118.5269775390625
-      widget_type: checkbox
-      path: SC-100[0].Page4[0].List9[0].Item9[0].Checkbox62[0]
-    description: Check if you have filed more than 12 other small claims in the last
-      12 months in California
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  filed_more_than_12_claims_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 112.24099731445312
-      - 109.552001953125
-      - 121.24099731445312
-      - 118.552001953125
-      widget_type: checkbox
-      path: SC-100[0].Page4[0].List9[0].Item9[0].Checkbox62[1]
-    description: Check if you have not filed more than 12 other small claims in the
-      last 12 months in California
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  claim_over_2500_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 275.156005859375
-      - 132.05999755859375
-      - 284.156005859375
-      - 141.05999755859375
-      widget_type: checkbox
-      path: SC-100[0].Page4[0].List10[0].li10[0].Checkbox63[0]
-    description: Check if your claim is for more than $2,500.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  claim_over_2500_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 321.4800109863281
-      - 132.08599853515625
-      - 330.4800109863281
-      - 141.08599853515625
-      widget_type: checkbox
-      path: SC-100[0].Page4[0].List10[0].li10[0].Checkbox63[1]
-    description: Check if your claim is not for more than $2,500.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  filed_more_than_12_claims:
+    type: category
+    values:
+    - filed_more_than_12_claims_yes_ind
+    - filed_more_than_12_claims_no_ind
+    widgets:
+      filed_more_than_12_claims_yes_ind:
+        page: 4
+        rect:
+        - 63.0
+        - 109.5269775390625
+        - 72.0
+        - 118.5269775390625
+        widget_type: checkbox
+        path: SC-100[0].Page4[0].List9[0].Item9[0].Checkbox62[0]
+        on_state: '1'
+        caption: Check if you have filed more than 12 other small claims in the last
+          12 months in California
+        x_petey_caption_source: tooltip
+      filed_more_than_12_claims_no_ind:
+        page: 4
+        rect:
+        - 112.24099731445312
+        - 109.552001953125
+        - 121.24099731445312
+        - 118.552001953125
+        widget_type: checkbox
+        path: SC-100[0].Page4[0].List9[0].Item9[0].Checkbox62[1]
+        on_state: '2'
+        caption: Check if you have not filed more than 12 other small claims in the
+          last 12 months in California
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - filed_more_than_12_claims_yes_ind
+      - filed_more_than_12_claims_no_ind
+  claim_over_2500:
+    type: category
+    values:
+    - claim_over_2500_yes_ind
+    - claim_over_2500_no_ind
+    widgets:
+      claim_over_2500_yes_ind:
+        page: 4
+        rect:
+        - 275.156005859375
+        - 132.05999755859375
+        - 284.156005859375
+        - 141.05999755859375
+        widget_type: checkbox
+        path: SC-100[0].Page4[0].List10[0].li10[0].Checkbox63[0]
+        on_state: '1'
+        caption: Check if your claim is for more than $2,500.
+        x_petey_caption_source: tooltip
+      claim_over_2500_no_ind:
+        page: 4
+        rect:
+        - 321.4800109863281
+        - 132.08599853515625
+        - 330.4800109863281
+        - 141.08599853515625
+        widget_type: checkbox
+        path: SC-100[0].Page4[0].List10[0].li10[0].Checkbox63[1]
+        on_state: '2'
+        caption: Check if your claim is not for more than $2,500.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - claim_over_2500_yes_ind
+      - claim_over_2500_no_ind
   plaintiff_signature_dt:
     type: date
     semantic_type: iso_date

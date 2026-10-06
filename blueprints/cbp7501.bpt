@@ -556,76 +556,84 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  importer_of_record_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 109.99800109863281
-      - 576.9979858398438
-      - 119.99800109863281
-      - 586.9979858398438
-      widget_type: checkbox
-      path: Form[0].P1[0].box1[0]
-    description: 40. DECLARATION OF IMPORTER OF RECORD (OWNER OR PURCHASER) OR AUTHORIZED
-      AGENT. I declare that I am the importer of record and that the actual owner,
-      purchaser, or consignee for C B P purposes is as shown above.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  merchandise_purchased_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 271.99798583984375
-      - 589.0
-      - 281.99798583984375
-      - 599.0
-      widget_type: checkbox
-      path: Form[0].P1[0].box2[0]
-    description: OR owner or purchaser or agent thereof.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  merchandise_not_purchased_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 277.9989929199219
-      - 600.9990234375
-      - 287.9989929199219
-      - 610.9990234375
-      widget_type: checkbox
-      path: Form[0].P1[0].box3[0]
-    description: I further declare that the merchandise was obtained pursuant to a
-      purchase or agreement to purchase and that the prices set forth in the invoices
-      are true.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  agent_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 187.99899291992188
-      - 612.9979858398438
-      - 197.99899291992188
-      - 622.9979858398438
-      widget_type: checkbox
-      path: Form[0].P1[0].box4[0]
-    description: OR was not obtained pursuant to a purchase or agreement to purchase
-      and the statements in the invoices as to value or price are true to the best
-      of my knowledge and belief.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1:
+    type: category
+    values:
+    - importer_of_record_owner_ind
+    - merchandise_purchased_ind
+    widgets:
+      importer_of_record_owner_ind:
+        page: 1
+        rect:
+        - 109.99800109863281
+        - 576.9979858398438
+        - 119.99800109863281
+        - 586.9979858398438
+        widget_type: checkbox
+        path: Form[0].P1[0].box1[0]
+        on_state: '1'
+        caption: 40. DECLARATION OF IMPORTER OF RECORD (OWNER OR PURCHASER) OR AUTHORIZED
+          AGENT. I declare that I am the importer of record and that the actual owner,
+          purchaser, or consignee for C B P purposes is as shown above.
+        x_petey_caption_source: tooltip
+      merchandise_purchased_ind:
+        page: 1
+        rect:
+        - 271.99798583984375
+        - 589.0
+        - 281.99798583984375
+        - 599.0
+        widget_type: checkbox
+        path: Form[0].P1[0].box2[0]
+        on_state: '1'
+        caption: OR owner or purchaser or agent thereof.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - importer_of_record_owner_ind
+      - merchandise_purchased_ind
+  group_p1_2:
+    type: category
+    values:
+    - merchandise_not_purchased_ind
+    - agent_ind
+    widgets:
+      merchandise_not_purchased_ind:
+        page: 1
+        rect:
+        - 277.9989929199219
+        - 600.9990234375
+        - 287.9989929199219
+        - 610.9990234375
+        widget_type: checkbox
+        path: Form[0].P1[0].box3[0]
+        on_state: '1'
+        caption: I further declare that the merchandise was obtained pursuant to a
+          purchase or agreement to purchase and that the prices set forth in the invoices
+          are true.
+        x_petey_caption_source: tooltip
+      agent_ind:
+        page: 1
+        rect:
+        - 187.99899291992188
+        - 612.9979858398438
+        - 197.99899291992188
+        - 622.9979858398438
+        widget_type: checkbox
+        path: Form[0].P1[0].box4[0]
+        on_state: '1'
+        caption: OR was not obtained pursuant to a purchase or agreement to purchase
+          and the statements in the invoices as to value or price are true to the
+          best of my knowledge and belief.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - merchandise_not_purchased_ind
+      - agent_ind
   liq_cd:
     type: string
     widget:

@@ -566,40 +566,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  gl_claims_made_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 50.0
-      - 312.0
-      - 65.0
-      - 324.0
-      widget_type: checkbox
-      path: F[0].P1[0].GeneralLiability_ClaimsMadeIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the "claims made" option
-      applies on the general liability policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  gl_occur_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 115.0
-      - 312.0
-      - 130.0
-      - 324.0
-      widget_type: checkbox
-      path: F[0].P1[0].GeneralLiability_OccurrenceIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the general liability policy,
-      occurrence basis applies.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1_3:
+    type: category
+    values:
+    - gl_claims_made_ind
+    - gl_occur_ind
+    widgets:
+      gl_claims_made_ind:
+        page: 1
+        rect:
+        - 50.0
+        - 312.0
+        - 65.0
+        - 324.0
+        widget_type: checkbox
+        path: F[0].P1[0].GeneralLiability_ClaimsMadeIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the "claims made" option
+          applies on the general liability policy.'
+        x_petey_caption_source: tooltip
+      gl_occur_ind:
+        page: 1
+        rect:
+        - 115.0
+        - 312.0
+        - 130.0
+        - 324.0
+        widget_type: checkbox
+        path: F[0].P1[0].GeneralLiability_OccurrenceIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the general liability policy,
+          occurrence basis applies.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - gl_claims_made_ind
+      - gl_occur_ind
   gl_addl_insd_ind:
     type: boolean
     semantic_type: indicator
@@ -670,75 +674,75 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  gl_gen_agg_limit_policy_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 360.0
-      - 50.0
-      - 372.0
-      widget_type: checkbox
-      path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesPerPolicyIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the general liability policy,
-      general aggregate limit applies per policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  gl_gen_agg_limit_project_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 79.0
-      - 360.0
-      - 94.0
-      - 372.0
-      widget_type: checkbox
-      path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesPerProjectIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the general liability policy,
-      general aggregate limit applies per project.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  gl_gen_agg_limit_loc_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 122.0
-      - 360.0
-      - 137.0
-      - 372.0
-      widget_type: checkbox
-      path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesPerLocationIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the general liability policy,
-      general aggregate limit applies per location.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  gl_other_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 372.0
-      - 50.0
-      - 384.0
-      widget_type: checkbox
-      path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesToOtherIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the general liability policy,
-      general aggregate limit applies to option is other than those listed on the
-      form.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  gl_gen_agg_limit:
+    type: category
+    values:
+    - gl_gen_agg_limit_policy_ind
+    - gl_gen_agg_limit_project_ind
+    - gl_gen_agg_limit_loc_ind
+    - gl_other_ind
+    widgets:
+      gl_gen_agg_limit_policy_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 360.0
+        - 50.0
+        - 372.0
+        widget_type: checkbox
+        path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesPerPolicyIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the general liability policy,
+          general aggregate limit applies per policy.'
+        x_petey_caption_source: tooltip
+      gl_gen_agg_limit_project_ind:
+        page: 1
+        rect:
+        - 79.0
+        - 360.0
+        - 94.0
+        - 372.0
+        widget_type: checkbox
+        path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesPerProjectIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the general liability policy,
+          general aggregate limit applies per project.'
+        x_petey_caption_source: tooltip
+      gl_gen_agg_limit_loc_ind:
+        page: 1
+        rect:
+        - 122.0
+        - 360.0
+        - 137.0
+        - 372.0
+        widget_type: checkbox
+        path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesPerLocationIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the general liability policy,
+          general aggregate limit applies per location.'
+        x_petey_caption_source: tooltip
+      gl_other_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 372.0
+        - 50.0
+        - 384.0
+        widget_type: checkbox
+        path: F[0].P1[0].GeneralLiability_GeneralAggregate_LimitAppliesToOtherIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the general liability policy,
+          general aggregate limit applies to option is other than those listed on
+          the form.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - gl_gen_agg_limit_policy_ind
+      - gl_gen_agg_limit_project_ind
+      - gl_gen_agg_limit_loc_ind
+      - gl_other_ind
   gl_other_txt:
     type: string
     semantic_type: text
@@ -1009,78 +1013,123 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  auto_liability_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 396.0
-      - 50.0
-      - 408.0
-      widget_type: checkbox
-      path: F[0].P1[0].Vehicle_AnyAutoIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the commercial vehicle
-      policy covers any auto. As used here, complete this section only if you are
-      certifying automobile liability. Check all appropriate boxes to correspond with
-      the covered auto symbols found on the policy declarations page. If the certificate
-      is being issued to the owner of a leased vehicle, DO NOT USE THIS FORM. Use
-      ACORD 23, Vehicle or Equipment Certificate of Insurance.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  auto_any_auto_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 408.0
-      - 50.0
-      - 420.0
-      widget_type: checkbox
-      path: F[0].P1[0].Vehicle_AllOwnedAutosIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the commercial vehicle
-      policy covers owned autos only.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  auto_owned_autos_only_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 420.0
-      - 50.0
-      - 432.0
-      widget_type: checkbox
-      path: F[0].P1[0].Vehicle_HiredAutosIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the vehicle policy covers
-      hired autos only.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  auto_hired_autos_only_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 432.0
-      - 50.0
-      - 444.0
-      widget_type: checkbox
-      path: F[0].P1[0].Vehicle_OtherCoveredAutoIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the vehicle policy covers
-      autos other than those listed.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  auto:
+    type: category
+    values:
+    - auto_liability_ind
+    - auto_any_auto_ind
+    - auto_scheduled_autos_ind
+    - auto_owned_autos_only_ind
+    - auto_non_owned_autos_only_ind
+    - auto_hired_autos_only_ind
+    - auto_other_ind
+    widgets:
+      auto_liability_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 396.0
+        - 50.0
+        - 408.0
+        widget_type: checkbox
+        path: F[0].P1[0].Vehicle_AnyAutoIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the commercial vehicle
+          policy covers any auto. As used here, complete this section only if you
+          are certifying automobile liability. Check all appropriate boxes to correspond
+          with the covered auto symbols found on the policy declarations page. If
+          the certificate is being issued to the owner of a leased vehicle, DO NOT
+          USE THIS FORM. Use ACORD 23, Vehicle or Equipment Certificate of Insurance.'
+        x_petey_caption_source: tooltip
+      auto_any_auto_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 408.0
+        - 50.0
+        - 420.0
+        widget_type: checkbox
+        path: F[0].P1[0].Vehicle_AllOwnedAutosIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the commercial vehicle
+          policy covers owned autos only.'
+        x_petey_caption_source: tooltip
+      auto_scheduled_autos_ind:
+        page: 1
+        rect:
+        - 104.0
+        - 408.0
+        - 119.0
+        - 420.0
+        widget_type: checkbox
+        path: F[0].P1[0].Vehicle_ScheduledAutosIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the vehicle policy covers
+          scheduled autos.'
+        x_petey_caption_source: tooltip
+      auto_owned_autos_only_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 420.0
+        - 50.0
+        - 432.0
+        widget_type: checkbox
+        path: F[0].P1[0].Vehicle_HiredAutosIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the vehicle policy covers
+          hired autos only.'
+        x_petey_caption_source: tooltip
+      auto_non_owned_autos_only_ind:
+        page: 1
+        rect:
+        - 104.0
+        - 420.0
+        - 119.0
+        - 432.0
+        widget_type: checkbox
+        path: F[0].P1[0].Vehicle_NonOwnedAutosIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the vehicle policy covers
+          non-owned autos only.'
+        x_petey_caption_source: tooltip
+      auto_hired_autos_only_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 432.0
+        - 50.0
+        - 444.0
+        widget_type: checkbox
+        path: F[0].P1[0].Vehicle_OtherCoveredAutoIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the vehicle policy covers
+          autos other than those listed.'
+        x_petey_caption_source: tooltip
+      auto_other_ind:
+        page: 1
+        rect:
+        - 104.0
+        - 432.0
+        - 119.0
+        - 444.0
+        widget_type: checkbox
+        path: F[0].P1[0].Vehicle_OtherCoveredAutoIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the vehicle policy covers
+          autos other than those listed.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - auto_liability_ind
+      - auto_any_auto_ind
+      - auto_scheduled_autos_ind
+      - auto_owned_autos_only_ind
+      - auto_non_owned_autos_only_ind
+      - auto_hired_autos_only_ind
+      - auto_other_ind
   auto_hired_autos_txt:
     type: string
     semantic_type: text
@@ -1094,57 +1143,6 @@ fields:
       widget_type: text
       path: F[0].P1[0].Vehicle_OtherCoveredAutoDescription_A[0]
     description: The description of the other covered autos.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  auto_scheduled_autos_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 104.0
-      - 408.0
-      - 119.0
-      - 420.0
-      widget_type: checkbox
-      path: F[0].P1[0].Vehicle_ScheduledAutosIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the vehicle policy covers
-      scheduled autos.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  auto_non_owned_autos_only_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 104.0
-      - 420.0
-      - 119.0
-      - 432.0
-      widget_type: checkbox
-      path: F[0].P1[0].Vehicle_NonOwnedAutosIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the vehicle policy covers
-      non-owned autos only.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  auto_other_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 104.0
-      - 432.0
-      - 119.0
-      - 444.0
-      widget_type: checkbox
-      path: F[0].P1[0].Vehicle_OtherCoveredAutoIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the vehicle policy covers
-      autos other than those listed.'
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
@@ -1375,110 +1373,114 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  umbrella_liab_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 444.0
-      - 50.0
-      - 456.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_PolicyType_UmbrellaIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the type of policy is umbrella.
-      As used here, if evidencing an umbrella coverage, underlying policy number(s),
-      term(s) and line(s) of business may be listed on an ACORD 101.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  excess_liab_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 456.0
-      - 50.0
-      - 468.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_PolicyType_ExcessIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the type of policy is excess.
-      As used here, if evidencing an excess coverage, underlying policy number(s),
-      term(s) and line(s) of business may be listed on an ACORD 101.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  umbrella_occur_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 115.0
-      - 444.0
-      - 130.0
-      - 456.0
-      widget_type: checkbox
-      path: F[0].P1[0].ExcessUmbrella_OccurrenceIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates "coverage trigger" is on
-      an occurrence basis on an excess or umbrella liability policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  umbrella_claims_made_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 115.0
-      - 456.0
-      - 130.0
-      - 468.0
-      widget_type: checkbox
-      path: F[0].P1[0].ExcessUmbrella_ClaimsMadeIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the "coverage trigger"
-      is on a claims-made basis on an excess or umbrella liability policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  umbrella_addl_insd_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.0
-      - 468.0
-      - 50.0
-      - 480.0
-      widget_type: checkbox
-      path: F[0].P1[0].ExcessUmbrella_DeductibleIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates a deductible amount applies
-      to the excess or umbrella liability policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  umbrella_subr_wvd_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 72.0
-      - 468.0
-      - 86.0
-      - 480.0
-      widget_type: checkbox
-      path: F[0].P1[0].ExcessUmbrella_RetentionIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates a retention amount applies
-      to the excess or umbrella liability policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1:
+    type: category
+    values:
+    - umbrella_liab_ind
+    - umbrella_occur_ind
+    - excess_liab_ind
+    - umbrella_claims_made_ind
+    widgets:
+      umbrella_liab_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 444.0
+        - 50.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_PolicyType_UmbrellaIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the type of policy is umbrella.
+          As used here, if evidencing an umbrella coverage, underlying policy number(s),
+          term(s) and line(s) of business may be listed on an ACORD 101.'
+        x_petey_caption_source: tooltip
+      umbrella_occur_ind:
+        page: 1
+        rect:
+        - 115.0
+        - 444.0
+        - 130.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].ExcessUmbrella_OccurrenceIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates "coverage trigger" is on
+          an occurrence basis on an excess or umbrella liability policy.'
+        x_petey_caption_source: tooltip
+      excess_liab_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 456.0
+        - 50.0
+        - 468.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_PolicyType_ExcessIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the type of policy is excess.
+          As used here, if evidencing an excess coverage, underlying policy number(s),
+          term(s) and line(s) of business may be listed on an ACORD 101.'
+        x_petey_caption_source: tooltip
+      umbrella_claims_made_ind:
+        page: 1
+        rect:
+        - 115.0
+        - 456.0
+        - 130.0
+        - 468.0
+        widget_type: checkbox
+        path: F[0].P1[0].ExcessUmbrella_ClaimsMadeIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the "coverage trigger"
+          is on a claims-made basis on an excess or umbrella liability policy.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - umbrella_liab_ind
+      - umbrella_occur_ind
+      - excess_liab_ind
+      - umbrella_claims_made_ind
+  umbrella:
+    type: category
+    values:
+    - umbrella_addl_insd_ind
+    - umbrella_subr_wvd_ind
+    widgets:
+      umbrella_addl_insd_ind:
+        page: 1
+        rect:
+        - 36.0
+        - 468.0
+        - 50.0
+        - 480.0
+        widget_type: checkbox
+        path: F[0].P1[0].ExcessUmbrella_DeductibleIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates a deductible amount applies
+          to the excess or umbrella liability policy.'
+        x_petey_caption_source: tooltip
+      umbrella_subr_wvd_ind:
+        page: 1
+        rect:
+        - 72.0
+        - 468.0
+        - 86.0
+        - 480.0
+        widget_type: checkbox
+        path: F[0].P1[0].ExcessUmbrella_RetentionIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates a retention amount applies
+          to the excess or umbrella liability policy.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - umbrella_addl_insd_ind
+      - umbrella_subr_wvd_ind
   umbrella_retention_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -1768,40 +1770,45 @@ fields:
     description: The date on which the terms and conditions of the workers' compensation
       and employers liability policy will expire.
     x_petey_description_source: tooltip
-  wc_per_statute_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 425.0
-      - 480.0
-      - 439.0
-      - 492.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensationEmployersLiability_WorkersCompensationStatutoryLimitIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates that workers compensation
-      coverage is per statute.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  wc_other_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 475.0
-      - 480.0
-      - 490.0
-      - 492.0
-      widget_type: checkbox
-      path: F[0].P1[0].WorkersCompensationEmployersLiability_OtherCoverageIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates that additional coverage
-      above the workers compensation statutory limits applies (permitted in some states).'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1_2:
+    type: category
+    values:
+    - wc_per_statute_ind
+    - wc_other_ind
+    widgets:
+      wc_per_statute_ind:
+        page: 1
+        rect:
+        - 425.0
+        - 480.0
+        - 439.0
+        - 492.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensationEmployersLiability_WorkersCompensationStatutoryLimitIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates that workers compensation
+          coverage is per statute.'
+        x_petey_caption_source: tooltip
+      wc_other_ind:
+        page: 1
+        rect:
+        - 475.0
+        - 480.0
+        - 490.0
+        - 492.0
+        widget_type: checkbox
+        path: F[0].P1[0].WorkersCompensationEmployersLiability_OtherCoverageIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates that additional coverage
+          above the workers compensation statutory limits applies (permitted in some
+          states).'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - wc_per_statute_ind
+      - wc_other_ind
   wc_proprietor_excluded_yn_cd:
     type: string
     widget:

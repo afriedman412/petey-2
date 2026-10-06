@@ -9,118 +9,131 @@ source_pages:
 description: ''
 instructions: ''
 fields:
-  residence_abroad_is_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 193.2530059814453
-      - 354.0050048828125
-      - 203.2530059814453
-      - 364.0050048828125
-      widget_type: checkbox
-      path: F[0].P1[0].is[0]
-    description: PART 2 - TO BE COMPLETED BY ALL PERSONS EXCEPT U.S. PERSONNEL AND
-      EVACUEES. 9. I declare that my place of residence abroad IS.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  residence_abroad_was_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 229.2530059814453
-      - 354.0050048828125
-      - 239.2530059814453
-      - 364.0050048828125
-      widget_type: checkbox
-      path: F[0].P1[0].was[0]
-    description: 9. I declare that my place of residence abroad WAS.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  nonresident_household_effects_free_entry_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 319.25299072265625
-      - 415.4800109863281
-      - 329.25299072265625
-      - 425.4800109863281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC1[0]
-    description: 10. C. 1. All household effects acquired abroad for which free entry
-      is sought were used abroad for at least one year by me or my family in a household
-      of which I or my family was a resident member during such period of use, and
-      are not intended for any other person or for sale. (9804.00.05, H T S U S A.)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  resident_nonresident_household_effects_free_entry_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.25200080871582
-      - 415.4800109863281
-      - 35.25199890136719
-      - 425.4800109863281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA1[0]
-    description: 10. STATEMENT(S) OF ELIGIBILITY FOR FREE ENTRY OF ARTICLES. I the
-      undersigned further declare that ("X" all applicable items and submit packing
-      list). A. Applicable to RESIDENT and NONRESIDENT. 1. All household effects acquired
-      abroad for which free entry is sought were used abroad for at least one year
-      by me or my family in a household of which I or my family was a resident member
-      during such period of use, and are not intended for any other person or for
-      sale. (9804.00.05, H T S U S A.)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  tools_of_trade_free_entry_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.25200080871582
-      - 457.4809875488281
-      - 35.25199890136719
-      - 467.4809875488281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA1[1]
-    description: 10. A. 2. All instruments, implements, or tools of trade, occupation
-      or employment, and all professional books for which free entry is sought were
-      taken abroad by me or for my account or I am an emigrant who owned and used
-      them abroad. (9804.00.10,9804.00.15, H T S U S A.)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  nonresident_vehicles_conveyance_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 319.25299072265625
-      - 457.4809875488281
-      - 329.25299072265625
-      - 467.4809875488281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC2[0]
-    description: 10. C. 2. Any vehicles, trailers, bicycles or other means of conveyance
-      being imported are for the transport of me and my family and such incident a
-      carriage of articles as are appropriate to my personal use of the conveyance.
-      (9804.00.35, H T S U S A.)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  residence_abroad:
+    type: category
+    values:
+    - residence_abroad_is_ind
+    - residence_abroad_was_ind
+    widgets:
+      residence_abroad_is_ind:
+        page: 1
+        rect:
+        - 193.2530059814453
+        - 354.0050048828125
+        - 203.2530059814453
+        - 364.0050048828125
+        widget_type: checkbox
+        path: F[0].P1[0].is[0]
+        on_state: '1'
+        caption: PART 2 - TO BE COMPLETED BY ALL PERSONS EXCEPT U.S. PERSONNEL AND
+          EVACUEES. 9. I declare that my place of residence abroad IS.
+        x_petey_caption_source: tooltip
+      residence_abroad_was_ind:
+        page: 1
+        rect:
+        - 229.2530059814453
+        - 354.0050048828125
+        - 239.2530059814453
+        - 364.0050048828125
+        widget_type: checkbox
+        path: F[0].P1[0].was[0]
+        on_state: '1'
+        caption: 9. I declare that my place of residence abroad WAS.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - residence_abroad_is_ind
+      - residence_abroad_was_ind
+  nonresident:
+    type: multi_category
+    values:
+    - nonresident_household_effects_free_entry_ind
+    - nonresident_vehicles_conveyance_ind
+    widgets:
+      nonresident_household_effects_free_entry_ind:
+        page: 1
+        rect:
+        - 319.25299072265625
+        - 415.4800109863281
+        - 329.25299072265625
+        - 425.4800109863281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC1[0]
+        on_state: '1'
+        caption: 10. C. 1. All household effects acquired abroad for which free entry
+          is sought were used abroad for at least one year by me or my family in a
+          household of which I or my family was a resident member during such period
+          of use, and are not intended for any other person or for sale. (9804.00.05,
+          H T S U S A.)
+        x_petey_caption_source: tooltip
+      nonresident_vehicles_conveyance_ind:
+        page: 1
+        rect:
+        - 319.25299072265625
+        - 457.4809875488281
+        - 329.25299072265625
+        - 467.4809875488281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC2[0]
+        on_state: '1'
+        caption: 10. C. 2. Any vehicles, trailers, bicycles or other means of conveyance
+          being imported are for the transport of me and my family and such incident
+          a carriage of articles as are appropriate to my personal use of the conveyance.
+          (9804.00.35, H T S U S A.)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - nonresident_household_effects_free_entry_ind
+      - nonresident_vehicles_conveyance_ind
+  group_p1:
+    type: multi_category
+    values:
+    - resident_nonresident_household_effects_free_entry_ind
+    - tools_of_trade_free_entry_ind
+    widgets:
+      resident_nonresident_household_effects_free_entry_ind:
+        page: 1
+        rect:
+        - 25.25200080871582
+        - 415.4800109863281
+        - 35.25199890136719
+        - 425.4800109863281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA1[0]
+        on_state: '1'
+        caption: 10. STATEMENT(S) OF ELIGIBILITY FOR FREE ENTRY OF ARTICLES. I the
+          undersigned further declare that ("X" all applicable items and submit packing
+          list). A. Applicable to RESIDENT and NONRESIDENT. 1. All household effects
+          acquired abroad for which free entry is sought were used abroad for at least
+          one year by me or my family in a household of which I or my family was a
+          resident member during such period of use, and are not intended for any
+          other person or for sale. (9804.00.05, H T S U S A.)
+        x_petey_caption_source: tooltip
+      tools_of_trade_free_entry_ind:
+        page: 1
+        rect:
+        - 25.25200080871582
+        - 457.4809875488281
+        - 35.25199890136719
+        - 467.4809875488281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA1[1]
+        on_state: '1'
+        caption: 10. A. 2. All instruments, implements, or tools of trade, occupation
+          or employment, and all professional books for which free entry is sought
+          were taken abroad by me or for my account or I am an emigrant who owned
+          and used them abroad. (9804.00.10,9804.00.15, H T S U S A.)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - resident_nonresident_household_effects_free_entry_ind
+      - tools_of_trade_free_entry_ind
   resident_personal_effects_taken_abroad_ind:
     type: boolean
     semantic_type: indicator
@@ -138,191 +151,194 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  articles_for_other_person_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.25200080871582
-      - 673.4810180664062
-      - 35.25199890136719
-      - 683.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA1a[0]
-    description: PART FOUR - TO BE COMPLETED BY ALL PERSONS SEEKING FREE ENTRY OF
-      ARTICLES (Certain articles may be subject to duty and/or other requirements
-      and must be specifically declared herein. Please check all applicable items
-      and list them separately in item D on the reverse.) A. For U.S. Personnel, Evacuees,
-      Residents and Non-Residents. 1. Articles for the account of other person.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  firearms_ammunition_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.2549991607666
-      - 697.22998046875
-      - 35.255001068115234
-      - 707.22998046875
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA3a[0]
-    description: A. 3. Firearms and/or ammunition.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  fruits_plants_seeds_meats_birds_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.2549991607666
-      - 719.7369995117188
-      - 35.255001068115234
-      - 729.7369995117188
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA5a[0]
-    description: A. 5. Fruits, plants, seeds, meats, or birds.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  articles_for_sale_commercial_use_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 151.2550048828125
-      - 673.2490234375
-      - 161.2550048828125
-      - 683.2490234375
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA2a[0]
-    description: A. 2. Articles for sale or commercial use.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  alcoholic_tobacco_products_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 151.2550048828125
-      - 697.22998046875
-      - 161.2550048828125
-      - 707.22998046875
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA4a[0]
-    description: A. 4. Alcoholic articles of all types or tobacco products.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  fish_wildlife_animal_products_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 151.2550048828125
-      - 719.7369995117188
-      - 161.2550048828125
-      - 729.7369995117188
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA6a[0]
-    description: A. 6. Fish, wildlife, animal products thereof.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  foreign_household_effects_used_less_than_one_year_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.62200927734375
-      - 673.4810180664062
-      - 299.62200927734375
-      - 683.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxB7[0]
-    description: B. 7. Foreign household effects acquired abroad and used less than
-      one year.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  foreign_household_effects_used_more_than_one_year_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 439.25201416015625
-      - 673.4810180664062
-      - 449.25201416015625
-      - 683.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxB8[0]
-    description: B. 8. Foreign household effects acquired abroad and used more than
-      one year.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  personal_effects_acquired_abroad_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.2539978027344
-      - 708.625
-      - 299.2539978027344
-      - 718.625
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC9[0]
-    description: C. 9. Personal effects acquired abroad.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  foreign_made_articles_previously_declared_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.2539978027344
-      - 721.47998046875
-      - 299.2539978027344
-      - 731.47998046875
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC10[0]
-    description: C. 10. Foreign made articles acquired in the United States and taken
-      abroad on this trip or acquired abroad on another trip that was previously declared
-      to C B P.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  articles_taken_abroad_for_alterations_repairs_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.2539978027344
-      - 745.4810180664062
-      - 299.2539978027344
-      - 755.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC11[0]
-    description: C. 11. Articles taken abroad for which alterations or repairs were
-      performed abroad.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1_2:
+    type: multi_category
+    values:
+    - articles_for_other_person_ind
+    - articles_for_sale_commercial_use_ind
+    - firearms_ammunition_ind
+    - alcoholic_tobacco_products_ind
+    - fruits_plants_seeds_meats_birds_ind
+    - fish_wildlife_animal_products_ind
+    widgets:
+      articles_for_other_person_ind:
+        page: 1
+        rect:
+        - 25.25200080871582
+        - 673.4810180664062
+        - 35.25199890136719
+        - 683.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA1a[0]
+        on_state: '1'
+        caption: PART FOUR - TO BE COMPLETED BY ALL PERSONS SEEKING FREE ENTRY OF
+          ARTICLES (Certain articles may be subject to duty and/or other requirements
+          and must be specifically declared herein. Please check all applicable items
+          and list them separately in item D on the reverse.) A. For U.S. Personnel,
+          Evacuees, Residents and Non-Residents. 1. Articles for the account of other
+          person.
+        x_petey_caption_source: tooltip
+      articles_for_sale_commercial_use_ind:
+        page: 1
+        rect:
+        - 151.2550048828125
+        - 673.2490234375
+        - 161.2550048828125
+        - 683.2490234375
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA2a[0]
+        on_state: '1'
+        caption: A. 2. Articles for sale or commercial use.
+        x_petey_caption_source: tooltip
+      firearms_ammunition_ind:
+        page: 1
+        rect:
+        - 25.2549991607666
+        - 697.22998046875
+        - 35.255001068115234
+        - 707.22998046875
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA3a[0]
+        on_state: '1'
+        caption: A. 3. Firearms and/or ammunition.
+        x_petey_caption_source: tooltip
+      alcoholic_tobacco_products_ind:
+        page: 1
+        rect:
+        - 151.2550048828125
+        - 697.22998046875
+        - 161.2550048828125
+        - 707.22998046875
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA4a[0]
+        on_state: '1'
+        caption: A. 4. Alcoholic articles of all types or tobacco products.
+        x_petey_caption_source: tooltip
+      fruits_plants_seeds_meats_birds_ind:
+        page: 1
+        rect:
+        - 25.2549991607666
+        - 719.7369995117188
+        - 35.255001068115234
+        - 729.7369995117188
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA5a[0]
+        on_state: '1'
+        caption: A. 5. Fruits, plants, seeds, meats, or birds.
+        x_petey_caption_source: tooltip
+      fish_wildlife_animal_products_ind:
+        page: 1
+        rect:
+        - 151.2550048828125
+        - 719.7369995117188
+        - 161.2550048828125
+        - 729.7369995117188
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA6a[0]
+        on_state: '1'
+        caption: A. 6. Fish, wildlife, animal products thereof.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - articles_for_other_person_ind
+      - articles_for_sale_commercial_use_ind
+      - firearms_ammunition_ind
+      - alcoholic_tobacco_products_ind
+      - fruits_plants_seeds_meats_birds_ind
+      - fish_wildlife_animal_products_ind
+  foreign_household_effects_used:
+    type: category
+    values:
+    - foreign_household_effects_used_less_than_one_year_ind
+    - foreign_household_effects_used_more_than_one_year_ind
+    widgets:
+      foreign_household_effects_used_less_than_one_year_ind:
+        page: 1
+        rect:
+        - 289.62200927734375
+        - 673.4810180664062
+        - 299.62200927734375
+        - 683.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxB7[0]
+        on_state: '1'
+        caption: B. 7. Foreign household effects acquired abroad and used less than
+          one year.
+        x_petey_caption_source: tooltip
+      foreign_household_effects_used_more_than_one_year_ind:
+        page: 1
+        rect:
+        - 439.25201416015625
+        - 673.4810180664062
+        - 449.25201416015625
+        - 683.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxB8[0]
+        on_state: '1'
+        caption: B. 8. Foreign household effects acquired abroad and used more than
+          one year.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - foreign_household_effects_used_less_than_one_year_ind
+      - foreign_household_effects_used_more_than_one_year_ind
+  group_p1_3:
+    type: multi_category
+    values:
+    - personal_effects_acquired_abroad_ind
+    - foreign_made_articles_previously_declared_ind
+    - articles_taken_abroad_for_alterations_repairs_ind
+    widgets:
+      personal_effects_acquired_abroad_ind:
+        page: 1
+        rect:
+        - 289.2539978027344
+        - 708.625
+        - 299.2539978027344
+        - 718.625
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC9[0]
+        on_state: '1'
+        caption: C. 9. Personal effects acquired abroad.
+        x_petey_caption_source: tooltip
+      foreign_made_articles_previously_declared_ind:
+        page: 1
+        rect:
+        - 289.2539978027344
+        - 721.47998046875
+        - 299.2539978027344
+        - 731.47998046875
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC10[0]
+        on_state: '1'
+        caption: C. 10. Foreign made articles acquired in the United States and taken
+          abroad on this trip or acquired abroad on another trip that was previously
+          declared to C B P.
+        x_petey_caption_source: tooltip
+      articles_taken_abroad_for_alterations_repairs_ind:
+        page: 1
+        rect:
+        - 289.2539978027344
+        - 745.4810180664062
+        - 299.2539978027344
+        - 755.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC11[0]
+        on_state: '1'
+        caption: C. 11. Articles taken abroad for which alterations or repairs were
+          performed abroad.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:01'
+      from:
+      - personal_effects_acquired_abroad_ind
+      - foreign_made_articles_previously_declared_ind
+      - articles_taken_abroad_for_alterations_repairs_ind
   importer_nm:
     type: string
     semantic_type: person_name

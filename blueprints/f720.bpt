@@ -3106,30 +3106,38 @@ fields:
       - 240.00103759765625
       widget_type: text
       path: topmostSubform[0].Page3[0].AccountNo[0].f3_20[0]
-  third_party_designee_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 439.20001220703125
-      - 242.0
-      - 447.20001220703125
-      - 250.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page3[0].c3_4[0]
-  third_party_designee_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 547.2000122070312
-      - 242.0
-      - 555.2000122070312
-      - 250.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page3[0].c3_4[1]
+  third_party_designee:
+    type: category
+    values:
+    - third_party_designee_yes_ind
+    - third_party_designee_no_ind
+    widgets:
+      third_party_designee_yes_ind:
+        page: 3
+        rect:
+        - 439.20001220703125
+        - 242.0
+        - 447.20001220703125
+        - 250.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page3[0].c3_4[0]
+        on_state: '1'
+      third_party_designee_no_ind:
+        page: 3
+        rect:
+        - 547.2000122070312
+        - 242.0
+        - 555.2000122070312
+        - 250.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page3[0].c3_4[1]
+        on_state: '2'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - third_party_designee_yes_ind
+      - third_party_designee_no_ind
   designee_nm:
     type: string
     semantic_type: person_name
@@ -7027,54 +7035,62 @@ fields:
       - 659.9990234375
       widget_type: text
       path: topmostSubform[0].Page8[0].f8_3[0]
-  first_quarter_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 8
-      rect:
-      - 57.599998474121094
-      - 681.0
-      - 69.5999984741211
-      - 693.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].Quarter_ReadOrder[0].c8_1[0]
-  second_quarter_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 8
-      rect:
-      - 57.599998474121094
-      - 710.9990234375
-      - 69.5999984741211
-      - 722.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].Quarter_ReadOrder[0].c8_1[1]
-  third_quarter_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 8
-      rect:
-      - 144.0
-      - 681.0
-      - 156.0
-      - 693.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].c8_1[0]
-  fourth_quarter_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 8
-      rect:
-      - 144.0
-      - 710.9990234375
-      - 156.0
-      - 722.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].c8_1[1]
+  group_p8:
+    type: category
+    values:
+    - first_quarter_ind
+    - third_quarter_ind
+    - second_quarter_ind
+    - fourth_quarter_ind
+    widgets:
+      first_quarter_ind:
+        page: 8
+        rect:
+        - 57.599998474121094
+        - 681.0
+        - 69.5999984741211
+        - 693.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].Quarter_ReadOrder[0].c8_1[0]
+        on_state: '1'
+      third_quarter_ind:
+        page: 8
+        rect:
+        - 144.0
+        - 681.0
+        - 156.0
+        - 693.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].c8_1[0]
+        on_state: '3'
+      second_quarter_ind:
+        page: 8
+        rect:
+        - 57.599998474121094
+        - 710.9990234375
+        - 69.5999984741211
+        - 722.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].Quarter_ReadOrder[0].c8_1[1]
+        on_state: '2'
+      fourth_quarter_ind:
+        page: 8
+        rect:
+        - 144.0
+        - 710.9990234375
+        - 156.0
+        - 722.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page8[0].Line3_ReadOrder[0].c8_1[1]
+        on_state: '4'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - first_quarter_ind
+      - third_quarter_ind
+      - second_quarter_ind
+      - fourth_quarter_ind
   business_name:
     type: string
     semantic_type: business_name

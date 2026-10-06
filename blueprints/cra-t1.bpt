@@ -437,78 +437,86 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  canadian_citizenship_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 501.0010070800781
-      - 117.9990234375
-      - 511.0010070800781
-      - 127.9990234375
-      widget_type: checkbox
-      path: form1[0].Page2[0].ElectionsCanada[0].LineA[0].Option1[0].A_CheckBox[0]
-    description: Elections Canada. A. Do you have Canadian citizenship? Yes. If yes,
-      go to question B.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  canadian_citizenship_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 549.0
-      - 117.9990234375
-      - 559.0
-      - 127.9990234375
-      widget_type: checkbox
-      path: form1[0].Page2[0].ElectionsCanada[0].LineA[0].Option2[0].A_CheckBox[0]
-    description: Elections Canada. A. Do you have Canadian citizenship? No. If no,
-      skip question B.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  elections_canada_auth_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 501.0010070800781
-      - 157.0009765625
-      - 511.0010070800781
-      - 167.0009765625
-      widget_type: checkbox
-      path: form1[0].Page2[0].ElectionsCanada[0].LineB[0].Option1[0].B_Authorize_CheckBox[0]
-    description: Elections Canada. B. As a Canadian citizen, do you authorize the
-      Canada Revenue Agency to give your name, address, date of birth, and citizenship
-      to Elections Canada to update the National Register of Electors or, if you are
-      14 to 17 years of age, the Register of Future Electors? Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  elections_canada_auth_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 549.0
-      - 157.0009765625
-      - 559.0
-      - 167.0009765625
-      widget_type: checkbox
-      path: form1[0].Page2[0].ElectionsCanada[0].LineB[0].Option2[0].B_Authorize_CheckBox[0]
-    description: Elections Canada. B. As a Canadian citizen, do you authorize the
-      Canada Revenue Agency to give your name, address, date of birth, and citizenship
-      to Elections Canada to update the National Register of Electors or, if you are
-      14 to 17 years of age, the Register of Future Electors? No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  canadian_citizenship:
+    type: category
+    values:
+    - canadian_citizenship_yes_ind
+    - canadian_citizenship_no_ind
+    widgets:
+      canadian_citizenship_yes_ind:
+        page: 2
+        rect:
+        - 501.0010070800781
+        - 117.9990234375
+        - 511.0010070800781
+        - 127.9990234375
+        widget_type: checkbox
+        path: form1[0].Page2[0].ElectionsCanada[0].LineA[0].Option1[0].A_CheckBox[0]
+        on_state: '1'
+        caption: Elections Canada. A. Do you have Canadian citizenship? Yes. If yes,
+          go to question B.
+        x_petey_caption_source: tooltip
+      canadian_citizenship_no_ind:
+        page: 2
+        rect:
+        - 549.0
+        - 117.9990234375
+        - 559.0
+        - 127.9990234375
+        widget_type: checkbox
+        path: form1[0].Page2[0].ElectionsCanada[0].LineA[0].Option2[0].A_CheckBox[0]
+        on_state: '2'
+        caption: Elections Canada. A. Do you have Canadian citizenship? No. If no,
+          skip question B.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - canadian_citizenship_yes_ind
+      - canadian_citizenship_no_ind
+  elections_canada_auth:
+    type: category
+    values:
+    - elections_canada_auth_yes_ind
+    - elections_canada_auth_no_ind
+    widgets:
+      elections_canada_auth_yes_ind:
+        page: 2
+        rect:
+        - 501.0010070800781
+        - 157.0009765625
+        - 511.0010070800781
+        - 167.0009765625
+        widget_type: checkbox
+        path: form1[0].Page2[0].ElectionsCanada[0].LineB[0].Option1[0].B_Authorize_CheckBox[0]
+        on_state: '1'
+        caption: Elections Canada. B. As a Canadian citizen, do you authorize the
+          Canada Revenue Agency to give your name, address, date of birth, and citizenship
+          to Elections Canada to update the National Register of Electors or, if you
+          are 14 to 17 years of age, the Register of Future Electors? Yes.
+        x_petey_caption_source: tooltip
+      elections_canada_auth_no_ind:
+        page: 2
+        rect:
+        - 549.0
+        - 157.0009765625
+        - 559.0
+        - 167.0009765625
+        widget_type: checkbox
+        path: form1[0].Page2[0].ElectionsCanada[0].LineB[0].Option2[0].B_Authorize_CheckBox[0]
+        on_state: '2'
+        caption: Elections Canada. B. As a Canadian citizen, do you authorize the
+          Canada Revenue Agency to give your name, address, date of birth, and citizenship
+          to Elections Canada to update the National Register of Electors or, if you
+          are 14 to 17 years of age, the Register of Future Electors? No.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - elections_canada_auth_yes_ind
+      - elections_canada_auth_no_ind
   indian_act_exempt_income_ind:
     type: boolean
     semantic_type: indicator
@@ -527,82 +535,90 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  specified_foreign_property_over_100k_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 501.0010070800781
-      - 443.4989929199219
-      - 511.0010070800781
-      - 453.4989929199219
-      widget_type: checkbox
-      path: form1[0].Page2[0].Foreign_property[0].Line26600[0].Option1[0].ForeignProperty_CheckBox[0]
-    description: Foreign property. Line 26600. Did you own or hold specified foreign
-      property where the total cost amount of all such property, at any time in 2025,
-      was more than Canadian $100,000? Yes. If yes, complete Form T1135, Foreign Income
-      Verification Statement. There are substantial penalties for not filing Form
-      T1135 by the due date. For more information, see Form T1135.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  specified_foreign_property_over_100k_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 549.0
-      - 443.4989929199219
-      - 559.0
-      - 453.4989929199219
-      widget_type: checkbox
-      path: form1[0].Page2[0].Foreign_property[0].Line26600[0].Option2[0].ForeignProperty_CheckBox[0]
-    description: Foreign property. Line 26600. Did you own or hold specified foreign
-      property where the total cost amount of all such property, at any time in 2025,
-      was more than Canadian $100,000? No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  organ_tissue_donor_registry_consent_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 501.0010070800781
-      - 551.5009765625
-      - 511.0010070800781
-      - 561.5009765625
-      widget_type: checkbox
-      path: form1[0].Page2[0].Organ_donor[0].Question[0].Option1[0].OrganDonor_CheckBox[0]
-    description: Consent to share contact information. Organ and tissue donor registry.
-      I authorize the Canada Revenue Agency to provide my name and email address to
-      Ontario Health so that Ontario Health, Trillium Gift of Life, may contact or
-      send information to me by email about organ and tissue donation. Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  organ_tissue_donor_registry_consent_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 549.0
-      - 551.5009765625
-      - 559.0
-      - 561.5009765625
-      widget_type: checkbox
-      path: form1[0].Page2[0].Organ_donor[0].Question[0].Option2[0].OrganDonor_CheckBox[0]
-    description: Consent to share contact information. Organ and tissue donor registry.
-      I authorize the Canada Revenue Agency to provide my name and email address to
-      Ontario Health so that Ontario Health, Trillium Gift of Life, may contact or
-      send information to me by email about organ and tissue donation. No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  specified_foreign_property_over_100k:
+    type: category
+    values:
+    - specified_foreign_property_over_100k_yes_ind
+    - specified_foreign_property_over_100k_no_ind
+    widgets:
+      specified_foreign_property_over_100k_yes_ind:
+        page: 2
+        rect:
+        - 501.0010070800781
+        - 443.4989929199219
+        - 511.0010070800781
+        - 453.4989929199219
+        widget_type: checkbox
+        path: form1[0].Page2[0].Foreign_property[0].Line26600[0].Option1[0].ForeignProperty_CheckBox[0]
+        on_state: '1'
+        caption: Foreign property. Line 26600. Did you own or hold specified foreign
+          property where the total cost amount of all such property, at any time in
+          2025, was more than Canadian $100,000? Yes. If yes, complete Form T1135,
+          Foreign Income Verification Statement. There are substantial penalties for
+          not filing Form T1135 by the due date. For more information, see Form T1135.
+        x_petey_caption_source: tooltip
+      specified_foreign_property_over_100k_no_ind:
+        page: 2
+        rect:
+        - 549.0
+        - 443.4989929199219
+        - 559.0
+        - 453.4989929199219
+        widget_type: checkbox
+        path: form1[0].Page2[0].Foreign_property[0].Line26600[0].Option2[0].ForeignProperty_CheckBox[0]
+        on_state: '2'
+        caption: Foreign property. Line 26600. Did you own or hold specified foreign
+          property where the total cost amount of all such property, at any time in
+          2025, was more than Canadian $100,000? No.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - specified_foreign_property_over_100k_yes_ind
+      - specified_foreign_property_over_100k_no_ind
+  organ_tissue_donor_registry_consent:
+    type: category
+    values:
+    - organ_tissue_donor_registry_consent_yes_ind
+    - organ_tissue_donor_registry_consent_no_ind
+    widgets:
+      organ_tissue_donor_registry_consent_yes_ind:
+        page: 2
+        rect:
+        - 501.0010070800781
+        - 551.5009765625
+        - 511.0010070800781
+        - 561.5009765625
+        widget_type: checkbox
+        path: form1[0].Page2[0].Organ_donor[0].Question[0].Option1[0].OrganDonor_CheckBox[0]
+        on_state: '1'
+        caption: Consent to share contact information. Organ and tissue donor registry.
+          I authorize the Canada Revenue Agency to provide my name and email address
+          to Ontario Health so that Ontario Health, Trillium Gift of Life, may contact
+          or send information to me by email about organ and tissue donation. Yes.
+        x_petey_caption_source: tooltip
+      organ_tissue_donor_registry_consent_no_ind:
+        page: 2
+        rect:
+        - 549.0
+        - 551.5009765625
+        - 559.0
+        - 561.5009765625
+        widget_type: checkbox
+        path: form1[0].Page2[0].Organ_donor[0].Question[0].Option2[0].OrganDonor_CheckBox[0]
+        on_state: '2'
+        caption: Consent to share contact information. Organ and tissue donor registry.
+          I authorize the Canada Revenue Agency to provide my name and email address
+          to Ontario Health so that Ontario Health, Trillium Gift of Life, may contact
+          or send information to me by email about organ and tissue donation. No.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - organ_tissue_donor_registry_consent_yes_ind
+      - organ_tissue_donor_registry_consent_no_ind
   employment_income_amt:
     type: number
     semantic_type: money_whole_dollar
@@ -4268,38 +4284,42 @@ fields:
     - description_from_tooltip
     description: Date. Year 4 digits. Month 2 digits. Day 2 digits.
     x_petey_description_source: tooltip
-  fee_charged_yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 8
-      rect:
-      - 500.99798583984375
-      - 540.9990234375
-      - 510.99798583984375
-      - 550.9990234375
-      widget_type: checkbox
-      path: form1[0].Page8[0].Line_49000_IfFeeWasCharged[0].Line49000_CheckBoxGroup[0].Line49000_CheckBox_EN[0]
-    description: Line 49000. Was a fee charged? Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  fee_charged_no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 8
-      rect:
-      - 549.0
-      - 540.9990234375
-      - 559.0
-      - 550.9990234375
-      widget_type: checkbox
-      path: form1[0].Page8[0].Line_49000_IfFeeWasCharged[0].Line49000_CheckBoxGroup[0].Line49000_CheckBox_EN[1]
-    description: Line 49000. Was a fee charged? No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  fee_charged:
+    type: category
+    values:
+    - fee_charged_yes_ind
+    - fee_charged_no_ind
+    widgets:
+      fee_charged_yes_ind:
+        page: 8
+        rect:
+        - 500.99798583984375
+        - 540.9990234375
+        - 510.99798583984375
+        - 550.9990234375
+        widget_type: checkbox
+        path: form1[0].Page8[0].Line_49000_IfFeeWasCharged[0].Line49000_CheckBoxGroup[0].Line49000_CheckBox_EN[0]
+        on_state: '1'
+        caption: Line 49000. Was a fee charged? Yes.
+        x_petey_caption_source: tooltip
+      fee_charged_no_ind:
+        page: 8
+        rect:
+        - 549.0
+        - 540.9990234375
+        - 559.0
+        - 550.9990234375
+        widget_type: checkbox
+        path: form1[0].Page8[0].Line_49000_IfFeeWasCharged[0].Line49000_CheckBoxGroup[0].Line49000_CheckBox_EN[1]
+        on_state: '2'
+        caption: Line 49000. Was a fee charged? No.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - fee_charged_yes_ind
+      - fee_charged_no_ind
   line_48900_efile_number_txt:
     type: string
     semantic_type: text

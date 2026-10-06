@@ -151,36 +151,42 @@ fields:
     description: 7. ADMINISTERED BY (If other than 6)
     x_petey_description_source: tooltip
     label_source: llm
-  delivery_fob_destination_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 103.719970703125
-      - 516.8350219726562
-      - 113.719970703125
-      widget_type: checkbox
-      path: form1[0].page1[0].eight[0].eight_destination[0]
-    description: 8. DELIVERY FOB - Select for "DESTINATION."
-    x_petey_description_source: tooltip
-    label_source: llm
-  delivery_fob_other_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 124.5999755859375
-      - 516.8350219726562
-      - 134.5999755859375
-      widget_type: checkbox
-      path: form1[0].page1[0].eight[0].eight_other[0]
-    description: 8. DELIVERY FOB - Select for "OTHER."
-    x_petey_description_source: tooltip
-    label_source: llm
+  delivery_fob:
+    type: category
+    values:
+    - delivery_fob_destination_ind
+    - delivery_fob_other_ind
+    widgets:
+      delivery_fob_destination_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 103.719970703125
+        - 516.8350219726562
+        - 113.719970703125
+        widget_type: checkbox
+        path: form1[0].page1[0].eight[0].eight_destination[0]
+        on_state: '1'
+        caption: 8. DELIVERY FOB - Select for "DESTINATION."
+        x_petey_caption_source: tooltip
+      delivery_fob_other_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 124.5999755859375
+        - 516.8350219726562
+        - 134.5999755859375
+        widget_type: checkbox
+        path: form1[0].page1[0].eight[0].eight_other[0]
+        on_state: '1'
+        caption: 8. DELIVERY FOB - Select for "OTHER."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - delivery_fob_destination_ind
+      - delivery_fob_other_ind
   contractor_cd:
     type: string
     widget:
@@ -255,51 +261,56 @@ fields:
     description: 12. DISCOUNT TERMS
     x_petey_description_source: tooltip
     label_source: llm
-  business_is_small_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 157.719970703125
-      - 516.8350219726562
-      - 167.719970703125
-      widget_type: checkbox
-      path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_small[0]
-    description: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  business_is_small_disadvantaged_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 170.5
-      - 516.8350219726562
-      - 180.5
-      widget_type: checkbox
-      path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_smallDisadvantaged[0]
-    description: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL DISADVANTAGED."
-    x_petey_description_source: tooltip
-    label_source: llm
-  business_is_women_owned_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 183.0999755859375
-      - 516.8350219726562
-      - 193.0999755859375
-      widget_type: checkbox
-      path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_womenOwned[0]
-    description: 11. X IF BUSINESS IS - Select for "BUSINESS IS WOMEN-OWNED."
-    x_petey_description_source: tooltip
-    label_source: llm
+  business_is_small:
+    type: category
+    values:
+    - business_is_small_ind
+    - business_is_small_disadvantaged_ind
+    - business_is_women_owned_ind
+    widgets:
+      business_is_small_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 157.719970703125
+        - 516.8350219726562
+        - 167.719970703125
+        widget_type: checkbox
+        path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_small[0]
+        on_state: '1'
+        caption: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL."
+        x_petey_caption_source: tooltip
+      business_is_small_disadvantaged_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 170.5
+        - 516.8350219726562
+        - 180.5
+        widget_type: checkbox
+        path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_smallDisadvantaged[0]
+        on_state: '1'
+        caption: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL DISADVANTAGED."
+        x_petey_caption_source: tooltip
+      business_is_women_owned_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 183.0999755859375
+        - 516.8350219726562
+        - 193.0999755859375
+        widget_type: checkbox
+        path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_womenOwned[0]
+        on_state: '1'
+        caption: 11. X IF BUSINESS IS - Select for "BUSINESS IS WOMEN-OWNED."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - business_is_small_ind
+      - business_is_small_disadvantaged_ind
+      - business_is_women_owned_ind
   mail_invoices_to_block:
     type: string
     widget:
@@ -858,52 +869,57 @@ fields:
     description: 26. DIFFERENCES, line 2.
     x_petey_description_source: tooltip
     label_source: llm
-  quantity_inspected_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 38.834999084472656
-      - 575.8599853515625
-      - 48.834999084472656
-      - 585.8599853515625
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty7A[0].twenty7A_inspected[0]
-    description: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "INSPECTED."
-    x_petey_description_source: tooltip
-    label_source: llm
-  quantity_received_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 96.43499755859375
-      - 575.8599853515625
-      - 106.43499755859375
-      - 585.8599853515625
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty7A[0].twenty7A_received[0]
-    description: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "RECEIVED."
-    x_petey_description_source: tooltip
-    label_source: llm
-  quantity_accepted_conforms_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 154.03500366210938
-      - 575.8599853515625
-      - 164.03500366210938
-      - 585.8599853515625
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty7A[0].twenty7A_accepted[0]
-    description: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "ACCEPTED, AND CONFORMS
-      TO THE CONTRACT EXCEPT AS NOTED:"
-    x_petey_description_source: tooltip
-    label_source: llm
+  quantity:
+    type: category
+    values:
+    - quantity_inspected_ind
+    - quantity_received_ind
+    - quantity_accepted_conforms_ind
+    widgets:
+      quantity_inspected_ind:
+        page: 1
+        rect:
+        - 38.834999084472656
+        - 575.8599853515625
+        - 48.834999084472656
+        - 585.8599853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty7A[0].twenty7A_inspected[0]
+        on_state: '1'
+        caption: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "INSPECTED."
+        x_petey_caption_source: tooltip
+      quantity_received_ind:
+        page: 1
+        rect:
+        - 96.43499755859375
+        - 575.8599853515625
+        - 106.43499755859375
+        - 585.8599853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty7A[0].twenty7A_received[0]
+        on_state: '1'
+        caption: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "RECEIVED."
+        x_petey_caption_source: tooltip
+      quantity_accepted_conforms_ind:
+        page: 1
+        rect:
+        - 154.03500366210938
+        - 575.8599853515625
+        - 164.03500366210938
+        - 585.8599853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty7A[0].twenty7A_accepted[0]
+        on_state: '1'
+        caption: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "ACCEPTED, AND CONFORMS
+          TO THE CONTRACT EXCEPT AS NOTED:"
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - quantity_inspected_ind
+      - quantity_received_ind
+      - quantity_accepted_conforms_ind
   quantity_discrepancy_note:
     type: integer
     semantic_type: count
@@ -1105,81 +1121,92 @@ fields:
     description: 28. SHIPMENT NUMBER
     x_petey_description_source: tooltip
     label_source: llm
-  shipment_partial_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 648.5800170898438
-      - 300.8349914550781
-      - 658.5800170898438
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_partial[0]
-    description: 28. SHIPMENT NUMBER - Select for "PARTIAL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  shipment_final_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 661.1799926757812
-      - 300.8349914550781
-      - 671.1799926757812
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_final[0]
-    description: 28. SHIPMENT NUMBER - Select for "FINAL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  payment_complete_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 686.5599975585938
-      - 300.8349914550781
-      - 696.5599975585938
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_complete[0]
-    description: 31. PAYMENT - Select for "COMPLETE."
-    x_petey_description_source: tooltip
-    label_source: llm
-  payment_partial_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 698.7999877929688
-      - 300.8349914550781
-      - 708.7999877929688
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_partial[0]
-    description: 31. PAYMENT - Select for "PARTIAL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  payment_final_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 710.3200073242188
-      - 300.8349914550781
-      - 720.3200073242188
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_final[0]
-    description: 31. PAYMENT - Select for "FINAL."
-    x_petey_description_source: tooltip
-    label_source: llm
+  shipment:
+    type: category
+    values:
+    - shipment_partial_ind
+    - shipment_final_ind
+    widgets:
+      shipment_partial_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 648.5800170898438
+        - 300.8349914550781
+        - 658.5800170898438
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_partial[0]
+        on_state: '1'
+        caption: 28. SHIPMENT NUMBER - Select for "PARTIAL."
+        x_petey_caption_source: tooltip
+      shipment_final_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 661.1799926757812
+        - 300.8349914550781
+        - 671.1799926757812
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_final[0]
+        on_state: '1'
+        caption: 28. SHIPMENT NUMBER - Select for "FINAL."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - shipment_partial_ind
+      - shipment_final_ind
+  payment:
+    type: category
+    values:
+    - payment_complete_ind
+    - payment_partial_ind
+    - payment_final_ind
+    widgets:
+      payment_complete_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 686.5599975585938
+        - 300.8349914550781
+        - 696.5599975585938
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_complete[0]
+        on_state: '1'
+        caption: 31. PAYMENT - Select for "COMPLETE."
+        x_petey_caption_source: tooltip
+      payment_partial_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 698.7999877929688
+        - 300.8349914550781
+        - 708.7999877929688
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_partial[0]
+        on_state: '1'
+        caption: 31. PAYMENT - Select for "PARTIAL."
+        x_petey_caption_source: tooltip
+      payment_final_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 710.3200073242188
+        - 300.8349914550781
+        - 720.3200073242188
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_final[0]
+        on_state: '1'
+        caption: 31. PAYMENT - Select for "FINAL."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - payment_complete_ind
+      - payment_partial_ind
+      - payment_final_ind
   do_voucher_no:
     type: string
     widget:

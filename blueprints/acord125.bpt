@@ -395,40 +395,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  bound_time_am_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 547.0
-      - 174.0
-      - 562.0
-      - 186.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Status_EffectiveTimeAMIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the effective time of the
-      policy status is before 12:00 pm.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  bound_time_pm_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 547.0
-      - 186.0
-      - 562.0
-      - 198.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Status_EffectiveTimePMIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the effective time of the
-      policy status is 12:00 pm or later.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  bound_time_2:
+    type: category
+    values:
+    - bound_time_am_ind
+    - bound_time_pm_ind
+    widgets:
+      bound_time_am_ind:
+        page: 1
+        rect:
+        - 547.0
+        - 174.0
+        - 562.0
+        - 186.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Status_EffectiveTimeAMIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the effective time of the
+          policy status is before 12:00 pm.'
+        x_petey_caption_source: tooltip
+      bound_time_pm_ind:
+        page: 1
+        rect:
+        - 547.0
+        - 186.0
+        - 562.0
+        - 198.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Status_EffectiveTimePMIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the effective time of the
+          policy status is 12:00 pm or later.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - bound_time_am_ind
+      - bound_time_pm_ind
   line_boiler_machinery_ind:
     type: boolean
     semantic_type: indicator
@@ -1864,40 +1868,44 @@ fields:
     description: The date on which the terms and conditions of the policy will expire.
       (MM/DD/YYYY) As used here, this is the proposed expiration date.
     x_petey_description_source: tooltip
-  billing_plan_direct_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 158.0
-      - 468.0
-      - 173.0
-      - 480.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Payment_DirectBillIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is to be direct
-      billed.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  billing_plan_agency_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 202.0
-      - 468.0
-      - 216.0
-      - 480.0
-      widget_type: checkbox
-      path: F[0].P1[0].Policy_Payment_ProducerBillIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is to be producer
-      / agency billed.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  billing_plan:
+    type: category
+    values:
+    - billing_plan_direct_ind
+    - billing_plan_agency_ind
+    widgets:
+      billing_plan_direct_ind:
+        page: 1
+        rect:
+        - 158.0
+        - 468.0
+        - 173.0
+        - 480.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Payment_DirectBillIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is to be direct
+          billed.'
+        x_petey_caption_source: tooltip
+      billing_plan_agency_ind:
+        page: 1
+        rect:
+        - 202.0
+        - 468.0
+        - 216.0
+        - 480.0
+        widget_type: checkbox
+        path: F[0].P1[0].Policy_Payment_ProducerBillIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is to be producer
+          / agency billed.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - billing_plan_direct_ind
+      - billing_plan_agency_ind
   payment_plan_txt:
     type: string
     semantic_type: text
@@ -2760,57 +2768,59 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_1_primary_phone_home_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 65.0
-      - 69.0
-      - 72.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_PrimaryHomePhoneIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the contact''s primary
-      phone is a home phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_1_primary_phone_bus_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 97.0
-      - 69.0
-      - 104.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_PrimaryBusinessPhoneIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the contact''s primary
-      phone is a business phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_1_primary_phone_cell_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 126.0
-      - 69.0
-      - 133.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_PrimaryCellPhoneIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the contact''s primary
-      phone is a cell phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  contact_1_primary_phone_2:
+    type: category
+    values:
+    - contact_1_primary_phone_home_ind
+    - contact_1_primary_phone_bus_ind
+    - contact_1_primary_phone_cell_ind
+    widgets:
+      contact_1_primary_phone_home_ind:
+        page: 2
+        rect:
+        - 65.0
+        - 69.0
+        - 72.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_PrimaryHomePhoneIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s primary
+          phone is a home phone.'
+        x_petey_caption_source: tooltip
+      contact_1_primary_phone_bus_ind:
+        page: 2
+        rect:
+        - 97.0
+        - 69.0
+        - 104.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_PrimaryBusinessPhoneIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s primary
+          phone is a business phone.'
+        x_petey_caption_source: tooltip
+      contact_1_primary_phone_cell_ind:
+        page: 2
+        rect:
+        - 126.0
+        - 69.0
+        - 133.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_PrimaryCellPhoneIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s primary
+          phone is a cell phone.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - contact_1_primary_phone_home_ind
+      - contact_1_primary_phone_bus_ind
+      - contact_1_primary_phone_cell_ind
   contact_1_secondary_phone_nbr:
     type: string
     semantic_type: phone
@@ -2828,57 +2838,59 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_1_secondary_phone_home_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 209.0
-      - 69.0
-      - 216.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_SecondaryHomePhoneIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the contact''s secondary
-      phone number is a home phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_1_secondary_phone_bus_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 241.0
-      - 69.0
-      - 248.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_SecondaryBusinessPhoneIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the contact''s secondary
-      phone number is a business phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_1_secondary_phone_cell_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 270.0
-      - 69.0
-      - 277.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_SecondaryCellPhoneIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the contact''s secondary
-      phone number is a cell phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  contact_1_secondary_phone:
+    type: category
+    values:
+    - contact_1_secondary_phone_home_ind
+    - contact_1_secondary_phone_bus_ind
+    - contact_1_secondary_phone_cell_ind
+    widgets:
+      contact_1_secondary_phone_home_ind:
+        page: 2
+        rect:
+        - 209.0
+        - 69.0
+        - 216.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_SecondaryHomePhoneIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s secondary
+          phone number is a home phone.'
+        x_petey_caption_source: tooltip
+      contact_1_secondary_phone_bus_ind:
+        page: 2
+        rect:
+        - 241.0
+        - 69.0
+        - 248.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_SecondaryBusinessPhoneIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s secondary
+          phone number is a business phone.'
+        x_petey_caption_source: tooltip
+      contact_1_secondary_phone_cell_ind:
+        page: 2
+        rect:
+        - 270.0
+        - 69.0
+        - 277.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_SecondaryCellPhoneIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s secondary
+          phone number is a cell phone.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - contact_1_secondary_phone_home_ind
+      - contact_1_secondary_phone_bus_ind
+      - contact_1_secondary_phone_cell_ind
   contact_1_primary_email_address_txt:
     type: string
     semantic_type: email
@@ -2961,57 +2973,59 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_2_primary_phone_home_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 353.0
-      - 69.0
-      - 360.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_PrimaryHomePhoneIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the contact''s primary
-      phone is a home phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_2_primary_phone_bus_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 385.0
-      - 69.0
-      - 392.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_PrimaryBusinessPhoneIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the contact''s primary
-      phone is a business phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_2_primary_phone_cell_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 414.0
-      - 69.0
-      - 421.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_PrimaryCellPhoneIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the contact''s primary
-      phone is a cell phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  contact_2_primary_phone:
+    type: category
+    values:
+    - contact_2_primary_phone_home_ind
+    - contact_2_primary_phone_bus_ind
+    - contact_2_primary_phone_cell_ind
+    widgets:
+      contact_2_primary_phone_home_ind:
+        page: 2
+        rect:
+        - 353.0
+        - 69.0
+        - 360.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_PrimaryHomePhoneIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s primary
+          phone is a home phone.'
+        x_petey_caption_source: tooltip
+      contact_2_primary_phone_bus_ind:
+        page: 2
+        rect:
+        - 385.0
+        - 69.0
+        - 392.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_PrimaryBusinessPhoneIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s primary
+          phone is a business phone.'
+        x_petey_caption_source: tooltip
+      contact_2_primary_phone_cell_ind:
+        page: 2
+        rect:
+        - 414.0
+        - 69.0
+        - 421.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_PrimaryCellPhoneIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s primary
+          phone is a cell phone.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - contact_2_primary_phone_home_ind
+      - contact_2_primary_phone_bus_ind
+      - contact_2_primary_phone_cell_ind
   contact_2_secondary_phone_nbr:
     type: string
     semantic_type: phone
@@ -3029,57 +3043,59 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_2_secondary_phone_home_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 497.0
-      - 69.0
-      - 504.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_SecondaryHomePhoneIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the contact''s secondary
-      phone number is a home phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_2_secondary_phone_bus_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 529.0
-      - 69.0
-      - 536.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_SecondaryBusinessPhoneIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the contact''s secondary
-      phone number is a business phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  contact_2_secondary_phone_cell_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 558.0
-      - 69.0
-      - 565.0
-      - 75.0
-      widget_type: checkbox
-      path: F[0].P2[0].NamedInsured_Contact_SecondaryCellPhoneIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the contact''s secondary
-      phone number is a cell phone.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  contact_2_secondary_phone:
+    type: category
+    values:
+    - contact_2_secondary_phone_home_ind
+    - contact_2_secondary_phone_bus_ind
+    - contact_2_secondary_phone_cell_ind
+    widgets:
+      contact_2_secondary_phone_home_ind:
+        page: 2
+        rect:
+        - 497.0
+        - 69.0
+        - 504.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_SecondaryHomePhoneIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s secondary
+          phone number is a home phone.'
+        x_petey_caption_source: tooltip
+      contact_2_secondary_phone_bus_ind:
+        page: 2
+        rect:
+        - 529.0
+        - 69.0
+        - 536.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_SecondaryBusinessPhoneIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s secondary
+          phone number is a business phone.'
+        x_petey_caption_source: tooltip
+      contact_2_secondary_phone_cell_ind:
+        page: 2
+        rect:
+        - 558.0
+        - 69.0
+        - 565.0
+        - 75.0
+        widget_type: checkbox
+        path: F[0].P2[0].NamedInsured_Contact_SecondaryCellPhoneIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the contact''s secondary
+          phone number is a cell phone.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - contact_2_secondary_phone_home_ind
+      - contact_2_secondary_phone_bus_ind
+      - contact_2_secondary_phone_cell_ind
   contact_2_primary_email_address_txt:
     type: string
     semantic_type: email
@@ -3243,40 +3259,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_1_interest_inside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 138.0
-      - 277.0
-      - 150.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the building is within
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_1_interest_outside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 150.0
-      - 277.0
-      - 162.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the building is outside
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_1_interest:
+    type: category
+    values:
+    - premises_1_interest_inside_ind
+    - premises_1_interest_outside_ind
+    widgets:
+      premises_1_interest_inside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 138.0
+        - 277.0
+        - 150.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is within
+          the city limits.'
+        x_petey_caption_source: tooltip
+      premises_1_interest_outside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 150.0
+        - 277.0
+        - 162.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is outside
+          the city limits.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_1_interest_inside_ind
+      - premises_1_interest_outside_ind
   premises_1_city_limits_ind:
     type: boolean
     semantic_type: indicator
@@ -3311,40 +3331,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_1_interest_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 138.0
-      - 324.0
-      - 150.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its owner.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_1_interest_tenant_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 150.0
-      - 324.0
-      - 162.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its tenant.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_1_interest_2:
+    type: category
+    values:
+    - premises_1_interest_owner_ind
+    - premises_1_interest_tenant_ind
+    widgets:
+      premises_1_interest_owner_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 138.0
+        - 324.0
+        - 150.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its owner.'
+        x_petey_caption_source: tooltip
+      premises_1_interest_tenant_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 150.0
+        - 324.0
+        - 162.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its tenant.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_1_interest_owner_ind
+      - premises_1_interest_tenant_ind
   premises_1_interest_cd:
     type: boolean
     semantic_type: indicator
@@ -3642,40 +3666,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_2_interest_inside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 198.0
-      - 277.0
-      - 210.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the building is within
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_2_interest_outside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 210.0
-      - 277.0
-      - 222.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the building is outside
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_2_interest:
+    type: category
+    values:
+    - premises_2_interest_inside_ind
+    - premises_2_interest_outside_ind
+    widgets:
+      premises_2_interest_inside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 198.0
+        - 277.0
+        - 210.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is within
+          the city limits.'
+        x_petey_caption_source: tooltip
+      premises_2_interest_outside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 210.0
+        - 277.0
+        - 222.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is outside
+          the city limits.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_2_interest_inside_ind
+      - premises_2_interest_outside_ind
   premises_2_city_limits_ind:
     type: boolean
     semantic_type: indicator
@@ -3710,40 +3738,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_2_interest_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 198.0
-      - 324.0
-      - 210.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its owner.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_2_interest_tenant_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 210.0
-      - 324.0
-      - 222.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its tenant.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_2_interest_2:
+    type: category
+    values:
+    - premises_2_interest_owner_ind
+    - premises_2_interest_tenant_ind
+    widgets:
+      premises_2_interest_owner_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 198.0
+        - 324.0
+        - 210.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its owner.'
+        x_petey_caption_source: tooltip
+      premises_2_interest_tenant_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 210.0
+        - 324.0
+        - 222.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its tenant.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_2_interest_owner_ind
+      - premises_2_interest_tenant_ind
   premises_2_interest_cd:
     type: boolean
     semantic_type: indicator
@@ -4041,40 +4073,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_3_interest_inside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 258.0
-      - 277.0
-      - 270.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_C[0]
-    description: 'Check the box (if applicable): Indicates the building is within
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_3_interest_outside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 270.0
-      - 277.0
-      - 282.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_C[0]
-    description: 'Check the box (if applicable): Indicates the building is outside
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_3_interest_2:
+    type: category
+    values:
+    - premises_3_interest_inside_ind
+    - premises_3_interest_outside_ind
+    widgets:
+      premises_3_interest_inside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 258.0
+        - 277.0
+        - 270.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_C[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is within
+          the city limits.'
+        x_petey_caption_source: tooltip
+      premises_3_interest_outside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 270.0
+        - 277.0
+        - 282.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_C[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is outside
+          the city limits.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_3_interest_inside_ind
+      - premises_3_interest_outside_ind
   premises_3_city_limits_ind:
     type: boolean
     semantic_type: indicator
@@ -4109,40 +4145,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_3_interest_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 258.0
-      - 324.0
-      - 270.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_C[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its owner.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_3_interest_tenant_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 270.0
-      - 324.0
-      - 282.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_C[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its tenant.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_3_interest:
+    type: category
+    values:
+    - premises_3_interest_owner_ind
+    - premises_3_interest_tenant_ind
+    widgets:
+      premises_3_interest_owner_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 258.0
+        - 324.0
+        - 270.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_C[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its owner.'
+        x_petey_caption_source: tooltip
+      premises_3_interest_tenant_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 270.0
+        - 324.0
+        - 282.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_C[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its tenant.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_3_interest_owner_ind
+      - premises_3_interest_tenant_ind
   premises_3_interest_cd:
     type: boolean
     semantic_type: indicator
@@ -4440,40 +4480,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_4_interest_inside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 318.0
-      - 277.0
-      - 330.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_D[0]
-    description: 'Check the box (if applicable): Indicates the building is within
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_4_interest_outside_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 263.0
-      - 330.0
-      - 277.0
-      - 342.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_D[0]
-    description: 'Check the box (if applicable): Indicates the building is outside
-      the city limits.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_4_interest:
+    type: category
+    values:
+    - premises_4_interest_inside_ind
+    - premises_4_interest_outside_ind
+    widgets:
+      premises_4_interest_inside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 318.0
+        - 277.0
+        - 330.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_D[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is within
+          the city limits.'
+        x_petey_caption_source: tooltip
+      premises_4_interest_outside_ind:
+        page: 2
+        rect:
+        - 263.0
+        - 330.0
+        - 277.0
+        - 342.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_D[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the building is outside
+          the city limits.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_4_interest_inside_ind
+      - premises_4_interest_outside_ind
   premises_4_city_limits_ind:
     type: boolean
     semantic_type: indicator
@@ -4508,40 +4552,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_4_interest_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 318.0
-      - 324.0
-      - 330.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_D[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its owner.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  premises_4_interest_tenant_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 310.0
-      - 330.0
-      - 324.0
-      - 342.0
-      widget_type: checkbox
-      path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_D[0]
-    description: 'Check the box (if applicable): Indicates the named insured''s interest
-      in the building is as its tenant.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  premises_4_interest_2:
+    type: category
+    values:
+    - premises_4_interest_owner_ind
+    - premises_4_interest_tenant_ind
+    widgets:
+      premises_4_interest_owner_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 318.0
+        - 324.0
+        - 330.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_D[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its owner.'
+        x_petey_caption_source: tooltip
+      premises_4_interest_tenant_ind:
+        page: 2
+        rect:
+        - 310.0
+        - 330.0
+        - 324.0
+        - 342.0
+        widget_type: checkbox
+        path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_D[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the named insured''s interest
+          in the building is as its tenant.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - premises_4_interest_owner_ind
+      - premises_4_interest_tenant_ind
   premises_4_interest_cd:
     type: boolean
     semantic_type: indicator
@@ -4813,210 +4861,194 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_additional_insured_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 18.0
-      - 660.0
-      - 32.0
-      - 672.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_AdditionalInsuredIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is an additional insured.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_breach_of_warranty_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 18.0
-      - 672.0
-      - 32.0
-      - 684.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_BreachOfWarrantyIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a breach of warranty.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_co_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 18.0
-      - 684.0
-      - 32.0
-      - 696.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_CoOwnerIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a co-owner.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_employee_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 18.0
-      - 696.0
-      - 32.0
-      - 708.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_EmployeeAsLessorIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is an employee as lessor.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_as_lessor_leaseback_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 18.0
-      - 708.0
-      - 32.0
-      - 720.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_LeasebackOwnerIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a leaseback owner.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_lenders_loss_payable_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 18.0
-      - 720.0
-      - 32.0
-      - 732.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_LendersLossPayableIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a lender''s loss payable.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_lienholder_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 79.0
-      - 660.0
-      - 94.0
-      - 672.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_LienholderIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a lien holder.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_loss_payee_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 79.0
-      - 672.0
-      - 94.0
-      - 684.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_LossPayeeIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a loss payee.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_mortgagee_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 79.0
-      - 684.0
-      - 94.0
-      - 696.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_MortgageeIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a mortgagee.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 79.0
-      - 696.0
-      - 94.0
-      - 708.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_OwnerIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is an owner.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_registrant_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 79.0
-      - 708.0
-      - 94.0
-      - 720.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_RegistrantIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a registrant.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_trustee_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 79.0
-      - 720.0
-      - 94.0
-      - 732.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_Interest_TrusteeIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      type is a trustee.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  additional_interest_1_2:
+    type: category
+    values:
+    - additional_interest_1_additional_insured_ind
+    - additional_interest_1_lienholder_ind
+    - additional_interest_1_breach_of_warranty_ind
+    - additional_interest_1_loss_payee_ind
+    - additional_interest_1_co_owner_ind
+    - additional_interest_1_mortgagee_ind
+    - additional_interest_1_employee_ind
+    - additional_interest_1_owner_ind
+    - additional_interest_1_as_lessor_leaseback_ind
+    - additional_interest_1_registrant_ind
+    - additional_interest_1_lenders_loss_payable_ind
+    - additional_interest_1_trustee_ind
+    widgets:
+      additional_interest_1_additional_insured_ind:
+        page: 2
+        rect:
+        - 18.0
+        - 660.0
+        - 32.0
+        - 672.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_AdditionalInsuredIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is an additional insured.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_lienholder_ind:
+        page: 2
+        rect:
+        - 79.0
+        - 660.0
+        - 94.0
+        - 672.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_LienholderIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a lien holder.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_breach_of_warranty_ind:
+        page: 2
+        rect:
+        - 18.0
+        - 672.0
+        - 32.0
+        - 684.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_BreachOfWarrantyIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a breach of warranty.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_loss_payee_ind:
+        page: 2
+        rect:
+        - 79.0
+        - 672.0
+        - 94.0
+        - 684.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_LossPayeeIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a loss payee.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_co_owner_ind:
+        page: 2
+        rect:
+        - 18.0
+        - 684.0
+        - 32.0
+        - 696.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_CoOwnerIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a co-owner.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_mortgagee_ind:
+        page: 2
+        rect:
+        - 79.0
+        - 684.0
+        - 94.0
+        - 696.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_MortgageeIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a mortgagee.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_employee_ind:
+        page: 2
+        rect:
+        - 18.0
+        - 696.0
+        - 32.0
+        - 708.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_EmployeeAsLessorIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is an employee as lessor.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_owner_ind:
+        page: 2
+        rect:
+        - 79.0
+        - 696.0
+        - 94.0
+        - 708.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_OwnerIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is an owner.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_as_lessor_leaseback_ind:
+        page: 2
+        rect:
+        - 18.0
+        - 708.0
+        - 32.0
+        - 720.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_LeasebackOwnerIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a leaseback owner.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_registrant_ind:
+        page: 2
+        rect:
+        - 79.0
+        - 708.0
+        - 94.0
+        - 720.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_RegistrantIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a registrant.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_lenders_loss_payable_ind:
+        page: 2
+        rect:
+        - 18.0
+        - 720.0
+        - 32.0
+        - 732.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_LendersLossPayableIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a lender''s loss payable.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_trustee_ind:
+        page: 2
+        rect:
+        - 79.0
+        - 720.0
+        - 94.0
+        - 732.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_Interest_TrusteeIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          type is a trustee.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - additional_interest_1_additional_insured_ind
+      - additional_interest_1_lienholder_ind
+      - additional_interest_1_breach_of_warranty_ind
+      - additional_interest_1_loss_payee_ind
+      - additional_interest_1_co_owner_ind
+      - additional_interest_1_mortgagee_ind
+      - additional_interest_1_employee_ind
+      - additional_interest_1_owner_ind
+      - additional_interest_1_as_lessor_leaseback_ind
+      - additional_interest_1_registrant_ind
+      - additional_interest_1_lenders_loss_payable_ind
+      - additional_interest_1_trustee_ind
   additional_interest_1_other_ind:
     type: boolean
     semantic_type: indicator
@@ -5083,57 +5115,59 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_evidence_of_insurance_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 295.0
-      - 648.0
-      - 310.0
-      - 660.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_CertificateRequiredIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates if the additional interest
-      requires a Certificate of Insurance.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_certificate_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 356.0
-      - 648.0
-      - 371.0
-      - 660.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_PolicyRequiredIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the additional interest
-      requires a copy of the policy.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  additional_interest_1_send_bill_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 400.0
-      - 648.0
-      - 414.0
-      - 660.0
-      widget_type: checkbox
-      path: F[0].P2[0].AdditionalInterest_SendBillIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the bill should be sent
-      to the additional interest.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  additional_interest_1:
+    type: category
+    values:
+    - additional_interest_1_evidence_of_insurance_ind
+    - additional_interest_1_certificate_ind
+    - additional_interest_1_send_bill_ind
+    widgets:
+      additional_interest_1_evidence_of_insurance_ind:
+        page: 2
+        rect:
+        - 295.0
+        - 648.0
+        - 310.0
+        - 660.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_CertificateRequiredIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates if the additional interest
+          requires a Certificate of Insurance.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_certificate_ind:
+        page: 2
+        rect:
+        - 356.0
+        - 648.0
+        - 371.0
+        - 660.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_PolicyRequiredIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the additional interest
+          requires a copy of the policy.'
+        x_petey_caption_source: tooltip
+      additional_interest_1_send_bill_ind:
+        page: 2
+        rect:
+        - 400.0
+        - 648.0
+        - 414.0
+        - 660.0
+        widget_type: checkbox
+        path: F[0].P2[0].AdditionalInterest_SendBillIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the bill should be sent
+          to the additional interest.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - additional_interest_1_evidence_of_insurance_ind
+      - additional_interest_1_certificate_ind
+      - additional_interest_1_send_bill_ind
   additional_interest_1_name_and_address_line_1_txt:
     type: string
     semantic_type: street_address
@@ -5661,91 +5695,89 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  safety_manual_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 36.0
-      - 138.0
-      - 50.0
-      - 150.0
-      widget_type: checkbox
-      path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_SafetyManualIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates a safety manual is part
-      of the formal safety program.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  safety_position_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 119.0
-      - 138.0
-      - 133.0
-      - 150.0
-      widget_type: checkbox
-      path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_SafetyPositionIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates a safety position is part
-      of the formal safety program.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  monthly_meetings_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 205.0
-      - 138.0
-      - 220.0
-      - 150.0
-      widget_type: checkbox
-      path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_MonthlyMeetingsIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates monthly meetings are part
-      of the formal safety program.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  osha_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 302.0
-      - 138.0
-      - 317.0
-      - 150.0
-      widget_type: checkbox
-      path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_OSHAIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates the formal safety program
-      meets OSHA guidelines.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_safety_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 353.0
-      - 138.0
-      - 367.0
-      - 150.0
-      widget_type: checkbox
-      path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_OtherIndicator_B[0]
-    description: 'Check the box (if applicable): Indicates there is a formal safety
-      program other than those listed.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  safety:
+    type: category
+    values:
+    - safety_manual_ind
+    - safety_position_ind
+    - monthly_meetings_ind
+    - osha_ind
+    - other_safety_ind
+    widgets:
+      safety_manual_ind:
+        page: 3
+        rect:
+        - 36.0
+        - 138.0
+        - 50.0
+        - 150.0
+        widget_type: checkbox
+        path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_SafetyManualIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates a safety manual is part
+          of the formal safety program.'
+        x_petey_caption_source: tooltip
+      safety_position_ind:
+        page: 3
+        rect:
+        - 119.0
+        - 138.0
+        - 133.0
+        - 150.0
+        widget_type: checkbox
+        path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_SafetyPositionIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates a safety position is part
+          of the formal safety program.'
+        x_petey_caption_source: tooltip
+      monthly_meetings_ind:
+        page: 3
+        rect:
+        - 205.0
+        - 138.0
+        - 220.0
+        - 150.0
+        widget_type: checkbox
+        path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_MonthlyMeetingsIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates monthly meetings are part
+          of the formal safety program.'
+        x_petey_caption_source: tooltip
+      osha_ind:
+        page: 3
+        rect:
+        - 302.0
+        - 138.0
+        - 317.0
+        - 150.0
+        widget_type: checkbox
+        path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_OSHAIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the formal safety program
+          meets OSHA guidelines.'
+        x_petey_caption_source: tooltip
+      other_safety_ind:
+        page: 3
+        rect:
+        - 353.0
+        - 138.0
+        - 367.0
+        - 150.0
+        widget_type: checkbox
+        path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_OtherIndicator_B[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates there is a formal safety
+          program other than those listed.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - safety_manual_ind
+      - safety_position_ind
+      - monthly_meetings_ind
+      - osha_ind
+      - other_safety_ind
   other_safety_description:
     type: string
     semantic_type: description
@@ -5951,91 +5983,104 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  nonpayment_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 36.0
-      - 252.0
-      - 50.0
-      - 264.0
-      widget_type: checkbox
-      path: F[0].P3[0].CancelNonRenew_NonPaymentIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is being cancelled
-      due to non-payment of premium.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  nonrenewal_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 36.0
-      - 264.0
-      - 50.0
-      - 276.0
-      widget_type: checkbox
-      path: F[0].P3[0].CancelNonRenew_NonRenewalIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is being cancelled
-      due to non-renewal.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  agent_no_longer_represents_carrier_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 115.0
-      - 252.0
-      - 130.0
-      - 264.0
-      widget_type: checkbox
-      path: F[0].P3[0].CancelNonRenew_AgentNoLongerWritesForInsurerIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is being cancelled
-      because the agent is no longer writing business for the insurer.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  underwriting_condition_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 115.0
-      - 264.0
-      - 130.0
-      - 276.0
-      widget_type: checkbox
-      path: F[0].P3[0].CancelNonRenew_UnderwritingIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is being cancelled
-      due to underwriting reasons.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  condition_corrected_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 202.0
-      - 264.0
-      - 216.0
-      - 276.0
-      widget_type: checkbox
-      path: F[0].P3[0].CancelNonRenew_UnderwritingConditionCorrectedIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the underwriting condition
-      that caused the policy to not be written has been corrected.'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p3:
+    type: category
+    values:
+    - nonpayment_ind
+    - agent_no_longer_represents_carrier_ind
+    - other_cancellation_reason_ind
+    - nonrenewal_ind
+    - underwriting_condition_ind
+    - condition_corrected_ind
+    widgets:
+      nonpayment_ind:
+        page: 3
+        rect:
+        - 36.0
+        - 252.0
+        - 50.0
+        - 264.0
+        widget_type: checkbox
+        path: F[0].P3[0].CancelNonRenew_NonPaymentIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
+          due to non-payment of premium.'
+        x_petey_caption_source: tooltip
+      agent_no_longer_represents_carrier_ind:
+        page: 3
+        rect:
+        - 115.0
+        - 252.0
+        - 130.0
+        - 264.0
+        widget_type: checkbox
+        path: F[0].P3[0].CancelNonRenew_AgentNoLongerWritesForInsurerIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
+          because the agent is no longer writing business for the insurer.'
+        x_petey_caption_source: tooltip
+      other_cancellation_reason_ind:
+        page: 3
+        rect:
+        - 306.0
+        - 252.0
+        - 320.0
+        - 264.0
+        widget_type: checkbox
+        path: F[0].P3[0].CancelNonRenew_OtherIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
+          due to reasons other than those listed.'
+        x_petey_caption_source: tooltip
+      nonrenewal_ind:
+        page: 3
+        rect:
+        - 36.0
+        - 264.0
+        - 50.0
+        - 276.0
+        widget_type: checkbox
+        path: F[0].P3[0].CancelNonRenew_NonRenewalIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
+          due to non-renewal.'
+        x_petey_caption_source: tooltip
+      underwriting_condition_ind:
+        page: 3
+        rect:
+        - 115.0
+        - 264.0
+        - 130.0
+        - 276.0
+        widget_type: checkbox
+        path: F[0].P3[0].CancelNonRenew_UnderwritingIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
+          due to underwriting reasons.'
+        x_petey_caption_source: tooltip
+      condition_corrected_ind:
+        page: 3
+        rect:
+        - 202.0
+        - 264.0
+        - 216.0
+        - 276.0
+        widget_type: checkbox
+        path: F[0].P3[0].CancelNonRenew_UnderwritingConditionCorrectedIndicator_A[0]
+        on_state: '1'
+        caption: 'Check the box (if applicable): Indicates the underwriting condition
+          that caused the policy to not be written has been corrected.'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - nonpayment_ind
+      - agent_no_longer_represents_carrier_ind
+      - other_cancellation_reason_ind
+      - nonrenewal_ind
+      - underwriting_condition_ind
+      - condition_corrected_ind
   condition_corrected_description:
     type: string
     semantic_type: description
@@ -6050,23 +6095,6 @@ fields:
       path: F[0].P3[0].CancelNonRenew_UnderwritingConditionCorrectedDescription_A[0]
     description: The description of how the underwriting condition that caused the
       policy to not be written has been corrected.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_cancellation_reason_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 306.0
-      - 252.0
-      - 320.0
-      - 264.0
-      widget_type: checkbox
-      path: F[0].P3[0].CancelNonRenew_OtherIndicator_A[0]
-    description: 'Check the box (if applicable): Indicates the policy is being cancelled
-      due to reasons other than those listed.'
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip

@@ -403,66 +403,118 @@ fields:
       - 154.7490234375
       widget_type: checkbox
       path: topmostSubform[0].Page1[0].c1_5[0]
-  presidential_election_campaign_you_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 482.3999938964844
-      - 194.49798583984375
-      - 490.3999938964844
-      - 202.49798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_6[0]
-  presidential_election_campaign_spouse_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 525.5999755859375
-      - 194.49798583984375
-      - 533.5999755859375
-      - 202.49798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_7[0]
-  filing_status_single_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 97.5989990234375
-      - 206.0
-      - 105.5989990234375
-      - 214.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[0]
-  filing_status_married_filing_jointly_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 97.5989990234375
-      - 217.9990234375
-      - 105.5989990234375
-      - 225.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[1]
-  filing_status_married_filing_separately_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 97.5989990234375
-      - 229.99798583984375
-      - 105.5989990234375
-      - 237.99798583984375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[2]
+  presidential_election_campaign:
+    type: category
+    values:
+    - presidential_election_campaign_you_ind
+    - presidential_election_campaign_spouse_ind
+    widgets:
+      presidential_election_campaign_you_ind:
+        page: 1
+        rect:
+        - 482.3999938964844
+        - 194.49798583984375
+        - 490.3999938964844
+        - 202.49798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_6[0]
+        on_state: '1'
+      presidential_election_campaign_spouse_ind:
+        page: 1
+        rect:
+        - 525.5999755859375
+        - 194.49798583984375
+        - 533.5999755859375
+        - 202.49798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_7[0]
+        on_state: '1'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - presidential_election_campaign_you_ind
+      - presidential_election_campaign_spouse_ind
+  filing_status:
+    type: category
+    values:
+    - filing_status_single_ind
+    - filing_status_head_of_household_ind
+    - filing_status_married_filing_jointly_ind
+    - filing_status_qualifying_surviving_spouse_ind
+    - filing_status_married_filing_separately_ind
+    - nonresident_alien_spouse_as_resident_ind
+    widgets:
+      filing_status_single_ind:
+        page: 1
+        rect:
+        - 97.5989990234375
+        - 206.0
+        - 105.5989990234375
+        - 214.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[0]
+        on_state: '1'
+      filing_status_head_of_household_ind:
+        page: 1
+        rect:
+        - 349.5989990234375
+        - 206.0
+        - 357.5989990234375
+        - 214.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_8[0]
+        on_state: '4'
+      filing_status_married_filing_jointly_ind:
+        page: 1
+        rect:
+        - 97.5989990234375
+        - 217.9990234375
+        - 105.5989990234375
+        - 225.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[1]
+        on_state: '2'
+      filing_status_qualifying_surviving_spouse_ind:
+        page: 1
+        rect:
+        - 349.5989990234375
+        - 217.9990234375
+        - 357.5989990234375
+        - 225.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_8[1]
+        on_state: '5'
+      filing_status_married_filing_separately_ind:
+        page: 1
+        rect:
+        - 97.5989990234375
+        - 229.99798583984375
+        - 105.5989990234375
+        - 237.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[2]
+        on_state: '3'
+      nonresident_alien_spouse_as_resident_ind:
+        page: 1
+        rect:
+        - 97.5989990234375
+        - 258.125
+        - 105.5989990234375
+        - 266.125
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_9[0]
+        on_state: '1'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - filing_status_single_ind
+      - filing_status_head_of_household_ind
+      - filing_status_married_filing_jointly_ind
+      - filing_status_qualifying_surviving_spouse_ind
+      - filing_status_married_filing_separately_ind
+      - nonresident_alien_spouse_as_resident_ind
   mfs_spouse_full_nm:
     type: string
     semantic_type: person_name
@@ -475,30 +527,6 @@ fields:
       - 252.0
       widget_type: text
       path: topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].f1_28[0]
-  filing_status_head_of_household_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 349.5989990234375
-      - 206.0
-      - 357.5989990234375
-      - 214.0
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_8[0]
-  filing_status_qualifying_surviving_spouse_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 349.5989990234375
-      - 217.9990234375
-      - 357.5989990234375
-      - 225.9990234375
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_8[1]
   hoh_qss_qualifying_child_nm:
     type: string
     semantic_type: person_name
@@ -511,18 +539,6 @@ fields:
       - 257.99798583984375
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_29[0]
-  nonresident_alien_spouse_as_resident_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 97.5989990234375
-      - 258.125
-      - 105.5989990234375
-      - 266.125
-      widget_type: checkbox
-      path: topmostSubform[0].Page1[0].c1_9[0]
   nonresident_alien_spouse_nm:
     type: string
     semantic_type: person_name

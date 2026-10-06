@@ -2006,39 +2006,43 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  opinion_not_attached_cct_psa_dcg_mtia_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 71.43810272216797
-      - 206.719970703125
-      - 79.31300354003906
-      - 220.219970703125
-      widget_type: checkbox
-      path: P2-3d-1
-    description: Mark if This form is filed for a CCT, PSA, DCG or MTIA.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  opinion_not_attached_next_filing_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 277.5329895019531
-      - 206.719970703125
-      - 285.4079895019531
-      - 220.219970703125
-      widget_type: checkbox
-      path: P2-3d-2
-    description: Mark if It will be attached to the next Form 5500 pursuant to 29
-      CFR 2520.104-50.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  opinion_not_attached:
+    type: category
+    values:
+    - opinion_not_attached_cct_psa_dcg_mtia_ind
+    - opinion_not_attached_next_filing_ind
+    widgets:
+      opinion_not_attached_cct_psa_dcg_mtia_ind:
+        page: 4
+        rect:
+        - 71.43810272216797
+        - 206.719970703125
+        - 79.31300354003906
+        - 220.219970703125
+        widget_type: checkbox
+        path: P2-3d-1
+        on_state: 'Yes'
+        caption: Mark if This form is filed for a CCT, PSA, DCG or MTIA.
+        x_petey_caption_source: tooltip
+      opinion_not_attached_next_filing_ind:
+        page: 4
+        rect:
+        - 277.5329895019531
+        - 206.719970703125
+        - 285.4079895019531
+        - 220.219970703125
+        widget_type: checkbox
+        path: P2-3d-2
+        on_state: 'Yes'
+        caption: Mark if It will be attached to the next Form 5500 pursuant to 29
+          CFR 2520.104-50.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:58'
+      from:
+      - opinion_not_attached_cct_psa_dcg_mtia_ind
+      - opinion_not_attached_next_filing_ind
   line_4a_yes_ind:
     type: category
     description: Was there a failure to transmit to the plan any participant contributions
