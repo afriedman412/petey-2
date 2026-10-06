@@ -14,8 +14,11 @@ from its flags instead of from a blank form (Andrew, 2026-10-05: minimise attent
               type fit it? Accepted fields come back as bare numbers (most of the output was explaining accepts,
               2026-10-06); a flag carries a problem (wrong_name / wrong_type / not_a_field /
               should_group / options / other), a proposed name or type, and a one-line reason.
-    output    `runs/page_check/<id>.json`, keyed by field name, with the blueprint's sha. Never writes a
-              blueprint and never touches the person's verdicts in `runs/hand_review/`.
+    output    `runs/page_check/<source>__<stem>.json`, keyed by field name, each verdict with a hash of the field's
+              definition; and `x_petey_page_check` on the blueprint (when, model, prompt version, counts, record
+              path), the only change it makes to a blueprint. `verdicts(bp)` gives the verdicts still valid for
+              the fields as they are now: the `page_check` witness (`witness.py`) and, through it, the loop's
+              reviewer and adjudicator. Never touches the person's verdicts in `runs/hand_review/`.
 
 Answers are cached per (model, prompt, page image, field list) in `runs/page_check/_cache/`, so re-scoring is free.
 Measured against hand review by `eval/page_check_fixture.py`.
@@ -109,6 +112,7 @@ SCHEMA = {
 }
 
 _LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
+PROMPT_VERSION = hashlib.sha256((SYSTEM + json.dumps(SCHEMA, sort_keys=True)).encode()).hexdigest()[:8]
 
 
 def _sha(p: Path) -> str:
@@ -405,14 +409,71 @@ def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dr
                     "proposed_name": a.get("proposed_name") or None, "proposed_type": a.get("proposed_type") or None,
                     "reason": a.get("reason"), "page": pg}
                    if a else {"verdict": None, "problem": "unanswered", "page": pg})
+            rec["spec"] = spec_hash(by_id[it["id"]]["spec"])
             prev = fields.get(name)
             if prev is None or (rec["verdict"] == "flag" and prev.get("verdict") != "flag"):
                 fields[name] = rec            # a group over several pages: a flag on any page stands
     pin, pout = PRICES.get(model, (0.0, 0.0))
     cost = usage_total["input_tokens"] / 1e6 * pin + usage_total["output_tokens"] / 1e6 * pout
-    return {"blueprint": str(bpt), "form": form, "blueprint_sha": _sha(bpt), "model": model,
+    return {"blueprint": str(bpt), "form": form, "blueprint_sha": _sha(bpt), "model": model, "prompt": PROMPT_VERSION,
             "when": time.strftime("%Y-%m-%d %H:%M:%S"), "pages": want, "usage": dict(usage_total),
             "cost_usd": round(cost, 4), "fields": fields}
+
+
+# ------------------------------------------------------------- record, stamp
+
+def spec_hash(spec: dict) -> str:
+    """A field's definition without the `x_petey_*` bookkeeping: a verdict holds while this is unchanged."""
+    core = {k: v for k, v in spec.items() if not str(k).startswith("x_petey")}
+    return hashlib.sha256(json.dumps(core, sort_keys=True, default=str).encode()).hexdigest()[:10]
+
+
+def record_path(bpt: Path) -> Path:
+    """`runs/page_check/<source>__<stem>.json`, with the hand-review page's source tags (lib / je / rl / fl), so a
+    library blueprint and its side copy of the same name keep separate records."""
+    from petey.validate.hand_review import SOURCES
+    rp = bpt.resolve()
+    for tag, d in SOURCES.items():
+        if rp.parent == d.resolve():
+            return OUT / f"{tag}__{bpt.stem}.json"
+    return OUT / f"{bpt.stem}__{hashlib.sha256(str(rp).encode()).hexdigest()[:6]}.json"
+
+
+def save(res: dict, bpt: Path, *, stamp: bool = True) -> Path:
+    """Write the record and, unless `stamp` is False, `x_petey_page_check` on the blueprint: when, model, prompt
+    version, counts, and where the record is. The stamp travels with copies of the blueprint (a loop's run dir), so
+    the witness finds the record from any copy; it changes the file's sha, which hand review reads as stale."""
+    out = record_path(bpt)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(res, indent=1, ensure_ascii=False))
+    if stamp:
+        bp = yaml.safe_load(bpt.read_text(encoding="utf-8")) or {}
+        fl = res["fields"].values()
+        bp["x_petey_page_check"] = {
+            "when": res["when"], "model": res["model"], "prompt": res["prompt"], "pages": res["pages"],
+            "fields": len(res["fields"]), "flagged": sum(1 for f in fl if f.get("verdict") == "flag"),
+            "unanswered": sum(1 for f in fl if not f.get("verdict")),
+            "record": str(out.relative_to(RUNS.parent))}
+        bpt.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False),
+                       encoding="utf-8")
+    return out
+
+
+def verdicts(bp: dict) -> dict[str, dict]:
+    """The stamped page check's verdict per field, for the fields whose definition is unchanged since the check
+    (`spec_hash`); a field renamed or retyped since has none. Empty when the blueprint has no stamp or the record is
+    gone. No API calls."""
+    st = bp.get("x_petey_page_check") or {}
+    rp = RUNS.parent / st["record"] if st.get("record") else None
+    if rp is None or not rp.exists():
+        return {}
+    rec = json.loads(rp.read_text(encoding="utf-8"))
+    out = {}
+    for name, spec in (bp.get("fields") or {}).items():
+        v = (rec.get("fields") or {}).get(name)
+        if isinstance(spec, dict) and v and v.get("verdict") and v.get("spec") == spec_hash(spec):
+            out[name] = v
+    return out
 
 
 def main() -> int:
@@ -422,6 +483,7 @@ def main() -> int:
     ap.add_argument("--model", default=MODEL)
     ap.add_argument("--batch", action="store_true", help="send uncached pages as one Message Batch (half price)")
     ap.add_argument("--resume", default=None, help="collect this already-submitted batch id instead of submitting")
+    ap.add_argument("--no-stamp", action="store_true", help="write the record only, leave the blueprint as it is")
     ap.add_argument("--dry", action="store_true", help="render and list only, no model calls")
     ap.add_argument("--png-dir", type=Path, default=None, help="also write each page image and its field list")
     args = ap.parse_args()
@@ -433,9 +495,7 @@ def main() -> int:
         res = check(bpt, model=args.model, pages=pages, dry=args.dry, png_dir=args.png_dir)
         if args.dry:
             continue
-        out = OUT / f"{bpt.stem}.json"
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(json.dumps(res, indent=1, ensure_ascii=False))
+        out = save(res, bpt, stamp=not args.no_stamp)
         flags = {n: f for n, f in res["fields"].items() if f.get("verdict") == "flag"}
         print(f"{res['form']}: {len(res['fields'])} fields, {len(flags)} flagged"
               + (f", ${res['cost_usd']} live" if res["cost_usd"] else "") + f"  -> {out}")

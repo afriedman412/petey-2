@@ -84,6 +84,11 @@ or the page classifier's caption, quoted in `text`) describes another field \
 better than this name, and better than that field's own text. Either the two \
 names are swapped or one row off (rename), or the text is the publisher's \
 mistake and the caption printed for this box confirms the current name (ok).
+- page_check: a vision model that saw the whole page with every box outlined says \
+the name or type does not fit what a filer writes in this box (its reading in \
+`text`, its reason in `detail`, its suggestion in `page_check_proposes`). It \
+read the page, not the metadata; weigh it like the printed caption, and check \
+the neighbours it names before following its suggestion.
 
 For each field decide: "ok" if the definition is right and the flag is the \
 generator's or reader's fault, or "fix" with only the attributes that should \

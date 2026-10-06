@@ -34,6 +34,9 @@ mentions ('mailing address' in a ZIP tooltip) does not qualify.
                 name.
     adjudicator `x_petey_adjudication`: `current` or `proposed` upheld the name the field holds -> for; `unclear` ->
                 against.
+    page_check  the vision first pass over the whole rendered page (`page_check.py`, stamped on the blueprint as
+                `x_petey_page_check`): accepted -> for; flagged -> against, with its problem, reading and reason.
+                Only for fields whose definition is unchanged since the check; reads the stored record, no calls.
 
 Tiers: `contested` (any witness against), `settled` (two or more for, none against), `single` (one for),
 `unknown` (none spoke). The run's results are joined to the blueprint by widget path, so a field renamed since
@@ -461,6 +464,14 @@ def run_witnesses(run_dir: Path, blank: Optional[Path]) -> dict[str, dict]:
 
 # ------------------------------------------------------------------- per field
 
+def page_check_witness(v: dict) -> tuple[Optional[bool], str]:
+    if v.get("verdict") == "accept":
+        return True, "page check: fits the page"
+    prop = " ".join(x for x in (v.get("proposed_name"), v.get("proposed_type")) if x)
+    return False, (f"page check {v.get('problem')}: {v.get('reason') or ''}"
+                   + (f" (would be: {prop})" if prop else ""))
+
+
 def tier(ws: dict[str, tuple]) -> str:
     votes = [v for v, _ in ws.values() if v is not None]
     if any(v is False for v in votes):
@@ -483,6 +494,8 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
     by_key = run_witnesses(run_dir, blank) if use_run and judge and run_dir else {}
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     by_page = class_map_boxes(blank, run_dir)
+    from petey.validate.page_check import verdicts as page_check_verdicts
+    checked = page_check_verdicts(bp)
     grouping = {**lined_up_checkboxes(fields), **(grouping_witnesses(fields, by_page) if by_page else {})}
     # each witness's own text per field, so 'belongs to another field' compares like with like
     pub = {n: publisher_texts(s, words) for n, s in fields.items()}
@@ -514,6 +527,9 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
             ws["adjudicator"] = (True, adj.get("reason") or "")
         elif adj.get("verdict") == "unclear":
             ws["adjudicator"] = (False, adj.get("reason") or "")
+        pc = checked.get(name)
+        if pc:
+            ws["page_check"] = page_check_witness(pc)
         ws = {k: v for k, v in ws.items() if v[0] is not None or v[1]}
         out[name] = {"tier": tier(ws), "stage": r.get("stage") if same_name else None,
                      "witnesses": {k: [v[0], v[1]] for k, v in ws.items()}}
@@ -527,9 +543,14 @@ _FLAG_SOURCE = {"publisher": "the publisher's tooltip / XFA caption for this wid
                 "classifier": "the page classifier's caption for this box"}
 
 
+PAGE_CHECK_TO_REVIEWER = ("wrong_name", "wrong_type")     # what the reviewer can answer; not_a_field, should_group,
+                                                          # options stay with the hand-review page
+
+
 def against_flags(run_dir: Path) -> dict[str, list[dict]]:
-    """Reviewer flags from the witnesses, for the loop (`review.flags_from_run`): only a text that belongs to
-    another field (a swap, a widget placed one row off), the one witness signal a rename can answer. Witnesses
+    """Reviewer flags from the witnesses, for the loop (`review.flags_from_run`): a text that belongs to another
+    field (a swap, a widget placed one row off), the one text-witness signal a rename can answer, and the page
+    check's wrong_name / wrong_type flags (2026-10-06). Witnesses
     that merely share nothing with the name, the classifier's 'nothing goes here' and checkbox runs stay with
     the hand-review page: the reviewer cannot delete or merge fields. Read from the blank and the run's class
     map, not from the case, so a box- or class-stage field is flagged too; a rename on a flagged field always
@@ -539,7 +560,16 @@ def against_flags(run_dir: Path) -> dict[str, list[dict]]:
         return {}
     res = witnesses(bp_path, run_dir, judge=False)
     flags: dict[str, list[dict]] = {}
+    from petey.validate.page_check import verdicts as page_check_verdicts
+    checked = page_check_verdicts(_load(bp_path))
     for name, f in res["fields"].items():
+        pc = checked.get(name)
+        if pc and pc.get("verdict") == "flag" and pc.get("problem") in PAGE_CHECK_TO_REVIEWER:
+            prop = {k: pc[k] for k in ("proposed_name", "proposed_type") if pc.get(k)}
+            flags.setdefault(name, []).append({
+                "detector": "page_check",
+                "detail": f"a vision check of the whole page ({pc['problem']}): {pc.get('reason') or ''}",
+                "text": pc.get("box_holds") or "", **({"page_check_proposes": prop} if prop else {})})
         for k, (v, detail) in f["witnesses"].items():
             if v is not False or k not in _FLAG_SOURCE or "belongs to: " not in (detail or ""):
                 continue
@@ -554,8 +584,13 @@ def against_flags(run_dir: Path) -> dict[str, list[dict]]:
 
 def contested_fields(flags: dict[str, list[dict]]) -> dict[str, str]:
     """`{field: why}` for `adjudicate.adjudicate_decisions`: witness-flagged fields whose renames need the page."""
-    return {f: "a witness says this widget's text belongs to another field" for f, fl in flags.items()
-            if any(x.get("detector") == "witness" for x in fl)}
+    out = {}
+    for f, fl in flags.items():
+        if any(x.get("detector") == "witness" for x in fl):
+            out[f] = "a witness says this widget's text belongs to another field"
+        elif any(x.get("detector") == "page_check" for x in fl):
+            out[f] = "the page check says the name or type does not fit the box"
+    return out
 
 
 # ------------------------------------------------------------------- calibration against hand review
