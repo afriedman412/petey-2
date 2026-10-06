@@ -34,6 +34,14 @@ prints these three commands:
 Gotcha: right after `instances create`, SSH is refused (publickey) for up to a minute while the guest agent
 installs the key; the setup script waits for it.
 
+Gotcha, open: **the runner's Tesseract is not the laptop's.** Ubuntu 24.04 ships 5.3.4, the laptop (Homebrew) has
+5.5.3, and the finder's version includes the exact Tesseract version (OCR output can move boxes), so the runner's
+finder is `step2flat-3+env6af728` and its case sets are keyed under that basis. Harmless for forms only the runner
+runs (T1 / T2 on 2026-10-06 all used 5.3.4); a case set pulled to the laptop loads there only if the laptop's finder
+finds the same boxes (`validate._check_set` migrates it then), else needs `--rebuild-set`. The PPA
+`ppa:alex-p/tesseract-ocr5` offers 5.5.1, which would still not match. To decide later: build 5.5.3 on the runner,
+or have the finder's version ignore patch-level Tesseract differences (a finder-versioning change, library-wide).
+
 ## Running
 
 - **Code:** `scripts/runner_sync.sh` pushes the local working tree (code only) and writes `CODE_VERSION.json` on the
