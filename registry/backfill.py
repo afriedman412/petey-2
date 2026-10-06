@@ -12,6 +12,7 @@ Run from the repo root:
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import importlib.util
 import json
@@ -202,6 +203,15 @@ def known_pdf_map() -> dict[str, str]:
     return dict(KNOWN_PDF_TO_FORM_ID)
 
 
+@functools.lru_cache(maxsize=None)
+def manifest_identified(d: Path) -> frozenset[str]:
+    """Files whose source_pdfs/<dir>/_manifest.json carries an identity (acquisition/manifest_identity.py)."""
+    mp = d / "_manifest.json"
+    if not mp.exists():
+        return frozenset()
+    return frozenset(f["file"] for f in json.loads(mp.read_text()).get("files", []) if f.get("identity"))
+
+
 def slugify(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
 
@@ -248,6 +258,8 @@ def main() -> None:
     import pymupdf
     for p in sorted((ROOT / "source_pdfs").rglob("*.pdf")):
         rel = p.relative_to(ROOT / "source_pdfs")
+        if rel.parts[0].startswith("_"):
+            continue  # _inbox, _flat_calibration: staging and test copies, not corpus
         vertical = rel.parts[0] if len(rel.parts) > 1 else "misc"
         try:
             sha = hashlib.sha256(p.read_bytes()).hexdigest()
@@ -264,8 +276,8 @@ def main() -> None:
         status, reason, fid = "unidentified", None, None
         if vertical == "rrc_raw":
             status, reason = "excluded", "detector_training"
-        elif "acord" in p.name.lower():
-            status, reason = "excluded", "licensing_review"
+        elif p.name in manifest_identified(p.parent):
+            pass  # identity recorded at acquisition; apply_identity links it, no filename guess
         else:
             mapped = pdf_map.get(p.name)
             fid = R.resolve(conn, mapped) if mapped else None
@@ -273,6 +285,14 @@ def main() -> None:
                 fid, _ = resolve_or_pick(conn, p.stem)
             if fid:
                 status = "identified"
+        if fid is None:
+            # no filename guess: keep a link apply_identity made on an earlier run instead of erasing it
+            prev = conn.execute("SELECT form_id FROM source_pdfs WHERE path = ?",
+                                (f"source_pdfs/{rel}",)).fetchone()
+            if prev and prev[0]:
+                fid = prev[0]
+                if status == "unidentified":
+                    status = "identified"
         R.add_source_pdf(conn, f"source_pdfs/{rel}", sha, vertical, pages, widgets,
                          form_id=fid, status=status, excluded_reason=reason)
         bump(f"pdf_{status}")
@@ -359,6 +379,9 @@ def main() -> None:
             if R.resolve(conn, row["form_id"]) is None:
                 bump("eval_run_orphaned")
                 continue
+            if conn.execute("SELECT 1 FROM eval_runs WHERE form_id=? AND corpus=? AND run_date IS ?",
+                            key).fetchone():
+                continue  # already in the db (a rerun on a live registry, not a fresh rebuild)
             R.add_eval_run(conn, row["form_id"], row["corpus"],
                            row.get("cases"), row.get("score"),
                            row.get("petey_version"), row.get("run_date"))

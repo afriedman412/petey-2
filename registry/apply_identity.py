@@ -37,15 +37,20 @@ def main() -> int:
     conn = R.connect() if hasattr(R, "connect") else R.init()
     c = Counter()
 
+    doc_made = {f for (f,) in conn.execute("SELECT form_id FROM forms WHERE notes LIKE 'created by apply_identity%'")}
+
     def resolve(row):
         j = row.get("jurisdiction") or ""
         state = j.startswith("us-") and j != "us-federal"
-        cands = [row.get("canonical")]
+        cands = [row.get("registry_id"), row.get("canonical")]  # registry_id: a manifest's pointer to an existing form
+        exact = len(cands)
         if not state:  # a bare number may cross into a federal/industry form; a state form's may not
             cands += [row.get("form_number"), "form_" + (row.get("form_number") or "")]
-        for cand in cands:
+        manifest = (row.get("evidence") or {}).get("canonical", {}).get("rule") == "manifest"
+        for i, cand in enumerate(cands):
             f = resolve_form_id(cand) if cand else None
-            if f:
+            # a manifest identity knows its issuer: a bare number may not land on a form made from another document
+            if f and not (manifest and i >= exact and f in doc_made):
                 return f
         return None
 

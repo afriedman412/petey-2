@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import functools
 import hashlib
 import json
 import os
@@ -178,6 +179,7 @@ class Identity:
     form_name: Optional[str] = None
     text_layer: bool = True
     canonical: Optional[str] = None
+    registry_id: Optional[str] = None   # existing registry form, from a manifest identity only
     evidence: dict = field(default_factory=dict)
 
     def note(self, key: str, rule: str, text: str) -> None:
@@ -420,7 +422,24 @@ def identify(path: str | Path) -> Identity:
         if len(words) >= 2 and not re.match(r"^(404|untitled|document|microsoft)", words[0], re.I):
             ident.canonical = f"{iss}_{slug(' '.join(words))}" if iss else slug(" ".join(words))
             ident.note("canonical", "form_name" if ident.form_name else "title_name", ident.form_name or ident.title)
+    m = _manifest_identity(p)
+    if m:  # recorded at acquisition (acquisition/manifest_identity.py): wins over the page rules
+        for k in ("issuer", "jurisdiction", "form_number", "canonical", "registry_id"):
+            setattr(ident, k, m.get(k))
+        ident.note("canonical", "manifest", f"{p.parent.name}/_manifest.json")
     return ident
+
+
+@functools.lru_cache(maxsize=None)
+def _manifest_identities(d: str) -> dict:
+    mp = Path(d) / "_manifest.json"
+    if not mp.exists():
+        return {}
+    return {f["file"]: f["identity"] for f in json.loads(mp.read_text()).get("files", []) if f.get("identity")}
+
+
+def _manifest_identity(p: Path) -> Optional[dict]:
+    return _manifest_identities(str(p.resolve().parent)).get(p.name)
 
 
 # ---- reconcile with the registry (read-only) ----
@@ -475,7 +494,8 @@ def main() -> int:
         print(json.dumps(asdict(identify(a.pdf)), indent=2)); return 0
     src = a.src or SOURCE_PDFS
     idents: list[Identity] = []
-    for dp, _, fs in os.walk(src):
+    for dp, ds, fs in os.walk(src):
+        ds[:] = [d for d in ds if not d.startswith("_")]  # _inbox, _flat_calibration: not corpus (as registry/backfill.py)
         for f in sorted(fs):
             if f.lower().endswith(".pdf"):
                 try:
