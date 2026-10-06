@@ -55,6 +55,8 @@ OUT = RUNS / "page_check"
 CACHE = OUT / "_cache"
 MAX_EDGE, MAX_PX = 2576, 3_750_000         # Opus 5 / Sonnet 5 image limit; larger images are downscaled server-side
 LABEL_PT = 6.0                             # label font size on the page, in points (about 17 px at 200 dpi)
+REASONING_EFFORT = "high"                  # OpenAI-compatible vendors (Gemini): think before answering; Anthropic
+                                           # models reason by default (adaptive thinking)
 PROBLEMS = ("none", "wrong_name", "wrong_type", "not_a_field", "should_group", "options", "other")
 
 SYSTEM = """You check a form blueprint against its blank form. A blueprint names and types every fillable box \
@@ -84,7 +86,12 @@ year, a box that takes one of a printed list of choices typed as free text).
 them as separate fields; name the others in the reason.
 - options: an option group's members, on-states or captions do not match the boxes.
 - other: anything else a person correcting this blueprint would change.
-Otherwise accept. Most fields on a blueprint are right. Put the number of every field you accept in \
+Otherwise accept. Most fields on a blueprint are right.
+
+Work through every number before you answer, the accepted ones too: say to yourself what a filer writes in that \
+box, from its own caption, then hold the name, the type and the semantic type against it (a county is not a \
+person's name, a count is not a year or a dollar amount, a volume is not money). Keep that reasoning to yourself; \
+the answer carries only its result. Put the number of every field you accept in \
 `accepted`, with nothing else. Put every field you flag in `flags`, with what a filer writes in the box, the \
 problem, the name and / or type you would use (empty when not applicable) and a one-line reason that quotes the \
 caption you relied on. Every number in the list goes in exactly one of the two."""
@@ -293,7 +300,7 @@ def _ask_openai_compatible(client, params: dict) -> tuple[dict, dict]:
     img = next(c for c in user if c["type"] == "image")["source"]["data"]
     text = next(c for c in user if c["type"] == "text")["text"]
     resp = client.chat.completions.create(
-        model=params["model"], max_tokens=params["max_tokens"],
+        model=params["model"], max_tokens=params["max_tokens"], reasoning_effort=REASONING_EFFORT,
         messages=[{"role": "system", "content": params["system"]},
                   {"role": "user", "content": [{"type": "image_url", "image_url": {"url": "data:image/png;base64," + img}},
                                                {"type": "text", "text": text}]}],
