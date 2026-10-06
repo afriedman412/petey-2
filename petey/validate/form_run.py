@@ -7,11 +7,11 @@ record (`runs/judge_eval/form_runs/<form>.json`) holds
                 check's verdict on every field;
     round k     the state after loop round k, i.e. before round k+1: only the fields that round added, changed
                 (a definition hash differs), renamed (same widget, new name) or removed, with the loop's record
-                for the round (detections, rule fixes, rebinds, reviewer edits, edits restored), and a spot check:
-                the page check on just the definitions the round introduced (only their pages are sent). Its
-                verdicts reach the next round's reviewer; a name / type flag on a field the reviewer already
-                judged reopens it (Andrew: the page check runs in full after ingestion, then the loop spot-checks
-                until stable);
+                for the round (detections, rule fixes, rebinds, reviewer edits, edits restored), and the page
+                check of every field (Andrew: a change has knock-on effects; unchanged pages come from the cache
+                free, a changed page is judged again in full), of which only the new verdicts are kept: a new
+                definition, or a field whose verdict changed. They reach the next round's reviewer; a name / type
+                flag on a field the reviewer already judged reopens it;
     final       anything left unchecked (normally nothing), and the result: status, why the loop stopped,
                 review rounds, stable or not.
 
@@ -127,18 +127,20 @@ def state(rec: dict, upto: Optional[int] = None) -> dict:
 
 # --------------------------------------------------------------------- run
 
-def spot_check(bp: dict, bp_path: Path, rec: Record, model: str, log) -> tuple[dict, Optional[dict]]:
-    """Page-check the fields whose current definition no verdict in the record covers, sending only the pages that
-    hold them. Returns ({field: verdict}, the check's cost record or None)."""
+def round_check(bp: dict, bp_path: Path, rec: Record, model: str, log) -> tuple[dict, Optional[dict]]:
+    """Page-check every field (Andrew, 2026-10-06: a change has knock-on effects on fields that did not change: a
+    neighbour renamed onto the same caption, a block that slid). Pages whose image and field list are unchanged
+    come back from the check's cache at no cost; a page with any change is judged again in full. Returns only the
+    verdicts that are new: a definition no verdict covers yet, or a field whose verdict or problem differs from the
+    latest one recorded for its definition. ({field: verdict}, the check's cost record)."""
     table = page_check.verdict_table(rec.data)
-    todo = {n for n, s in (bp.get("fields") or {}).items()
-            if isinstance(s, dict) and (n, page_check.spec_hash(s)) not in table}
-    if not todo:
-        return {}, None
-    pages = {b["page"] for r in page_check.numbered(bp) if r["name"] in todo for b in r["boxes"]}
-    res = page_check.check(bp_path, model=model, pages=pages, log=log)
-    return ({n: v for n, v in res["fields"].items() if n in todo},
-            {k: res[k] for k in ("model", "prompt", "pages", "usage", "cost_usd", "when")})
+    res = page_check.check(bp_path, model=model, log=log)
+    new = {}
+    for n, v in res["fields"].items():
+        old = table.get((n, v.get("spec")))
+        if old is None or (old.get("verdict"), old.get("problem")) != (v.get("verdict"), v.get("problem")):
+            new[n] = v
+    return new, {k: res[k] for k in ("model", "prompt", "pages", "usage", "cost_usd", "when")}
 
 
 def _stamp_record(bp: dict, rec_path: Path, model: str) -> None:
@@ -188,24 +190,24 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, m
     from petey.validate.iterate import iterate
 
     def on_round(loop_rec: dict, bp_path: Path) -> set:
-        """Record the round, then spot-check the definitions it introduced (the pages that hold them). The
-        verdicts go into the round, where the next round's reviewer finds them; a name / type flag on a field
-        the reviewer already judged reopens it."""
+        """Record the round, then page-check every field (`round_check`); the new verdicts go into the round, where
+        the next round's reviewer finds them; a new name / type flag on a field the reviewer already judged
+        reopens it."""
         bpr = yaml.safe_load(bp_path.read_text(encoding="utf-8")) or {}
-        spot, info = spot_check(bpr, bp_path, rec, model, log)
+        spot, info = round_check(bpr, bp_path, rec, model, log)
         r = rec.add_round(bpr, loop_rec, page_check=spot, page_check_run=info)
         flagged = {n for n, v in spot.items() if v.get("verdict") == "flag"}
         log(f"[run] {form}: round {r['round']} recorded: {len(r['changed'])} changed, {len(r['removed'])} removed, "
-            f"{len(r['renamed'])} renamed; spot check {len(spot)} fields, {len(flagged)} flagged")
+            f"{len(r['renamed'])} renamed; check: {len(spot)} new verdicts, {len(flagged)} of them flags")
         return {n for n in flagged if spot[n].get("problem") in ("wrong_name", "wrong_type")}
 
     result = iterate(form, blank, gen_model="bank", methods="native,judge:pymupdf", n_flat=0, gen_cache_only=False,
                      label_model=None, gen_key=None, max_iter=8, describe=True, apply_correct=True,
                      review="flagged", allow_dirty=True, case_set=1, bpt=work, on_round=on_round)
 
-    # final: anything the last round left unchecked (normally nothing: every round spot-checks its changes)
+    # final: the blueprint as the loop left it (from cache unless the last round changed something)
     bp = yaml.safe_load(work.read_text(encoding="utf-8")) or {}
-    final, run_info = spot_check(bp, work, rec, model, log)
+    final, run_info = round_check(bp, work, rec, model, log)
     stop = result.get("stop") or ""
     stable = not result["status"].startswith("blocked") and not stop.startswith(UNSTABLE)
     rec.add_round(bp, None, stage="final", page_check=final, page_check_run=run_info)
