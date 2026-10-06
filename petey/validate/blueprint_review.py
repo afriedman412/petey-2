@@ -44,10 +44,27 @@ class App:
         self.add = field_add.State()
         self.paths = self.review.paths
         self.png: dict[tuple[str, int], bytes] = {}
+        self.mtimes: dict[str, float] = {}
 
     def index(self) -> None:
         self.review.index()
         self.groups.index()
+        self.mtimes = {bid: p.stat().st_mtime for bid, p in self.paths.items()}
+
+    def refresh(self) -> None:
+        """Re-read the picker rows of blueprints whose file changed since they were indexed (an --apply, a loop, an
+        edit by hand): the indexes are built once at startup."""
+        for bid, p in self.paths.items():
+            m = p.stat().st_mtime
+            if self.mtimes.get(bid) == m:
+                continue
+            self.mtimes[bid] = m
+            self.review._index[bid] = self.review._entry(bid)
+            g = self.groups._entry(bid)
+            if g:
+                self.groups._index[bid] = g
+            else:
+                self.groups._index.pop(bid, None)
 
     def entry(self, bid: str) -> dict:
         """One picker row: what each mode has recorded for this blueprint."""
@@ -63,6 +80,7 @@ class App:
     def listing(self) -> list[dict]:
         if not self.review._index:
             self.index()
+        self.refresh()
         return [self.entry(bid) for bid in self.paths]
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
@@ -125,6 +143,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(HTML_PATH.read_bytes(), "text/html; charset=utf-8")
         if path == "/api/blueprints":
             return self._json(APP.listing())
+        if len(parts) == 4 and parts[:2] == ["api", "blueprints"] and parts[3] == "sha":
+            return self._route(lambda: {"sha": hand_review._sha(APP.paths[parts[2]])}, parts[2])
         if len(parts) == 5 and parts[:2] == ["api", "blueprints"] and parts[3] == "png":
             png = APP.page_png(parts[2], int(parts[4]))
             return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
