@@ -4,13 +4,14 @@ page and zoom:
     Review       accept / flag / note per field, risk-first by witness tier   (`hand_review`, runs/hand_review/)
     Groups       confirm option groups and loose boxes; drag boxes to regroup  (`group_review`, runs/group_review/)
     Add fields   suggestions and drawn areas -> proposed fields; not-a-field   (`field_add`, runs/field_add/)
+    Combine      click or box-select text fields -> one bigger text field     (`field_combine`, runs/field_combine/)
 
-    PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review [--port 5005] [--mode review|groups|add]
+    PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review [--port 5005] [--mode review|groups|add|combine]
 
 Each mode's logic, record and command line stay in its own module; this file serves the one page and routes to
 them. The page only records. Blueprints change through each module's `--apply` (`group_review --apply <id>`,
-`field_add --apply <id>`), and `hand_review --summary` lists verdicts. The old entry points
-(`python -m petey.validate.hand_review`, `group_review`, `field_add` with no subcommand) open this page in their
+`field_add --apply <id>`, `field_combine --apply <id>`), and `hand_review --summary` lists verdicts. The old entry points
+(`python -m petey.validate.hand_review`, `group_review`, `field_add`, `field_combine` with no subcommand) open this page in their
 mode.
 """
 from __future__ import annotations
@@ -27,12 +28,12 @@ from urllib.parse import unquote, urlparse
 
 import pymupdf
 
-from petey.validate import field_add, group_review, hand_review
+from petey.validate import field_add, field_combine, group_review, hand_review
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 144                      # option boxes are 8-10 pt; at 110 dpi (the old hand review) they are 12 px targets
-MODES = ("review", "groups", "add")
+MODES = ("review", "groups", "add", "combine")
 
 
 class App:
@@ -40,6 +41,7 @@ class App:
         self.review = hand_review.State()
         self.groups = group_review.State()
         self.add = field_add.State()
+        self.combine = field_combine.State()
         self.paths = self.review.paths
         self.png: dict[tuple[str, int], bytes] = {}
 
@@ -52,7 +54,8 @@ class App:
         r = self.review._index.get(bid) or self.review._entry(bid)
         g = self.groups._index.get(bid)
         rec = field_add.load_record(bid)
-        return {**r,
+        crec = field_combine.load_record(bid)
+        return {**r, "combine": len(crec.get("combos") or []),
                 "groups": ({k: g[k] for k in ("groups", "orphans", "confirmed", "units", "stale")} if g else None),
                 "add": {"added": len(rec.get("added") or []), "dismissed": len(rec.get("dismissed") or []),
                         "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])}}
@@ -143,6 +146,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.groups.put_units(bid, body) | {"entry": APP.entry(bid)}, bid)
         if (mode, what) == ("add", "record"):
             return self._route(lambda: APP.add.save(bid, body) | {"entry": APP.entry(bid)}, bid)
+        if (mode, what) == ("combine", "record"):
+            return self._route(lambda: APP.combine.save(bid, body) | {"entry": APP.entry(bid)}, bid)
         self._send(b"not found", "text/plain", 404)
 
     def do_POST(self):
