@@ -44,7 +44,10 @@ import pymupdf
 import yaml
 
 from petey.paths import RUNS
-from petey.validate.adjudicate import PRICES
+from petey.validate.adjudicate import PRICES as _ANTHROPIC_PRICES
+
+# $ per million tokens, input / output; Gemini as recorded in eval/generator_models.py (2026-09-30)
+PRICES = {**_ANTHROPIC_PRICES, "gemini-3.8-flash": (0.75, 3.75), "gemini-3.1-pro-preview": (2.0, 12.0)}
 from petey.validate.retype import resolve_blank
 
 MODEL = "claude-opus-5"
@@ -245,11 +248,9 @@ def request(model: str, png: bytes, items: list[dict], *, page_no: int, n_pages:
         output_config={"format": {"type": "json_schema", "schema": SCHEMA}})
 
 
-def parse(resp) -> tuple[dict, dict]:
-    """({id: answer}, usage) from a response: accepted ids become bare accepts, flags keep their detail."""
-    text = next((b.text for b in resp.content if getattr(b, "type", None) == "text"), "")
-    usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens,
-             "stop_reason": resp.stop_reason, "model_served": resp.model}
+def parse_text(text: str) -> tuple[dict, Optional[str]]:
+    """{id: answer} from the model's JSON: accepted ids become bare accepts, flags keep their detail; and a parse
+    error, if any."""
     answers: dict[str, dict] = {}
     try:
         j = json.loads(text)
@@ -258,7 +259,18 @@ def parse(resp) -> tuple[dict, dict]:
         for a in j.get("flags") or []:
             answers[str(a.get("id"))] = {**a, "verdict": "flag"}
     except (json.JSONDecodeError, AttributeError):
-        usage["parse_error"] = text[:200]
+        return answers, text[:200]
+    return answers, None
+
+
+def parse(resp) -> tuple[dict, dict]:
+    """({id: answer}, usage) from an Anthropic response."""
+    text = next((b.text for b in resp.content if getattr(b, "type", None) == "text"), "")
+    usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens,
+             "stop_reason": resp.stop_reason, "model_served": resp.model}
+    answers, err = parse_text(text)
+    if err is not None:
+        usage["parse_error"] = err
     return answers, usage
 
 
@@ -274,6 +286,29 @@ def cached(key: str) -> Optional[dict]:
     return json.loads(cp.read_text()) if cp.exists() else None
 
 
+def _ask_openai_compatible(client, params: dict) -> tuple[dict, dict]:
+    """The same request in the chat-completions dialect (Gemini and the other vendors in `generate.PROVIDERS`):
+    system prompt, page image, field list, the JSON schema as the response format."""
+    user = params["messages"][0]["content"]
+    img = next(c for c in user if c["type"] == "image")["source"]["data"]
+    text = next(c for c in user if c["type"] == "text")["text"]
+    resp = client.chat.completions.create(
+        model=params["model"], max_tokens=params["max_tokens"],
+        messages=[{"role": "system", "content": params["system"]},
+                  {"role": "user", "content": [{"type": "image_url", "image_url": {"url": "data:image/png;base64," + img}},
+                                               {"type": "text", "text": text}]}],
+        response_format={"type": "json_schema", "json_schema": {"name": "page_check", "schema": SCHEMA}})
+    choice = resp.choices[0]
+    u = getattr(resp, "usage", None)
+    finish = getattr(choice, "finish_reason", None)
+    usage = {"input_tokens": getattr(u, "prompt_tokens", 0) or 0, "output_tokens": getattr(u, "completion_tokens", 0) or 0,
+             "stop_reason": "end_turn" if finish == "stop" else finish, "model_served": getattr(resp, "model", None)}
+    answers, err = parse_text(choice.message.content or "")
+    if err is not None:
+        usage["parse_error"] = err
+    return answers, usage
+
+
 def ask(client, model: str, png: bytes, items: list[dict], *, page_no: int, n_pages: int,
         form: str) -> tuple[dict, dict]:
     """One call for one page (cached). Returns ({id: answer}, usage)."""
@@ -282,13 +317,17 @@ def ask(client, model: str, png: bytes, items: list[dict], *, page_no: int, n_pa
     if c is not None:
         return c["answers"], {**c["usage"], "cached": True}
     t0 = time.time()
-    with client.messages.stream(**params) as s:
-        resp = s.get_final_message()
-    answers, usage = parse(resp)
+    from petey.synth.generate import provider_for
+    if provider_for(model) is not None:
+        answers, usage = _ask_openai_compatible(client, params)
+    else:
+        with client.messages.stream(**params) as s:
+            resp = s.get_final_message()
+        answers, usage = parse(resp)
     usage["seconds"] = round(time.time() - t0, 1)
     try:
         from petey.label import call_log
-        call_log.record(f"page_check/{model}", raw=json.dumps(answers), finish_reason=resp.stop_reason,
+        call_log.record(f"page_check/{model}", raw=json.dumps(answers), finish_reason=usage.get("stop_reason"),
                         request={"model": model, "form": form, "page": page_no, "fields": len(items)},
                         usage={k: usage[k] for k in ("input_tokens", "output_tokens")}, elapsed=usage["seconds"])
     except Exception:
