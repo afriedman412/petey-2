@@ -209,6 +209,27 @@ def round_check(bp: dict, bp_path: Path, rec: Record, model: str, log) -> tuple[
     return new, info
 
 
+def pipeline_config(first_model: str, loop_model: str) -> dict:
+    """Every model and setting a run depends on, so results from differently configured runs can be told apart
+    (sets 1-5 of the old library, the first 13 T1 forms and the GCP runs all differ, 2026-10-06)."""
+    from petey.label import auto_label
+    from petey.validate import adjudicate, provenance, review, validate
+    return {
+        "labeler": auto_label.MODEL,
+        "page_check": {"round0_model": first_model, "loop_model": loop_model, "prompt": page_check.PROMPT_VERSION,
+                       "strips_for_openai_compatible": page_check.STRIPS,
+                       "reasoning_effort_openai_compatible": page_check.REASONING_EFFORT,
+                       "loop_scope": "changed fields + neighbours", "near_pt": [NEAR_X, NEAR_Y]},
+        "classifier": {"model": provenance.CLASSIFIER_MODEL, "prompt": provenance.CLASSIFIER_PROMPT},
+        "case_basis": provenance.case_basis(),
+        "reader": validate.DEFAULT_MODEL,
+        "reviewer": {"model": review.DEFAULT_MODEL, "effort": "medium"},
+        "adjudicator": adjudicate.MODEL,
+        "loop": {"max_iter": 8, "review_rounds_cap": 4, "case_set": 1, "methods": "native,judge:pymupdf",
+                 "apply_correct": True},
+    }
+
+
 def _stamp_record(bp: dict, rec_path: Path, model: str) -> None:
     bp["x_petey_page_check"] = {"record": _rel(rec_path), "model": model, "prompt": page_check.PROMPT_VERSION,
                                 "when": _now()}
@@ -219,6 +240,9 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, f
     lib = BLUEPRINTS / f"{form}.bpt"
     rec = Record(form, blank, lib if lib.exists() else None)
     prev = rec.archive_previous()
+    from petey.validate.provenance import code_version
+    rec.data["code"] = code_version()
+    rec.data["config"] = pipeline_config(first_model, loop_model)
     work = WORK / f"{form}.bpt"
 
     # round 0: the fresh label (or, re-running the loop, the last run's round 0) and its page check

@@ -13,6 +13,9 @@ from).
                     current one refuses to load unless `--rebuild-set` is given.
     build record    the basis, spelled out, plus the generator, case set, run and time; written to the run's
                     `summary.json` and, by the loop, onto the blueprint as `x_petey_build`.
+    code version    which code ran (`code_version`): the commit, and a hash plus list of any uncommitted changes. On
+                    a machine without `.git` (the GCP runner, docs/RUNNER.md) it is read from CODE_VERSION.json,
+                    which `scripts/runner_sync.sh` writes when it copies the working tree there.
 """
 from __future__ import annotations
 
@@ -29,6 +32,28 @@ from petey.synth.boxes import FINDER_VERSION, finder_stamp
 
 CLASSIFIER_MODEL = classify.MODEL
 CLASSIFIER_PROMPT = classify.PROMPT_VERSION
+
+
+def code_version() -> dict:
+    """{commit, branch, dirty: [paths], diff_sha256, source}: the code a run used. From git when the repo has one,
+    else from CODE_VERSION.json at the repo root (written by scripts/runner_sync.sh), else {"source": "unknown"}."""
+    import hashlib
+    import subprocess
+    root = RUNS.parent
+    vf = root / "CODE_VERSION.json"
+    if not (root / ".git").exists() and vf.exists():
+        return {**json.loads(vf.read_text(encoding="utf-8")), "source": "CODE_VERSION.json"}
+
+    def git(*a: str) -> str:
+        return subprocess.run(["git", *a], cwd=root, capture_output=True, text=True).stdout
+
+    commit = git("rev-parse", "HEAD").strip()
+    if not commit:
+        return {"source": "unknown"}
+    dirty = [ln[3:] for ln in git("status", "--porcelain").splitlines() if ln.strip()]
+    diff = subprocess.run(["git", "diff", "HEAD"], cwd=root, capture_output=True).stdout
+    return {"commit": commit, "branch": git("rev-parse", "--abbrev-ref", "HEAD").strip(), "dirty": dirty,
+            "diff_sha256": hashlib.sha256(diff).hexdigest()[:16] if diff else None, "source": "git"}
 
 
 def case_basis(finder: str = FINDER_VERSION, model: str = CLASSIFIER_MODEL, prompt: str = CLASSIFIER_PROMPT) -> str:
