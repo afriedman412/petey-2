@@ -423,23 +423,26 @@ def identify(path: str | Path) -> Identity:
             ident.canonical = f"{iss}_{slug(' '.join(words))}" if iss else slug(" ".join(words))
             ident.note("canonical", "form_name" if ident.form_name else "title_name", ident.form_name or ident.title)
     m = _manifest_identity(p)
-    if m:  # recorded at acquisition (acquisition/manifest_identity.py): wins over the page rules
+    if m:  # recorded at acquisition (registry/manifest_identity.py): wins over the page rules
         for k in ("issuer", "jurisdiction", "form_number", "canonical", "registry_id"):
             setattr(ident, k, m.get(k))
-        ident.note("canonical", "manifest", f"{p.parent.name}/_manifest.json")
+        ident.note("canonical", "manifest", f"registry/sources/{p.parent.name}.json")
     return ident
 
 
 @functools.lru_cache(maxsize=None)
 def _manifest_identities(d: str) -> dict:
-    mp = Path(d) / "_manifest.json"
+    mp = REPO / "registry" / "sources" / f"{d}.json"
     if not mp.exists():
         return {}
     return {f["file"]: f["identity"] for f in json.loads(mp.read_text()).get("files", []) if f.get("identity")}
 
 
 def _manifest_identity(p: Path) -> Optional[dict]:
-    return _manifest_identities(str(p.resolve().parent)).get(p.name)
+    d = p.resolve().parent
+    if d.parent != Path(SOURCE_PDFS).resolve():  # manifests describe source_pdfs/<dir>/<file> only
+        return None
+    return _manifest_identities(d.name).get(p.name)
 
 
 # ---- reconcile with the registry (read-only) ----

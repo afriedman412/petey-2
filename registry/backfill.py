@@ -205,8 +205,8 @@ def known_pdf_map() -> dict[str, str]:
 
 @functools.lru_cache(maxsize=None)
 def manifest_identified(d: Path) -> frozenset[str]:
-    """Files whose source_pdfs/<dir>/_manifest.json carries an identity (acquisition/manifest_identity.py)."""
-    mp = d / "_manifest.json"
+    """Files whose manifest (registry/sources/<dir>.json) carries an identity (registry/manifest_identity.py)."""
+    mp = ROOT / "registry" / "sources" / f"{d.name}.json"
     if not mp.exists():
         return frozenset()
     return frozenset(f["file"] for f in json.loads(mp.read_text()).get("files", []) if f.get("identity"))
