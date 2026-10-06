@@ -55,7 +55,8 @@ OUT = RUNS / "page_check"
 CACHE = OUT / "_cache"
 MAX_EDGE, MAX_PX = 2576, 3_750_000         # Opus 5 / Sonnet 5 image limit; larger images are downscaled server-side
 LABEL_PT = 6.0                             # label font size on the page, in points (about 17 px at 200 dpi)
-REASONING_EFFORT = "high"                  # OpenAI-compatible vendors (Gemini): think before answering; Anthropic
+REASONING_EFFORT = "medium"                # OpenAI-compatible vendors (Gemini): think before answering (2026-10-06:
+                                           # high = ~21k thinking tokens, 163 s a page; medium ~2.5k, 18 s); Anthropic
                                            # models reason by default (adaptive thinking)
 PROBLEMS = ("none", "wrong_name", "wrong_type", "not_a_field", "should_group", "options", "other")
 
@@ -308,7 +309,11 @@ def _ask_openai_compatible(client, params: dict) -> tuple[dict, dict]:
     choice = resp.choices[0]
     u = getattr(resp, "usage", None)
     finish = getattr(choice, "finish_reason", None)
-    usage = {"input_tokens": getattr(u, "prompt_tokens", 0) or 0, "output_tokens": getattr(u, "completion_tokens", 0) or 0,
+    # Gemini leaves its thinking out of completion_tokens but bills it as output: total - prompt is what is billed
+    billed_out = max((getattr(u, "total_tokens", 0) or 0) - (getattr(u, "prompt_tokens", 0) or 0),
+                     getattr(u, "completion_tokens", 0) or 0)
+    usage = {"input_tokens": getattr(u, "prompt_tokens", 0) or 0, "output_tokens": billed_out,
+             "visible_output_tokens": getattr(u, "completion_tokens", 0) or 0,
              "stop_reason": "end_turn" if finish == "stop" else finish, "model_served": getattr(resp, "model", None)}
     answers, err = parse_text(choice.message.content or "")
     if err is not None:
