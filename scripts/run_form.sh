@@ -5,7 +5,7 @@
 # .bpt when the loop stops, library comparison check). Log runs/judge_eval/<form>.log; progress in
 # runs/judge_eval/old_library_progress.log. Run a set:  tr '|' ' ' < list.txt | xargs -P 5 -L 1 scripts/run_form.sh
 form=$1; rel=$2; shift 2
-cd /Users/user/Documents/code/petey-2
+cd "$(dirname "$0")/.."
 export PYTHONPATH=.
 prog=runs/judge_eval/old_library_progress.log
 echo "$form start $(date)" >> $prog
