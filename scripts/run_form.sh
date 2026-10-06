@@ -9,6 +9,12 @@ cd "$(dirname "$0")/.."
 export PYTHONPATH=.
 prog=runs/judge_eval/old_library_progress.log
 echo "$form start $(date)" >> $prog
+if [ ! -f "source_pdfs/$rel" ]; then        # fetch the blank on demand from the S3 mirror (scripts/fetch_blanks.sh)
+  AWS=$(command -v aws || echo venv/bin/aws)
+  mkdir -p "$(dirname "source_pdfs/$rel")"
+  $AWS s3 cp --quiet "s3://${PETEY_BLANKS_BUCKET:-petey-source-pdfs-2026}/source_pdfs/$rel" "source_pdfs/$rel" \
+    || { echo "$form blank not fetched (exit $?) $(date)" >> $prog; exit 1; }
+fi
 [ -n "$PAGE_CHECK_MODEL" ] && set -- "$@" --page-check-model "$PAGE_CHECK_MODEL"
 nice venv/bin/python -u -m petey.validate.form_run --form $form --blank "source_pdfs/$rel" "$@" > runs/judge_eval/${form}.log 2>&1
 echo "$form done (exit $?) $(date)" >> $prog
