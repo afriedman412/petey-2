@@ -41,6 +41,9 @@
   .rv.accept { border-color:var(--accept); }
   .rv.flag { border-color:var(--flag); background:rgba(197,34,31,.06); }
   .rv.contested:not(.accept):not(.flag) { border-style:dashed; border-color:#c5221f; }
+  .rv.removed { border:2px dashed var(--bad); background:rgba(197,34,31,.18); }
+  .rlist div.removed { text-decoration:line-through; color:var(--muted); }
+  .rbanner { background:#fce8e6; border:1px solid #f4c7c3; color:#a50e0e; padding:6px 8px; border-radius:4px; margin:8px 0; }
   .rv.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
   dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } dt { color:var(--muted); } dd { margin:0; word-break:break-word; }
   .rpanel h2 { font-size:15px; margin:0 0 6px; word-break:break-all; }
@@ -90,6 +93,8 @@
   /* add fields */
   .ov { position:absolute; }
   .ov.field { border:1.5px solid var(--field); background:color-mix(in srgb, var(--field) 10%, transparent); }
+  .ov.field.removed { border:2px dashed var(--bad); background:rgba(197,34,31,.18); }
+  .ov.field.picked { box-shadow:0 0 0 2px var(--sel); }
   .ov.field:hover { background:color-mix(in srgb, var(--field) 25%, transparent); }
   .ov.sug { border:2px solid var(--sug); background:color-mix(in srgb, var(--sug) 10%, transparent); cursor:pointer; }
   .ov.sug.finder { border-style:dashed; } .ov.sug.copy { opacity:.35; } .ov.sug.cur { box-shadow:0 0 0 2px var(--sel); }
@@ -129,7 +134,7 @@
   <select id="pick"></select>
   <label class="help">list <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option></select></label>
   <span class="tabs" id="tabs">
-    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add fields</button>
+    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button>
   </span>
   <span class="pages" id="pages"></span>
   <span class="help">zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
@@ -194,6 +199,7 @@ function pickerText(b) {
   if (b.groups && b.groups.units) bits.push(b.groups.confirmed === b.groups.units ? 'groups confirmed' : `groups ${b.groups.confirmed}/${b.groups.units}`);
   if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
+  if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
   return `${b.form}  (${bits.join(', ')})  ·  ${ageText(b.age)}`;
 }
 function renderPicker() {
@@ -286,10 +292,32 @@ function onKey(e) {
 
 // ======================================================================= Review: accept / flag / note per field
 MODE.review = (() => {
-  let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk';
+  let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [];
   const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
   const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
   const verdictOf = n => { const v = BP.verdicts[n]; return v ? v.verdict : ''; };
+  const isRemoved = n => removed.some(r => r.name === n);
+  // removing a field is recorded with the field-add record (Add / remove mode; field_add --apply drops it); a field
+  // removed here also gets a flag with the note "removed" when it has no verdict, so the review stays complete
+  async function putRemovals() {
+    const out = await send('PUT', mapi('review', '/removals'), {removed});
+    updateEntry(out.entry);
+  }
+  async function removeField() {
+    const f = BP.fields.find(x => x.name === selected); if (!f || isRemoved(f.name)) return;
+    removed.push({name: f.name, page: f.page, rect: f.rects[0].rect, when: localNow(), from: 'review'});
+    await putRemovals();
+    if (!verdictOf(f.name)) await putV({[f.name]: {verdict: 'flag', note: 'removed'}});
+    next();
+  }
+  async function keepField() {
+    const f = BP.fields.find(x => x.name === selected); if (!f) return;
+    removed = removed.filter(r => r.name !== f.name);
+    await putRemovals();
+    const v = BP.verdicts[f.name];
+    if (v && v.verdict === 'flag' && v.note === 'removed') await putV({[f.name]: null});
+    placeAll(); panel();
+  }
   function ordered() {
     const list = BP.fields.filter(f => !unrevOnly || !verdictOf(f.name));
     if (order === 'risk') list.sort((a, b) => ((TIER_RANK[a.tier] ?? 1) - (TIER_RANK[b.tier] ?? 1)) || (a.idx - b.idx));
@@ -357,7 +385,7 @@ MODE.review = (() => {
     }).join('');
     return `<div class="wit">${tierChip(f)}<b>${f.tier}</b>${rows}</div>`;
   }
-  const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''}">${tierChip(f)}p${f.page} · ${esc(f.name)}</div>`).join('')}</div>`;
+  const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}p${f.page} · ${esc(f.name)}</div>`).join('')}</div>`;
   function bindList() { document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n)); }
   function renderList() { const old = document.querySelector('.rlist'); if (!old) return; old.outerHTML = listHtml(); bindList(); }
   function panel() {
@@ -379,15 +407,19 @@ MODE.review = (() => {
         ${opts}
       </dl>
       ${witnessHtml(f)}${loop}${adj}
+      ${isRemoved(f.name) ? `<div class="rbanner">to be removed from the blueprint (<code>field_add --apply</code>) <button class="btn" id="vKeep">keep it (d)</button></div>` : ''}
       <div class="verdict">
         <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" id="vAccept">accept (a)</button>
         <button class="btn flag ${v.verdict === 'flag' ? 'on' : ''}" id="vFlag">flag (f)</button>
         <button class="btn" id="vClear">clear (c)</button>
+        ${isRemoved(f.name) ? '' : '<button class="btn warn" id="vRemove" title="remove this field from the blueprint">remove field (d)</button>'}
       </div>
       <textarea id="note" placeholder="what is wrong, or the right name (saved with the verdict)">${esc(v.note || '')}</textarea>
       <div class="help">note saves on blur or Enter; Shift+Enter for a newline</div>
       ${listHtml()}</div>`;
     $('#vAccept').onclick = () => setVerdict('accept'); $('#vFlag').onclick = () => setVerdict('flag'); $('#vClear').onclick = () => setVerdict(null);
+    const rm = $('#vRemove'); if (rm) rm.onclick = removeField;
+    const kp = $('#vKeep'); if (kp) kp.onclick = keepField;
     const note = $('#note');
     note.addEventListener('blur', () => saveNote());
     note.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveNote(); note.blur(); } e.stopPropagation(); });
@@ -405,7 +437,7 @@ MODE.review = (() => {
     const b = $('#bulk'); if (b) { b.textContent = `accept settled (${left})`; b.disabled = !left; }
   }
   return {
-    async load() { BP = await j(mapi('review')); BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = null; },
+    async load() { BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = null; },
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
     pageLabel(p) { const n = BP.fields.filter(f => f.page === p).length; return n ? `p${p} (${n})` : null; },
@@ -413,7 +445,7 @@ MODE.review = (() => {
       <label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only (u)</label>
       <label class="help">order <select id="order"><option value="risk">risk first</option><option value="reading">reading</option></select></label>
       <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>
-      <span class="help">a accept · f flag · c clear · n/p next/prev · 1-9 page · Shift+1-3 mode</span>`,
+      <span class="help">a accept · f flag · c clear · d remove / keep · n/p next/prev · 1-9 page · Shift+1-3 mode</span>`,
     bindBar() {
       $('#unrev').onchange = e => { unrevOnly = e.target.checked; renderList(); };
       $('#order').value = order; $('#order').onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
@@ -423,7 +455,7 @@ MODE.review = (() => {
       for (const f of BP.fields) {
         f.rects.forEach((r, i) => {
           if (r.page !== page) return;
-          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (selected === f.name ? ' sel' : ''), r.rect,
+          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : ''), r.rect,
                         f.options.length && f.options[i] ? `${f.name} · ${f.options[i].caption || f.options[i].on_state}` : f.name);
           d.onclick = () => select(f.name, false);
         });
@@ -434,6 +466,7 @@ MODE.review = (() => {
       if (e.key === 'a') setVerdict('accept');
       else if (e.key === 'f') setVerdict('flag');
       else if (e.key === 'c') setVerdict(null);
+      else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
       else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
       else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
       else if (e.key === 'u') { unrevOnly = !unrevOnly; $('#unrev').checked = unrevOnly; renderList(); }
@@ -841,7 +874,8 @@ MODE.groups = (() => {
 
 // ======================================================================= Add fields: suggestions and drawn areas -> fields
 MODE.add = (() => {
-  let BP = null, props = [], notes = [], curSid = null, added = [], dismissed = [], PLAN = null, busy = false;
+  let BP = null, props = [], notes = [], curSid = null, added = [], dismissed = [], removed = [], picked = null, PLAN = null, busy = false;
+  const isRemoved = n => removed.some(r => r.name === n);
   let showFields = true, showSug = true, copies = false, drawStart = null, drawBox = null, drawTarget = null;
   const boxesOf = p => p.kind === 'group' ? p.options.map(o => ({page: o.page, rect: o.rect})) : [{page: p.page, rect: (p.widget || p).rect}];
   const covered = s => added.some(a => boxesOf(a).some(b => b.page === s.page && overlap(b.rect, s.rect) >= 0.5));
@@ -862,14 +896,24 @@ MODE.add = (() => {
     const el = document.querySelector('.ov.sug.cur'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'});
   }
   async function propose(body) {
-    if (busy) return; busy = true;
+    if (busy) return; busy = true; picked = null;
     try { const r = await send('POST', mapi('add', '/propose'), {...body, taken: added.map(a => a.name)}); props = r.proposals; notes = r.notes; }
     catch (e) { props = []; notes = ['proposal failed: ' + e.message]; }
     busy = false; placeAll(); panel();
   }
-  function fieldInfo(name) {
-    const f = (BP.field_specs || {})[name] || {};
-    return `already a field: ${name}` + (f.type ? ` · ${f.type}${f.semantic_type ? '/' + f.semantic_type : ''}` : '') + (f.description ? ` · ${f.description}` : '');
+  function pickedHtml() {
+    const f = (BP.field_specs || {})[picked] || {}, gone = isRemoved(picked);
+    return `<div class="acard"><h3>${esc(picked)} <span class="help">· a field of the blueprint</span></h3>
+      <div class="help">${esc(f.type || '')}${f.semantic_type ? '/' + esc(f.semantic_type) : ''}${f.description ? ' · ' + esc(f.description) : ''}</div>
+      ${gone ? `<div class="rbanner">to be removed from the blueprint</div>` : ''}
+      <div class="arow">${gone ? '<button class="btn" id="aKeep">keep it (d)</button>' : '<button class="btn warn" id="aRemove">remove this field (d)</button>'}
+        <button class="btn" id="cancel">close (Esc)</button></div></div>`;
+  }
+  function toggleRemove() {
+    if (!picked) return;
+    if (isRemoved(picked)) removed = removed.filter(r => r.name !== picked);
+    else { const f = BP.fields.find(x => x.name === picked); removed.push({name: picked, page: f.page, rect: f.rect, when: localNow(), from: 'add'}); }
+    save();
   }
   function optHtml(p, i) {
     return `<table class="opts"><tr><th class="help">key</th><th class="help">caption</th><th></th></tr>${p.options.map((o, k) =>
@@ -910,10 +954,13 @@ MODE.add = (() => {
         ${props.length > 1 ? '<button class="btn primary" id="addAll">add all (Enter)</button>' : '<span class="help">Enter adds it</span>'}
         ${curSid ? '<button class="btn warn" id="notField" title="record this suggestion as not a field">not a field (x)</button>' : ''}
         <button class="btn" id="cancel">cancel (Esc)</button></div>`
-      : '<p class="help">Drag a box over an area of the page, click a box, or press n for the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name, click for its type). Green: fields you have added.</p>';
+      : picked ? pickedHtml()
+      : '<p class="help">Drag a box over an area of the page, click a box, or press n for the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click one to remove it). Green: fields you have added; red dashed: fields to remove.</p>';
     const nts = notes.length ? `<div class="notes">${notes.map(n => `<div>${esc(n)}</div>`).join('')}</div>` : '';
     const list = `<div><h4>To add (${added.length})</h4><div class="alist">${added.map((x, i) =>
         `<div data-goto="${i}"><span>p${x.page} · ${esc(x.name)} <span class="help">${esc(x.kind === 'group' ? 'group' : x.type)}</span></span><span class="x" data-del="${i}" title="remove">×</span></div>`).join('') || '<p class="help">nothing yet</p>'}</div></div>
+      ${removed.length ? `<div><h4>To remove (${removed.length})</h4><div class="alist">${removed.map((x, i) =>
+        `<div data-rgoto="${i}"><span>p${x.page} · ${esc(x.name)} <span class="help">from ${esc(x.from || '?')}</span></span><span class="x" data-keep="${i}" title="keep it">×</span></div>`).join('')}</div></div>` : ''}
       ${dismissed.length ? `<div><h4>Not fields (${dismissed.length})</h4><div class="alist">${dismissed.map((x, i) =>
         `<div data-dgoto="${i}"><span>p${x.page} · ${esc(x.what || x.sid)}</span><span class="x" data-undismiss="${i}" title="put it back">×</span></div>`).join('')}</div></div>` : ''}
       <div class="changes" id="aChanges"></div>`;
@@ -926,6 +973,10 @@ MODE.add = (() => {
     const aa = $('#addAll'); if (aa) aa.onclick = () => addProps(props.map((_, i) => i));
     const nf = $('#notField'); if (nf) nf.onclick = notAField;
     const cc = $('#cancel'); if (cc) cc.onclick = cancel;
+    const ar = $('#aRemove'); if (ar) ar.onclick = toggleRemove;
+    const ak = $('#aKeep'); if (ak) ak.onclick = toggleRemove;
+    document.querySelectorAll('[data-keep]').forEach(el => el.onclick = e => { e.stopPropagation(); removed.splice(+el.dataset.keep, 1); save(); });
+    document.querySelectorAll('[data-rgoto]').forEach(el => el.onclick = () => { const x = removed[+el.dataset.rgoto]; picked = x.name; if (x.page !== page) gotoPage(x.page); else { placeAll(); panel(); } });
     document.querySelectorAll('.acard [data-k]').forEach(el => {
       const i = +el.dataset.i, k = el.dataset.k;
       const set = () => { props[i][k] = el.value || null; if (k === 'name') props[i].name_source = 'hand'; if (k === 'type') panel(); };
@@ -984,31 +1035,31 @@ MODE.add = (() => {
     dismissed.push({sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: localNow()});
     props = []; notes = []; save().then(() => gotoSuggestion(1));
   }
-  function cancel() { props = []; notes = []; placeAll(); panel(); }
+  function cancel() { props = []; notes = []; picked = null; placeAll(); panel(); }
   async function save() {
-    try { PLAN = await send('PUT', mapi('add', '/record'), {added, dismissed}); BP.stale = false; updateEntry(PLAN.entry); }
+    try { PLAN = await send('PUT', mapi('add', '/record'), {added, dismissed, removed}); BP.stale = false; updateEntry(PLAN.entry); }
     catch (e) { alert('Save failed: ' + e.message); }
     placeAll(); panel();
   }
   async function runFinder() {
     $('#runFinder').textContent = 'running (local CPU)…'; $('#runFinder').disabled = true;
-    try { BP = await send('POST', mapi('add', '/finder')); added = BP.added; dismissed = BP.dismissed; }
+    try { BP = await send('POST', mapi('add', '/finder')); added = BP.added; dismissed = BP.dismissed; removed = BP.removed || []; }
     catch (e) { notes = ['finder failed: ' + e.message]; }
     placeAll(); panel();
   }
   function renderChanges() {
     const el = $('#aChanges'); if (!el) return;
-    if (!PLAN || !added.length) { el.innerHTML = ''; return; }
+    if (!PLAN || (!added.length && !removed.length)) { el.innerHTML = ''; return; }
     el.innerHTML = `<h4>What applying would change in the blueprint</h4><ul>
       ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${PLAN.skipped.map(e => `<li class="help">skip ${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
       <div class="help">The page only records. To write it into the blueprint:<br><code>PYTHONPATH=. venv/bin/python -m petey.validate.field_add --apply ${esc(bid)}</code></div>`;
   }
-  function progress() { const el = $('#progress'); if (el && BP) el.innerHTML = `<b>${added.length}</b> to add · <b>${dismissed.length}</b> not fields · <b>${remaining().length}</b> suggestions left`; }
+  function progress() { const el = $('#progress'); if (el && BP) el.innerHTML = `<b>${added.length}</b> to add · <b>${removed.length}</b> to remove · <b>${dismissed.length}</b> not fields · <b>${remaining().length}</b> suggestions left`; }
   const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
   return {
     async load() {
       BP = await j(mapi('add'));
-      added = BP.added; dismissed = BP.dismissed; props = []; notes = []; curSid = null; PLAN = BP.plan;
+      added = BP.added; dismissed = BP.dismissed; removed = BP.removed || []; props = []; notes = []; curSid = null; picked = null; PLAN = BP.plan;
     },
     pages: () => BP ? BP.pages : [],
     startPage: () => (remaining()[0] || {}).page || 1,
@@ -1017,7 +1068,7 @@ MODE.add = (() => {
       <label class="help"><input type="checkbox" id="aFields" ${showFields ? 'checked' : ''}> fields (f)</label>
       <label class="help"><input type="checkbox" id="aSug" ${showSug ? 'checked' : ''}> suggestions (s)</label>
       <label class="help"><input type="checkbox" id="aCopies" ${copies ? 'checked' : ''}> repeated copies</label>
-      <span class="help">drag over an area, or click a box · n/p suggestion · Enter add · x not a field · Esc cancel · Shift+1-3 mode</span>`,
+      <span class="help">drag over an area, or click a box · n/p suggestion · Enter add · x not a field · click a field, d remove · Esc cancel · Shift+1-3 mode</span>`,
     bindBar() {
       $('#aFields').onchange = e => { showFields = e.target.checked; placeAll(); };
       $('#aSug').onchange = e => { showSug = e.target.checked; placeAll(); };
@@ -1025,7 +1076,7 @@ MODE.add = (() => {
       if (BP) progress();
     },
     place() {
-      if (showFields) for (const f of BP.fields) if (f.page === page) put('ov field', f.rect, f.name).dataset.field = f.name;
+      if (showFields) for (const f of BP.fields) if (f.page === page) put('ov field' + (isRemoved(f.name) ? ' removed' : '') + (picked === f.name ? ' picked' : ''), f.rect, f.name).dataset.field = f.name;
       if (showSug) for (const s of remaining()) if (s.page === page) put(`ov sug ${s.source}${s.copy ? ' copy' : ''}${s.sid === curSid ? ' cur' : ''}`, s.rect, s.what).dataset.sid = s.sid;
       added.forEach((a, i) => boxesOf(a).filter(b => b.page === page).forEach((b, k) => {
         const d = put('ov added', b.rect, a.name); d.dataset.added = i;
@@ -1046,9 +1097,9 @@ MODE.add = (() => {
     async mouseup() {
       if (!drawStart) return;
       const s = drawStart, b = drawBox, t = drawTarget; drawStart = null; drawBox = null; drawTarget = null;
-      if (b) { b.remove(); curSid = null; return propose({page, rect: b._r}); }
+      if (b) { b.remove(); curSid = null; picked = null; return propose({page, rect: b._r}); }
       if (t && t.dataset && t.dataset.sid) { const sg = BP.suggestions.find(x => x.sid === t.dataset.sid); if (sg) return proposeSid(sg); }
-      if (t && t.dataset && t.dataset.field) { props = []; curSid = null; notes = [fieldInfo(t.dataset.field)]; placeAll(); return panel(); }
+      if (t && t.dataset && t.dataset.field) { props = []; curSid = null; notes = []; picked = t.dataset.field; placeAll(); return panel(); }
       if (t && t.dataset && t.dataset.added !== undefined) { notes = [`${added[+t.dataset.added].name} is recorded to be added (remove it from the list below)`]; return panel(); }
       curSid = null; propose({page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1]});
     },
@@ -1058,6 +1109,7 @@ MODE.add = (() => {
       else if (e.key === 'Enter' && props.length) addProps(props.map((_, i) => i));
       else if (e.key === 'x' && curSid) notAField();
       else if (e.key === 'Escape') cancel();
+      else if (e.key === 'd' && picked) toggleRemove();
       else if (e.key === 'f') { showFields = !showFields; $('#aFields').checked = showFields; placeAll(); }
       else if (e.key === 's') { showSug = !showSug; $('#aSug').checked = showSug; placeAll(); }
       else return false;

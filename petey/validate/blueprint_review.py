@@ -4,7 +4,8 @@ page and zoom:
     Review       accept / flag / note per field, risk-first by witness tier   (`hand_review`, runs/hand_review/)
     Groups       confirm option groups, drag boxes to regroup, drag text boxes together to combine them
                                                                                 (`group_review`, runs/group_review/)
-    Add fields   suggestions and drawn areas -> proposed fields; not-a-field   (`field_add`, runs/field_add/)
+    Add / remove suggestions and drawn areas -> proposed fields; not-a-field; remove a field
+                                                                                (`field_add`, runs/field_add/)
 
     PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review [--port 5005] [--mode review|groups|add]
 
@@ -56,6 +57,7 @@ class App:
         return {**r,
                 "groups": ({k: g[k] for k in ("groups", "orphans", "confirmed", "units", "combos", "stale")} if g else None),
                 "add": {"added": len(rec.get("added") or []), "dismissed": len(rec.get("dismissed") or []),
+                        "removed": len(rec.get("removed") or []),
                         "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])}}
 
     def listing(self) -> list[dict]:
@@ -126,6 +128,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if len(parts) == 5 and parts[:2] == ["api", "blueprints"] and parts[3] == "png":
             png = APP.page_png(parts[2], int(parts[4]))
             return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
+        if len(parts) == 4 and parts[:2] == ["api", "review"] and parts[3] == "removals":
+            return self._route(lambda: {"removed": field_add.load_record(parts[2]).get("removed") or []}, parts[2])
         if len(parts) == 3 and parts[0] == "api" and parts[1] in MODES:
             mode, bid = parts[1], parts[2]
             state = getattr(APP, mode)
@@ -142,6 +146,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.review.put_verdicts(bid, body) | {"entry": APP.entry(bid)}, bid)
         if (mode, what) == ("groups", "units"):
             return self._route(lambda: APP.groups.put_units(bid, body) | {"entry": APP.entry(bid)}, bid)
+        if (mode, what) == ("review", "removals"):           # Review's remove button: the field-add record's removals
+            return self._route(lambda: APP.add.save(bid, {"removed": body.get("removed") or []}) | {"entry": APP.entry(bid)}, bid)
         if (mode, what) == ("add", "record"):
             return self._route(lambda: APP.add.save(bid, body) | {"entry": APP.entry(bid)}, bid)
         self._send(b"not found", "text/plain", 404)

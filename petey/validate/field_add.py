@@ -1,4 +1,8 @@
-"""Field add: a web page for adding the fields a blueprint missed. Draw a box over an area of the blank (or click a
+"""Field add (and remove): the Add / remove mode of the blueprint review page, for adding the fields a blueprint
+missed and removing the ones it should not have. Removing is recorded from this mode (click a field) or from Review
+(`removed` in the record); `--apply` drops those fields, and their boxes stay out of the suggestions afterwards.
+
+Adding: draw a box over an area of the blank (or click a
 suggestion) and the page proposes the field(s) under it, with everything the documents already say about them:
 
     geometry   the AcroForm widget under the area (path, type, on-state, max length), else the finder's box
@@ -625,13 +629,21 @@ def _first_rect(spec: dict) -> Optional[tuple]:
     return min(keys) if keys else None
 
 
-def plan(bp: dict, added: list[dict]) -> dict:
-    """`{changes, errors, skipped, fields}`: the blueprint's fields with the added ones inserted, each after the
-    field that precedes it in reading order. An added field whose box a field now covers is skipped (added since,
-    by another route)."""
-    fields = bp.get("fields") or {}
-    rects = field_rects(bp)
+def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
+    """`{changes, errors, skipped, fields}`: the blueprint's fields less the removed ones, with the added ones
+    inserted, each after the field that precedes it in reading order. An added field whose box a field now covers is
+    skipped (added since, by another route); a removal of a field that is no longer there is skipped too. An added
+    field may take the name of a removed one."""
     errors, changes, skipped = [], [], []
+    fields = dict(bp.get("fields") or {})
+    for r in removed:
+        if r.get("name") in fields:
+            spec = fields.pop(r["name"])
+            t = spec.get("type") if isinstance(spec, dict) else None
+            changes.append(f"remove {r['name']}" + (f" (p{r['page']}, {t})" if r.get("page") else ""))
+        else:
+            skipped.append(f"{r.get('name')}: already not in the blueprint")
+    rects = field_rects({"fields": fields})
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     names = [p["name"] for p in added]
     for n in sorted({n for n in names if names.count(n) > 1}):
@@ -680,11 +692,11 @@ def apply(bid: str) -> dict:
     p = blueprint_paths()[bid]
     bp = _load(p)
     rec = load_record(bid)
-    added = rec.get("added") or []
-    if not added:
-        print(f"{bid}: nothing recorded to add")
+    added, removed = rec.get("added") or [], rec.get("removed") or []
+    if not added and not removed:
+        print(f"{bid}: nothing recorded to add or remove")
         return {}
-    pl = plan(bp, added)
+    pl = plan(bp, added, removed)
     if pl["errors"]:
         raise SystemExit(f"{bid}: not applied:\n  " + "\n  ".join(pl["errors"]))
     for s in pl["skipped"]:
@@ -695,7 +707,8 @@ def apply(bid: str) -> dict:
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     rec.setdefault("applied", []).append({"when": now, "sha_before": rec.get("blueprint_sha"), "sha_after": _sha(p),
                                           "changes": pl["changes"], "skipped": pl["skipped"]})
-    rec["added"], rec["blueprint_sha"], rec["updated"] = [], _sha(p), now
+    rec["removed_applied"] = (rec.get("removed_applied") or []) + removed    # their boxes stay out of the suggestions
+    rec["added"], rec["removed"], rec["blueprint_sha"], rec["updated"] = [], [], _sha(p), now
     record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{bid}: wrote {p}")
     for c in pl["changes"]:
@@ -724,22 +737,28 @@ class State:
             rec = load_record(bid)
             out.append({"id": bid, "source": bid.split("__")[0], "form": p.stem,
                         "added": len(rec.get("added") or []), "dismissed": len(rec.get("dismissed") or []),
+                        "removed": len(rec.get("removed") or []),
                         "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])})
         return out
 
     def detail(self, bid: str) -> dict:
         c = self.ctx(bid)
         rec = load_record(bid)
+        gone = [r for r in (rec.get("removed") or []) + (rec.get("removed_applied") or []) if r.get("rect")]
+        sugg = [x for x in c.suggestions()                  # a removed field's box is not a missing field
+                if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in gone)]
         return {"id": bid, "path": str(c.path), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
-                "pages": c.pages, "fields": c.fields, "suggestions": c.suggestions(),
+                "pages": c.pages, "fields": c.fields, "suggestions": sugg,
                 "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description") if v.get(x)}
                                 for k, v in (c.bp.get("fields") or {}).items() if isinstance(v, dict)},
                 "finder": "cached" if c.boxes is not None else "not run",
                 "classifier": "cached" if c.cmap else "not cached", "has_widgets": bool(c.widgets),
                 "added": rec.get("added") or [], "dismissed": rec.get("dismissed") or [],
+                "removed": rec.get("removed") or [],
                 "stale": bool(rec) and rec.get("blueprint_sha") != c.sha, "applied": rec.get("applied") or [],
                 "semantic_types": registered_names(), "label_model": LABEL_MODEL,
-                "plan": {k: v for k, v in plan(c.bp, rec.get("added") or []).items() if k != "fields"}}
+                "plan": {k: v for k, v in plan(c.bp, rec.get("added") or [], rec.get("removed") or []).items()
+                         if k != "fields"}}
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)
@@ -760,11 +779,13 @@ class State:
         c = self.ctx(bid)
         rec = load_record(bid)
         rec.update({"blueprint": str(c.path), "form": c.path.stem, "blueprint_sha": c.sha,
-                    "updated": time.strftime("%Y-%m-%d %H:%M:%S"),
-                    "added": body.get("added") or [], "dismissed": body.get("dismissed") or []})
+                    "updated": time.strftime("%Y-%m-%d %H:%M:%S")})
+        for k in ("added", "dismissed", "removed"):          # only what the caller sent: Review sends removals only
+            if k in body:
+                rec[k] = body[k] or []
         OUT.mkdir(parents=True, exist_ok=True)
         record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
-        pl = plan(c.bp, rec["added"])
+        pl = plan(c.bp, rec.get("added") or [], rec.get("removed") or [])
         return {"saved": rec["updated"], "changes": pl["changes"], "errors": pl["errors"], "skipped": pl["skipped"]}
 
 
@@ -804,7 +825,8 @@ def main() -> int:
         if args.apply:
             apply(bid)
             return 0
-        pl = plan(_load(blueprint_paths()[bid]), load_record(bid).get("added") or [])
+        rec = load_record(bid)
+        pl = plan(_load(blueprint_paths()[bid]), rec.get("added") or [], rec.get("removed") or [])
         for c in pl["changes"] or ["nothing to add"]:
             print(f"  {c}")
         for s in pl["skipped"]:
