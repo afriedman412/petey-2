@@ -64,7 +64,7 @@ from petey.semantic_types import enrich_field
 from petey.locate import enumerate_geometry
 from petey.locate.acroform import enumerate_widgets, _widget_type_string, _unescape_pdf_name  # noqa: F401
 
-MODEL = "claude-sonnet-4-6"
+MODEL = "gemini-3.8-flash"     # 2026-10-06, Andrew: switch the labeler to Gemini (RESULTS 2026-09-30: within noise of Sonnet 4.6 on W-9 / ACORD 25 / I-765 at about a third of the price)
 # Call-log tag prefix; main() appends the form name so one form's labeler
 # usage can be summed even when several forms label concurrently.
 CALL_TAG = "auto_label"
