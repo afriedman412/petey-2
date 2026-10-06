@@ -26,15 +26,11 @@ from __future__ import annotations
 
 import argparse
 import copy
-import http.server
 import json
 import re
-import socketserver
 import time
-import webbrowser
 from pathlib import Path
 from typing import Optional
-from urllib.parse import unquote, urlparse
 
 import yaml
 
@@ -43,7 +39,6 @@ from petey.validate.hand_review import _load, _sha, blueprint_paths
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "group_review"
-HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 144                    # option boxes are 8-10 pt; the hand review's 110 dpi makes them 12 px targets
 OPTION_TYPES = ("checkbox", "radiobutton")
 NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -444,67 +439,6 @@ class State:
         return {"changes": pl["changes"], "errors": pl["errors"]}
 
 
-STATE: Optional[State] = None
-
-
-class Handler(http.server.BaseHTTPRequestHandler):
-    def log_message(self, fmt, *args):
-        return
-
-    def _send(self, body: bytes, ctype: str, code: int = 200) -> None:
-        self.send_response(code)
-        self.send_header("Content-Type", ctype)
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def _json(self, obj, code: int = 200) -> None:
-        self._send(json.dumps(obj, default=str).encode(), "application/json", code)
-
-    def _body(self) -> dict:
-        return json.loads(self.rfile.read(int(self.headers.get("Content-Length", "0"))) or b"{}")
-
-    def do_GET(self):
-        path = unquote(urlparse(self.path).path)
-        parts = path.strip("/").split("/")
-        if path in ("/", "/index.html"):
-            self._send(HTML_PATH.read_bytes(), "text/html; charset=utf-8")
-        elif path == "/api/blueprints":
-            self._json(STATE.listing())
-        elif len(parts) == 3 and parts[:2] == ["api", "blueprints"]:
-            d = STATE.detail(parts[2])
-            self._json(d) if d else self._send(b"no such blueprint", "text/plain", 404)
-        elif len(parts) == 5 and parts[:2] == ["api", "blueprints"] and parts[3] == "png":
-            png = STATE.page_png(parts[2], int(parts[4]))
-            self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
-        else:
-            self._send(b"not found", "text/plain", 404)
-
-    def do_PUT(self):
-        parts = unquote(urlparse(self.path).path).strip("/").split("/")
-        if len(parts) == 4 and parts[:2] == ["api", "blueprints"] and parts[3] == "units":
-            try:
-                self._json(STATE.put_units(parts[2], self._body()))
-            except KeyError:
-                self._send(b"no such blueprint", "text/plain", 404)
-            except Exception as e:  # noqa: BLE001
-                self._send(str(e).encode(), "text/plain", 400)
-        else:
-            self._send(b"not found", "text/plain", 404)
-
-    def do_POST(self):
-        parts = unquote(urlparse(self.path).path).strip("/").split("/")
-        if len(parts) == 4 and parts[:2] == ["api", "blueprints"] and parts[3] == "plan":
-            try:
-                self._json(STATE.plan_for(parts[2], self._body()))
-            except KeyError:
-                self._send(b"no such blueprint", "text/plain", 404)
-            except Exception as e:  # noqa: BLE001
-                self._send(f"{type(e).__name__}: {e}".encode(), "text/plain", 400)
-        else:
-            self._send(b"not found", "text/plain", 404)
-
-
 def summary() -> None:
     paths = blueprint_paths()
     print(f"{'blueprint':44} {'units':>5} {'confirmed':>9} {'changes':>7} {'stale':>5}  updated")
@@ -525,7 +459,6 @@ def summary() -> None:
 
 
 def main() -> int:
-    global STATE
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--port", type=int, default=5006)
     ap.add_argument("--summary", action="store_true")
@@ -554,20 +487,8 @@ def main() -> int:
         for e in pl["errors"]:
             print(f"  ERROR {e}")
         return 0
-    STATE = State()
-    print(f"group review: {len(STATE.paths)} blueprints; records in {OUT}")
-    STATE.index()
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", args.port), Handler) as srv:
-        url = f"http://127.0.0.1:{args.port}/"
-        print(f"group review -> {url}")
-        if not args.no_open:
-            webbrowser.open(url)
-        try:
-            srv.serve_forever()
-        except KeyboardInterrupt:
-            print()
-    return 0
+    from petey.validate.blueprint_review import serve
+    return serve(args.port, "groups", not args.no_open)
 
 
 if __name__ == "__main__":

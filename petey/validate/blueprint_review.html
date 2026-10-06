@@ -1,0 +1,965 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blueprint review</title>
+<style>
+  :root { --bg:#fff; --fg:#1b1b1b; --muted:#666; --line:#ddd; --panel:#fafafa; --card:#fff; --sel:#1a73e8; --ok:#1e8e3e; --bad:#c5221f;
+          --accept:#1e8e3e; --flag:#c5221f; --none:#8a8a8a; --orphan:#7a7a7a; --over:rgba(26,115,232,.18);
+          --field:#8e24aa; --sug:#e37400; --added:#188038; --tabon:#e8f0fe; }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 13px/1.4 -apple-system, Helvetica, Arial, sans-serif; color:var(--fg); background:var(--bg); height:100vh; display:flex; flex-direction:column; }
+  header, #modebar { display:flex; gap:12px; align-items:center; padding:6px 12px; flex-wrap:wrap; }
+  header { border-bottom:1px solid var(--line); }
+  #modebar { border-bottom:1px solid var(--line); background:var(--panel); min-height:36px; }
+  header select { font:inherit; max-width:520px; }
+  .tabs { display:flex; gap:0; }
+  .tabs button { font:inherit; padding:4px 12px; border:1px solid var(--line); background:var(--panel); color:var(--fg); cursor:pointer; margin-left:-1px; }
+  .tabs button:first-child { border-radius:4px 0 0 4px; } .tabs button:last-child { border-radius:0 4px 4px 0; }
+  .tabs button.on { background:var(--tabon); border-color:var(--sel); font-weight:600; position:relative; }
+  .pages button, .btn { font:inherit; padding:3px 9px; border:1px solid var(--line); background:var(--panel); color:var(--fg); border-radius:4px; cursor:pointer; }
+  #modebar .btn { background:var(--bg); }
+  .pages button.on { background:var(--tabon); border-color:var(--sel); }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .btn.primary { border-color:var(--ok); color:var(--ok); }
+  .btn.warn { border-color:var(--bad); color:var(--bad); }
+  .help { color:var(--muted); font-size:12px; }
+  .stale, .err { color:var(--bad); }
+  .progress { color:var(--muted); } .progress b { color:var(--fg); }
+  main { flex:1; display:flex; min-height:0; }
+  #stage { flex:1; overflow:auto; background:#efefef; }
+  #canvas { position:relative; margin:12px; display:inline-block; box-shadow:0 1px 4px rgba(0,0,0,.25); user-select:none; }
+  #canvas.drawable { cursor:crosshair; }
+  #canvas img { display:block; -webkit-user-drag:none; pointer-events:none; }
+  aside { width:440px; border-left:1px solid var(--line); overflow:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
+  aside > * { flex-shrink:0; }
+  h4 { margin:0 0 4px; font-size:12px; color:var(--muted); font-weight:600; }
+  .badge { font-size:11px; font-weight:600; border-radius:3px; padding:0 5px; }
+
+  /* review */
+  .rv { position:absolute; border:1.5px solid var(--none); cursor:pointer; }
+  .rv.accept { border-color:var(--accept); }
+  .rv.flag { border-color:var(--flag); background:rgba(197,34,31,.06); }
+  .rv.contested:not(.accept):not(.flag) { border-style:dashed; border-color:#c5221f; }
+  .rv.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
+  dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } dt { color:var(--muted); } dd { margin:0; word-break:break-word; }
+  .rpanel h2 { font-size:15px; margin:0 0 6px; word-break:break-all; }
+  .verdict { display:flex; gap:8px; margin:12px 0 6px; }
+  .verdict .btn.accept { border-color:var(--accept); color:var(--accept); } .verdict .btn.flag { border-color:var(--flag); color:var(--flag); }
+  .verdict .btn.on.accept { background:var(--accept); color:#fff; } .verdict .btn.on.flag { background:var(--flag); color:#fff; }
+  textarea { width:100%; font:inherit; min-height:54px; }
+  .loop { background:#fff8e1; border:1px solid #f1e2a8; padding:6px 8px; border-radius:4px; margin:8px 0; }
+  .adj { background:#e8f0fe; border:1px solid #c6d8f7; padding:6px 8px; border-radius:4px; margin:8px 0; }
+  .rlist { margin-top:4px; border-top:1px solid var(--line); padding-top:8px; max-height:38vh; overflow:auto; }
+  .rlist div { padding:2px 4px; cursor:pointer; border-left:3px solid transparent; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .rlist div.accept { border-left-color:var(--accept); } .rlist div.flag { border-left-color:var(--flag); } .rlist div.sel { background:var(--tabon); }
+  .badge.checked { background:#e6f4ea; color:#137333; border:1px solid #a8dab5; }
+  .badge.stalecheck { background:#fef7e0; color:#7a5b00; border:1px solid #f1e2a8; }
+  .tier { display:inline-block; min-width:1.1em; text-align:center; font-size:11px; font-weight:600; border-radius:3px; padding:0 3px; margin-right:4px; }
+  .tier.contested { background:#fce8e6; color:#a50e0e; } .tier.unknown { background:#eee; color:#555; }
+  .tier.single { background:#fef7e0; color:#7a5b00; } .tier.settled { background:#e6f4ea; color:#137333; }
+  .wit { margin:8px 0; font-size:12px; } .wit div { padding:1px 0; } .wit .no { color:#a50e0e; } .wit .yes { color:#137333; } .wit .mute { color:var(--muted); }
+
+  /* groups */
+  .gh { position:absolute; border:1.5px dashed var(--c); background:color-mix(in srgb, var(--c) 7%, transparent); border-radius:3px; z-index:1; cursor:pointer; }
+  .gh.sel { border-style:solid; border-width:2px; background:color-mix(in srgb, var(--c) 14%, transparent); z-index:2; }
+  .gh.ok { border-style:solid; }
+  .gi { position:absolute; border:2px solid var(--c); background:color-mix(in srgb, var(--c) 18%, transparent); z-index:3; cursor:grab; }
+  .gi::after { content:''; position:absolute; inset:-3px; }
+  .gi.orphan { border-style:dashed; background:transparent; }
+  .gi.sel { box-shadow:0 0 0 2px var(--sel); z-index:4; }
+  .gi.locked { cursor:not-allowed; } .gi.dragging { opacity:.35; }
+  .over { outline:3px solid var(--sel) !important; background:var(--over) !important; }
+  .gcard { border:1px solid var(--line); border-left:4px solid var(--c, var(--orphan)); border-radius:4px; padding:6px 8px; background:var(--card); }
+  .gcard.sel { box-shadow:0 0 0 2px var(--sel); } .gcard.ok { border-left-color:var(--ok); }
+  .gcard h3 { margin:0; font-size:13px; display:flex; gap:6px; align-items:center; cursor:pointer; word-break:break-all; }
+  .gcard h3 .grip { cursor:grab; color:var(--muted); }
+  .gchips { display:flex; flex-wrap:wrap; gap:4px; margin-top:5px; }
+  .gchip { border:1px solid var(--line); border-radius:10px; padding:1px 8px; background:var(--panel); cursor:grab; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
+  .gchip.orphan { border-style:dashed; } .gchip.sel { border-color:var(--sel); } .gchip .x { margin-left:5px; color:var(--muted); cursor:pointer; }
+  .tray { border:1.5px dashed var(--orphan); border-radius:4px; padding:6px 8px; min-height:44px; }
+  .gcur { border:1px solid var(--sel); border-radius:4px; padding:8px 10px; }
+  .gcur h2 { margin:0 0 6px; font-size:14px; } .gcur input[type=text] { font:inherit; width:100%; padding:3px 5px; }
+  .gcur .row { display:flex; gap:8px; align-items:center; margin:6px 0; flex-wrap:wrap; }
+  .gcur ol { margin:6px 0; padding-left:20px; }
+  .btn.ok { border-color:var(--ok); color:var(--ok); } .btn.ok.on { background:var(--ok); color:#fff; }
+  .badge.edit { background:#fef7e0; color:#7a5b00; } .badge.new { background:#e8f0fe; color:#1a4fa0; } .badge.ok { background:#e6f4ea; color:#137333; }
+  .warn { color:var(--bad); font-size:12px; }
+  .changes { font-size:12px; } .changes li { margin:1px 0; } .changes .err { color:var(--bad); }
+
+  /* add fields */
+  .ov { position:absolute; }
+  .ov.field { border:1.5px solid var(--field); background:color-mix(in srgb, var(--field) 10%, transparent); }
+  .ov.field:hover { background:color-mix(in srgb, var(--field) 25%, transparent); }
+  .ov.sug { border:2px solid var(--sug); background:color-mix(in srgb, var(--sug) 10%, transparent); cursor:pointer; }
+  .ov.sug.finder { border-style:dashed; } .ov.sug.copy { opacity:.35; } .ov.sug.cur { box-shadow:0 0 0 2px var(--sel); }
+  .ov.added { border:2px solid var(--added); background:color-mix(in srgb, var(--added) 12%, transparent); cursor:pointer; }
+  .ov.added .tag { position:absolute; left:0; top:-14px; font-size:10px; line-height:12px; background:var(--card); color:var(--added); padding:0 3px; white-space:nowrap; pointer-events:none; }
+  .ov.prop { border:2px solid var(--sel); background:color-mix(in srgb, var(--sel) 12%, transparent); pointer-events:none; }
+  .ov.draw { border:1.5px dashed var(--sel); background:color-mix(in srgb, var(--sel) 8%, transparent); pointer-events:none; }
+  .acard { border:1px solid var(--sel); border-radius:4px; padding:8px 10px; background:var(--card); }
+  .acard h3 { margin:0 0 6px; font-size:13px; }
+  .acard input[type=text], .acard textarea, .acard select { font:inherit; width:100%; padding:3px 5px; }
+  .acard textarea { min-height:40px; }
+  .grid { display:grid; grid-template-columns:84px 1fr; gap:4px 8px; align-items:center; margin:6px 0; } .grid label { color:var(--muted); }
+  .achips { display:flex; flex-wrap:wrap; gap:4px; margin:4px 0; }
+  .achip { border:1px solid var(--line); border-radius:10px; padding:1px 8px; background:var(--panel); cursor:pointer; font-size:12px; }
+  .achip.on { border-color:var(--sel); background:var(--tabon); } .achip .src { color:var(--muted); margin-left:4px; }
+  .ev { font-size:12px; color:var(--muted); margin:6px 0 0; padding-left:16px; }
+  .opts td { padding:1px 3px; } .opts input { font:inherit; width:100%; }
+  .arow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px; }
+  .notes { font-size:12px; color:var(--muted); }
+  .alist div { padding:2px 4px; cursor:pointer; display:flex; justify-content:space-between; gap:8px; }
+  .alist div:hover { background:var(--panel); } .alist .x { color:var(--muted); }
+
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1e1e1e; --fg:#eee; --muted:#aaa; --line:#444; --panel:#2c2c2c; --card:#242424; --orphan:#9a9a9a; --field:#ce93d8; --tabon:#1f2d44; }
+    #stage { background:#2a2a2a; }
+    .loop { background:#3a3420; border-color:#6a5d2a; } .adj { background:#1f2d44; border-color:#2f4d7a; }
+    .badge.edit { background:#3a3420; color:#f1d77a; } .badge.new { background:#1f2d44; color:#9cc0ff; } .badge.ok { background:#1e3a26; color:#8fd4a0; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <select id="pick"></select>
+  <label class="help">list <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option></select></label>
+  <span class="tabs" id="tabs">
+    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add fields</button>
+  </span>
+  <span class="pages" id="pages"></span>
+  <span class="help">zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
+</header>
+<div id="modebar"></div>
+<main>
+  <div id="stage"><div id="canvas"><img id="img" alt=""></div></div>
+  <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
+</main>
+<script>
+// ======================================================================= shared: picker, modes, page, zoom, keys
+let LIST = [], bid = null, page = 1, zoom = 1.6, scale = 1, mode = 'review';
+const MODE = {};
+const M = () => MODE[mode];
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function j(url, opts) { const r = await fetch(url, opts); if (!r.ok) throw new Error(await r.text()); return r.json(); }
+const send = (method, url, body) => j(url, {method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})});
+const mapi = (m, p = '') => `/api/${m}/${encodeURIComponent(bid)}${p}`;
+function localNow() { const d = new Date(), z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`; }
+function overlap(a, b) {
+  const ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
+  const i = ix * iy; if (i <= 0) return 0;
+  return i / Math.min(Math.max((a[2] - a[0]) * (a[3] - a[1]), 1e-6), Math.max((b[2] - b[0]) * (b[3] - b[1]), 1e-6));
+}
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+async function init() {
+  $('#pick').innerHTML = '<option>loading blueprints…</option>';
+  try { LIST = await j('/api/blueprints'); }
+  catch (e) { $('#pick').innerHTML = ''; $('#panel').innerHTML = `<p class="err">Could not load the blueprint list: ${esc(e.message)}</p>`; return; }
+  zoom = parseFloat(store('br_zoom')) || zoom;
+  $('#listorder').value = store('br_listorder') || 'name';
+  const [hm, hb] = decodeURIComponent(location.hash.slice(1)).split('/');
+  mode = MODE[hm] ? hm : (store('br_mode') || 'review');
+  renderTabs(); renderPicker(); renderModebar();
+  $('#pick').addEventListener('change', () => openBlueprint($('#pick').value));
+  $('#listorder').addEventListener('change', e => { store('br_listorder', e.target.value); renderPicker(); });
+  document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
+  window.addEventListener('keydown', onKey);
+  window.addEventListener('resize', () => bid && placeAll());
+  bindCanvas();
+  const first = hb && LIST.some(b => b.id === hb) ? hb : null;
+  if (first) { $('#pick').value = first; openBlueprint(first); }
+}
+
+function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mode) + (bid ? '/' + encodeURIComponent(bid) : '')); }
+function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); }
+
+function ageText(a) {
+  if (!a) return '';
+  const v = a.validated ? `validated ${a.validated} on ${a.finder || '?'}${a.finder_current === false ? ' (old finder)' : ''}` : 'no build stamp';
+  return `${a.by} ${a.when || '?'} · ${v}`;
+}
+function pickerText(b) {
+  const bits = [`${b.fields} fields`];
+  const done = b.accepted + b.flagged;
+  if (b.checked) bits.push(b.checked.stale ? 'checked, file changed since' : `checked${b.checked.flagged ? `, ${b.checked.flagged} flagged` : ''}`);
+  else if (done) bits.push(`${done} reviewed`);
+  if (b.stale) bits.push('verdicts stale');
+  if (b.groups) bits.push(b.groups.confirmed === b.groups.units ? 'groups confirmed' : `groups ${b.groups.confirmed}/${b.groups.units}`);
+  if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
+  return `${b.form}  (${bits.join(', ')})  ·  ${ageText(b.age)}`;
+}
+function renderPicker() {
+  const pick = $('#pick'), keep = pick.value || bid;
+  pick.innerHTML = '<option value="">pick a blueprint…</option>';
+  const groups = {lib: 'library', je: 'judge-eval side copies', rl: 'relabels', fl: 'flat forms'};
+  const oldest = $('#listorder').value === 'oldest';
+  for (const src of Object.keys(groups)) {
+    const items = LIST.filter(x => x.source === src); if (!items.length) continue;
+    items.sort(oldest ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
+                      : (a, b) => a.form.localeCompare(b.form));
+    const og = document.createElement('optgroup'); og.label = groups[src];
+    for (const b of items) { const o = document.createElement('option'); o.value = b.id; o.textContent = pickerText(b); og.appendChild(o); }
+    pick.appendChild(og);
+  }
+  if (keep && LIST.some(b => b.id === keep)) pick.value = keep;
+}
+function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); }
+
+async function openBlueprint(id) {
+  if (!id) return;
+  bid = id; setHash();
+  $('#panel').innerHTML = '<p class="help">loading…</p>';
+  await loadMode();
+}
+async function loadMode() {
+  try { await M().load(); }
+  catch (e) { $('#panel').innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  const pages = M().pages();
+  if (!pages.some(p => p.page === page) || !M().pageLabel(page)) page = M().startPage() || (pages[0] || {}).page || 1;
+  renderModebar(); renderPages(); await showPage(); M().panel(); M().progress();
+}
+async function setMode(m) {
+  if (!MODE[m] || m === mode) return;
+  mode = m; store('br_mode', m); renderTabs(); setHash();
+  document.querySelectorAll('#canvas > div').forEach(e => e.remove());
+  if (bid) await loadMode(); else renderModebar();
+}
+function renderModebar() { $('#modebar').innerHTML = M().bar(); M().bindBar(); }
+
+function renderPages() {
+  const el = $('#pages'); el.innerHTML = '';
+  for (const p of M().pages()) {
+    const label = M().pageLabel(p.page); if (!label) continue;
+    const b = document.createElement('button'); b.textContent = label;
+    b.className = p.page === page ? 'on' : ''; b.onclick = () => gotoPage(p.page);
+    el.appendChild(b);
+  }
+}
+async function gotoPage(p) { page = p; renderPages(); await showPage(); if (M().onPage) M().onPage(); M().panel(); }
+function setZoom(z) { zoom = Math.min(6, Math.max(0.6, z)); store('br_zoom', zoom); if (bid) { sizeImage(); placeAll(); } }
+function sizeImage() { const p = M().pages().find(x => x.page === page); if (p) $('#img').style.width = (p.w_pt * zoom) + 'px'; }
+async function showPage() {
+  const img = $('#img'), url = `/api/blueprints/${encodeURIComponent(bid)}/png/${page}`;
+  sizeImage();
+  if (!(img.complete && img.getAttribute('src') === url)) await new Promise(res => { img.onload = res; img.onerror = res; img.src = url; });
+  placeAll();
+}
+function placeAll() {
+  const canvas = $('#canvas'); canvas.querySelectorAll(':scope > div').forEach(e => e.remove());
+  const p = M().pages().find(x => x.page === page); if (!p) return;
+  scale = $('#img').clientWidth / p.w_pt;
+  M().place();
+}
+function put(cls, r, title) {
+  const d = document.createElement('div'); d.className = cls;
+  d.style.left = (r[0] * scale) + 'px'; d.style.top = (r[1] * scale) + 'px';
+  d.style.width = Math.max(5, (r[2] - r[0]) * scale) + 'px'; d.style.height = Math.max(5, (r[3] - r[1]) * scale) + 'px';
+  if (title) d.title = title;
+  $('#canvas').appendChild(d); return d;
+}
+function bindCanvas() {
+  $('#canvas').addEventListener('mousedown', e => { if (bid && M().mousedown) M().mousedown(e); });
+  window.addEventListener('mousemove', e => { if (bid && M().mousemove) M().mousemove(e); });
+  window.addEventListener('mouseup', e => { if (bid && M().mouseup) M().mouseup(e); });
+}
+
+function onKey(e) {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const t = e.target;
+  if (t && ['TEXTAREA', 'INPUT', 'SELECT'].includes(t.tagName) && t.type !== 'checkbox' && t.type !== 'radio') return;
+  if (e.shiftKey && /^Digit[123]$/.test(e.code)) { setMode(['review', 'groups', 'add'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
+  if (!bid) return;
+  if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);
+  else if (e.key === '-') setZoom(zoom / 1.25);
+  else if (/^[1-9]$/.test(e.key)) { const p = +e.key; if (M().pages().some(x => x.page === p) && M().pageLabel(p)) gotoPage(p); }
+  else if (!M().key(e)) return;
+  e.preventDefault();
+}
+
+// ======================================================================= Review: accept / flag / note per field
+MODE.review = (() => {
+  let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk';
+  const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
+  const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
+  const verdictOf = n => { const v = BP.verdicts[n]; return v ? v.verdict : ''; };
+  function ordered() {
+    const list = BP.fields.filter(f => !unrevOnly || !verdictOf(f.name));
+    if (order === 'risk') list.sort((a, b) => ((TIER_RANK[a.tier] ?? 1) - (TIER_RANK[b.tier] ?? 1)) || (a.idx - b.idx));
+    return list;
+  }
+  function select(name, scroll = true) {
+    selected = name;
+    const f = BP.fields.find(x => x.name === name);
+    if (f && f.page !== page) { page = f.page; renderPages(); showPage().then(() => { panel(); if (scroll) scrollSel(); }); return; }
+    placeAll(); panel(); if (scroll) scrollSel();
+  }
+  function scrollSel() { const el = document.querySelector('.rv.sel'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'}); }
+  function next(step = 1) {
+    const list = ordered(); if (!list.length) return;
+    let i = list.findIndex(f => f.name === selected);
+    if (i < 0) { const all = BP.fields; const j0 = all.findIndex(f => f.name === selected); i = list.findIndex(f => all.indexOf(f) > j0) - 1; }
+    i = (i + step + list.length) % list.length;
+    select(list[i].name);
+  }
+  async function putV(verdicts) {
+    const out = await send('PUT', mapi('review', '/verdicts'), {verdicts});
+    BP.verdicts = out.verdicts; BP.stale = false;
+    const was = !!BP.checked; BP.checked = out.entry ? out.entry.checked : null;
+    updateEntry(out.entry); progress();
+    if (!was && BP.checked) { const el = $('#progress'); el.classList.add('justchecked'); setTimeout(() => el.classList.remove('justchecked'), 2500); }
+  }
+  async function setVerdict(verdict) {
+    if (!selected) return;
+    const note = $('#note') ? $('#note').value : (BP.verdicts[selected] || {}).note || '';
+    await putV({[selected]: verdict ? {verdict, note} : null});
+    if (verdict) next(); else { placeAll(); panel(); }
+  }
+  async function saveNote() {
+    if (!selected || !$('#note')) return;
+    const v = BP.verdicts[selected]; const note = $('#note').value;
+    if (v && v.note !== note) await putV({[selected]: {verdict: v.verdict, note}});
+  }
+  async function bulkAccept() {
+    const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
+    if (!todo.length) { alert('No unreviewed settled fields.'); return; }
+    if (!confirm(`Accept ${todo.length} settled field(s) without looking at them? Each is saved with the note "bulk: settled".`)) return;
+    await putV(Object.fromEntries(todo.map(f => [f.name, {verdict: 'accept', note: 'bulk: settled'}])));
+    placeAll(); panel();
+  }
+  function madeHtml(m) {
+    if (!m) return '';
+    const e = esc, rows = [];
+    if (m.labeler) rows.push(`labeled by ${e(m.labeler.method || '?')}${m.labeler.model ? ' / ' + e(m.labeler.model) : ''}${m.labeler.when ? ' on ' + e(m.labeler.when) : ' (date not recorded)'}`);
+    else rows.push('labeler not recorded (imported from petey-master)');
+    if (m.origin) rows.push(`made in ${e(m.origin.repo)}: first commit ${e(m.origin.first.when)} by ${e(m.origin.first.who)}, last ${e(m.origin.last.when)} by ${e(m.origin.last.who)}`);
+    if (m.git_first) rows.push(`in git since ${e(m.git_first.when)} by ${e(m.git_first.who)} (${e(m.git_first.commit)}: ${e(m.git_first.subject.slice(0, 60))})`);
+    if (m.git_last && m.git_commits > 1) rows.push(`last commit ${e(m.git_last.when)} by ${e(m.git_last.who)} (${e(m.git_last.commit)}: ${e(m.git_last.subject.slice(0, 60))}); ${m.git_commits} commits`);
+    if (m.uncommitted) rows.push('<span class="stale">uncommitted changes on disk</span>');
+    if (m.file_time) rows.push(`not in git; file last written ${e(m.file_time)}`);
+    if (m.loop_edits) rows.push('loop edits kept: ' + Object.entries(m.loop_edits).map(([k, n]) => `${n} by ${e(k || '?')}`).join(', '));
+    if (m.validated) rows.push(`last validated ${e(m.validated.when || '?')}${m.validated.run ? ' (' + e(m.validated.run) + ')' : ''}`);
+    return `<div class="help">${rows.join('<br>')}</div>`;
+  }
+  const tierChip = f => f.tier ? `<span class="tier ${f.tier}" title="${f.tier}">${TIER_LETTER[f.tier]}</span>` : '';
+  function witnessHtml(f) {
+    if (!f.witnesses || !Object.keys(f.witnesses).length) return '';
+    const rows = Object.entries(f.witnesses).map(([k, [v, d]]) => {
+      const cls = v === true ? 'yes' : (v === false ? 'no' : 'mute'), mark = v === true ? 'for' : (v === false ? 'against' : 'silent');
+      return `<div class="${cls}"><b>${esc(k)}</b> ${mark}${d ? ': ' + esc(d) : ''}</div>`;
+    }).join('');
+    return `<div class="wit">${tierChip(f)}<b>${f.tier}</b>${rows}</div>`;
+  }
+  const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''}">${tierChip(f)}p${f.page} · ${esc(f.name)}</div>`).join('')}</div>`;
+  function bindList() { document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n)); }
+  function renderList() { const old = document.querySelector('.rlist'); if (!old) return; old.outerHTML = listHtml(); bindList(); }
+  function panel() {
+    const a = $('#panel'), f = BP.fields.find(x => x.name === selected);
+    const head = `<div class="help">${esc(BP.path)}${BP.stale ? ' <span class="stale">· verdicts predate this file</span>' : ''}${BP.build ? ` · built with ${esc(BP.build.finder)}` : ''}</div>${madeHtml(BP.made)}`;
+    if (!f) { a.innerHTML = `<div class="rpanel">${head}<p class="help">Click a box on the page, or press n.</p>${listHtml()}</div>`; bindList(); return; }
+    const v = BP.verdicts[f.name] || {};
+    const opts = f.options.length ? `<dt>options</dt><dd>${f.options.map(o => `${esc(o.on_state)}: ${o.caption ? esc(o.caption) : '<i>no caption</i>'}`).join('<br>')}</dd>` : '';
+    const loop = f.loop ? `<div class="loop"><b>loop changed</b> ${esc((f.loop.changed || []).join(', '))}${f.loop.old_name ? ` (was <code>${esc(f.loop.old_name)}</code>)` : ''}<br>${esc(f.loop.reason || '')}</div>` : '';
+    const adj = f.adjudication ? `<div class="adj"><b>adjudicator</b> ${esc(f.adjudication.verdict)} for <code>${esc(f.adjudication.proposed)}</code>: ${esc(f.adjudication.reason || '')}</div>` : '';
+    a.innerHTML = `<div class="rpanel">${head}
+      <h2>${esc(f.name)}</h2>
+      <dl>
+        <dt>type</dt><dd>${esc(f.type || '')}${f.semantic_type ? ' / ' + esc(f.semantic_type) : ''}</dd>
+        ${f.pattern ? `<dt>pattern</dt><dd><code>${esc(f.pattern)}</code></dd>` : ''}
+        ${f.values ? `<dt>values</dt><dd>${esc(f.values.join(', '))}</dd>` : ''}
+        <dt>description</dt><dd>${f.description ? esc(f.description) : '<i>none</i>'}</dd>
+        <dt>path</dt><dd><code>${esc((f.path || '').split('.').slice(-1)[0])}</code></dd>
+        ${opts}
+      </dl>
+      ${witnessHtml(f)}${loop}${adj}
+      <div class="verdict">
+        <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" id="vAccept">accept (a)</button>
+        <button class="btn flag ${v.verdict === 'flag' ? 'on' : ''}" id="vFlag">flag (f)</button>
+        <button class="btn" id="vClear">clear (c)</button>
+      </div>
+      <textarea id="note" placeholder="what is wrong, or the right name (saved with the verdict)">${esc(v.note || '')}</textarea>
+      <div class="help">note saves on blur or Enter; Shift+Enter for a newline</div>
+      ${listHtml()}</div>`;
+    $('#vAccept').onclick = () => setVerdict('accept'); $('#vFlag').onclick = () => setVerdict('flag'); $('#vClear').onclick = () => setVerdict(null);
+    const note = $('#note');
+    note.addEventListener('blur', () => saveNote());
+    note.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); saveNote(); note.blur(); } e.stopPropagation(); });
+    bindList();
+  }
+  function progress() {
+    const el = $('#progress'); if (!el || !BP) return;
+    const n = BP.fields.length, acc = BP.fields.filter(f => verdictOf(f.name) === 'accept').length, flg = BP.fields.filter(f => verdictOf(f.name) === 'flag').length;
+    const t = {}; BP.fields.forEach(f => { if (f.tier) t[f.tier] = (t[f.tier] || 0) + 1; });
+    const tiers = Object.keys(TIER_RANK).filter(k => t[k]).map(k => `${k} ${t[k]}`).join(' · ');
+    const ck = BP.checked ? (BP.checked.stale ? ' <span class="badge stalecheck">checked, file changed since</span>'
+                                               : ` <span class="badge checked">checked ${esc((BP.checked.when || '').slice(0, 10))}</span>`) : '';
+    el.innerHTML = ck + ` <b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}` + (tiers ? ` <span class="help">(${tiers})</span>` : '') + (BP.witness_error ? ` <span class="stale">witnesses failed: ${esc(BP.witness_error)}</span>` : '');
+    const left = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name)).length;
+    const b = $('#bulk'); if (b) { b.textContent = `accept settled (${left})`; b.disabled = !left; }
+  }
+  return {
+    async load() { BP = await j(mapi('review')); BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = null; },
+    pages: () => BP ? BP.pages : [],
+    startPage: () => BP.fields.length ? BP.fields[0].page : 1,
+    pageLabel(p) { const n = BP.fields.filter(f => f.page === p).length; return n ? `p${p} (${n})` : null; },
+    bar: () => `<span class="progress" id="progress"></span>
+      <label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only (u)</label>
+      <label class="help">order <select id="order"><option value="risk">risk first</option><option value="reading">reading</option></select></label>
+      <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>
+      <span class="help">a accept · f flag · c clear · n/p next/prev · 1-9 page · Shift+1/2/3 mode</span>`,
+    bindBar() {
+      $('#unrev').onchange = e => { unrevOnly = e.target.checked; renderList(); };
+      $('#order').value = order; $('#order').onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
+      $('#bulk').onclick = bulkAccept; if (BP) progress();
+    },
+    place() {
+      for (const f of BP.fields) {
+        f.rects.forEach((r, i) => {
+          if (r.page !== page) return;
+          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (selected === f.name ? ' sel' : ''), r.rect,
+                        f.options.length && f.options[i] ? `${f.name} · ${f.options[i].caption || f.options[i].on_state}` : f.name);
+          d.onclick = () => select(f.name, false);
+        });
+      }
+    },
+    panel, progress,
+    key(e) {
+      if (e.key === 'a') setVerdict('accept');
+      else if (e.key === 'f') setVerdict('flag');
+      else if (e.key === 'c') setVerdict(null);
+      else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
+      else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
+      else if (e.key === 'u') { unrevOnly = !unrevOnly; $('#unrev').checked = unrevOnly; renderList(); }
+      else return false;
+      return true;
+    },
+  };
+})();
+
+// ======================================================================= Groups: confirm option groups, drag boxes to regroup
+MODE.groups = (() => {
+  let BP = null, units = [], selected = null, unconfOnly = false, undoStack = [], nextUid = 1, PLAN = null, planTimer = null;
+  const PALETTE = ['#1a73e8', '#d93025', '#188038', '#e37400', '#9334e6', '#007b83', '#c5221f', '#b06000', '#3f51b5', '#a142f4'];
+  const item = id => BP.items[id];
+  const unitOf = id => units.find(u => u.items.includes(id));
+  const unitByUid = uid => units.find(u => u.uid === uid);
+  const isGroup = u => u.items.length > 1 || u.type !== 'boolean';
+  const orderKey = it => [it.page, Math.round(it.rect[1] / 6), it.rect[0]];
+  const cmpKey = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };
+  const firstItem = u => u.items.map(item).sort((a, b) => cmpKey(orderKey(a), orderKey(b)))[0];
+  function sortUnits() {
+    for (const u of units) u.items.sort((a, b) => cmpKey(orderKey(item(a)), orderKey(item(b))));
+    units.sort((a, b) => cmpKey(orderKey(firstItem(a)), orderKey(firstItem(b))));
+  }
+  const onPage = (u, p = page) => u.items.some(id => item(id).page === p);
+  const label = id => { const it = item(id); return it.caption || (it.key ?? it.field); };
+  function colorOf(u) {
+    if (!isGroup(u)) return 'var(--orphan)';
+    const gs = units.filter(x => isGroup(x) && onPage(x)); const i = gs.indexOf(u);
+    return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
+  }
+  const baseOf = u => u.origin ? BP.base.find(b => b.name === u.origin) : null;
+  function status(u) {
+    const b = baseOf(u); if (!b) return 'new';
+    return b.name === u.name && b.type === u.type && [...b.items].sort().join('|') === [...u.items].sort().join('|') ? 'as blueprint' : 'edited';
+  }
+  const takenNames = except => new Set([...BP.other_names, ...units.filter(u => u !== except).map(u => u.name)]);
+  function uniqueName(base, except) { const taken = takenNames(except); let n = base, k = 2; while (taken.has(n)) n = `${base}_${k++}`; return n; }
+  function suggestName(ids) {
+    const parts = ids.map(id => item(id).field.split('_')), pre = [];
+    for (let i = 0; i < Math.min(...parts.map(p => p.length)); i++) { if (parts.every(p => p[i] === parts[0][i])) pre.push(parts[0][i]); else break; }
+    let base = pre.join('_');
+    if (!/^[a-z][a-z0-9_]*$/.test(base) || base.length < 3) base = `group_p${item(ids[0]).page}`;
+    return uniqueName(base, null);
+  }
+
+  function snapshot() { undoStack.push(JSON.stringify(units)); if (undoStack.length > 200) undoStack.shift(); const u = $('#gUndo'); if (u) u.disabled = false; }
+  function undo() {
+    if (!undoStack.length) return;
+    units = JSON.parse(undoStack.pop()); const u = $('#gUndo'); if (u) u.disabled = !undoStack.length;
+    if (!unitByUid(selected)) selected = units.length ? units[0].uid : null;
+    afterEdit();
+  }
+  async function afterEdit() { sortUnits(); renderPages(); placeAll(); panel(); progress(); await save(); schedulePlan(); }
+  function detach(id) {
+    const u = unitOf(id); u.items = u.items.filter(x => x !== id); u.confirmed = false;
+    if (!u.items.length) units = units.filter(x => x !== u);
+    return u;
+  }
+  function moveItem(id, target) {
+    const src = unitOf(id); if (!src || src.locked) return;
+    if (target.item && target.inTray && isGroup(src)) target = {tray: true};
+    if (target.item) {
+      if (target.item === id) return;
+      const t = unitOf(target.item); if (t.locked) return;
+      if (isGroup(t)) return moveItem(id, {unit: t.uid});
+      if (t === src) return;
+      snapshot(); detach(id); units = units.filter(x => x !== t);
+      const g = {uid: nextUid++, name: suggestName([target.item, id]), type: 'category', items: [target.item, id], origin: null, confirmed: false};
+      units.push(g); selected = g.uid;
+    } else if (target.unit) {
+      const t = unitByUid(target.unit); if (!t || t === src || t.locked) return;
+      if (!isGroup(t)) return moveItem(id, {item: t.items[0]});
+      snapshot(); detach(id); t.items.push(id); t.confirmed = false; selected = t.uid;
+    } else if (target.tray) {
+      if (!isGroup(src)) return;
+      snapshot(); detach(id);
+      const it = item(id), own = it.key === null;
+      const u = {uid: nextUid++, name: own ? it.field : uniqueName(`${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
+                 type: 'boolean', items: [id], origin: own ? it.field : null, confirmed: false};
+      units.push(u); selected = units.includes(src) ? src.uid : u.uid;
+    }
+    afterEdit();
+  }
+  function moveUnit(uid, target) {
+    const s = unitByUid(uid); if (!s || s.locked) return;
+    if (target.item) { const t = unitOf(target.item); if (!t || t === s) return; target = {unit: t.uid}; }
+    const t = unitByUid(target.unit); if (!t || t === s || t.locked) return;
+    snapshot();
+    if (isGroup(t)) { t.items.push(...s.items); t.confirmed = false; units = units.filter(x => x !== s); selected = t.uid; }
+    else { s.items.push(...t.items); s.confirmed = false; units = units.filter(x => x !== t); selected = s.uid; }
+    afterEdit();
+  }
+  function confirmUnit(uid, on) { const u = unitByUid(uid); if (!u) return; snapshot(); u.confirmed = on ?? !u.confirmed; const adv = u.confirmed; afterEdit(); if (adv) next(1); }
+  function rename(uid, name) { const u = unitByUid(uid); name = name.trim(); if (!u || name === u.name) return; snapshot(); u.name = name; afterEdit(); }
+  function setType(uid, type) { const u = unitByUid(uid); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(); }
+  function revert(u) {
+    const b = baseOf(u); if (!b) return;
+    snapshot();
+    for (const id of b.items) { const cur = unitOf(id); if (cur && cur !== u) detach(id); }
+    for (const id of u.items.filter(id => !b.items.includes(id))) {
+      const it = item(id); u.items = u.items.filter(x => x !== id);
+      units.push({uid: nextUid++, name: it.key === null ? it.field : uniqueName(`${u.name}_${it.key}`.toLowerCase().replace(/[^a-z0-9_]+/g, '_'), null),
+                  type: 'boolean', items: [id], origin: it.key === null ? it.field : null, confirmed: false});
+    }
+    if (!units.includes(u)) units.push(u);
+    u.items = [...b.items]; u.name = b.name; u.type = b.type; u.confirmed = false;
+    afterEdit();
+  }
+  let saving = Promise.resolve();
+  function save() {
+    const body = {units: units.map(({uid, ...u}) => u)};
+    saving = saving.then(async () => {
+      try { const out = await send('PUT', mapi('groups', '/units'), body); updateEntry(out.entry); BP.info.stale = false; BP.info.updated = out.saved; }
+      catch (e) { alert('Save failed: ' + e.message); }
+    });
+    return saving;
+  }
+  function schedulePlan() {
+    clearTimeout(planTimer);
+    planTimer = setTimeout(async () => {
+      try { PLAN = await send('POST', mapi('groups', '/plan'), {units: units.map(({uid, ...u}) => u)}); }
+      catch (e) { PLAN = {changes: [], errors: ['plan failed: ' + e.message]}; }
+      renderChanges(); progress();
+    }, 300);
+  }
+  function dragData(e, kind, value) { e.dataTransfer.setData('text/plain', `${kind}:${value}`); e.dataTransfer.effectAllowed = 'move'; e.stopPropagation(); }
+  function asTarget(el, target) {
+    el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); el.classList.add('over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault(); e.stopPropagation(); el.classList.remove('over');
+      const d = e.dataTransfer.getData('text/plain'), i = d.indexOf(':'), kind = d.slice(0, i), value = d.slice(i + 1);
+      if (kind === 'item') moveItem(value, target);
+      else if (kind === 'unit' && !target.tray) moveUnit(Number(value), target);
+    });
+  }
+  function box(el, r, pad) { const s = scale; el.style.left = ((r[0] - pad) * s) + 'px'; el.style.top = ((r[1] - pad) * s) + 'px'; el.style.width = Math.max(6, (r[2] - r[0] + 2 * pad) * s) + 'px'; el.style.height = Math.max(6, (r[3] - r[1] + 2 * pad) * s) + 'px'; }
+  function select(uid, scroll = true) {
+    selected = uid; const u = unitByUid(uid); if (!u) return;
+    if (!onPage(u)) { page = firstItem(u).page; renderPages(); showPage().then(() => { panel(); scrollSel(); }); return; }
+    placeAll(); panel(); if (scroll) scrollSel();
+  }
+  function scrollSel() {
+    const el = document.querySelector('.gh.sel') || document.querySelector('.gi.sel');
+    if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'});
+    const card = document.querySelector('.gcard.sel'); if (card) card.scrollIntoView({block: 'nearest'});
+  }
+  function chipHtml(id, u) {
+    const it = item(id), orphan = !isGroup(u);
+    const where = it.page !== page ? ` <span class="help">p${it.page}</span>` : '';
+    const x = !orphan && !u.locked ? `<span class="x" data-out="${esc(id)}" title="take it out of the group">×</span>` : '';
+    return `<span class="gchip${orphan ? ' orphan' : ''}${u.uid === selected ? ' sel' : ''}" draggable="${!u.locked}" data-item="${esc(id)}" title="${esc(it.field)}${it.key !== null ? ' · ' + esc(it.key) : ''}${it.on_state ? ' · on ' + esc(it.on_state) : ''}">${esc(orphan ? u.name : label(id))}${where}${x}</span>`;
+  }
+  function badge(u) {
+    const st = status(u);
+    return (u.confirmed ? '<span class="badge ok">confirmed</span>' : '') + (st === 'new' ? '<span class="badge new">new</span>' : st === 'edited' ? '<span class="badge edit">edited</span>' : '');
+  }
+  function currentHtml(u) {
+    if (!u) return '<p class="help">Nothing on this page.</p>';
+    const group = isGroup(u), b = baseOf(u), taken = takenNames(u);
+    const bad = !/^[a-z][a-z0-9_]*$/.test(u.name) ? 'not a field name (lower case, digits, underscores)' : taken.has(u.name) ? 'another field already has this name' : '';
+    const was = b && b.name !== u.name ? ` <span class="help">(was ${esc(b.name)})</span>` : '';
+    const items = u.items.map(id => { const it = item(id);
+      return `<li>${esc(label(id))} <span class="help">${it.key !== null ? esc(it.field) + ' / ' + esc(it.key) : esc(it.field)}${it.on_state ? ' · on ' + esc(it.on_state) : ''}${it.page !== page ? ' · p' + it.page : ''}</span></li>`; }).join('');
+    const what = u.locked ? `<div class="warn">${esc(u.locked)}</div>` :
+      group ? `<div class="row"><label>one of <input type="radio" name="ty" value="category" ${u.type === 'category' ? 'checked' : ''}></label>
+                   <label>any of <input type="radio" name="ty" value="multi_category" ${u.type === 'multi_category' ? 'checked' : ''}></label>
+                   ${u.items.length === 1 ? '<span class="warn">a group of one option</span>' : ''}</div>`
+            : `<div class="help">A loose box: a ${esc(item(u.items[0]).widget_type)} field of its own${item(u.items[0]).appearances ? `, drawn in ${item(u.items[0]).appearances} places` : ''}. Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</div>`;
+    return `<div class="gcur">
+      <h2>${group ? `Group of ${u.items.length}` : 'Loose box'} ${badge(u)}</h2>
+      <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${was}
+      ${bad ? `<div class="warn">${bad}</div>` : ''}
+      ${what}${group ? `<ol>${items}</ol>` : ''}
+      <div class="row">
+        <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right (a)' : 'stands alone (a)')}</button>
+        ${b && status(u) !== 'as blueprint' ? '<button class="btn" id="gRevert" title="put this unit back as the blueprint has it">back to blueprint</button>' : ''}
+      </div></div>`;
+  }
+  const listed = () => units.filter(u => onPage(u) && (!unconfOnly || !u.confirmed || u.uid === selected));
+  function panel() {
+    const a = $('#panel');
+    if (!units.length) { a.innerHTML = `<div class="help">${esc(BP.path)}</div><p class="help">This blueprint has no radio or checkbox items.</p>`; return; }
+    const u = unitByUid(selected);
+    const head = `<div class="help">${esc(BP.path)}${BP.info.stale ? ' <span class="stale">· the saved grouping predates this file; rebased onto it</span>' : ''}${BP.info.applied ? ` · last applied ${esc(BP.info.applied.when)}` : ''}</div>`;
+    const groups = listed().filter(isGroup), loose = listed().filter(x => !isGroup(x));
+    a.innerHTML = head + currentHtml(u) +
+      `<div><h4>Groups on page ${page} (${groups.length}) · drop a box on a group to add it</h4>
+        ${groups.map(g => `<div class="gcard${g.uid === selected ? ' sel' : ''}${g.confirmed ? ' ok' : ''}" data-unit="${g.uid}" style="--c:${colorOf(g)}">
+           <h3><span class="grip" draggable="${!g.locked}" data-drag-unit="${g.uid}" title="drag the whole group">⠿</span>${esc(g.name)} ${badge(g)}</h3>
+           <div class="gchips">${g.items.map(id => chipHtml(id, g)).join('')}</div></div>`).join('') || '<p class="help">none</p>'}</div>
+      <div class="tray" id="tray"><h4>Loose boxes on page ${page} (${loose.length}) · drop a box here to take it out of its group; drop one loose box on another to group them</h4>
+        <div class="gchips">${loose.map(o => chipHtml(o.items[0], o)).join('')}</div></div>
+      <div class="changes" id="gChanges"></div>`;
+    bindPanel(u); renderChanges();
+  }
+  function bindPanel(u) {
+    if (u) {
+      const n = $('#uname');
+      if (n) { n.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') rename(u.uid, n.value); }); n.addEventListener('blur', () => rename(u.uid, n.value)); }
+      document.querySelectorAll('input[name=ty]').forEach(r => r.addEventListener('change', () => setType(u.uid, r.value)));
+      const c = $('#gConfirm'); if (c) c.onclick = () => confirmUnit(u.uid);
+      const rv = $('#gRevert'); if (rv) rv.onclick = () => revert(u);
+    }
+    document.querySelectorAll('.gcard').forEach(card => {
+      const uid = Number(card.dataset.unit);
+      card.querySelector('h3').onclick = () => select(uid);
+      if (!unitByUid(uid).locked) asTarget(card, {unit: uid});
+    });
+    document.querySelectorAll('[data-drag-unit]').forEach(g => g.addEventListener('dragstart', e => dragData(e, 'unit', Number(g.dataset.dragUnit))));
+    document.querySelectorAll('.gchip').forEach(ch => {
+      const id = ch.dataset.item, cu = unitOf(id);
+      ch.addEventListener('click', () => select(cu.uid));
+      if (cu.locked) return;
+      ch.addEventListener('dragstart', e => dragData(e, 'item', id));
+      if (!isGroup(cu)) asTarget(ch, {item: id, inTray: true});
+    });
+    document.querySelectorAll('[data-out]').forEach(x => x.addEventListener('click', e => { e.stopPropagation(); moveItem(x.dataset.out, {tray: true}); }));
+    asTarget($('#tray'), {tray: true});
+  }
+  function renderChanges() {
+    const el = $('#gChanges'); if (!el || !PLAN) return;
+    const errs = PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join(''), ch = PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('');
+    el.innerHTML = `<h4>What applying this grouping would change in the blueprint (${PLAN.changes.length})</h4>
+      ${errs || ch ? `<ul>${errs}${ch}</ul>` : '<p class="help">nothing: the grouping is the blueprint\'s</p>'}
+      <div class="help">The page only records. To write it into the blueprint:<br><code>PYTHONPATH=. venv/bin/python -m petey.validate.group_review --apply ${esc(bid)}</code></div>`;
+  }
+  function progress() {
+    const el = $('#progress'); if (!el || !BP) return;
+    const n = units.length, ok = units.filter(u => u.confirmed).length, g = units.filter(isGroup).length;
+    const ch = PLAN ? ` · <b>${PLAN.changes.length}</b> change${PLAN.changes.length === 1 ? '' : 's'}${PLAN.errors.length ? ` <span class="stale">(${PLAN.errors.length} to fix)</span>` : ''}` : '';
+    el.innerHTML = `<b>${ok}</b> of ${n} confirmed · ${g} groups, ${n - g} loose${ch}`;
+  }
+  function next(step) {
+    if (!units.length) return;
+    const k = units.findIndex(u => u.uid === selected);
+    if (unconfOnly) {
+      const after = step > 0 ? units.slice(k + 1).concat(units.slice(0, k)) : units.slice(0, Math.max(k, 0)).reverse().concat(units.slice(k + 1).reverse());
+      const t = after.find(u => !u.confirmed); if (t) select(t.uid); else panel(); return;
+    }
+    select(units[(k + step + units.length) % units.length].uid);
+  }
+  return {
+    async load() {
+      BP = await j(mapi('groups'));
+      units = BP.units.map(u => ({...u, uid: nextUid++})); undoStack = []; PLAN = null;
+      sortUnits(); selected = units.length ? units[0].uid : null; schedulePlan();
+    },
+    pages: () => BP ? BP.pages : [],
+    startPage: () => units.length ? firstItem(units[0]).page : 1,
+    pageLabel(p) {
+      if (!units.length) return `p${p}`;
+      const n = units.filter(u => onPage(u, p)).length; if (!n) return null;
+      const left = units.filter(u => onPage(u, p) && !u.confirmed).length;
+      return `p${p} (${left ? left + ' left' : 'done'})`;
+    },
+    onPage() { const u = units.find(x => onPage(x) && (!unconfOnly || !x.confirmed)) || units.find(x => onPage(x)); if (u) selected = u.uid; placeAll(); },
+    bar: () => `<span class="progress" id="progress"></span>
+      <label class="help"><input type="checkbox" id="gUnconf" ${unconfOnly ? 'checked' : ''}> unconfirmed only (u)</label>
+      <button class="btn" id="gUndo" ${undoStack.length ? '' : 'disabled'}>undo (z)</button>
+      <span class="help">a confirm · n/p next/prev · drag a box onto a group, onto another loose box, or onto the tray · Shift+1/2/3 mode</span>`,
+    bindBar() { $('#gUnconf').onchange = e => { unconfOnly = e.target.checked; panel(); }; $('#gUndo').onclick = undo; if (BP) progress(); },
+    place() {
+      for (const u of units.filter(x => onPage(x))) {
+        const c = colorOf(u), sel = u.uid === selected, its = u.items.map(item).filter(it => it.page === page);
+        if (isGroup(u)) {
+          const hull = [Math.min(...its.map(i => i.rect[0])), Math.min(...its.map(i => i.rect[1])), Math.max(...its.map(i => i.rect[2])), Math.max(...its.map(i => i.rect[3]))];
+          const h = document.createElement('div'); h.dataset.unit = u.name; h.className = 'gh' + (sel ? ' sel' : '') + (u.confirmed ? ' ok' : '');
+          h.style.setProperty('--c', c); box(h, hull, 6); h.title = `${u.name} (${u.items.length} options)`;
+          h.onclick = () => select(u.uid, false);
+          if (!u.locked) { h.draggable = true; h.addEventListener('dragstart', e => dragData(e, 'unit', u.uid)); asTarget(h, {unit: u.uid}); }
+          $('#canvas').appendChild(h);
+        }
+        for (const it of its) {
+          const d = document.createElement('div'); d.dataset.item = it.id;
+          d.className = 'gi' + (isGroup(u) ? '' : ' orphan') + (sel ? ' sel' : '') + (u.locked ? ' locked' : '');
+          d.style.setProperty('--c', c); box(d, it.rect, 0);
+          d.title = `${u.name}${isGroup(u) ? ' · ' + label(it.id) : ''}${u.locked ? ' (locked: ' + u.locked + ')' : ''}`;
+          d.onclick = e => { e.stopPropagation(); select(u.uid, false); };
+          if (!u.locked) {
+            d.draggable = true;
+            d.addEventListener('dragstart', e => { dragData(e, 'item', it.id); d.classList.add('dragging'); });
+            d.addEventListener('dragend', () => d.classList.remove('dragging'));
+            asTarget(d, {item: it.id});
+          }
+          $('#canvas').appendChild(d);
+        }
+      }
+    },
+    panel, progress,
+    key(e) {
+      if (e.key === 'a' && selected) confirmUnit(selected, true);
+      else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
+      else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
+      else if (e.key === 'z') undo();
+      else if (e.key === 'u') { unconfOnly = !unconfOnly; $('#gUnconf').checked = unconfOnly; panel(); }
+      else return false;
+      return true;
+    },
+  };
+})();
+
+// ======================================================================= Add fields: suggestions and drawn areas -> fields
+MODE.add = (() => {
+  let BP = null, props = [], notes = [], curSid = null, added = [], dismissed = [], PLAN = null, busy = false;
+  let showFields = true, showSug = true, copies = false, drawStart = null, drawBox = null, drawTarget = null;
+  const boxesOf = p => p.kind === 'group' ? p.options.map(o => ({page: o.page, rect: o.rect})) : [{page: p.page, rect: (p.widget || p).rect}];
+  const covered = s => added.some(a => boxesOf(a).some(b => b.page === s.page && overlap(b.rect, s.rect) >= 0.5));
+  function remaining() {
+    const gone = new Set(dismissed.map(d => d.sid));
+    return BP.suggestions.filter(s => !gone.has(s.sid) && (!s.copy || copies) && !covered(s));
+  }
+  async function gotoSuggestion(step) {
+    const list = remaining(); if (!list.length) { notes = ['no suggestions left']; panel(); return; }
+    let i = list.findIndex(s => s.sid === curSid);
+    i = i < 0 ? (step > 0 ? 0 : list.length - 1) : (i + step + list.length) % list.length;
+    await proposeSid(list[i]);
+  }
+  async function proposeSid(s) {
+    curSid = s.sid;
+    if (s.page !== page) { page = s.page; renderPages(); await showPage(); }
+    await propose({page: s.page, sid: s.sid});
+    const el = document.querySelector('.ov.sug.cur'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'});
+  }
+  async function propose(body) {
+    if (busy) return; busy = true;
+    try { const r = await send('POST', mapi('add', '/propose'), {...body, taken: added.map(a => a.name)}); props = r.proposals; notes = r.notes; }
+    catch (e) { props = []; notes = ['proposal failed: ' + e.message]; }
+    busy = false; placeAll(); panel();
+  }
+  function fieldInfo(name) {
+    const f = (BP.field_specs || {})[name] || {};
+    return `already a field: ${name}` + (f.type ? ` · ${f.type}${f.semantic_type ? '/' + f.semantic_type : ''}` : '') + (f.description ? ` · ${f.description}` : '');
+  }
+  function optHtml(p, i) {
+    return `<table class="opts"><tr><th class="help">key</th><th class="help">caption</th><th></th></tr>${p.options.map((o, k) =>
+      `<tr><td><input type="text" data-i="${i}" data-o="${k}" data-ok="key" value="${esc(o.key)}"></td>
+           <td><input type="text" data-i="${i}" data-o="${k}" data-ok="caption" value="${esc(o.caption || '')}"></td>
+           <td><span class="achip" data-drop="${i}:${k}" title="leave this box out">×</span></td></tr>`).join('')}</table>
+      <div class="help">keyed by ${esc(p.keyed_by)}${p.options.some(o => o.on_state) ? '; on-states ' + esc(p.options.map(o => o.on_state || '?').join(', ')) : ''}</div>`;
+  }
+  function cardHtml(p, i) {
+    const types = ['string', 'number', 'integer', 'date', 'boolean', 'category', 'multi_category'], sem = ['', ...BP.semantic_types];
+    const what = p.kind === 'group' ? `group of ${p.options.length} options` : p.kind === 'option' ? `${p.widget.widget_type}` : 'text box';
+    const clash = added.some(a => a.name === p.name) || props.some((q, k) => k !== i && q.name === p.name);
+    return `<div class="acard">
+      <h3>${esc(what)} on p${p.page} <span class="help">· ${esc(p.geometry)} geometry</span></h3>
+      <input type="text" data-i="${i}" data-k="name" value="${esc(p.name)}">
+      ${!/^[a-z][a-z0-9_]*$/.test(p.name) ? '<div class="err help">not a field name (lower case, digits, underscores)</div>' : clash ? '<div class="err help">another field has this name</div>' : ''}
+      <div class="achips">${p.name_options.map((o, k) => `<span class="achip ${o.name === p.name ? 'on' : ''}" data-name="${i}:${k}">${esc(o.name)}<span class="src">${esc(o.source)}</span></span>`).join('')}
+        <span class="achip" data-labeler="${i}" title="one call to ${esc(BP.label_model)} with this page's words">ask the labeler</span></div>
+      <div class="grid">
+        <label>type</label><select data-i="${i}" data-k="type">${types.map(t => `<option ${t === p.type ? 'selected' : ''}>${t}</option>`).join('')}</select>
+        ${p.kind === 'text' ? `<label>semantic</label><select data-i="${i}" data-k="semantic_type">${sem.map(t => `<option value="${t}" ${t === (p.semantic_type || '') ? 'selected' : ''}>${t || '(none)'}</option>`).join('')}</select>
+        <label>pattern</label><input type="text" data-i="${i}" data-k="pattern" value="${esc(p.pattern || '')}" ${p.type !== 'string' ? 'disabled' : ''}>` : ''}
+        <label>description</label><textarea data-i="${i}" data-k="description">${esc(p.description || '')}</textarea>
+      </div>
+      ${p.kind === 'group' ? optHtml(p, i) : ''}
+      ${p.page_class ? `<div class="help">classifier: ${esc(p.page_class)}${p.entity ? ' for ' + esc(p.entity) : ''} (shown, not applied)</div>` : ''}
+      <ul class="ev">${p.evidence.map(e => `<li>${esc(e)}</li>`).join('')}</ul>
+      <div class="arow"><button class="btn primary" data-add="${i}">add this field</button>${props.length > 1 ? `<button class="btn" data-skip="${i}">leave out</button>` : ''}</div>
+    </div>`;
+  }
+  function panel() {
+    const a = $('#panel'), left = remaining();
+    const head = `<div class="help">${esc(BP.path)}${BP.stale ? ' <span class="stale">· recorded against an earlier version of this file</span>' : ''}</div>
+      <div class="help">${BP.has_widgets ? 'form layer: yes' : 'no form layer (flat)'} · finder: ${BP.finder}${BP.finder !== 'cached' ? ' <button class="btn" id="runFinder" title="step2flat on this blank, local CPU, cached afterwards">run it</button>' : ''} · classifier map: ${BP.classifier}</div>
+      <div><b>${left.length}</b> suggestion${left.length === 1 ? '' : 's'} left <span class="help">(${left.filter(s => s.source === 'widget').length} widgets, ${left.filter(s => s.source === 'finder').length} finder boxes${BP.suggestions.some(s => s.copy) && !copies ? '; repeated copies hidden' : ''})</span>
+        <button class="btn" id="nextSug">next (n)</button></div>`;
+    const cards = props.length ? props.map(cardHtml).join('') + `<div class="arow">
+        ${props.length > 1 ? '<button class="btn primary" id="addAll">add all (Enter)</button>' : '<span class="help">Enter adds it</span>'}
+        ${curSid ? '<button class="btn warn" id="notField" title="record this suggestion as not a field">not a field (x)</button>' : ''}
+        <button class="btn" id="cancel">cancel (Esc)</button></div>`
+      : '<p class="help">Drag a box over an area of the page, click a box, or press n for the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name, click for its type). Green: fields you have added.</p>';
+    const nts = notes.length ? `<div class="notes">${notes.map(n => `<div>${esc(n)}</div>`).join('')}</div>` : '';
+    const list = `<div><h4>To add (${added.length})</h4><div class="alist">${added.map((x, i) =>
+        `<div data-goto="${i}"><span>p${x.page} · ${esc(x.name)} <span class="help">${esc(x.kind === 'group' ? 'group' : x.type)}</span></span><span class="x" data-del="${i}" title="remove">×</span></div>`).join('') || '<p class="help">nothing yet</p>'}</div></div>
+      ${dismissed.length ? `<div><h4>Not fields (${dismissed.length})</h4><div class="alist">${dismissed.map((x, i) =>
+        `<div data-dgoto="${i}"><span>p${x.page} · ${esc(x.what || x.sid)}</span><span class="x" data-undismiss="${i}" title="put it back">×</span></div>`).join('')}</div></div>` : ''}
+      <div class="changes" id="aChanges"></div>`;
+    a.innerHTML = head + cards + nts + list;
+    bindPanel(); renderChanges(); progress(); renderPages();
+  }
+  function bindPanel() {
+    const rf = $('#runFinder'); if (rf) rf.onclick = runFinder;
+    $('#nextSug').onclick = () => gotoSuggestion(1);
+    const aa = $('#addAll'); if (aa) aa.onclick = () => addProps(props.map((_, i) => i));
+    const nf = $('#notField'); if (nf) nf.onclick = notAField;
+    const cc = $('#cancel'); if (cc) cc.onclick = cancel;
+    document.querySelectorAll('.acard [data-k]').forEach(el => {
+      const i = +el.dataset.i, k = el.dataset.k;
+      const set = () => { props[i][k] = el.value || null; if (k === 'name') props[i].name_source = 'hand'; if (k === 'type') panel(); };
+      el.addEventListener('change', set);
+      el.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && el.tagName !== 'TEXTAREA') { set(); addProps(props.map((_, n) => n)); } if (e.key === 'Escape') cancel(); });
+    });
+    document.querySelectorAll('[data-ok]').forEach(el => {
+      const i = +el.dataset.i, o = +el.dataset.o;
+      el.addEventListener('change', () => { props[i].options[o][el.dataset.ok] = el.value; if (el.dataset.ok === 'key') props[i].keyed_by = 'hand'; });
+      el.addEventListener('keydown', e => e.stopPropagation());
+    });
+    document.querySelectorAll('[data-drop]').forEach(el => el.onclick = () => {
+      const [i, o] = el.dataset.drop.split(':').map(Number); props[i].options.splice(o, 1);
+      if (!props[i].options.length) props.splice(i, 1);
+      placeAll(); panel();
+    });
+    document.querySelectorAll('[data-name]').forEach(el => el.onclick = () => {
+      const [i, k] = el.dataset.name.split(':').map(Number), p = props[i], o = p.name_options[k];
+      p.name = o.name; p.name_source = o.source;
+      for (const t of ['type', 'semantic_type', 'pattern']) delete p[t];
+      Object.assign(p, o.types || {}); if (o.twin) p.twin = o.twin; else delete p.twin;
+      panel();
+    });
+    document.querySelectorAll('[data-labeler]').forEach(el => el.onclick = () => askLabeler(+el.dataset.labeler, el));
+    document.querySelectorAll('[data-add]').forEach(el => el.onclick = () => addProps([+el.dataset.add]));
+    document.querySelectorAll('[data-skip]').forEach(el => el.onclick = () => { props.splice(+el.dataset.skip, 1); placeAll(); panel(); });
+    document.querySelectorAll('[data-del]').forEach(el => el.onclick = e => { e.stopPropagation(); added.splice(+el.dataset.del, 1); save(); });
+    document.querySelectorAll('[data-undismiss]').forEach(el => el.onclick = e => { e.stopPropagation(); dismissed.splice(+el.dataset.undismiss, 1); save(); });
+    document.querySelectorAll('[data-goto]').forEach(el => el.onclick = () => { const x = added[+el.dataset.goto]; if (x.page !== page) gotoPage(x.page); });
+    document.querySelectorAll('[data-dgoto]').forEach(el => el.onclick = () => { const x = dismissed[+el.dataset.dgoto]; if (x.page !== page) gotoPage(x.page); });
+  }
+  async function askLabeler(i, el) {
+    el.textContent = 'asking…';
+    try {
+      const r = await send('POST', mapi('add', '/labeler'), {proposal: props[i]});
+      if (r.name) {
+        const p = props[i], taken = new Set([...added.map(a => a.name), ...props.filter((_, k) => k !== i).map(q => q.name)]);
+        let n = r.name, k = 2; while (taken.has(n)) n = `${r.name}_${k++}`;
+        p.name_options = p.name_options.filter(o => o.source !== 'labeler').concat([{name: n, source: 'labeler', types: {}}]);
+        p.name = n; p.name_source = 'labeler';
+      } else notes = ['the labeler returned no name'];
+    } catch (e) { notes = ['labeler failed: ' + e.message]; }
+    panel();
+  }
+  function addProps(idx) {
+    const bad = idx.map(i => props[i]).filter(p => !/^[a-z][a-z0-9_]*$/.test(p.name || ''));
+    if (bad.length) { notes = [`not a field name: ${bad.map(p => p.name).join(', ')}`]; return panel(); }
+    const now = localNow();
+    for (const i of idx) added.push({...props[i], when: now});
+    props = props.filter((_, i) => !idx.includes(i));
+    if (!props.length) { notes = []; save().then(() => { if (curSid && remaining().length) gotoSuggestion(1); else { curSid = null; placeAll(); panel(); } }); }
+    else save();
+  }
+  function notAField() {
+    const s = BP.suggestions.find(x => x.sid === curSid); if (!s) return;
+    dismissed.push({sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: localNow()});
+    props = []; notes = []; save().then(() => gotoSuggestion(1));
+  }
+  function cancel() { props = []; notes = []; placeAll(); panel(); }
+  async function save() {
+    try { PLAN = await send('PUT', mapi('add', '/record'), {added, dismissed}); BP.stale = false; updateEntry(PLAN.entry); }
+    catch (e) { alert('Save failed: ' + e.message); }
+    placeAll(); panel();
+  }
+  async function runFinder() {
+    $('#runFinder').textContent = 'running (local CPU)…'; $('#runFinder').disabled = true;
+    try { BP = await send('POST', mapi('add', '/finder')); added = BP.added; dismissed = BP.dismissed; }
+    catch (e) { notes = ['finder failed: ' + e.message]; }
+    placeAll(); panel();
+  }
+  function renderChanges() {
+    const el = $('#aChanges'); if (!el) return;
+    if (!PLAN || !added.length) { el.innerHTML = ''; return; }
+    el.innerHTML = `<h4>What applying would change in the blueprint</h4><ul>
+      ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${PLAN.skipped.map(e => `<li class="help">skip ${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+      <div class="help">The page only records. To write it into the blueprint:<br><code>PYTHONPATH=. venv/bin/python -m petey.validate.field_add --apply ${esc(bid)}</code></div>`;
+  }
+  function progress() { const el = $('#progress'); if (el && BP) el.innerHTML = `<b>${added.length}</b> to add · <b>${dismissed.length}</b> not fields · <b>${remaining().length}</b> suggestions left`; }
+  const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
+  return {
+    async load() {
+      BP = await j(mapi('add'));
+      added = BP.added; dismissed = BP.dismissed; props = []; notes = []; curSid = null; PLAN = BP.plan;
+    },
+    pages: () => BP ? BP.pages : [],
+    startPage: () => (remaining()[0] || {}).page || 1,
+    pageLabel(p) { const n = remaining().filter(s => s.page === p).length; return `p${p}${n ? ` (${n})` : ''}`; },
+    bar: () => `<span class="progress" id="progress"></span>
+      <label class="help"><input type="checkbox" id="aFields" ${showFields ? 'checked' : ''}> fields (f)</label>
+      <label class="help"><input type="checkbox" id="aSug" ${showSug ? 'checked' : ''}> suggestions (s)</label>
+      <label class="help"><input type="checkbox" id="aCopies" ${copies ? 'checked' : ''}> repeated copies</label>
+      <span class="help">drag over an area, or click a box · n/p suggestion · Enter add · x not a field · Esc cancel · Shift+1/2/3 mode</span>`,
+    bindBar() {
+      $('#aFields').onchange = e => { showFields = e.target.checked; placeAll(); };
+      $('#aSug').onchange = e => { showSug = e.target.checked; placeAll(); };
+      $('#aCopies').onchange = e => { copies = e.target.checked; placeAll(); panel(); };
+      if (BP) progress();
+    },
+    place() {
+      if (showFields) for (const f of BP.fields) if (f.page === page) put('ov field', f.rect, f.name).dataset.field = f.name;
+      if (showSug) for (const s of remaining()) if (s.page === page) put(`ov sug ${s.source}${s.copy ? ' copy' : ''}${s.sid === curSid ? ' cur' : ''}`, s.rect, s.what).dataset.sid = s.sid;
+      added.forEach((a, i) => boxesOf(a).filter(b => b.page === page).forEach((b, k) => {
+        const d = put('ov added', b.rect, a.name); d.dataset.added = i;
+        if (k === 0) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = a.name; d.appendChild(t); }
+      }));
+      for (const p of props) for (const b of boxesOf(p)) if (b.page === page) put('ov prop', b.rect);
+    },
+    panel, progress,
+    mousedown(e) { if (e.button !== 0) return; e.preventDefault(); drawStart = pt(e); drawTarget = e.target; },
+    mousemove(e) {
+      if (!drawStart) return; const p = pt(e);
+      const r = [Math.min(drawStart[0], p[0]), Math.min(drawStart[1], p[1]), Math.max(drawStart[0], p[0]), Math.max(drawStart[1], p[1])];
+      if (!drawBox && (r[2] - r[0]) * scale < 4 && (r[3] - r[1]) * scale < 4) return;
+      if (!drawBox) drawBox = put('ov draw', r);
+      else { drawBox.style.left = r[0] * scale + 'px'; drawBox.style.top = r[1] * scale + 'px'; drawBox.style.width = (r[2] - r[0]) * scale + 'px'; drawBox.style.height = (r[3] - r[1]) * scale + 'px'; }
+      drawBox._r = r;
+    },
+    async mouseup() {
+      if (!drawStart) return;
+      const s = drawStart, b = drawBox, t = drawTarget; drawStart = null; drawBox = null; drawTarget = null;
+      if (b) { b.remove(); curSid = null; return propose({page, rect: b._r}); }
+      if (t && t.dataset && t.dataset.sid) { const sg = BP.suggestions.find(x => x.sid === t.dataset.sid); if (sg) return proposeSid(sg); }
+      if (t && t.dataset && t.dataset.field) { props = []; curSid = null; notes = [fieldInfo(t.dataset.field)]; placeAll(); return panel(); }
+      if (t && t.dataset && t.dataset.added !== undefined) { notes = [`${added[+t.dataset.added].name} is recorded to be added (remove it from the list below)`]; return panel(); }
+      curSid = null; propose({page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1]});
+    },
+    key(e) {
+      if (e.key === 'n') gotoSuggestion(1);
+      else if (e.key === 'p') gotoSuggestion(-1);
+      else if (e.key === 'Enter' && props.length) addProps(props.map((_, i) => i));
+      else if (e.key === 'x' && curSid) notAField();
+      else if (e.key === 'Escape') cancel();
+      else if (e.key === 'f') { showFields = !showFields; $('#aFields').checked = showFields; placeAll(); }
+      else if (e.key === 's') { showSug = !showSug; $('#aSug').checked = showSug; placeAll(); }
+      else return false;
+      return true;
+    },
+  };
+})();
+
+init();
+</script>
+</body>
+</html>

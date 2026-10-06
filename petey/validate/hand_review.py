@@ -26,15 +26,11 @@ from __future__ import annotations
 import argparse
 import collections
 import hashlib
-import http.server
 import json
-import socketserver
 import subprocess
 import time
-import webbrowser
 from pathlib import Path
 from typing import Optional
-from urllib.parse import unquote, urlparse
 
 import yaml
 
@@ -51,7 +47,6 @@ def _load(p: Path) -> dict:
     return yaml.load(p.read_text(encoding="utf-8"), Loader=_LOADER) or {}
 
 
-HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 110
 SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RUNS / "relabel" / "blueprints",
            "fl": RUNS / "flat" / "blueprints"}      # flat forms: page-made blueprints, path-less widgets
@@ -368,54 +363,6 @@ class State:
         return out
 
 
-STATE: Optional[State] = None
-
-
-class Handler(http.server.BaseHTTPRequestHandler):
-    def log_message(self, fmt, *args):
-        return
-
-    def _send(self, body: bytes, ctype: str, code: int = 200) -> None:
-        self.send_response(code)
-        self.send_header("Content-Type", ctype)
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def _json(self, obj, code: int = 200) -> None:
-        self._send(json.dumps(obj, default=str).encode(), "application/json", code)
-
-    def do_GET(self):
-        path = unquote(urlparse(self.path).path)
-        parts = path.strip("/").split("/")
-        if path in ("/", "/index.html"):
-            self._send(HTML_PATH.read_bytes(), "text/html; charset=utf-8")
-        elif path == "/api/blueprints":
-            self._json(STATE.listing())
-        elif len(parts) == 3 and parts[:2] == ["api", "blueprints"]:
-            d = STATE.detail(parts[2])
-            self._json(d) if d else self._send(b"no such blueprint", "text/plain", 404)
-        elif len(parts) == 5 and parts[:2] == ["api", "blueprints"] and parts[3] == "png":
-            png = STATE.page_png(parts[2], int(parts[4]))
-            self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
-        else:
-            self._send(b"not found", "text/plain", 404)
-
-    def do_PUT(self):
-        parts = unquote(urlparse(self.path).path).strip("/").split("/")
-        if len(parts) == 4 and parts[:2] == ["api", "blueprints"] and parts[3] == "verdicts":
-            length = int(self.headers.get("Content-Length", "0"))
-            try:
-                incoming = json.loads(self.rfile.read(length))
-                self._json(STATE.put_verdicts(parts[2], incoming))
-            except KeyError:
-                self._send(b"no such blueprint", "text/plain", 404)
-            except Exception as e:  # noqa: BLE001
-                self._send(str(e).encode(), "text/plain", 400)
-        else:
-            self._send(b"not found", "text/plain", 404)
-
-
 def summary() -> None:
     paths = blueprint_paths()
     rows = []
@@ -437,7 +384,6 @@ def summary() -> None:
 
 
 def main() -> int:
-    global STATE
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--port", type=int, default=5005)
     ap.add_argument("--summary", action="store_true")
@@ -446,20 +392,8 @@ def main() -> int:
     if args.summary:
         summary()
         return 0
-    STATE = State()
-    print(f"hand review: {len(STATE.paths)} blueprints; verdicts in {OUT}")
-    STATE.index()
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", args.port), Handler) as srv:
-        url = f"http://127.0.0.1:{args.port}/"
-        print(f"hand review -> {url}")
-        if not args.no_open:
-            webbrowser.open(url)
-        try:
-            srv.serve_forever()
-        except KeyboardInterrupt:
-            print()
-    return 0
+    from petey.validate.blueprint_review import serve
+    return serve(args.port, "review", not args.no_open)
 
 
 if __name__ == "__main__":
