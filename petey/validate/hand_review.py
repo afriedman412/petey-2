@@ -58,7 +58,7 @@ def blueprint_paths() -> dict[str, Path]:
         if not d.exists():
             continue
         for p in sorted(d.glob("*.bpt")):
-            if tag == "je" and p.stem.endswith(("_v0", "_run1")):
+            if tag == "je" and p.stem.endswith(("_v0", "_run1", "_prev")):
                 continue
             out[f"{tag}__{p.stem}"] = p
     return out
