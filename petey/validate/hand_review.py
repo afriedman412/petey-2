@@ -53,7 +53,8 @@ def _load(p: Path) -> dict:
 
 HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 110
-SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RUNS / "relabel" / "blueprints"}
+SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RUNS / "relabel" / "blueprints",
+           "fl": RUNS / "flat" / "blueprints"}      # flat forms: page-made blueprints, path-less widgets
 
 
 def blueprint_paths() -> dict[str, Path]:
