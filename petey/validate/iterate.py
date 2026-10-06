@@ -365,6 +365,13 @@ def already_seen(bp_path: Path, seen: set[tuple[str, str]]) -> set[str]:
     return {n for n, h in _defs(bp).items() if (n, h) in seen}
 
 
+def _reopen(seen: set[tuple[str, str]], bp_path: Path, names) -> None:
+    """Forget that the reviewer judged these fields as they now stand."""
+    if names:
+        now = _defs(yaml.safe_load(bp_path.read_text(encoding="utf-8")) or {})
+        seen -= {(n, now[n]) for n in names if n in now}
+
+
 def reviewed_pairs(snapshot: str, bp_path: Path, res: dict) -> set[tuple[str, str]]:
     """(name, definition) of every field the review looked at, as it was before the round and as the round left
     it (a rename under its new name): either form, seen again, needs no second review."""
@@ -390,12 +397,15 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
             allow_dirty: bool = False, case_set: Optional[int] = None,
             n_cases: Optional[int] = None, bpt: Optional[Path] = None,
             adjudicate: bool = True, adjudicator_model: Optional[str] = None,
-            rebuild_set: bool = False) -> dict:
+            rebuild_set: bool = False, on_round=None) -> dict:
     """See the module docstring. With `review` != "none", after the rule
     fixes the LLM reviewer (`review.py`) looks at the flagged fields and its
     fixes are applied; the NEXT validation judges them. If detections did
     not go down, the blueprint is restored to its pre-review state — the
-    model never grades its own work."""
+    model never grades its own work. `on_round(rec, bp_path)`, when given, is called after every round with the
+    round's record, once the blueprint on disk is the state the next round starts from (`form_run.py` keeps that
+    state round by round and spot-checks the fields the round changed). It may return field names to reopen: new
+    evidence (a spot-check flag) on a definition the reviewer already judged, so the next round reviews it again."""
     history = []
     status = "max_iter"
     bp_path = bpt or BLUEPRINTS / f"{form}.bpt"   # a side copy (validate --bpt) runs the loop outside the library
@@ -447,6 +457,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
                                 "fixed": {"review_restored": judged["restored"]}})
                 print(f"[{form}] iter {i}: detected={det['total']} delta={det['delta']} "
                       f"-> restored {judged['restored']} reviewed fields")
+                if on_round:
+                    _reopen(seen, bp_path, on_round(history[-1], bp_path))
                 continue
         rebound: set = set()
         changes = fix(form, det, describe=describe, apply_correct=apply_correct, bpt=bpt, rebound=rebound)
@@ -492,6 +504,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         history.append(rec)
         print(f"[{form}] iter {i}: detected={det['total']} verdicts={det['verdicts']} "
               f"shape={det['shape']} delta={det['delta']} -> fixed={dict(changes)} ({rec['seconds']}s)")
+        if on_round:
+            _reopen(seen, bp_path, on_round(rec, bp_path))
         if not changes:
             status = "clean" if det["total"] == 0 else "converged_with_residue"
             stop = stop or ("nothing detected" if det["total"] == 0 else "no rule fix and no review edit")

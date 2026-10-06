@@ -1,7 +1,7 @@
 """Old library blueprint vs the same form run from scratch through the current code (`scripts/rerun_library.sh`).
 
 Per form: fields and page-check flags of the old blueprint, of the fresh label, and of the fresh blueprint after
-the loop; what the loop did (`loop_compare.summarize`); and, where a person hand-reviewed the old blueprint, what
+the loop (from the run record when the form went through `form_run.py`, else from the older per-step files); what the loop did (`loop_compare.summarize`); and, where a person hand-reviewed the old blueprint, what
 became of each field they flagged (followed by widget path into the fresh blueprint: its name there, and the
 page check's verdict on it) and how many fields they accepted were named differently by the fresh label.
 
@@ -78,10 +78,19 @@ def main() -> int:
             print(f"{form:22} no fresh blueprint")
             continue
         old_rec = json.loads(old_rec_p.read_text()) if old_rec_p.exists() else {}
-        new_rec = json.loads(new_rec_p.read_text()) if new_rec_p.exists() else {}
-        n_label, c_label = label_time(form)
-        lp = EVAL / f"{form}_loop.json"
-        s = summarize(json.loads(lp.read_text())) if lp.exists() else {}
+        run_rec = json.loads(new_rec_p.read_text()) if new_rec_p.exists() else {}
+        if "rounds" in run_rec:                       # form_run.py: one record per run, verdicts round by round
+            new_rec = {"fields": page_check.verdicts(_load(new_p))}
+            r0 = run_rec["rounds"][0].get("page_check") or {}
+            n_label = sum(1 for v in r0.values() if v.get("verdict") == "flag")
+            c_label = sum((r.get("page_check_run") or {}).get("cost_usd", 0) or 0 for r in run_rec["rounds"])
+            s = summarize({"status": (run_rec.get("result") or {}).get("status"),
+                           "iterations": [r["loop"] for r in run_rec["rounds"] if r.get("loop")]})
+        else:
+            new_rec = run_rec
+            n_label, c_label = label_time(form)
+            lp = EVAL / f"{form}_loop.json"
+            s = summarize(json.loads(lp.read_text())) if lp.exists() else {}
         loop_txt = (f"{s.get('status')} {s.get('detected_first')}->{s.get('detected_last')}" if s else "-")
         check_cost = c_label + old_rec.get("cost_usd", 0) + new_rec.get("cost_usd", 0)
         old_bp, new_bp = _load(old_p), _load(new_p)

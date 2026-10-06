@@ -468,6 +468,18 @@ def save(res: dict, bpt: Path, *, stamp: bool = True) -> Path:
     return out
 
 
+def verdict_table(rec: dict) -> dict[tuple[str, str], dict]:
+    """{(field name, definition hash): verdict} from a record: a single check (`fields`), or a form run
+    (`form_run.py`: `rounds`, each holding the verdicts on the definitions that round introduced; later wins)."""
+    out = {}
+    for block in ([r.get("page_check") or {} for r in rec.get("rounds") or []] if "rounds" in rec
+                  else [rec.get("fields") or {}]):
+        for name, v in block.items():
+            if v.get("verdict") and v.get("spec"):
+                out[(name, v["spec"])] = v
+    return out
+
+
 def verdicts(bp: dict) -> dict[str, dict]:
     """The stamped page check's verdict per field, for the fields whose definition is unchanged since the check
     (`spec_hash`); a field renamed or retyped since has none. Empty when the blueprint has no stamp or the record is
@@ -476,11 +488,11 @@ def verdicts(bp: dict) -> dict[str, dict]:
     rp = RUNS.parent / st["record"] if st.get("record") else None
     if rp is None or not rp.exists():
         return {}
-    rec = json.loads(rp.read_text(encoding="utf-8"))
+    table = verdict_table(json.loads(rp.read_text(encoding="utf-8")))
     out = {}
     for name, spec in (bp.get("fields") or {}).items():
-        v = (rec.get("fields") or {}).get(name)
-        if isinstance(spec, dict) and v and v.get("verdict") and v.get("spec") == spec_hash(spec):
+        v = table.get((name, spec_hash(spec))) if isinstance(spec, dict) else None
+        if v:
             out[name] = v
     return out
 
