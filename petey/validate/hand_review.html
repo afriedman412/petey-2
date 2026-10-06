@@ -42,6 +42,10 @@
   .list div.sel { background:#e8f0fe; }
   .help { color:var(--muted); font-size:12px; }
   .stale { color:var(--flag); }
+  .badge { font-size:12px; font-weight:600; border-radius:3px; padding:1px 6px; }
+  .badge.checked { background:#e6f4ea; color:#137333; border:1px solid #a8dab5; }
+  .badge.stalecheck { background:#fef7e0; color:#7a5b00; border:1px solid #f1e2a8; }
+  #progress.justchecked .badge.checked { outline:2px solid #137333; }
   .tier { display:inline-block; min-width:1.1em; text-align:center; font-size:11px; font-weight:600; border-radius:3px; padding:0 3px; margin-right:4px; }
   .tier.contested { background:#fce8e6; color:#a50e0e; } .tier.unknown { background:#eee; color:#555; }
   .tier.single { background:#fef7e0; color:#7a5b00; } .tier.settled { background:#e6f4ea; color:#137333; }
@@ -103,19 +107,26 @@ function ageText(a) {
   return `${a.by} ${a.when || '?'} · ${v}`;
 }
 
+// every field has a verdict; 'stale' when the blueprint changed after that
+function checkedTag(c) {
+  if (!c) return '';
+  return c.stale ? '[checked, file changed since] ' : `[checked${c.flagged ? `, ${c.flagged} flagged` : ''}] `;
+}
+
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || decodeURIComponent(location.hash.slice(1));
   pick.innerHTML = '';
   const groups = {lib: 'library', je: 'judge-eval side copies', rl: 'relabels'};
   const oldest = $('#listorder').value === 'oldest';
-  for (const src of ['lib', 'je', 'rl']) {
-    const og = document.createElement('optgroup'); og.label = groups[src];
+  for (const src of Object.keys(groups)) {
     const items = LIST.filter(x => x.source === src);
+    if (!items.length) continue;
+    const og = document.createElement('optgroup'); og.label = groups[src];
     if (oldest) items.sort((a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form));
     for (const b of items) {
       const o = document.createElement('option'); o.value = b.id;
       const done = b.accepted + b.flagged;
-      o.textContent = `${b.form}  (${b.fields} fields${done ? `, ${done} reviewed` : ''}${b.stale ? ', stale' : ''})  ·  ${ageText(b.age)}`;
+      o.textContent = `${checkedTag(b.checked)}${b.form}  (${b.fields} fields${done && !b.checked ? `, ${done} reviewed` : ''}${b.stale ? ', stale' : ''})  ·  ${ageText(b.age)}`;
       og.appendChild(o);
     }
     pick.appendChild(og);
@@ -274,14 +285,29 @@ async function saveNote() {
 }
 async function put(verdicts) {
   const out = await j(`/api/blueprints/${encodeURIComponent(bid)}/verdicts`, {method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({verdicts})});
-  BP.verdicts = out.verdicts; BP.stale = false; renderProgress();
+  BP.verdicts = out.verdicts; BP.stale = false;
+  // the server refreshes this blueprint's listing entry on every save; pick up its checked state for the picker
+  try {
+    LIST = await j('/api/blueprints');
+    const e = LIST.find(b => b.id === bid);
+    const was = !!BP.checked; BP.checked = e ? e.checked : null;
+    renderPicker();
+    if (!was && BP.checked) flashChecked();
+  } catch (e) {}
+  renderProgress();
+}
+
+function flashChecked() {
+  const el = $('#progress'); el.classList.add('justchecked'); setTimeout(() => el.classList.remove('justchecked'), 2500);
 }
 
 function renderProgress() {
   const n = BP.fields.length, acc = BP.fields.filter(f => verdictOf(f.name) === 'accept').length, flg = BP.fields.filter(f => verdictOf(f.name) === 'flag').length;
   const t = {}; BP.fields.forEach(f => { if (f.tier) t[f.tier] = (t[f.tier] || 0) + 1; });
   const tiers = Object.keys(TIER_RANK).filter(k => t[k]).map(k => `${k} ${t[k]}`).join(' · ');
-  $('#progress').innerHTML = `<b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}` + (tiers ? ` <span class="help">(${tiers})</span>` : '') + (BP.witness_error ? ` <span class="stale">witnesses failed: ${escapeHtml(BP.witness_error)}</span>` : '');
+  const ck = BP.checked ? (BP.checked.stale ? ' <span class="badge stalecheck">checked, file changed since</span>'
+                                           : ` <span class="badge checked">checked ${escapeHtml((BP.checked.when || '').slice(0, 10))}</span>`) : '';
+  $('#progress').innerHTML = ck + ` <b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}` + (tiers ? ` <span class="help">(${tiers})</span>` : '') + (BP.witness_error ? ` <span class="stale">witnesses failed: ${escapeHtml(BP.witness_error)}</span>` : '');
   const left = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name)).length;
   $('#bulk').textContent = `accept settled (${left})`; $('#bulk').disabled = !left;
 }

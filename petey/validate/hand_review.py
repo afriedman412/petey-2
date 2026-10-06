@@ -112,6 +112,25 @@ def field_rows(bp: dict) -> list[dict]:
     return rows
 
 
+def reviewable(bp: dict) -> list[str]:
+    """The fields the page shows (those with a rect on the blank): what a verdict on every field means."""
+    return [r["name"] for r in field_rows(bp)]
+
+
+def checked(v: dict, p: Path, bp: dict) -> Optional[dict]:
+    """`{when, fields, flagged, stale}` when every reviewable field has a verdict, else None. Read from the verdicts
+    themselves, so a review finished before the record existed counts (its `when` is the file's last save); `stale`
+    when the blueprint changed after it was checked."""
+    vs = v.get("verdicts") or {}
+    names = reviewable(bp)
+    if not names or not all(vs.get(n, {}).get("verdict") for n in names):
+        return None
+    c = v.get("checked") or {"when": v.get("updated"), "blueprint_sha": v.get("blueprint_sha")}
+    return {"when": c.get("when"), "fields": len(names),
+            "flagged": sum(1 for n in names if vs[n]["verdict"] == "flag"),
+            "stale": c.get("blueprint_sha") != _sha(p)}
+
+
 def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
     try:
         return subprocess.run(["git", *args], capture_output=True, text=True, cwd=cwd, timeout=10).stdout.strip()
@@ -239,6 +258,7 @@ class State:
                 "accepted": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "accept"),
                 "flagged": sum(1 for n in fields if vs.get(n, {}).get("verdict") == "flag"),
                 "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
+                "checked": checked(v, p, bp),
                 "finder": (bp.get("x_petey_build") or {}).get("finder"),
                 "age": age(p, bp, self._git_here, self._git_origin)}
 
@@ -281,7 +301,8 @@ class State:
         return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": _sha(p),
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
                 "verdicts": v.get("verdicts") or {}, "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
-                "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(p, bp), "dpi": DPI}
+                "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(p, bp),
+                "checked": checked(v, p, bp), "dpi": DPI}
 
     def witnesses(self, bid: str, p: Path) -> dict:
         """Per-field witnesses and tier (`witness.py`), once per blueprint version; no API calls."""
@@ -328,8 +349,17 @@ class State:
                 vs.pop(name, None)
             else:
                 vs[name] = {"verdict": rec["verdict"], "note": (rec.get("note") or "").strip()[:300], "when": now}
-        out = {"blueprint": str(p), "form": p.stem, "blueprint_sha": _sha(p), "build": bp.get("x_petey_build"),
+        sha = _sha(p)
+        out = {"blueprint": str(p), "form": p.stem, "blueprint_sha": sha, "build": bp.get("x_petey_build"),
                "updated": now, "verdicts": vs}
+        # checked: every reviewable field has a verdict. The first moment that holds is kept (re-saving a note
+        # does not move it); clearing a verdict, or completing it again on a changed file, starts over
+        names = reviewable(bp)
+        if names and all(vs.get(n, {}).get("verdict") for n in names):
+            prev = cur.get("checked") or {}
+            out["checked"] = (prev if prev.get("blueprint_sha") == sha else
+                              {"when": now, "blueprint_sha": sha})
+            out["checked"].update(fields=len(names), flagged=sum(1 for n in names if vs[n]["verdict"] == "flag"))
         OUT.mkdir(parents=True, exist_ok=True)
         verdict_path(bid).write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")
         if self._index:
@@ -394,10 +424,11 @@ def summary() -> None:
         stale = p is None or v.get("blueprint_sha") != _sha(p)
         acc = sum(1 for r in vs.values() if r.get("verdict") == "accept")
         flg = [(n, r.get("note", "")) for n, r in vs.items() if r.get("verdict") == "flag"]
-        rows.append((vp.stem, acc, len(flg), stale, v.get("updated"), flg))
-    print(f"{'blueprint':40} {'accepted':>8} {'flagged':>7} {'stale':>5}  updated")
-    for bid, acc, nf, stale, upd, flg in rows:
-        print(f"{bid[:40]:40} {acc:8} {nf:7} {'yes' if stale else '':>5}  {upd}")
+        ck = checked(v, p, _load(p)) if p is not None else None
+        rows.append((vp.stem, acc, len(flg), stale, v.get("updated"), flg, ck))
+    print(f"{'blueprint':40} {'accepted':>8} {'flagged':>7} {'stale':>5} {'checked':>8}  updated")
+    for bid, acc, nf, stale, upd, flg, ck in rows:
+        print(f"{bid[:40]:40} {acc:8} {nf:7} {'yes' if stale else '':>5} {'yes' if ck else '':>8}  {upd}")
         for n, note in flg[:8]:
             print(f"      flag  {n[:40]:40} {note[:80]}")
     if not rows:
