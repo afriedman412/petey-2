@@ -43,7 +43,6 @@ from typing import Optional
 import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
-from petey.synth.boxes import widget_key
 from petey.validate import page_check
 
 E = RUNS / "judge_eval"
@@ -68,10 +67,17 @@ def _rel(p: Path) -> str:
     return str(p.resolve().relative_to(RUNS.parent.resolve()))
 
 
+def _widget_key(w: dict) -> Optional[str]:
+    """A widget's identity: its AcroForm path, else (a flat blueprint) its page and rect."""
+    if w.get("path"):
+        return w["path"]
+    return f"rect:{w.get('page')}:{w.get('rect')}" if w.get("rect") else None
+
+
 def _wkey(spec: dict) -> Optional[str]:
     if spec.get("widgets"):
-        return "group:" + "|".join(sorted(str(widget_key(w)) for w in spec["widgets"].values()))
-    return widget_key(spec.get("widget") or {})
+        return "group:" + "|".join(sorted(str(_widget_key(w)) for w in spec["widgets"].values()))
+    return _widget_key(spec.get("widget") or {})
 
 
 # ------------------------------------------------------------------ record
@@ -240,11 +246,8 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, f
     log(f"[run] {form}: round 0, {len(rec.fields)} fields, "
         f"{sum(1 for v in verdicts0.values() if v.get('verdict') == 'flag')} flagged")
 
-    if not reloop:
-        r = subprocess.run([sys.executable, "-u", "-m", "petey.validate.validate", "--blank", str(blank), "--form-id",
-                            form, "--bpt", str(work), "--gen-model", "bank", "--case-set", "1", "--n-flat", "0",
-                            "--methods", "native,judge:pymupdf"])
-        log(f"[run] {form}: validate exit {r.returncode}")
+    # no separate validate: the loop's first round validates this same blueprint and builds case set 1 (2026-10-06:
+    # a validate here duplicated that round, about three minutes a form)
 
     # the loop, recorded round by round
     from petey.validate.iterate import iterate

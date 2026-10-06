@@ -700,6 +700,47 @@ def _run_rescore(
     return 0
 
 
+def _case_worker(job: dict) -> tuple[dict, str]:
+    """One case in its own process, its printing captured so the log stays in case order."""
+    import contextlib
+    import io
+    import traceback
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        try:
+            report = _run_case(**job)
+        except Exception:
+            print(traceback.format_exc())
+            raise
+    return report, buf.getvalue()
+
+
+def _run_cases(jobs: list[dict], keys: list[str], args) -> list[dict]:
+    """The intact cases of a run, in parallel processes (2026-10-06: each case's judge read is a model call and the
+    loop validates every round; three in a row made validate the slow step of a form). Processes, not threads:
+    PyMuPDF is not thread-safe. In bank mode the blank is classified once first, so the cases do not each start
+    the same uncached classification. PETEY_SERIAL_CASES=1 runs them one after another."""
+    import os
+    if len(jobs) > 1 and (args.gen_model or args.model) == "bank":
+        classify_form(args.blank, cache_only=args.gen_cache_only,
+                      form_id=(keys[0] or "").rsplit("_intact", 1)[0] or None)
+    if len(jobs) <= 1 or os.environ.get("PETEY_SERIAL_CASES"):
+        out = []
+        for k, (job, key) in enumerate(zip(jobs, keys), start=1):
+            print(f"\n[case  ] {k:03d} (intact, {key})")
+            out.append(_run_case(**job))
+        return out
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=len(jobs)) as ex:
+        results = list(ex.map(_case_worker, jobs))
+    out = []
+    for k, ((report, text), key) in enumerate(zip(results, keys), start=1):
+        print(f"\n[case  ] {k:03d} (intact, {key})")
+        print(text, end="")
+        out.append(report)
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=__doc__,
@@ -849,21 +890,16 @@ def main() -> int:
         intact_keys = [f"{gen_key}_set{args.case_set}_case{k:03d}" for k in range(1, n_cases + 1)]
     else:
         intact_keys = [f"{gen_key}_intact_001"] + [f"{gen_key}_intact_{k:03d}" for k in range(2, n_cases + 1)]
-    case_reports: list[dict] = []
-    for k, key in enumerate(intact_keys, start=1):
-        intact_dir = run_dir / f"case_{k:03d}_intact"
-        print(f"\n[case  ] {k:03d} (intact, {key})")
-        case_reports.append(_run_case(
-            bpt_path=bpt_path, bpt=bpt, blank_pdf=args.blank,
-            case_dir=intact_dir, variant="intact",
-            methods=methods, model=args.model,
-            gen_model=args.gen_model,
-            gen_cache_dir=gen_cache_dir,
-            gen_cache_key=key,
-            datalab_max_fields=args.datalab_max_fields,
-            gen_cache_only=args.gen_cache_only,
-            adopt_from=adopt_from,
-        ))
+    case_jobs = [dict(bpt_path=bpt_path, bpt=bpt, blank_pdf=args.blank,
+                      case_dir=run_dir / f"case_{k:03d}_intact", variant="intact",
+                      methods=methods, model=args.model,
+                      gen_model=args.gen_model,
+                      gen_cache_dir=gen_cache_dir,
+                      gen_cache_key=key,
+                      datalab_max_fields=args.datalab_max_fields,
+                      gen_cache_only=args.gen_cache_only,
+                      adopt_from=adopt_from) for k, key in enumerate(intact_keys, start=1)]
+    case_reports: list[dict] = _run_cases(case_jobs, intact_keys, args)
     if args.case_set is not None:
         _record_set(form_id, args.case_set, intact_keys, args.gen_model or args.model, run_dir, previous=previous_set)
     intact_reports = list(case_reports)
