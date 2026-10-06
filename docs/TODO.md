@@ -457,6 +457,17 @@ and case sets".
 
 - Registry lifecycle states and the review list (STRATEGY_v1 §5 step 5) — unchanged.
 
+- **Gemini for the remaining model slots** (parked 2026-10-06, Andrew: costs some money, not quality). Switched so
+  far: labeler (`auto_label.MODEL`, Gemini 3.8 Flash) and the round-0 page check (`form_run.FIRST_MODEL`, page sent as
+  three strips because Gemini 3 sees an image at ~1,100 tokens to Opus's ~4,800; on the dense fixture forms strips
+  matched Opus, 16 vs 14 known errors, at $0.54 vs $1.94). Never tested on Gemini: the page classifier (Sonnet 4.6;
+  whole-page vision, so it would likely need strips too; it is the page-reading step of today's blind generation,
+  bank cases), the reader / judge (Sonnet 4.6; compared only against Sonnet 5 / Haiku 4.5, `eval/reader_models.py`;
+  text layer, so the image limit matters little), the adjudicator (Sonnet 4.6; a crop, so the limit matters less;
+  `eval/adjudicator_test.py`, 19 fields) and the reviewer (Opus 5). Gemini was tested on the blind generator only
+  (RESULTS 2026-09-30), which is now an optional second source beside the bank. Test each against its existing
+  fixture before switching.
+
 ## Low
 
 - Text-layer refusal (OCR / VLM fallback) — unchanged.

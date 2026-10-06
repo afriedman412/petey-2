@@ -58,6 +58,10 @@ LABEL_PT = 6.0                             # label font size on the page, in poi
 REASONING_EFFORT = "medium"                # OpenAI-compatible vendors (Gemini): think before answering (2026-10-06:
                                            # high = ~21k thinking tokens, 163 s a page; medium ~2.5k, 18 s); Anthropic
                                            # models reason by default (adaptive thinking)
+STRIPS = 3                                 # OpenAI-compatible vendors see an image at a fixed token budget (Gemini 3:
+STRIP_ABOVE, STRIP_BELOW = 260, 60         # ~1,100 tokens, Opus ~4,800 for the same 200 dpi page), so a page goes as
+                                           # overlapping horizontal strips, each with its own budget; px of context
+                                           # above (column headers) and below each strip's own band
 PROBLEMS = ("none", "wrong_name", "wrong_type", "not_a_field", "should_group", "options", "other")
 
 SYSTEM = """You check a form blueprint against its blank form. A blueprint names and types every fillable box \
@@ -236,22 +240,30 @@ def _client(model: str):
     return make_client(model)
 
 
-def _key(model: str, png: bytes, listing: str) -> str:
+def _key(model: str, png: bytes, listing: str, only: Optional[list[str]] = None) -> str:
+    from petey.synth.generate import provider_for
     h = hashlib.sha256()
-    for part in (model.encode(), SYSTEM.encode(), json.dumps(SCHEMA, sort_keys=True).encode(), png, listing.encode()):
+    effort = REASONING_EFFORT if provider_for(model) is not None else ""     # Gemini's answers depend on it
+    for part in (model.encode() + effort.encode(), SYSTEM.encode(), json.dumps(SCHEMA, sort_keys=True).encode(), png,
+                 listing.encode(), json.dumps(only or []).encode()):
         h.update(hashlib.sha256(part).digest())
     return h.hexdigest()[:24]
 
 
-def request(model: str, png: bytes, items: list[dict], *, page_no: int, n_pages: int, form: str) -> tuple[str, dict]:
-    """(cache key, Messages API params) for one page."""
+def request(model: str, png: bytes, items: list[dict], *, page_no: int, n_pages: int, form: str,
+            only: Optional[list[str]] = None, view: str = "") -> tuple[str, dict]:
+    """(cache key, Messages API params) for one page. `only` (field numbers): judge just these; every other box
+    stays outlined and listed as context."""
     listing = json.dumps(items, ensure_ascii=False)
-    user = (f"Form {form}, page {page_no} of {n_pages}. The fields outlined on this page:\n{listing}\n\n"
-            "Check every field and return JSON.")
+    ask_txt = ("Check every field and return JSON." if not only else
+               f"Check only fields {', '.join(only)}: put each of them in accepted or flags. The other boxes are "
+               "outlined and listed for context only; do not return them. Return JSON.")
+    where = f"page {page_no} of {n_pages}" + (f", {view}" if view else "")
+    user = f"Form {form}, {where}. The fields outlined in this image:\n{listing}\n\n{ask_txt}"
     content = [{"type": "image", "source": {"type": "base64", "media_type": "image/png",
                                             "data": base64.standard_b64encode(png).decode("ascii")}},
                {"type": "text", "text": user}]
-    return _key(model, png, listing), dict(
+    return _key(model, png, listing, only), dict(
         model=model, max_tokens=64000, system=SYSTEM, messages=[{"role": "user", "content": content}],
         output_config={"format": {"type": "json_schema", "schema": SCHEMA}})
 
@@ -322,9 +334,9 @@ def _ask_openai_compatible(client, params: dict) -> tuple[dict, dict]:
 
 
 def ask(client, model: str, png: bytes, items: list[dict], *, page_no: int, n_pages: int,
-        form: str) -> tuple[dict, dict]:
-    """One call for one page (cached). Returns ({id: answer}, usage)."""
-    key, params = request(model, png, items, page_no=page_no, n_pages=n_pages, form=form)
+        form: str, only: Optional[list[str]] = None, view: str = "") -> tuple[dict, dict]:
+    """One call for one page or strip (cached). Returns ({id: answer}, usage)."""
+    key, params = request(model, png, items, page_no=page_no, n_pages=n_pages, form=form, only=only, view=view)
     c = cached(key)
     if c is not None:
         return c["answers"], {**c["usage"], "cached": True}
@@ -422,13 +434,67 @@ def run_batch(bpts: list[Path], *, model: str = MODEL, pages: Optional[set[int]]
 
 # ------------------------------------------------------------------ check
 
+def _box_of(it: dict) -> list[float]:
+    return it.get("pixel_box") or it["options"][0]["pixel_box"]
+
+
+def views(model: str, png: bytes, items: list[dict]) -> list[tuple[bytes, list[dict], set[str], str]]:
+    """What one page is sent as: (image, listed fields, ids to judge, label). Anthropic models get the whole page.
+    OpenAI-compatible vendors get STRIPS overlapping horizontal strips: each judges the fields whose box centre
+    lies in its own band and lists, as context, every field with a box inside the strip; pixel boxes are given in
+    the strip's own coordinates."""
+    from petey.synth.generate import provider_for
+    if provider_for(model) is None or STRIPS <= 1:
+        return [(png, items, {it["id"] for it in items}, "")]
+    import io
+    from PIL import Image
+    im = Image.open(io.BytesIO(png))
+    W, H = im.size
+    band = H / STRIPS
+    out = []
+    for k in range(STRIPS):
+        b0, b1 = k * band, (k + 1) * band
+        top, bot = max(0, int(b0 - STRIP_ABOVE)), min(H, int(b1 + STRIP_BELOW))
+        own = {it["id"] for it in items
+               if b0 <= (_box_of(it)[1] + _box_of(it)[3]) / 2 < b1 or (k == STRIPS - 1 and (_box_of(it)[1] + _box_of(it)[3]) / 2 >= b1)}
+        if not own:
+            continue
+
+        def shift(b):
+            return [b[0], b[1] - top, b[2], b[3] - top]
+        listed = []
+        for it in items:
+            bx = _box_of(it)
+            if it["id"] in own or (bx[3] > top and bx[1] < bot):
+                it2 = dict(it)
+                if "pixel_box" in it2:
+                    it2["pixel_box"] = shift(it2["pixel_box"])
+                if "options" in it2:
+                    it2["options"] = [{**o, "pixel_box": shift(o["pixel_box"])} for o in it2["options"]]
+                listed.append(it2)
+        buf = io.BytesIO()
+        im.crop((0, top, W, bot)).save(buf, format="PNG")
+        out.append((buf.getvalue(), listed, own,
+                    f"strip {k + 1} of {STRIPS} (the page continues {'above and below' if 0 < k < STRIPS - 1 else 'below' if k == 0 else 'above'})"))
+    return out
+
+
 def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dry: bool = False,
-          png_dir: Optional[Path] = None, client=None, log=print) -> dict:
-    """Every field on the chosen pages (default all): its answer, keyed by field name."""
+          png_dir: Optional[Path] = None, client=None, log=print, only_names: Optional[set[str]] = None) -> dict:
+    """Every field on the chosen pages (default all): its answer, keyed by field name. With `only_names`, only
+    those fields are judged (on the pages that hold them; the rest of each page is context)."""
+    if only_names is not None and not only_names:
+        return {"blueprint": str(bpt), "model": model, "prompt": PROMPT_VERSION, "when": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "pages": [], "usage": {}, "cost_usd": 0.0, "fields": {}}
+    if only_names is not None:
+        _bp = yaml.load(bpt.read_text(encoding="utf-8"), Loader=_LOADER) or {}
+        held = {b["page"] for r in numbered(_bp) if r["name"] in only_names for b in r["boxes"]}
+        pages = held & pages if pages else held
     bp, blank, rows, n_pages, want = pages_of(bpt, pages)
     by_id = {r["id"]: r for r in rows}
     fields: dict[str, dict] = {}
     usage_total: collections.Counter = collections.Counter()
+    per_page: list[dict] = []        # one row per call: time, fields judged, tokens (time and cost per field)
     form = bp.get("name") or bpt.stem
     for pg in want:
         png, dpi, px = render(blank, pg, rows)
@@ -442,33 +508,51 @@ def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dr
             continue
         if client is None:
             client = _client(model)
-        answers, usage = ask(client, model, png, items, page_no=pg, n_pages=n_pages, form=form)
-        if not usage.get("cached"):
-            for k in ("input_tokens", "output_tokens"):
-                usage_total[k] += usage.get(k, 0)
-            usage_total["calls"] += 1
-        else:
-            usage_total["cached"] += 1
-        missing = [it["id"] for it in items if it["id"] not in answers]
-        log(f"  page {pg}: {len(items)} fields, {sum(a.get('verdict') == 'flag' for a in answers.values())} flagged"
-            + (f", {len(missing)} unanswered" if missing else "")
-            + (" (cached)" if usage.get("cached") else f", {usage.get('seconds')}s, {usage.get('stop_reason')}"))
-        for it in items:
-            name = by_id[it["id"]]["name"]
-            a = answers.get(it["id"])
-            rec = ({"verdict": a.get("verdict"), "problem": a.get("problem"), "box_holds": a.get("box_holds"),
-                    "proposed_name": a.get("proposed_name") or None, "proposed_type": a.get("proposed_type") or None,
-                    "reason": a.get("reason"), "page": pg}
-                   if a else {"verdict": None, "problem": "unanswered", "page": pg})
-            rec["spec"] = spec_hash(by_id[it["id"]]["spec"])
-            prev = fields.get(name)
-            if prev is None or (rec["verdict"] == "flag" and prev.get("verdict") != "flag"):
-                fields[name] = rec            # a group over several pages: a flag on any page stands
+        want_ids = {it["id"] for it in items if only_names is None or by_id[it["id"]]["name"] in only_names}
+        jobs = []
+        for vpng, vitems, own, label in views(model, png, items):
+            judge = sorted(own & want_ids, key=int)
+            if judge:
+                full = only_names is None and len(views(model, png, items)) == 1
+                jobs.append((vpng, vitems, None if full else judge, label))
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=max(1, len(jobs))) as ex:
+            results = list(ex.map(lambda j: ask(client, model, j[0], j[1], page_no=pg, n_pages=n_pages, form=form,
+                                                only=j[2], view=j[3]), jobs))
+        for (vpng, vitems, only, label), (answers, usage) in zip(jobs, results):
+            if not usage.get("cached"):
+                for k in ("input_tokens", "output_tokens"):
+                    usage_total[k] += usage.get(k, 0)
+                usage_total["calls"] += 1
+            else:
+                usage_total["cached"] += 1
+            asked = [it for it in vitems if only is None or it["id"] in only]
+            per_page.append({"page": pg, "view": label or None, "fields": len(asked), "on_page": len(items),
+                             "cached": bool(usage.get("cached")),
+                             "seconds": None if usage.get("cached") else usage.get("seconds"),
+                             "input_tokens": usage.get("input_tokens"), "output_tokens": usage.get("output_tokens")})
+            missing = [it["id"] for it in asked if it["id"] not in answers]
+            log(f"  page {pg}{' ' + label.split(' (')[0] if label else ''}: {len(asked)} fields"
+                f"{'' if only is None else f' of {len(vitems)}'}, {sum(a.get('verdict') == 'flag' for a in answers.values())} flagged"
+                + (f", {len(missing)} unanswered" if missing else "")
+                + (" (cached)" if usage.get("cached") else f", {usage.get('seconds')}s, {usage.get('stop_reason')}"))
+            for it in asked:
+                name = by_id[it["id"]]["name"]
+                a = answers.get(it["id"])
+                rec = ({"verdict": a.get("verdict"), "problem": a.get("problem"), "box_holds": a.get("box_holds"),
+                        "proposed_name": a.get("proposed_name") or None, "proposed_type": a.get("proposed_type") or None,
+                        "reason": a.get("reason"), "page": pg}
+                       if a else {"verdict": None, "problem": "unanswered", "page": pg})
+                rec["spec"] = spec_hash(by_id[it["id"]]["spec"])
+                rec["model"] = model
+                prev = fields.get(name)
+                if prev is None or (rec["verdict"] == "flag" and prev.get("verdict") != "flag"):
+                    fields[name] = rec            # a group over several pages: a flag on any page stands
     pin, pout = PRICES.get(model, (0.0, 0.0))
     cost = usage_total["input_tokens"] / 1e6 * pin + usage_total["output_tokens"] / 1e6 * pout
     return {"blueprint": str(bpt), "form": form, "blueprint_sha": _sha(bpt), "model": model, "prompt": PROMPT_VERSION,
             "when": time.strftime("%Y-%m-%d %H:%M:%S"), "pages": want, "usage": dict(usage_total),
-            "cost_usd": round(cost, 4), "fields": fields}
+            "cost_usd": round(cost, 4), "per_page": per_page, "fields": fields}
 
 
 # ------------------------------------------------------------- record, stamp

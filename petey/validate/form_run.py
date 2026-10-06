@@ -4,14 +4,16 @@ Andrew, 2026-10-06: keep the JSON before every loop round; when the form is stab
 record (`runs/judge_eval/form_runs/<form>.json`) holds
 
     round 0     the fresh label in full (every field's definition and the blueprint's top level) with the page
-                check's verdict on every field;
+                check's verdict on every field (FIRST_MODEL, Gemini);
     round k     the state after loop round k, i.e. before round k+1: only the fields that round added, changed
                 (a definition hash differs), renamed (same widget, new name) or removed, with the loop's record
-                for the round (detections, rule fixes, rebinds, reviewer edits, edits restored), and the page
-                check of every field (Andrew: a change has knock-on effects; unchanged pages come from the cache
-                free, a changed page is judged again in full), of which only the new verdicts are kept: a new
-                definition, or a field whose verdict changed. They reach the next round's reviewer; a name / type
-                flag on a field the reviewer already judged reopens it;
+                for the round (detections, rule fixes, rebinds, reviewer edits, edits restored), and the loop's
+                check (LOOP_MODEL, Opus): the changed fields and their neighbours, judged with the whole page as
+                context, plus a code check for name collisions. A changed field's verdict stands; on an unchanged
+                field the check can add a flag (a knock-on effect) but never clears one. Every verdict carries its
+                model, every call its time, fields and tokens, so the record shows where the round-0 model
+                missed what the loop found, and the time and cost per field. The new flags reach the next
+                round's reviewer; a name / type flag on a field the reviewer already judged reopens it;
     final       anything left unchecked (normally nothing), and the result: status, why the loop stopped,
                 review rounds, stable or not.
 
@@ -31,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 import time
@@ -46,6 +49,10 @@ from petey.validate import page_check
 E = RUNS / "judge_eval"
 WORK, OUT, RECORDS = E / "work", E / "blueprints", E / "form_runs"
 UNSTABLE = ("review cap", "max iterations")
+FIRST_MODEL = "gemini-3.8-flash"     # round 0: every field (Andrew, 2026-10-06: Gemini for the first run ...
+LOOP_MODEL = "claude-opus-5"         # ... Opus for the loop: the changed fields and their neighbours)
+NEAR_X, NEAR_Y = 60.0, 24.0          # points around a changed box that count as its neighbourhood
+RUN_KEYS = ("model", "prompt", "pages", "usage", "cost_usd", "when", "per_page")
 
 
 def _now() -> str:
@@ -127,20 +134,73 @@ def state(rec: dict, upto: Optional[int] = None) -> dict:
 
 # --------------------------------------------------------------------- run
 
+def _boxes(spec: dict) -> list[tuple[int, list[float]]]:
+    ws = list((spec.get("widgets") or {}).values()) or [spec.get("widget") or {}]
+    return [(w["page"], w["rect"]) for w in ws if w.get("page") and w.get("rect")]
+
+
+def neighbours(fields: dict[str, dict], names: set[str]) -> set[str]:
+    """Fields with a box near a box of one of `names` (same page, within NEAR_X / NEAR_Y points): where a change's
+    knock-on effects land (a slide, two fields on one caption, a row or column off by one)."""
+    zones = [(pg, (r[0] - NEAR_X, r[1] - NEAR_Y, r[2] + NEAR_X, r[3] + NEAR_Y))
+             for n in names if n in fields for pg, r in _boxes(fields[n])]
+    out = set()
+    for n, spec in fields.items():
+        if n in names or not isinstance(spec, dict):
+            continue
+        for pg, r in _boxes(spec):
+            if any(pg == zp and r[0] <= z[2] and r[2] >= z[0] and r[1] <= z[3] and r[3] >= z[1] for zp, z in zones):
+                out.add(n)
+                break
+    return out
+
+
+def collisions(fields: dict[str, dict], names: set[str]) -> dict[str, str]:
+    """{changed field: the field it collides with}: two fields whose names differ only by a copy number (`_2`) or
+    a trailing digit, one of them changed this round, on different boxes: two boxes now claim one meaning. A code
+    check, no model."""
+    def stem(n: str) -> str:
+        return re.sub(r"(_\d+|\d+)$", "", n)
+    out = {}
+    for n in names:
+        if n not in fields:
+            continue
+        for m in fields:
+            if m != n and stem(m) == stem(n) and _boxes(fields[m]) != _boxes(fields[n]):
+                out[n] = m
+                break
+    return out
+
+
 def round_check(bp: dict, bp_path: Path, rec: Record, model: str, log) -> tuple[dict, Optional[dict]]:
-    """Page-check every field (Andrew, 2026-10-06: a change has knock-on effects on fields that did not change: a
-    neighbour renamed onto the same caption, a block that slid). Pages whose image and field list are unchanged
-    come back from the check's cache at no cost; a page with any change is judged again in full. Returns only the
-    verdicts that are new: a definition no verdict covers yet, or a field whose verdict or problem differs from the
-    latest one recorded for its definition. ({field: verdict}, the check's cost record)."""
+    """The loop's check after a round (Andrew, 2026-10-06): the fields whose definition no verdict covers yet (what
+    the round changed), and their neighbours, judged on their pages with the rest of each page as context; plus a
+    code check for name collisions. Verdict rule: a changed field's verdict stands; on an unchanged field the check
+    may ADD a flag (a knock-on effect) but never clears one, since another look at the same definition is a second
+    opinion, not a fix. Returns the new verdicts and the check's record (time, fields, tokens per call)."""
     table = page_check.verdict_table(rec.data)
-    res = page_check.check(bp_path, model=model, log=log)
+    fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
+    changed = {n for n, s in fields.items() if (n, page_check.spec_hash(s)) not in table}
+    if not changed:
+        return {}, None
+    near = neighbours(fields, changed)
+    res = page_check.check(bp_path, model=model, log=log, only_names=changed | near)
     new = {}
     for n, v in res["fields"].items():
-        old = table.get((n, v.get("spec")))
-        if old is None or (old.get("verdict"), old.get("problem")) != (v.get("verdict"), v.get("problem")):
+        if n in changed:
             new[n] = v
-    return new, {k: res[k] for k in ("model", "prompt", "pages", "usage", "cost_usd", "when")}
+            continue
+        old = table.get((n, v.get("spec")))
+        if v.get("verdict") == "flag" and (old is None or old.get("verdict") != "flag"):
+            new[n] = {**v, "knock_on": True}
+    for n, other in collisions(fields, changed).items():
+        if new.get(n, {}).get("verdict") != "flag":
+            new[n] = {"verdict": "flag", "problem": "wrong_name", "spec": page_check.spec_hash(fields[n]),
+                      "model": "code", "reason": f"name collides with `{other}` (same name but for a copy number), "
+                      "on another box", "box_holds": "", "proposed_name": None, "proposed_type": None}
+    info = {k: res.get(k) for k in RUN_KEYS}
+    info.update(changed=len(changed), neighbours=len(near))
+    return new, info
 
 
 def _stamp_record(bp: dict, rec_path: Path, model: str) -> None:
@@ -148,8 +208,8 @@ def _stamp_record(bp: dict, rec_path: Path, model: str) -> None:
                                 "when": _now()}
 
 
-def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, model: str = page_check.MODEL,
-        log=print) -> dict:
+def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, first_model: str = FIRST_MODEL,
+        loop_model: str = LOOP_MODEL, log=print) -> dict:
     lib = BLUEPRINTS / f"{form}.bpt"
     rec = Record(form, blank, lib if lib.exists() else None)
     prev = rec.archive_previous()
@@ -169,13 +229,13 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, m
         if r.returncode or not work.exists():
             raise SystemExit(f"{form}: label failed (exit {r.returncode})")
         bp0 = yaml.safe_load(work.read_text(encoding="utf-8")) or {}
-        res = page_check.check(work, model=model, log=log)
+        res = page_check.check(work, model=first_model, log=log)
         verdicts0 = res["fields"]
-        check0 = {k: res[k] for k in ("model", "prompt", "pages", "usage", "cost_usd", "when")}
+        check0 = {k: res.get(k) for k in RUN_KEYS}
         stage = "label"
     bp0.pop("x_petey_page_check", None)
     rec.round0(bp0, verdicts0, check0, stage)
-    _stamp_record(bp0, rec.path, model)
+    _stamp_record(bp0, rec.path, f"{first_model} (round 0), {loop_model} (loop)")
     _dump(bp0, work)
     log(f"[run] {form}: round 0, {len(rec.fields)} fields, "
         f"{sum(1 for v in verdicts0.values() if v.get('verdict') == 'flag')} flagged")
@@ -190,11 +250,11 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, m
     from petey.validate.iterate import iterate
 
     def on_round(loop_rec: dict, bp_path: Path) -> set:
-        """Record the round, then page-check every field (`round_check`); the new verdicts go into the round, where
-        the next round's reviewer finds them; a new name / type flag on a field the reviewer already judged
-        reopens it."""
+        """Record the round, then check what it changed and the neighbours (`round_check`); the new verdicts go into
+        the round, where the next round's reviewer finds them; a new name / type flag on a field the reviewer
+        already judged reopens it."""
         bpr = yaml.safe_load(bp_path.read_text(encoding="utf-8")) or {}
-        spot, info = round_check(bpr, bp_path, rec, model, log)
+        spot, info = round_check(bpr, bp_path, rec, loop_model, log)
         r = rec.add_round(bpr, loop_rec, page_check=spot, page_check_run=info)
         flagged = {n for n, v in spot.items() if v.get("verdict") == "flag"}
         log(f"[run] {form}: round {r['round']} recorded: {len(r['changed'])} changed, {len(r['removed'])} removed, "
@@ -205,9 +265,9 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, m
                      label_model=None, gen_key=None, max_iter=8, describe=True, apply_correct=True,
                      review="flagged", allow_dirty=True, case_set=1, bpt=work, on_round=on_round)
 
-    # final: the blueprint as the loop left it (from cache unless the last round changed something)
+    # final: anything the last round left unchecked (normally nothing)
     bp = yaml.safe_load(work.read_text(encoding="utf-8")) or {}
-    final, run_info = round_check(bp, work, rec, model, log)
+    final, run_info = round_check(bp, work, rec, loop_model, log)
     stop = result.get("stop") or ""
     stable = not result["status"].startswith("blocked") and not stop.startswith(UNSTABLE)
     rec.add_round(bp, None, stage="final", page_check=final, page_check_run=run_info)
@@ -233,7 +293,7 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, m
         f"{bp['x_petey_page_check']['flagged']} page-check flags; wrote {OUT / f'{form}.bpt'}")
 
     if library and lib.exists():
-        res = page_check.check(lib, model=model, log=log)
+        res = page_check.check(lib, model=first_model, log=log)
         page_check.save(res, lib, stamp=False)
         log(f"[run] {form}: library blueprint {sum(1 for v in res['fields'].values() if v.get('verdict') == 'flag')} "
             f"page-check flags")
@@ -246,10 +306,13 @@ def main() -> int:
     ap.add_argument("--blank", required=True, type=Path)
     ap.add_argument("--reloop", action="store_true", help="re-run the loop from the last run's round 0 (no label)")
     ap.add_argument("--no-library", action="store_true", help="skip the library blueprint's comparison check")
-    ap.add_argument("--page-check-model", default=page_check.MODEL,
-                    help=f"model for the page check (default {page_check.MODEL}; e.g. gemini-3.8-flash)")
+    ap.add_argument("--first-model", default=FIRST_MODEL, help=f"round-0 page check of every field (default {FIRST_MODEL})")
+    ap.add_argument("--loop-model", default=LOOP_MODEL, help=f"the loop's checks of changed fields (default {LOOP_MODEL})")
+    ap.add_argument("--page-check-model", default=None, help="one model for both (overrides the two above)")
     args = ap.parse_args()
-    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library, model=args.page_check_model)
+    first = args.page_check_model or args.first_model
+    loop = args.page_check_model or args.loop_model
+    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library, first_model=first, loop_model=loop)
     return 0
 
 
