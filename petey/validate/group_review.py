@@ -49,7 +49,7 @@ from petey.validate.retype import resolve_blank
 OUT = RUNS / "group_review"
 DPI = 144                    # option boxes are 8-10 pt; the hand review's 110 dpi makes them 12 px targets
 OPTION_TYPES = ("checkbox", "radiobutton")
-NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywhere (f5500sh 4a_...)
 
 
 def record_path(bid: str) -> Path:
@@ -211,10 +211,13 @@ def _page_captions(blank: Optional[Path], blocks: dict[str, dict], all_items: di
     return {k: b["caption"] for k, b in need.items() if b.get("caption")}
 
 
-def plan(bp: dict, units: list[dict], blank: Optional[Path] = None) -> dict:
+def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_captions: bool = True) -> dict:
     """What writing `units` into `bp` changes: `{changes, errors, fields}` with `fields` the new field map (None
     when there are errors). Fields whose unit is unchanged keep their spec untouched and their place; a new or
-    changed unit is written where its origin field was, or where its first option's field was."""
+    changed unit is written where its origin field was, or where its first option's field was. Units the person
+    left as the blueprint has them are not checked: the blueprint's own names and types stand. `page_captions`
+    off: an option without a caption or tooltip stays uncaptioned (2026-10-05, Yes/No grids read as '??', line
+    numbers or the next question's first word)."""
     text_units = [u for u in units if u.get("kind") == "text"]
     units = [u for u in units if u.get("kind") != "text"]
     items, base = option_items(bp)
@@ -223,10 +226,16 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None) -> dict:
     option_fields = {it["field"] for it in items.values()}
     errors, changes = [], []
 
+    def unchanged(u: dict) -> bool:
+        b = base_by_origin.get(u.get("origin"))
+        return b is not None and _signature(b) == _signature(u)
+
     names = [u["name"] for u in units]
     for n in sorted({n for n in names if names.count(n) > 1}):
         errors.append(f"two units are both named {n!r}")
     for u in units:
+        if unchanged(u):
+            continue
         if not NAME_RE.match(u["name"] or ""):
             errors.append(f"{u['name']!r} is not a field name (lower case, digits, underscores)")
         elif u["name"] in fields and u["name"] not in option_fields:
@@ -240,10 +249,6 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None) -> dict:
     missing = set(items) - set(covered)
     if missing:
         errors.append(f"{len(missing)} option(s) belong to no unit: {', '.join(sorted(missing)[:5])}")
-
-    def unchanged(u: dict) -> bool:
-        b = base_by_origin.get(u.get("origin"))
-        return b is not None and _signature(b) == _signature(u)
 
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     on_states = _blank_on_states(blank, [items[i] for u in units if not unchanged(u) and len(u["items"]) > 1
@@ -289,7 +294,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None) -> dict:
                 while k in blocks:
                     k, n = f"{key}_{n}", n + 1
                 blocks[k] = block
-            for k, cap in _page_captions(blank, blocks, items).items():
+            for k, cap in (_page_captions(blank, blocks, items) if page_captions else {}).items():
                 blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_text"
             spec["values"] = list(blocks)
             spec["widgets"] = blocks
@@ -396,7 +401,7 @@ def _combine_text(bp: dict, out: dict, text_units: list[dict], now: str, changes
     return new
 
 
-def apply(bid: str) -> dict:
+def apply(bid: str, page_captions: bool = True) -> dict:
     """Write the record into the blueprint, then re-derive the record from the new file (confirmations kept by unit
     name and membership)."""
     p = blueprint_paths()[bid]
@@ -406,7 +411,7 @@ def apply(bid: str) -> dict:
     if info["stale"]:
         raise SystemExit(f"{bid}: the record was written against another version of the blueprint; open it in the "
                          f"page, check the grouping and save again before applying")
-    pl = plan(bp, units, resolve_blank(bp))
+    pl = plan(bp, units, resolve_blank(bp), page_captions)
     if pl["errors"]:
         raise SystemExit(f"{bid}: not applied:\n  " + "\n  ".join(pl["errors"]))
     if not pl["changes"]:
@@ -558,6 +563,8 @@ def main() -> int:
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--plan", metavar="ID", help="print what --apply would change for this blueprint id")
     ap.add_argument("--apply", metavar="ID", help="write the recorded grouping into this blueprint")
+    ap.add_argument("--no-page-captions", action="store_true",
+                    help="do not read captions from the page for options that have none (they stay uncaptioned)")
     ap.add_argument("--no-open", action="store_true")
     args = ap.parse_args()
     if args.summary:
@@ -568,7 +575,7 @@ def main() -> int:
         if bid not in blueprint_paths():
             raise SystemExit(f"no blueprint {bid!r} (ids look like lib__fw9, je__<form>, rl__<form>, fl__<form>)")
         if args.apply:
-            apply(bid)
+            apply(bid, page_captions=not args.no_page_captions)
             return 0
         p = blueprint_paths()[bid]
         bp = _load(p)

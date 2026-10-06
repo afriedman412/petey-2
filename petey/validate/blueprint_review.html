@@ -690,7 +690,7 @@ MODE.groups = (() => {
     return (u.confirmed ? '<span class="badge ok">confirmed</span>' : '') + (st === 'new' ? '<span class="badge new">new</span>' : st === 'edited' ? '<span class="badge edit">edited</span>' : '');
   }
   function nameCheck(u) {
-    return !/^[a-z][a-z0-9_]*$/.test(u.name) ? 'not a field name (lower case, digits, underscores)' : takenNames(u).has(u.name) ? 'another field already has this name' : '';
+    return !/^[a-z0-9][a-z0-9_]*$/.test(u.name) ? 'not a field name (lower case, digits, underscores)' : takenNames(u).has(u.name) ? 'another field already has this name' : '';
   }
   function textHtml(u) {
     const bad = nameCheck(u);
@@ -929,7 +929,7 @@ MODE.add = (() => {
     return `<div class="acard">
       <h3>${esc(what)} on p${p.page} <span class="help">· ${esc(p.geometry)} geometry</span></h3>
       <input type="text" data-i="${i}" data-k="name" value="${esc(p.name)}">
-      ${!/^[a-z][a-z0-9_]*$/.test(p.name) ? '<div class="err help">not a field name (lower case, digits, underscores)</div>' : clash ? '<div class="err help">another field has this name</div>' : ''}
+      ${!/^[a-z0-9][a-z0-9_]*$/.test(p.name) ? '<div class="err help">not a field name (lower case, digits, underscores)</div>' : clash ? '<div class="err help">another field has this name</div>' : ''}
       <div class="achips">${p.name_options.map((o, k) => `<span class="achip ${o.name === p.name ? 'on' : ''}" data-name="${i}:${k}">${esc(o.name)}<span class="src">${esc(o.source)}</span></span>`).join('')}
         <span class="achip" data-labeler="${i}" title="one call to ${esc(BP.label_model)} with this page's words">ask the labeler</span></div>
       <div class="grid">
@@ -1022,7 +1022,7 @@ MODE.add = (() => {
     panel();
   }
   function addProps(idx) {
-    const bad = idx.map(i => props[i]).filter(p => !/^[a-z][a-z0-9_]*$/.test(p.name || ''));
+    const bad = idx.map(i => props[i]).filter(p => !/^[a-z0-9][a-z0-9_]*$/.test(p.name || ''));
     if (bad.length) { notes = [`not a field name: ${bad.map(p => p.name).join(', ')}`]; return panel(); }
     const now = localNow();
     for (const i of idx) added.push({...props[i], when: now});

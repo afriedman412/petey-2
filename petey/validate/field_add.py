@@ -59,7 +59,7 @@ from petey.validate.retype import resolve_blank
 OUT = RUNS / "field_add"
 DPI = 144
 LABEL_MODEL = auto_label.MODEL
-NAME_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_]*$")     # spec 5.2 allows digits anywhere
 OPTION_WIDGETS = ("checkbox", "radiobutton")
 CLAIM = 0.5                     # overlap (of the smaller rect) at which a field covers a box
 _DROP = {"the", "a", "an", "your", "enter", "here", "please", "print", "type", "and", "or", "if", "any", "see",
