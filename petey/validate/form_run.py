@@ -224,7 +224,11 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, m
     bp["x_petey_run"] = {"record": _rel(rec.path), "status": result["status"], "stop": stop, "stable": stable,
                          "rounds": len(rec.data["rounds"]) - 1, "review_rounds": result.get("review_rounds"),
                          "when": _now()}
-    _dump(bp, OUT / f"{form}.bpt")
+    out = OUT / f"{form}.bpt"
+    if out.exists() and "x_petey_run" not in (yaml.safe_load(out.read_text(encoding="utf-8")) or {}):
+        # a side copy made before form_run (an earlier batch): kept beside the work copy, out of the review page
+        out.replace(WORK / f"{form}.before_form_run.bpt")
+    _dump(bp, out)
     log(f"[run] {form}: {result['status']} ({stop}); {'stable' if stable else 'NOT stable'}; "
         f"{bp['x_petey_page_check']['flagged']} page-check flags; wrote {OUT / f'{form}.bpt'}")
 
@@ -242,8 +246,10 @@ def main() -> int:
     ap.add_argument("--blank", required=True, type=Path)
     ap.add_argument("--reloop", action="store_true", help="re-run the loop from the last run's round 0 (no label)")
     ap.add_argument("--no-library", action="store_true", help="skip the library blueprint's comparison check")
+    ap.add_argument("--page-check-model", default=page_check.MODEL,
+                    help=f"model for the page check (default {page_check.MODEL}; e.g. gemini-3.8-flash)")
     args = ap.parse_args()
-    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library)
+    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library, model=args.page_check_model)
     return 0
 
 

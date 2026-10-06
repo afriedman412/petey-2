@@ -64,6 +64,19 @@ def blueprint_paths() -> dict[str, Path]:
     return out
 
 
+def _launch_tiers() -> dict[str, str]:
+    """{blank file name: launch tier} from registry/launch_ranking_v2.csv (the forms acquired for launch)."""
+    import csv
+    f = BLUEPRINTS.parent / "registry" / "launch_ranking_v2.csv"
+    if not f.exists():
+        return {}
+    with f.open() as fh:
+        return {r["file"]: r["tier"] for r in csv.DictReader(fh)}
+
+
+LAUNCH_TIERS = _launch_tiers()
+
+
 def _sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()[:12]
 
@@ -261,6 +274,7 @@ class State:
                 # lists these first, with the page check's count and whether the loop stopped on its own
                 "rerun": bid.startswith("je__") and (BLUEPRINTS / f"{p.stem}.bpt").exists(),
                 "page_check_flags": (bp.get("x_petey_page_check") or {}).get("flagged"),
+                "launch": LAUNCH_TIERS.get(Path(str(bp.get("source_pdf") or "")).name) if bid.startswith("je__") else None,
                 "run": {k: (bp.get("x_petey_run") or {}).get(k) for k in ("stable", "stop")}
                        if bp.get("x_petey_run") else None}
 

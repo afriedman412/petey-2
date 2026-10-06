@@ -140,6 +140,7 @@
   </span>
   <span class="pages" id="pages"></span>
   <span class="help">zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
+  <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
 </header>
 <div id="modebar"></div>
 <main>
@@ -178,6 +179,7 @@ async function init() {
   $('#listorder').addEventListener('change', e => { store('br_listorder', e.target.value); renderPicker(); });
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
   $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
+  $('#reboot').onclick = reboot;
   window.addEventListener('keydown', onKey);
   window.addEventListener('resize', () => bid && placeAll());
   window.addEventListener('focus', checkFresh);
@@ -188,6 +190,20 @@ async function init() {
   if (first) { $('#pick').value = first; openBlueprint(first); }
 }
 
+// the reboot button: the server re-execs itself on the same port (edited Python loads); wait for it to answer
+// again, re-indexing takes a while, then reload the page so edited HTML loads too
+async function reboot() {
+  const b = $('#reboot'); b.disabled = true; b.textContent = 'rebooting…';
+  try { await send('POST', '/api/restart'); }
+  catch (e) { b.disabled = false; b.textContent = 'reboot'; alert('Reboot failed: ' + e.message); return; }
+  await new Promise(r => setTimeout(r, 1000));
+  for (let i = 0; i < 300; i++) {
+    try { const r = await fetch('/api/blueprints', {cache: 'no-store'}); if (r.ok) { location.reload(); return; } } catch (e) {}
+    await new Promise(r => setTimeout(r, 1000));
+  }
+  b.disabled = false; b.textContent = 'reboot';
+  alert('The server did not come back within 5 minutes; check the terminal it was started from.');
+}
 function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mode) + (bid ? '/' + encodeURIComponent(bid) : '')); }
 function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); }
 
@@ -206,7 +222,7 @@ function pickerText(b) {
   if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
   if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
-  if (b.rerun) {
+  if (b.rerun || b.launch) {
     if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
     if (b.run) bits.push(b.run.stable ? 'stable' : `NOT stable: ${b.run.stop}`);
   }
@@ -215,11 +231,13 @@ function pickerText(b) {
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || bid;
   pick.innerHTML = '<option value="">pick a blueprint…</option>';
-  const groups = {rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies',
+  const groups = {t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
+                  rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies',
                   rl: 'relabels', fl: 'flat forms'};
   const oldest = $('#listorder').value === 'oldest';
+  const groupOf = x => x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
   for (const src of Object.keys(groups)) {
-    const items = LIST.filter(x => src === 'rerun' ? x.rerun : x.source === src && !x.rerun); if (!items.length) continue;
+    const items = LIST.filter(x => groupOf(x) === src); if (!items.length) continue;
     items.sort(oldest ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
                       : (a, b) => a.form.localeCompare(b.form));
     const og = document.createElement('optgroup'); og.label = groups[src];
@@ -810,7 +828,21 @@ MODE.groups = (() => {
     const errs = PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join(''), ch = PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('');
     el.innerHTML = `<h4>What applying would change in the blueprint (${PLAN.changes.length})</h4>
       ${errs || ch ? `<ul>${errs}${ch}</ul>` : '<p class="help">nothing: the grouping is the blueprint\'s</p>'}
-      <div class="help">The page only records. To write it into the blueprint:<br><code>PYTHONPATH=. venv/bin/python -m petey.validate.group_review --apply ${esc(bid)}</code></div>`;
+      ${PLAN.changes.length ? `<button class="btn ok" id="gApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to blueprint</button>` : ''}
+      <div class="help">Edits are saved as a record; Review shows them once they are applied (the button, or
+        <code>PYTHONPATH=. venv/bin/python -m petey.validate.group_review --apply ${esc(bid)}</code>).</div>`;
+    const b = $('#gApply'); if (b) b.onclick = applyPlan;
+  }
+  async function applyPlan() {
+    if (!confirm(`Write ${PLAN.changes.length} change(s) into ${BP.path}?`)) return;
+    clearTimeout(planTimer);
+    await save();                          // apply reads the saved record, so it must hold the last edit
+    let out;
+    try { out = await send('POST', mapi('groups', '/apply')); }
+    catch (e) { alert('Apply failed: ' + e.message); return; }
+    LIST = await j('/api/blueprints'); renderPicker();
+    await loadMode();
+    toast(`Applied ${out.changes.length} change(s) to the blueprint; Review now shows them.`);
   }
   function progress() {
     const el = $('#progress'); if (!el || !BP) return;
