@@ -738,6 +738,8 @@ class State:
         rec = load_record(bid)
         return {"id": bid, "path": str(c.path), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
                 "pages": c.pages, "fields": c.fields, "suggestions": c.suggestions(),
+                "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description") if v.get(x)}
+                                for k, v in (c.bp.get("fields") or {}).items() if isinstance(v, dict)},
                 "finder": "cached" if c.boxes is not None else "not run",
                 "classifier": "cached" if c.cmap else "not cached", "has_widgets": bool(c.widgets),
                 "added": rec.get("added") or [], "dismissed": rec.get("dismissed") or [],

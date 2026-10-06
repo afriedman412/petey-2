@@ -5,7 +5,7 @@
 <title>Field add</title>
 <style>
   :root { --bg:#fff; --fg:#1b1b1b; --muted:#666; --line:#ddd; --panel:#fafafa; --card:#fff; --sel:#1a73e8; --ok:#1e8e3e; --bad:#c5221f;
-          --field:#9a9a9a; --sug:#e37400; --added:#188038; }
+          --field:#8e24aa; --sug:#e37400; --added:#188038; }
   * { box-sizing: border-box; }
   body { margin:0; font: 13px/1.4 -apple-system, Helvetica, Arial, sans-serif; color:var(--fg); background:var(--bg); height:100vh; display:flex; flex-direction:column; }
   header { display:flex; gap:12px; align-items:center; padding:8px 12px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
@@ -23,7 +23,8 @@
   #canvas { position:relative; margin:12px; display:inline-block; box-shadow:0 1px 4px rgba(0,0,0,.25); cursor:crosshair; user-select:none; }
   #canvas img { display:block; -webkit-user-drag:none; pointer-events:none; }
   .ov { position:absolute; }
-  .ov.field { border:1px solid var(--field); background:color-mix(in srgb, var(--field) 14%, transparent); opacity:.8; pointer-events:none; }
+  .ov.field { border:1.5px solid var(--field); background:color-mix(in srgb, var(--field) 10%, transparent); }
+  .ov.field:hover { background:color-mix(in srgb, var(--field) 25%, transparent); }
   .ov.sug { border:2px solid var(--sug); background:color-mix(in srgb, var(--sug) 10%, transparent); cursor:pointer; }
   .ov.sug.finder { border-style:dashed; }
   .ov.sug.copy { opacity:.35; }
@@ -54,7 +55,7 @@
   h4 { margin:0 0 4px; font-size:12px; color:var(--muted); font-weight:600; }
   .changes { font-size:12px; } .changes li { margin:1px 0; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#1e1e1e; --fg:#eee; --muted:#aaa; --line:#444; --panel:#2c2c2c; --card:#242424; --field:#8a8a8a; }
+    :root { --bg:#1e1e1e; --fg:#eee; --muted:#aaa; --line:#444; --panel:#2c2c2c; --card:#242424; --field:#ce93d8; }
     #stage { background:#2a2a2a; } .pages button.on, .chip.on { background:#1f2d44; }
   }
 </style>
@@ -191,7 +192,7 @@ function placeBoxes() {
   const canvas = $('#canvas'), pinfo = BP && BP.pages.find(p => p.page === page);
   canvas.querySelectorAll('.ov').forEach(e => e.remove()); if (!pinfo) return;
   scale = $('#img').clientWidth / pinfo.w_pt;
-  if ($('#showFields').checked) for (const f of BP.fields) if (f.page === page) put('field', f.rect);
+  if ($('#showFields').checked) for (const f of BP.fields) if (f.page === page) put('field', f.rect, f.name).dataset.field = f.name;
   if ($('#showSug').checked) for (const s of remaining()) if (s.page === page) {
     const d = put(`sug ${s.source}${s.copy ? ' copy' : ''}${s.sid === curSid ? ' cur' : ''}`, s.rect, s.what);
     d.dataset.sid = s.sid;
@@ -219,6 +220,7 @@ function bindDraw() {
     const s = start, b = box, t = target; start = null; box = null; target = null;
     if (b) { b.remove(); curSid = null; return propose({page, rect: b._r}); }
     if (t && t.dataset && t.dataset.sid) { const sg = BP.suggestions.find(x => x.sid === t.dataset.sid); if (sg) return proposeSid(sg); }
+    if (t && t.dataset && t.dataset.field) { props = []; curSid = null; notes = [fieldInfo(t.dataset.field)]; placeBoxes(); return renderPanel(); }
     if (t && t.dataset && t.dataset.added !== undefined) { notes = [`${added[+t.dataset.added].name} is recorded to be added (remove it from the list below)`]; return renderPanel(); }
     curSid = null; propose({page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1]});
   });
@@ -257,6 +259,11 @@ function cardHtml(p, i) {
   </div>`;
 }
 
+function fieldInfo(name) {
+  const f = (BP.field_specs || {})[name] || {};
+  return `already a field: ${name}` + (f.type ? ` · ${f.type}${f.semantic_type ? '/' + f.semantic_type : ''}` : '') + (f.description ? ` · ${f.description}` : '');
+}
+
 function renderPanel() {
   const a = $('#panel'); if (!BP) return;
   const left = remaining();
@@ -269,7 +276,7 @@ function renderPanel() {
       ${props.length > 1 ? '<button class="btn primary" id="addAll">add all (Enter)</button>' : '<span class="help">Enter adds it</span>'}
       ${curSid ? '<button class="btn warn" id="notField" title="record this suggestion as not a field">not a field (x)</button>' : ''}
       <button class="btn" id="cancel">cancel (Esc)</button></div>`
-    : '<p class="help">Drag a box over an area of the page, click a box, or press n for the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Grey: fields the blueprint has. Green: fields you have added.</p>';
+    : '<p class="help">Drag a box over an area of the page, click a box, or press n for the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name, click for its type). Green: fields you have added.</p>';
   const nts = notes.length ? `<div class="notes">${notes.map(n => `<div>${esc(n)}</div>`).join('')}</div>` : '';
   const list = `<div><h4>To add (${added.length})</h4><div class="list">${added.map((x, i) =>
       `<div data-goto="${i}"><span>p${x.page} · ${esc(x.name)} <span class="help">${esc(x.kind === 'group' ? 'group' : x.type)}</span></span><span class="x" data-del="${i}" title="remove">×</span></div>`).join('') || '<p class="help">nothing yet</p>'}</div></div>
