@@ -206,15 +206,20 @@ function pickerText(b) {
   if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
   if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
+  if (b.rerun) {
+    if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
+    if (b.run) bits.push(b.run.stable ? 'stable' : `NOT stable: ${b.run.stop}`);
+  }
   return `${b.form}  (${bits.join(', ')})  ·  ${ageText(b.age)}`;
 }
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || bid;
   pick.innerHTML = '<option value="">pick a blueprint…</option>';
-  const groups = {lib: 'library', je: 'judge-eval side copies', rl: 'relabels', fl: 'flat forms'};
+  const groups = {rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies',
+                  rl: 'relabels', fl: 'flat forms'};
   const oldest = $('#listorder').value === 'oldest';
   for (const src of Object.keys(groups)) {
-    const items = LIST.filter(x => x.source === src); if (!items.length) continue;
+    const items = LIST.filter(x => src === 'rerun' ? x.rerun : x.source === src && !x.rerun); if (!items.length) continue;
     items.sort(oldest ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
                       : (a, b) => a.form.localeCompare(b.form));
     const og = document.createElement('optgroup'); og.label = groups[src];

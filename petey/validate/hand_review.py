@@ -256,7 +256,13 @@ class State:
                 "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
                 "checked": checked(v, p, bp),
                 "finder": (bp.get("x_petey_build") or {}).get("finder"),
-                "age": age(p, bp, self._git_here, self._git_origin)}
+                "age": age(p, bp, self._git_here, self._git_origin),
+                # a library form run again through the current code (scripts/run_form.sh, form_run.py): the picker
+                # lists these first, with the page check's count and whether the loop stopped on its own
+                "rerun": bid.startswith("je__") and (BLUEPRINTS / f"{p.stem}.bpt").exists(),
+                "page_check_flags": (bp.get("x_petey_page_check") or {}).get("flagged"),
+                "run": {k: (bp.get("x_petey_run") or {}).get(k) for k in ("stable", "stop")}
+                       if bp.get("x_petey_run") else None}
 
     def index(self) -> None:
         """Read every blueprint once at startup; the listing is served from memory and one entry is refreshed
