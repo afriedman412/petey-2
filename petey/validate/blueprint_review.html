@@ -112,20 +112,9 @@
   .alist div { padding:2px 4px; cursor:pointer; display:flex; justify-content:space-between; gap:8px; }
   .alist div:hover { background:var(--panel); } .alist .x { color:var(--muted); }
 
-  /* combine */
-  .cb { position:absolute; }
-  .cb.other { border:1px solid var(--none); opacity:.45; pointer-events:none; }
-  .cb.text { border:1.5px solid var(--txt); background:color-mix(in srgb, var(--txt) 8%, transparent); cursor:pointer; }
-  .cb.text:hover { background:color-mix(in srgb, var(--txt) 22%, transparent); }
-  .cb.text.sel { border:2.5px solid var(--sel); background:color-mix(in srgb, var(--sel) 18%, transparent); z-index:2; }
-  .cb.member { border:1px dashed var(--added); opacity:.6; pointer-events:none; }
-  .cb.combo { border:2px solid var(--added); background:color-mix(in srgb, var(--added) 10%, transparent); cursor:pointer; z-index:1; }
-  .cb.combo .tag, .cb.preview .tag { position:absolute; left:0; top:-14px; font-size:10px; line-height:12px; background:var(--card); color:var(--added); padding:0 3px; white-space:nowrap; pointer-events:none; }
-  .cb.preview { border:2px dashed var(--sel); pointer-events:none; }
-  .cb.draw { border:1.5px dashed var(--sel); background:color-mix(in srgb, var(--sel) 8%, transparent); pointer-events:none; }
-  .ccard { border:1px solid var(--sel); border-radius:4px; padding:8px 10px; background:var(--card); }
-  .ccard input[type=text], .ccard textarea { font:inherit; width:100%; padding:3px 5px; }
-  .ccard ol { margin:6px 0; padding-left:20px; }
+  .gi.text { border-width:1.5px; background:color-mix(in srgb, var(--c) 8%, transparent); }
+  .gi.text.loose { opacity:.85; }
+  .gh.text { border-style:solid; border-width:2px; }
 
   @media (prefers-color-scheme: dark) {
     :root { --bg:#1e1e1e; --fg:#eee; --muted:#aaa; --line:#444; --panel:#2c2c2c; --card:#242424; --orphan:#9a9a9a; --field:#ce93d8; --txt:#4dd0e1; --tabon:#1f2d44; }
@@ -140,7 +129,7 @@
   <select id="pick"></select>
   <label class="help">list <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option></select></label>
   <span class="tabs" id="tabs">
-    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add fields</button><button data-mode="combine" title="Shift+4">Combine</button>
+    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add fields</button>
   </span>
   <span class="pages" id="pages"></span>
   <span class="help">zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
@@ -189,7 +178,7 @@ async function init() {
 }
 
 function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mode) + (bid ? '/' + encodeURIComponent(bid) : '')); }
-function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add' || mode === 'combine'); }
+function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); }
 
 function ageText(a) {
   if (!a) return '';
@@ -202,9 +191,9 @@ function pickerText(b) {
   if (b.checked) bits.push(b.checked.stale ? 'checked, file changed since' : `checked${b.checked.flagged ? `, ${b.checked.flagged} flagged` : ''}`);
   else if (done) bits.push(`${done} reviewed`);
   if (b.stale) bits.push('verdicts stale');
-  if (b.groups) bits.push(b.groups.confirmed === b.groups.units ? 'groups confirmed' : `groups ${b.groups.confirmed}/${b.groups.units}`);
+  if (b.groups && b.groups.units) bits.push(b.groups.confirmed === b.groups.units ? 'groups confirmed' : `groups ${b.groups.confirmed}/${b.groups.units}`);
+  if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
-  if (b.combine) bits.push(`${b.combine} to combine`);
   return `${b.form}  (${bits.join(', ')})  ·  ${ageText(b.age)}`;
 }
 function renderPicker() {
@@ -286,7 +275,7 @@ function onKey(e) {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target;
   if (t && ['TEXTAREA', 'INPUT', 'SELECT'].includes(t.tagName) && t.type !== 'checkbox' && t.type !== 'radio') return;
-  if (e.shiftKey && /^Digit[1234]$/.test(e.code)) { setMode(['review', 'groups', 'add', 'combine'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
+  if (e.shiftKey && /^Digit[123]$/.test(e.code)) { setMode(['review', 'groups', 'add'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
   if (!bid) return;
   if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);
   else if (e.key === '-') setZoom(zoom / 1.25);
@@ -424,7 +413,7 @@ MODE.review = (() => {
       <label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only (u)</label>
       <label class="help">order <select id="order"><option value="risk">risk first</option><option value="reading">reading</option></select></label>
       <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>
-      <span class="help">a accept · f flag · c clear · n/p next/prev · 1-9 page · Shift+1-4 mode</span>`,
+      <span class="help">a accept · f flag · c clear · n/p next/prev · 1-9 page · Shift+1-3 mode</span>`,
     bindBar() {
       $('#unrev').onchange = e => { unrevOnly = e.target.checked; renderList(); };
       $('#order').value = order; $('#order').onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
@@ -454,14 +443,18 @@ MODE.review = (() => {
   };
 })();
 
-// ======================================================================= Groups: confirm option groups, drag boxes to regroup
+// ======================================================================= Groups: confirm option groups, drag boxes to regroup; combine text fields
 MODE.groups = (() => {
-  let BP = null, units = [], selected = null, unconfOnly = false, undoStack = [], nextUid = 1, PLAN = null, planTimer = null;
-  const PALETTE = ['#1a73e8', '#d93025', '#188038', '#e37400', '#9334e6', '#007b83', '#c5221f', '#b06000', '#3f51b5', '#a142f4'];
+  let BP = null, units = [], selected = null, unconfOnly = false, undoStack = [], nextUid = 1, PLAN = null, planTimer = null, notes = [];
+  let showText = store('gr_text') !== '0';
+  const PALETTE = ['#1a73e8', '#d93025', '#188038', '#e37400', '#9334e6', '#c5221f', '#b06000', '#3f51b5', '#a142f4', '#795548'];
   const item = id => BP.items[id];
   const unitOf = id => units.find(u => u.items.includes(id));
   const unitByUid = uid => units.find(u => u.uid === uid);
-  const isGroup = u => u.items.length > 1 || u.type !== 'boolean';
+  const isText = u => !!u && u.kind === 'text';
+  const isTextItem = id => item(id).kind === 'text';
+  const optUnits = () => units.filter(u => !isText(u));
+  const isGroup = u => isText(u) || u.items.length > 1 || u.type !== 'boolean';
   const orderKey = it => [it.page, Math.round(it.rect[1] / 6), it.rect[0]];
   const cmpKey = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] - b[i]; return 0; };
   const firstItem = u => u.items.map(item).sort((a, b) => cmpKey(orderKey(a), orderKey(b)))[0];
@@ -470,18 +463,23 @@ MODE.groups = (() => {
     units.sort((a, b) => cmpKey(orderKey(firstItem(a)), orderKey(firstItem(b))));
   }
   const onPage = (u, p = page) => u.items.some(id => item(id).page === p);
-  const label = id => { const it = item(id); return it.caption || (it.key ?? it.field); };
+  const label = id => { const it = item(id); return it.kind === 'text' ? it.field : (it.caption || (it.key ?? it.field)); };
+  const looseText = (p = page) => Object.values(BP.items).filter(it => it.kind === 'text' && it.page === p && !unitOf(it.id));
   function colorOf(u) {
+    if (isText(u)) return 'var(--txt)';
     if (!isGroup(u)) return 'var(--orphan)';
-    const gs = units.filter(x => isGroup(x) && onPage(x)); const i = gs.indexOf(u);
+    const gs = optUnits().filter(x => isGroup(x) && onPage(x)); const i = gs.indexOf(u);
     return PALETTE[(i < 0 ? 0 : i) % PALETTE.length];
   }
-  const baseOf = u => u.origin ? BP.base.find(b => b.name === u.origin) : null;
+  const baseOf = u => !isText(u) && u.origin ? BP.base.find(b => b.name === u.origin) : null;
   function status(u) {
     const b = baseOf(u); if (!b) return 'new';
     return b.name === u.name && b.type === u.type && [...b.items].sort().join('|') === [...u.items].sort().join('|') ? 'as blueprint' : 'edited';
   }
-  const takenNames = except => new Set([...BP.other_names, ...units.filter(u => u !== except).map(u => u.name)]);
+  function takenNames(except) {
+    const members = new Set(units.filter(isText).flatMap(u => u.items));      // combined text fields free their names
+    return new Set([...BP.other_names.filter(n => !members.has(n)), ...units.filter(u => u !== except).map(u => u.name)]);
+  }
   function uniqueName(base, except) { const taken = takenNames(except); let n = base, k = 2; while (taken.has(n)) n = `${base}_${k++}`; return n; }
   function suggestName(ids) {
     const parts = ids.map(id => item(id).field.split('_')), pre = [];
@@ -490,21 +488,60 @@ MODE.groups = (() => {
     if (!/^[a-z][a-z0-9_]*$/.test(base) || base.length < 3) base = `group_p${item(ids[0]).page}`;
     return uniqueName(base, null);
   }
+  // a combined text field's name: the members' shared leading words without part / line numbers, plus a shared suffix
+  function suggestTextName(ids) {
+    const parts = ids.map(id => item(id).field.split('_')), pre = [];
+    for (let i = 0; i < Math.min(...parts.map(p => p.length)); i++) { if (parts.every(p => p[i] === parts[0][i])) pre.push(parts[0][i]); else break; }
+    while (pre.length && (/^\d+$/.test(pre[pre.length - 1]) || ['part', 'pt', 'line', 'ln', 'row', 'col'].includes(pre[pre.length - 1]))) pre.pop();
+    const last = parts.map(p => p[p.length - 1]);
+    const suffix = last.every(x => x === last[0]) && ['txt', 'nm', 'amt', 'dt', 'cd', 'num'].includes(last[0]) && pre[pre.length - 1] !== last[0] ? last[0] : null;
+    let base = pre.join('_') + (suffix ? '_' + suffix : '');
+    if (!pre.length || !/^[a-z][a-z0-9_]*$/.test(base)) base = item(ids[0]).field + '_combined';
+    return uniqueName(base, null);
+  }
+  function note(msg) { notes = [msg]; panel(); }
 
   function snapshot() { undoStack.push(JSON.stringify(units)); if (undoStack.length > 200) undoStack.shift(); const u = $('#gUndo'); if (u) u.disabled = false; }
   function undo() {
     if (!undoStack.length) return;
     units = JSON.parse(undoStack.pop()); const u = $('#gUndo'); if (u) u.disabled = !undoStack.length;
-    if (!unitByUid(selected)) selected = units.length ? units[0].uid : null;
+    if (!unitByUid(selected)) selected = optUnits().length ? optUnits()[0].uid : null;
     afterEdit();
   }
-  async function afterEdit() { sortUnits(); renderPages(); placeAll(); panel(); progress(); await save(); schedulePlan(); }
+  async function afterEdit() { notes = []; sortUnits(); renderPages(); placeAll(); panel(); progress(); await save(); schedulePlan(); }
   function detach(id) {
     const u = unitOf(id); u.items = u.items.filter(x => x !== id); u.confirmed = false;
-    if (!u.items.length) units = units.filter(x => x !== u);
+    if (!u.items.length || (isText(u) && u.items.length < 2)) units = units.filter(x => x !== u);   // a combination of one is no combination
     return u;
   }
+  const MIX = 'text boxes combine only with text boxes; option boxes group only with option boxes';
+  const PAGES = 'a combined text field stays on one page';
+  function moveText(id, target) {
+    const src = unitOf(id);
+    if (target.inTray) target = {tray: true};               // anywhere in the tray means out
+    if (target.tray) { if (!src) return; snapshot(); detach(id); selected = units.includes(src) ? src.uid : selected; return afterEdit(); }
+    let t = null;
+    if (target.item) {
+      if (target.item === id) return;
+      if (!isTextItem(target.item)) return note(MIX);
+      if (item(target.item).page !== item(id).page) return note(PAGES);
+      t = unitOf(target.item);
+      if (!t) {                                             // loose onto loose: a new combined field
+        snapshot(); if (src) detach(id);
+        const u = {uid: nextUid++, kind: 'text', name: suggestTextName([target.item, id]), type: 'string', items: [target.item, id], origin: null, confirmed: false, when: localNow()};
+        units.push(u); selected = u.uid; return afterEdit();
+      }
+    } else if (target.unit) {
+      t = unitByUid(target.unit); if (!t) return;
+      if (!isText(t)) return note(MIX);
+      if (item(t.items[0]).page !== item(id).page) return note(PAGES);
+    }
+    if (!t || t === src) return;
+    snapshot(); if (src) detach(id); t.items.push(id); selected = t.uid; afterEdit();
+  }
   function moveItem(id, target) {
+    if (isTextItem(id)) return moveText(id, target);
+    if ((target.item && isTextItem(target.item)) || (target.unit && isText(unitByUid(target.unit)))) return note(MIX);
     const src = unitOf(id); if (!src || src.locked) return;
     if (target.item && target.inTray && isGroup(src)) target = {tray: true};
     if (target.item) {
@@ -531,6 +568,20 @@ MODE.groups = (() => {
   }
   function moveUnit(uid, target) {
     const s = unitByUid(uid); if (!s || s.locked) return;
+    if (isText(s)) {
+      if (target.tray) return;
+      if (target.item && !isTextItem(target.item)) return note(MIX);
+      let t = target.item ? unitOf(target.item) : unitByUid(target.unit);
+      if (target.item && !t) {                              // a combined field onto a loose text box: take it in
+        if (item(target.item).page !== item(s.items[0]).page) return note(PAGES);
+        snapshot(); s.items.push(target.item); selected = s.uid; return afterEdit();
+      }
+      if (!t || t === s) return;
+      if (!isText(t)) return note(MIX);
+      if (item(t.items[0]).page !== item(s.items[0]).page) return note(PAGES);
+      snapshot(); t.items.push(...s.items); units = units.filter(x => x !== s); selected = t.uid; return afterEdit();
+    }
+    if ((target.item && isTextItem(target.item)) || (target.unit && isText(unitByUid(target.unit)))) return note(MIX);
     if (target.item) { const t = unitOf(target.item); if (!t || t === s) return; target = {unit: t.uid}; }
     const t = unitByUid(target.unit); if (!t || t === s || t.locked) return;
     snapshot();
@@ -538,9 +589,11 @@ MODE.groups = (() => {
     else { s.items.push(...t.items); s.confirmed = false; units = units.filter(x => x !== t); selected = s.uid; }
     afterEdit();
   }
-  function confirmUnit(uid, on) { const u = unitByUid(uid); if (!u) return; snapshot(); u.confirmed = on ?? !u.confirmed; const adv = u.confirmed; afterEdit(); if (adv) next(1); }
+  function confirmUnit(uid, on) { const u = unitByUid(uid); if (!u || isText(u)) return; snapshot(); u.confirmed = on ?? !u.confirmed; const adv = u.confirmed; afterEdit(); if (adv) next(1); }
   function rename(uid, name) { const u = unitByUid(uid); name = name.trim(); if (!u || name === u.name) return; snapshot(); u.name = name; afterEdit(); }
+  function setDesc(uid, d) { const u = unitByUid(uid); if (!u || (u.description || '') === d) return; snapshot(); u.description = d; afterEdit(); }
   function setType(uid, type) { const u = unitByUid(uid); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(); }
+  function separate(u) { snapshot(); units = units.filter(x => x !== u); selected = optUnits().length ? optUnits()[0].uid : null; afterEdit(); }
   function revert(u) {
     const b = baseOf(u); if (!b) return;
     snapshot();
@@ -596,17 +649,33 @@ MODE.groups = (() => {
   function chipHtml(id, u) {
     const it = item(id), orphan = !isGroup(u);
     const where = it.page !== page ? ` <span class="help">p${it.page}</span>` : '';
-    const x = !orphan && !u.locked ? `<span class="x" data-out="${esc(id)}" title="take it out of the group">×</span>` : '';
+    const x = !orphan && !u.locked ? `<span class="x" data-out="${esc(id)}" title="${isText(u) ? 'take it out of the combined field' : 'take it out of the group'}">×</span>` : '';
     return `<span class="gchip${orphan ? ' orphan' : ''}${u.uid === selected ? ' sel' : ''}" draggable="${!u.locked}" data-item="${esc(id)}" title="${esc(it.field)}${it.key !== null ? ' · ' + esc(it.key) : ''}${it.on_state ? ' · on ' + esc(it.on_state) : ''}">${esc(orphan ? u.name : label(id))}${where}${x}</span>`;
   }
   function badge(u) {
     const st = status(u);
     return (u.confirmed ? '<span class="badge ok">confirmed</span>' : '') + (st === 'new' ? '<span class="badge new">new</span>' : st === 'edited' ? '<span class="badge edit">edited</span>' : '');
   }
+  function nameCheck(u) {
+    return !/^[a-z][a-z0-9_]*$/.test(u.name) ? 'not a field name (lower case, digits, underscores)' : takenNames(u).has(u.name) ? 'another field already has this name' : '';
+  }
+  function textHtml(u) {
+    const bad = nameCheck(u);
+    const items = u.items.map(id => { const it = item(id);
+      return `<li>${esc(it.field)} <span class="help">${esc(it.type || '')}${it.semantic_type ? '/' + esc(it.semantic_type) : ''}${it.path ? ' · ' + esc(it.path.split('.').pop()) : ''}</span></li>`; }).join('');
+    return `<div class="gcur">
+      <h2>Combined text field of ${u.items.length} <span class="badge new">new</span></h2>
+      <input type="text" id="uname" value="${esc(u.name)}">
+      ${bad ? `<div class="warn">${bad}</div>` : ''}
+      <textarea id="udesc" placeholder="description (left empty: the members' descriptions)">${esc(u.description || '')}</textarea>
+      <ol>${items}</ol>
+      <div class="help">One text field over the union of these boxes, in place of the first. No path: the reader clips the page text, the filler splits over the widgets.</div>
+      <div class="row"><button class="btn" id="gSplit">separate again</button></div></div>`;
+  }
   function currentHtml(u) {
-    if (!u) return '<p class="help">Nothing on this page.</p>';
-    const group = isGroup(u), b = baseOf(u), taken = takenNames(u);
-    const bad = !/^[a-z][a-z0-9_]*$/.test(u.name) ? 'not a field name (lower case, digits, underscores)' : taken.has(u.name) ? 'another field already has this name' : '';
+    if (!u) return '<p class="help">Nothing selected on this page.</p>';
+    if (isText(u)) return textHtml(u);
+    const group = isGroup(u), b = baseOf(u), bad = nameCheck(u);
     const was = b && b.name !== u.name ? ` <span class="help">(was ${esc(b.name)})</span>` : '';
     const items = u.items.map(id => { const it = item(id);
       return `<li>${esc(label(id))} <span class="help">${it.key !== null ? esc(it.field) + ' / ' + esc(it.key) : esc(it.field)}${it.on_state ? ' · on ' + esc(it.on_state) : ''}${it.page !== page ? ' · p' + it.page : ''}</span></li>`; }).join('');
@@ -625,20 +694,28 @@ MODE.groups = (() => {
         ${b && status(u) !== 'as blueprint' ? '<button class="btn" id="gRevert" title="put this unit back as the blueprint has it">back to blueprint</button>' : ''}
       </div></div>`;
   }
-  const listed = () => units.filter(u => onPage(u) && (!unconfOnly || !u.confirmed || u.uid === selected));
+  const listed = () => optUnits().filter(u => onPage(u) && (!unconfOnly || !u.confirmed || u.uid === selected));
+  function cardHtml(g) {
+    return `<div class="gcard${g.uid === selected ? ' sel' : ''}${g.confirmed ? ' ok' : ''}" data-unit="${g.uid}" style="--c:${colorOf(g)}">
+       <h3><span class="grip" draggable="${!g.locked}" data-drag-unit="${g.uid}" title="drag the whole ${isText(g) ? 'combined field' : 'group'}">⠿</span>${esc(g.name)} ${badge(g)}</h3>
+       <div class="gchips">${g.items.map(id => chipHtml(id, g)).join('')}</div></div>`;
+  }
   function panel() {
     const a = $('#panel');
-    if (!units.length) { a.innerHTML = `<div class="help">${esc(BP.path)}</div><p class="help">This blueprint has no radio or checkbox items.</p>`; return; }
+    if (!units.length && !Object.values(BP.items).length) { a.innerHTML = `<div class="help">${esc(BP.path)}</div><p class="help">This blueprint has no option boxes or text fields.</p>`; return; }
     const u = unitByUid(selected);
     const head = `<div class="help">${esc(BP.path)}${BP.info.stale ? ' <span class="stale">· the saved grouping predates this file; rebased onto it</span>' : ''}${BP.info.applied ? ` · last applied ${esc(BP.info.applied.when)}` : ''}</div>`;
     const groups = listed().filter(isGroup), loose = listed().filter(x => !isGroup(x));
-    a.innerHTML = head + currentHtml(u) +
+    const combos = units.filter(x => isText(x) && onPage(x)), nLoose = looseText().length;
+    const nts = notes.length ? `<div class="warn">${notes.map(esc).join('<br>')}</div>` : '';
+    a.innerHTML = head + nts + currentHtml(u) +
       `<div><h4>Groups on page ${page} (${groups.length}) · drop a box on a group to add it</h4>
-        ${groups.map(g => `<div class="gcard${g.uid === selected ? ' sel' : ''}${g.confirmed ? ' ok' : ''}" data-unit="${g.uid}" style="--c:${colorOf(g)}">
-           <h3><span class="grip" draggable="${!g.locked}" data-drag-unit="${g.uid}" title="drag the whole group">⠿</span>${esc(g.name)} ${badge(g)}</h3>
-           <div class="gchips">${g.items.map(id => chipHtml(id, g)).join('')}</div></div>`).join('') || '<p class="help">none</p>'}</div>
-      <div class="tray" id="tray"><h4>Loose boxes on page ${page} (${loose.length}) · drop a box here to take it out of its group; drop one loose box on another to group them</h4>
+        ${groups.map(cardHtml).join('') || '<p class="help">none</p>'}</div>
+      <div class="tray" id="tray"><h4>Loose boxes on page ${page} (${loose.length}) · drop a box here to take it out of its group or combined field; drop one loose box on another to group them</h4>
         <div class="gchips">${loose.map(o => chipHtml(o.items[0], o)).join('')}</div></div>
+      <div><h4>Combined text fields on page ${page} (${combos.length})</h4>
+        ${combos.map(cardHtml).join('')}
+        <p class="help">${showText ? `Drag a teal text box onto another to combine them into one bigger text field (${nLoose} text fields on this page).` : 'Text fields are hidden; press t to show them.'}</p></div>
       <div class="changes" id="gChanges"></div>`;
     bindPanel(u); renderChanges();
   }
@@ -646,9 +723,12 @@ MODE.groups = (() => {
     if (u) {
       const n = $('#uname');
       if (n) { n.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') rename(u.uid, n.value); }); n.addEventListener('blur', () => rename(u.uid, n.value)); }
+      const d = $('#udesc');
+      if (d) { d.addEventListener('keydown', e => e.stopPropagation()); d.addEventListener('blur', () => setDesc(u.uid, d.value.trim())); }
       document.querySelectorAll('input[name=ty]').forEach(r => r.addEventListener('change', () => setType(u.uid, r.value)));
       const c = $('#gConfirm'); if (c) c.onclick = () => confirmUnit(u.uid);
       const rv = $('#gRevert'); if (rv) rv.onclick = () => revert(u);
+      const sp = $('#gSplit'); if (sp) sp.onclick = () => separate(u);
     }
     document.querySelectorAll('.gcard').forEach(card => {
       const uid = Number(card.dataset.unit);
@@ -669,71 +749,81 @@ MODE.groups = (() => {
   function renderChanges() {
     const el = $('#gChanges'); if (!el || !PLAN) return;
     const errs = PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join(''), ch = PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('');
-    el.innerHTML = `<h4>What applying this grouping would change in the blueprint (${PLAN.changes.length})</h4>
+    el.innerHTML = `<h4>What applying would change in the blueprint (${PLAN.changes.length})</h4>
       ${errs || ch ? `<ul>${errs}${ch}</ul>` : '<p class="help">nothing: the grouping is the blueprint\'s</p>'}
       <div class="help">The page only records. To write it into the blueprint:<br><code>PYTHONPATH=. venv/bin/python -m petey.validate.group_review --apply ${esc(bid)}</code></div>`;
   }
   function progress() {
     const el = $('#progress'); if (!el || !BP) return;
-    const n = units.length, ok = units.filter(u => u.confirmed).length, g = units.filter(isGroup).length;
+    const ou = optUnits(), n = ou.length, ok = ou.filter(u => u.confirmed).length, g = ou.filter(isGroup).length, t = units.filter(isText).length;
     const ch = PLAN ? ` · <b>${PLAN.changes.length}</b> change${PLAN.changes.length === 1 ? '' : 's'}${PLAN.errors.length ? ` <span class="stale">(${PLAN.errors.length} to fix)</span>` : ''}` : '';
-    el.innerHTML = `<b>${ok}</b> of ${n} confirmed · ${g} groups, ${n - g} loose${ch}`;
+    el.innerHTML = `<b>${ok}</b> of ${n} confirmed · ${g} groups, ${n - g} loose${t ? ` · ${t} text combined` : ''}${ch}`;
   }
   function next(step) {
-    if (!units.length) return;
-    const k = units.findIndex(u => u.uid === selected);
+    const ou = optUnits(); if (!ou.length) return;
+    const k = ou.findIndex(u => u.uid === selected);
     if (unconfOnly) {
-      const after = step > 0 ? units.slice(k + 1).concat(units.slice(0, k)) : units.slice(0, Math.max(k, 0)).reverse().concat(units.slice(k + 1).reverse());
+      const after = step > 0 ? ou.slice(k + 1).concat(ou.slice(0, Math.max(k, 0))) : ou.slice(0, Math.max(k, 0)).reverse().concat(ou.slice(k + 1).reverse());
       const t = after.find(u => !u.confirmed); if (t) select(t.uid); else panel(); return;
     }
-    select(units[(k + step + units.length) % units.length].uid);
+    select(ou[(k + step + ou.length) % ou.length].uid);
+  }
+  function placeUnit(u) {
+    const c = colorOf(u), sel = u.uid === selected, its = u.items.map(item).filter(it => it.page === page), text = isText(u);
+    if (isGroup(u)) {
+      const hull = [Math.min(...its.map(i => i.rect[0])), Math.min(...its.map(i => i.rect[1])), Math.max(...its.map(i => i.rect[2])), Math.max(...its.map(i => i.rect[3]))];
+      const h = document.createElement('div'); h.dataset.unit = u.name; h.className = 'gh' + (text ? ' text' : '') + (sel ? ' sel' : '') + (u.confirmed ? ' ok' : '');
+      h.style.setProperty('--c', c); box(h, hull, text ? 3 : 6); h.title = text ? `${u.name} (combined text, ${u.items.length} boxes)` : `${u.name} (${u.items.length} options)`;
+      h.onclick = () => select(u.uid, false);
+      if (!u.locked) { h.draggable = true; h.addEventListener('dragstart', e => dragData(e, 'unit', u.uid)); asTarget(h, {unit: u.uid}); }
+      $('#canvas').appendChild(h);
+    }
+    for (const it of its) placeItem(it, u, c, sel);
+  }
+  function placeItem(it, u, c, sel) {
+    const d = document.createElement('div'); d.dataset.item = it.id;
+    d.className = 'gi' + (it.kind === 'text' ? ' text' : '') + (u ? '' : ' loose') + (u && !isGroup(u) ? ' orphan' : '') + (sel ? ' sel' : '') + (u && u.locked ? ' locked' : '');
+    d.style.setProperty('--c', c); box(d, it.rect, 0);
+    d.title = u ? `${u.name}${isGroup(u) ? ' · ' + label(it.id) : ''}${u.locked ? ' (locked: ' + u.locked + ')' : ''}` : `${it.field} (text field)`;
+    d.onclick = e => { e.stopPropagation(); if (u) select(u.uid, false); else note(`${it.field}: a text field; drag it onto another text field to combine them`); };
+    if (!(u && u.locked)) {
+      d.draggable = true;
+      d.addEventListener('dragstart', e => { dragData(e, 'item', it.id); d.classList.add('dragging'); });
+      d.addEventListener('dragend', () => d.classList.remove('dragging'));
+      asTarget(d, {item: it.id});
+    }
+    $('#canvas').appendChild(d);
   }
   return {
     async load() {
       BP = await j(mapi('groups'));
-      units = BP.units.map(u => ({...u, uid: nextUid++})); undoStack = []; PLAN = null;
-      sortUnits(); selected = units.length ? units[0].uid : null; schedulePlan();
+      units = BP.units.map(u => ({...u, uid: nextUid++})); undoStack = []; PLAN = null; notes = [];
+      sortUnits(); selected = optUnits().length ? optUnits()[0].uid : null; schedulePlan();
     },
     pages: () => BP ? BP.pages : [],
-    startPage: () => units.length ? firstItem(units[0]).page : 1,
+    startPage: () => optUnits().length ? firstItem(optUnits()[0]).page : ((Object.values(BP.items)[0] || {}).page || 1),
     pageLabel(p) {
-      if (!units.length) return `p${p}`;
-      const n = units.filter(u => onPage(u, p)).length; if (!n) return null;
-      const left = units.filter(u => onPage(u, p) && !u.confirmed).length;
-      return `p${p} (${left ? left + ' left' : 'done'})`;
+      const ou = optUnits().filter(u => onPage(u, p));
+      if (ou.length) { const left = ou.filter(u => !u.confirmed).length; return `p${p} (${left ? left + ' left' : 'done'})`; }
+      if (showText && Object.values(BP.items).some(it => it.kind === 'text' && it.page === p)) return `p${p}`;
+      return null;
     },
-    onPage() { const u = units.find(x => onPage(x) && (!unconfOnly || !x.confirmed)) || units.find(x => onPage(x)); if (u) selected = u.uid; placeAll(); },
+    onPage() { const u = optUnits().find(x => onPage(x) && (!unconfOnly || !x.confirmed)) || optUnits().find(x => onPage(x)); if (u) selected = u.uid; placeAll(); },
     bar: () => `<span class="progress" id="progress"></span>
       <label class="help"><input type="checkbox" id="gUnconf" ${unconfOnly ? 'checked' : ''}> unconfirmed only (u)</label>
+      <label class="help"><input type="checkbox" id="gText" ${showText ? 'checked' : ''}> text fields (t)</label>
       <button class="btn" id="gUndo" ${undoStack.length ? '' : 'disabled'}>undo (z)</button>
-      <span class="help">a confirm · n/p next/prev · drag a box onto a group, onto another loose box, or onto the tray · Shift+1-4 mode</span>`,
-    bindBar() { $('#gUnconf').onchange = e => { unconfOnly = e.target.checked; panel(); }; $('#gUndo').onclick = undo; if (BP) progress(); },
+      <span class="help">a confirm · n/p next/prev · drag a box onto a group, onto another loose box, or onto the tray · teal text boxes combine the same way · Shift+1-3 mode</span>`,
+    bindBar() {
+      $('#gUnconf').onchange = e => { unconfOnly = e.target.checked; panel(); };
+      $('#gText').onchange = e => { showText = e.target.checked; store('gr_text', showText ? '1' : '0'); renderPages(); placeAll(); panel(); };
+      $('#gUndo').onclick = undo; if (BP) progress();
+    },
     place() {
-      for (const u of units.filter(x => onPage(x))) {
-        const c = colorOf(u), sel = u.uid === selected, its = u.items.map(item).filter(it => it.page === page);
-        if (isGroup(u)) {
-          const hull = [Math.min(...its.map(i => i.rect[0])), Math.min(...its.map(i => i.rect[1])), Math.max(...its.map(i => i.rect[2])), Math.max(...its.map(i => i.rect[3]))];
-          const h = document.createElement('div'); h.dataset.unit = u.name; h.className = 'gh' + (sel ? ' sel' : '') + (u.confirmed ? ' ok' : '');
-          h.style.setProperty('--c', c); box(h, hull, 6); h.title = `${u.name} (${u.items.length} options)`;
-          h.onclick = () => select(u.uid, false);
-          if (!u.locked) { h.draggable = true; h.addEventListener('dragstart', e => dragData(e, 'unit', u.uid)); asTarget(h, {unit: u.uid}); }
-          $('#canvas').appendChild(h);
-        }
-        for (const it of its) {
-          const d = document.createElement('div'); d.dataset.item = it.id;
-          d.className = 'gi' + (isGroup(u) ? '' : ' orphan') + (sel ? ' sel' : '') + (u.locked ? ' locked' : '');
-          d.style.setProperty('--c', c); box(d, it.rect, 0);
-          d.title = `${u.name}${isGroup(u) ? ' · ' + label(it.id) : ''}${u.locked ? ' (locked: ' + u.locked + ')' : ''}`;
-          d.onclick = e => { e.stopPropagation(); select(u.uid, false); };
-          if (!u.locked) {
-            d.draggable = true;
-            d.addEventListener('dragstart', e => { dragData(e, 'item', it.id); d.classList.add('dragging'); });
-            d.addEventListener('dragend', () => d.classList.remove('dragging'));
-            asTarget(d, {item: it.id});
-          }
-          $('#canvas').appendChild(d);
-        }
-      }
+      for (const u of optUnits().filter(x => onPage(x))) placeUnit(u);
+      if (!showText) return;
+      for (const u of units.filter(x => isText(x) && onPage(x))) placeUnit(u);
+      for (const it of looseText()) placeItem(it, null, 'var(--txt)', false);
     },
     panel, progress,
     key(e) {
@@ -742,6 +832,7 @@ MODE.groups = (() => {
       else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
       else if (e.key === 'z') undo();
       else if (e.key === 'u') { unconfOnly = !unconfOnly; $('#gUnconf').checked = unconfOnly; panel(); }
+      else if (e.key === 't') { showText = !showText; $('#gText').checked = showText; store('gr_text', showText ? '1' : '0'); renderPages(); placeAll(); panel(); }
       else return false;
       return true;
     },
@@ -926,7 +1017,7 @@ MODE.add = (() => {
       <label class="help"><input type="checkbox" id="aFields" ${showFields ? 'checked' : ''}> fields (f)</label>
       <label class="help"><input type="checkbox" id="aSug" ${showSug ? 'checked' : ''}> suggestions (s)</label>
       <label class="help"><input type="checkbox" id="aCopies" ${copies ? 'checked' : ''}> repeated copies</label>
-      <span class="help">drag over an area, or click a box · n/p suggestion · Enter add · x not a field · Esc cancel · Shift+1-4 mode</span>`,
+      <span class="help">drag over an area, or click a box · n/p suggestion · Enter add · x not a field · Esc cancel · Shift+1-3 mode</span>`,
     bindBar() {
       $('#aFields').onchange = e => { showFields = e.target.checked; placeAll(); };
       $('#aSug').onchange = e => { showSug = e.target.checked; placeAll(); };
@@ -969,152 +1060,6 @@ MODE.add = (() => {
       else if (e.key === 'Escape') cancel();
       else if (e.key === 'f') { showFields = !showFields; $('#aFields').checked = showFields; placeAll(); }
       else if (e.key === 's') { showSug = !showSug; $('#aSug').checked = showSug; placeAll(); }
-      else return false;
-      return true;
-    },
-  };
-})();
-
-// ======================================================================= Combine: text fields -> one bigger text field
-MODE.combine = (() => {
-  let BP = null, sel = [], combos = [], PLAN = null, nameDraft = null, descDraft = null, edited = false, notes = [];
-  let drawStart = null, drawBox = null, drawTarget = null;
-  const T = n => BP.texts.find(t => t.name === n);
-  const orderKey = t => [t.page, Math.round(t.rect[1] / 6), t.rect[0]];
-  const cmp = (a, b) => { const x = orderKey(a), y = orderKey(b); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; };
-  const union = rs => [Math.min(...rs.map(r => r[0])), Math.min(...rs.map(r => r[1])), Math.max(...rs.map(r => r[2])), Math.max(...rs.map(r => r[3]))];
-  const comboOf = n => combos.find(c => c.members.includes(n));
-  const free = t => !comboOf(t.name);
-  const sorted = names => names.map(T).sort(cmp).map(t => t.name);
-  function taken(except) {
-    const members = new Set(combos.flatMap(c => c.members).concat(sel));
-    return new Set([...BP.names.filter(n => !members.has(n)), ...combos.filter(c => c !== except).map(c => c.name)]);
-  }
-  function suggestName(names) {
-    const parts = names.map(n => n.split('_')), pre = [];
-    for (let i = 0; i < Math.min(...parts.map(p => p.length)); i++) { if (parts.every(p => p[i] === parts[0][i])) pre.push(parts[0][i]); else break; }
-    while (pre.length && (/^\d+$/.test(pre[pre.length - 1]) || ['part', 'pt', 'line', 'ln', 'row', 'col'].includes(pre[pre.length - 1]))) pre.pop();
-    const last = parts.map(p => p[p.length - 1]);
-    const suffix = last.every(x => x === last[0]) && ['txt', 'nm', 'amt', 'dt', 'cd', 'num'].includes(last[0]) && pre[pre.length - 1] !== last[0] ? last[0] : null;
-    let base = pre.join('_') + (suffix ? '_' + suffix : '');
-    if (!/^[a-z][a-z0-9_]*$/.test(base) || pre.length === 0) base = names[0] + '_combined';
-    const t = taken(null); let n = base, k = 2; while (t.has(n)) n = `${base}_${k++}`;
-    return n;
-  }
-  function defaultDesc(names) { const ds = [...new Set(names.map(n => (T(n).description || '').trim()).filter(Boolean))]; return ds.join(' / '); }
-  function refreshDraft() { if (!edited) { nameDraft = sel.length >= 2 ? suggestName(sorted(sel)) : null; descDraft = sel.length >= 2 ? defaultDesc(sorted(sel)) : null; } }
-  function toggle(n) {
-    const t = T(n); if (!t || !free(t)) return;
-    if (sel.length && T(sel[0]).page !== t.page) sel = [];
-    sel = sel.includes(n) ? sel.filter(x => x !== n) : sel.concat([n]);
-    notes = []; refreshDraft(); placeAll(); panel();
-  }
-  function selectIn(r, add) {
-    const hit = BP.texts.filter(t => t.page === page && free(t) && (t.rect[0] + t.rect[2]) / 2 >= r[0] && (t.rect[0] + t.rect[2]) / 2 <= r[2]
-                                     && (t.rect[1] + t.rect[3]) / 2 >= r[1] && (t.rect[1] + t.rect[3]) / 2 <= r[3]).map(t => t.name);
-    sel = add ? [...new Set(sel.filter(n => T(n).page === page).concat(hit))] : hit;
-    notes = hit.length ? [] : ['no free text fields in that area']; edited = false; refreshDraft(); placeAll(); panel();
-  }
-  function clear() { sel = []; edited = false; nameDraft = descDraft = null; notes = []; placeAll(); panel(); }
-  function combine() {
-    if (sel.length < 2) { notes = ['select two or more text fields']; return panel(); }
-    const name = (nameDraft || '').trim();
-    if (!/^[a-z][a-z0-9_]*$/.test(name)) { notes = ['not a field name (lower case, digits, underscores)']; return panel(); }
-    if (taken(null).has(name)) { notes = [`${name} is already a field`]; return panel(); }
-    combos.push({name, members: sorted(sel), description: (descDraft || '').trim(), when: localNow()});
-    sel = []; edited = false; nameDraft = descDraft = null; notes = []; save();
-  }
-  async function save() {
-    try { PLAN = await send('PUT', mapi('combine', '/record'), {combos}); BP.stale = false; updateEntry(PLAN.entry); }
-    catch (e) { alert('Save failed: ' + e.message); }
-    placeAll(); panel(); progress(); renderPages();
-  }
-  function panel() {
-    const a = $('#panel');
-    const head = `<div class="help">${esc(BP.path)}${BP.stale ? ' <span class="stale">· recorded against an earlier version of this file</span>' : ''}</div>`;
-    let cur;
-    if (sel.length) {
-      const ts = sorted(sel).map(T);
-      cur = `<div class="ccard"><h4>Selected on p${ts[0].page} (${ts.length})</h4>
-        <ol>${ts.map(t => `<li>${esc(t.name)} <span class="help">${esc(t.type || '')}${t.semantic_type ? '/' + esc(t.semantic_type) : ''}${t.path ? ' · ' + esc(t.path.split('.').pop()) : ''}</span></li>`).join('')}</ol>
-        ${ts.length >= 2 ? `<label class="help">name of the combined text field</label>
-          <input type="text" id="cName" value="${esc(nameDraft || '')}">
-          <label class="help">description</label>
-          <textarea id="cDesc">${esc(descDraft || '')}</textarea>
-          <div class="help">one string field over the union of these boxes; no path (the reader clips the page text, the filler splits over the widgets)</div>` : '<p class="help">select one more</p>'}
-        <div class="arow"><button class="btn primary" id="cGo" ${ts.length < 2 ? 'disabled' : ''}>combine (Enter)</button><button class="btn" id="cClear">clear (Esc)</button></div></div>`;
-    } else cur = '<p class="help">Click text fields (teal) to select them, or drag a box over them; then name the whole and press Enter. Text fields only, one page at a time.</p>';
-    const nts = notes.length ? `<div class="notes">${notes.map(n => `<div class="err">${esc(n)}</div>`).join('')}</div>` : '';
-    const list = `<div><h4>To combine (${combos.length})</h4><div class="alist">${combos.map((c, i) =>
-        `<div data-cgoto="${i}"><span>p${T(c.members[0]) ? T(c.members[0]).page : '?'} · ${esc(c.name)} <span class="help">← ${esc(c.members.join(', '))}</span></span><span class="x" data-cdel="${i}" title="undo this combination">×</span></div>`).join('') || '<p class="help">nothing yet</p>'}</div></div>`;
-    const ch = PLAN && combos.length ? `<div class="changes"><h4>What applying would change in the blueprint</h4><ul>
-        ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
-        <div class="help">The page only records. To write it into the blueprint:<br><code>PYTHONPATH=. venv/bin/python -m petey.validate.field_combine --apply ${esc(bid)}</code></div></div>` : '';
-    a.innerHTML = head + cur + nts + list + ch;
-    const n = $('#cName');
-    if (n) {
-      n.addEventListener('input', () => { nameDraft = n.value; edited = true; });
-      n.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') combine(); if (e.key === 'Escape') clear(); });
-    }
-    const d = $('#cDesc'); if (d) { d.addEventListener('input', () => { descDraft = d.value; edited = true; }); d.addEventListener('keydown', e => e.stopPropagation()); }
-    const go = $('#cGo'); if (go) go.onclick = combine;
-    const cl = $('#cClear'); if (cl) cl.onclick = clear;
-    document.querySelectorAll('[data-cdel]').forEach(el => el.onclick = e => { e.stopPropagation(); combos.splice(+el.dataset.cdel, 1); save(); });
-    document.querySelectorAll('[data-cgoto]').forEach(el => el.onclick = () => { const t = T(combos[+el.dataset.cgoto].members[0]); if (t && t.page !== page) gotoPage(t.page); });
-  }
-  function progress() {
-    const el = $('#progress'); if (!el || !BP) return;
-    const left = BP.texts.filter(free).length;
-    el.innerHTML = `<b>${combos.length}</b> to combine · ${BP.texts.length} text fields${sel.length ? ` · <b>${sel.length}</b> selected` : ''}`;
-  }
-  const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
-  return {
-    async load() { BP = await j(mapi('combine')); combos = BP.combos; PLAN = BP.plan; sel = []; edited = false; nameDraft = descDraft = null; notes = []; },
-    pages: () => BP ? BP.pages : [],
-    startPage: () => (BP.texts.slice().sort(cmp)[0] || {}).page || 1,
-    pageLabel(p) { const n = BP.texts.filter(t => t.page === p).length; return n ? `p${p} (${n})` : null; },
-    onPage() { if (sel.length && T(sel[0]).page !== page) { sel = []; edited = false; refreshDraft(); } placeAll(); },
-    bar: () => `<span class="progress" id="progress"></span>
-      <span class="help">click text fields or drag a box over them (Shift adds) · Enter combine · Esc clear · Shift+1-4 mode</span>`,
-    bindBar() { if (BP) progress(); },
-    place() {
-      for (const o of BP.others) if (o.page === page) put('cb other', o.rect, o.name);
-      for (const t of BP.texts) {
-        if (t.page !== page) continue;
-        if (comboOf(t.name)) { put('cb member', t.rect, `${t.name} (in ${comboOf(t.name).name})`); continue; }
-        put('cb text' + (sel.includes(t.name) ? ' sel' : ''), t.rect, `${t.name} · ${t.type || ''}`).dataset.text = t.name;
-      }
-      combos.forEach((c, i) => {
-        const ts = c.members.map(T).filter(Boolean); if (!ts.length || ts[0].page !== page) return;
-        const d = put('cb combo', union(ts.map(t => t.rect)), `${c.name} ← ${c.members.join(', ')}`); d.dataset.combo = i;
-        const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = c.name; d.appendChild(tag);
-      });
-      if (sel.length >= 2 && T(sel[0]).page === page) {
-        const d = put('cb preview', union(sel.map(n => T(n).rect)));
-        const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = nameDraft || ''; d.appendChild(tag);
-      }
-      progress();
-    },
-    panel, progress,
-    mousedown(e) { if (e.button !== 0) return; e.preventDefault(); drawStart = pt(e); drawTarget = e.target; drawStart.shift = e.shiftKey; },
-    mousemove(e) {
-      if (!drawStart) return; const p = pt(e);
-      const r = [Math.min(drawStart[0], p[0]), Math.min(drawStart[1], p[1]), Math.max(drawStart[0], p[0]), Math.max(drawStart[1], p[1])];
-      if (!drawBox && (r[2] - r[0]) * scale < 4 && (r[3] - r[1]) * scale < 4) return;
-      if (!drawBox) drawBox = put('cb draw', r);
-      else { drawBox.style.left = r[0] * scale + 'px'; drawBox.style.top = r[1] * scale + 'px'; drawBox.style.width = (r[2] - r[0]) * scale + 'px'; drawBox.style.height = (r[3] - r[1]) * scale + 'px'; }
-      drawBox._r = r;
-    },
-    mouseup() {
-      if (!drawStart) return;
-      const s = drawStart, b = drawBox, t = drawTarget; drawStart = null; drawBox = null; drawTarget = null;
-      if (b) { b.remove(); return selectIn(b._r, s.shift); }
-      if (t && t.dataset && t.dataset.text) return toggle(t.dataset.text);
-      if (t && t.dataset && t.dataset.combo !== undefined) { const c = combos[+t.dataset.combo]; notes = [`${c.name} combines ${c.members.join(', ')} (remove it from the list to undo)`]; return panel(); }
-    },
-    key(e) {
-      if (e.key === 'Enter') combine();
-      else if (e.key === 'Escape') clear();
       else return false;
       return true;
     },

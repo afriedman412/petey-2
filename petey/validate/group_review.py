@@ -5,6 +5,14 @@ units in reading order and confirms each one ("this group is right", "this box s
 belongs elsewhere is dragged onto the group it belongs to, or onto another orphan to start a new group, or onto the
 orphan tray to take it out of its group.
 
+Text fields can be combined the same way (Andrew, 2026-10-05: text to text only, the result a plain text field):
+drag one text box onto another to start a combined field, onto a combined field to add to it, onto the tray to take
+it back out. Text and option boxes never mix, and a combination stays on one page. A combined field is one `string`
+(no semantic type or pattern) over the union of its members' boxes with `path: null`, since the box covers several
+AcroForm widgets and a field names one: the reader clips the text layer to the box, which reads every part, and the
+filler already splits one value over the text widgets inside a box (ACORD 25's PRODUCER block). It takes the first
+member's place in reading order; what each member was (name, path, box, type) is kept in `x_petey_combined`.
+
     PYTHONPATH=. venv/bin/python -m petey.validate.group_review [--port 5006]   # then open http://127.0.0.1:5006/
     PYTHONPATH=. venv/bin/python -m petey.validate.group_review --summary       # reviews so far
     PYTHONPATH=. venv/bin/python -m petey.validate.group_review --plan <id>     # what --apply would change
@@ -101,6 +109,21 @@ def option_items(bp: dict) -> tuple[dict, list[dict]]:
     return items, units
 
 
+def text_items(bp: dict) -> dict[str, dict]:
+    """Every field with one text widget, as an item that can be combined (`kind: text`, id = field name)."""
+    out = {}
+    for name, spec in (bp.get("fields") or {}).items():
+        if not isinstance(spec, dict) or spec.get("widgets"):
+            continue
+        w = spec.get("widget") or {}
+        if w.get("widget_type") == "text" and w.get("rect") and w.get("page"):
+            out[name] = {"id": name, "field": name, "key": None, "kind": "text", "page": int(w["page"]),
+                         "rect": [float(c) for c in w["rect"]], "path": w.get("path"), "widget_type": "text",
+                         "type": spec.get("type"), "semantic_type": spec.get("semantic_type"),
+                         "caption": None, "description": spec.get("description")}
+    return out
+
+
 def _order_key(items: dict, u: dict) -> tuple:
     first = min((items[i] for i in u["items"]), key=lambda it: (it["page"], round(it["rect"][1] / 6), it["rect"][0]))
     return first["page"], round(first["rect"][1] / 6), first["rect"][0]
@@ -115,6 +138,7 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
     against another version of the file is rebased: its units keep the items that still exist, items it never saw
     stay where the blueprint has them, and it is reported stale."""
     items, base = option_items(bp)
+    items = {**items, **text_items(bp)}
     rec = load_record(bid)
     info = {"stale": bool(rec) and rec.get("blueprint_sha") != sha, "updated": rec.get("updated"),
             "applied": rec.get("applied")}
@@ -124,7 +148,7 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
         units, seen = [], set()
         for u in rec["units"]:
             ids = [i for i in u.get("items") or [] if i in items and i not in seen]
-            if not ids:
+            if not ids or (u.get("kind") == "text" and len(ids) < 2):
                 continue
             seen.update(ids)
             units.append({k: v for k, v in u.items() if k != "items"} | {"items": ids})
@@ -191,6 +215,8 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None) -> dict:
     """What writing `units` into `bp` changes: `{changes, errors, fields}` with `fields` the new field map (None
     when there are errors). Fields whose unit is unchanged keep their spec untouched and their place; a new or
     changed unit is written where its origin field was, or where its first option's field was."""
+    text_units = [u for u in units if u.get("kind") == "text"]
+    units = [u for u in units if u.get("kind") != "text"]
     items, base = option_items(bp)
     fields = bp.get("fields") or {}
     base_by_origin = {u["origin"]: u for u in base}
@@ -293,6 +319,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None) -> dict:
         changes.append(f"{len(gone)} field(s) removed, their boxes now options of a group: {', '.join(gone)}")
     for f in sorted(removed - set(gone)):
         changes.append(f"group {f} removed: every option moved to other units")
+    errors.extend(_check_text(fields, text_units, {u["name"] for u in units}))
     if errors:
         return {"changes": changes, "errors": errors, "fields": None}
     out: dict = {}
@@ -302,7 +329,71 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None) -> dict:
                 out[n] = s
         else:
             out[name] = spec
+    out = _combine_text(bp, out, text_units, now, changes)
     return {"changes": changes, "errors": [], "fields": out}
+
+
+def _check_text(fields: dict, text_units: list[dict], option_names: set[str]) -> list[str]:
+    texts = text_items({"fields": fields})
+    errors, used = [], {}
+    members = {m for u in text_units for m in u["items"]}
+    names = [u["name"] for u in text_units]
+    for u in text_units:
+        n = u.get("name") or ""
+        if len(u["items"]) < 2:
+            errors.append(f"{n!r} combines fewer than two text fields")
+        missing = [m for m in u["items"] if m not in texts]
+        if missing:
+            errors.append(f"{n!r}: {', '.join(missing)} not a text field of this blueprint (any more)")
+        elif len({texts[m]["page"] for m in u["items"]}) > 1:
+            errors.append(f"{n!r}: combines text fields on more than one page")
+        for m in u["items"]:
+            if m in used:
+                errors.append(f"{m} is in two combinations ({used[m]!r} and {n!r})")
+            used[m] = n
+        if not NAME_RE.match(n):
+            errors.append(f"{n!r} is not a field name (lower case, digits, underscores)")
+        elif names.count(n) > 1 or n in option_names:
+            errors.append(f"two units are both named {n!r}")
+        elif n in fields and n not in members:
+            errors.append(f"{n!r} is already the name of another field")
+    return errors
+
+
+def _combine_text(bp: dict, out: dict, text_units: list[dict], now: str, changes: list[str]) -> dict:
+    """Write each text combination in place of its first member (reading order); drop the other members."""
+    if not text_units:
+        return out
+    texts = text_items(bp)
+    at, gone = {}, set()
+    for u in text_units:
+        members = sorted(u["items"], key=lambda m: _order_key(texts, {"items": [m]}))
+        rects = [texts[m]["rect"] for m in members]
+        spec = {"type": "string"}
+        desc = (u.get("description") or "").strip() or " / ".join(dict.fromkeys(
+            (texts[m]["description"] or "").strip() for m in members if (texts[m]["description"] or "").strip()))
+        if desc:
+            spec["description"] = desc
+        spec["widget"] = {"page": texts[members[0]]["page"],
+                          "rect": [round(min(r[0] for r in rects), 3), round(min(r[1] for r in rects), 3),
+                                   round(max(r[2] for r in rects), 3), round(max(r[3] for r in rects), 3)],
+                          "widget_type": "text", "path": None}
+        spec["label_source"] = "hand"
+        spec["x_petey_combined"] = {"source": "group_review", "when": u.get("when") or now,
+                                    "from": [{k: texts[m][k] for k in ("field", "path", "rect", "type", "semantic_type")
+                                              if texts[m][k] is not None} for m in members]}
+        at[members[0]] = (u["name"], spec)
+        gone.update(members)
+        changes.append(f"text fields {', '.join(members)} -> {u['name']} (p{texts[members[0]]['page']}, "
+                       f"one text box over {len(members)})")
+    new: dict = {}
+    for name, spec in out.items():
+        if name in at:
+            n, s = at[name]
+            new[n] = s
+        elif name not in gone:
+            new[name] = spec
+    return new
 
 
 def apply(bid: str) -> dict:
@@ -350,12 +441,14 @@ class State:
         p = self.paths[bid]
         bp = _load(p)
         items, units, info = current_units(bid, bp, _sha(p))
-        if not units:
+        combos = sum(1 for u in units if u.get("kind") == "text")
+        units = [u for u in units if u.get("kind") != "text"]
+        if not units and not combos and not any(it.get("kind") == "text" for it in items.values()):
             return None
         groups = sum(1 for u in units if len(u["items"]) > 1 or u["type"] != "boolean")
         return {"id": bid, "source": bid.split("__")[0], "form": p.stem, "groups": groups,
                 "orphans": len(units) - groups, "confirmed": sum(1 for u in units if u.get("confirmed")),
-                "units": len(units), "stale": info["stale"], "edited": bool(info["updated"])}
+                "units": len(units), "combos": combos, "stale": info["stale"], "edited": bool(info["updated"])}
 
     def index(self) -> None:
         t0 = time.time()
@@ -363,7 +456,7 @@ class State:
             e = self._entry(bid)
             if e:
                 self._index[bid] = e
-        print(f"  {len(self._index)} of {len(self.paths)} blueprints have option boxes ({time.time() - t0:.1f}s)")
+        print(f"  {len(self._index)} of {len(self.paths)} blueprints have option or text boxes ({time.time() - t0:.1f}s)")
 
     def listing(self) -> list[dict]:
         if not self._index:
@@ -386,8 +479,8 @@ class State:
                 doc.close()
         sha = _sha(p)
         items, units, info = current_units(bid, bp, sha)
-        _, base = option_items(bp)
-        option_fields = {it["field"] for it in items.values()}
+        opt_items, base = option_items(bp)
+        option_fields = {it["field"] for it in opt_items.values()}
         return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
@@ -416,7 +509,8 @@ class State:
             raise KeyError(bid)
         bp = _load(p)
         items, _ = option_items(bp)
-        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked")
+        items = {**items, **text_items(bp)}
+        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when")
         units = [{k: u.get(k) for k in keep if u.get(k) is not None} for u in incoming.get("units") or []]
         for u in units:
             u["items"] = [i for i in u.get("items") or [] if i in items]
