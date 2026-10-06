@@ -300,7 +300,9 @@ def record_pairs(form: str, run_dir: Path, pending: dict, outcomes: dict) -> int
 
 
 def fix(form: str, detection: dict, *, describe: bool, apply_correct: bool,
-        bpt: Optional[Path] = None) -> collections.Counter:
+        bpt: Optional[Path] = None, rebound: Optional[set] = None) -> collections.Counter:
+    """Rule fixes and, with `apply_correct`, confirmed rebind cycles. The names of fields whose widget a rebind
+    moved are added to `rebound`: this round's evidence about them describes the old binding."""
     bp_path = bpt or BLUEPRINTS / f"{form}.bpt"
     bp = yaml.safe_load(bp_path.read_text(encoding="utf-8"))
     blank = resolve_blank(bp)
@@ -320,6 +322,8 @@ def fix(form: str, detection: dict, *, describe: bool, apply_correct: bool,
             n = correct_mod.apply_rebinds(bp_path, c["rebinds"])
             if n:
                 changes[f"rebind_cycle:{len(c['names'])}"] += n
+                if rebound is not None:
+                    rebound.update(r["field"] for r in c["rebinds"] if r.get("field"))
     return changes
 
 
@@ -402,14 +406,19 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
                 print(f"[{form}] iter {i}: detected={det['total']} delta={det['delta']} "
                       f"-> restored {judged['restored']} reviewed fields")
                 continue
-        changes = fix(form, det, describe=describe, apply_correct=apply_correct, bpt=bpt)
+        rebound: set = set()
+        changes = fix(form, det, describe=describe, apply_correct=apply_correct, bpt=bpt, rebound=rebound)
         review_rec = None
         if review != "none" and rounds_done < review_rounds and (det["total"] > 0 or det.get("witness")):
             from petey.validate.review import review as run_review
             snapshot = bp_path.read_text(encoding="utf-8")
+            # A field a rebind just moved is not reviewed this round: the run's flags and the reviewer's evidence
+            # describe its old widget, so an edit made for that box lands on the field now bound elsewhere (1014r,
+            # 2026-10-06: City / State / E-Mail rebound, and the reviewer's e-mail type went onto the City box).
+            # The next round validates the new binding and reviews it then.
             res = run_review(form, run_dir=run_dir, scope=review, model=review_model,
                              effort=review_effort, apply=True, bpt_path=bpt, adjudicate=adjudicate,
-                             adjudicator_model=adjudicator_model)
+                             adjudicator_model=adjudicator_model, skip=rebound)
             rounds_done += 1
             applied = {k: v for k, v in res["applied"].items() if k != "ok" and not k.startswith("rejected")}
             review_rec = {k: res[k] for k in ("fields_reviewed", "verdicts", "applied", "usage", "cost_usd")}

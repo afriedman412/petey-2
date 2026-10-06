@@ -546,10 +546,11 @@ def apply_decisions(bp: dict, decisions: list[dict], model: str) -> collections.
 def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
            model: str = DEFAULT_MODEL, effort: str = "medium", apply: bool = False,
            bpt_path: Optional[Path] = None, adjudicate: bool = True,
-           adjudicator_model: Optional[str] = None) -> dict:
+           adjudicator_model: Optional[str] = None, skip: Optional[set] = None) -> dict:
     """Flags from the run -> evidence -> the model's decisions -> (contested renames to the adjudicator) ->
     apply. `adjudicate` sends every proposed rename the case chain does not settle to `adjudicate.py`, which
-    reads the blank page around the widget; a rename it does not uphold is dropped from the decision."""
+    reads the blank page around the widget; a rename it does not uphold is dropped from the decision. Fields in
+    `skip` are left out (the loop passes the fields a rebind moved this round)."""
     bpt_path = bpt_path or (BLUEPRINTS / f"{form}.bpt")
     bp = yaml.safe_load(bpt_path.read_text(encoding="utf-8"))
     blank = resolve_blank(bp)
@@ -557,7 +558,9 @@ def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
         raise SystemExit(f"{form}: blank PDF not found")
     run_dir = run_dir or latest_scored_run(form)
     flags = flags_from_run(run_dir) if run_dir else {}
-    evidence = build_evidence(bp, blank, flags, scope)
+    if skip:
+        flags = collections.defaultdict(list, {f: v for f, v in flags.items() if f not in skip})
+    evidence = [e for e in build_evidence(bp, blank, flags, scope) if e.get("field") not in (skip or ())]
     title = bp.get("name") or form
     client = _client() if evidence else None
     decisions: list[dict] = []
