@@ -21,8 +21,19 @@ Per iteration:
   3. fix       — `retype` rules + descriptions on the blueprint; with
                  `--apply-correct`, closed cycles whose every rebind the
                  oracle graded `confirmed`.
-Stops when step 3 changes nothing (`clean` if nothing was detected,
-`converged_with_residue` otherwise) or at `--max-iter`. The residue is
+With `--review`, the LLM reviewer runs after step 3 for as long as some
+flagged field has not been reviewed in its current form (its name and its
+definition, widget included): new flags, fields a rebind moved, fields an
+edit changed that are still flagged. A field the reviewer has seen as it
+stands, before or after its edit (a restored edit leaves it in the form it
+was reviewed in), is not reviewed again. Up to `--review-rounds` rounds
+(default 4); each round's edits are judged field by field by the next
+validation, worse ones restored (2026-10-06, Andrew: keep going until no
+errors; "no errors" means none the reviewer has not yet seen, since part of
+the residue is the reader's or the generator's and no edit clears it).
+Stops when step 3 and the reviewer change nothing (`clean` if nothing was
+detected, `converged_with_residue` otherwise) or at `--max-iter`; `stop`
+records why. The residue is
 reported by detector reason and mapped to `defect_taxonomy` class names, so
 what remains is a decision list, not a mystery.
 """
@@ -343,11 +354,39 @@ def residue(detection: dict) -> list[tuple[str, int, tuple[str, ...]]]:
     return sorted(rows, key=lambda t: -t[1])
 
 
+def _defs(bp: dict) -> dict[str, str]:
+    from petey.validate.page_check import spec_hash
+    return {n: spec_hash(s) for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
+
+
+def already_seen(bp_path: Path, seen: set[tuple[str, str]]) -> set[str]:
+    """Fields whose name and current definition the reviewer has already judged."""
+    bp = yaml.safe_load(bp_path.read_text(encoding="utf-8")) or {}
+    return {n for n, h in _defs(bp).items() if (n, h) in seen}
+
+
+def reviewed_pairs(snapshot: str, bp_path: Path, res: dict) -> set[tuple[str, str]]:
+    """(name, definition) of every field the review looked at, as it was before the round and as the round left
+    it (a rename under its new name): either form, seen again, needs no second review."""
+    before = _defs(yaml.safe_load(snapshot) or {})
+    after = _defs(yaml.safe_load(bp_path.read_text(encoding="utf-8")) or {})
+    renamed = {d.get("field"): d.get("name") for d in res.get("decisions") or [] if d.get("name")}
+    out = set()
+    for e in res.get("evidence") or []:
+        f = e.get("field")
+        if f in before:
+            out.add((f, before[f]))
+        for n in (f, renamed.get(f)):
+            if n and n in after:
+                out.add((n, after[n]))
+    return out
+
+
 def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n_flat: int,
             gen_cache_only: bool, label_model: Optional[str], gen_key: Optional[str],
             max_iter: int, describe: bool, apply_correct: bool,
             review: str = "none", review_model: str = "claude-opus-5",
-            review_effort: str = "medium", review_rounds: int = 1,
+            review_effort: str = "medium", review_rounds: int = 4,
             allow_dirty: bool = False, case_set: Optional[int] = None,
             n_cases: Optional[int] = None, bpt: Optional[Path] = None,
             adjudicate: bool = True, adjudicator_model: Optional[str] = None,
@@ -362,6 +401,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
     bp_path = bpt or BLUEPRINTS / f"{form}.bpt"   # a side copy (validate --bpt) runs the loop outside the library
     pending: Optional[dict] = None   # a review awaiting the loop's verdict
     rounds_done = 0
+    seen: set[tuple[str, str]] = set()   # (field name, definition hash) the reviewer has judged
+    stop = None
     start = starting_state(bp_path)
     if start.get("reviewed_fields") and start.get("uncommitted") and review != "none" and not allow_dirty:
         raise SystemExit(
@@ -372,6 +413,7 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         print(f"[{form}] note: starting from an uncommitted blueprint ({start})")
     for i in range(1, max_iter + 1):
         t0 = time.time()
+        stop = None                       # why the loop ends, if it ends this round
         run_dir = run_validate(form, blank, gen_model=gen_model, methods=methods, n_flat=n_flat,
                                gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key,
                                case_set=case_set, n_cases=n_cases, bpt=bpt, rebuild_set=rebuild_set and i == 1)
@@ -409,6 +451,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         rebound: set = set()
         changes = fix(form, det, describe=describe, apply_correct=apply_correct, bpt=bpt, rebound=rebound)
         review_rec = None
+        if review != "none" and rounds_done >= review_rounds and (det["total"] > 0 or det.get("witness")):
+            stop = f"review cap ({review_rounds} rounds)"
         if review != "none" and rounds_done < review_rounds and (det["total"] > 0 or det.get("witness")):
             from petey.validate.review import review as run_review
             snapshot = bp_path.read_text(encoding="utf-8")
@@ -418,13 +462,17 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
             # The next round validates the new binding and reviews it then.
             res = run_review(form, run_dir=run_dir, scope=review, model=review_model,
                              effort=review_effort, apply=True, bpt_path=bpt, adjudicate=adjudicate,
-                             adjudicator_model=adjudicator_model, skip=rebound)
-            rounds_done += 1
+                             adjudicator_model=adjudicator_model, skip=rebound | already_seen(bp_path, seen))
+            if res["fields_reviewed"]:
+                rounds_done += 1
+                seen |= reviewed_pairs(snapshot, bp_path, res)
+            else:
+                stop = "every flagged field already reviewed as it stands"
             applied = {k: v for k, v in res["applied"].items() if k != "ok" and not k.startswith("rejected")}
             review_rec = {k: res[k] for k in ("fields_reviewed", "verdicts", "applied", "usage", "cost_usd")}
             if res.get("adjudicated"):
                 review_rec["adjudicated"] = {k: res["adjudicated"][k] for k in ("model", "tally", "cost_usd", "records")}
-            print(f"[{form}] review ({review_model}, {review_effort}): {res['fields_reviewed']} fields, "
+            print(f"[{form}] review round {rounds_done} ({review_model}, {review_effort}): {res['fields_reviewed']} fields, "
                   f"{res['verdicts']} -> applied {res['applied']} (${res['cost_usd']})")
             if applied:
                 pending = {"snapshot": snapshot, "detected": det["total"], "applied": applied,
@@ -446,8 +494,14 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
               f"shape={det['shape']} delta={det['delta']} -> fixed={dict(changes)} ({rec['seconds']}s)")
         if not changes:
             status = "clean" if det["total"] == 0 else "converged_with_residue"
+            stop = stop or ("nothing detected" if det["total"] == 0 else "no rule fix and no review edit")
             break
-    result = {"form": form, "status": status, "start": start, "iterations": history,
+    if status == "max_iter":
+        stop = f"max iterations ({max_iter})"
+    if stop:
+        print(f"[{form}] stopped: {stop}; {rounds_done} review round(s)")
+    result = {"form": form, "status": status, "stop": stop, "review_rounds": rounds_done,
+              "start": start, "iterations": history,
               "residue": residue(history[-1] if history and "detected" in history[-1] else {})}
     if result["residue"]:
         print(f"[{form}] {status}; residue by detector reason -> taxonomy classes:")
@@ -475,7 +529,7 @@ def main() -> int:
     ap.add_argument("--methods", default="native")
     ap.add_argument("--n-flat", type=int, default=1)
     ap.add_argument("--label-model", default=None, help="'none' labels without an API when the blueprint is missing")
-    ap.add_argument("--max-iter", type=int, default=4)
+    ap.add_argument("--max-iter", type=int, default=8)
     ap.add_argument("--no-describe", action="store_true")
     ap.add_argument("--apply-correct", action="store_true",
                     help="also apply closed cycles graded confirmed by correct.py")
@@ -484,7 +538,8 @@ def main() -> int:
                          "kept only if the next validation detects less")
     ap.add_argument("--review-model", default="claude-opus-5")
     ap.add_argument("--review-effort", default="medium")
-    ap.add_argument("--review-rounds", type=int, default=1)
+    ap.add_argument("--review-rounds", type=int, default=4,
+                    help="cap on review rounds; a round runs only while some flagged field is unreviewed as it stands")
     ap.add_argument("--allow-dirty", action="store_true",
                     help="allow a review run on a blueprint with uncommitted review changes")
     ap.add_argument("--no-adjudicate", action="store_true",
