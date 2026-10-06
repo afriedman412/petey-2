@@ -11,7 +11,8 @@ from its flags instead of from a blank form (Andrew, 2026-10-05: minimise attent
               errors people flag are mostly about neighbours (names slid one row or column, day / month swapped,
               a state box named City) and a table's column header is in view.
     question  per field: what would a filer write in the box, judged from the printed captions; do the name and
-              type fit it? `accept`, or `flag` with a problem (wrong_name / wrong_type / not_a_field /
+              type fit it? Accepted fields come back as bare numbers (most of the output was explaining accepts,
+              2026-10-06); a flag carries a problem (wrong_name / wrong_type / not_a_field /
               should_group / options / other), a proposed name or type, and a one-line reason.
     output    `runs/page_check/<id>.json`, keyed by field name, with the blueprint's sha. Never writes a
               blueprint and never touches the person's verdicts in `runs/hand_review/`.
@@ -20,6 +21,7 @@ Answers are cached per (model, prompt, page image, field list) in `runs/page_che
 Measured against hand review by `eval/page_check_fixture.py`.
 
     PYTHONPATH=. venv/bin/python -m petey.validate.page_check blueprints/5021.bpt [--pages 1,2] [--model claude-opus-5]
+    PYTHONPATH=. venv/bin/python -m petey.validate.page_check blueprints/fw9.bpt blueprints/ds11.bpt --batch   # half price
     PYTHONPATH=. venv/bin/python -m petey.validate.page_check blueprints/5021.bpt --dry --png-dir /tmp/pc   # images only
 """
 from __future__ import annotations
@@ -76,32 +78,33 @@ year, a box that takes one of a printed list of choices typed as free text).
 them as separate fields; name the others in the reason.
 - options: an option group's members, on-states or captions do not match the boxes.
 - other: anything else a person correcting this blueprint would change.
-Otherwise accept. Most fields on a blueprint are right. For every flag give the name and / or type you would use \
-(empty when not applicable) and a one-line reason that quotes the caption you relied on. Return one entry for \
-every number in the list."""
+Otherwise accept. Most fields on a blueprint are right. Put the number of every field you accept in \
+`accepted`, with nothing else. Put every field you flag in `flags`, with what a filer writes in the box, the \
+problem, the name and / or type you would use (empty when not applicable) and a one-line reason that quotes the \
+caption you relied on. Every number in the list goes in exactly one of the two."""
 
 SCHEMA = {
     "type": "object",
     "properties": {
-        "fields": {
+        "accepted": {"type": "array", "items": {"type": "string"}},
+        "flags": {
             "type": "array",
             "items": {
                 "type": "object",
                 "properties": {
                     "id": {"type": "string"},
                     "box_holds": {"type": "string"},
-                    "verdict": {"type": "string", "enum": ["accept", "flag"]},
-                    "problem": {"type": "string", "enum": list(PROBLEMS)},
+                    "problem": {"type": "string", "enum": [p for p in PROBLEMS if p != "none"]},
                     "proposed_name": {"type": "string"},
                     "proposed_type": {"type": "string"},
                     "reason": {"type": "string"},
                 },
-                "required": ["id", "box_holds", "verdict", "problem", "proposed_name", "proposed_type", "reason"],
+                "required": ["id", "box_holds", "problem", "proposed_name", "proposed_type", "reason"],
                 "additionalProperties": False,
             },
         },
     },
-    "required": ["fields"],
+    "required": ["accepted", "flags"],
     "additionalProperties": False,
 }
 
@@ -225,52 +228,73 @@ def _key(model: str, png: bytes, listing: str) -> str:
     return h.hexdigest()[:24]
 
 
-def ask(client, model: str, png: bytes, items: list[dict], *, page_no: int, n_pages: int,
-        form: str) -> tuple[dict, dict]:
-    """One call for one page (cached). Returns ({id: answer}, usage)."""
+def request(model: str, png: bytes, items: list[dict], *, page_no: int, n_pages: int, form: str) -> tuple[str, dict]:
+    """(cache key, Messages API params) for one page."""
     listing = json.dumps(items, ensure_ascii=False)
-    key = _key(model, png, listing)
-    cp = CACHE / f"{key}.json"
-    if cp.exists():
-        c = json.loads(cp.read_text())
-        return c["answers"], {**c["usage"], "cached": True}
     user = (f"Form {form}, page {page_no} of {n_pages}. The fields outlined on this page:\n{listing}\n\n"
             "Check every field and return JSON.")
     content = [{"type": "image", "source": {"type": "base64", "media_type": "image/png",
                                             "data": base64.standard_b64encode(png).decode("ascii")}},
                {"type": "text", "text": user}]
-    t0 = time.time()
-    with client.messages.stream(model=model, max_tokens=64000, system=SYSTEM,
-                                messages=[{"role": "user", "content": content}],
-                                output_config={"format": {"type": "json_schema", "schema": SCHEMA}}) as s:
-        resp = s.get_final_message()
+    return _key(model, png, listing), dict(
+        model=model, max_tokens=64000, system=SYSTEM, messages=[{"role": "user", "content": content}],
+        output_config={"format": {"type": "json_schema", "schema": SCHEMA}})
+
+
+def parse(resp) -> tuple[dict, dict]:
+    """({id: answer}, usage) from a response: accepted ids become bare accepts, flags keep their detail."""
     text = next((b.text for b in resp.content if getattr(b, "type", None) == "text"), "")
     usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens,
-             "stop_reason": resp.stop_reason, "model_served": resp.model, "seconds": round(time.time() - t0, 1)}
+             "stop_reason": resp.stop_reason, "model_served": resp.model}
+    answers: dict[str, dict] = {}
+    try:
+        j = json.loads(text)
+        for i in j.get("accepted") or []:
+            answers[str(i)] = {"id": str(i), "verdict": "accept", "problem": "none"}
+        for a in j.get("flags") or []:
+            answers[str(a.get("id"))] = {**a, "verdict": "flag"}
+    except (json.JSONDecodeError, AttributeError):
+        usage["parse_error"] = text[:200]
+    return answers, usage
+
+
+def _store(key: str, answers: dict, usage: dict, form: str, page_no: int) -> None:
+    if usage.get("stop_reason") == "end_turn" and answers:      # only complete answers are cached
+        CACHE.mkdir(parents=True, exist_ok=True)
+        (CACHE / f"{key}.json").write_text(json.dumps({"answers": answers, "usage": usage, "form": form,
+                                                       "page": page_no}, indent=1))
+
+
+def cached(key: str) -> Optional[dict]:
+    cp = CACHE / f"{key}.json"
+    return json.loads(cp.read_text()) if cp.exists() else None
+
+
+def ask(client, model: str, png: bytes, items: list[dict], *, page_no: int, n_pages: int,
+        form: str) -> tuple[dict, dict]:
+    """One call for one page (cached). Returns ({id: answer}, usage)."""
+    key, params = request(model, png, items, page_no=page_no, n_pages=n_pages, form=form)
+    c = cached(key)
+    if c is not None:
+        return c["answers"], {**c["usage"], "cached": True}
+    t0 = time.time()
+    with client.messages.stream(**params) as s:
+        resp = s.get_final_message()
+    answers, usage = parse(resp)
+    usage["seconds"] = round(time.time() - t0, 1)
     try:
         from petey.label import call_log
-        call_log.record(f"page_check/{model}", raw=text, finish_reason=resp.stop_reason,
+        call_log.record(f"page_check/{model}", raw=json.dumps(answers), finish_reason=resp.stop_reason,
                         request={"model": model, "form": form, "page": page_no, "fields": len(items)},
                         usage={k: usage[k] for k in ("input_tokens", "output_tokens")}, elapsed=usage["seconds"])
     except Exception:
         pass
-    answers: dict[str, dict] = {}
-    try:
-        for a in json.loads(text).get("fields") or []:
-            answers[str(a.get("id"))] = a
-    except (json.JSONDecodeError, AttributeError):
-        usage["parse_error"] = text[:200]
-    if resp.stop_reason == "end_turn" and answers:          # only complete answers are cached
-        CACHE.mkdir(parents=True, exist_ok=True)
-        cp.write_text(json.dumps({"answers": answers, "usage": usage, "form": form, "page": page_no}, indent=1))
+    _store(key, answers, usage, form, page_no)
     return answers, usage
 
 
-# ------------------------------------------------------------------ check
-
-def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dry: bool = False,
-          png_dir: Optional[Path] = None, client=None, log=print) -> dict:
-    """Every field on the chosen pages (default all): its answer, keyed by field name."""
+def pages_of(bpt: Path, pages: Optional[set[int]] = None):
+    """(blueprint, blank, rows, n_pages, chosen pages) for a blueprint file."""
     bp = yaml.load(bpt.read_text(encoding="utf-8"), Loader=_LOADER) or {}
     blank = resolve_blank(bp)
     if blank is None:
@@ -279,6 +303,74 @@ def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dr
     with pymupdf.open(str(blank)) as d:
         n_pages = len(d)
     want = sorted({b["page"] for r in rows for b in r["boxes"]} & (pages or set(range(1, n_pages + 1))))
+    return bp, blank, rows, n_pages, want
+
+
+def run_batch(bpts: list[Path], *, model: str = MODEL, pages: Optional[set[int]] = None, poll: int = 30,
+              resume: Optional[str] = None, log=print) -> dict:
+    """Every uncached page of the blueprints in one Message Batch (half price; most finish within the hour).
+    Results go to the cache, so `check` afterwards reads them without calls. `resume` collects a batch already
+    submitted for the same pages (custom ids are the cache keys, so the same blueprints map onto it)."""
+    import anthropic
+    reqs, meta = [], {}
+    for bpt in bpts:
+        bp, blank, rows, n_pages, want = pages_of(bpt, pages)
+        form = bp.get("name") or bpt.stem
+        for pg in want:
+            png, _, px = render(blank, pg, rows)
+            key, params = request(model, png, field_list(rows, pg, px), page_no=pg, n_pages=n_pages, form=form)
+            if cached(key) is None and key not in meta:
+                reqs.append({"custom_id": key, "params": params})
+                meta[key] = (form, pg)
+    if not reqs:
+        log("batch: every page cached")
+        return {"requests": 0, "cost_usd": 0.0}
+    client = _client(model)
+    if resume:
+        b = client.messages.batches.retrieve(resume)
+        log(f"batch {b.id}: resumed, {b.processing_status}")
+    else:
+        b = client.messages.batches.create(requests=reqs)
+        log(f"batch {b.id}: {len(reqs)} pages submitted")
+    t0 = time.time()
+    while b.processing_status != "ended":
+        time.sleep(poll)
+        try:
+            b = client.messages.batches.retrieve(b.id)
+        except anthropic.APIConnectionError as e:      # a dropped connection while polling; the batch runs on
+            log(f"  poll failed ({e}); retrying")        # (2026-10-06: one DNS failure killed the first run)
+            continue
+        rc = b.request_counts
+        log(f"  {int(time.time() - t0)}s: processing {rc.processing}, succeeded {rc.succeeded}, errored {rc.errored}")
+    tin = tout = 0
+    failed = []
+    for r in client.messages.batches.results(b.id):
+        form, pg = meta[r.custom_id]
+        if r.custom_id not in meta:
+            continue
+        if r.result.type != "succeeded":
+            failed.append(f"{form} p{pg}: {r.result.type}")
+            continue
+        answers, usage = parse(r.result.message)
+        usage["batch"] = b.id
+        tin += usage["input_tokens"]; tout += usage["output_tokens"]
+        _store(r.custom_id, answers, usage, form, pg)
+        if usage.get("stop_reason") != "end_turn" or not answers:
+            failed.append(f"{form} p{pg}: {usage.get('stop_reason')} {usage.get('parse_error', '')[:80]}")
+    pin, pout = PRICES.get(model, (0.0, 0.0))
+    cost = 0.5 * (tin / 1e6 * pin + tout / 1e6 * pout)
+    log(f"batch {b.id}: {len(reqs) - len(failed)}/{len(reqs)} pages, {tin} in / {tout} out tokens, "
+        f"${cost:.2f} at batch price, {int(time.time() - t0)}s" + (f"; failed: {failed}" if failed else ""))
+    return {"batch": b.id, "requests": len(reqs), "failed": failed, "input_tokens": tin, "output_tokens": tout,
+            "cost_usd": round(cost, 4)}
+
+
+# ------------------------------------------------------------------ check
+
+def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dry: bool = False,
+          png_dir: Optional[Path] = None, client=None, log=print) -> dict:
+    """Every field on the chosen pages (default all): its answer, keyed by field name."""
+    bp, blank, rows, n_pages, want = pages_of(bpt, pages)
     by_id = {r["id"]: r for r in rows}
     fields: dict[str, dict] = {}
     usage_total: collections.Counter = collections.Counter()
@@ -325,25 +417,31 @@ def check(bpt: Path, *, model: str = MODEL, pages: Optional[set[int]] = None, dr
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("bpt", type=Path)
+    ap.add_argument("bpt", type=Path, nargs="+")
     ap.add_argument("--pages", default=None, help="comma-separated page numbers (default: every page with fields)")
     ap.add_argument("--model", default=MODEL)
+    ap.add_argument("--batch", action="store_true", help="send uncached pages as one Message Batch (half price)")
+    ap.add_argument("--resume", default=None, help="collect this already-submitted batch id instead of submitting")
     ap.add_argument("--dry", action="store_true", help="render and list only, no model calls")
     ap.add_argument("--png-dir", type=Path, default=None, help="also write each page image and its field list")
-    ap.add_argument("--out", type=Path, default=None, help="default runs/page_check/<stem>.json")
     args = ap.parse_args()
     pages = {int(p) for p in args.pages.split(",")} if args.pages else None
-    res = check(args.bpt, model=args.model, pages=pages, dry=args.dry, png_dir=args.png_dir)
-    if args.dry:
-        return 0
-    out = args.out or OUT / f"{args.bpt.stem}.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(res, indent=1, ensure_ascii=False))
-    flags = {n: f for n, f in res["fields"].items() if f.get("verdict") == "flag"}
-    print(f"{res['form']}: {len(res['fields'])} fields, {len(flags)} flagged, ${res['cost_usd']}  -> {out}")
-    for n, f in flags.items():
-        prop = " ".join(x for x in (f.get("proposed_name"), f.get("proposed_type")) if x)
-        print(f"  {n:44} {f['problem']:13} {prop:30} {(f.get('reason') or '')[:100]}")
+    if (args.batch or args.resume) and not args.dry:
+        run_batch(args.bpt, model=args.model, pages=pages, resume=args.resume)
+    for bpt in args.bpt:
+        print(bpt)
+        res = check(bpt, model=args.model, pages=pages, dry=args.dry, png_dir=args.png_dir)
+        if args.dry:
+            continue
+        out = OUT / f"{bpt.stem}.json"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(res, indent=1, ensure_ascii=False))
+        flags = {n: f for n, f in res["fields"].items() if f.get("verdict") == "flag"}
+        print(f"{res['form']}: {len(res['fields'])} fields, {len(flags)} flagged"
+              + (f", ${res['cost_usd']} live" if res["cost_usd"] else "") + f"  -> {out}")
+        for n, f in flags.items():
+            prop = " ".join(x for x in (f.get("proposed_name"), f.get("proposed_type")) if x)
+            print(f"  {n:44} {f['problem']:13} {prop:30} {(f.get('reason') or '')[:100]}")
     return 0
 
 
