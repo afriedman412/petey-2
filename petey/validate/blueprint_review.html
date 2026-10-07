@@ -63,6 +63,9 @@
   .tier { display:inline-block; min-width:1.1em; text-align:center; font-size:11px; font-weight:600; border-radius:3px; padding:0 3px; margin-right:4px; }
   .tier.contested { background:#fce8e6; color:#a50e0e; } .tier.unknown { background:#eee; color:#555; }
   .tier.single { background:#fef7e0; color:#7a5b00; } .tier.settled { background:#e6f4ea; color:#137333; }
+  .why { margin:8px 0; font-size:13px; } .why div { padding:2px 0 2px 8px; border-left:3px solid; margin:2px 0; }
+  .why .error { border-color:#a50e0e; } .why .suggestion { border-color:#b06000; color:var(--muted); }
+  details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(--muted); }
   .wit { margin:8px 0; font-size:12px; } .wit div { padding:1px 0; } .wit .no { color:#a50e0e; } .wit .yes { color:#137333; } .wit .mute { color:var(--muted); }
 
   /* groups */
@@ -223,7 +226,8 @@ function pickerText(b) {
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
   if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
   if (b.rerun || b.launch) {
-    if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
+    if (b.check_errors != null) bits.push(`${b.check_errors} errors, ${b.check_suggestions} suggestions`);
+    else if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
     if (b.run) bits.push(b.run.stable ? 'stable' : `NOT stable: ${b.run.stop}`);
   }
   return `${b.form}  (${bits.join(', ')})  ·  ${ageText(b.age)}`;
@@ -421,13 +425,18 @@ MODE.review = (() => {
     return `<div class="help">${rows.join('<br>')}</div>`;
   }
   const tierChip = f => f.tier ? `<span class="tier ${f.tier}" title="${f.tier}">${TIER_LETTER[f.tier]}</span>` : '';
+  function whyHtml(f) {
+    // one plain sentence per reason (witness.explain): errors first, then suggestions (2026-10-07)
+    if (!f.why || !f.why.length) return '';
+    return `<div class="why">${f.why.map(w => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${esc(w.text)}</div>`).join('')}</div>`;
+  }
   function witnessHtml(f) {
     if (!f.witnesses || !Object.keys(f.witnesses).length) return '';
     const rows = Object.entries(f.witnesses).map(([k, [v, d]]) => {
       const cls = v === true ? 'yes' : (v === false ? 'no' : 'mute'), mark = v === true ? 'for' : (v === false ? 'against' : 'silent');
       return `<div class="${cls}"><b>${esc(k)}</b> ${mark}${d ? ': ' + esc(d) : ''}</div>`;
     }).join('');
-    return `<div class="wit">${tierChip(f)}<b>${f.tier}</b>${rows}</div>`;
+    return `<details class="raw"><summary>${tierChip(f)}<b>${f.tier}</b> · check details</summary><div class="wit">${rows}</div></details>`;
   }
   const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}p${f.page} · ${esc(f.name)}</div>`).join('')}</div>`;
   function bindList() { document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n)); }
@@ -450,7 +459,7 @@ MODE.review = (() => {
         <dt>path</dt><dd><code>${esc((f.path || '').split('.').slice(-1)[0])}</code></dd>
         ${opts}
       </dl>
-      ${witnessHtml(f)}${loop}${adj}
+      ${whyHtml(f)}${witnessHtml(f)}${loop}${adj}
       ${isRemoved(f.name) ? `<div class="rbanner">to be removed from the blueprint (<code>field_add --apply</code>) <button class="btn" id="vKeep">keep it (d)</button></div>` : ''}
       <div class="verdict">
         <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" id="vAccept">accept (a)</button>

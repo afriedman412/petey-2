@@ -464,17 +464,119 @@ def run_witnesses(run_dir: Path, blank: Optional[Path]) -> dict[str, dict]:
 
 # ------------------------------------------------------------------- per field
 
+PAGE_CHECK_SUGGESTIONS = ("options", "should_group", "not_a_field")   # 2026-10-07: rules and captions, not errors
+
+
 def page_check_witness(v: dict) -> tuple[Optional[bool], str]:
+    """Accept -> for. A wrong name / type / other -> against. Option captions, grouping and "not a field" are
+    suggestions (Andrew, 2026-10-07: most flagged fields were right; these depend on his rules or are cosmetic):
+    shown, but silent in the tier."""
     if v.get("verdict") == "accept":
         return True, "page check: fits the page"
     prop = " ".join(x for x in (v.get("proposed_name"), v.get("proposed_type")) if x)
-    return False, (f"page check {v.get('problem')}: {v.get('reason') or ''}"
-                   + (f" (would be: {prop})" if prop else ""))
+    text = f"page check {v.get('problem')}: {v.get('reason') or ''}" + (f" (would be: {prop})" if prop else "")
+    if v.get("problem") in PAGE_CHECK_SUGGESTIONS:
+        return None, "suggestion; " + text
+    return False, text
+
+
+_WITNESS_TEXT = {"publisher": "The publisher's tooltip", "page": "The caption printed at the box",
+                 "classifier": "The page classifier's caption"}
+
+
+def _first_sentence(t: str, n: int = 150) -> str:
+    t = re.split(r"(?<=[.;])\s", (t or "").strip(), maxsplit=1)[0]
+    return t if len(t) <= n else t[:n - 1] + "…"
+
+
+def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> list[dict]:
+    """One plain sentence per reason the field is questioned, for the review page (Andrew, 2026-10-07: the
+    individual checks' output is opaque). [{"kind": "error" | "suggestion", "text"}], errors first."""
+    out = []
+    if pc and pc.get("verdict") == "flag":
+        p, holds = pc.get("problem"), (pc.get("box_holds") or "").strip()
+        pn, pt = pc.get("proposed_name"), pc.get("proposed_type")
+        typ = "/".join(x for x in (spec.get("type"), spec.get("semantic_type")) if x)
+        if p == "wrong_name":
+            t = (f"Name: the box holds {holds!r}, not what `{name}` says." if holds else
+                 f"Name: {_first_sentence(pc.get('reason'))}")
+            if pn and pn != name:
+                t += f" Suggested: `{pn}`."
+            out.append({"kind": "error", "text": t})
+        elif p == "wrong_type":
+            t = (f"Type: the box holds {holds!r}, which does not fit {typ}." if holds else
+                 f"Type: {_first_sentence(pc.get('reason'))}")
+            if pt:
+                t += f" Suggested: {pt}."
+            out.append({"kind": "error", "text": t})
+        elif p == "options":
+            out.append({"kind": "suggestion", "text": f"Option captions: {_first_sentence(pc.get('reason'))}"})
+        elif p == "should_group":
+            out.append({"kind": "suggestion", "text": f"Could be one group: {_first_sentence(pc.get('reason'))}"})
+        elif p == "not_a_field":
+            out.append({"kind": "suggestion", "text": f"Maybe not a field: {_first_sentence(pc.get('reason'))}"})
+        else:
+            out.append({"kind": "error", "text": f"Check: {_first_sentence(pc.get('reason'))}"})
+    for k, (v, detail) in ws.items():
+        if v is not False or k == "page_check" or grade(k, v, detail) == "hint":
+            continue
+        m = re.match(r"(.*?)(?: ; )?belongs to: (\S+)$", detail or "")
+        if k in _WITNESS_TEXT and m:
+            said = m.group(1)
+            cap = re.search(r"\(([^()]*)\)\s*$", said)          # the classifier's "class vs class (caption)"
+            said = cap.group(1) if k == "classifier" and cap else said
+            said = re.sub(r"\s+", " ", said.split(" | ")[0]).strip(" ;")
+            said = said if len(said) <= 70 else said[:69] + "…"     # the text's start, not its first "sentence"
+            out.append({"kind": "error", "text": f"{_WITNESS_TEXT[k]} ({said!r}) fits "
+                                                 f"`{m.group(2)}` better than this field."})
+        elif k == "classifier" and "nothing goes here" in (detail or ""):
+            out.append({"kind": "error", "text": "The page classifier read this box as one where nothing is written."})
+        elif k == "judge":
+            out.append({"kind": "error", "text": "The reader, looking for this field by its name, found a different "
+                                                 "value or none."})
+        elif k == "adjudicator":
+            out.append({"kind": "error", "text": "The adjudicator could not confirm the name from the page."})
+        elif k == "structure":
+            n = re.match(r"(\d+) separate checkboxes lined up", detail or "")
+            out.append({"kind": "suggestion", "text": (f"Could be one group: {n.group(1)} separate checkboxes in a row."
+                                                       if n else f"Structure: {_first_sentence(detail, 120)}")})
+        else:
+            out.append({"kind": "error", "text": f"{_WITNESS_TEXT.get(k, k)} disagrees: {_first_sentence(detail, 120)}"})
+    return sorted(out, key=lambda x: x["kind"] != "error")
+
+
+def grade(k: str, v: Optional[bool], detail: str) -> Optional[str]:
+    """How much an `against` counts in the review page (2026-10-07), from hand review: over 1,508 reviewed fields
+    (5% flagged by the person), the share of fields each witness marked against that the person flagged:
+    page check 60% (38/70 on the fixture), classifier other 25%, publisher belongs-to 24%, lined-up checkboxes 20%
+    (grouping), judge 8%, publisher other 7%, structure group 5%, classifier belongs-to 4%, page belongs-to 3%,
+    page other / one-word texts 0%. 'error' makes the field contested; 'suggestion' is shown but does not;
+    'hint' (no better than the 5% base rate) stays in the raw witness list only. The loop's reviewer flags
+    (`against_flags`) are unchanged."""
+    if v is not False:
+        return None
+    d = detail or ""
+    if k == "page_check":
+        return "suggestion" if d.startswith("suggestion") else "error"
+    belongs = "belongs to:" in d
+    if k == "publisher":
+        said = d.split("belongs to:")[0]
+        return "error" if belongs and len(re.findall(r"[A-Za-z]{2,}", said)) >= 2 else "hint"
+    if k == "classifier":
+        return "hint" if belongs else "error"
+    if k == "structure":
+        return "suggestion" if "lined up" in d else "hint"
+    if k == "adjudicator":
+        return "error"
+    return "hint"                              # page, judge
 
 
 def tier(ws: dict[str, tuple]) -> str:
+    """Review-page tier: `contested` only on an error-grade against (`grade`); suggestions and hints do not
+    contest a field. The loop's adjudicator routing reads witnesses directly, not this tier."""
+    graded = [grade(k, v, d) for k, (v, d) in ws.items()]
     votes = [v for v, _ in ws.values() if v is not None]
-    if any(v is False for v in votes):
+    if "error" in graded:
         return "contested"
     n = sum(1 for v in votes if v)
     return "settled" if n >= 2 else ("single" if n == 1 else "unknown")
@@ -533,6 +635,7 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
         ws = {k: v for k, v in ws.items() if v[0] is not None or v[1]}
         out[name] = {"tier": tier(ws), "stage": r.get("stage") if same_name else None,
                      "witnesses": {k: [v[0], v[1]] for k, v in ws.items()}}
+        out[name]["why"] = explain(name, spec, ws, pc)
     return {"blueprint": str(bpt_path), "run": run_dir.name if run_dir else None, "fields": out}
 
 

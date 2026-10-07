@@ -77,6 +77,18 @@ def _launch_tiers() -> dict[str, str]:
 LAUNCH_TIERS = _launch_tiers()
 
 
+def _check_counts(bp: dict) -> dict:
+    """The page check's current flags on a blueprint, split as the review page grades them (witness.grade):
+    errors (wrong name / type / other) and suggestions (captions, grouping, not a field)."""
+    if not bp.get("x_petey_page_check"):
+        return {}
+    from petey.validate.page_check import verdicts
+    from petey.validate.witness import PAGE_CHECK_SUGGESTIONS
+    fl = [v for v in verdicts(bp).values() if v.get("verdict") == "flag"]
+    sug = sum(1 for v in fl if v.get("problem") in PAGE_CHECK_SUGGESTIONS)
+    return {"check_errors": len(fl) - sug, "check_suggestions": sug}
+
+
 def _sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()[:12]
 
@@ -274,6 +286,7 @@ class State:
                 # lists these first, with the page check's count and whether the loop stopped on its own
                 "rerun": bid.startswith("je__") and (BLUEPRINTS / f"{p.stem}.bpt").exists(),
                 "page_check_flags": (bp.get("x_petey_page_check") or {}).get("flagged"),
+                **_check_counts(bp),
                 "launch": LAUNCH_TIERS.get(Path(str(bp.get("source_pdf") or "")).name) if bid.startswith("je__") else None,
                 "run": {k: (bp.get("x_petey_run") or {}).get(k) for k in ("stable", "stop")}
                        if bp.get("x_petey_run") else None}
@@ -313,7 +326,7 @@ class State:
         wit = self.witnesses(bid, p)
         for r in rows:
             w = (wit.get("fields") or {}).get(r["name"]) or {}
-            r["tier"], r["witnesses"] = w.get("tier"), w.get("witnesses")
+            r["tier"], r["witnesses"], r["why"] = w.get("tier"), w.get("witnesses"), w.get("why") or []
         return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": _sha(p),
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
                 "verdicts": v.get("verdicts") or {}, "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
