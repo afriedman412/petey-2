@@ -13,6 +13,15 @@ module, the module is given. Older documents use some of these loosely; this pag
 - **Path**: a widget's fully qualified AcroForm field name (`topmostSubform[0].Page1[0].f1_1[0]`). A publisher
   fact about the file, not about the page.
 - **XFA node**: the template declaration of a widget on a LiveCycle hybrid, kept separate from the path.
+- **Caption**: the text printed on the page for a box, what a person filling in the form reads ("C corporation"
+  beside a W-9 checkbox). A fact about the page. Not "label": in this project *label* is only the verb of the
+  labeler (below), never a word for printed text (2026-10-07).
+- **Tooltip**: the publisher's hover text for a widget (`TU`), if any. Often the caption repeated, sometimes junk
+  ("undefined", "30. Description_1"). A publisher fact, like the path.
+- **Option value** (on-state): the value the PDF stores when a checkbox or radio option is ticked, set by the
+  publisher (`2`, `Off` / `On`, or a word like `Married`). What the filler writes; not necessarily the caption:
+  publishers copy widgets between questions and keep the old values (N-565's error-type boxes still carry
+  Married / Single / Divorced / Widowed).
 
 ## The blueprint
 
@@ -22,7 +31,18 @@ module, the module is given. Older documents use some of these loosely; this pag
   (text) or a `widgets` map (an option group: one entry per option, keyed by on-state).
 - **Option group**: one field for a radio group or a set of checkbox kids; each option carries its box, on-state
   and caption.
+- **Description**: the blueprint's one-line explanation of a field ("Federal tax classification of the entity"),
+  most often copied from the tooltip (`x_petey_description_source: tooltip`), else written by the labeler.
+- **Labeler** (`petey/label/auto_label.py`): the model that reads a blank and writes its blueprint: field names,
+  types, option groups and their captions. Gemini 3.8 Flash since 2026-10-06.
 - **Side copy**: a blueprint kept outside `blueprints/` (under `runs/`) so an experiment never touches the library.
+- **Flat blueprint** (`petey/label/flat_label.py`, 2026-10-05): a blueprint for a blank with no form layer. Its
+  structure is the class map (finder boxes, the classifier's class, caption and grouping), its names come from a
+  second model reading the page's words (the labeler, `claude-opus-5` by default), its types from the names. Every
+  widget has `path: null`; `x_petey_geometry` records the finder; `x_petey_page_class` / `x_petey_caption` carry
+  the classifier's reading. Side copies under `runs/flat/blueprints/`.
+- **Widget key** (`boxes.widget_key`): the key a widget's ground truth is stored under: its AcroForm path, or on a
+  flat blueprint `rect:p<page>:<rect>`. The scorer, the rect join and the witness identity all go through it.
 - **Build stamp** (`x_petey_build`, `petey/validate/provenance.py`): the finder version, classifier model and
   prompt, generator, case set and run of the blueprint's latest validation. Written by the loop after every run.
 
