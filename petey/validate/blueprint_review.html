@@ -65,6 +65,7 @@
   .tier.single { background:#fef7e0; color:#7a5b00; } .tier.settled { background:#e6f4ea; color:#137333; }
   .fix { margin:8px 0; font-size:12px; } .fix label { margin-right:8px; } .fix input, .fix select { font:inherit; }
   .why { margin:8px 0; font-size:13px; } .why div { padding:2px 0 2px 8px; border-left:3px solid; margin:2px 0; }
+  .why .usefix { padding:0 6px; font-size:11px; margin-left:4px; }
   .why .error { border-color:#a50e0e; } .why .suggestion { border-color:#b06000; color:var(--muted); }
   details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(--muted); }
   .wit { margin:8px 0; font-size:12px; } .wit div { padding:1px 0; } .wit .no { color:#a50e0e; } .wit .yes { color:#137333; } .wit .mute { color:var(--muted); }
@@ -441,7 +442,16 @@ MODE.review = (() => {
   function whyHtml(f) {
     // one plain sentence per reason (witness.explain): errors first, then suggestions (2026-10-07)
     if (!f.why || !f.why.length) return '';
-    return `<div class="why">${f.why.map(w => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${esc(w.text)}</div>`).join('')}</div>`;
+    return `<div class="why">${f.why.map((w, i) => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${esc(w.text)}${w.fix ? ` <button class="btn usefix" data-i="${i}" title="put this into the correction boxes below">use</button>` : ''}</div>`).join('')}</div>`;
+  }
+  // "use" on a reason with a suggested fix fills the correction boxes; the person still saves (2026-10-07)
+  function bindFixes(f) {
+    document.querySelectorAll('.usefix').forEach(b => b.onclick = () => {
+      const fix = (f.why[+b.dataset.i] || {}).fix || {};
+      if (fix.name && $('#eName')) $('#eName').value = fix.name;
+      if (fix.type && $('#eType')) $('#eType').value = fix.type;
+      ($('#eName') || {}).focus && $('#eName').focus();
+    });
   }
   function witnessHtml(f) {
     if (!f.witnesses || !Object.keys(f.witnesses).length) return '';
@@ -491,6 +501,7 @@ MODE.review = (() => {
       ${listHtml()}</div>`;
     $('#vAccept').onclick = () => setVerdict('accept'); $('#vFlag').onclick = () => setVerdict('flag'); $('#vClear').onclick = () => setVerdict(null);
     $('#vFix').onclick = saveFix;
+    bindFixes(f);
     $('#eName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveFix(); } e.stopPropagation(); });
     const rm = $('#vRemove'); if (rm) rm.onclick = removeField;
     const kp = $('#vKeep'); if (kp) kp.onclick = keepField;

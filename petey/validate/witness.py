@@ -497,18 +497,22 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
         p, holds = pc.get("problem"), (pc.get("box_holds") or "").strip()
         pn, pt = pc.get("proposed_name"), pc.get("proposed_type")
         typ = "/".join(x for x in (spec.get("type"), spec.get("semantic_type")) if x)
+        clean_name = pn if pn and re.fullmatch(r"[a-z0-9][a-z0-9_]*", pn) and pn != name else None
+        clean_type = next((t for t in ("string", "number", "integer", "date", "boolean", "category")
+                           if pt and re.match(rf"\s*{t}\b", pt)), None)
         if p == "wrong_name":
             t = (f"Name: the box holds {holds!r}, not what `{name}` says." if holds else
                  f"Name: {_first_sentence(pc.get('reason'))}")
             if pn and pn != name:
                 t += f" Suggested: `{pn}`."
-            out.append({"kind": "error", "text": t})
+            out.append({"kind": "error", "text": t, **({"fix": {"name": clean_name}} if clean_name else {})})
         elif p == "wrong_type":
             t = (f"Type: the box holds {holds!r}, which does not fit {typ}." if holds else
                  f"Type: {_first_sentence(pc.get('reason'))}")
             if pt:
                 t += f" Suggested: {pt}."
-            out.append({"kind": "error", "text": t})
+            out.append({"kind": "error", "text": t,
+                        **({"fix": {"type": clean_type}} if clean_type and clean_type != spec.get("type") else {})})
         elif p == "options":
             out.append({"kind": "suggestion", "text": f"Option captions: {_first_sentence(pc.get('reason'))}"})
         elif p == "should_group":
@@ -518,7 +522,7 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
         else:
             out.append({"kind": "error", "text": f"Check: {_first_sentence(pc.get('reason'))}"})
     for k, (v, detail) in ws.items():
-        if v is not False or k == "page_check" or grade(k, v, detail) == "hint":
+        if v is not False or k in ("page_check", "naming") or grade(k, v, detail) == "hint":
             continue
         m = re.match(r"(.*?)(?: ; )?belongs to: (\S+)$", detail or "")
         if k in _WITNESS_TEXT and m:
@@ -556,7 +560,7 @@ def grade(k: str, v: Optional[bool], detail: str) -> Optional[str]:
     if v is not False:
         return None
     d = detail or ""
-    if k == "page_check":
+    if k in ("page_check", "naming"):
         return "suggestion" if d.startswith("suggestion") else "error"
     belongs = "belongs to:" in d
     if k == "publisher":
@@ -596,6 +600,8 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
     by_key = run_witnesses(run_dir, blank) if use_run and judge and run_dir else {}
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     by_page = class_map_boxes(blank, run_dir)
+    from petey.validate import name_type
+    maxlens = name_type.text_maxlens(blank)
     from petey.validate.page_check import verdicts as page_check_verdicts
     checked = page_check_verdicts(bp)
     grouping = {**lined_up_checkboxes(fields), **(grouping_witnesses(fields, by_page) if by_page else {})}
@@ -632,10 +638,15 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
         pc = checked.get(name)
         if pc:
             ws["page_check"] = page_check_witness(pc)
+        rules = name_type.check(name, spec, maxlens.get((spec.get("widget") or {}).get("path") or ""))
+        if rules:                                  # name / type rules (2026-10-07): Y/N text boxes, suffix vs type
+            ws["naming"] = (False, ("suggestion; " if rules[0]["grade"] == "suggestion" else "") + rules[0]["text"])
         ws = {k: v for k, v in ws.items() if v[0] is not None or v[1]}
         out[name] = {"tier": tier(ws), "stage": r.get("stage") if same_name else None,
                      "witnesses": {k: [v[0], v[1]] for k, v in ws.items()}}
-        out[name]["why"] = explain(name, spec, ws, pc)
+        out[name]["why"] = sorted(explain(name, spec, ws, pc)
+                                  + [{"kind": r["grade"], "text": r["text"], "fix": r["fix"]} for r in rules],
+                                  key=lambda x: x["kind"] != "error")
     return {"blueprint": str(bpt_path), "run": run_dir.name if run_dir else None, "fields": out}
 
 

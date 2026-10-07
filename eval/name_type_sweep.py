@@ -19,50 +19,26 @@ import json
 import re
 from pathlib import Path
 
-import pymupdf
 import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
+from petey.validate import name_type
 from petey.validate.retype import resolve_blank
 
 _LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)
-YN_TEXT = re.compile(r"\b(enter|input|type)\s+[\"“']?y[\"”']?\b.*\byes\b|\binput\s+[\"“']?n[\"”']?\s+for\b|\bY\s*/\s*N\b", re.I)
-SUFFIX = [(r"_ind$", {"boolean"}, "_ind (indicator)"), (r"_dt$", {"date"}, "_dt (date)"),
-          (r"_amt$", {"number", "integer"}, "_amt (amount)"), (r"_(cnt|count)$", {"integer", "number"}, "_cnt (count)")]
-
-
-def maxlens(blank: Path) -> dict[str, int]:
-    out = {}
-    with pymupdf.open(str(blank)) as doc:
-        for pg in doc:
-            for w in pg.widgets() or []:
-                if w.field_type_string == "Text":
-                    out[w.field_name] = w.text_maxlen or 0
-    return out
 
 
 def sweep(bpt: Path) -> list[dict]:
+    """The same rules the review page shows (`petey.validate.name_type`), over one blueprint."""
     bp = yaml.load(bpt.read_text(encoding="utf-8"), Loader=_LOADER) or {}
-    blank = resolve_blank(bp)
-    ml = maxlens(blank) if blank and blank.exists() else {}
+    ml = name_type.text_maxlens(resolve_blank(bp))
     hits = []
     for name, s in (bp.get("fields") or {}).items():
-        if not isinstance(s, dict) or s.get("widgets"):
-            continue
-        w = s.get("widget") or {}
-        typ = s.get("type")
-        text = f"{s.get('description') or ''}"
-        is_text = (w.get("widget_type") or "text") == "text"
-        one = ml.get(w.get("path") or "", 0) == 1
-        if is_text and typ != "boolean" and (YN_TEXT.search(text) or (one and re.search(r"\bY\b.*\bN\b", text))):
-            hits.append({"kind": "yn_text", "field": name, "type": typ, "maxlen": ml.get(w.get("path") or ""),
-                         "description": text[:100]})
-            continue
-        for pat, ok, label in SUFFIX:
-            if re.search(pat, name) and typ not in ok:
-                hits.append({"kind": "suffix_type", "suffix": label, "field": name, "type": typ,
-                             "widget_type": w.get("widget_type"), "description": text[:80]})
-                break
+        for r in name_type.check(name, s, ml.get(((s or {}).get("widget") or {}).get("path") or "")):
+            m = re.search(r"ends `([^`]+)`", r["text"])
+            hits.append({"kind": r["rule"], "field": name, "type": s.get("type"),
+                         "suffix": m.group(1) if m else None, "fix": r["fix"],
+                         "description": (s.get("description") or "")[:100]})
     return hits
 
 
