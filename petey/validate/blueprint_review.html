@@ -406,8 +406,19 @@ MODE.review = (() => {
     const v = BP.verdicts[selected]; const note = $('#note').value;
     if (v && v.note !== note) await putV({[selected]: {verdict: v.verdict, note, edit: v.edit}});
   }
+  async function applyCorrections() {
+    const pending = Object.entries(BP.verdicts).filter(([, v]) => v.edit && !v.applied);
+    const lines = pending.map(([n, v]) => `${n}${v.edit.name ? ' → ' + v.edit.name : ''}${v.edit.type ? ' : ' + v.edit.type : ''}`);
+    if (!confirm(`Write ${pending.length} correction(s) into ${BP.path}?\n\n${lines.join('\n')}`)) return;
+    let out;
+    try { out = await send('POST', mapi('review', '/apply')); }
+    catch (e) { alert('Apply failed: ' + e.message); return; }
+    LIST = await j('/api/blueprints'); renderPicker();
+    await loadMode();
+    toast(`Applied ${pending.length} correction(s) to the blueprint.`);
+  }
   // a correction (2026-10-07): the field name and type set directly; saved as a flag with a structured edit, written
-  // into the blueprint by `hand_review --apply <id>`
+  // into the blueprint by the apply button (or `hand_review --apply <id>`)
   async function saveFix() {
     if (!selected || !$('#eName')) return;
     const f = BP.fields.find(x => x.name === selected);
@@ -494,7 +505,7 @@ MODE.review = (() => {
         <label>field name <input id="eName" size="34" value="${esc((v.edit || {}).name || f.name)}"></label>
         <label>type <select id="eType">${['string', 'number', 'integer', 'date', 'boolean', 'category'].map(t => `<option ${((v.edit || {}).type || f.type) === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
         <button class="btn flag" id="vFix">save correction (e)</button>
-        ${v.edit ? `<div class="help">correction saved${v.edit.name ? ` · name → <code>${esc(v.edit.name)}</code>` : ''}${v.edit.type ? ` · type → ${esc(v.edit.type)}` : ''}${v.applied ? ' · applied' : ' · not applied yet (<code>hand_review --apply ' + esc(bid) + '</code>)'}</div>` : ''}
+        ${v.edit ? `<div class="help">correction saved${v.edit.name ? ` · name → <code>${esc(v.edit.name)}</code>` : ''}${v.edit.type ? ` · type → ${esc(v.edit.type)}` : ''}${v.applied ? ' · applied' : ' · not applied yet (the apply button above)'}</div>` : ''}
       </div>
       <textarea id="note" placeholder="anything else that is wrong (saved with the verdict)">${esc(v.note || '')}</textarea>
       <div class="help">note saves on blur or Enter; Shift+Enter for a newline</div>
@@ -520,6 +531,12 @@ MODE.review = (() => {
     el.innerHTML = ck + ` <b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}` + (tiers ? ` <span class="help">(${tiers})</span>` : '') + (BP.witness_error ? ` <span class="stale">witnesses failed: ${esc(BP.witness_error)}</span>` : '');
     const left = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name)).length;
     const b = $('#bulk'); if (b) { b.textContent = `accept settled (${left})`; b.disabled = !left; }
+    // corrections saved but not yet written into the blueprint: an apply button (2026-10-07)
+    const pending = Object.values(BP.verdicts).filter(v => v.edit && !v.applied).length;
+    if (pending) {
+      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="rApply" title="write the saved field-name and type corrections into the blueprint (hand_review --apply)">apply ${pending} correction${pending === 1 ? '' : 's'} to blueprint</button>`);
+      $('#rApply').onclick = applyCorrections;
+    }
   }
   return {
     async load() { const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; },
@@ -1167,7 +1184,19 @@ MODE.add = (() => {
     if (!PLAN || (!added.length && !removed.length)) { el.innerHTML = ''; return; }
     el.innerHTML = `<h4>What applying would change in the blueprint</h4><ul>
       ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${PLAN.skipped.map(e => `<li class="help">skip ${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
-      <div class="help">The page only records. To write it into the blueprint:<br><code>PYTHONPATH=. venv/bin/python -m petey.validate.field_add --apply ${esc(bid)}</code></div>`;
+      ${PLAN.changes.length ? `<button class="btn ok" id="aApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to blueprint</button>` : ''}
+      <div class="help">Saved as a record; the button writes it into the blueprint (the same as
+        <code>PYTHONPATH=. venv/bin/python -m petey.validate.field_add --apply ${esc(bid)}</code>).</div>`;
+    const b = $('#aApply'); if (b) b.onclick = applyAdds;
+  }
+  async function applyAdds() {
+    if (!confirm(`Write ${PLAN.changes.length} change(s) into ${BP.path}?`)) return;
+    let out;
+    try { out = await send('POST', mapi('add', '/apply')); }
+    catch (e) { alert('Apply failed: ' + e.message); return; }
+    LIST = await j('/api/blueprints'); renderPicker();
+    await loadMode();
+    toast(`Applied ${out.changes.length} change(s) to the blueprint.`);
   }
   function progress() { const el = $('#progress'); if (el && BP) el.innerHTML = `<b>${added.length}</b> to add · <b>${removed.length}</b> to remove · <b>${dismissed.length}</b> not fields · <b>${remaining().length}</b> suggestions left`; }
   const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };

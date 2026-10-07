@@ -191,7 +191,25 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 APP.add.ctx(bid).load_finder(run=True)
                 return APP.add.detail(bid)
             return self._route(run, bid)
+        if (mode, what) in (("review", "apply"), ("add", "apply")):
+            return self._route(lambda: apply_from_page(mode, bid), bid)
         self._send(b"not found", "text/plain", 404)
+
+
+def apply_from_page(mode: str, bid: str) -> dict:
+    """The Review and Add / remove apply buttons (Andrew, 2026-10-07: blueprint changes committed from the page, not
+    only the command line): `hand_review --apply <id>` (name / type corrections) and `field_add --apply <id>`
+    (fields added or removed). Their refusals (a rename that would collide, plan errors) come back as the error."""
+    lines: list[str] = []
+    try:
+        if mode == "review":
+            hand_review.apply_edits(bid, log=lines.append)
+        else:
+            lines = list((field_add.apply(bid) or {}).get("changes") or [])
+    except SystemExit as e:
+        raise ValueError(str(e)) from None
+    APP.refresh()
+    return {"changes": [ln.strip() for ln in lines if ln.strip()], "entry": APP.entry(bid)}
 
 
 def serve(port: int = 5005, mode: str = "review", open_browser: bool = True) -> int:
