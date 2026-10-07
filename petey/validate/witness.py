@@ -573,7 +573,10 @@ def against_flags(run_dir: Path) -> dict[str, list[dict]]:
         for k, (v, detail) in f["witnesses"].items():
             if v is not False or k not in _FLAG_SOURCE or "belongs to: " not in (detail or ""):
                 continue
-            text, other = re.match(r"(.*?)(?: ; )?belongs to: (\S+)$", detail).groups()
+            m = re.match(r"(.*?)(?: ; )?belongs to: (\S+)$", detail)
+            if m is None:                    # a detail in another shape (2026-10-06: crashed two forms on the runner)
+                continue
+            text, other = m.groups()
             flags.setdefault(name, []).append({
                 "detector": "witness",
                 "detail": f"{_FLAG_SOURCE[k]} describes the field `{other}` better than this name, and better "

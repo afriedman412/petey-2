@@ -548,7 +548,9 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
         if model.startswith(("gpt-5", "o1", "o3", "o4")):
             kwargs["max_completion_tokens"] = MAX_TOKENS
         else:
-            kwargs["max_tokens"] = MAX_TOKENS
+            # Gemini counts its hidden thinking against max_tokens: at 32,768 a 48-126 widget page spent most of it
+            # thinking and the labels were cut at ~3,300 chars (GCP runner, 2026-10-06); 65,536 is its output cap
+            kwargs["max_tokens"] = 65536 if model.startswith("gemini-") else MAX_TOKENS
             kwargs["temperature"] = 0
         resp = client.chat.completions.create(**kwargs)
         choice = resp.choices[0]
