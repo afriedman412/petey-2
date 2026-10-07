@@ -331,6 +331,8 @@ class State:
         return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": _sha(p),
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
                 "verdicts": v.get("verdicts") or {}, "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
+                "agent_running": _flag_agent().running(bid), "agent_todo": len(_flag_agent().todo(v)),
+                "semantic_types": [t.name for t in __import__("petey.semantic_types", fromlist=["REGISTRY"]).REGISTRY],
                 "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(p, bp),
                 "checked": checked(v, p, bp), "dpi": DPI}
 
@@ -378,10 +380,13 @@ class State:
             if rec is None or not rec.get("verdict"):
                 vs.pop(name, None)
             else:
+                prev = vs.get(name) or {}
                 vs[name] = {"verdict": rec["verdict"], "note": (rec.get("note") or "").strip()[:300], "when": now}
                 edit = clean_edit(name, (bp.get("fields") or {}).get(name) or {}, rec.get("edit"))
                 if edit:
                     vs[name]["edit"] = edit
+                if prev.get("agent") and (prev["agent"].get("for_note") or "") == vs[name]["note"]:
+                    vs[name]["agent"] = prev["agent"]           # the post-review agent's proposal survives re-saves
         sha = _sha(p)
         out = {"blueprint": str(p), "form": p.stem, "blueprint_sha": sha, "build": bp.get("x_petey_build"),
                "updated": now, "verdicts": vs}
@@ -404,6 +409,11 @@ EDIT_TYPES = ("string", "number", "integer", "date", "boolean", "category")
 _SLUG = re.compile(r"^[a-z0-9][a-z0-9_]*$")
 
 
+def _flag_agent():
+    from petey.validate import flag_agent
+    return flag_agent
+
+
 def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
     """A person's correction of a field (2026-10-07: field name and type directly adjustable in the review page):
     only the parts that differ from the blueprint, validated (a snake_case name; a spec type)."""
@@ -420,6 +430,24 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
         if new_type not in EDIT_TYPES:
             raise ValueError(f"type {new_type!r}: one of {', '.join(EDIT_TYPES)}")
         out["type"] = new_type
+    # semantic type and pattern (2026-10-07: Andrew's "type" notes often mean the semantic type, and his ACORD 126
+    # notes ask for a Y/N pattern): a value sets it, "none" clears it, absent / empty leaves it
+    if "semantic_type" in edit and (edit.get("semantic_type") or "").strip():
+        st = edit["semantic_type"].strip()
+        from petey.semantic_types import REGISTRY
+        if st != "none" and st not in {t.name for t in REGISTRY}:
+            raise ValueError(f"semantic type {st!r}: not in the registry (or 'none' to clear it)")
+        if (st == "none") != (not spec.get("semantic_type")) or (st != "none" and st != spec.get("semantic_type")):
+            out["semantic_type"] = st
+    if "pattern" in edit and (edit.get("pattern") or "").strip():
+        pt = edit["pattern"].strip()
+        if pt != "none":
+            try:
+                re.compile(pt)
+            except re.error as e:
+                raise ValueError(f"pattern {pt!r}: not a valid regular expression ({e})")
+        if (pt == "none") != (not spec.get("pattern")) or (pt != "none" and pt != spec.get("pattern")):
+            out["pattern"] = pt
     return out or None
 
 
@@ -456,6 +484,7 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
             e = edits[n]
             spec = dict(spec)
             before = {"name": n, "type": spec.get("type")}
+            before.update(semantic_type=spec.get("semantic_type"), pattern=spec.get("pattern"))
             if "type" in e:
                 spec["type"] = e["type"]
                 if e["type"] != "string":
@@ -464,7 +493,15 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
                     spec.pop("semantic_type", None)
                 if e["type"] != "category":
                     spec.pop("values", None)
-            spec["x_petey_hand_edit"] = {"when": now, "from": before, "to": {"name": renames[n], "type": spec.get("type")},
+            for k in ("semantic_type", "pattern"):
+                if k in e:
+                    if e[k] == "none":
+                        spec.pop(k, None)
+                    else:
+                        spec[k] = e[k]
+            spec["x_petey_hand_edit"] = {"when": now, "from": before,
+                                         "to": {"name": renames[n], "type": spec.get("type"),
+                                                "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern")},
                                          "record": f"runs/hand_review/{bid}.json"}
             out[renames[n]] = spec
         else:

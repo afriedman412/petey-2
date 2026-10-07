@@ -193,6 +193,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(run, bid)
         if (mode, what) in (("review", "apply"), ("add", "apply")):
             return self._route(lambda: apply_from_page(mode, bid), bid)
+        if (mode, what) == ("review", "agent"):          # "review edits": the flags with notes go to the agent
+            from petey.validate import flag_agent
+            return self._route(lambda: {"started": flag_agent.start(bid)}, bid)
         self._send(b"not found", "text/plain", 404)
 
 

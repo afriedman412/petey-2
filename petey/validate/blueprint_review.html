@@ -63,6 +63,7 @@
   .tier { display:inline-block; min-width:1.1em; text-align:center; font-size:11px; font-weight:600; border-radius:3px; padding:0 3px; margin-right:4px; }
   .tier.contested { background:#fce8e6; color:#a50e0e; } .tier.unknown { background:#eee; color:#555; }
   .tier.single { background:#fef7e0; color:#7a5b00; } .tier.settled { background:#e6f4ea; color:#137333; }
+  .agent { margin:8px 0; padding:6px 8px; border:1px solid #1a73e8; border-radius:4px; font-size:13px; }
   .fix { margin:8px 0; font-size:12px; } .fix label { margin-right:8px; } .fix input, .fix select { font:inherit; }
   .why { margin:8px 0; font-size:13px; } .why div { padding:2px 0 2px 8px; border-left:3px solid; margin:2px 0; }
   .why .usefix { padding:0 6px; font-size:11px; margin-left:4px; }
@@ -406,9 +407,23 @@ MODE.review = (() => {
     const v = BP.verdicts[selected]; const note = $('#note').value;
     if (v && v.note !== note) await putV({[selected]: {verdict: v.verdict, note, edit: v.edit}});
   }
+  // "review edits" (Andrew, 2026-10-07): the flags with notes go to the agent (flag_agent.py) in the background; the
+  // page polls until it is done, then shows its proposals on the fields
+  async function reviewEdits() {
+    try { await send('POST', mapi('review', '/agent')); } catch (e) { alert('Could not start: ' + e.message); return; }
+    const id = bid;
+    await loadMode();
+    const poll = async () => {
+      if (bid !== id || mode !== 'review') return;
+      const d = await j(mapi('review', ''));
+      if (d.agent_running) { setTimeout(poll, 3000); return; }
+      await loadMode(); toast('The agent has reviewed your edits: see "Agent proposes" on the flagged fields.');
+    };
+    setTimeout(poll, 3000);
+  }
   async function applyCorrections() {
     const pending = Object.entries(BP.verdicts).filter(([, v]) => v.edit && !v.applied);
-    const lines = pending.map(([n, v]) => `${n}${v.edit.name ? ' → ' + v.edit.name : ''}${v.edit.type ? ' : ' + v.edit.type : ''}`);
+    const lines = pending.map(([n, v]) => `${n}${v.edit.name ? ' → ' + v.edit.name : ''}${v.edit.type ? ' : ' + v.edit.type : ''}${v.edit.semantic_type ? ' / semantic ' + v.edit.semantic_type : ''}${v.edit.pattern ? ' / pattern ' + v.edit.pattern : ''}`);
     if (!confirm(`Write ${pending.length} correction(s) into ${BP.path}?\n\n${lines.join('\n')}`)) return;
     let out;
     try { out = await send('POST', mapi('review', '/apply')); }
@@ -422,8 +437,10 @@ MODE.review = (() => {
   async function saveFix() {
     if (!selected || !$('#eName')) return;
     const f = BP.fields.find(x => x.name === selected);
-    const edit = {name: $('#eName').value.trim(), type: $('#eType').value};
-    if (edit.name === f.name && edit.type === (f.type || '')) { alert('nothing changed: edit the name or the type first'); return; }
+    const edit = {name: $('#eName').value.trim(), type: $('#eType').value,
+                  semantic_type: $('#eSem').value.trim(), pattern: $('#ePat').value.trim()};
+    if (edit.name === f.name && edit.type === (f.type || '') && !edit.semantic_type && !edit.pattern) {
+      alert('nothing changed: edit the name, type, semantic type or pattern first ("none" clears the last two)'); return; }
     const note = $('#note') ? $('#note').value : '';
     await putV({[selected]: {verdict: 'flag', note, edit}});
     next();
@@ -454,6 +471,31 @@ MODE.review = (() => {
     // one plain sentence per reason (witness.explain): errors first, then suggestions (2026-10-07)
     if (!f.why || !f.why.length) return '';
     return `<div class="why">${f.why.map((w, i) => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${esc(w.text)}${w.fix ? ` <button class="btn usefix" data-i="${i}" title="put this into the correction boxes below">use</button>` : ''}</div>`).join('')}</div>`;
+  }
+  // the post-review agent's proposal for a flag with a note (flag_agent.py): shown with a "use" button that fills the
+  // correction boxes, or marks a removal; nothing is written until the person saves and applies (2026-10-07)
+  function agentHtml(v) {
+    const a = v && v.agent; if (!a) return '';
+    const parts = [a.name && `name → <code>${esc(a.name)}</code>`, a.type && `type → ${esc(a.type)}`,
+      a.semantic_type && `semantic type → ${esc(a.semantic_type)}`, a.pattern && `pattern → <code>${esc(a.pattern)}</code>`,
+      a.description && `description → "${esc(a.description)}"`].filter(Boolean).join(', ');
+    const what = {edit: parts || 'no change', remove: 'remove: not a field',
+      regroup: 'part of an option group (do it in the Groups tab)', none: 'no change it can make'}[a.action] || esc(a.action);
+    const usable = (a.action === 'edit' && (a.name || a.type || a.semantic_type || a.pattern)) || a.action === 'remove';
+    return `<div class="agent"><b>Agent proposes:</b> ${what}${usable ? ' <button class="btn" id="useAgent">use</button>' : ''}
+      <div class="help">${esc(a.reason || '')} · for your note "${esc(a.for_note || '')}"</div></div>`;
+  }
+  function bindAgent(v) {
+    const b = $('#useAgent'); if (!b) return;
+    b.onclick = () => {
+      const a = v.agent;
+      if (a.action === 'remove') { removeField(); return; }
+      if (a.name) $('#eName').value = a.name;
+      if (a.type) $('#eType').value = a.type;
+      if (a.semantic_type) $('#eSem').value = a.semantic_type;
+      if (a.pattern) $('#ePat').value = a.pattern;
+      $('#vFix').focus();
+    };
   }
   // "use" on a reason with a suggested fix fills the correction boxes; the person still saves (2026-10-07)
   function bindFixes(f) {
@@ -501,19 +543,23 @@ MODE.review = (() => {
         <button class="btn" id="vClear">clear (c)</button>
         ${isRemoved(f.name) ? '' : '<button class="btn warn" id="vRemove" title="remove this field from the blueprint">remove field (d)</button>'}
       </div>
+      ${agentHtml(v)}
       <div class="fix">
         <label>field name <input id="eName" size="34" value="${esc((v.edit || {}).name || f.name)}"></label>
         <label>type <select id="eType">${['string', 'number', 'integer', 'date', 'boolean', 'category'].map(t => `<option ${((v.edit || {}).type || f.type) === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+        <label>semantic type <input id="eSem" size="16" list="semList" placeholder="${esc(f.semantic_type || 'none')}" value="${esc((v.edit || {}).semantic_type || '')}"></label>
+        <datalist id="semList"><option>none</option>${(BP.semantic_types || []).map(t => `<option>${esc(t)}</option>`).join('')}</datalist>
+        <label>pattern <input id="ePat" size="14" placeholder="${esc(f.pattern || 'none')}" value="${esc((v.edit || {}).pattern || '')}"></label>
         <button class="btn flag" id="vFix">save correction (e)</button>
-        ${v.edit ? `<div class="help">correction saved${v.edit.name ? ` · name → <code>${esc(v.edit.name)}</code>` : ''}${v.edit.type ? ` · type → ${esc(v.edit.type)}` : ''}${v.applied ? ' · applied' : ' · not applied yet (the apply button above)'}</div>` : ''}
+        ${v.edit ? `<div class="help">correction saved${v.edit.name ? ` · name → <code>${esc(v.edit.name)}</code>` : ''}${v.edit.type ? ` · type → ${esc(v.edit.type)}` : ''}${v.edit.semantic_type ? ` · semantic type → ${esc(v.edit.semantic_type)}` : ''}${v.edit.pattern ? ` · pattern → <code>${esc(v.edit.pattern)}</code>` : ''}${v.applied ? ' · applied' : ' · not applied yet (the apply button above)'}</div>` : ''}
       </div>
       <textarea id="note" placeholder="anything else that is wrong (saved with the verdict)">${esc(v.note || '')}</textarea>
       <div class="help">note saves on blur or Enter; Shift+Enter for a newline</div>
       ${listHtml()}</div>`;
     $('#vAccept').onclick = () => setVerdict('accept'); $('#vFlag').onclick = () => setVerdict('flag'); $('#vClear').onclick = () => setVerdict(null);
     $('#vFix').onclick = saveFix;
-    bindFixes(f);
-    $('#eName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveFix(); } e.stopPropagation(); });
+    bindFixes(f); bindAgent(v);
+    ['#eName', '#eSem', '#ePat'].forEach(s => $(s).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveFix(); } e.stopPropagation(); }));
     const rm = $('#vRemove'); if (rm) rm.onclick = removeField;
     const kp = $('#vKeep'); if (kp) kp.onclick = keepField;
     const note = $('#note');
@@ -531,6 +577,15 @@ MODE.review = (() => {
     el.innerHTML = ck + ` <b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}` + (tiers ? ` <span class="help">(${tiers})</span>` : '') + (BP.witness_error ? ` <span class="stale">witnesses failed: ${esc(BP.witness_error)}</span>` : '');
     const left = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name)).length;
     const b = $('#bulk'); if (b) { b.textContent = `accept settled (${left})`; b.disabled = !left; }
+    const props = Object.values(BP.verdicts).filter(v => v.agent).length;
+    if (BP.agent_running) el.insertAdjacentHTML('beforeend', ' <span class="help">· the agent is reviewing your edits…</span>');
+    else {
+      if (props) el.insertAdjacentHTML('beforeend', ` <span class="help">· ${props} agent proposal${props === 1 ? '' : 's'}</span>`);
+      if (BP.agent_todo) {
+        el.insertAdjacentHTML('beforeend', ` <button class="btn" id="rAgent" title="send the fields you flagged with a note to the agent; it proposes corrections for you to use and apply">review edits (${BP.agent_todo})</button>`);
+        $('#rAgent').onclick = reviewEdits;
+      }
+    }
     // corrections saved but not yet written into the blueprint: an apply button (2026-10-07)
     const pending = Object.values(BP.verdicts).filter(v => v.edit && !v.applied).length;
     if (pending) {
