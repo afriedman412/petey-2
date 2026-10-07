@@ -22,7 +22,8 @@ if [ -n "$PARENT" ] && [ "$(git rev-parse "$PARENT^{tree}")" = "$TREE" ]; then
   exit 0
 fi
 MSG=${1:-"Review records $(date '+%Y-%m-%d %H:%M')"}
-COMMIT=$(git commit-tree $TREE ${PARENT:+-p $PARENT} -m "$MSG")
+PARENT_ARGS=(); [ -n "$PARENT" ] && PARENT_ARGS=(-p "$PARENT")
+COMMIT=$(git commit-tree $TREE "${PARENT_ARGS[@]}" -m "$MSG")
 git update-ref refs/heads/$BRANCH $COMMIT ${PARENT:-}
 git push -q origin $BRANCH
 echo "$BRANCH -> $(git rev-parse --short $COMMIT) ($(git ls-tree -r --name-only $COMMIT | wc -l | tr -d ' ') files), pushed"
