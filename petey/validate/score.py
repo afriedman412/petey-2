@@ -62,7 +62,10 @@ import yaml
 REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty"}
 
 
-def _coerce_bool(v: Any) -> Optional[bool]:
+_FALSY_ANSWER = {"n", "no", "false", "0", "off", "/off"}     # as extract.FALSY_ANSWER
+
+
+def _coerce_bool(v: Any, widget_type: Optional[str] = None) -> Optional[bool]:
     """Return True/False for standard truthy/falsy encodings, else None.
 
     Mirrors `extract._coerce_checkbox` exactly: bool passes through; None
@@ -82,6 +85,8 @@ def _coerce_bool(v: Any) -> Optional[bool]:
         s = v.strip().lower()
         if not s or s == "off":
             return False
+        if widget_type not in (None, "checkbox", "radiobutton") and s in _FALSY_ANSWER:
+            return False                    # a Y / N text box: "N" is an answer, not a ticked export value
         return True
     return None
 
@@ -306,7 +311,7 @@ def _normalize_ground_truth(
         return None, "no_widget_block"
     raw = gt.get(widget.get("path"))
     if ftype == "boolean":
-        return _coerce_bool(raw), None
+        return _coerce_bool(raw, (widget.get("widget_type") or "text")), None
     return raw, None
 
 

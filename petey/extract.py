@@ -47,6 +47,8 @@ except ImportError:
 
 
 TRUTHY_CHECKBOX = {"yes", "on", "true", "/yes", "1"}
+FALSY_ANSWER = {"n", "no", "false", "0", "off", "/off"}     # an explicit negative typed into a yes/no text box
+TRUTHY_CHECKBOX |= {"y"}
 
 # Characters that plausibly represent a check-mark when Tesseract OCRs a
 # filled checkbox/radio widget. Whitelist approach: anything outside this
@@ -346,6 +348,7 @@ def _parse_leading_number(s: str) -> Optional[float]:
 def _coerce_typed(
     raw: Any, type_hint: str,
     allowed_values: Optional[list] = None,
+    widget_type: Optional[str] = None,
 ) -> Any:
     """Best-effort coerce a raw string to the declared bpt type.
 
@@ -364,6 +367,13 @@ def _coerce_typed(
     if raw is None or raw == "":
         return None
     if type_hint == "boolean":
+        # A yes/no answer typed into a text box (ACORD's Y / N columns): an explicit negative is False. Without this,
+        # "N" fell through to the radio-button rule (any other export value is a selection) and read as True
+        # (2026-10-07). Text boxes only: on a checkbox the value is its export value, and a ticked "No" box
+        # (`..._no_ind`) stores "No" and is selected.
+        if (widget_type not in ("checkbox", "radiobutton") and isinstance(raw, str)
+                and raw.strip().lower() in FALSY_ANSWER):
+            return False
         return _coerce_checkbox(raw)
     if type_hint == "integer":
         s = str(raw).replace(",", "").strip()
@@ -584,6 +594,7 @@ def extract(blueprint: dict, pdf_path: Path) -> dict:
             values[field_name] = _coerce_typed(
                 raw, field.get("type", "string"),
                 allowed_values=field.get("values"),
+                widget_type=w_block.get("widget_type"),
             )
     finally:
         if ocr_api is not None:
