@@ -63,6 +63,7 @@
   .tier { display:inline-block; min-width:1.1em; text-align:center; font-size:11px; font-weight:600; border-radius:3px; padding:0 3px; margin-right:4px; }
   .tier.contested { background:#fce8e6; color:#a50e0e; } .tier.unknown { background:#eee; color:#555; }
   .tier.single { background:#fef7e0; color:#7a5b00; } .tier.settled { background:#e6f4ea; color:#137333; }
+  .fix { margin:8px 0; font-size:12px; } .fix label { margin-right:8px; } .fix input, .fix select { font:inherit; }
   .why { margin:8px 0; font-size:13px; } .why div { padding:2px 0 2px 8px; border-left:3px solid; margin:2px 0; }
   .why .error { border-color:#a50e0e; } .why .suggestion { border-color:#b06000; color:var(--muted); }
   details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(--muted); }
@@ -395,13 +396,25 @@ MODE.review = (() => {
   async function setVerdict(verdict) {
     if (!selected) return;
     const note = $('#note') ? $('#note').value : (BP.verdicts[selected] || {}).note || '';
-    await putV({[selected]: verdict ? {verdict, note} : null});
+    const edit = verdict === 'flag' ? (BP.verdicts[selected] || {}).edit : undefined;   // flag keeps a correction
+    await putV({[selected]: verdict ? {verdict, note, edit} : null});
     if (verdict) next(); else { placeAll(); panel(); }
   }
   async function saveNote() {
     if (!selected || !$('#note')) return;
     const v = BP.verdicts[selected]; const note = $('#note').value;
-    if (v && v.note !== note) await putV({[selected]: {verdict: v.verdict, note}});
+    if (v && v.note !== note) await putV({[selected]: {verdict: v.verdict, note, edit: v.edit}});
+  }
+  // a correction (2026-10-07): the field name and type set directly; saved as a flag with a structured edit, written
+  // into the blueprint by `hand_review --apply <id>`
+  async function saveFix() {
+    if (!selected || !$('#eName')) return;
+    const f = BP.fields.find(x => x.name === selected);
+    const edit = {name: $('#eName').value.trim(), type: $('#eType').value};
+    if (edit.name === f.name && edit.type === (f.type || '')) { alert('nothing changed: edit the name or the type first'); return; }
+    const note = $('#note') ? $('#note').value : '';
+    await putV({[selected]: {verdict: 'flag', note, edit}});
+    next();
   }
   async function bulkAccept() {
     const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
@@ -438,7 +451,7 @@ MODE.review = (() => {
     }).join('');
     return `<details class="raw"><summary>${tierChip(f)}<b>${f.tier}</b> · check details</summary><div class="wit">${rows}</div></details>`;
   }
-  const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}p${f.page} · ${esc(f.name)}</div>`).join('')}</div>`;
+  const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}p${f.page} · ${esc(f.name)}${(BP.verdicts[f.name] || {}).edit ? ` <b>→ ${esc(BP.verdicts[f.name].edit.name || f.name)}${BP.verdicts[f.name].edit.type ? ' : ' + esc(BP.verdicts[f.name].edit.type) : ''}</b>` : ''}</div>`).join('')}</div>`;
   function bindList() { document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n)); }
   function renderList() { const old = document.querySelector('.rlist'); if (!old) return; old.outerHTML = listHtml(); bindList(); }
   function panel() {
@@ -467,10 +480,18 @@ MODE.review = (() => {
         <button class="btn" id="vClear">clear (c)</button>
         ${isRemoved(f.name) ? '' : '<button class="btn warn" id="vRemove" title="remove this field from the blueprint">remove field (d)</button>'}
       </div>
-      <textarea id="note" placeholder="what is wrong, or the right name (saved with the verdict)">${esc(v.note || '')}</textarea>
+      <div class="fix">
+        <label>field name <input id="eName" size="34" value="${esc((v.edit || {}).name || f.name)}"></label>
+        <label>type <select id="eType">${['string', 'number', 'integer', 'date', 'boolean', 'category'].map(t => `<option ${((v.edit || {}).type || f.type) === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+        <button class="btn flag" id="vFix">save correction (e)</button>
+        ${v.edit ? `<div class="help">correction saved${v.edit.name ? ` · name → <code>${esc(v.edit.name)}</code>` : ''}${v.edit.type ? ` · type → ${esc(v.edit.type)}` : ''}${v.applied ? ' · applied' : ' · not applied yet (<code>hand_review --apply ' + esc(bid) + '</code>)'}</div>` : ''}
+      </div>
+      <textarea id="note" placeholder="anything else that is wrong (saved with the verdict)">${esc(v.note || '')}</textarea>
       <div class="help">note saves on blur or Enter; Shift+Enter for a newline</div>
       ${listHtml()}</div>`;
     $('#vAccept').onclick = () => setVerdict('accept'); $('#vFlag').onclick = () => setVerdict('flag'); $('#vClear').onclick = () => setVerdict(null);
+    $('#vFix').onclick = saveFix;
+    $('#eName').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveFix(); } e.stopPropagation(); });
     const rm = $('#vRemove'); if (rm) rm.onclick = removeField;
     const kp = $('#vKeep'); if (kp) kp.onclick = keepField;
     const note = $('#note');
@@ -518,6 +539,7 @@ MODE.review = (() => {
     key(e) {
       if (e.key === 'a') setVerdict('accept');
       else if (e.key === 'f') setVerdict('flag');
+      else if (e.key === 'e') { const el = $('#eName'); if (el) { el.focus(); el.select(); } }
       else if (e.key === 'c') setVerdict(null);
       else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
       else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
@@ -676,7 +698,22 @@ MODE.groups = (() => {
     afterEdit();
   }
   function confirmUnit(uid, on) { const u = unitByUid(uid); if (!u || isText(u)) return; snapshot(); u.confirmed = on ?? !u.confirmed; const adv = u.confirmed; afterEdit(); if (adv) next(1); }
-  function rename(uid, name) { const u = unitByUid(uid); name = name.trim(); if (!u || name === u.name) return; snapshot(); u.name = name; afterEdit(); }
+  function rename(uid, name, from = null) { const u = unitByUid(uid); name = name.trim(); if (!u || name === u.name) return; snapshot(); u.name = name; if (from) u.name_from = from; else delete u.name_from; afterEdit(); }
+  // the labeler names a group or combined field the way it names a field in Add (`field_add.labeler_name`): one call
+  // with the page's words, the box (the hull of the unit's boxes on its first page) and, for a group, the captions
+  async function askLabeler(u, el) {
+    const first = firstItem(u), its = u.items.map(item).filter(it => it.page === first.page);
+    const rect = [Math.min(...its.map(i => i.rect[0])), Math.min(...its.map(i => i.rect[1])), Math.max(...its.map(i => i.rect[2])), Math.max(...its.map(i => i.rect[3]))];
+    const proposal = isText(u) ? {kind: 'text', page: first.page, rect}
+      : isGroup(u) ? {kind: 'group', page: first.page, rect, options: u.items.map(id => ({key: String(item(id).key ?? item(id).field), caption: item(id).caption || null}))}
+      : {kind: 'option', page: first.page, rect, widget: {path: first.path}};
+    el.disabled = true; el.textContent = 'asking…';
+    try {
+      const r = await send('POST', mapi('add', '/labeler'), {proposal});
+      if (r.name) { rename(u.uid, uniqueName(r.name, u), 'labeler'); note(`${r.model}: ${r.name}`); }
+      else { note('the labeler returned no name'); el.disabled = false; el.textContent = 'ask the labeler'; }
+    } catch (e) { note('labeler failed: ' + e.message); el.disabled = false; el.textContent = 'ask the labeler'; }
+  }
   function setDesc(uid, d) { const u = unitByUid(uid); if (!u || (u.description || '') === d) return; snapshot(); u.description = d; afterEdit(); }
   function setType(uid, type) { const u = unitByUid(uid); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(); }
   function separate(u) { snapshot(); units = units.filter(x => x !== u); selected = optUnits().length ? optUnits()[0].uid : null; afterEdit(); }

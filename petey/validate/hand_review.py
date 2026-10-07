@@ -27,6 +27,7 @@ import argparse
 import collections
 import hashlib
 import json
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -378,6 +379,9 @@ class State:
                 vs.pop(name, None)
             else:
                 vs[name] = {"verdict": rec["verdict"], "note": (rec.get("note") or "").strip()[:300], "when": now}
+                edit = clean_edit(name, (bp.get("fields") or {}).get(name) or {}, rec.get("edit"))
+                if edit:
+                    vs[name]["edit"] = edit
         sha = _sha(p)
         out = {"blueprint": str(p), "form": p.stem, "blueprint_sha": sha, "build": bp.get("x_petey_build"),
                "updated": now, "verdicts": vs}
@@ -394,6 +398,96 @@ class State:
         if self._index:
             self._index[bid] = self._entry(bid)
         return out
+
+
+EDIT_TYPES = ("string", "number", "integer", "date", "boolean", "category")
+_SLUG = re.compile(r"^[a-z0-9][a-z0-9_]*$")
+
+
+def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
+    """A person's correction of a field (2026-10-07: field name and type directly adjustable in the review page):
+    only the parts that differ from the blueprint, validated (a snake_case name; a spec type)."""
+    if not isinstance(edit, dict):
+        return None
+    out = {}
+    new_name = (edit.get("name") or "").strip()
+    if new_name and new_name != name:
+        if not _SLUG.match(new_name):
+            raise ValueError(f"field name {new_name!r}: lower-case letters, digits and _ only")
+        out["name"] = new_name
+    new_type = (edit.get("type") or "").strip()
+    if new_type and new_type != spec.get("type"):
+        if new_type not in EDIT_TYPES:
+            raise ValueError(f"type {new_type!r}: one of {', '.join(EDIT_TYPES)}")
+        out["type"] = new_type
+    return out or None
+
+
+def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
+    """Write the review record's name / type corrections into the blueprint. A rename keeps the field's position;
+    a type change drops what no longer fits (`pattern` unless the field stays a string; `semantic_type` on boolean /
+    category; `values` unless category). Each field records `x_petey_hand_edit` {when, from, to, record}; the review
+    record follows the rename; a form_run blueprint gets a `hand_edit` round in its run record."""
+    paths = blueprint_paths()
+    p = paths.get(bid)
+    if p is None:
+        raise SystemExit(f"{bid}: no such blueprint")
+    rec = load_verdicts(bid)
+    vs = rec.get("verdicts") or {}
+    bp = _load(p)
+    fields = bp.get("fields") or {}
+    edits = {n: v["edit"] for n, v in vs.items() if v.get("edit") and n in fields}
+    if not edits:
+        log(f"{bid}: no corrections to apply")
+        return 0
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    renames = {}
+    for n, e in edits.items():
+        to = e.get("name", n)
+        if to != n and to in fields and to not in edits:
+            raise SystemExit(f"{bid}: renaming {n} to {to} would collide with an existing field")
+        log(f"  {n}: " + ", ".join(f"{k} {fields[n].get(k) if k == 'type' else n!r} -> {v!r}" for k, v in e.items()))
+        renames[n] = to
+    if dry:
+        return len(edits)
+    out = {}
+    for n, spec in fields.items():
+        if n in edits:
+            e = edits[n]
+            spec = dict(spec)
+            before = {"name": n, "type": spec.get("type")}
+            if "type" in e:
+                spec["type"] = e["type"]
+                if e["type"] != "string":
+                    spec.pop("pattern", None)
+                if e["type"] in ("boolean", "category"):
+                    spec.pop("semantic_type", None)
+                if e["type"] != "category":
+                    spec.pop("values", None)
+            spec["x_petey_hand_edit"] = {"when": now, "from": before, "to": {"name": renames[n], "type": spec.get("type")},
+                                         "record": f"runs/hand_review/{bid}.json"}
+            out[renames[n]] = spec
+        else:
+            out[n] = spec
+    bp["fields"] = out
+    p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+    run = (bp.get("x_petey_run") or {}).get("record")
+    rp = RUNS.parent / run if run else None
+    if rp is not None and rp.exists():
+        r = json.loads(rp.read_text())
+        changed = {renames[n]: out[renames[n]] for n in edits}
+        r["rounds"].append({"round": len(r["rounds"]), "stage": "hand_edit", "when": now, "changed": changed,
+                            "removed": [n for n in edits if renames[n] != n], "renamed": {renames[n]: n for n in edits
+                                                                                    if renames[n] != n}})
+        rp.write_text(json.dumps(r, indent=1, ensure_ascii=False, default=str))
+    for n in edits:                            # the record follows the rename; the correction is now applied
+        v = vs.pop(n)
+        v["applied"] = now
+        vs[renames[n]] = v
+    rec.update(verdicts=vs, blueprint_sha=_sha(p), updated=now)
+    verdict_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+    log(f"{bid}: {len(edits)} correction(s) applied to {p}")
+    return len(edits)
 
 
 def summary() -> None:
@@ -421,7 +515,13 @@ def main() -> int:
     ap.add_argument("--port", type=int, default=5005)
     ap.add_argument("--summary", action="store_true")
     ap.add_argument("--no-open", action="store_true")
+    ap.add_argument("--apply", metavar="ID", help="write the review record's name / type corrections into blueprint ID "
+                    "(e.g. je__acord_126); with --dry, list them only")
+    ap.add_argument("--dry", action="store_true")
     args = ap.parse_args()
+    if args.apply:
+        apply_edits(args.apply, dry=args.dry)
+        return 0
     if args.summary:
         summary()
         return 0
