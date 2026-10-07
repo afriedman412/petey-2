@@ -1,4 +1,11 @@
-"""Fix option captions the page check flagged, by reading the printed label beside each option box.
+"""Read the printed caption beside each option box of the groups the page check flagged; report, do not write.
+
+REVERTED 2026-10-07 (Andrew): applied once to T1 / T2 (671 option captions, 276 groups) and undone the same day.
+It duplicates the labeler's caption cascade (`auto_label.caption_options`: the XFA's declared caption, then the
+publisher's option value when it is a word, then page text), whose order is deliberate, and it overrode his choice
+of no page-text captions when the group reviews were applied. A page-check `options` flag is a second reading, not
+proof the cascade chose wrong. The pairs it found are in runs/judge_eval/caption_fix_reverted.json. Now report-only:
+`--apply` is needed to write, and should not be used without Andrew's say-so.
 
 The labeler takes an option's caption from nearby page text and often keeps a fragment ('applicable)',
 'required)', 'd. ALLOWED'); the page check then flags the group (`options`). On T1 that was 117 of 211 flags, and
@@ -154,8 +161,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("lists", type=Path, nargs="+", help="form lists (form|blank per line)")
     ap.add_argument("--model", default=MODEL)
-    ap.add_argument("--dry", action="store_true", help="show the changes, write nothing")
+    ap.add_argument("--apply", action="store_true", help="write the captions (reverted 2026-10-07; ask Andrew first)")
     args = ap.parse_args()
+    args.dry = not args.apply
     from petey.synth.generate import make_client
     client = make_client(args.model)
     forms = [ln.split("|")[0] for lst in args.lists for ln in lst.read_text().splitlines() if ln.strip()]
