@@ -1490,3 +1490,95 @@ approver blocks are cut differently) and 3 to 4 on Form 5500 (participant-count 
 of these nine labels: one to three type changes and a handful of descriptions per form against the as-labeled copy.
 The duplicate library copies are not identical to each other (5500: 57 vs 58 names identical to the side copy; I-9:
 `i9` 100 of 125, `i-9` 94 of 124).
+
+## Flat forms through the loop (2026-10-05, `petey/label/flat_label.py`, `boxes.widget_key`, `extract._ink_marked`, `eval/flat_calibration.py`)
+
+Andrew: "ok go ahead and build it", to the plan of the same day: a flat form is the same loop with one less
+witness (no publisher) and one less reference (no widget layer). Nothing new was built where the page-only
+rebuild of 2026-09-30 already covered a widget-less blank (finder, classifier, bank, `render_case` drawing on
+the page). Four pieces were missing, and one bug was hiding behind them.
+
+1. **The flat blueprint** (`flat_label.py`). Structure from the class map: every box the classifier did not call
+   `none` becomes a field; option boxes under one page group become one `category` field, one option per box
+   keyed by a slug of its caption; a lone option box a boolean. Names from a second model (`claude-opus-5`),
+   given the labeler prompt the AcroForm path uses (`auto_label.LABEL_SYSTEM`) with rects and the page's words
+   only: a second reading of the page, so the class check and the classifier witness are not a model against
+   itself. Types from the names through the semantic-type registry, as everywhere; the classifier's class and
+   caption ride along as `x_petey_page_class` / `x_petey_caption` for the eye. Every widget `path: null`,
+   `x_petey_geometry` says which finder. Labels cached per blank, finder, class-map basis and name model.
+   `validate --blank <flat pdf>` runs it when the blank has no widgets, and draws no flattened cases.
+2. **Scoring by rect key** (`boxes.widget_key`): a widget's ground-truth key is its path, or on a flat
+   blueprint `rect:p<page>:<rect>`. `rect_join`, `score` and `witness._key` go through it; the join's "shared
+   path" test for option groups now uses it too (every path-less option used to look like one shared path).
+3. **Marks by ink in the native reader**: a path-less option box reads as added ink against the blank
+   (`petey.validate.ink`, the judge's `[x]` detector; dispatch `ink`). Text clipped from a flat page drops
+   printed underline and dot-leader runs and a caption's trailing colon, so an empty box reads as empty and
+   "INSURER A :" does not prefix the value. No move on the AcroForm runs' flattened cases (fw9, acord25, i765
+   re-extracted: identical verdicts).
+4. **Calibration** (`eval/flat_calibration.py`): the flat path on the test forms baked flat, against the widget
+   layer (structure) and the committed blueprint (meaning), and on true flat copies against the fillable twin.
+
+**The bug**: `render._draw_text` used `insert_textbox`, which draws nothing and returns a negative number when
+the text misses the box by a fraction of a point; the fill report counted the value as drawn and the scorer
+then blamed the reader. On EP-3 27 of 34 values never reached the page (native 4 agree / 29 miss). Now
+`insert_text` sized to the box, cut to the width at the smallest font and reported as `truncated`, like a
+widget's MaxLen; the ground truth is what is on the page.
+
+### Two true flat copies through the loop (TX RRC, twins table above; one bank case each)
+
+| form | fields | twin widgets | hit | miss | unbacked | native | judge (text) | class check | ink reads |
+|---|---:|---:|---:|---:|---:|---|---|---|---:|
+| EP-3 `tx_rrc_ep_3` (2 pages) | 38 text | 43 | 38 | 5 | 0 | 38 agree | 13 agree, 21 differ, 4 miss | 10 contradictions, 11 suggestions | 0 |
+| W-3X `tx_rrc_w_3x` (1 page used) | 15 text, 2 groups (12 options) | 24 | 21 | 3 | 6 (5 option) | 17 agree | 17 agree | 4 contradictions, 6 suggestions | 12 |
+
+The judge's 21 on EP-3 are one defect: eight repeated pit-table rows named by ordinal suffix, and the judge
+slid every row by one (`pit_id_name_txt` read row 2's value, and so on). The native reader, by rect, agreed on
+all 38. Not flat-specific: the ordinal-name weakness the reviewer work already owns. W-3X's five unbacked
+option rects are the finder proposing both a table cell and the square drawn inside it, the classifier
+calling both `option` (`tie` and `option_group_mismatch` rows in the inventory check); its nine-box column is
+captioned by item letter (D, D, E, F, F ...), so the option slugs are `d`, `d_2`. Witness tiers on EP-3
+after the fix: page speaks for all 38, classifier for 25 / against 10, publisher silent, as expected.
+
+### Calibration on the core test forms baked flat (`runs/flat_calibration/core.json`)
+
+Structure, the blank's widgets against the flat blueprint's rects (size-aware, as the finder yardstick):
+
+| form | flat fields | widgets | hit text | hit option | in region | part | miss | unbacked rects |
+|---|---:|---:|---|---|---:|---:|---:|---:|
+| W-9 | 18 | 23 | 13/15 | 8/8 | 0 | 0 | 2 | 3 |
+| ACORD 25 | 80 | 128 | 58/104 | 23/24 | 41 | 0 | 6 | 2 |
+| I-765 | 191 | 161 | 108/123 | 38/38 | 0 | 6 | 9 | 61 |
+| total | 289 | 312 | 74% | 99% | 41 | 6 | 5% | 19% of 342 |
+
+Options are found; text is where the finder loses: ACORD 25's coverage grid comes out as 41 widgets inside
+region boxes (one finder box over a column), and I-765's 61 unbacked text rects are finder lines the
+classifier kept that no widget backs (the instruction and attestation lines). Three of I-765's nine misses are
+the barcode widget.
+
+Meaning, flat fields landing on a committed field (overlap of the rects), typed on both sides:
+
+| form | paired | on none | type agree | type differ | names exact + strong | weak | none |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| W-9 | 15/18 | 3 | 6 | 5 | 14 | 0 | 1 |
+| ACORD 25 | 79/80 | 1 | 49 | 10 | 65 | 9 | 5 |
+| I-765 | 179/191 | 12 | 133 | 4 | 165 | 11 | 3 |
+| total | 273 | 16 | 91% of 207 | | 89% | 7% | 3% |
+
+The type disagreements are two families: parts the labeler named whole (W-9's `ssn`, `ssn_2`, `ssn_3` for
+`ssn_part1..3`; the class map says `id_part`, and the class check will flag them), and the registry's suffix
+rules (`insurer_a_business_name` vs the committed `insurer_a_nm`; `county_nm` typed `person_name` on W-3X).
+The names are the labeler's with no publisher evidence: 89% exact or strong against blueprints that had
+tooltips and XFA names.
+
+Classifier read twice (the blank, and its flat copy, the same pixels): W-9 59 same / 1 differ / 8 none-vs-class
+of 68 boxes; ACORD 25 105 / 6 / 9 of 120; I-765 235 / 4 / 2 of 241. The `none` flips are the instability to
+remember: a box the classifier drops is a field the flat blueprint never has.
+
+The loop on the flat copies (bank case, native reader, no API): W-9 18 agree of 18; ACORD 25 77 agree, 3
+differ of 80 (two printed words inside empty boxes read as values, one ink read where a neighbour's text
+crosses the option box); I-765 191 of 191. Ink read 81 option boxes across the three.
+
+What this says about a real flat form: structure is the risk, not meaning. On these forms the finder sees 74%
+of text widgets at the right size and 99% of option boxes, and proposes a fifth more rects than the form has
+fields. A real flat form inherits that, and nothing in the loop can see it; the twins table's weak forms (p_15:
+3 of 15) are where it bites. The next steps are in TODO under "Flat forms through the loop".

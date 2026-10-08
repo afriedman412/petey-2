@@ -29,6 +29,19 @@ module, the module is given. Older documents use some of these loosely; this pag
   it holds. The thing under test.
 - **Field**: one blueprint entry. **Field name**: its slug (`taxpayer_phone_number`). A field has one `widget`
   (text) or a `widgets` map (an option group: one entry per option, keyed by on-state).
+- **Field id** (`x_petey_id`, `petey/validate/field_ids.py`, since 2026-10-07): a fixed identifier, `<page>_<n>`,
+  the n-th field on the page in reading order when it was given (`1_25`). It never changes: a rename keeps it, a
+  removed field's id is not reused, a field added later takes the next free number on its page. Use it to say which
+  field you mean; the review page shows it. Given by the labeler and by every tool that adds fields; not meant to
+  agree between blueprints.
+- **Verdict** (review page, `runs/hand_review/`; Andrew, 2026-10-07): **accept** = the field is good to go,
+  including a correction the person saved (apply writes it into the blueprint); **flag** = "I can't or don't want to
+  fix this myself", with a note saying what is wrong, which "review edits" sends to the agent. A removed field is an
+  accept with the note `removed`. Measurements count a field as wrong when it is flagged or carries a correction.
+- **Field reference**: `<blueprint file stem>_<page>_<n>`, the file name and the field id together
+  (`ca_courts_dv_130_1_10`): the way to name one field across forms. Read from the right: the last two parts are
+  the id. Clicking "Selected field" on the review page copies it. A stem can exist in more than one place (a library
+  blueprint and its side copy under `runs/`); the review page's picker says which one is open.
 - **Option group**: one field for a radio group or a set of checkbox kids; each option carries its box, on-state
   and caption.
 - **Description**: the blueprint's one-line explanation of a field ("Federal tax classification of the entity"),
@@ -80,7 +93,9 @@ module, the module is given. Older documents use some of these loosely; this pag
 
 - **Run** (`runs/<form>_<timestamp>/`): one validation: the blueprint copy, each case's directory, scores, the
   summary with its build record.
-- **Native reader**: extraction through the AcroForm paths the blueprint names. Cannot see a misnamed field.
+- **Native reader**: extraction through the AcroForm paths the blueprint names, then the text layer clipped to
+  the rect, then (a path-less option box, flat blueprints) ink against the blank, then OCR. Cannot see a misnamed
+  field.
 - **Judge** (`judge:<parser>`, `petey/extract_llm.py`): the reader that looks for each field BY NAME in the page
   text or image, so a wrong name produces a wrong value. A dev-time instrument, metered; not product extraction.
 - **Reviewer** (`petey/validate/review.py`): the model that receives flagged fields with their evidence and
@@ -110,11 +125,22 @@ module, the module is given. Older documents use some of these loosely; this pag
 - **Hand review** (`petey/validate/hand_review.py`, a local web page): a person judges a blueprint's fields against
   the rendered blank, accept / flag / a note per field; verdicts in `runs/hand_review/<id>.json` with the
   blueprint's sha and build stamp. The check outside the loop that a promotion rests on.
+- **Page check** (`petey/validate/page_check.py`, 2026-10-05): a vision model does the first pass of hand review,
+  one call per page of the blank, with every field's box outlined and numbered and a list of each number's name,
+  type and publisher path. Accepted fields come back as bare numbers; a flag carries a problem (`wrong_name`,
+  `wrong_type`, `not_a_field`, `should_group`, `options`, `other`), a proposed name or type and a reason. Records
+  in `runs/page_check/`, keyed by a hash of the fields; `x_petey_page_check` on the blueprint is the only change
+  it makes. Feeds the `page_check` witness and, through it, the reviewer and adjudicator; never touches hand-review
+  verdicts. Scored against hand review by `eval/page_check_fixture.py`.
 - **Witness** (`petey/validate/witness.py`): one independent source's verdict on a field, `for` / `against` /
   silent: publisher (tooltip, XFA caption), page (printed text at the widget), classifier (class and caption),
-  judge (read back by name), structure (option grouping), adjudicator. **Tier**: `contested` (any against),
+  judge (read back by name), structure (option grouping), adjudicator, page check (accepted / flagged). **Tier**: `contested` (any against),
   `settled` (two or more for, none against), `single`, `unknown`; the hand-review page sorts by it and can accept
   the settled fields in bulk. No API calls.
+
+- **Flat calibration** (`eval/flat_calibration.py`): the whole flat path run on a form whose truth is known (a
+  test form baked flat, or a true flat copy with a fillable twin) and compared with the widget layer (structure)
+  and the committed blueprint (meaning): the error rate to attach to real flat forms, where neither exists.
 
 - **Fixture**: a small frozen list of hand-checked facts that does not depend on the cases, rerun when the
   component it tests changes: the widget layer for the finder (the yardstick), hand-verified fields for the

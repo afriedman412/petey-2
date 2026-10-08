@@ -369,10 +369,9 @@ and case sets".
   and any replacement string. Change: when the source tag says publisher, refuse removal and refuse a replacement
   that drops the publisher text; allow appending. Tell the prompt the same.
 
-- **Flat forms: write the plan** (`docs/FLAT_PLAN_v1.md`) after Andrew's pass over `runs/flat_review/eleven.html`
-  and the overnight survey / recall. Its own set of problems: shape detection (thin circles), the grouping join
-  (boxes + the captions the reader already reads), geometry confidence, flat-page fill and anchored ground truth
-  so a flat form can go through the loop at all. Not part of the AcroForm work above.
+- **Flat forms: built 2026-10-05** (RESULTS "Flat forms through the loop"). The plan was not written as a document;
+  the build is the plan: `petey/label/flat_label.py`, `boxes.widget_key`, ink in `extract.py`,
+  `eval/flat_calibration.py`. What remains is under "Flat forms through the loop" in Medium.
 
 ## Next
 
@@ -419,32 +418,36 @@ and case sets".
 
 - Non-blueprint documents with standard content and bespoke layouts (medical intake, bank statements) — unchanged.
 
-- **Flat forms through the loop** (part of FLAT_PLAN_v1; parked 2026-09-30, Andrew). No flat form has been
-  through the loop (153 in the corpus, verdict `no_widgets`). The library's two path-less blueprints
-  (`osha300a`, `cms1500_fillable`) are empty (`fields: {}`). Where each stage stands (2026-09-30):
+- **Flat forms through the loop: built 2026-10-05** (RESULTS "Flat forms through the loop"; glossary: flat
+  blueprint, widget key, flat calibration). Two true flat copies (TX RRC EP-3, W-3X) ran end to end: the flat
+  labeler makes the blueprint from the class map and a second model's names, bank cases are drawn on the page,
+  the native reader reads text by clip and marks by ink, scoring joins by rect key, the witness tiers and the
+  hand review (`fl__` source) take the blueprint. `validate --blank <flat pdf>` labels a flat blank itself and
+  skips flattened cases. Calibration on the core test forms baked flat: the numbers in RESULTS.
 
-  - Labeling: `auto_label` takes step2flat geometry when there is no AcroForm layer (`petey.locate`; fields get
-    `path: None` and a confidence); not yet used to build a flat blueprint. Geometry confidence is uncalibrated.
+  Open, from the first runs:
 
-  - Case generation and fill: flat-ready since the page-only rebuild (finder, classifier, bank; `render_case`
-    draws text and an X on a widget-less blank, so values land in the text layer). Extraction: the meaning
-    reader works on any PDF; native has text_clip / OCR by rect.
-
-  - Scoring: blocked. `rect_join.case_to_paths` skips fields without a path and the scorer keys ground truth by
-    path, so a flat blueprint scores nothing. Fix: path-less fields keyed by field name (or rect).
-
-  - Option boxes: the radio-recall run (146 AcroForm forms, finder on the unbaked PDF) found 50% of 2,936 option
-    boxes; with widget appearances baked in, the five test forms gave 234 / 234; real flat forms sit between.
-    Grouping still the aligned-runs rule (over-proposes on grids); caption join not built; thin circles need a
-    shape fix. The 153-form `flat_option_survey` run of 2026-09-30 crashed at about form 130 on a non-PDF
-    (overlay drawing) and wrote no results; `overnight.log`'s "exit 0" is masked by `$(date)`.
-
-  - Plan when unparked: (1) label one flat form with step2flat geometry; (2) score path-less fields by field
-    name; (3) calibrate on AcroForm forms baked flat: run the whole flat pipeline and compare with the widget
-    layer (structure) and the existing blueprint (meaning), giving error rates to attach to real flat forms,
-    where blueprint and ground truth both come from the page (one finder for both sides; text vs image readers of
-    one page). Extras: different models for labeler and classifier, so their misreadings do not coincide;
-    Andrew's eleven-form review as the human check on structure.
+  - **Finder recall on the weak twins** (`p_15` 3 of 15 widgets, RESULTS twins table: six forms at or below
+    0.23). A flat form the finder cannot read gives a blueprint with holes and no witness sees them; the twins
+    table is the list to diagnose from. The calibration tool's `missed` rows per form are the starting point.
+  - **Duplicate finder squares** (W-3X: a cell and the square drawn inside it both proposed and both classified
+    `option`; `tie` and `option_group_mismatch` rows, 5 unbacked option rects against the twin). A finder or
+    classifier-guard rule: an option box inside another option box on the same page group is one box.
+  - **Names from the registry's suffix rules on flat forms**: `county_nm`, `lease_name`, `field_name` typed
+    `person_name` by `semantic_types.lookup`; the class check flags them (page class `free_text`), so the loop's
+    reviewer can fix them, but a flat form has no publisher witness to settle the rename.
+  - **The judge on repeated rows** (EP-3: eight pit-table rows, the judge slid every row by one: 21 of 38
+    differ while the native reader agreed on all 38). Not flat-specific; the ordinal-name weakness.
+  - **Option captions that repeat** (W-3X's nine-box column captioned D, D, E, F, F, G, G, H, H): option slugs
+    `d`, `d_2`. The classifier's caption for a box under a lettered item is the item letter, not the choice.
+  - **A flat blueprint's `category` groups are never `multi_category`**: the classifier does not say whether a
+    group allows several marks; the bank marks at most one, so the scorer never sees the difference.
+  - The fix path for a flat form is the three pages (2026-10-05, all list the `fl__` side copies): hand review
+    for names by witness tier, group review for option grouping, field add for the boxes the finder missed (on a
+    flat form it has no suggestions, since every kept finder box is already a field; the person draws the box
+    and the page names it from the text beside it; watch the caption on shared underline rows: EP-3's P-5 box
+    got "Organization Name" from the left end of the line). Then `--apply` and validate again. The two twins and
+    the 153-form checklist are the queue.
 
 ## Open taxonomy gaps (no in-place fix yet)
 
@@ -452,6 +455,49 @@ and case sets".
 
 - `yn_column`: radio groups keyed by export code that a text-mode reader cannot see; image mode or rendering
   checked states into the page text.
+
+## Checks: ways they could work better (list started 2026-10-07, Andrew)
+
+Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) before it is built.
+
+- **Distance when a tooltip "belongs to" another field.** The publisher check (`witness.Names.judge`) weighs a
+  tooltip against every field name on the page, so a field in another section can win; any margin counts.
+  ACORD 140 `1_25` (`subject_of_insurance`, PREMISES INFORMATION) was contested because its tooltip scored 0.489
+  for `1_86` (`other_refrigerant_coverage_description`, ADDITIONAL COVERAGES / spoilage options) against 0.488 for
+  its own name, on the generic words "coverages" and "other". The check exists for swaps and boxes placed one row
+  off, which happen between near boxes: penalise distance, or only compare within the box's section, and require
+  a margin. The widget path (`..._SubjectOfInsuranceCode_A`) would also have settled it and is not consulted.
+  Measured 2026-10-07 on the current hand-review records: 102 fields contested this way, 94 accepted, 8 flagged
+  and none of the 8 for the tooltip's reason, so it is now a hint (raw details only; `witness.grade`). Two more
+  faults seen: the score is the share of the NAME the tooltip explains, so a specific name loses to a short one
+  (`uscourts_b_106a_b_6_15` `retirement_account_institution_name` 0.76 vs `6_16` `retirement_account_amt` 0.86 on
+  "Retirement account name": "institution" is rare and unmatched, "amount" common); and a tooltip several fields
+  share ("Institution name or individual") cannot tell them apart. Before it returns as an error: a margin, the same
+  section only, ignore tooltips shared by several fields, normalise by the tooltip as well as the name.
+- **Ruled-line weight as relevance.** Forms mark sections and rows with heavier rules (ACORD 140: 0.96 / 0.72
+  section, 0.48 row, 0.24 cell); text across a heavier rule is less likely to be about the box. Uses: the section
+  for the item above, and caption candidates. Weights differ by form and within a page, so "heavier than this
+  form's cell lines", not a fixed number; first count how many publishers in the launch library use two or more
+  weights. Does not cover specificity (a section title applies to every box under it) or a misread neighbour in
+  the same row (ACORD 140 `1_86`: "REFRIG MAINT AGREEMENT" is one 0.24 cell line away; it named the field
+  "refrigerant" when the section is spoilage coverage).
+- **Option captions from the page (`petey/label/captions.py`).** ACORD 140 `1_126` (secondary heat: BOILER [ ]
+  SOLID FUEL [ ] [ ]______) lost SOLID FUEL: the last box, with nothing printed right of it, read SOLID FUEL from
+  its left, and the duplicate rule dropped it from both. Two guards are built and switched off (`GUARDS = False`;
+  with it off the output is the old code's on all 6,117 page-captioned boxes): a box may not borrow a caption a
+  sibling reads right of itself; a box followed by a text field is a write-in with no fallback. Measured against
+  the option keys: the first gained 81 captions that fit and 77 that do not (the duplicate rule had been hiding
+  sentence fragments read right of a box: "or physical", "protective"); the write-in rule lost 42 real column
+  headers in grids (990 Part VII "Highest compensated", Schedule A "No"). Before switching them on: (1) stop
+  right-of readings that are part of a sentence, the source of the junk; (2) narrow write-ins to boxes with no
+  column header, or a tooltip that says other / specify; (3) bound the header-above fallback by a ruled line
+  (`1_126`'s last box reaches "FIREPLACE INSERT" across a section rule). Meanwhile captions are editable by hand
+  on the review page.
+- **Repeated option blocks under one field name (labeler).** CBP 3461 page 1: `PartyType1[0..15]` and
+  `HeaderID1[0..11]` are four party blocks repeating the same on-states; the labeler grouped by on-state and kept
+  only the first block. The six missing groups were added by hand 2026-10-07 (`cbp_form_3461_1_72`..`1_77`). Still
+  open there: page 3 `BOLType1` / `BOLType2` (bill of lading type, 4 boxes each) are missing entirely. Labeler
+  fix: when one field name repeats the same on-states in separate blocks, one group per block.
 
 ## Later
 
