@@ -25,7 +25,7 @@ Emits a `.bpt` YAML with this shape:
         widget:
           page: <int>
           rect: [x0, y0, x1, y1]
-          widget_type: text | checkbox
+          widget_type: text | checkbox | combobox | listbox
           path: <AcroForm path>
 
 For mutex-grouped checkbox clusters (`<group>.<value>` dot-notation
@@ -61,7 +61,7 @@ from petey.label.page_signature import collapse_copy_pages
 from petey.label.vocab import load_form_vocab
 from petey.label import xfa as xfa_mod
 from petey.label.retrieve import Embedder, match_labels_to_widgets
-from petey.semantic_types import enrich_field
+from petey.semantic_types import ALL_TYPES, enrich_field
 from petey.locate import enumerate_geometry
 from petey.locate.acroform import enumerate_widgets, _widget_type_string, _unescape_pdf_name  # noqa: F401
 
@@ -502,6 +502,27 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL):
     return merged
 
 
+def dropdown_spec(spec: dict, w: dict) -> dict:
+    """A dropdown's field takes its choice list as `values` (Andrew, 2026-10-07: hard-code dropdowns and their
+    options). A closed list is `category` (`multi_category` for a list box that takes several); a combobox that also
+    takes typed text stays `string` with the choices as `values`, since a filer may write something else. On a closed
+    list the name's semantic type stays only when every choice fits its shape (a state list keeps `state_abbr`;
+    `quarter_ended_dt` offering 1st..4th loses `iso_date`), and the pattern goes."""
+    spec["values"] = list(w["choices"])
+    if w.get("multiselect"):
+        spec["type"] = "multi_category"
+    elif not w.get("editable"):
+        spec["type"] = "category"
+    if spec["type"] != "string":
+        spec.pop("pattern", None)
+        st = next((t for t in ALL_TYPES if t.name == spec.get("semantic_type")), None)
+        if st is not None and not (st.pattern and all(re.match(st.pattern, v) for v in spec["values"])):
+            spec.pop("semantic_type")
+    if w.get("choice_labels"):
+        spec["x_petey_choice_labels"] = dict(w["choice_labels"])
+    return spec
+
+
 def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
     widget_lines = []
     for w in widgets_on_page:
@@ -513,6 +534,10 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
         if w["widget_type"] == "radiobutton" and w.get("options"):
             opts = ", ".join(f'"{s}"' for s in w["options"] if s)
             line += f', "options": [{opts}]'
+        if w.get("choices"):                    # a dropdown: what it offers says what it is
+            shown = w.get("choice_labels") or {}
+            opts = ", ".join(json.dumps(shown.get(c, c)) for c in w["choices"][:12])
+            line += f', "choices": [{opts}{", ..." if len(w["choices"]) > 12 else ""}]'
         # /TU, the AcroForm tooltip. Written by the form's publisher and
         # present in the document, so it grounds the label far better than
         # inferring from whatever text happens to sit nearby — which is
@@ -959,6 +984,8 @@ def build_blueprint(
             label, page=w["page"], rect=w["rect"],
         )
         spec = enrich_field(label, w["widget_type"])
+        if w.get("choices"):
+            dropdown_spec(spec, w)
         spec["widget"] = widget_block
         if "confidence" in w:  # programmatic geometry: the rect is an estimate; say how good
             spec["x_petey_geometry"] = {"confidence": w["confidence"], "source": w.get("geometry_source")}

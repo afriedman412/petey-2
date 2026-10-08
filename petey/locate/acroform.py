@@ -39,7 +39,8 @@ def _widget_type_string(field_type: int) -> str:
     reclassify. Radio buttons preserve their identity so the labeler can
     group them by shared field_name and emit them as `type: category`
     at the group level (or `type: boolean` for singleton groups).
-    Comboboxes / listboxes: single-choice string, treat as text.
+    Comboboxes / listboxes keep their kind (2026-10-07, Andrew: hard-code
+    dropdowns and their options); `enumerate_widgets` adds the choice list.
     Signatures: no text value, treat as text.
 
     Pushbuttons used to land here too, and that was the bug behind
@@ -51,7 +52,33 @@ def _widget_type_string(field_type: int) -> str:
         return "checkbox"
     if field_type == pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON:
         return "radiobutton"
+    if field_type == pymupdf.PDF_WIDGET_TYPE_COMBOBOX:
+        return "combobox"
+    if field_type == pymupdf.PDF_WIDGET_TYPE_LISTBOX:
+        return "listbox"
     return "text"
+
+
+# PDF choice-field flags: bit 19 Edit (a combobox that also takes typed text),
+# bit 22 MultiSelect (a list box where several entries can be picked).
+EDIT_FLAG = 1 << 18
+MULTISELECT_FLAG = 1 << 21
+
+
+def choices(w) -> tuple[list[str], dict[str, str]]:
+    """A dropdown's choices as the values it stores (export strings), and the
+    shown text where it differs: pymupdf returns (export, display) pairs on
+    some forms (I-765 state lists). Blank entries (a leading " ") dropped."""
+    out: list[str] = []
+    shown: dict[str, str] = {}
+    for c in w.choice_values or []:
+        exp, disp = (c[0], c[1]) if isinstance(c, (list, tuple)) and len(c) > 1 else (c, c)
+        exp, disp = str(exp).strip(), str(disp).strip()
+        if exp and exp not in out:
+            out.append(exp)
+            if disp and disp != exp:
+                shown[exp] = disp
+    return out, shown
 
 
 # PDF field flag bit 17. A pushbutton is a control: it fires an action and
@@ -133,6 +160,16 @@ def enumerate_widgets(pdf_path: Path) -> tuple[list[dict], list[dict]]:
             }
             if tooltip:
                 entry["tooltip"] = tooltip
+            if wt in ("combobox", "listbox"):
+                opts, shown = choices(w)
+                if opts:
+                    entry["choices"] = opts
+                if shown:
+                    entry["choice_labels"] = shown
+                if wt == "combobox" and (w.field_flags or 0) & EDIT_FLAG:
+                    entry["editable"] = True
+                if wt == "listbox" and (w.field_flags or 0) & MULTISELECT_FLAG:
+                    entry["multiselect"] = True
             if wt in ("radiobutton", "checkbox"):
                 # Every button carries its on-state. Checkbox FIELDS with
                 # several kids and distinct on-states (CMS-1500 insurance

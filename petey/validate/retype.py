@@ -183,8 +183,9 @@ def type_from_description(bp: dict) -> collections.Counter:
     else contradicts; returns what changed. Conflicts are not touched (see `desc_type_conflict`)."""
     changes: collections.Counter = collections.Counter()
     for name, spec in (bp.get("fields") or {}).items():
-        if not isinstance(spec, dict) or spec.get("widgets") or (spec.get("type") or "string") != "string":
-            continue
+        if (not isinstance(spec, dict) or spec.get("widgets") or spec.get("values")
+                or (spec.get("type") or "string") != "string"):
+            continue                    # `values`: a dropdown that also takes typed text keeps its list
         k = desc_kind(spec)
         if k is None or spec.get("semantic_type") or spec.get("pattern") or desc_type_conflict(name, spec):
             continue
