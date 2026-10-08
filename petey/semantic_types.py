@@ -109,8 +109,11 @@ REGISTRY: tuple[SemanticType, ...] = (
     ),
 
     # --- money / percent / count (must beat _state, _city, _country) ---
+    # An `_amt` name is a sum of money (the labeler's convention); whole dollars only where the form asks for them,
+    # and an amount of something else (barrels, miles) is not money: both decided at emit by
+    # `petey.validate.retype.money_kind` (Andrew, 2026-10-07).
     SemanticType(
-        name="money_whole_dollar",
+        name="money",
         matches=("_amt", "_amount"),
         bpt_type="number",
         ocr_whitelist="0123456789.,-",
@@ -261,16 +264,15 @@ CHECKBOX_TYPE = SemanticType(
 )
 
 # Spec §5.8.1 registers values that this module has no slug matcher for.
-# `money` is one: the AcroForm path always resolves an amount slug to the
-# more specific `money_whole_dollar`, so nothing here would ever assign
-# plain `money` — but it is a legal, registered value, and the vision
-# path (which assigns by judgment rather than by slug) does emit it.
+# `money_whole_dollar` is one since 2026-10-07: an amount slug resolves to
+# plain `money`, and whole dollars come from the form's own words at emit
+# (`retype.money_kind`), never from the name.
 #
 # Kept out of REGISTRY deliberately. REGISTRY is ordered for `lookup`,
 # and adding an entry there changes what slugs match; this tuple carries
 # vocabulary membership only.
 SPEC_ONLY_TYPES: tuple[SemanticType, ...] = (
-    SemanticType(name="money", matches=(), bpt_type="number"),
+    SemanticType(name="money_whole_dollar", matches=(), bpt_type="number", ocr_whitelist="0123456789.,-"),
 )
 
 # Every value registered by spec §5.8.1 — the canonical vocabulary, as

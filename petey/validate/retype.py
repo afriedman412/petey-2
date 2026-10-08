@@ -198,6 +198,64 @@ def type_from_description(bp: dict) -> collections.Counter:
     return changes
 
 
+# ----------------------------------------------------------------- which amounts are money
+# Andrew, 2026-10-07: an amount is money only when it is a sum of money, and `money_whole_dollar` only where the form
+# asks for whole dollars. The slug rule gives every `_amt` plain `money`; this pass takes it off amounts the name or
+# description measures in a unit (barrels, MCF, miles: TX RRC P-18, OK 1029A, Form 4562 vehicle miles) unless a money
+# word is there too (land value over two acres, rate per hour), and makes it whole dollars on the evidence
+# `money_retype.keep_reason` uses (the field's text, a cents box beside it, the page's instruction to round).
+_UNIT = re.compile(r"(?<![a-z])(barrels?|bbls?|mcf|gallons?|gals?|acres?|acreage|hours?|hrs|pounds?|lbs|tons?|tonnage|"
+                   r"miles?|mileage|kwh|therms?|cubic|sq ?ft|square feet|volume|weight|horsepower|kilograms?|kg|"
+                   r"liters?|litres?)(?![a-z])")
+_MONEY_WORD = re.compile(r"\$|dollar|value|cost|price|tax|fee|rent|income|pay|paid|charge|premium|wage|salary|fund|cash|"
+                         r"credit|refund|expense|revenue|proceeds|sales|royalt|penalt|interest|balance|due|owed|deduct|"
+                         r"exempt|loss|gain|profit|compens|reimburs|rate")
+
+
+def not_money(name: str, spec: dict) -> bool:
+    """Does the name or description measure this amount in a unit that is not money?"""
+    t = (name + " " + str(spec.get("description") or "")).lower().replace("_", " ")
+    return bool(_UNIT.search(t)) and not _MONEY_WORD.search(t)
+
+
+def money_kind(bp: dict, blank: Optional[Path], limits: dict[str, dict]) -> collections.Counter:
+    """Amounts that are not money lose the semantic type (type stays number); money the form asks for in whole
+    dollars becomes `money_whole_dollar`. Returns what changed."""
+    import pymupdf
+    from petey.validate.money_retype import keep_reason      # imported here: money_retype imports this module
+    changes: collections.Counter = collections.Counter()
+    fields = bp.get("fields") or {}
+    doc = pymupdf.open(str(blank)) if blank and Path(blank).exists() else None
+    pages: dict[int, str] = {}
+
+    def page_text(pg: int) -> str:
+        if doc is None or not (1 <= pg <= len(doc)):
+            return ""
+        if pg not in pages:
+            pages[pg] = doc[pg - 1].get_text()
+        return pages[pg]
+
+    try:
+        for name, spec in fields.items():
+            if not isinstance(spec, dict) or spec.get("widgets") or spec.get("semantic_type") not in (
+                    "money", "money_whole_dollar"):
+                continue
+            if not_money(name, spec):
+                spec.pop("semantic_type")
+                kind = "amount_not_money"
+            elif spec["semantic_type"] == "money" and keep_reason(name, spec, fields, limits, page_text):
+                spec["semantic_type"] = "money_whole_dollar"
+                kind = "whole_dollar"
+            else:
+                continue
+            spec["x_petey_retype"] = list(spec.get("x_petey_retype") or []) + [kind]
+            changes[kind] += 1
+    finally:
+        if doc is not None:
+            doc.close()
+    return changes
+
+
 def retype_blueprint(bp: dict, limits: dict[str, dict]) -> collections.Counter:
     changes: collections.Counter = collections.Counter()
     for name, spec in (bp.get("fields") or {}).items():

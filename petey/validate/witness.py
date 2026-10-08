@@ -466,7 +466,7 @@ def run_witnesses(run_dir: Path, blank: Optional[Path]) -> dict[str, dict]:
 
 # ------------------------------------------------------------------- per field
 
-PAGE_CHECK_SUGGESTIONS = ("options", "should_group", "not_a_field")   # 2026-10-07: rules and captions, not errors
+PAGE_CHECK_SUGGESTIONS = ("options", "should_group", "not_a_field", "continues")   # 2026-10-07: rules and captions, not errors
 
 
 def page_check_witness(v: dict) -> tuple[Optional[bool], str]:
@@ -549,6 +549,10 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
             out.append({"kind": "suggestion", "text": f"Could be one group: {_first_sentence(pc.get('reason'))}"})
         elif p == "not_a_field":
             out.append({"kind": "suggestion", "text": f"Maybe not a field: {_first_sentence(pc.get('reason'))}"})
+        elif p == "continues":               # merged in Groups (text combining); Andrew, 2026-10-07
+            into = f" `{pn}`" if pn else " another field"
+            out.append({"kind": "suggestion", "text": f"Continues{into}; combine the two: "
+                                                      f"{_first_sentence(pc.get('reason'))}"})
         else:
             out.append({"kind": "error", "text": f"Check: {_first_sentence(pc.get('reason'))}"})
     for k, (v, detail) in ws.items():

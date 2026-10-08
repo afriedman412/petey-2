@@ -13,7 +13,7 @@ from its flags instead of from a blank form (Andrew, 2026-10-05: minimise attent
     question  per field: what would a filer write in the box, judged from the printed captions; do the name and
               type fit it? Accepted fields come back as bare numbers (most of the output was explaining accepts,
               2026-10-06); a flag carries a problem (wrong_name / wrong_type / not_a_field /
-              should_group / options / other), a proposed name or type, and a one-line reason.
+              continues / should_group / options / other), a proposed name or type, and a one-line reason.
     output    `runs/page_check/<source>__<stem>__<fields hash>.json` (one per version of the fields), keyed by field name, each verdict with a hash of the field's
               definition; and `x_petey_page_check` on the blueprint (when, model, prompt version, counts, record
               path), the only change it makes to a blueprint. `verdicts(bp)` gives the verdicts still valid for
@@ -62,7 +62,7 @@ STRIPS = 3                                 # OpenAI-compatible vendors see an im
 STRIP_ABOVE, STRIP_BELOW = 260, 60         # ~1,100 tokens, Opus ~4,800 for the same 200 dpi page), so a page goes as
                                            # overlapping horizontal strips, each with its own budget; px of context
                                            # above (column headers) and below each strip's own band
-PROBLEMS = ("none", "wrong_name", "wrong_type", "not_a_field", "should_group", "options", "other")
+PROBLEMS = ("none", "wrong_name", "wrong_type", "not_a_field", "continues", "should_group", "options", "other")
 
 SYSTEM = """You check a form blueprint against its blank form. A blueprint names and types every fillable box \
 on the form so a program can fill it in and read it back. The image is one page of the blank PDF. Every box the \
@@ -85,10 +85,14 @@ _ind checkbox, _txt text, _nbr number), word order, copy numbers, or a name that
 detailed.
 - wrong_type: the type or semantic type does not fit the value (a date typed as plain text, a count typed as a \
 year, a box that takes one of a printed list of choices typed as free text).
-- not_a_field: nothing is written here by a filer (the box sits on printed text, a heading, an instruction, a \
-"continued" line, or it duplicates another field's box).
-- should_group: this checkbox is one of several that answer one question with one choice and the blueprint keeps \
-them as separate fields; name the others in the reason.
+- not_a_field: nothing is written here by a filer (the box sits on printed text, a heading, an instruction, or it \
+duplicates another field's box).
+- continues: the box is a further line of another field's answer (the answer runs on from the line above, with no \
+caption of its own, or the page says it continues), so the two should be one field; put the name of the field it \
+continues in proposed_name.
+- should_group: this checkbox is one of several that answer one question, whether the filer ticks one or several \
+(a list of boxes to tick under one question, item or column), and the blueprint keeps them as separate fields; name \
+the others in the reason.
 - options: an option group's members, on-states or captions do not match the boxes.
 - other: anything else a person correcting this blueprint would change.
 Otherwise accept. Most fields on a blueprint are right.

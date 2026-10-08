@@ -343,7 +343,9 @@ it. "Slip 1. Employer's name" yields `slip1_employer_business_name` and \
 prefix is real information about which occurrence a value belongs to, and \
 the form publisher's own field names usually carry it too.
 - Emit snake_case slugs following IRS MeF-style conventions where \
-possible: `_amt` for money, `_dt` for date, `_ind` for checkbox \
+possible: `_amt` for a sum of money only (an amount of anything else is \
+named for what it measures: `_bbl`, `_mcf`, `_miles`, `_hours`, `_qty`, `_cnt`; \
+a percentage `_pct`), `_dt` for date, `_ind` for checkbox \
 indicator, `_cd` for code, `_yr` for year, `_ssn`/`_ein` for taxpayer \
 IDs, `_zip_cd` for ZIP, `_city_nm` for city, \
 `_state_abbreviation_cd` for state, `_country_cd` for country, \
@@ -1067,11 +1069,12 @@ def build_blueprint(
         # small for one, tooltips and radio captions into descriptions.
         # Imported here: retype imports this module.
         from petey.synth.local import widget_limits
-        from petey.validate.retype import describe_blueprint, retype_blueprint, type_from_description
+        from petey.validate.retype import describe_blueprint, money_kind, retype_blueprint, type_from_description
         limits = widget_limits(blank_pdf)
         emit_fixes = retype_blueprint(bp, limits)
         emit_fixes.update(describe_blueprint(bp, limits, xfa_tpl))
         emit_fixes.update(type_from_description(bp))      # needs the descriptions; conflicts are left for review
+        emit_fixes.update(money_kind(bp, blank_pdf, limits))   # after the descriptions: units, whole dollars
         if emit_fixes:
             bp["x_petey_emit_fixes"] = dict(emit_fixes)
             print(f"  [emit] loop rules applied at emit: {dict(emit_fixes)}")
