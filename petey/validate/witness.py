@@ -58,6 +58,7 @@ import collections
 import json
 import math
 import re
+import string
 from pathlib import Path
 from typing import Optional
 
@@ -66,7 +67,7 @@ import yaml
 
 from petey.label import xfa as xfa_mod
 from petey.paths import RUNS
-from petey.synth.boxes import match_rect
+from petey.synth.boxes import match_rect, widget_key
 from petey.synth.classify import classify_form
 from petey.validate.class_check import _CONTROL_CLASSES, _family, blueprint_class
 from petey.validate.field_chain import _agrees, _page_lines, candidate_captions, column_header, field_chain, \
@@ -91,11 +92,12 @@ def _widgets(spec: dict) -> list[dict]:
 
 
 def _key(spec: dict) -> str:
-    """A field's identity across renames: its widget path (an option group: its option paths and on-states)."""
+    """A field's identity across renames: its widget path (an option group: its option paths and on-states); on a
+    flat blueprint, where no widget has a path, its page and rect (`boxes.widget_key`)."""
     if spec.get("widgets"):
-        return "group:" + "|".join(sorted(f"{w.get('path')}#{k}" for k, w in spec["widgets"].items()))
+        return "group:" + "|".join(sorted(f"{widget_key(w)}#{k}" for k, w in spec["widgets"].items()))
     w = spec.get("widget") or {}
-    return f"{w.get('page')}:{w.get('path')}"
+    return f"{w.get('page')}:{widget_key(w)}"
 
 
 # ------------------------------------------------------------------- publisher and page (blueprint + blank only)
@@ -489,6 +491,30 @@ def _first_sentence(t: str, n: int = 150) -> str:
     return t if len(t) <= n else t[:n - 1] + "…"
 
 
+# the captions a page-check reason states for its option boxes, read straight out of the sentence (Andrew, 2026-10-07:
+# "it has the answers right there"): `27.a is "Flr."`, `179.c ... is printed as "RECONSTRUCTION"`, `39.d sits beside the
+# printed caption "ISSUE POLICY"`. Only forms that state the right caption; a sentence quoting the wrong one first
+# ("has the caption 'X' instead of 'Y'") is read by its "printed label" half or not at all
+_Q = r"[\"“”]([^\"“”]{1,80})[\"“”]|['‘’]([^'‘’]{1,80})['‘’](?![A-Za-z])"
+_CAP_STATED = [re.compile(r"\b\d+\.([a-z]{1,2})\b(?:'s)?\s+(?:caption\s+)?(?:is printed as|should be|should read|is)\s*(?:" + _Q + ")", re.I),
+               re.compile(r"\b\d+\.([a-z]{1,2})\b[^.;]{0,60}?\bprinted (?:caption|label|text)(?: [a-z ]{0,25}?)?\s*(?:is\s*)?(?:" + _Q + ")", re.I)]
+
+
+def stated_captions(spec: dict, reason: str) -> dict[str, dict]:
+    """{option key: {"caption": ...}} for the boxes the reason names a caption for; letters follow the page check's
+    order of the field's boxes (`page_check.boxes`)."""
+    keys = [k for k, w in (spec.get("widgets") or {}).items() if w.get("rect") and w.get("page")]
+    letters = {(string.ascii_lowercase[j] if j < 26 else string.ascii_lowercase[j // 26 - 1] + string.ascii_lowercase[j % 26]): k
+               for j, k in enumerate(keys)}
+    out = {}
+    for rx in _CAP_STATED:
+        for m in rx.finditer(reason or ""):
+            k, cap = letters.get(m.group(1).lower()), (m.group(2) or m.group(3) or "").strip()
+            if k and cap and k not in out:
+                out[k] = {"caption": cap}
+    return out
+
+
 def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> list[dict]:
     """One plain sentence per reason the field is questioned, for the review page (Andrew, 2026-10-07: the
     individual checks' output is opaque). [{"kind": "error" | "suggestion", "text"}], errors first."""
@@ -507,14 +533,18 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
                 t += f" Suggested: `{pn}`."
             out.append({"kind": "error", "text": t, **({"fix": {"name": clean_name}} if clean_name else {})})
         elif p == "wrong_type":
-            t = (f"Type: the box holds {holds!r}, which does not fit {typ}." if holds else
-                 f"Type: {_first_sentence(pc.get('reason'))}")
+            # the page check's reason says why; "the box holds ..." often only restates the caption (Andrew,
+            # 2026-10-07, DV-100 6_32: "the number or amount for row (4)")
+            t = (f"Type: {_first_sentence(pc.get('reason'))} (it is {typ})" if pc.get("reason") else
+                 f"Type: the box holds {holds!r}, which does not fit {typ}.")
             if pt:
                 t += f" Suggested: {pt}."
             out.append({"kind": "error", "text": t,
                         **({"fix": {"type": clean_type}} if clean_type and clean_type != spec.get("type") else {})})
         elif p == "options":
-            out.append({"kind": "suggestion", "text": f"Option captions: {_first_sentence(pc.get('reason'))}"})
+            caps = stated_captions(spec, pc.get("reason") or "")
+            out.append({"kind": "suggestion", "text": f"Option captions: {_first_sentence(pc.get('reason'))}",
+                        **({"fix": {"options": caps}} if caps else {})})
         elif p == "should_group":
             out.append({"kind": "suggestion", "text": f"Could be one group: {_first_sentence(pc.get('reason'))}"})
         elif p == "not_a_field":
@@ -552,7 +582,9 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
 def grade(k: str, v: Optional[bool], detail: str) -> Optional[str]:
     """How much an `against` counts in the review page (2026-10-07), from hand review: over 1,508 reviewed fields
     (5% flagged by the person), the share of fields each witness marked against that the person flagged:
-    page check 60% (38/70 on the fixture), classifier other 25%, publisher belongs-to 24%, lined-up checkboxes 20%
+    page check 60% (38/70 on the fixture), classifier other 25%, publisher belongs-to 24% (re-measured the same
+    evening on the current records: 8 of 102, none of the 8 for the tooltip's reason; Andrew: "usually wrong"; now a
+    hint), lined-up checkboxes 20%
     (grouping), judge 8%, publisher other 7%, structure group 5%, classifier belongs-to 4%, page belongs-to 3%,
     page other / one-word texts 0%. 'error' makes the field contested; 'suggestion' is shown but does not;
     'hint' (no better than the 5% base rate) stays in the raw witness list only. The loop's reviewer flags
@@ -564,8 +596,7 @@ def grade(k: str, v: Optional[bool], detail: str) -> Optional[str]:
         return "suggestion" if d.startswith("suggestion") else "error"
     belongs = "belongs to:" in d
     if k == "publisher":
-        said = d.split("belongs to:")[0]
-        return "error" if belongs and len(re.findall(r"[A-Za-z]{2,}", said)) >= 2 else "hint"
+        return "hint"          # "the tooltip fits another field better": no better than chance (2026-10-07, see above)
     if k == "classifier":
         return "hint" if belongs else "error"
     if k == "structure":
@@ -726,8 +757,9 @@ def calibrate(use_run: bool = True) -> dict:
             f = res["fields"].get(name)
             if f is None:
                 continue
-            table[f["tier"]][rec["verdict"]] += 1
-            if rec["verdict"] == "flag":
+            wrong = rec["verdict"] == "flag" or bool(rec.get("edit"))   # a correction = the field was wrong
+            table[f["tier"]]["flag" if wrong else "accept"] += 1
+            if wrong:
                 flags.append({"form": bpt.stem, "field": name, "tier": f["tier"], "note": rec.get("note"),
                               "witnesses": f["witnesses"]})
     return {"tiers": {t: dict(table[t]) for t in TIERS if t in table}, "flags": flags}

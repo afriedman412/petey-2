@@ -27,7 +27,15 @@
   .stale, .err { color:var(--bad); }
   .progress { color:var(--muted); } .progress b { color:var(--fg); }
   main { flex:1; display:flex; min-height:0; }
+  #left { flex:1; display:flex; flex-direction:column; min-width:0; }
+  #pages { display:flex; gap:4px; padding:4px 12px; border-bottom:1px solid var(--line); background:var(--panel); overflow-x:auto; white-space:nowrap; flex-shrink:0; }
+  #pages:empty { display:none; }
   #stage { flex:1; overflow:auto; background:#efefef; }
+  #helpmenu { position:fixed; right:12px; top:44px; width:420px; max-height:75vh; overflow:auto; background:var(--card); border:1px solid var(--line); border-radius:6px; box-shadow:0 4px 16px rgba(0,0,0,.2); padding:10px 14px; z-index:20; }
+  #helpmenu h4 { margin:10px 0 4px; } #helpmenu h4:first-child { margin-top:0; }
+  #helpmenu table { border-collapse:collapse; width:100%; } #helpmenu td { padding:2px 6px 2px 0; vertical-align:top; }
+  #helpmenu td:first-child { white-space:nowrap; width:1%; } #helpmenu ul { margin:2px 0; padding-left:18px; }
+  kbd { font:11px ui-monospace, Menlo, monospace; border:1px solid var(--line); border-bottom-width:2px; border-radius:3px; padding:0 4px; background:var(--panel); }
   #canvas { position:relative; margin:12px; display:inline-block; box-shadow:0 1px 4px rgba(0,0,0,.25); user-select:none; }
   #canvas.drawable { cursor:crosshair; }
   #canvas img { display:block; -webkit-user-drag:none; pointer-events:none; }
@@ -58,13 +66,26 @@
   .rlist { margin-top:4px; border-top:1px solid var(--line); padding-top:8px; max-height:38vh; overflow:auto; }
   .rlist div { padding:2px 4px; cursor:pointer; border-left:3px solid transparent; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .rlist div.accept { border-left-color:var(--accept); } .rlist div.flag { border-left-color:var(--flag); } .rlist div.sel { background:var(--tabon); }
-  .badge.checked { background:#e6f4ea; color:#137333; border:1px solid #a8dab5; }
+  .badge.checked { background:#e8f0fe; color:#1a4fa0; border:1px solid #c6d8f7; }
+  .badge.validated { background:#137333; color:#fff; border:1px solid #137333; }
   .badge.stalecheck { background:#fef7e0; color:#7a5b00; border:1px solid #f1e2a8; }
   .tier { display:inline-block; min-width:1.1em; text-align:center; font-size:11px; font-weight:600; border-radius:3px; padding:0 3px; margin-right:4px; }
   .tier.contested { background:#fce8e6; color:#a50e0e; } .tier.unknown { background:#eee; color:#555; }
   .tier.single { background:#fef7e0; color:#7a5b00; } .tier.settled { background:#e6f4ea; color:#137333; }
   .agent { margin:8px 0; padding:6px 8px; border:1px solid #1a73e8; border-radius:4px; font-size:13px; }
-  .fix { margin:8px 0; font-size:12px; } .fix label { margin-right:8px; } .fix input, .fix select { font:inherit; }
+  details.meta { font-size:12px; } details.meta summary { cursor:pointer; color:var(--muted); } details.meta dl { margin:4px 0; }
+  .fcard { border:1px solid var(--line); border-radius:4px; padding:8px 10px; }
+  .fcard h4 { display:flex; gap:6px; align-items:center; cursor:copy; }
+  .fgrid { display:grid; grid-template-columns:104px 1fr; gap:4px 8px; align-items:center; margin:6px 0; }
+  .fgrid > label, .fgrid > .lbl { color:var(--muted); } .fgrid > span { word-break:break-word; }
+  .fcard input, .fcard select { font:inherit; width:100%; padding:2px 5px; border:1px solid var(--line); border-radius:3px; background:var(--bg); color:var(--fg); }
+  .fcard input.dirty, .fcard select.dirty { border-color:var(--sug); background:color-mix(in srgb, var(--sug) 8%, var(--bg)); }
+  .frow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .sect { margin:10px 0 0; }
+  .listorder { display:flex; gap:14px; align-items:center; margin-top:6px; }
+  .otable { display:flex; flex-direction:column; gap:3px; } .orow { display:grid; grid-template-columns:38% 1fr; gap:4px; }
+  .fid { font:11px ui-monospace, Menlo, monospace; color:var(--muted); }
+  .fcard h4 .fid { font-size:12px; color:var(--fg); background:var(--panel); border:1px solid var(--line); border-radius:3px; padding:0 4px; }
   .why { margin:8px 0; font-size:13px; } .why div { padding:2px 0 2px 8px; border-left:3px solid; margin:2px 0; }
   .why .usefix { padding:0 6px; font-size:11px; margin-left:4px; }
   .why .error { border-color:#a50e0e; } .why .suggestion { border-color:#b06000; color:var(--muted); }
@@ -80,6 +101,7 @@
   .gi.orphan { border-style:dashed; background:transparent; }
   .gi.sel { box-shadow:0 0 0 2px var(--sel); z-index:4; }
   .gi.locked { cursor:not-allowed; } .gi.dragging { opacity:.35; }
+  .gi.picked { outline:2.5px solid var(--sel); outline-offset:2px; z-index:5; }
   .over { outline:3px solid var(--sel) !important; background:var(--over) !important; }
   .gcard { border:1px solid var(--line); border-left:4px solid var(--c, var(--orphan)); border-radius:4px; padding:6px 8px; background:var(--card); }
   .gcard.sel { box-shadow:0 0 0 2px var(--sel); } .gcard.ok { border-left-color:var(--ok); }
@@ -140,17 +162,21 @@
 <body>
 <header>
   <select id="pick"></select>
-  <label class="help">list <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option></select></label>
+  <label class="help">list <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most errors first</option></select></label>
   <span class="tabs" id="tabs">
     <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button>
   </span>
-  <span class="pages" id="pages"></span>
   <span class="help">zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
+  <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
 </header>
 <div id="modebar"></div>
+<div id="helpmenu" hidden></div>
 <main>
-  <div id="stage"><div id="canvas"><img id="img" alt=""></div></div>
+  <div id="left">
+    <div class="pages" id="pages"></div>
+    <div id="stage"><div id="canvas"><img id="img" alt=""></div></div>
+  </div>
   <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
 </main>
 <div id="toast"></div>
@@ -186,6 +212,8 @@ async function init() {
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
   $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
   $('#reboot').onclick = reboot;
+  $('#helpBtn').onclick = e => { e.stopPropagation(); toggleHelp(); };
+  document.addEventListener('click', e => { if (!$('#helpmenu').hidden && !$('#helpmenu').contains(e.target)) toggleHelp(false); });
   window.addEventListener('keydown', onKey);
   window.addEventListener('resize', () => bid && placeAll());
   window.addEventListener('focus', checkFresh);
@@ -213,18 +241,15 @@ async function reboot() {
 function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mode) + (bid ? '/' + encodeURIComponent(bid) : '')); }
 function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); }
 
-function ageText(a) {
-  if (!a) return '';
-  const v = a.validated ? `validated ${a.validated} on ${a.finder || '?'}${a.finder_current === false ? ' (old finder)' : ''}` : 'no build stamp';
-  return `${a.by} ${a.when || '?'} · ${v}`;
-}
 function pickerText(b) {
   const bits = [`${b.fields} fields`];
   const done = b.accepted + b.flagged;
-  if (b.checked) bits.push(b.checked.stale ? 'checked, file changed since' : `checked${b.checked.flagged ? `, ${b.checked.flagged} flagged` : ''}`);
+  if (b.checked && b.checked.validated) bits.unshift('VALIDATED');
+  else if (b.checked) bits.push(b.checked.stale ? 'checked, file changed since'
+    : `checked${b.checked.flagged ? `, ${b.checked.flagged} flagged` : ''}${b.checked.pending ? `, ${b.checked.pending} correction${b.checked.pending === 1 ? '' : 's'} to apply` : ''}`);
   else if (done) bits.push(`${done} reviewed`);
   if (b.stale) bits.push('verdicts stale');
-  if (b.groups && b.groups.units) bits.push(b.groups.confirmed === b.groups.units ? 'groups confirmed' : `groups ${b.groups.confirmed}/${b.groups.units}`);
+  // (the groups confirmed count was dropped 2026-10-07: Groups is for fixing, not validation)
   if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
   if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
@@ -233,7 +258,7 @@ function pickerText(b) {
     else if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
     if (b.run) bits.push(b.run.stable ? 'stable' : `NOT stable: ${b.run.stop}`);
   }
-  return `${b.form}  (${bits.join(', ')})  ·  ${ageText(b.age)}`;
+  return `${b.form}  (${bits.join(', ')})`;     // who made it and when: Blueprint details (2026-10-07)
 }
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || bid;
@@ -241,13 +266,19 @@ function renderPicker() {
   const groups = {t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
                   rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies',
                   rl: 'relabels', fl: 'flat forms'};
-  const oldest = $('#listorder').value === 'oldest';
+  const how = $('#listorder').value;
+  // most errors first (Andrew, 2026-10-07): the page check's errors, then its suggestions, within each section; a
+  // blueprint with no page check sorts last
+  const errs = x => x.check_errors ?? (x.page_check_flags ?? -1), sugs = x => x.check_suggestions ?? 0;
+  const order = how === 'oldest' ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
+              : how === 'errors' ? (a, b) => (errs(b) - errs(a)) || (sugs(b) - sugs(a)) || a.form.localeCompare(b.form)
+              : (a, b) => a.form.localeCompare(b.form);
   const groupOf = x => x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
   for (const src of Object.keys(groups)) {
     const items = LIST.filter(x => groupOf(x) === src); if (!items.length) continue;
-    items.sort(oldest ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
-                      : (a, b) => a.form.localeCompare(b.form));
-    const og = document.createElement('optgroup'); og.label = groups[src];
+    items.sort(order);
+    const nv = items.filter(x => x.checked && x.checked.validated).length;
+    const og = document.createElement('optgroup'); og.label = `${groups[src]} (${nv} of ${items.length} validated)`;
     for (const b of items) { const o = document.createElement('option'); o.value = b.id; o.textContent = pickerText(b); og.appendChild(o); }
     pick.appendChild(og);
   }
@@ -286,6 +317,7 @@ async function loadMode() {
 async function setMode(m) {
   if (!MODE[m] || m === mode) return;
   mode = m; store('br_mode', m); renderTabs(); setHash();
+  if (!$('#helpmenu').hidden) toggleHelp(true);
   document.querySelectorAll('#canvas > div').forEach(e => e.remove());
   if (bid) await loadMode(); else renderModebar();
 }
@@ -328,10 +360,27 @@ function bindCanvas() {
   window.addEventListener('mouseup', e => { if (bid && M().mouseup) M().mouseup(e); });
 }
 
+// the help menu (2026-10-07): every key hint lives here, not in the bars and buttons; the current mode first
+const GLOBAL_KEYS = [['Shift+1 / 2 / 3', 'Review / Groups / Add / remove'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['?', 'this help']];
+const MODE_NAME = {review: 'Review', groups: 'Groups', add: 'Add / remove'};
+function helpHtml() {
+  const keys = rows => `<table>${rows.map(([k, d]) => `<tr><td>${k.split(' / ').map(x => `<kbd>${esc(x)}</kbd>`).join(' / ')}</td><td>${esc(d)}</td></tr>`).join('')}</table>`;
+  const h = M().help || {keys: [], tips: []};
+  return `<h4>${esc(MODE_NAME[mode])}</h4>${keys(h.keys)}${h.tips.length ? `<ul class="help">${h.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}
+    <h4>Everywhere</h4>${keys(GLOBAL_KEYS)}`;
+}
+function toggleHelp(on) {
+  const el = $('#helpmenu'); on = on ?? el.hidden;
+  if (on) el.innerHTML = helpHtml();
+  el.hidden = !on;
+}
+
 function onKey(e) {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
   const t = e.target;
   if (t && ['TEXTAREA', 'INPUT', 'SELECT'].includes(t.tagName) && t.type !== 'checkbox' && t.type !== 'radio') return;
+  if (e.key === '?') { toggleHelp(); e.preventDefault(); return; }
+  if (e.key === 'Escape' && !$('#helpmenu').hidden) { toggleHelp(false); e.preventDefault(); return; }
   if (e.shiftKey && /^Digit[123]$/.test(e.code)) { setMode(['review', 'groups', 'add'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
   if (!bid) return;
   if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);
@@ -358,7 +407,7 @@ MODE.review = (() => {
     const f = BP.fields.find(x => x.name === selected); if (!f || isRemoved(f.name)) return;
     removed.push({name: f.name, page: f.page, rect: f.rects[0].rect, when: localNow(), from: 'review'});
     await putRemovals();
-    if (!verdictOf(f.name)) await putV({[f.name]: {verdict: 'flag', note: 'removed'}});
+    if (!verdictOf(f.name)) await putV({[f.name]: {verdict: 'accept', note: 'removed'}});   // removing it is the fix
     next();
   }
   async function keepField() {
@@ -366,7 +415,7 @@ MODE.review = (() => {
     removed = removed.filter(r => r.name !== f.name);
     await putRemovals();
     const v = BP.verdicts[f.name];
-    if (v && v.verdict === 'flag' && v.note === 'removed') await putV({[f.name]: null});
+    if (v && v.note === 'removed') await putV({[f.name]: null});
     placeAll(); panel();
   }
   function ordered() {
@@ -397,8 +446,10 @@ MODE.review = (() => {
   }
   async function setVerdict(verdict) {
     if (!selected) return;
+    // accept with unsaved changes in the field card saves them first, as the correction (Andrew, 2026-10-07)
+    if (verdict === 'accept' && $('#vFix') && !$('#vFix').disabled) return saveFix();
     const note = $('#note') ? $('#note').value : (BP.verdicts[selected] || {}).note || '';
-    const edit = verdict === 'flag' ? (BP.verdicts[selected] || {}).edit : undefined;   // flag keeps a correction
+    const edit = verdict ? (BP.verdicts[selected] || {}).edit : undefined;   // accept and flag keep a correction
     await putV({[selected]: verdict ? {verdict, note, edit} : null});
     if (verdict) next(); else { placeAll(); panel(); }
   }
@@ -423,7 +474,7 @@ MODE.review = (() => {
   }
   async function applyCorrections() {
     const pending = Object.entries(BP.verdicts).filter(([, v]) => v.edit && !v.applied);
-    const lines = pending.map(([n, v]) => `${n}${v.edit.name ? ' → ' + v.edit.name : ''}${v.edit.type ? ' : ' + v.edit.type : ''}${v.edit.semantic_type ? ' / semantic ' + v.edit.semantic_type : ''}${v.edit.pattern ? ' / pattern ' + v.edit.pattern : ''}`);
+    const lines = pending.map(([n, v]) => `${n}${v.edit.name ? ' → ' + v.edit.name : ''}${v.edit.type ? ' : ' + v.edit.type : ''}${v.edit.semantic_type ? ' / semantic ' + v.edit.semantic_type : ''}${v.edit.pattern ? ' / pattern ' + v.edit.pattern : ''}${v.edit.options ? ' / options ' + Object.entries(v.edit.options).map(([k, d]) => k + (d.key ? ' → ' + d.key : '') + ('caption' in d ? ' "' + d.caption + '"' : '')).join(', ') : ''}`);
     if (!confirm(`Write ${pending.length} correction(s) into ${BP.path}?\n\n${lines.join('\n')}`)) return;
     let out;
     try { out = await send('POST', mapi('review', '/apply')); }
@@ -432,18 +483,61 @@ MODE.review = (() => {
     await loadMode();
     toast(`Applied ${pending.length} correction(s) to the blueprint.`);
   }
-  // a correction (2026-10-07): the field name and type set directly; saved as a flag with a structured edit, written
-  // into the blueprint by the apply button (or `hand_review --apply <id>`)
+  // a correction (2026-10-07): the field's name, type, semantic type and pattern are edited in place in the field
+  // card; saved as a flag with a structured edit, written into the blueprint by the apply button (or
+  // `hand_review --apply <id>`). An emptied semantic type or pattern box clears it ("none" to the server).
+  const FIX_BOXES = [['#eName', 'name'], ['#eType', 'type'], ['#eSem', 'semantic_type'], ['#ePat', 'pattern']];
+  const orig = f => ({name: f.name, type: f.type || '', semantic_type: f.semantic_type || '', pattern: f.pattern || ''});
+  function shown(f, v) {                                    // what the boxes show: the saved correction over the blueprint
+    const e = (v && v.edit) || {}, o = orig(f), un = x => x === 'none' ? '' : x;
+    const eo = e.options || {};
+    return {name: e.name || o.name, type: e.type || o.type,
+            semantic_type: e.semantic_type ? un(e.semantic_type) : o.semantic_type, pattern: e.pattern ? un(e.pattern) : o.pattern,
+            options: Object.fromEntries(f.options.map(x => { const d = eo[x.on_state] || {};
+              return [x.on_state, {key: d.key || x.on_state, caption: 'caption' in d ? d.caption : (x.caption || '')}]; }))};
+  }
+  // an option group's keys (what extraction returns) and captions, edited in the field card (2026-10-07)
+  const optRows = () => [...document.querySelectorAll('.orow')];
+  const boxes = () => ({...Object.fromEntries(FIX_BOXES.map(([s, k]) => [k, $(s).value.trim()])),
+    options: Object.fromEntries(optRows().map(r => [r.dataset.k, {key: r.querySelector('.okey').value.trim(), caption: r.querySelector('.ocap').value.trim()}]))});
+  function markDirty() {
+    const f = BP.fields.find(x => x.name === selected); if (!f || !$('#eName')) return;
+    const was = shown(f, BP.verdicts[f.name]), now = boxes();
+    let any = false;
+    for (const [s, k] of FIX_BOXES) { const d = now[k] !== was[k]; $(s).classList.toggle('dirty', d); any = any || d; }
+    for (const r of optRows()) for (const k of ['key', 'caption']) {
+      const d = now.options[r.dataset.k][k] !== was.options[r.dataset.k][k];
+      r.querySelector(k === 'key' ? '.okey' : '.ocap').classList.toggle('dirty', d); any = any || d;
+    }
+    $('#vFix').disabled = !any; $('#vUndo').disabled = !any;
+  }
+  function resetBoxes() {
+    const f = BP.fields.find(x => x.name === selected); if (!f || !$('#eName')) return;
+    const was = shown(f, BP.verdicts[f.name]); for (const [s, k] of FIX_BOXES) $(s).value = was[k];
+    for (const r of optRows()) { r.querySelector('.okey').value = was.options[r.dataset.k].key; r.querySelector('.ocap').value = was.options[r.dataset.k].caption; }
+    markDirty();
+  }
   async function saveFix() {
     if (!selected || !$('#eName')) return;
-    const f = BP.fields.find(x => x.name === selected);
-    const edit = {name: $('#eName').value.trim(), type: $('#eType').value,
-                  semantic_type: $('#eSem').value.trim(), pattern: $('#ePat').value.trim()};
-    if (edit.name === f.name && edit.type === (f.type || '') && !edit.semantic_type && !edit.pattern) {
-      alert('nothing changed: edit the name, type, semantic type or pattern first ("none" clears the last two)'); return; }
-    const note = $('#note') ? $('#note').value : '';
-    await putV({[selected]: {verdict: 'flag', note, edit}});
-    next();
+    const f = BP.fields.find(x => x.name === selected), v = BP.verdicts[f.name] || {}, o = orig(f), now = boxes();
+    const cleared = k => now[k] === o[k] ? '' : (now[k] || 'none');
+    const edit = {name: now.name, type: now.type, semantic_type: cleared('semantic_type'), pattern: cleared('pattern')};
+    const opts = {};
+    for (const x of f.options) {
+      const b = now.options[x.on_state]; if (!b) continue;
+      const d = {}; if (b.key && b.key !== x.on_state) d.key = b.key; if (b.caption !== (x.caption || '')) d.caption = b.caption;
+      if (Object.keys(d).length) opts[x.on_state] = d;
+    }
+    if (Object.keys(opts).length) edit.options = opts;
+    const note = $('#note') ? $('#note').value : (v.note || '');
+    const same = now.name === o.name && now.type === o.type && !edit.semantic_type && !edit.pattern && !edit.options;
+    if (same && !v.edit) { toast('Nothing changed.'); return; }
+    // the verdicts (Andrew, 2026-10-07): accept = the field is good to go, a saved correction included (apply writes
+    // it); flag = "I can't or don't want to fix this myself", the note says what is wrong and "review edits" sends it on
+    try { await putV({[selected]: same ? {verdict: v.verdict || 'accept', note} : {verdict: 'accept', note, edit}}); }
+    catch (e) { alert('Could not save the correction: ' + e.message); return; }
+    if (same) { toast('Correction withdrawn: the field is back to what the blueprint has.'); placeAll(); panel(); }
+    else next();
   }
   async function bulkAccept() {
     const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
@@ -467,10 +561,27 @@ MODE.review = (() => {
     return `<div class="help">${rows.join('<br>')}</div>`;
   }
   const tierChip = f => f.tier ? `<span class="tier ${f.tier}" title="${f.tier}">${TIER_LETTER[f.tier]}</span>` : '';
+  // the field reference (Andrew, 2026-10-07): <blueprint file stem>_<page>_<n>, e.g. ca_courts_dv_130_1_10; clicking
+  // "Selected field" copies it
+  const fieldRef = f => `${BP.path.split('/').pop().replace(/\.bpt$/, '')}_${f.id}`;
+  async function copyRef(f) {
+    if (!f.id) return;
+    const ref = fieldRef(f);
+    try { await navigator.clipboard.writeText(ref); }
+    catch (e) { const t = document.createElement('textarea'); t.value = ref; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+    toast(`Copied ${ref}`);
+  }
+  // a field named in a reason (`name`) shows its id and selects that field when clicked
+  function fieldRefs(text) {
+    return esc(text).replace(/`([a-z0-9_]+)`/g, (m, n) => {
+      const g = BP.fields.find(x => x.name === n);
+      return g ? `<a href="#" class="fref" data-n="${esc(n)}"><span class="fid">${esc(g.id || '')}</span> <code>${esc(n)}</code></a>` : `<code>${esc(n)}</code>`;
+    });
+  }
   function whyHtml(f) {
     // one plain sentence per reason (witness.explain): errors first, then suggestions (2026-10-07)
     if (!f.why || !f.why.length) return '';
-    return `<div class="why">${f.why.map((w, i) => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${esc(w.text)}${w.fix ? ` <button class="btn usefix" data-i="${i}" title="put this into the correction boxes below">use</button>` : ''}</div>`).join('')}</div>`;
+    return `<div class="sect"><h4>Why it is questioned</h4><div class="why">${f.why.map((w, i) => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${fieldRefs(w.text)}${w.fix ? ` <button class="btn usefix" data-i="${i}" title="put this into the field above; save to keep it">use</button>` : ''}${/^Option captions/.test(w.text) && f.options.length && !w.fix ? ` <button class="btn usefix" data-caps="1" title="ask the agent for the captions printed at each box (one call, a few seconds); they fill the option boxes, and you save">fix captions</button>` : ''}</div>`).join('')}</div></div>`;
   }
   // the post-review agent's proposal for a flag with a note (flag_agent.py): shown with a "use" button that fills the
   // correction boxes, or marks a removal; nothing is written until the person saves and applies (2026-10-07)
@@ -478,88 +589,144 @@ MODE.review = (() => {
     const a = v && v.agent; if (!a) return '';
     const parts = [a.name && `name → <code>${esc(a.name)}</code>`, a.type && `type → ${esc(a.type)}`,
       a.semantic_type && `semantic type → ${esc(a.semantic_type)}`, a.pattern && `pattern → <code>${esc(a.pattern)}</code>`,
-      a.description && `description → "${esc(a.description)}"`].filter(Boolean).join(', ');
+      a.description && `description → "${esc(a.description)}"`,
+      a.options && Object.keys(a.options).length && `options → ${Object.entries(a.options).map(([k, d]) => `${esc(k)}${d.key ? ' → ' + esc(d.key) : ''}${'caption' in d ? ` "${esc(d.caption)}"` : ''}`).join(', ')}`].filter(Boolean).join(', ');
     const what = {edit: parts || 'no change', remove: 'remove: not a field',
       regroup: 'part of an option group (do it in the Groups tab)', none: 'no change it can make'}[a.action] || esc(a.action);
-    const usable = (a.action === 'edit' && (a.name || a.type || a.semantic_type || a.pattern)) || a.action === 'remove';
-    return `<div class="agent"><b>Agent proposes:</b> ${what}${usable ? ' <button class="btn" id="useAgent">use</button>' : ''}
+    const usable = (a.action === 'edit' && (a.name || a.type || a.semantic_type || a.pattern || (a.options && Object.keys(a.options).length))) || a.action === 'remove';
+    return `<div class="agent"><b>Agent proposes:</b> ${what}${usable ? ' <button class="btn" id="useAgent" title="put this into the field above; save to keep it">use</button>' : ''}
       <div class="help">${esc(a.reason || '')} · for your note "${esc(a.for_note || '')}"</div></div>`;
+  }
+  function fillOptions(opts) {
+    let n = 0;
+    for (const [k, d] of Object.entries(opts || {})) {
+      const r = document.querySelector(`.orow[data-k="${CSS.escape(k)}"]`); if (!r) continue;
+      if (d.key) r.querySelector('.okey').value = d.key;
+      if ('caption' in d) r.querySelector('.ocap').value = d.caption;
+      n++;
+    }
+    markDirty(); return n;
+  }
+  // "fix captions" (Andrew, 2026-10-07: the loop notices wrong option captions but does not fix them): one agent call
+  // for this field, the page check's reason included; its captions fill the option boxes, nothing is saved
+  async function fixCaptions(f, btn) {
+    btn.disabled = true; btn.textContent = 'asking…';
+    try {
+      const out = await send('POST', mapi('review', '/agent_field'), {name: f.name, note: 'Fix the option keys and captions so each box has the caption printed beside it.'});
+      if (selected !== f.name) return;
+      const n = fillOptions(out.options);
+      toast(n ? `${n} option(s) filled; check them and save. ${out.reason || ''}` : `No caption changes proposed. ${out.reason || ''}`);
+    } catch (e) { alert('The agent failed: ' + e.message); }
+    btn.disabled = false; btn.textContent = 'fix captions';
   }
   function bindAgent(v) {
     const b = $('#useAgent'); if (!b) return;
     b.onclick = () => {
-      const a = v.agent;
+      const a = v.agent, un = x => x === 'none' ? '' : x;
       if (a.action === 'remove') { removeField(); return; }
       if (a.name) $('#eName').value = a.name;
       if (a.type) $('#eType').value = a.type;
-      if (a.semantic_type) $('#eSem').value = a.semantic_type;
-      if (a.pattern) $('#ePat').value = a.pattern;
-      $('#vFix').focus();
+      if (a.semantic_type) $('#eSem').value = un(a.semantic_type);
+      if (a.pattern) $('#ePat').value = un(a.pattern);
+      fillOptions(a.options);
+      markDirty(); $('#vFix').focus();
     };
   }
-  // "use" on a reason with a suggested fix fills the correction boxes; the person still saves (2026-10-07)
+  // "use" on a reason with a suggested fix fills the field's boxes; the person still saves (2026-10-07)
   function bindFixes(f) {
-    document.querySelectorAll('.usefix').forEach(b => b.onclick = () => {
+    document.querySelectorAll('.usefix[data-caps]').forEach(b => b.onclick = () => fixCaptions(f, b));
+    document.querySelectorAll('.usefix:not([data-caps])').forEach(b => b.onclick = () => {
       const fix = (f.why[+b.dataset.i] || {}).fix || {};
       if (fix.name && $('#eName')) $('#eName').value = fix.name;
       if (fix.type && $('#eType')) $('#eType').value = fix.type;
-      ($('#eName') || {}).focus && $('#eName').focus();
+      if (fix.pattern && $('#ePat')) $('#ePat').value = fix.pattern;
+      if (fix.options) fillOptions(fix.options);
+      markDirty(); ($('#eName') || {}).focus && $('#eName').focus();
     });
   }
-  function witnessHtml(f) {
-    if (!f.witnesses || !Object.keys(f.witnesses).length) return '';
-    const rows = Object.entries(f.witnesses).map(([k, [v, d]]) => {
+  // the field's metadata, folded away: the full widget path and what each check said
+  function detailsHtml(f) {
+    const rows = Object.entries(f.witnesses || {}).map(([k, [v, d]]) => {
       const cls = v === true ? 'yes' : (v === false ? 'no' : 'mute'), mark = v === true ? 'for' : (v === false ? 'against' : 'silent');
       return `<div class="${cls}"><b>${esc(k)}</b> ${mark}${d ? ': ' + esc(d) : ''}</div>`;
     }).join('');
-    return `<details class="raw"><summary>${tierChip(f)}<b>${f.tier}</b> · check details</summary><div class="wit">${rows}</div></details>`;
+    return `<details class="raw"><summary>Field details</summary><dl>
+        <dt>Widget path</dt><dd><code>${esc(f.path || '')}</code></dd>
+        ${f.tier ? `<dt>Check tier</dt><dd>${tierChip(f)}${esc(f.tier)}</dd>` : ''}</dl>
+        ${rows ? `<h4>What each check said</h4><div class="wit">${rows}</div>` : ''}</details>`;
   }
-  const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}p${f.page} · ${esc(f.name)}${(BP.verdicts[f.name] || {}).edit ? ` <b>→ ${esc(BP.verdicts[f.name].edit.name || f.name)}${BP.verdicts[f.name].edit.type ? ' : ' + esc(BP.verdicts[f.name].edit.type) : ''}</b>` : ''}</div>`).join('')}</div>`;
-  function bindList() { document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n)); }
+  const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}<span class="fid">${esc(f.id || 'p' + f.page)}</span> · ${esc(f.name)}${(BP.verdicts[f.name] || {}).edit ? ` <b>→ ${esc(BP.verdicts[f.name].edit.name || f.name)}${BP.verdicts[f.name].edit.type ? ' : ' + esc(BP.verdicts[f.name].edit.type) : ''}${BP.verdicts[f.name].edit.semantic_type ? ' / ' + esc(BP.verdicts[f.name].edit.semantic_type) : ''}</b>` : ''}</div>`).join('')}</div>`;
+  // the list's order, just above the list (Andrew, 2026-10-07; it was in the bar)
+  const orderHtml = () => `<div class="listorder"><label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only</label>
+    <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option></select></label></div>`;
+  function bindList() {
+    document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n));
+    const o = $('#order'); if (o) o.onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
+    const u = $('#unrev'); if (u) u.onchange = e => { unrevOnly = e.target.checked; renderList(); };
+  }
   function renderList() { const old = document.querySelector('.rlist'); if (!old) return; old.outerHTML = listHtml(); bindList(); }
   function panel() {
     const a = $('#panel'), f = BP.fields.find(x => x.name === selected);
-    const head = `<div class="help">${esc(BP.path)}${BP.stale ? ' <span class="stale">· verdicts predate this file</span>' : ''}${BP.build ? ` · built with ${esc(BP.build.finder)}` : ''}</div>${madeHtml(BP.made)}`;
-    if (!f) { a.innerHTML = `<div class="rpanel">${head}<p class="help">Click a box on the page, or press n.</p>${listHtml()}</div>`; bindList(); return; }
-    const v = BP.verdicts[f.name] || {};
-    const opts = f.options.length ? `<dt>options</dt><dd>${f.options.map(o => `${esc(o.on_state)}: ${o.caption ? esc(o.caption) : '<i>no caption</i>'}`).join('<br>')}</dd>` : '';
-    const loop = f.loop ? `<div class="loop"><b>loop changed</b> ${esc((f.loop.changed || []).join(', '))}${f.loop.old_name ? ` (was <code>${esc(f.loop.old_name)}</code>)` : ''}<br>${esc(f.loop.reason || '')}</div>` : '';
-    const adj = f.adjudication ? `<div class="adj"><b>adjudicator</b> ${esc(f.adjudication.verdict)} for <code>${esc(f.adjudication.proposed)}</code>: ${esc(f.adjudication.reason || '')}</div>` : '';
+    // the blueprint's own metadata, folded away (2026-10-07); a stale record stays visible
+    const head = `${BP.stale ? '<div class="stale">The verdicts predate this blueprint file.</div>' : ''}
+      <details class="meta"><summary>Blueprint details</summary><dl>
+        <dt>File</dt><dd>${esc(BP.path)}</dd>
+        <dt>Blank PDF</dt><dd>${BP.blank ? `<span title="${esc(BP.blank)}">${esc(BP.blank.split('/').pop())}</span>` : '<i>not found</i>'}</dd>
+        ${BP.build ? `<dt>Built with</dt><dd>${esc(BP.build.finder)}</dd>` : ''}</dl>${madeHtml(BP.made)}</details>`;
+    if (!f) { a.innerHTML = `<div class="rpanel">${head}<p class="help">Click a box on the page, or a field in the list below.</p>${orderHtml()}${listHtml()}</div>`; bindList(); return; }
+    const v = BP.verdicts[f.name] || {}, s = shown(f, v);
+    // an option group answers one of / any of its boxes: only category or multi_category (Andrew, 2026-10-07); a group
+    // typed otherwise shows its type greyed out until one of the two is picked
+    const types = f.options.length > 1 ? ['category', 'multi_category'] : ['string', 'number', 'integer', 'date', 'boolean', 'category', 'multi_category'];
+    const typeOpts = (types.includes(s.type) ? '' : `<option value="${esc(s.type)}" disabled selected>${esc(s.type)} (not allowed for a group)</option>`)
+      + types.map(t => `<option ${s.type === t ? 'selected' : ''}>${t}</option>`).join('');
+    const opts = f.options.length ? `<span class="lbl">Options<br><span class="help">key · caption</span></span><span class="otable">${f.options.map(o =>
+      `<span class="orow" data-k="${esc(o.on_state)}"><input class="okey" value="${esc(s.options[o.on_state].key)}" spellcheck="false" title="the value extraction returns for this box">
+       <input class="ocap" value="${esc(s.options[o.on_state].caption)}" placeholder="no caption" title="the text printed at this box; empty clears it"></span>`).join('')}</span>` : '';
+    const loop = f.loop ? `<div class="loop"><b>Loop changed</b> ${esc((f.loop.changed || []).join(', '))}${f.loop.old_name ? ` (was <code>${esc(f.loop.old_name)}</code>)` : ''}<br>${esc(f.loop.reason || '')}</div>` : '';
+    const adj = f.adjudication ? `<div class="adj"><b>Adjudicator</b> ${esc(f.adjudication.verdict)} for <code>${esc(f.adjudication.proposed)}</code>: ${esc(f.adjudication.reason || '')}</div>` : '';
+    const saved = v.edit ? `<span class="help">Correction saved${v.applied ? ' and applied' : ', not applied yet (apply button in the bar)'}; the blueprint has
+        <code>${esc(f.name)}</code> : ${esc(f.type || '')}${f.semantic_type ? ' / ' + esc(f.semantic_type) : ''}${f.pattern ? ` / <code>${esc(f.pattern)}</code>` : ''}${v.edit.options ? `; ${Object.keys(v.edit.options).length} option(s) changed` : ''}</span>` : '';
     a.innerHTML = `<div class="rpanel">${head}
-      <h2>${esc(f.name)}</h2>
-      <dl>
-        <dt>type</dt><dd>${esc(f.type || '')}${f.semantic_type ? ' / ' + esc(f.semantic_type) : ''}</dd>
-        ${f.pattern ? `<dt>pattern</dt><dd><code>${esc(f.pattern)}</code></dd>` : ''}
-        ${f.values ? `<dt>values</dt><dd>${esc(f.values.join(', '))}</dd>` : ''}
-        <dt>description</dt><dd>${f.description ? esc(f.description) : '<i>none</i>'}</dd>
-        <dt>path</dt><dd><code>${esc((f.path || '').split('.').slice(-1)[0])}</code></dd>
-        ${opts}
-      </dl>
-      ${whyHtml(f)}${witnessHtml(f)}${loop}${adj}
-      ${isRemoved(f.name) ? `<div class="rbanner">to be removed from the blueprint (<code>field_add --apply</code>) <button class="btn" id="vKeep">keep it (d)</button></div>` : ''}
-      <div class="verdict">
-        <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" id="vAccept">accept (a)</button>
-        <button class="btn flag ${v.verdict === 'flag' ? 'on' : ''}" id="vFlag">flag (f)</button>
-        <button class="btn" id="vClear">clear (c)</button>
-        ${isRemoved(f.name) ? '' : '<button class="btn warn" id="vRemove" title="remove this field from the blueprint">remove field (d)</button>'}
+      <div class="fcard sect">
+        <h4 id="fref" title="click to copy the field reference (file_page_n)">Selected field ${f.id ? `<code class="fid">${esc(fieldRef(f))}</code>` : ''}${tierChip(f)}<span class="help">page ${f.page}${f.tier ? ' · ' + esc(f.tier) : ''}</span></h4>
+        <div class="fgrid">
+          <label for="eName">Field name</label><input id="eName" value="${esc(s.name)}" spellcheck="false">
+          <label for="eType">Type</label><select id="eType">${typeOpts}</select>
+          <label for="eSem">Semantic type</label><input id="eSem" list="semList" placeholder="none" value="${esc(s.semantic_type)}" spellcheck="false">
+          <label for="ePat">Pattern</label><input id="ePat" placeholder="none" value="${esc(s.pattern)}" spellcheck="false">
+          ${f.values ? `<span class="lbl">Values</span><span>${esc(f.values.join(', '))}</span>` : ''}
+          <span class="lbl">Description</span><span>${f.description ? esc(f.description) : '<i>none</i>'}</span>
+          ${opts}
+        </div>
+        <datalist id="semList">${[...(BP.semantic_types || [])].sort().map(t => `<option>${esc(t)}</option>`).join('')}</datalist>
+        <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction; the field is then accepted, and apply writes it into the blueprint">save correction</button>
+          <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>${saved}</div>
       </div>
-      ${agentHtml(v)}
-      <div class="fix">
-        <label>field name <input id="eName" size="34" value="${esc((v.edit || {}).name || f.name)}"></label>
-        <label>type <select id="eType">${['string', 'number', 'integer', 'date', 'boolean', 'category'].map(t => `<option ${((v.edit || {}).type || f.type) === t ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-        <label>semantic type <input id="eSem" size="16" list="semList" placeholder="${esc(f.semantic_type || 'none')}" value="${esc((v.edit || {}).semantic_type || '')}"></label>
-        <datalist id="semList"><option>none</option>${(BP.semantic_types || []).map(t => `<option>${esc(t)}</option>`).join('')}</datalist>
-        <label>pattern <input id="ePat" size="14" placeholder="${esc(f.pattern || 'none')}" value="${esc((v.edit || {}).pattern || '')}"></label>
-        <button class="btn flag" id="vFix">save correction (e)</button>
-        ${v.edit ? `<div class="help">correction saved${v.edit.name ? ` · name → <code>${esc(v.edit.name)}</code>` : ''}${v.edit.type ? ` · type → ${esc(v.edit.type)}` : ''}${v.edit.semantic_type ? ` · semantic type → ${esc(v.edit.semantic_type)}` : ''}${v.edit.pattern ? ` · pattern → <code>${esc(v.edit.pattern)}</code>` : ''}${v.applied ? ' · applied' : ' · not applied yet (the apply button above)'}</div>` : ''}
-      </div>
-      <textarea id="note" placeholder="anything else that is wrong (saved with the verdict)">${esc(v.note || '')}</textarea>
-      <div class="help">note saves on blur or Enter; Shift+Enter for a newline</div>
-      ${listHtml()}</div>`;
+      ${whyHtml(f)}${agentHtml(v)}${loop}${adj}
+      ${isRemoved(f.name) ? `<div class="rbanner">To be removed from the blueprint (<code>field_add --apply</code>). <button class="btn" id="vKeep">keep it</button></div>` : ''}
+      <div class="sect"><h4>Verdict</h4><div class="verdict" style="margin-top:0">
+        <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" id="vAccept" title="the field is right; go to the next">accept</button>
+        <button class="btn flag ${v.verdict === 'flag' ? 'on' : ''}" id="vFlag" title="I can't or don't want to fix this myself: say what is wrong in the note (review edits sends it to the agent)">flag</button>
+        <button class="btn" id="vClear" title="no verdict">clear</button>
+        ${isRemoved(f.name) ? '' : '<button class="btn warn" id="vRemove" title="remove this field from the blueprint">remove field</button>'}
+      </div></div>
+      <div class="sect"><h4>Note</h4><textarea id="note" placeholder="anything else that is wrong (saved with the verdict)">${esc(v.note || '')}</textarea></div>
+      ${detailsHtml(f)}
+      ${orderHtml()}${listHtml()}</div>`;
     $('#vAccept').onclick = () => setVerdict('accept'); $('#vFlag').onclick = () => setVerdict('flag'); $('#vClear').onclick = () => setVerdict(null);
-    $('#vFix').onclick = saveFix;
+    $('#vFix').onclick = saveFix; $('#vUndo').onclick = resetBoxes;
+    $('#fref').onclick = () => copyRef(f);
     bindFixes(f); bindAgent(v);
-    ['#eName', '#eSem', '#ePat'].forEach(s => $(s).addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveFix(); } e.stopPropagation(); }));
+    document.querySelectorAll('.fref').forEach(r => r.onclick = e => { e.preventDefault(); select(r.dataset.n); });
+    [...FIX_BOXES.map(([sel]) => $(sel)), ...document.querySelectorAll('.okey, .ocap')].forEach(el => {
+      el.addEventListener('input', markDirty); el.addEventListener('change', markDirty);
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); saveFix(); }
+        else if (e.key === 'Escape') { e.preventDefault(); resetBoxes(); el.blur(); }
+        e.stopPropagation();
+      });
+    });
     const rm = $('#vRemove'); if (rm) rm.onclick = removeField;
     const kp = $('#vKeep'); if (kp) kp.onclick = keepField;
     const note = $('#note');
@@ -572,8 +739,9 @@ MODE.review = (() => {
     const n = BP.fields.length, acc = BP.fields.filter(f => verdictOf(f.name) === 'accept').length, flg = BP.fields.filter(f => verdictOf(f.name) === 'flag').length;
     const t = {}; BP.fields.forEach(f => { if (f.tier) t[f.tier] = (t[f.tier] || 0) + 1; });
     const tiers = Object.keys(TIER_RANK).filter(k => t[k]).map(k => `${k} ${t[k]}`).join(' · ');
-    const ck = BP.checked ? (BP.checked.stale ? ' <span class="badge stalecheck">checked, file changed since</span>'
-                                               : ` <span class="badge checked">checked ${esc((BP.checked.when || '').slice(0, 10))}</span>`) : '';
+    const ck = !BP.checked ? '' : BP.checked.validated ? ` <span class="badge validated" title="every field has a verdict, none flagged, every correction applied">validated</span>`
+      : BP.checked.stale ? ' <span class="badge stalecheck">checked, file changed since</span>'
+      : ` <span class="badge checked" title="every field has a verdict${BP.checked.flagged ? '; flags still need work' : ''}${BP.checked.pending ? '; corrections still to apply' : ''}">checked ${esc((BP.checked.when || '').slice(0, 10))}${BP.checked.flagged ? `, ${BP.checked.flagged} flagged` : ''}${BP.checked.pending ? `, ${BP.checked.pending} to apply` : ''}</span>`;
     el.innerHTML = ck + ` <b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}` + (tiers ? ` <span class="help">(${tiers})</span>` : '') + (BP.witness_error ? ` <span class="stale">witnesses failed: ${esc(BP.witness_error)}</span>` : '');
     const left = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name)).length;
     const b = $('#bulk'); if (b) { b.textContent = `accept settled (${left})`; b.disabled = !left; }
@@ -599,13 +767,15 @@ MODE.review = (() => {
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
     pageLabel(p) { const n = BP.fields.filter(f => f.page === p).length; return n ? `p${p} (${n})` : null; },
     bar: () => `<span class="progress" id="progress"></span>
-      <label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only (u)</label>
-      <label class="help">order <select id="order"><option value="risk">risk first</option><option value="reading">reading</option></select></label>
-      <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>
-      <span class="help">a accept · f flag · c clear · d remove / keep · n/p next/prev · 1-9 page · Shift+1-3 mode</span>`,
+      <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>`,
+    help: {keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
+                  ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'previous field'],
+                  ['u', 'unreviewed only on / off']],
+           tips: ['Edit the field\'s name, type, semantic type, pattern or option captions in place: Enter, "save correction" or accept saves the changes; Esc undoes them. Empty a semantic type or pattern box to clear it.',
+                  'Saving a correction accepts the field; the apply button in the bar writes saved corrections into the blueprint.',
+                  'Flag a field you cannot or do not want to fix yourself, with a note saying what is wrong: "review edits" sends flags with notes to the agent.',
+                  'The note saves when you leave the box or press Enter; Shift+Enter for a new line.']},
     bindBar() {
-      $('#unrev').onchange = e => { unrevOnly = e.target.checked; renderList(); };
-      $('#order').value = order; $('#order').onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
       $('#bulk').onclick = bulkAccept; if (BP) progress();
     },
     place() {
@@ -613,7 +783,7 @@ MODE.review = (() => {
         f.rects.forEach((r, i) => {
           if (r.page !== page) return;
           const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : ''), r.rect,
-                        f.options.length && f.options[i] ? `${f.name} · ${f.options[i].caption || f.options[i].on_state}` : f.name);
+                        `${f.id ? f.id + ' · ' : ''}${f.name}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}`);
           d.onclick = () => select(f.name, false);
         });
       }
@@ -691,6 +861,48 @@ MODE.groups = (() => {
     return uniqueName(base, null);
   }
   function note(msg) { notes = [msg]; panel(); }
+  // select several boxes, then group them in one step (Andrew, 2026-10-07: instead of dragging each box): Shift- or
+  // Cmd-click toggles a box, dragging across an area selects the option boxes in it (Shift+drag adds); "group selected"
+  // or g makes them one group. They leave the units they were in; a unit emptied that way hands its name and place
+  // to the new group. Option boxes only (text combining stays drag-and-drop).
+  let areaStart = null, areaBox = null, areaAdd = false;
+  const picked = new Set();
+  const gpt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
+  function pickChanged() {
+    placeAll();
+    const b = $('#gGroup'); if (b) { b.textContent = `group selected (${picked.size})`; b.disabled = picked.size < 2; }
+  }
+  function togglePick(id) {
+    if (isTextItem(id)) return note('Only option boxes can be selected for grouping.');
+    if (picked.has(id)) picked.delete(id); else picked.add(id);
+    pickChanged();
+  }
+  function selectArea(r, add) {
+    if (!add) picked.clear();
+    for (const it of Object.values(BP.items)) {
+      const cx = (it.rect[0] + it.rect[2]) / 2, cy = (it.rect[1] + it.rect[3]) / 2;
+      if (it.page === page && it.kind !== 'text' && cx >= r[0] && cx <= r[2] && cy >= r[1] && cy <= r[3]) picked.add(it.id);
+    }
+    pickChanged();
+    toast(`${picked.size} box${picked.size === 1 ? '' : 'es'} selected${picked.size > 1 ? ': g groups them, Esc clears' : ''}`);
+  }
+  function groupPicked() {
+    const ids = [...picked].filter(id => BP.items[id]);
+    if (ids.length < 2) return note('Select two or more boxes first (Shift-click, or drag across an area).');
+    if (ids.some(id => (unitOf(id) || {}).locked)) return note('A selected box belongs to a locked group.');
+    const same = unitOf(ids[0]);
+    if (same && same.items.length === ids.length && ids.every(id => unitOf(id) === same)) { picked.clear(); selected = same.uid; pickChanged(); return panel(); }
+    snapshot();
+    const from = new Map();                                // source unit -> boxes taken from it
+    for (const id of ids) { const u = unitOf(id); if (u) from.set(u, (from.get(u) || 0) + 1); }
+    for (const id of ids) if (unitOf(id)) detach(id);
+    const heir = [...from.keys()].filter(u => !units.includes(u) && isGroup(u)).sort((a, b) => from.get(b) - from.get(a))[0];
+    const g = {uid: nextUid++, name: heir ? heir.name : suggestName(ids), type: heir && heir.type !== 'boolean' ? heir.type : 'category',
+               items: ids, origin: heir ? heir.origin : null, confirmed: false};
+    units.push(g); selected = g.uid; picked.clear();
+    afterEdit(); pickChanged();
+    toast(`${ids.length} boxes grouped: ${g.name} (z undoes)`);
+  }
 
   function snapshot() { undoStack.push(JSON.stringify(units)); if (undoStack.length > 200) undoStack.shift(); const u = $('#gUndo'); if (u) u.disabled = false; }
   function undo() {
@@ -871,7 +1083,7 @@ MODE.groups = (() => {
       return `<li>${esc(it.field)} <span class="help">${esc(it.type || '')}${it.semantic_type ? '/' + esc(it.semantic_type) : ''}${it.path ? ' · ' + esc(it.path.split('.').pop()) : ''}</span></li>`; }).join('');
     return `<div class="gcur">
       <h2>Combined text field of ${u.items.length} <span class="badge new">new</span></h2>
-      <input type="text" id="uname" value="${esc(u.name)}">
+      <input type="text" id="uname" value="${esc(u.name)}"> <button class="btn" id="gLabel" title="one call to the labeler with the words on this page">ask the labeler</button>${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}
       ${bad ? `<div class="warn">${bad}</div>` : ''}
       <textarea id="udesc" placeholder="description (left empty: the members' descriptions)">${esc(u.description || '')}</textarea>
       <ol>${items}</ol>
@@ -892,11 +1104,11 @@ MODE.groups = (() => {
             : `<div class="help">A loose box: a ${esc(item(u.items[0]).widget_type)} field of its own${item(u.items[0]).appearances ? `, drawn in ${item(u.items[0]).appearances} places` : ''}. Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</div>`;
     return `<div class="gcur">
       <h2>${group ? `Group of ${u.items.length}` : 'Loose box'} ${badge(u)}</h2>
-      <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${was}
+      <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${u.locked ? '' : ' <button class="btn" id="gLabel" title="one call to the labeler with the words on this page">ask the labeler</button>'}${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}${was}
       ${bad ? `<div class="warn">${bad}</div>` : ''}
       ${what}${group ? `<ol>${items}</ol>` : ''}
       <div class="row">
-        <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right (a)' : 'stands alone (a)')}</button>
+        <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right' : 'stands alone')}</button>
         ${b && status(u) !== 'as blueprint' ? '<button class="btn" id="gRevert" title="put this unit back as the blueprint has it">back to blueprint</button>' : ''}
       </div></div>`;
   }
@@ -932,6 +1144,7 @@ MODE.groups = (() => {
       const d = $('#udesc');
       if (d) { d.addEventListener('keydown', e => e.stopPropagation()); d.addEventListener('blur', () => setDesc(u.uid, d.value.trim())); }
       document.querySelectorAll('input[name=ty]').forEach(r => r.addEventListener('change', () => setType(u.uid, r.value)));
+      const lb = $('#gLabel'); if (lb) lb.onclick = () => askLabeler(u, lb);
       const c = $('#gConfirm'); if (c) c.onclick = () => confirmUnit(u.uid);
       const rv = $('#gRevert'); if (rv) rv.onclick = () => revert(u);
       const sp = $('#gSplit'); if (sp) sp.onclick = () => separate(u);
@@ -1002,10 +1215,14 @@ MODE.groups = (() => {
   }
   function placeItem(it, u, c, sel) {
     const d = document.createElement('div'); d.dataset.item = it.id;
-    d.className = 'gi' + (it.kind === 'text' ? ' text' : '') + (u ? '' : ' loose') + (u && !isGroup(u) ? ' orphan' : '') + (sel ? ' sel' : '') + (u && u.locked ? ' locked' : '');
+    d.className = 'gi' + (it.kind === 'text' ? ' text' : '') + (u ? '' : ' loose') + (u && !isGroup(u) ? ' orphan' : '') + (sel ? ' sel' : '') + (u && u.locked ? ' locked' : '') + (picked.has(it.id) ? ' picked' : '');
     d.style.setProperty('--c', c); box(d, it.rect, 0);
     d.title = u ? `${u.name}${isGroup(u) ? ' · ' + label(it.id) : ''}${u.locked ? ' (locked: ' + u.locked + ')' : ''}` : `${it.field} (text field)`;
-    d.onclick = e => { e.stopPropagation(); if (u) select(u.uid, false); else note(`${it.field}: a text field; drag it onto another text field to combine them`); };
+    d.onclick = e => {
+      e.stopPropagation();
+      if (e.shiftKey || e.metaKey || e.ctrlKey) return togglePick(it.id);
+      if (u) select(u.uid, false); else note(`${it.field}: a text field; drag it onto another text field to combine them`);
+    };
     if (!(u && u.locked)) {
       d.draggable = true;
       d.addEventListener('dragstart', e => { dragData(e, 'item', it.id); d.classList.add('dragging'); });
@@ -1030,14 +1247,18 @@ MODE.groups = (() => {
     },
     onPage() { const u = optUnits().find(x => onPage(x) && (!unconfOnly || !x.confirmed)) || optUnits().find(x => onPage(x)); if (u) selected = u.uid; placeAll(); },
     bar: () => `<span class="progress" id="progress"></span>
-      <label class="help"><input type="checkbox" id="gUnconf" ${unconfOnly ? 'checked' : ''}> unconfirmed only (u)</label>
-      <label class="help"><input type="checkbox" id="gText" ${showText ? 'checked' : ''}> text fields (t)</label>
-      <button class="btn" id="gUndo" ${undoStack.length ? '' : 'disabled'}>undo (z)</button>
-      <span class="help">a confirm · n/p next/prev · drag a box onto a group, onto another loose box, or onto the tray · teal text boxes combine the same way · Shift+1-3 mode</span>`,
+      <label class="help"><input type="checkbox" id="gUnconf" ${unconfOnly ? 'checked' : ''}> unconfirmed only</label>
+      <label class="help"><input type="checkbox" id="gText" ${showText ? 'checked' : ''}> text fields</label>
+      <button class="btn" id="gUndo" ${undoStack.length ? '' : 'disabled'}>undo</button>
+      <button class="btn" id="gGroup" ${picked.size > 1 ? '' : 'disabled'} title="make the selected boxes one group (g)">group selected (${picked.size})</button>`,
+    help: {keys: [['g', 'group the selected boxes'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
+                  ['u', 'unconfirmed only on / off'], ['t', 'text fields on / off']],
+           tips: ['Select boxes with Shift-click (or Cmd-click), or drag across an area of the page (Shift+drag adds an area); g or "group selected" makes them one group; Esc clears the selection.',
+                  'Drag a box onto a group, onto another loose box, or onto the tray.', 'Teal text boxes combine the same way.']},
     bindBar() {
       $('#gUnconf').onchange = e => { unconfOnly = e.target.checked; panel(); };
       $('#gText').onchange = e => { showText = e.target.checked; store('gr_text', showText ? '1' : '0'); renderPages(); placeAll(); panel(); };
-      $('#gUndo').onclick = undo; if (BP) progress();
+      $('#gUndo').onclick = undo; $('#gGroup').onclick = groupPicked; if (BP) progress();
     },
     place() {
       for (const u of optUnits().filter(x => onPage(x))) placeUnit(u);
@@ -1046,7 +1267,26 @@ MODE.groups = (() => {
       for (const it of looseText()) placeItem(it, null, 'var(--txt)', false);
     },
     panel, progress,
+    mousedown(e) {
+      if (e.button !== 0 || !(e.shiftKey || e.target === $('#canvas'))) return;
+      e.preventDefault(); areaStart = gpt(e); areaAdd = e.shiftKey;
+    },
+    mousemove(e) {
+      if (!areaStart) return; const q = gpt(e);
+      const r = [Math.min(areaStart[0], q[0]), Math.min(areaStart[1], q[1]), Math.max(areaStart[0], q[0]), Math.max(areaStart[1], q[1])];
+      if (!areaBox && (r[2] - r[0]) * scale < 4 && (r[3] - r[1]) * scale < 4) return;
+      if (!areaBox) areaBox = put('ov draw', r);
+      else { areaBox.style.left = r[0] * scale + 'px'; areaBox.style.top = r[1] * scale + 'px'; areaBox.style.width = (r[2] - r[0]) * scale + 'px'; areaBox.style.height = (r[3] - r[1]) * scale + 'px'; }
+      areaBox._r = r;
+    },
+    mouseup() {
+      if (!areaStart) return;
+      const b = areaBox; areaStart = null; areaBox = null;
+      if (b) { b.remove(); selectArea(b._r, areaAdd); }
+    },
     key(e) {
+      if (e.key === 'g') { groupPicked(); return true; }
+      if (e.key === 'Escape' && picked.size) { picked.clear(); pickChanged(); return true; }
       if (e.key === 'a' && selected) confirmUnit(selected, true);
       else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
       else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
@@ -1090,11 +1330,11 @@ MODE.add = (() => {
   }
   function pickedHtml() {
     const f = (BP.field_specs || {})[picked] || {}, gone = isRemoved(picked);
-    return `<div class="acard"><h3>${esc(picked)} <span class="help">· a field of the blueprint</span></h3>
+    return `<div class="acard"><h3>${f.x_petey_id ? `<code class="fid">${esc(f.x_petey_id)}</code> ` : ''}${esc(picked)} <span class="help">· a field of the blueprint</span></h3>
       <div class="help">${esc(f.type || '')}${f.semantic_type ? '/' + esc(f.semantic_type) : ''}${f.description ? ' · ' + esc(f.description) : ''}</div>
       ${gone ? `<div class="rbanner">to be removed from the blueprint</div>` : ''}
-      <div class="arow">${gone ? '<button class="btn" id="aKeep">keep it (d)</button>' : '<button class="btn warn" id="aRemove">remove this field (d)</button>'}
-        <button class="btn" id="cancel">close (Esc)</button></div></div>`;
+      <div class="arow">${gone ? '<button class="btn" id="aKeep">keep it</button>' : '<button class="btn warn" id="aRemove">remove this field</button>'}
+        <button class="btn" id="cancel">close</button></div></div>`;
   }
   function toggleRemove() {
     if (!picked) return;
@@ -1136,13 +1376,13 @@ MODE.add = (() => {
     const head = `<div class="help">${esc(BP.path)}${BP.stale ? ' <span class="stale">· recorded against an earlier version of this file</span>' : ''}</div>
       <div class="help">${BP.has_widgets ? 'form layer: yes' : 'no form layer (flat)'} · finder: ${BP.finder}${BP.finder !== 'cached' ? ' <button class="btn" id="runFinder" title="step2flat on this blank, local CPU, cached afterwards">run it</button>' : ''} · classifier map: ${BP.classifier}</div>
       <div><b>${left.length}</b> suggestion${left.length === 1 ? '' : 's'} left <span class="help">(${left.filter(s => s.source === 'widget').length} widgets, ${left.filter(s => s.source === 'finder').length} finder boxes${BP.suggestions.some(s => s.copy) && !copies ? '; repeated copies hidden' : ''})</span>
-        <button class="btn" id="nextSug">next (n)</button></div>`;
+        <button class="btn" id="nextSug">next suggestion</button></div>`;
     const cards = props.length ? props.map(cardHtml).join('') + `<div class="arow">
-        ${props.length > 1 ? '<button class="btn primary" id="addAll">add all (Enter)</button>' : '<span class="help">Enter adds it</span>'}
-        ${curSid ? '<button class="btn warn" id="notField" title="record this suggestion as not a field">not a field (x)</button>' : ''}
-        <button class="btn" id="cancel">cancel (Esc)</button></div>`
+        ${props.length > 1 ? '<button class="btn primary" id="addAll">add all</button>' : ''}
+        ${curSid ? '<button class="btn warn" id="notField" title="record this suggestion as not a field">not a field</button>' : ''}
+        <button class="btn" id="cancel">cancel</button></div>`
       : picked ? pickedHtml()
-      : '<p class="help">Drag a box over an area of the page, click a box, or press n for the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click one to remove it). Green: fields you have added; red dashed: fields to remove.</p>';
+      : '<p class="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click one to remove it). Green: fields you have added; red dashed: fields to remove.</p>';
     const nts = notes.length ? `<div class="notes">${notes.map(n => `<div>${esc(n)}</div>`).join('')}</div>` : '';
     const list = `<div><h4>To add (${added.length})</h4><div class="alist">${added.map((x, i) =>
         `<div data-goto="${i}"><span>p${x.page} · ${esc(x.name)} <span class="help">${esc(x.kind === 'group' ? 'group' : x.type)}</span></span><span class="x" data-del="${i}" title="remove">×</span></div>`).join('') || '<p class="help">nothing yet</p>'}</div></div>
@@ -1264,10 +1504,12 @@ MODE.add = (() => {
     startPage: () => (remaining()[0] || {}).page || 1,
     pageLabel(p) { const n = remaining().filter(s => s.page === p).length; return `p${p}${n ? ` (${n})` : ''}`; },
     bar: () => `<span class="progress" id="progress"></span>
-      <label class="help"><input type="checkbox" id="aFields" ${showFields ? 'checked' : ''}> fields (f)</label>
-      <label class="help"><input type="checkbox" id="aSug" ${showSug ? 'checked' : ''}> suggestions (s)</label>
-      <label class="help"><input type="checkbox" id="aCopies" ${copies ? 'checked' : ''}> repeated copies</label>
-      <span class="help">drag over an area, or click a box · n/p suggestion · Enter add · x not a field · click a field, d remove · Esc cancel · Shift+1-3 mode</span>`,
+      <label class="help"><input type="checkbox" id="aFields" ${showFields ? 'checked' : ''}> fields</label>
+      <label class="help"><input type="checkbox" id="aSug" ${showSug ? 'checked' : ''}> suggestions</label>
+      <label class="help"><input type="checkbox" id="aCopies" ${copies ? 'checked' : ''}> repeated copies</label>`,
+    help: {keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['Enter', 'add what is proposed'], ['x', 'not a field'],
+                  ['d', 'remove the clicked field / keep it'], ['Esc', 'cancel'], ['f', 'fields on / off'], ['s', 'suggestions on / off']],
+           tips: ['Drag over an area of the page, or click a box, to propose a field.', 'Click a purple field (one the blueprint has) to remove it.']},
     bindBar() {
       $('#aFields').onchange = e => { showFields = e.target.checked; placeAll(); };
       $('#aSug').onchange = e => { showSug = e.target.checked; placeAll(); };

@@ -122,7 +122,7 @@ def field_rows(bp: dict) -> list[dict]:
             continue
         rv = spec.get("x_petey_review") or {}
         rows.append({
-            "name": name, "page": rects[0]["page"], "rects": rects, "options": options,
+            "name": name, "id": spec.get("x_petey_id"), "page": rects[0]["page"], "rects": rects, "options": options,
             "type": spec.get("type"), "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern"),
             "values": spec.get("values"), "description": spec.get("description"),
             "path": (spec.get("widget") or {}).get("path") or next(iter(spec.get("widgets", {}).values()), {}).get("path"),
@@ -148,9 +148,13 @@ def checked(v: dict, p: Path, bp: dict) -> Optional[dict]:
     if not names or not all(vs.get(n, {}).get("verdict") for n in names):
         return None
     c = v.get("checked") or {"when": v.get("updated"), "blueprint_sha": v.get("blueprint_sha")}
-    return {"when": c.get("when"), "fields": len(names),
-            "flagged": sum(1 for n in names if vs[n]["verdict"] == "flag"),
-            "stale": c.get("blueprint_sha") != _sha(p)}
+    flagged = sum(1 for n in names if vs[n]["verdict"] == "flag")
+    pending = sum(1 for x in vs.values() if x.get("edit") and not x.get("applied"))
+    stale = c.get("blueprint_sha") != _sha(p)
+    # validated (Andrew, 2026-10-07): every field has a verdict, nothing is flagged (a flag = needs work), every
+    # saved correction is applied, and the file is the one that was checked
+    return {"when": c.get("when"), "fields": len(names), "flagged": flagged, "pending": pending, "stale": stale,
+            "validated": not stale and not flagged and not pending}
 
 
 def _git(*args: str, cwd: Path = BLUEPRINTS.parent) -> str:
@@ -332,7 +336,7 @@ class State:
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
                 "verdicts": v.get("verdicts") or {}, "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
                 "agent_running": _flag_agent().running(bid), "agent_todo": len(_flag_agent().todo(v)),
-                "semantic_types": [t.name for t in __import__("petey.semantic_types", fromlist=["REGISTRY"]).REGISTRY],
+                "semantic_types": __import__("petey.semantic_types", fromlist=["registered_names"]).registered_names(),
                 "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(p, bp),
                 "checked": checked(v, p, bp), "dpi": DPI}
 
@@ -385,6 +389,10 @@ class State:
                 edit = clean_edit(name, (bp.get("fields") or {}).get(name) or {}, rec.get("edit"))
                 if edit:
                     vs[name]["edit"] = edit
+                elif prev.get("applied") and rec.get("edit") == prev.get("edit"):
+                    edit = vs[name]["edit"] = prev["edit"]      # an applied correction no longer differs from the file
+                if edit and prev.get("applied") and edit == prev.get("edit"):
+                    vs[name]["applied"] = prev["applied"]       # re-saving a verdict keeps it applied
                 if prev.get("agent") and (prev["agent"].get("for_note") or "") == vs[name]["note"]:
                     vs[name]["agent"] = prev["agent"]           # the post-review agent's proposal survives re-saves
         sha = _sha(p)
@@ -405,8 +413,10 @@ class State:
         return out
 
 
-EDIT_TYPES = ("string", "number", "integer", "date", "boolean", "category")
+EDIT_TYPES = ("string", "number", "integer", "date", "boolean", "category", "multi_category")
+_CHOICE = ("category", "multi_category")      # one of / any of: need `values`
 _SLUG = re.compile(r"^[a-z0-9][a-z0-9_]*$")
+_OPT_KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.\-]*$")      # an option's key: the value extraction returns
 
 
 def _flag_agent():
@@ -429,13 +439,17 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
     if new_type and new_type != spec.get("type"):
         if new_type not in EDIT_TYPES:
             raise ValueError(f"type {new_type!r}: one of {', '.join(EDIT_TYPES)}")
+        if len(spec.get("widgets") or {}) > 1 and new_type not in _CHOICE:
+            raise ValueError("an option group is category (one of) or multi_category (any of)")
+        if new_type in _CHOICE and not (spec.get("values") or spec.get("widgets")):
+            raise ValueError(f"type {new_type}: the field has no option boxes or values to choose from")
         out["type"] = new_type
     # semantic type and pattern (2026-10-07: Andrew's "type" notes often mean the semantic type, and his ACORD 126
     # notes ask for a Y/N pattern): a value sets it, "none" clears it, absent / empty leaves it
     if "semantic_type" in edit and (edit.get("semantic_type") or "").strip():
         st = edit["semantic_type"].strip()
-        from petey.semantic_types import REGISTRY
-        if st != "none" and st not in {t.name for t in REGISTRY}:
+        from petey.semantic_types import registered_names     # every spec value (REGISTRY lacks money, indicator)
+        if st != "none" and st not in set(registered_names()):
             raise ValueError(f"semantic type {st!r}: not in the registry (or 'none' to clear it)")
         if (st == "none") != (not spec.get("semantic_type")) or (st != "none" and st != spec.get("semantic_type")):
             out["semantic_type"] = st
@@ -448,13 +462,37 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
                 raise ValueError(f"pattern {pt!r}: not a valid regular expression ({e})")
         if (pt == "none") != (not spec.get("pattern")) or (pt != "none" and pt != spec.get("pattern")):
             out["pattern"] = pt
+    # an option group's keys (what extraction returns) and captions (2026-10-07: captions the page reading got wrong
+    # are fixed by hand): {key: {"key": new key, "caption": new caption, "" clears it}}, only what differs
+    ws = spec.get("widgets") if isinstance(spec.get("widgets"), dict) else {}
+    if isinstance(edit.get("options"), dict) and ws:
+        got = {}
+        for k, o in edit["options"].items():
+            if k not in ws or not isinstance(o, dict):
+                continue
+            d = {}
+            nk = (o.get("key") or "").strip()
+            if nk and nk != k:
+                if not _OPT_KEY.match(nk):
+                    raise ValueError(f"option key {nk!r}: letters, digits, _ . - only")
+                d["key"] = nk
+            if "caption" in o and (o.get("caption") or "").strip() != (ws[k].get("caption") or ""):
+                d["caption"] = (o.get("caption") or "").strip()
+            if d:
+                got[k] = d
+        keys = [got.get(k, {}).get("key", k) for k in ws]
+        if len(set(keys)) != len(keys):
+            raise ValueError("two options would have the same key")
+        if got:
+            out["options"] = got
     return out or None
 
 
 def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
     """Write the review record's name / type corrections into the blueprint. A rename keeps the field's position;
     a type change drops what no longer fits (`pattern` unless the field stays a string; `semantic_type` on boolean /
-    category; `values` unless category). Each field records `x_petey_hand_edit` {when, from, to, record}; the review
+    category / multi_category; `values` unless one of those, and an option group turned into one gets its keys as
+    `values` when it has none). Each field records `x_petey_hand_edit` {when, from, to, record}; the review
     record follows the rename; a form_run blueprint gets a `hand_edit` round in its run record."""
     paths = blueprint_paths()
     p = paths.get(bid)
@@ -464,7 +502,7 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
     vs = rec.get("verdicts") or {}
     bp = _load(p)
     fields = bp.get("fields") or {}
-    edits = {n: v["edit"] for n, v in vs.items() if v.get("edit") and n in fields}
+    edits = {n: v["edit"] for n, v in vs.items() if v.get("edit") and not v.get("applied") and n in fields}
     if not edits:
         log(f"{bid}: no corrections to apply")
         return 0
@@ -474,7 +512,8 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
         to = e.get("name", n)
         if to != n and to in fields and to not in edits:
             raise SystemExit(f"{bid}: renaming {n} to {to} would collide with an existing field")
-        log(f"  {n}: " + ", ".join(f"{k} {fields[n].get(k) if k == 'type' else n!r} -> {v!r}" for k, v in e.items()))
+        log(f"  {n}: " + ", ".join(f"{k} {(n if k == 'name' else fields[n].get(k))!r} -> "
+                                   f"{({x: d for x, d in v.items()} if k == 'options' else v)!r}" for k, v in e.items()))
         renames[n] = to
     if dry:
         return len(edits)
@@ -489,19 +528,38 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
                 spec["type"] = e["type"]
                 if e["type"] != "string":
                     spec.pop("pattern", None)
-                if e["type"] in ("boolean", "category"):
+                if e["type"] in ("boolean",) + _CHOICE:
                     spec.pop("semantic_type", None)
-                if e["type"] != "category":
+                if e["type"] not in _CHOICE:
                     spec.pop("values", None)
+                elif not spec.get("values") and spec.get("widgets"):
+                    spec["values"] = list(spec["widgets"])      # an option group: its keys (1_126 lost them)
             for k in ("semantic_type", "pattern"):
                 if k in e:
                     if e[k] == "none":
                         spec.pop(k, None)
                     else:
                         spec[k] = e[k]
+            if e.get("options"):
+                ws, renamed = {}, {}
+                for k, w in (spec.get("widgets") or {}).items():
+                    o, w = e["options"].get(k) or {}, dict(w)
+                    if "caption" in o:
+                        if o["caption"]:
+                            w["caption"], w["x_petey_caption_source"] = o["caption"], "hand"
+                        else:
+                            w.pop("caption", None)
+                            w.pop("x_petey_caption_source", None)
+                    ws[o.get("key", k)] = w
+                    renamed[k] = o.get("key", k)
+                spec["widgets"] = ws
+                if spec.get("values"):
+                    spec["values"] = [renamed.get(x, x) for x in spec["values"]]
+                before["options"] = {k: (fields[n]["widgets"][k].get("caption")) for k in e["options"]}
             spec["x_petey_hand_edit"] = {"when": now, "from": before,
                                          "to": {"name": renames[n], "type": spec.get("type"),
-                                                "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern")},
+                                                "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern"),
+                                                **({"options": e["options"]} if e.get("options") else {})},
                                          "record": f"runs/hand_review/{bid}.json"}
             out[renames[n]] = spec
         else:
@@ -521,7 +579,11 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
         v = vs.pop(n)
         v["applied"] = now
         vs[renames[n]] = v
+    old_sha = rec.get("blueprint_sha")
     rec.update(verdicts=vs, blueprint_sha=_sha(p), updated=now)
+    ck = rec.get("checked")
+    if isinstance(ck, dict) and ck.get("blueprint_sha") == old_sha:
+        ck["blueprint_sha"] = rec["blueprint_sha"]       # applying the corrections does not undo the check
     verdict_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
     log(f"{bid}: {len(edits)} correction(s) applied to {p}")
     return len(edits)

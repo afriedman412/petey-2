@@ -182,7 +182,7 @@ def main() -> int:
             if name not in st or rec.get("note", "").startswith("bulk:"):
                 continue
             checkbox = st[name]["field"].get("kind") in ("checkbox", "radiobutton")
-            jobs.append({"form": bpt.stem, "field": name, "flag": rec["verdict"] == "flag",
+            jobs.append({"form": bpt.stem, "field": name, "flag": rec["verdict"] == "flag" or bool(rec.get("edit")),
                          "note": rec.get("note", ""), "structural": structural(rec.get("note", "")),
                          "state": st[name], "checkbox": checkbox, "tier": tw.get(name, {}).get("tier")})
     if args.limit:

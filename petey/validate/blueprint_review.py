@@ -10,8 +10,9 @@ page and zoom:
     PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review [--port 5005] [--mode review|groups|add]
 
 Each mode's logic, record and command line stay in its own module; this file serves the one page and routes to
-them. The page only records. Blueprints change through each module's `--apply` (`group_review --apply <id>`,
-`field_add --apply <id>`), and `hand_review --summary` lists verdicts. The old entry points
+them. The page records, with one exception: Groups has an apply button, the same as `group_review --apply <id>`,
+so a regrouping shows in Review at once (2026-10-06). Otherwise blueprints change through each module's `--apply`
+(`field_add --apply <id>`), and `hand_review --summary` lists verdicts. The old entry points
 (`python -m petey.validate.hand_review`, `group_review`, `field_add` with no subcommand) open this page in their
 mode.
 """
@@ -20,7 +21,10 @@ from __future__ import annotations
 import argparse
 import http.server
 import json
+import os
 import socketserver
+import sys
+import threading
 import time
 import webbrowser
 from pathlib import Path
@@ -77,6 +81,16 @@ class App:
                         "removed": len(rec.get("removed") or []),
                         "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])}}
 
+    def apply_groups(self, bid: str) -> dict:
+        """Groups' apply button: `group_review --apply` from the page, so Review sees the grouping without a trip
+        to the command line (Andrew, 2026-10-06)."""
+        try:
+            pl = group_review.apply(bid)
+        except SystemExit as e:                 # apply's refusals (stale record, plan errors) are SystemExit
+            raise ValueError(str(e)) from None
+        self.refresh()
+        return {"changes": pl["changes"], "entry": self.entry(bid)}
+
     def listing(self) -> list[dict]:
         if not self.review._index:
             self.index()
@@ -101,6 +115,17 @@ class App:
 
 
 APP: Optional[App] = None
+SERVED: dict = {}                       # the port and mode serve() was started with, for the restart button
+
+
+def restart() -> None:
+    """The page's reboot button: replace this process with a fresh one on the same port, so edited code (this
+    file, the modes' modules, the page) loads without going back to the terminal. The listening socket is not
+    inherited across exec (PEP 446), so the new process binds the port again."""
+    time.sleep(0.3)                     # let the handler's reply reach the page first
+    sys.stdout.flush()
+    os.execv(sys.executable, [sys.executable, "-m", "petey.validate.blueprint_review",
+                              "--port", str(SERVED["port"]), "--mode", SERVED["mode"], "--no-open"])
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
@@ -174,12 +199,18 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):
         parts = self._parts()
+        if parts == ["api", "restart"]:
+            self._json({"restarting": True})
+            threading.Thread(target=restart, daemon=True).start()
+            return
         if len(parts) != 4 or parts[0] != "api":
             return self._send(b"not found", "text/plain", 404)
         mode, bid, what = parts[1], parts[2], parts[3]
         body = self._body()
         if (mode, what) == ("groups", "plan"):
             return self._route(lambda: APP.groups.plan_for(bid, body), bid)
+        if (mode, what) == ("groups", "apply"):
+            return self._route(lambda: APP.apply_groups(bid), bid)
         if (mode, what) == ("add", "propose"):
             return self._route(lambda: field_add.propose(APP.add.ctx(bid), int(body.get("page") or 1), body.get("rect"),
                                                          body.get("sid"), set(body.get("taken") or [])), bid)
@@ -196,6 +227,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("review", "agent"):          # "review edits": the flags with notes go to the agent
             from petey.validate import flag_agent
             return self._route(lambda: {"started": flag_agent.start(bid)}, bid)
+        if (mode, what) == ("review", "agent_field"):    # "fix captions": one field, answered now, not stored
+            from petey.validate import flag_agent
+            return self._route(lambda: flag_agent.propose_field(bid, body["name"], body.get("note") or ""), bid)
         self._send(b"not found", "text/plain", 404)
 
 
@@ -217,6 +251,7 @@ def apply_from_page(mode: str, bid: str) -> dict:
 
 def serve(port: int = 5005, mode: str = "review", open_browser: bool = True) -> int:
     global APP
+    SERVED.update(port=port, mode=mode)
     APP = App()
     print(f"blueprint review: {len(APP.paths)} blueprints")
     t0 = time.time()

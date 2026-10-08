@@ -91,7 +91,7 @@ def main() -> int:
         fixes = (known.get(bid) or {}).get(rec["blueprint_sha"]) or {}
         c = collections.Counter()
         for name, v in verdicts.items():
-            truth = "flag" if (v["verdict"] == "flag" or name in fixes) else "accept"
+            truth = "flag" if (v["verdict"] == "flag" or v.get("edit") or name in fixes) else "accept"   # corrected = wrong
             a = res["fields"].get(name) or {}
             got = a.get("verdict") or "none"
             c[(truth, got)] += 1
