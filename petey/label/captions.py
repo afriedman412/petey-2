@@ -21,6 +21,9 @@ _MAX_REACH = 220.0   # pt to the right we will read at most
 _MAX_WORDS = 6       # a caption is a label, not a sentence
 _HEADER_REACH = 170.0  # six grid rows; not the top of the page
 _END_PUNCT = re.compile(r"[.:;]$")
+# the two fallback guards in `caption_options_from_page` (claimed words, write-ins): off until they measure better
+# than without (2026-10-07: +81 captions that fit their key, +77 that do not; the write-in rule lost 42 real ones)
+GUARDS = False
 
 
 def _words_on(page: pymupdf.Page) -> list[tuple]:
@@ -33,6 +36,11 @@ def _overlap(a0, a1, b0, b1) -> float:
 
 
 def _right_of(words, rect, stop_x) -> Optional[str]:
+    out = _right_words(words, rect, stop_x)
+    return " ".join(w[4] for w in out) if out else None
+
+
+def _right_words(words, rect, stop_x) -> Optional[list]:
     x0, y0, x1, y1 = rect
     limit = min(x1 + _MAX_REACH, stop_x if stop_x is not None else x1 + _MAX_REACH)
     cands = []
@@ -65,7 +73,7 @@ def _right_of(words, rect, stop_x) -> Optional[str]:
         out.append(w)
     if len(out) > _MAX_WORDS:
         return None  # a sentence beside the box (the next question), not its caption
-    return " ".join(w[4] for w in out)
+    return out
 
 
 def _header_above(words, rect, options_rects) -> Optional[str]:
@@ -113,15 +121,20 @@ def _left_of(words, rect, options_rects) -> Optional[str]:
 
 
 def caption_right_of(page: pymupdf.Page, rect, stop_x: Optional[float] = None,
-                     words=None, options_rects=None) -> Optional[str]:
+                     words=None, options_rects=None, claimed=None, writein: bool = False) -> Optional[str]:
     """The printed caption of an option box: the words on its line just
     right of it; else just left of it; else the short column header above
-    it. None when nothing qualifies — never a guess."""
+    it. None when nothing qualifies — never a guess. The two fallbacks skip
+    `claimed` words (another option's caption, read right of its own box),
+    and a `writein` box (a text field follows it) has no fallback at all."""
     words = words if words is not None else _words_on(page)
+    rest = [w for w in words if w not in claimed] if claimed else words
     cap = None
-    for finder in (lambda: _right_of(words, rect, stop_x),
-                   lambda: _left_of(words, rect, options_rects or []),
-                   lambda: _header_above(words, rect, options_rects or [])):
+    finders = [lambda: _right_of(words, rect, stop_x)]
+    if not writein:
+        finders += [lambda: _left_of(rest, rect, options_rects or []),
+                    lambda: _header_above(rest, rect, options_rects or [])]
+    for finder in finders:
         c = finder()
         if c and not _ITEM_LABEL.match(c) and not _JUNK.match(c):
             cap = c
@@ -135,11 +148,42 @@ def caption_right_of(page: pymupdf.Page, rect, stop_x: Optional[float] = None,
     return cap
 
 
+def text_rects(fields: dict) -> dict[int, list]:
+    """{page: [rect]} of a blueprint's text fields, for `caption_options_from_page`."""
+    out: dict[int, list] = {}
+    for s in fields.values():
+        w = s.get("widget") if isinstance(s, dict) else None
+        if w and w.get("widget_type") == "text" and w.get("rect") and w.get("page"):
+            out.setdefault(int(w["page"]), []).append(w["rect"])
+    return out
+
+
+def _same_line(a, b) -> bool:
+    return _overlap(a[1], a[3], b[1], b[3]) >= 0.5 * min(a[3] - a[1], b[3] - b[1])
+
+
+def _stop(rect, rects) -> Optional[float]:
+    """Where reading right of `rect` ends: the nearest box to its right on its line."""
+    xs = [r[0] for r in rects if r[0] > rect[2] + 2 and abs((r[1] + r[3]) / 2 - (rect[1] + rect[3]) / 2) < (rect[3] - rect[1])]
+    return min(xs) if xs else None
+
+
 def caption_options_from_page(doc: pymupdf.Document, widgets: dict[str, dict],
-                              other_rects_by_page: Optional[dict[int, list]] = None) -> int:
+                              other_rects_by_page: Optional[dict[int, list]] = None,
+                              text_rects_by_page: Optional[dict[int, list]] = None) -> int:
     """Fill missing `caption`s of an option map from the page text. Returns
-    how many were filled. Never overwrites a caption already present."""
+    how many were filled. Never overwrites a caption already present.
+
+    Two guards on the left / header fallbacks (Andrew, 2026-10-07, ACORD 140
+    secondary heat: BOILER [ ] SOLID FUEL [ ] [ ]______ lost SOLID FUEL, read
+    again left of the last box, and the duplicate rule then dropped both):
+    words another option box reads right of itself are its caption, not a
+    fallback for this one; and a box with a text field just right of it, no
+    printed words between (`text_rects_by_page`: "Other ______"), is a
+    write-in option and gets no fallback caption."""
     n = 0
+    opts, texts = other_rects_by_page or {}, text_rects_by_page or {}
+    page_words: dict[int, list] = {}
     for st, block in widgets.items():
         if block.get("caption"):
             continue
@@ -147,13 +191,22 @@ def caption_options_from_page(doc: pymupdf.Document, widgets: dict[str, dict],
         if pno < 0 or pno >= len(doc):
             continue
         page = doc[pno]
+        words = page_words.setdefault(pno, _words_on(page))
         rect = block["rect"]
-        stop = None
-        for r in (other_rects_by_page or {}).get(pno + 1, []):
-            if r[0] > rect[2] + 2 and abs((r[1] + r[3]) / 2 - (rect[1] + rect[3]) / 2) < (rect[3] - rect[1]):
-                stop = r[0] if stop is None else min(stop, r[0])
-        cap = caption_right_of(page, rect, stop_x=stop,
-                               options_rects=(other_rects_by_page or {}).get(pno + 1, []))
+        boxes = opts.get(pno + 1, []) + [b["rect"] for b in widgets.values() if int(b.get("page", 1)) == pno + 1]
+        stop = _stop(rect, boxes)                # text fields do not end the reading; they only mark write-ins
+        claimed = set()                     # words a sibling reads right of itself as its caption
+        for k, b in widgets.items():
+            if k == st or int(b.get("page", 1)) != pno + 1:
+                continue
+            got = _right_words(words, b["rect"], _stop(b["rect"], boxes)) or []
+            text = " ".join(w[4] for w in got)
+            if got and (not b.get("caption") or b["caption"].strip().lower() == text.lower()):
+                claimed.update(got)
+        writein = any(-1 <= t[0] - rect[2] <= 2 * _STOP_GAP and _same_line(rect, t)
+                      and _right_of(words, rect, t[0]) is None for t in texts.get(pno + 1, []))
+        cap = caption_right_of(page, rect, stop_x=stop, words=words, options_rects=opts.get(pno + 1, []),
+                               claimed=claimed if GUARDS else None, writein=writein and GUARDS)
         if cap:
             block["caption"] = cap
             block["x_petey_caption_source"] = "page_text"

@@ -43,14 +43,37 @@ def check(name: str, spec: dict, maxlen: Optional[int] = None) -> list[dict]:
     """[{rule, grade, text, fix}] for one field; option groups are skipped (their type is the group's)."""
     if not isinstance(spec, dict) or spec.get("widgets"):
         return []
+    out = _desc_conflict(name, spec)
+    return out + [r for r in _check(name, spec, maxlen) if not out or r["rule"] != "suffix_type"]
+
+
+def _desc_conflict(name: str, spec: dict) -> list[dict]:
+    """The description says the box holds a count / amount / percentage and the field disagrees (2026-10-07,
+    Andrew: the description can be as wrong as the name, so a person decides)."""
+    from petey.validate.retype import desc_kind, desc_type_conflict
+    why = desc_type_conflict(name, spec)
+    if not why:
+        return []
+    kind = desc_kind(spec)[0]
+    d = (spec.get("description") or "")[:70]
+    return [{"rule": "desc_type", "grade": "error", "text": f"The description says this holds {'a ' + kind if kind != 'amount' else 'an amount'} "
+             f"(\"{d}…\") but {why}: the description, the name or the type is wrong."}]
+
+
+def _check(name: str, spec: dict, maxlen: Optional[int] = None) -> list[dict]:
     typ = spec.get("type")
     w = spec.get("widget") or {}
     text = spec.get("description") or ""
     is_text = (w.get("widget_type") or "text") == "text"
-    if is_text and typ != "boolean" and (YN_TEXT.search(text) or (maxlen == 1 and re.search(r"\bY\b.*\bN\b", text))):
-        return [{"rule": "yn_text", "grade": "error", "fix": {"type": "boolean"},
-                 "text": f"Type: the filer types Y or N here (\"{text[:60]}…\"), a yes/no answer, but it is typed {typ}."}]
+    # a Y/N text box is a string with ^[YN]$ (Andrew, 2026-10-07: his ACORD 126 notes, then every ACORD Y/N box)
+    if (is_text and not (typ == "string" and spec.get("pattern") == r"^[YN]$")
+            and (YN_TEXT.search(text) or (maxlen == 1 and re.search(r"\bY\b.*\bN\b", text)))):
+        return [{"rule": "yn_text", "grade": "error", "fix": {"type": "string", "pattern": r"^[YN]$"},
+                 "text": f"Type: the filer types Y or N here (\"{text[:60]}…\"), so a string with pattern ^[YN]$; "
+                         f"it is {typ}{' with pattern ' + spec['pattern'] if spec.get('pattern') else ''}."}]
     for pat, ok, what in SUFFIX:
+        if pat == r"_ind$" and typ == "string" and spec.get("pattern") == r"^[YN]$":
+            continue                                    # a Y/N box: an indicator answered Y or N
         if re.search(pat, name) and typ not in ok:
             return [{"rule": "suffix_type", "grade": "suggestion", "fix": {"type": ok[0]},
                      "text": f"The name ends `{re.search(pat, name).group(0)}` ({what}) but the field is typed {typ}: "

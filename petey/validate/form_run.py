@@ -43,7 +43,7 @@ from typing import Optional
 import yaml
 
 from petey.paths import BLUEPRINTS, RUNS
-from petey.validate import page_check
+from petey.validate import field_ids, page_check
 
 E = RUNS / "judge_eval"
 WORK, OUT, RECORDS = E / "work", E / "blueprints", E / "form_runs"
@@ -60,6 +60,7 @@ def _now() -> str:
 
 def _dump(bp: dict, p: Path) -> None:
     p.parent.mkdir(parents=True, exist_ok=True)
+    field_ids.assign(bp)                    # a field the loop adds gets the next free id on its page
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
 
 

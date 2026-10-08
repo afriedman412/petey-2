@@ -55,6 +55,7 @@ import yaml
 
 from petey.label import call_log
 from petey.bpt_version import stamp_version
+from petey.validate import field_ids
 from petey.label.dedup import DedupState
 from petey.label.page_signature import collapse_copy_pages
 from petey.label.vocab import load_form_vocab
@@ -1000,7 +1001,11 @@ def build_blueprint(
             for _ws in page_captions:
                 for _b in _ws.values():
                     _rects.setdefault(_b["page"], []).append(_b["rect"])
-            n_page_captions = sum(caption_options_from_page(_doc, _ws, _rects) for _ws in page_captions)
+            _texts: dict[int, list] = {}           # write-in boxes: an option followed by one gets no fallback caption
+            for _w in widgets:
+                if _w.get("widget_type") == "text":
+                    _texts.setdefault(_w["page"], []).append(_w["rect"])
+            n_page_captions = sum(caption_options_from_page(_doc, _ws, _rects, _texts) for _ws in page_captions)
         finally:
             _doc.close()
         if n_page_captions:
@@ -1062,10 +1067,11 @@ def build_blueprint(
         # small for one, tooltips and radio captions into descriptions.
         # Imported here: retype imports this module.
         from petey.synth.local import widget_limits
-        from petey.validate.retype import describe_blueprint, retype_blueprint
+        from petey.validate.retype import describe_blueprint, retype_blueprint, type_from_description
         limits = widget_limits(blank_pdf)
         emit_fixes = retype_blueprint(bp, limits)
         emit_fixes.update(describe_blueprint(bp, limits, xfa_tpl))
+        emit_fixes.update(type_from_description(bp))      # needs the descriptions; conflicts are left for review
         if emit_fixes:
             bp["x_petey_emit_fixes"] = dict(emit_fixes)
             print(f"  [emit] loop rules applied at emit: {dict(emit_fixes)}")
@@ -1091,6 +1097,7 @@ def build_blueprint(
         if rules:
             bp["x_petey_rules"] = rules
             print(f"  [xfa] {len(rules)} mutex rules from scripts")
+    field_ids.assign(bp)                    # a fixed id per field, for referring to it (x_petey_id)
     return stamp_version(bp)
 
 

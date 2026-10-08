@@ -122,6 +122,82 @@ def describe_blueprint(bp: dict, limits: dict[str, dict],
     return changes
 
 
+# ----------------------------------------------------------------- type from the description
+# Andrew, 2026-10-07: a description that says what kind of value a box holds ("The number of employees") is a clue
+# for its type that the labeler never used (155 fields typed string under "The number of ..."). It can be as wrong
+# as the name (CRA T2 / HMRC IHT400 descriptions sit on slid names), so it only types a plain string that nothing
+# else contradicts; a field where it disagrees with the name, type, semantic type or pattern is left for a person
+# (`desc_type_conflict`, shown as a reason on the review page).
+_LEAD = r"^\s*(?:enter\s+(?:the\s+)?)?(?:the\s+)?(?:total\s+)?"
+DESC_TYPES = [
+    ("count", re.compile(_LEAD + r"(?:number|count|quantity) of\s+(?!the\b)[a-z]", re.I), "integer", "count"),
+    ("percent", re.compile(_LEAD + r"(?:percentage|percent)\b(?![^.]*\bfraction)", re.I), "number", "percent"),
+    ("amount", re.compile(_LEAD + r"(?:dollar\s+)?(?:amount|cost|price|premium)\b(?!\s+of\s+(?:horsepower|time|days|hours))",
+                          re.I), "number", "money"),
+]
+_TEXT_SUFFIX = re.compile(r"_(txt|text|desc|description|cd|code|id|nm|name|dt|date|ind|addr|address)(_\d+)?$")
+_NUMERIC = ("number", "integer")
+
+
+def desc_kind(spec: dict) -> Optional[tuple[str, str, str]]:
+    """(kind, type, semantic type) the description says the box holds, or None."""
+    d = spec.get("description") or ""
+    for kind, rx, typ, sem in DESC_TYPES:
+        if rx.match(d):
+            return kind, typ, sem
+    return None
+
+
+def desc_type_conflict(name: str, spec: dict) -> Optional[str]:
+    """Why the description's kind of value disagrees with the field as it stands, or None (no clue, or it agrees,
+    or the field is a plain string nothing else types: then `type_from_description` types it)."""
+    if not isinstance(spec, dict) or spec.get("widgets"):
+        return None
+    if (spec.get("widget") or {}).get("widget_type") in ("checkbox", "radiobutton"):
+        return None                     # a box to tick holds no count: its description is about what it ticks
+    k = desc_kind(spec)
+    if k is None:
+        return None
+    kind, typ, sem = k
+    t = spec.get("type") or "string"
+    if t in _NUMERIC and not spec.get("pattern") and (spec.get("semantic_type") in (None, sem, "count", "money", "percent",
+                                                                                  "money_whole_dollar")):
+        return None
+    if t not in _NUMERIC and t != "string":
+        return f"it is typed {t}"
+    if spec.get("semantic_type") and spec["semantic_type"] != sem:
+        return f"its semantic type is {spec['semantic_type']}"
+    if spec.get("pattern"):
+        return f"it has the pattern {spec['pattern']}"
+    named = lookup(name)
+    if named is not None and named.bpt_type not in _NUMERIC:
+        return f"its name reads as {named.name}"
+    m = _TEXT_SUFFIX.search(name)
+    if m:
+        return f"its name ends `_{m.group(1)}`"
+    return None
+
+
+def type_from_description(bp: dict) -> collections.Counter:
+    """Type the plain-string fields whose description says they hold a count / amount / percentage and that nothing
+    else contradicts; returns what changed. Conflicts are not touched (see `desc_type_conflict`)."""
+    changes: collections.Counter = collections.Counter()
+    for name, spec in (bp.get("fields") or {}).items():
+        if not isinstance(spec, dict) or spec.get("widgets") or (spec.get("type") or "string") != "string":
+            continue
+        k = desc_kind(spec)
+        if k is None or spec.get("semantic_type") or spec.get("pattern") or desc_type_conflict(name, spec):
+            continue
+        named = lookup(name)
+        if (named is not None and named.bpt_type not in _NUMERIC) or _TEXT_SUFFIX.search(name):
+            continue
+        kind, typ, sem = k
+        spec["type"], spec["semantic_type"] = typ, sem
+        spec["x_petey_retype"] = list(spec.get("x_petey_retype") or []) + ["type_from_description"]
+        changes[f"type_from_description:{kind}"] += 1
+    return changes
+
+
 def retype_blueprint(bp: dict, limits: dict[str, dict]) -> collections.Counter:
     changes: collections.Counter = collections.Counter()
     for name, spec in (bp.get("fields") or {}).items():

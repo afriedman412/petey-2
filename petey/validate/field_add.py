@@ -53,6 +53,7 @@ from petey.paths import RUNS
 from petey.semantic_types import enrich_field, registered_names
 from petey.synth.boxes import CACHE_DIR as BOX_CACHE, FINDER_VERSION, find_boxes, overlap
 from petey.synth.classify import classify_form
+from petey.validate import field_ids
 from petey.validate.hand_review import _load, _sha, blueprint_paths
 from petey.validate.retype import resolve_blank
 
@@ -703,6 +704,7 @@ def apply(bid: str) -> dict:
         print(f"  skipped {s}")
     if pl["changes"]:
         bp["fields"] = pl["fields"]
+        field_ids.assign(bp)                    # a new field gets the next free id on its page
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True), encoding="utf-8")
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     rec.setdefault("applied", []).append({"when": now, "sha_before": rec.get("blueprint_sha"), "sha_after": _sha(p),
@@ -749,7 +751,7 @@ class State:
                 if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in gone)]
         return {"id": bid, "path": str(c.path), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
                 "pages": c.pages, "fields": c.fields, "suggestions": sugg,
-                "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description") if v.get(x)}
+                "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description", "x_petey_id") if v.get(x)}
                                 for k, v in (c.bp.get("fields") or {}).items() if isinstance(v, dict)},
                 "finder": "cached" if c.boxes is not None else "not run",
                 "classifier": "cached" if c.cmap else "not cached", "has_widgets": bool(c.widgets),

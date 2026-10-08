@@ -7,7 +7,9 @@ orphan tray to take it out of its group.
 
 Text fields can be combined the same way (Andrew, 2026-10-05: text to text only, the result a plain text field):
 drag one text box onto another to start a combined field, onto a combined field to add to it, onto the tray to take
-it back out. Text and option boxes never mix, and a combination stays on one page. A combined field is one `string`
+it back out. Any unit can be named by the labeler from the page ("ask the labeler": the same one call as
+`field_add.labeler_name`; the field then carries `label_source: llm` and `name_from: labeler`). Text and option
+boxes never mix, and a combination stays on one page. A combined field is one `string`
 (no semantic type or pattern) over the union of its members' boxes with `path: null`, since the box covers several
 AcroForm widgets and a field names one: the reader clips the text layer to the box, which reads every part, and the
 filler already splits one value over the text widgets inside a box (ACORD 25's PRODUCER block). It takes the first
@@ -43,6 +45,8 @@ from typing import Optional
 import yaml
 
 from petey.paths import RUNS
+from petey.label.captions import text_rects
+from petey.validate import field_ids
 from petey.validate.hand_review import _load, _sha, blueprint_paths
 from petey.validate.retype import resolve_blank
 
@@ -193,7 +197,8 @@ def _blank_on_states(blank: Optional[Path], items: list[dict]) -> dict[str, str]
     return out
 
 
-def _page_captions(blank: Optional[Path], blocks: dict[str, dict], all_items: dict) -> dict[str, str]:
+def _page_captions(blank: Optional[Path], blocks: dict[str, dict], all_items: dict,
+                   texts: Optional[dict[int, list]] = None) -> dict[str, str]:
     """Printed captions for option blocks that have none, read from the page beside the box."""
     need = {k: copy.deepcopy(b) for k, b in blocks.items() if not b.get("caption")}
     if not need or not blank or not blank.exists():
@@ -205,7 +210,7 @@ def _page_captions(blank: Optional[Path], blocks: dict[str, dict], all_items: di
         others.setdefault(it["page"], []).append(it["rect"])
     doc = pymupdf.open(str(blank))
     try:
-        caption_options_from_page(doc, need, others)
+        caption_options_from_page(doc, need, others, texts)
     finally:
         doc.close()
     return {k: b["caption"] for k, b in need.items() if b.get("caption")}
@@ -294,7 +299,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                 while k in blocks:
                     k, n = f"{key}_{n}", n + 1
                 blocks[k] = block
-            for k, cap in (_page_captions(blank, blocks, items) if page_captions else {}).items():
+            for k, cap in (_page_captions(blank, blocks, items, text_rects(fields)) if page_captions else {}).items():
                 blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_text"
             spec["values"] = list(blocks)
             spec["widgets"] = blocks
@@ -314,8 +319,11 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                     changes.append(f"group {u['name']}: {b['type']} -> {u['type']}")
         if b is not None and b["name"] != u["name"]:
             changes.append(f"{b['name']} renamed {u['name']}")
+        if u.get("name_from") == "labeler":          # the page's "ask the labeler" (field_add.labeler_name)
+            spec["label_source"] = "llm"
         spec["x_petey_grouping"] = {"source": "group_review", "when": now, "from": list(u["items"]),
-                                    **({"renamed_from": b["name"]} if b is not None and b["name"] != u["name"] else {})}
+                                    **({"renamed_from": b["name"]} if b is not None and b["name"] != u["name"] else {}),
+                                    **({"name_from": u["name_from"]} if u.get("name_from") else {})}
         emitted.setdefault(anchor, []).append((u["name"], spec))
 
     removed = option_fields - {u.get("origin") for u in units}     # every box of the field went to other units
@@ -383,8 +391,9 @@ def _combine_text(bp: dict, out: dict, text_units: list[dict], now: str, changes
                           "rect": [round(min(r[0] for r in rects), 3), round(min(r[1] for r in rects), 3),
                                    round(max(r[2] for r in rects), 3), round(max(r[3] for r in rects), 3)],
                           "widget_type": "text", "path": None}
-        spec["label_source"] = "hand"
+        spec["label_source"] = "llm" if u.get("name_from") == "labeler" else "hand"
         spec["x_petey_combined"] = {"source": "group_review", "when": u.get("when") or now,
+                                    **({"name_from": u["name_from"]} if u.get("name_from") else {}),
                                     "from": [{k: texts[m][k] for k in ("field", "path", "rect", "type", "semantic_type")
                                               if texts[m][k] is not None} for m in members]}
         at[members[0]] = (u["name"], spec)
@@ -418,6 +427,7 @@ def apply(bid: str, page_captions: bool = True) -> dict:
         print(f"{bid}: nothing to change")
         return pl
     bp["fields"] = pl["fields"]
+    field_ids.assign(bp)                    # a new field gets the next free id on its page
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True), encoding="utf-8")
     new_sha = _sha(p)
     confirmed = {(u["name"], len(u["items"])) for u in units if u.get("confirmed")}
@@ -515,7 +525,7 @@ class State:
         bp = _load(p)
         items, _ = option_items(bp)
         items = {**items, **text_items(bp)}
-        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when")
+        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when", "name_from")
         units = [{k: u.get(k) for k in keep if u.get(k) is not None} for u in incoming.get("units") or []]
         for u in units:
             u["items"] = [i for i in u.get("items") or [] if i in items]

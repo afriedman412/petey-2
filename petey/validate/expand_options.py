@@ -31,7 +31,7 @@ from petey.label import xfa as xfa_mod
 import pymupdf
 
 from petey.label.auto_label import caption_options, option_group_paths, option_widgets
-from petey.label.captions import caption_options_from_page
+from petey.label.captions import caption_options_from_page, text_rects
 from petey.locate.acroform import enumerate_widgets
 from petey.paths import BLUEPRINTS
 from petey.validate.retype import resolve_blank
@@ -161,7 +161,7 @@ def expand_blueprint(bp: dict, blank: Path) -> collections.Counter:
             for s in (bp.get("fields") or {}).values():
                 for b in list((s.get("widgets") or {}).values()):
                     rects.setdefault(b["page"], []).append(b["rect"])
-            n = sum(caption_options_from_page(doc, ws, rects) for ws in groups)
+            n = sum(caption_options_from_page(doc, ws, rects, text_rects(bp.get("fields") or {})) for ws in groups)
         finally:
             doc.close()
         if n:

@@ -113,7 +113,12 @@ name is a defect even when no other field claims the box. When two flagged \
 fields each hold what the other's name says, the names are swapped: fix both \
 names. Never write a description that contradicts the field's name; if the \
 description you would write describes a different value than the name does, the \
-name is what must change. Never rename \
+name is what must change. The same holds for a type or semantic_type you change \
+or remove because the box holds a different kind of value: test the name against \
+that same reading, and if the name says the box holds something it does not (a \
+`first_nm` on an address line, a `court_county_name` on a court's name and street \
+address), rename it in the same decision; keep the name when it already says what \
+the box holds (`county_nm` on a county name, `asset_name` on an asset's name). Never rename \
 to adjust a suffix, normalize style, or add words that do not change what the name \
 points at: the name is how a reader finds the box, and a working name is worth \
 keeping. When a section repeats (veteran and claimant, several employers, table \
@@ -506,6 +511,9 @@ def apply_decisions(bp: dict, decisions: list[dict], model: str) -> collections.
         touched = []
         for k in ("type", "semantic_type", "pattern", "values", "description"):
             v = d.get(k)
+            if k == "type" and len(spec.get("widgets") or {}) > 1 and v not in (None, "", "category", "multi_category"):
+                changes["group_type_refused"] += 1   # an option group is one of / any of (Andrew, 2026-10-07)
+                continue
             if v not in (None, "", []) and v != spec.get(k):
                 spec[k] = v
                 touched.append(k)
