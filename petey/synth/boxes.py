@@ -116,6 +116,20 @@ def parse_rect_key(key: str) -> tuple[int, list[float]]:
     return int(p[1:]), [float(c) for c in r.split(",")]
 
 
+def widget_key(wb: dict) -> Optional[str]:
+    """The key a blueprint widget's ground truth is stored under: its AcroForm path, or, on a blank with no form
+    layer (`path: null`, a flat form; spec 5.9.1), `rect:` plus its page and rect. Every consumer that joins a
+    case to the blueprint by path (`validate.rect_join`, `validate.score`, `validate.witness`) goes through this,
+    so a path-less field scores and is tracked like any other (2026-10-05). None when the block has neither."""
+    p = wb.get("path")
+    if p:
+        return p
+    rect = wb.get("rect") or wb.get("box")
+    if not rect or wb.get("page") is None:
+        return None
+    return "rect:" + _rect_key(int(wb["page"]), [float(c) for c in rect])
+
+
 def find_boxes(pdf_path: str | Path, cache_dir: Path = CACHE_DIR) -> list[dict]:
     """The page's fillable boxes, in reading order, ids 1..n across the form."""
     pdf_path = Path(pdf_path)

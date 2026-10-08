@@ -77,6 +77,16 @@ def _flatten_pdf(src: Path, dst: Path) -> None:
         doc.close()
 
 
+def _has_widgets(pdf: Path) -> bool:
+    """Does the blank carry a form layer? A flat blank gets the flat labeler and no flattened cases."""
+    import pymupdf
+    doc = pymupdf.open(str(pdf))
+    try:
+        return any(True for page in doc for _ in (page.widgets() or []))
+    finally:
+        doc.close()
+
+
 def _extract_native(bpt: dict, pdf: Path) -> tuple[dict, dict]:
     """Returns `(extracted_values_with_meta, dispatch_per_field)`.
 
@@ -366,7 +376,8 @@ def _run_case(
         unreached = unreached_fields(bpt, gt)
         (case_dir / "case_unreached.json").write_text(json.dumps(sorted(unreached), indent=1))
         print(f"    [{variant}] filled by rect: text={fill_report['text_filled']} marks_on={fill_report['marks_on']} "
-              f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
+              + (f"drawn={fill_report['drawn']} " if fill_report.get("flat") else "")
+              + f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
               f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims, "
               f"{len(unreached)} fields no box reached")
         (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
@@ -402,7 +413,8 @@ def _run_case(
             unreached = unreached_fields(bpt, gt)
             (case_dir / "case_unreached.json").write_text(json.dumps(sorted(unreached), indent=1))
             print(f"    [{variant}] filled by rect: text={fill_report['text_filled']} marks_on={fill_report['marks_on']} "
-                  f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
+                  + (f"drawn={fill_report['drawn']} " if fill_report.get("flat") else "")
+              + f"unmatched={fill_report['n_unmatched']} truncated={len(fill_report['truncated'])}; "
                   f"{len(gt)} blueprint paths, {len(unclaimed)} boxes no field claims, "
               f"{len(unreached)} fields no box reached")
             (case_dir / "ground_truth.json").write_text(json.dumps(gt, indent=2))
@@ -862,8 +874,20 @@ def main() -> int:
     bpt_path = args.bpt or BLUEPRINTS / f"{form_id}.bpt"
     if args.bpt and not bpt_path.exists():
         ap.error(f"--bpt {bpt_path} not found")
+    flat_blank = not _has_widgets(args.blank)
+    if flat_blank and args.n_flat:
+        print(f"[flat  ] {args.blank.name} has no form layer: cases are drawn on the page; no flattened cases")
+        args.n_flat = 0
     if args.bpt:
         print(f"[label ] using blueprint {bpt_path}")
+    elif flat_blank and (args.relabel or not bpt_path.exists()):
+        # no widget layer: the blueprint comes from the page (class map + labeler), see petey.label.flat_label
+        print(f"[label ] running flat_label → {bpt_path}")
+        label_cmd = [sys.executable, "-m", "petey.label.flat_label", "--blank", str(args.blank),
+                     "--output", str(bpt_path), "--form-id", form_id]
+        if args.gen_cache_only:
+            label_cmd.append("--cache-only")
+        subprocess.run(label_cmd, check=True)
     elif args.relabel or not bpt_path.exists():
         print(f"[label ] running auto_label → {bpt_path}")
         label_cmd = [

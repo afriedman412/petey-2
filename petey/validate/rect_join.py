@@ -14,12 +14,16 @@ scoring time. Fields whose rect matches no case box are absent from the
 result (the field is then scored as empty ground truth), and boxes no field
 claims are returned separately: those are the page's fillable boxes the
 blueprint does not know about.
+
+A widget with no path (a flat blueprint, `path: null`) is keyed by its page
+and rect instead (`boxes.widget_key`), so a flat form scores like any other
+(2026-10-05).
 """
 from __future__ import annotations
 
 from typing import Any, Optional
 
-from petey.synth.boxes import match_rect, overlap, parse_rect_key
+from petey.synth.boxes import match_rect, overlap, parse_rect_key, widget_key
 
 
 def _case_rows(case: dict[str, Any]) -> dict[int, list[dict]]:
@@ -44,9 +48,9 @@ def unreached_fields(bpt: dict, gt: dict[str, Any]) -> set[str]:
     out = set()
     for name, spec in (bpt.get("fields") or {}).items():
         if spec.get("widgets"):
-            paths = [wb.get("path") for wb in spec["widgets"].values() if wb.get("path")]
+            paths = [widget_key(wb) for wb in spec["widgets"].values()]
         else:
-            paths = [(spec.get("widget") or {}).get("path")]
+            paths = [widget_key(spec.get("widget") or {})]
         paths = [p for p in paths if p]
         if paths and not any(p in gt for p in paths):
             out.add(name)
@@ -68,9 +72,9 @@ def case_to_paths(bpt: dict, case: dict[str, Any],
         if widgets:
             # an option group: one path per option (distinct paths for
             # labeler clusters, one shared path with on-states for kids)
-            shared = len({wb.get("path") for wb in widgets.values()}) == 1
+            shared = len({widget_key(wb) for wb in widgets.values()}) == 1
             for opt, wb in widgets.items():
-                path = wb.get("path")
+                path = widget_key(wb)
                 rect = wb.get("rect") or wb.get("box")
                 if not path or not rect:
                     continue
@@ -88,7 +92,7 @@ def case_to_paths(bpt: dict, case: dict[str, Any],
                     gt[path] = marked
             continue
         w = spec.get("widget") or {}
-        path, rect = w.get("path"), w.get("rect")
+        path, rect = widget_key(w), w.get("rect")
         if not path or not rect:
             continue
         rows = by_page.get(w.get("page"), [])

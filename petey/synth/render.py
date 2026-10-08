@@ -231,12 +231,31 @@ def _inside(inner, outer, tol: float = 2.0) -> bool:
             and inner[2] <= outer[2] + tol and inner[3] <= outer[3] + tol)
 
 
-def _draw_text(page, rect, value: str) -> None:
-    """Flat blank: put the value on the page inside the rect."""
+_FLAT_FONT = "helv"
+_FLAT_MIN_FS = 5.0
+
+
+def _draw_text(page, rect, value: str) -> str:
+    """Flat blank: put the value on the page inside the rect. Returns what was
+    drawn (the ground truth), which is the value cut to what fits the box's
+    width at the smallest font, as a widget's MaxLen cuts it on an AcroForm
+    blank. `insert_text` at a baseline always draws; `insert_textbox` was
+    used until 2026-10-05 and silently drew nothing when the text missed the
+    box by a fraction of a point (TX RRC EP-3: 27 of 34 values never reached
+    the page while the fill report said they had)."""
     r = pymupdf.Rect(*rect)
-    fs = min(10.0, max(6.0, r.height * 0.7))
-    page.insert_textbox(pymupdf.Rect(r.x0 + 1.5, r.y0, r.x1, r.y1 + 2), str(value),
-                        fontsize=fs, fontname="helv", color=(0, 0, 0))
+    s = str(value)
+    fs = min(10.0, max(_FLAT_MIN_FS, r.height * 0.7))
+    avail = max(r.width - 3.0, 1.0)
+    while fs > _FLAT_MIN_FS and pymupdf.get_text_length(s, fontname=_FLAT_FONT, fontsize=fs) > avail:
+        fs = max(_FLAT_MIN_FS, fs - 0.5)
+    while len(s) > 1 and pymupdf.get_text_length(s, fontname=_FLAT_FONT, fontsize=fs) > avail:
+        s = s[:-1]
+    # baseline so the glyphs (cap height ~0.72 em, descenders ~0.2 em) sit inside the rect
+    baseline = r.y0 + (r.height + fs * 0.72) / 2.0
+    baseline = min(baseline, r.y1 - fs * 0.22)
+    page.insert_text(pymupdf.Point(r.x0 + 1.5, baseline), s, fontsize=fs, fontname=_FLAT_FONT, color=(0, 0, 0))
+    return s
 
 
 def _draw_mark(page, rect) -> None:
@@ -354,9 +373,11 @@ def render_case(
                         report["drawn"] += 1
                     effective[key] = value
                 elif value not in (None, ""):
-                    _draw_text(page, rect, str(value))
+                    drawn = _draw_text(page, rect, str(value))
                     report["drawn"] += 1
-                    effective[key] = str(value)
+                    if drawn != str(value):
+                        report["truncated"].append({"key": key, "wanted": str(value), "wrote": drawn, "maxlen": None})
+                    effective[key] = drawn
                 else:
                     effective[key] = ""
                 targets[key] = [{"page": page_no, "rect": rect, "value": effective[key]}]

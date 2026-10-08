@@ -59,7 +59,9 @@ from typing import Any, Optional
 
 import yaml
 
-REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty"}
+from petey.synth.boxes import widget_key
+
+REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty", "ink"}
 
 
 _FALSY_ANSWER = {"n", "no", "false", "0", "off", "/off"}     # as extract.FALSY_ANSWER
@@ -281,7 +283,7 @@ def _normalize_ground_truth(
         if widgets:
             selected = [
                 v for v, w_block in widgets.items()
-                if _option_selected(gt.get(w_block.get("path")), w_block)
+                if _option_selected(gt.get(widget_key(w_block)), w_block)
             ]
             if len(selected) == 0:
                 return None, None
@@ -290,7 +292,7 @@ def _normalize_ground_truth(
             return None, f"mutex_violation_{len(selected)}_true"
         widget = field.get("widget")
         if widget:
-            raw = gt.get(widget.get("path"))
+            raw = gt.get(widget_key(widget))
             if raw in (None, "", "Off"):
                 return None, None
             if allowed and raw not in allowed:
@@ -302,29 +304,31 @@ def _normalize_ground_truth(
         widgets = field.get("widgets") or {}
         selected = [
             v for v, w_block in widgets.items()
-            if _option_selected(gt.get(w_block.get("path")), w_block)
+            if _option_selected(gt.get(widget_key(w_block)), w_block)
         ]
         return selected, None
 
     widget = field.get("widget")
     if not widget:
         return None, "no_widget_block"
-    raw = gt.get(widget.get("path"))
+    raw = gt.get(widget_key(widget))
     if ftype == "boolean":
         return _coerce_bool(raw, (widget.get("widget_type") or "text")), None
     return raw, None
 
 
 def _bpt_owned_paths(bp: dict) -> set[str]:
-    """Every AcroForm path claimed by some field in the bpt."""
+    """Every ground-truth key (AcroForm path, or rect key on a flat blueprint) claimed by some field in the bpt."""
     paths: set[str] = set()
     for f in bp.get("fields", {}).values():
         w = f.get("widget")
-        if w and w.get("path"):
-            paths.add(w["path"])
+        k = widget_key(w) if w else None
+        if k:
+            paths.add(k)
         for wb in (f.get("widgets") or {}).values():
-            if wb.get("path"):
-                paths.add(wb["path"])
+            k = widget_key(wb)
+            if k:
+                paths.add(k)
     return paths
 
 
