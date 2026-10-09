@@ -474,6 +474,16 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   "Retirement account name": "institution" is rare and unmatched, "amount" common); and a tooltip several fields
   share ("Institution name or individual") cannot tell them apart. Before it returns as an error: a margin, the same
   section only, ignore tooltips shared by several fields, normalise by the tooltip as well as the name.
+  **Built 2026-10-09 (branch `witness-belongs-to`):** all four, plus distance (a rival within an inch) and section =
+  same XFA subform and no heavier-than-usual full-ish rule between the boxes (`witness.section_rules`). Fixture
+  `eval/belongs_to_fixture.py` over every hand-reviewed field (3,738): firings 1,862 -> 118; on fields a person
+  looked at (not bulk-accepted) 285 -> 12 (publisher 93 -> 8, page 183 -> 1, classifier 32 -> 3); the 5500-SF
+  day / month swap still caught. Publisher belongs-to graded an error again. Of the bulk-accepted fields it still
+  fires on, the page agrees with the tooltip on ACORD 125 attachments (a slide by one), I-130 eye colour / race /
+  province-country, f5500sf day / month: library errors the bulk accept hid. Known false alarm: abbreviations the
+  name tokens do not expand (faa8710 `tol` = takeoff / landing). The other 6 hand-flagged name errors are not
+  belongs-to cases (5021: tooltip names a box no field claims; 1014r: no tooltip, the path says it; cms_10883:
+  tooltip "undefined"); reading readable widget paths as publisher text would catch 1014r.
 - **Ruled-line weight as relevance.** Forms mark sections and rows with heavier rules (ACORD 140: 0.96 / 0.72
   section, 0.48 row, 0.24 cell); text across a heavier rule is less likely to be about the box. Uses: the section
   for the item above, and caption candidates. Weights differ by form and within a page, so "heavier than this

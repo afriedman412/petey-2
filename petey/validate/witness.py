@@ -20,11 +20,13 @@ Witnesses, each reading a different source:
                 Silent when its caption for the box is misattributed (`field_chain` verified False): one
                 misreading must not count twice.
 
-"Belongs to another field" is contrastive: another name on the page is explained better by the text than this
-one, and better than by that field's own text. Words count by how rare they are among the form's names, and a
-score is the share of the name the text explains (`Names`). That is the signature of a swap or a widget placed one
-row off (5500-SF's day/month, ACORD 25's phone names on the state and ZIP boxes); a neighbour a tooltip merely
-mentions ('mailing address' in a ZIP tooltip) does not qualify.
+"Belongs to another field" is contrastive: another name is explained better by the text than this one, and
+better than by that field's own text. Words count by how rare they are among the form's names, and a fit is the
+harmonic mean of the share of the name the text explains and the share of the text the name explains (`Names`).
+That is the signature of a swap or a widget placed one row off (5500-SF's day/month, ACORD 25's phone names on the
+state and ZIP boxes), so since 2026-10-09 the other field must be near (within an inch), in the same section (same
+XFA subform, no heavier-than-usual rule between the two), better by a margin, and the text must be one only this
+field carries; a neighbour a tooltip merely mentions ('mailing address' in a ZIP tooltip) does not qualify.
     judge       the by-name reader over the run's cases: found the case's value -> for, a different value or
                 nothing -> against. Counted only on filled values (agreement by absence is not evidence) and only
                 where the chain holds at `value`.
@@ -142,16 +144,26 @@ class Names:
     matches that text better than the other names on its page do, and a word counts by how rare it is among the
     form's names ('plan' on Form 5500 says nothing; 'month' against 'day' says everything)."""
 
-    def __init__(self, fields: dict) -> None:
+    def __init__(self, fields: dict, boundaries: Optional[dict[int, list[float]]] = None) -> None:
         self.toks = {n: _toks(n) for n in fields}
         self.page = {n: (_widgets(s)[0].get("page") if _widgets(s) else None) for n, s in fields.items()}
+        self.rect = {n: _field_rect(s) for n, s in fields.items()}
+        self.parent = {n: _xfa_parent((_widgets(s)[0].get("path") if _widgets(s) else None) or "")
+                       for n, s in fields.items()}
+        self.boundaries = boundaries or {}  # page -> y of the section rules on it (`section_rules`)
         df = collections.Counter(t for ts in self.toks.values() for t in ts)
         n = max(len(self.toks), 1)
         self.idf = {t: math.log((n + 1) / (c + 0.5)) for t, c in df.items()}
+        self._unseen = math.log((n + 1) / 0.5)     # a text word no name uses: as rare as a word can be
         self.own: dict[str, float] = {}     # how well each field's own text (of this witness) explains its name
+        self.own_fit: dict[str, float] = {}
+        self.shared: set[frozenset] = set()  # texts several fields carry: they cannot tell those fields apart
 
     def set_own(self, texts_by_field: dict[str, list[str]]) -> None:
         self.own = {n: max((self.score(n, _toks(t)) for t in ts), default=0.0) for n, ts in texts_by_field.items()}
+        self.own_fit = {n: max((self.fit(n, _toks(t)) for t in ts), default=0.0) for n, ts in texts_by_field.items()}
+        carriers = collections.Counter(frozenset(_toks(t)) for ts in texts_by_field.values() for t in set(ts))
+        self.shared = {tt for tt, c in carriers.items() if c > 1 and tt}
 
     def score(self, name: str, tt: set[str]) -> float:
         """How much of the name the text explains: matched weight over the name's weight. Raw overlap favours
@@ -161,26 +173,120 @@ class Names:
         total = sum(self.idf.get(t, 0.0) for t in mine)
         return sum(self.idf.get(t, 0.0) for t in mine & tt) / total if total > 0 else 0.0
 
+    def fit(self, name: str, tt: set[str]) -> float:
+        """The name's share of the text and the text's share of the name, together (their harmonic mean): with the
+        name's share alone a short name beats a specific one ('Retirement account name': `retirement_account_amt`
+        0.86 over `retirement_account_institution_name` 0.76, 'institution' being rare and unmatched)."""
+        p = self.score(name, tt)
+        total = sum(self.idf.get(t, self._unseen) for t in tt)
+        r = sum(self.idf.get(t, 0.0) for t in self.toks.get(name, set()) & tt) / total if total > 0 else 0.0
+        return 2 * p * r / (p + r) if p + r > 0 else 0.0
+
+    def rivals(self, name: str) -> list[str]:
+        """The fields a swap or a one-row slip could involve: same page, within `_REACH` of the field, and not
+        across a section boundary (a different XFA subform, or a section rule between the two)."""
+        page, r = self.page.get(name), self.rect.get(name)
+        out = []
+        for other in self.toks:
+            if other == name or self.page.get(other) != page:
+                continue
+            o = self.rect.get(other)
+            if r is None or o is None or _gap(r, o) > _REACH:
+                continue
+            if self.parent.get(name) and self.parent.get(other) and self.parent[name] != self.parent[other]:
+                continue
+            if any(min(r[1], o[1]) < y < max(r[3], o[3]) and not (r[1] < y < r[3] or o[1] < y < o[3])
+                   for y in self.boundaries.get(page, [])):
+                continue
+            out.append(other)
+        return out
+
     def judge(self, name: str, texts: list[str]) -> tuple[Optional[bool], str]:
         """True: the text explains the name; False: the text has words and the name shares none of them, or the
-        text belongs to another field on the page more than that field's own text does (a swap, a widget placed
-        one row off: 5500-SF's day box carries 'Enter month of waiver letter'); None: nothing to compare. A
-        neighbour the text merely mentions ('mailing address' in a ZIP tooltip) is not enough: its own text
-        explains it at least as well. The detail names the field the text belongs to."""
+        text belongs to a nearby field more than to this one and more than that field's own text does (a swap, a
+        widget placed one row off: 5500-SF's day box carries 'Enter month of waiver letter'); None: nothing to
+        compare. A neighbour the text merely mentions ('mailing address' in a ZIP tooltip) is not enough: its own
+        text explains it at least as well. Belonging takes a clear margin (`_MARGIN`: ACORD 140 `1_25` lost 0.489
+        to 0.488 on 'coverages' and 'other'), a rival near the box (`rivals`), and a text only this field carries.
+        The detail names the field the text belongs to."""
         tt = set().union(*(_toks(t) for t in texts)) if texts else set()
         if not tt:
             return None, ""
-        mine = self.score(name, tt)
-        if mine <= 0:
+        if self.score(name, tt) <= 0:
             return False, ""
-        page = self.page.get(name)
-        best, who = mine, None
-        for other in self.toks:
-            if other != name and self.page.get(other) == page:
-                s = self.score(other, tt)
-                if s > best + 1e-9 and s > self.own.get(other, 0.0) + 1e-9:
-                    best, who = s, other
+        if frozenset(tt) in self.shared:
+            return True, ""
+        mine = self.fit(name, tt)
+        best, who = mine + _MARGIN, None
+        for other in self.rivals(name):
+            s = self.fit(other, tt)
+            if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN:
+                best, who = s, other
         return (False, f"belongs to: {who}") if who else (True, "")
+
+
+_REACH = 72.0      # pt between two boxes a swap or a one-row slip can span (one inch)
+_MARGIN = 0.10     # how much better another field's fit must be
+
+
+def _field_rect(spec: dict) -> Optional[tuple]:
+    """The field's box on its first page; an option group: the span of its options there."""
+    ws = [w for w in _widgets(spec) if w.get("rect")]
+    if not ws:
+        return None
+    page = ws[0].get("page")
+    rs = [w["rect"] for w in ws if w.get("page") == page]
+    return (min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs))
+
+
+def _gap(a, b) -> float:
+    dx = max(0.0, max(a[0], b[0]) - min(a[2], b[2]))
+    dy = max(0.0, max(a[1], b[1]) - min(a[3], b[3]))
+    return math.hypot(dx, dy)
+
+
+def _xfa_parent(path: str) -> str:
+    """The XFA subform a widget sits in (`form1[0].#subform[7].Pt8Line1B1f_TiterOne[0]` -> `form1[0].#subform[7]`);
+    '' for a plain AcroForm name."""
+    return path.rsplit(".", 1)[0] if "[" in path and "." in path else ""
+
+
+def section_rules(blank: Path) -> dict[int, list[float]]:
+    """`{page: [y]}`: the lines a form draws between sections: horizontal, across a good part of the page, and
+    heavier than the page's usual line (ACORD 140: 0.96 / 0.72 section, 0.48 row, 0.24 cell; docs/TODO.md,
+    "Ruled-line weight"). A page drawn in one weight has none, and only distance limits its rivals. A filled
+    bar (a section header's black band) counts as heavy."""
+    out: dict[int, list[float]] = {}
+    doc = pymupdf.open(str(blank))
+    try:
+        for page in doc:
+            width = page.rect.width
+            lines = []                       # (y, length, weight)
+            for d in page.get_drawings():
+                for it in d.get("items", []):
+                    if it[0] == "l":
+                        p, q = it[1], it[2]
+                        if abs(p.y - q.y) < 1:
+                            lines.append((p.y, abs(q.x - p.x), d.get("width") or 0.0))
+                    elif it[0] == "re":
+                        r = it[1]
+                        if r.height < 4 and r.width > 2 * r.height:
+                            lines.append(((r.y0 + r.y1) / 2, r.width, max(r.height, d.get("width") or 0.0)))
+            if not lines:
+                continue
+            weights = collections.Counter(round(w, 2) for _, ln, w in lines if w > 0)
+            usual = weights.most_common(1)[0][0] if weights else 0.0
+            ys = {round(y, 1) for y, ln, w in lines
+                  if ln >= _RULE_SHARE * width and usual > 0 and w >= _HEAVIER * usual}
+            if ys:
+                out[page.number + 1] = sorted(ys)
+    finally:
+        doc.close()
+    return out
+
+
+_RULE_SHARE = 0.4      # of the page's width
+_HEAVIER = 1.5         # times the page's most common line weight
 
 
 def publisher_texts(spec: dict, words: dict[str, list[str]]) -> list[str]:
@@ -592,7 +698,13 @@ def grade(k: str, v: Optional[bool], detail: str) -> Optional[str]:
     (grouping), judge 8%, publisher other 7%, structure group 5%, classifier belongs-to 4%, page belongs-to 3%,
     page other / one-word texts 0%. 'error' makes the field contested; 'suggestion' is shown but does not;
     'hint' (no better than the 5% base rate) stays in the raw witness list only. The loop's reviewer flags
-    (`against_flags`) are unchanged."""
+    (`against_flags`) are unchanged.
+
+    Publisher belongs-to is an error again since 2026-10-09: honed (`Names.judge`: a near rival in the same
+    section, a margin, a text only this field carries, fit both ways), it fires on 8 looked-at accepted fields
+    instead of 93, keeps the 5500-SF day / month swap, and among the bulk-accepted fields it found slides the
+    page confirms (ACORD 125 attachments, I-130 eye colour / race / province, f5500sf day / month;
+    `eval/belongs_to_fixture.py`)."""
     if v is not False:
         return None
     d = detail or ""
@@ -600,7 +712,7 @@ def grade(k: str, v: Optional[bool], detail: str) -> Optional[str]:
         return "suggestion" if d.startswith("suggestion") else "error"
     belongs = "belongs to:" in d
     if k == "publisher":
-        return "hint"          # "the tooltip fits another field better": no better than chance (2026-10-07, see above)
+        return "error" if belongs else "hint"      # shares nothing with the name: 7%, a hint
     if k == "classifier":
         return "hint" if belongs else "error"
     if k == "structure":
@@ -645,9 +757,10 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
     printed = {n: page_texts(s, lines) for n, s in fields.items()}
     boxes = {n: _box(s, by_page) if by_page else None for n, s in fields.items()}
     by_witness = {}
+    section_ys = section_rules(blank) if blank and blank.exists() else {}
     for k, texts in (("publisher", pub), ("page", printed),
                      ("classifier", {n: [b["label"]] if b and b.get("label") else [] for n, b in boxes.items()})):
-        by_witness[k] = Names(fields)
+        by_witness[k] = Names(fields, section_ys)
         by_witness[k].set_own(texts)
     out = {}
     for name, spec in fields.items():
@@ -680,7 +793,7 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
         out[name] = {"tier": tier(ws), "stage": r.get("stage") if same_name else None,
                      "witnesses": {k: [v[0], v[1]] for k, v in ws.items()}}
         out[name]["why"] = sorted(explain(name, spec, ws, pc)
-                                  + [{"kind": r["grade"], "text": r["text"], "fix": r["fix"]} for r in rules],
+                                  + [{"kind": r["grade"], "text": r["text"], "fix": r.get("fix")} for r in rules],
                                   key=lambda x: x["kind"] != "error")
     return {"blueprint": str(bpt_path), "run": run_dir.name if run_dir else None, "fields": out}
 
