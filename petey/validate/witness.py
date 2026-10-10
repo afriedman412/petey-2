@@ -67,6 +67,7 @@ from typing import Optional
 import pymupdf
 import yaml
 
+from petey.label import text_match
 from petey.label import xfa as xfa_mod
 from petey.paths import RUNS
 from petey.synth.boxes import match_rect, widget_key
@@ -144,7 +145,9 @@ class Names:
     matches that text better than the other names on its page do, and a word counts by how rare it is among the
     form's names ('plan' on Form 5500 says nothing; 'month' against 'day' says everything)."""
 
-    def __init__(self, fields: dict, boundaries: Optional[dict[int, list[float]]] = None) -> None:
+    def __init__(self, fields: dict, boundaries: Optional[dict[int, list[float]]] = None,
+                 model: Optional[bool] = None) -> None:
+        self.model = use_model() if model is None else model    # `text_match` scores the texts (2026-10-09)
         self.toks = {n: _toks(n) for n in fields}
         self.page = {n: (_widgets(s)[0].get("page") if _widgets(s) else None) for n, s in fields.items()}
         self.rect = {n: _field_rect(s) for n, s in fields.items()}
@@ -160,6 +163,8 @@ class Names:
         self.shared: set[frozenset] = set()  # texts several fields carry: they cannot tell those fields apart
 
     def set_own(self, texts_by_field: dict[str, list[str]]) -> None:
+        self.own_texts = texts_by_field
+        self._own_model: dict[str, float] = {}
         self.own = {n: max((self.score(n, _toks(t)) for t in ts), default=0.0) for n, ts in texts_by_field.items()}
         self.own_fit = {n: max((self.fit(n, _toks(t)) for t in ts), default=0.0) for n, ts in texts_by_field.items()}
         carriers = collections.Counter(frozenset(_toks(t)) for ts in texts_by_field.values() for t in set(ts))
@@ -212,6 +217,8 @@ class Names:
         tt = set().union(*(_toks(t) for t in texts)) if texts else set()
         if not tt:
             return None, ""
+        if self.model:
+            return self._judge_model(name, texts, tt)
         if self.score(name, tt) <= 0:
             return False, ""
         if frozenset(tt) in self.shared:
@@ -223,6 +230,45 @@ class Names:
             if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN:
                 best, who = s, other
         return (False, f"belongs to: {who}") if who else (True, "")
+
+    def _own_score(self, field: str) -> float:
+        """How well the field's own texts (of this witness) describe it, by the model; cached."""
+        if field not in self._own_model:
+            ts = [t for t in (self.own_texts.get(field) or []) if t]
+            got = text_match.score_pairs([(t, text_match.name_words(field)) for t in ts]) if ts else []
+            self._own_model[field] = max(got or [0.0])
+        return self._own_model[field]
+
+    def _judge_model(self, name: str, texts: list[str], tt: set[str]) -> tuple[Optional[bool], str]:
+        """`judge` with `text_match` as the scorer: the same verdicts, read off P(text describes field). The text
+        does not describe the name (below `_LOW`) -> False 'does not describe'; a rival it describes better by
+        `_MARGIN_M`, and better than the rival's own text does -> False 'belongs to'. Rivals and the shared-text
+        rule as in the rules."""
+        text = " | ".join(texts)
+        shared = frozenset(tt) in self.shared      # a text several fields carry names none of them: no verdict
+        rivals = [] if shared else self.rivals(name)
+        got = text_match.score_pairs([(text, text_match.name_words(n)) for n in [name] + rivals])
+        mine, theirs = got[0], dict(zip(rivals, got[1:]))
+        best, who = mine + _MARGIN_M, None
+        for other, s in theirs.items():
+            if s > best and s > self._own_score(other) + 0.05:
+                best, who = s, other
+        if who:
+            return False, f"belongs to: {who}"
+        if mine < _LOW:
+            return (None, "") if shared else (False, f"does not describe ({mine:.2f})")
+        return True, ""
+
+
+_LOW = 0.01        # model: below this the text does not describe the name (0.2 flagged 286 looked-at accepts)
+_MARGIN_M = 0.3    # model: how much better another field must be described
+
+
+def use_model() -> bool:
+    """Score texts with `text_match` when PETEY_TEXT_MATCH=1 and its model file is there; opt-in until the model is
+    measured better than the rules (eval/belongs_to_fixture.py, eval/text_match_eval.py)."""
+    import os
+    return os.environ.get("PETEY_TEXT_MATCH") == "1" and text_match.available()
 
 
 _REACH = 72.0      # pt between two boxes a swap or a one-row slip can span (one inch)
@@ -290,8 +336,15 @@ _HEAVIER = 1.5         # times the page's most common line weight
 
 
 def publisher_texts(spec: dict, words: dict[str, list[str]]) -> list[str]:
+    """The publisher's words for the widget; with the model, its readable path too ('City', 'Parient Last Name':
+    1014r and 5021 put the box's meaning only there)."""
     w = _widgets(spec)
-    return words.get((w[0] if w else {}).get("path") or "", [])
+    path = (w[0] if w else {}).get("path") or ""
+    out = list(words.get(path, []))
+    pw = text_match.path_words(path) if use_model() else None
+    if pw and pw.lower() not in (t.lower() for t in out):
+        out.append(pw)
+    return out
 
 
 def page_texts(spec: dict, lines: dict) -> list[str]:
@@ -341,7 +394,7 @@ def _per_line(name: str, texts: list[str], names: Names, owned_only: bool = Fals
     if any(v is True for v, _ in verdicts):
         return True, shown
     first = next(((v, why) for v, why in verdicts if v is not None), None)
-    if first is None or (owned_only and not first[1]):
+    if first is None or (owned_only and not first[1].startswith("belongs to")):
         return None, shown
     return False, " ; ".join(x for x in (shown, first[1]) if x)
 

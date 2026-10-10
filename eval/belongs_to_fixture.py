@@ -61,16 +61,20 @@ def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
             wrong = rec["verdict"] == "flag" or bool(rec.get("edit"))
             belongs = {k: d for k, (val, d) in f["witnesses"].items()
                        if k in TEXT_WITNESSES and val is False and "belongs to:" in (d or "")}
+            # the model's other verdict: the text does not describe the name (5021: 'Parient Last Name')
+            undescribed = {k: d for k, (val, d) in f["witnesses"].items()
+                           if k in TEXT_WITNESSES and val is False and "does not describe" in (d or "")}
             rows.append({"bid": bid, "field": name, "wrong": wrong, "name_flag": (bid, name) in NAME_FLAGS,
-                         "bulk": note.startswith(("auto:", "bulk")), "note": note[:80], "belongs": belongs})
+                         "bulk": note.startswith(("auto:", "bulk")), "note": note[:80], "belongs": belongs,
+                         "undescribed": undescribed})
         print(f"  {bid}", file=sys.stderr)
     return rows
 
 
-def table(rows: list[dict]) -> dict:
+def table(rows: list[dict], what: str = "belongs") -> dict:
     out = {}
     for k in TEXT_WITNESSES + ("any",):
-        hit = [r for r in rows if (r["belongs"] if k == "any" else k in r["belongs"])]
+        hit = [r for r in rows if (r.get(what) if k == "any" else k in (r.get(what) or {}))]
         out[k] = {"fired": len(hit),
                   "accepted": sum(1 for r in hit if not r["wrong"]),
                   "looked_at": sum(1 for r in hit if not r["wrong"] and not r["bulk"]),
@@ -79,15 +83,15 @@ def table(rows: list[dict]) -> dict:
     return out
 
 
-def show(rows: list[dict], label: str) -> None:
-    t = table(rows)
+def show(rows: list[dict], label: str, what: str = "belongs") -> None:
+    t = table(rows, what)
     n_name = sum(1 for r in rows if r["name_flag"])
-    print(f"\n{label}: {len(rows)} reviewed fields, {n_name} name flags")
+    print(f"\n{label} [{what}]: {len(rows)} reviewed fields, {n_name} name flags")
     print(f"  {'witness':11} {'fired':>6} {'accepted':>9} {'(looked at)':>12} {'name flags':>11} {'other flags':>12}")
     for k, c in t.items():
         print(f"  {k:11} {c['fired']:>6} {c['accepted']:>9} {c['looked_at']:>12} {c['name_flags']:>8}/{n_name:<2} "
               f"{c['other_flags']:>12}")
-    caught = {(r["bid"], r["field"]) for r in rows if r["name_flag"] and r["belongs"]}
+    caught = {(r["bid"], r["field"]) for r in rows if r["name_flag"] and r.get(what)}
     for bid, f in sorted(NAME_FLAGS):
         print(f"    {'caught' if (bid, f) in caught else 'missed'}  {bid} {f}")
 
@@ -109,6 +113,8 @@ def main() -> int:
         keys = {(r["bid"], r["field"]) for r in rows}
         show([r for r in old if (r["bid"], r["field"]) in keys], f"before ({args.against})")
     show(rows, "now")
+    if any(r.get("undescribed") for r in rows):
+        show(rows, "now", "undescribed")
     if args.against:
         was = {(r["bid"], r["field"]): r["belongs"] for r in old}
         gone = collections.Counter()
