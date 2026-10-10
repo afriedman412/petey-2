@@ -59,11 +59,12 @@ def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
                 continue
             note = rec.get("note") or ""
             wrong = rec["verdict"] == "flag" or bool(rec.get("edit"))
-            belongs = {k: d for k, (val, d) in f["witnesses"].items()
-                       if k in TEXT_WITNESSES and val is False and "belongs to:" in (d or "")}
+            # flags that count (an unconfirmed publisher flag is a hint: the page does not echo its tooltip)
+            belongs = {k: d for k, (val, d) in f["witnesses"].items() if k in TEXT_WITNESSES and val is False
+                       and "belongs to:" in (d or "") and not (d or "").startswith("unconfirmed")}
             # the model's other verdict: the text does not describe the name (5021: 'Parient Last Name')
-            undescribed = {k: d for k, (val, d) in f["witnesses"].items()
-                           if k in TEXT_WITNESSES and val is False and "does not describe" in (d or "")}
+            undescribed = {k: d for k, (val, d) in f["witnesses"].items() if k in TEXT_WITNESSES and val is False
+                           and "does not describe" in (d or "") and not (d or "").startswith("unconfirmed")}
             rows.append({"bid": bid, "field": name, "wrong": wrong, "name_flag": (bid, name) in NAME_FLAGS,
                          "bulk": note.startswith(("auto:", "bulk")), "note": note[:80], "belongs": belongs,
                          "undescribed": undescribed})

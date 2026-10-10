@@ -111,27 +111,22 @@ def score_pairs(pairs: list[tuple[str, str]]) -> Optional[list[float]]:
         return []
     import numpy as np
     sess, tok = s
-    out: list[float] = []
+    todo = list(dict.fromkeys(p for p in pairs if p not in _cache))     # a witness asks the same pair many times
     names = {i.name for i in sess.get_inputs()}
-    for i in range(0, len(pairs), 64):
-        enc = tok.encode_batch(pairs[i:i + 64])
+    for i in range(0, len(todo), 64):
+        enc = tok.encode_batch(todo[i:i + 64])
         feed = {"input_ids": np.array([e.ids for e in enc], dtype=np.int64),
                 "attention_mask": np.array([e.attention_mask for e in enc], dtype=np.int64)}
         if "token_type_ids" in names:
             feed["token_type_ids"] = np.array([e.type_ids for e in enc], dtype=np.int64)
         logits = sess.run(None, feed)[0].reshape(-1)
-        out.extend((1.0 / (1.0 + np.exp(-logits))).tolist())
-    return out
+        _cache.update(zip(todo[i:i + 64], (1.0 / (1.0 + np.exp(-logits))).tolist()))
+    return [_cache[p] for p in pairs]
 
 
 _cache: dict[tuple[str, str], float] = {}
 
 
 def score(text: str, field: str) -> Optional[float]:
-    key = (text, field)
-    if key not in _cache:
-        r = score_pairs([key])
-        if r is None:
-            return None
-        _cache[key] = r[0]
-    return _cache[key]
+    r = score_pairs([(text, field)])
+    return r[0] if r else None

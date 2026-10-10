@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import functools
 import json
 import math
 import re
@@ -65,6 +66,7 @@ from pathlib import Path
 from typing import Optional
 
 import pymupdf
+import snowballstemmer
 import yaml
 
 from petey.label import text_match
@@ -75,7 +77,7 @@ from petey.synth.classify import classify_form
 from petey.validate.class_check import _CONTROL_CLASSES, _family, blueprint_class
 from petey.validate.field_chain import _agrees, _page_lines, candidate_captions, column_header, field_chain, \
     row_header
-from petey.validate.name_caption import tokens
+from petey.validate.name_caption import _ABBR, _STOP, tokens
 from petey.validate.retype import resolve_blank
 
 TIERS = ("contested", "unknown", "single", "settled")     # review order
@@ -132,12 +134,38 @@ def publisher_words(blank: Path) -> dict[str, list[str]]:
 
 
 def _toks(s: str) -> set[str]:
-    """`name_caption.tokens`, every token cut to the same five-letter stem: its expansions are whole words
-    ('zip' -> 'postal') while caption words are stems ('posta'), so 'zip' never met 'postal code'."""
-    return {_MORE_ABBR.get(t, t)[:5] for t in tokens(s)}
+    """Words for matching a name against a text: abbreviations written out (`name_caption._ABBR`, `_EXPAND`),
+    filler dropped, the rest Snowball-stemmed ('addresses' ~ 'address'). Until 2026-10-09 every word was cut to
+    five letters, which joined employer / employee, international / interest / internal, state / statement."""
+    out: set[str] = set()
+    for t in re.findall(r"[a-z]+", (s or "").lower()):
+        for w in _EXPAND_WORDS.get(t, ()):
+            out.add(_stem(w))
+        t = _MORE_ABBR.get(t, _ABBR.get(t, t))
+        if t and t not in _STOP and len(t) > 1:
+            out.add(_stem(t))
+    return out
 
 
-_MORE_ABBR = {"nbr": "number", "zip": "postal"}     # slugs the labeler writes that `name_caption._ABBR` lacks
+_MORE_ABBR = {"nbr": "number"}     # slugs the labeler writes that `name_caption._ABBR` lacks
+# a name token that stands for several caption words, in whole words (name_caption._EXPAND has five-letter stems)
+_EXPAND_WORDS = {"ssn": ("social", "security"), "ein": ("employer", "identification"),
+                 "fein": ("employer", "identification"), "dob": ("birth",), "zip": ("postal",),
+                 "tel": ("phone", "telephone"), "ptin": ("preparer",)}
+
+
+@functools.lru_cache(maxsize=None)
+def _stem(w: str) -> str:
+    return _STEMMER.stemWord(w)
+
+
+_STEMMER = snowballstemmer.stemmer("english")
+
+
+def _same_text(t: str) -> str:
+    """The text's exact words, for 'several fields carry the same text': case and punctuation aside, word for word
+    (no stemming: within one form a repeated tooltip is repeated exactly)."""
+    return " ".join(re.findall(r"[a-z0-9]+", (t or "").lower()))
 
 
 class Names:
@@ -160,15 +188,15 @@ class Names:
         self._unseen = math.log((n + 1) / 0.5)     # a text word no name uses: as rare as a word can be
         self.own: dict[str, float] = {}     # how well each field's own text (of this witness) explains its name
         self.own_fit: dict[str, float] = {}
-        self.shared: set[frozenset] = set()  # texts several fields carry: they cannot tell those fields apart
+        self.shared: set[str] = set()     # texts several fields carry word for word: they cannot tell those apart
 
     def set_own(self, texts_by_field: dict[str, list[str]]) -> None:
         self.own_texts = texts_by_field
         self._own_model: dict[str, float] = {}
         self.own = {n: max((self.score(n, _toks(t)) for t in ts), default=0.0) for n, ts in texts_by_field.items()}
         self.own_fit = {n: max((self.fit(n, _toks(t)) for t in ts), default=0.0) for n, ts in texts_by_field.items()}
-        carriers = collections.Counter(frozenset(_toks(t)) for ts in texts_by_field.values() for t in set(ts))
-        self.shared = {tt for tt, c in carriers.items() if c > 1 and tt}
+        carriers = collections.Counter(_same_text(t) for ts in texts_by_field.values() for t in set(ts))
+        self.shared = {t for t, c in carriers.items() if c > 1 and t}
 
     def score(self, name: str, tt: set[str]) -> float:
         """How much of the name the text explains: matched weight over the name's weight. Raw overlap favours
@@ -217,11 +245,25 @@ class Names:
         tt = set().union(*(_toks(t) for t in texts)) if texts else set()
         if not tt:
             return None, ""
-        if self.model:
-            return self._judge_model(name, texts, tt)
+        rules = self._judge_rules(name, texts, tt)
+        if not self.model:
+            return rules
+        model = self._judge_model(name, texts, tt)
+        # both read the text; the model reads meaning (STREET ~ address line), the rules shared words. Either one's
+        # 'belongs to' counts, then the model's 'does not describe'; either one's match is a match (2026-10-09)
+        for v in (model, rules):
+            if v[0] is False and v[1].startswith("belongs to"):
+                return v
+        if model[0] is False:
+            return model
+        if True in (model[0], rules[0]):
+            return True, ""
+        return rules if rules[0] is not None else model
+
+    def _judge_rules(self, name: str, texts: list[str], tt: set[str]) -> tuple[Optional[bool], str]:
         if self.score(name, tt) <= 0:
             return False, ""
-        if frozenset(tt) in self.shared:
+        if _same_text(" ".join(texts)) in self.shared:
             return True, ""
         mine = self.fit(name, tt)
         best, who = mine + _MARGIN, None
@@ -245,7 +287,7 @@ class Names:
         `_MARGIN_M`, and better than the rival's own text does -> False 'belongs to'. Rivals and the shared-text
         rule as in the rules."""
         text = " | ".join(texts)
-        shared = frozenset(tt) in self.shared      # a text several fields carry names none of them: no verdict
+        shared = _same_text(text) in self.shared   # a text several fields carry names none of them: no verdict
         rivals = [] if shared else self.rivals(name)
         got = text_match.score_pairs([(text, text_match.name_words(n)) for n in [name] + rivals])
         mine, theirs = got[0], dict(zip(rivals, got[1:]))
@@ -265,10 +307,27 @@ _MARGIN_M = 0.3    # model: how much better another field must be described
 
 
 def use_model() -> bool:
-    """Score texts with `text_match` when PETEY_TEXT_MATCH=1 and its model file is there; opt-in until the model is
-    measured better than the rules (eval/belongs_to_fixture.py, eval/text_match_eval.py)."""
+    """Score texts with `text_match` as well as the rules when its model file is there (models/text_match), unless
+    PETEY_TEXT_MATCH=0."""
     import os
-    return os.environ.get("PETEY_TEXT_MATCH") == "1" and text_match.available()
+    return os.environ.get("PETEY_TEXT_MATCH", "1") != "0" and text_match.available()
+
+
+def printed_agrees(texts: list[str], printed: list[str]) -> bool:
+    """Andrew's check (2026-10-09): the publisher's text is about this box when it shares two thirds of its words
+    (of the shorter) with a line printed at the box. A flag built on a text the page does not echo is a hint: the
+    tooltip may be a copy-paste from another box. On the 21 hand-flagged name errors: false alarms on looked-at
+    fields 57 -> 22, real errors caught 16 -> 15."""
+    for t in texts:
+        a = _toks(t)
+        for line in printed:
+            b = _toks(line)
+            if a and b and len(a & b) / min(len(a), len(b)) >= _AGREE:
+                return True
+    return False
+
+
+_AGREE = 2 / 3
 
 
 _REACH = 72.0      # pt between two boxes a swap or a one-row slip can span (one inch)
@@ -336,14 +395,16 @@ _HEAVIER = 1.5         # times the page's most common line weight
 
 
 def publisher_texts(spec: dict, words: dict[str, list[str]]) -> list[str]:
-    """The publisher's words for the widget; with the model, its readable path too ('City', 'Parient Last Name':
-    1014r and 5021 put the box's meaning only there)."""
+    """The publisher's words for the widget; with the model and no tooltip, its readable path ('City': 1014r puts
+    the box's meaning only there). Only then: any text that fits the name counts for it, so a path next to a
+    tooltip would outvote the tooltip (I-130 'Pt3Line5 Eye Color' kept `eye_color_green_ind` on the Hazel box)."""
     w = _widgets(spec)
     path = (w[0] if w else {}).get("path") or ""
     out = list(words.get(path, []))
-    pw = text_match.path_words(path) if use_model() else None
-    if pw and pw.lower() not in (t.lower() for t in out):
-        out.append(pw)
+    if not out and use_model():
+        pw = text_match.path_words(path)
+        if pw:
+            out.append(pw)
     return out
 
 
@@ -764,8 +825,10 @@ def grade(k: str, v: Optional[bool], detail: str) -> Optional[str]:
     if k in ("page_check", "naming"):
         return "suggestion" if d.startswith("suggestion") else "error"
     belongs = "belongs to:" in d
-    if k == "publisher":
-        return "error" if belongs else "hint"      # shares nothing with the name: 7%, a hint
+    if k == "publisher":       # belongs to / does not describe, echoed by the page: error; otherwise a hint
+        if d.startswith("unconfirmed"):
+            return "hint"
+        return "error" if belongs or "does not describe" in d else "hint"
     if k == "classifier":
         return "hint" if belongs else "error"
     if k == "structure":
@@ -817,7 +880,11 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
         by_witness[k].set_own(texts)
     out = {}
     for name, spec in fields.items():
-        ws: dict[str, tuple] = {"publisher": _per_line(name, pub[name], by_witness["publisher"]),
+        pv = _per_line(name, pub[name], by_witness["publisher"])
+        if pv[0] is False and ("belongs to:" in pv[1] or "does not describe" in pv[1]) \
+                and not printed_agrees(pub[name], printed[name]):
+            pv = (False, "unconfirmed; " + pv[1])      # the page does not echo the tooltip: a hint (`grade`)
+        ws: dict[str, tuple] = {"publisher": pv,
                                 "page": page_witness(name, spec, lines, printed[name], by_witness["page"])}
         if by_page:
             b = boxes[name]
@@ -886,7 +953,8 @@ def against_flags(run_dir: Path) -> dict[str, list[dict]]:
                 "detail": f"a vision check of the whole page ({pc['problem']}): {pc.get('reason') or ''}",
                 "text": pc.get("box_holds") or "", **({"page_check_proposes": prop} if prop else {})})
         for k, (v, detail) in f["witnesses"].items():
-            if v is not False or k not in _FLAG_SOURCE or "belongs to: " not in (detail or ""):
+            if v is not False or k not in _FLAG_SOURCE or "belongs to: " not in (detail or "") \
+                    or (detail or "").startswith("unconfirmed"):
                 continue
             m = re.match(r"(.*?)(?: ; )?belongs to: (\S+)$", detail)
             if m is None:                    # a detail in another shape (2026-10-06: crashed two forms on the runner)
