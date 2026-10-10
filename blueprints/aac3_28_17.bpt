@@ -9,6 +9,7 @@ description: ''
 instructions: ''
 fields:
   applicant_nm:
+    x_petey_id: '1_1'
     type: string
     semantic_type: person_name
     widget:
@@ -22,6 +23,7 @@ fields:
       path: Well Name
     label_source: llm
   ogrid_number:
+    x_petey_id: '1_2'
     type: string
     widget:
       page: 1
@@ -33,7 +35,12 @@ fields:
       widget_type: text
       path: OGRID Number
     label_source: llm
+    description: OGRID Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   well_nm:
+    x_petey_id: '1_3'
     type: string
     semantic_type: person_name
     widget:
@@ -47,6 +54,7 @@ fields:
       path: API
     label_source: llm
   pool_nm:
+    x_petey_id: '1_5'
     type: string
     semantic_type: person_name
     widget:
@@ -60,6 +68,7 @@ fields:
       path: Pool
     label_source: llm
   api_number:
+    x_petey_id: '1_4'
     type: string
     widget:
       page: 1
@@ -72,6 +81,7 @@ fields:
       path: Pool Code
     label_source: llm
   pool_cd:
+    x_petey_id: '1_6'
     type: string
     widget:
       page: 1
@@ -83,111 +93,121 @@ fields:
       widget_type: text
       path: undefined
     label_source: llm
-  notification_offset_operators_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 432.1199951171875
-      - 87.0
-      - 442.9200134277344
-      widget_type: checkbox
-      path: Offset operators or
-    label_source: llm
-  notification_royalty_owners_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 444.9599914550781
-      - 87.0
-      - 455.760009765625
-      widget_type: checkbox
-      path: Roya
-    label_source: llm
-  notification_published_notice_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 459.6000061035156
-      - 87.0
-      - 470.3999938964844
-      widget_type: checkbox
-      path: Application requires published not
-    label_source: llm
-  notification_slo_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 473.5199890136719
-      - 87.0
-      - 484.32000732421875
-      widget_type: checkbox
-      path: Notif
-    label_source: llm
-  notification_blm_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 486.4800109863281
-      - 87.0
-      - 497.2799987792969
-      widget_type: checkbox
-      path: Notif_2
-    label_source: llm
-  notification_surface_owner_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 500.5199890136719
-      - 87.0
-      - 511.32000732421875
-      widget_type: checkbox
-      path: Surface owner
-    label_source: llm
-  notification_proof_attached_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 513.5999755859375
-      - 87.0
-      - 524.4000244140625
-      widget_type: checkbox
-      path: For a
-    label_source: llm
-  notification_none_required_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 76.19999694824219
-      - 527.52001953125
-      - 87.0
-      - 538.3200073242188
-      widget_type: checkbox
-      path: No notice required
-    label_source: llm
+  notification:
+    x_petey_id: '1_10'
+    type: multi_category
+    values:
+    - notification_offset_operators_ind
+    - notification_royalty_owners_ind
+    - notification_published_notice_ind
+    - notification_slo_ind
+    - notification_blm_ind
+    - notification_surface_owner_ind
+    - notification_proof_attached_ind
+    - notification_none_required_ind
+    widgets:
+      notification_offset_operators_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 432.1199951171875
+        - 87.0
+        - 442.9200134277344
+        widget_type: checkbox
+        path: Offset operators or
+        on_state: 'On'
+        caption: Offset operators or
+        x_petey_caption_source: tooltip
+      notification_royalty_owners_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 444.9599914550781
+        - 87.0
+        - 455.760009765625
+        widget_type: checkbox
+        path: Roya
+        on_state: 'On'
+      notification_published_notice_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 459.6000061035156
+        - 87.0
+        - 470.3999938964844
+        widget_type: checkbox
+        path: Application requires published not
+        on_state: 'On'
+        caption: Application requires published not
+        x_petey_caption_source: tooltip
+      notification_slo_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 473.5199890136719
+        - 87.0
+        - 484.32000732421875
+        widget_type: checkbox
+        path: Notif
+        on_state: 'On'
+      notification_blm_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 486.4800109863281
+        - 87.0
+        - 497.2799987792969
+        widget_type: checkbox
+        path: Notif_2
+        on_state: 'On'
+      notification_surface_owner_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 500.5199890136719
+        - 87.0
+        - 511.32000732421875
+        widget_type: checkbox
+        path: Surface owner
+        on_state: 'On'
+        caption: Surface owner
+        x_petey_caption_source: tooltip
+      notification_proof_attached_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 513.5999755859375
+        - 87.0
+        - 524.4000244140625
+        widget_type: checkbox
+        path: For a
+        on_state: 'On'
+      notification_none_required_ind:
+        page: 1
+        rect:
+        - 76.19999694824219
+        - 527.52001953125
+        - 87.0
+        - 538.3200073242188
+        widget_type: checkbox
+        path: No notice required
+        on_state: 'On'
+        caption: No notice required
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - notification_offset_operators_ind
+      - notification_royalty_owners_ind
+      - notification_published_notice_ind
+      - notification_slo_ind
+      - notification_blm_ind
+      - notification_surface_owner_ind
+      - notification_proof_attached_ind
+      - notification_none_required_ind
   certifier_print_nm:
+    x_petey_id: '1_12'
     type: string
     semantic_type: person_name
     widget:
@@ -200,10 +220,14 @@ fields:
       widget_type: text
       path: Print or Type Name
     label_source: llm
+    description: Print or Type Name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   certification_dt:
+    x_petey_id: '1_11'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -214,7 +238,10 @@ fields:
       widget_type: text
       path: Date
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   certifier_phone_number:
+    x_petey_id: '1_13'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -228,7 +255,12 @@ fields:
       widget_type: text
       path: Phone Number
     label_source: llm
+    description: Phone Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   certifier_signature_nm:
+    x_petey_id: '1_14'
     type: string
     semantic_type: person_name
     widget:
@@ -242,6 +274,7 @@ fields:
       path: Signature
     label_source: llm
   certifier_email_address_txt:
+    x_petey_id: '1_15'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -256,34 +289,14 @@ fields:
       path: Address
     label_source: llm
   application_type:
+    x_petey_id: '1_7'
     type: category
     values:
-    - ctb_ind
-    - dhc_ind
-    - eor_ind
-    - ipi_ind
-    - nsl_ind
     - nsp_project_area_ind
     - nsp_proration_unit_ind
-    - olm_ind
-    - ols_ind
-    - pc_ind
-    - plc_ind
-    - pmx_ind
-    - ppr_ind
     - sd_ind
-    - swd_ind
-    - wfx_ind
+    - nsl_ind
     widgets:
-      nsl_ind:
-        page: 1
-        rect:
-        - 111.0
-        - 309.3599853515625
-        - 121.80000305175781
-        - 320.1600036621094
-        widget_type: checkbox
-        path: NSL
       nsp_project_area_ind:
         page: 1
         rect:
@@ -293,6 +306,9 @@ fields:
         - 319.44000244140625
         widget_type: checkbox
         path: NSPPROJECT AREA
+        on_state: 'On'
+        caption: NSP(PROJECT AREA)
+        x_petey_caption_source: page_text
       nsp_proration_unit_ind:
         page: 1
         rect:
@@ -302,6 +318,9 @@ fields:
         - 319.55999755859375
         widget_type: checkbox
         path: NSPPRORATION UNIT
+        on_state: 'On'
+        caption: NSP(PRORATION UNIT)
+        x_petey_caption_source: page_text
       sd_ind:
         page: 1
         rect:
@@ -311,6 +330,40 @@ fields:
         - 319.32000732421875
         widget_type: checkbox
         path: SD
+        on_state: 'On'
+        caption: SD
+        x_petey_caption_source: page_text
+      nsl_ind:
+        page: 1
+        rect:
+        - 111.0
+        - 309.3599853515625
+        - 121.80000305175781
+        - 320.1600036621094
+        widget_type: checkbox
+        path: NSL
+        on_state: 'On'
+        caption: NSL
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - application_type::nsp_project_area_ind
+      - application_type::nsp_proration_unit_ind
+      - application_type::sd_ind
+      - application_type::nsl_ind
+  application_type_2:
+    x_petey_id: '1_8'
+    type: category
+    values:
+    - dhc_ind
+    - ctb_ind
+    - plc_ind
+    - pc_ind
+    - ols_ind
+    - olm_ind
+    widgets:
       dhc_ind:
         page: 1
         rect:
@@ -320,6 +373,9 @@ fields:
         - 373.32000732421875
         widget_type: checkbox
         path: DHC
+        on_state: 'On'
+        caption: DHC
+        x_petey_caption_source: page_text
       ctb_ind:
         page: 1
         rect:
@@ -329,6 +385,9 @@ fields:
         - 373.32000732421875
         widget_type: checkbox
         path: CTB
+        on_state: 'On'
+        caption: CTB
+        x_petey_caption_source: page_text
       plc_ind:
         page: 1
         rect:
@@ -338,6 +397,9 @@ fields:
         - 373.32000732421875
         widget_type: checkbox
         path: PLC
+        on_state: 'On'
+        caption: PLC
+        x_petey_caption_source: page_text
       pc_ind:
         page: 1
         rect:
@@ -347,6 +409,9 @@ fields:
         - 373.32000732421875
         widget_type: checkbox
         path: PC
+        on_state: 'On'
+        caption: PC
+        x_petey_caption_source: page_text
       ols_ind:
         page: 1
         rect:
@@ -356,6 +421,9 @@ fields:
         - 373.32000732421875
         widget_type: checkbox
         path: OLS
+        on_state: 'On'
+        caption: OLS
+        x_petey_caption_source: page_text
       olm_ind:
         page: 1
         rect:
@@ -365,6 +433,30 @@ fields:
         - 373.32000732421875
         widget_type: checkbox
         path: OLM
+        on_state: 'On'
+        caption: OLM
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - application_type::dhc_ind
+      - application_type::ctb_ind
+      - application_type::plc_ind
+      - application_type::pc_ind
+      - application_type::ols_ind
+      - application_type::olm_ind
+  application_type_3:
+    x_petey_id: '1_9'
+    type: category
+    values:
+    - wfx_ind
+    - pmx_ind
+    - swd_ind
+    - ipi_ind
+    - eor_ind
+    - ppr_ind
+    widgets:
       wfx_ind:
         page: 1
         rect:
@@ -374,6 +466,9 @@ fields:
         - 400.55999755859375
         widget_type: checkbox
         path: WFX
+        on_state: 'On'
+        caption: WFX
+        x_petey_caption_source: page_text
       pmx_ind:
         page: 1
         rect:
@@ -383,6 +478,9 @@ fields:
         - 401.1600036621094
         widget_type: checkbox
         path: PMX
+        on_state: 'On'
+        caption: PMX
+        x_petey_caption_source: page_text
       swd_ind:
         page: 1
         rect:
@@ -392,6 +490,9 @@ fields:
         - 401.6400146484375
         widget_type: checkbox
         path: SWD
+        on_state: 'On'
+        caption: SWD
+        x_petey_caption_source: page_text
       ipi_ind:
         page: 1
         rect:
@@ -401,6 +502,9 @@ fields:
         - 401.6400146484375
         widget_type: checkbox
         path: IPI
+        on_state: 'On'
+        caption: IPI
+        x_petey_caption_source: page_text
       eor_ind:
         page: 1
         rect:
@@ -410,6 +514,9 @@ fields:
         - 401.1600036621094
         widget_type: checkbox
         path: EOR
+        on_state: 'On'
+        caption: EOR
+        x_petey_caption_source: page_text
       ppr_ind:
         page: 1
         rect:
@@ -419,3 +526,16 @@ fields:
         - 401.1600036621094
         widget_type: checkbox
         path: PPR
+        on_state: 'On'
+        caption: PPR
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:59'
+      from:
+      - application_type::wfx_ind
+      - application_type::pmx_ind
+      - application_type::swd_ind
+      - application_type::ipi_ind
+      - application_type::eor_ind
+      - application_type::ppr_ind

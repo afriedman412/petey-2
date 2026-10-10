@@ -9,6 +9,7 @@ description: ''
 instructions: ''
 fields:
   total_pages_cnt:
+    x_petey_id: '1_1'
     type: integer
     semantic_type: count
     widget:
@@ -25,6 +26,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contract_purch_order_agreement_no:
+    x_petey_id: '1_2'
     type: string
     widget:
       page: 1
@@ -39,6 +41,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   delivery_order_call_no:
+    x_petey_id: '1_3'
     type: string
     widget:
       page: 1
@@ -53,9 +56,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   date_of_order_call_dt:
+    x_petey_id: '1_6'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -68,7 +71,10 @@ fields:
     description: 3. DATE OF ORDER/CALL (YYYYMMMDD)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   requisition_purch_request_no:
+    x_petey_id: '1_4'
     type: string
     widget:
       page: 1
@@ -83,6 +89,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   priority_cd:
+    x_petey_id: '1_5'
     type: string
     widget:
       page: 1
@@ -95,6 +102,7 @@ fields:
       path: form1[0].page1[0].five[0]
     label_source: llm
   issued_by_cd:
+    x_petey_id: '1_7'
     type: string
     widget:
       page: 1
@@ -109,6 +117,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   issued_by:
+    x_petey_id: '1_9'
     type: string
     widget:
       page: 1
@@ -123,6 +132,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   administered_by_cd:
+    x_petey_id: '1_8'
     type: string
     widget:
       page: 1
@@ -137,6 +147,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   administered_by:
+    x_petey_id: '1_10'
     type: string
     widget:
       page: 1
@@ -150,37 +161,45 @@ fields:
     description: 7. ADMINISTERED BY (If other than 6)
     x_petey_description_source: tooltip
     label_source: llm
-  delivery_fob_destination_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 103.719970703125
-      - 516.8350219726562
-      - 113.719970703125
-      widget_type: checkbox
-      path: form1[0].page1[0].eight[0].eight_destination[0]
-    description: 8. DELIVERY FOB - Select for "DESTINATION."
-    x_petey_description_source: tooltip
-    label_source: llm
-  delivery_fob_other_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 124.5999755859375
-      - 516.8350219726562
-      - 134.5999755859375
-      widget_type: checkbox
-      path: form1[0].page1[0].eight[0].eight_other[0]
-    description: 8. DELIVERY FOB - Select for "OTHER."
-    x_petey_description_source: tooltip
-    label_source: llm
+  delivery_fob:
+    x_petey_id: '1_11'
+    type: category
+    values:
+    - delivery_fob_destination_ind
+    - delivery_fob_other_ind
+    widgets:
+      delivery_fob_destination_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 103.719970703125
+        - 516.8350219726562
+        - 113.719970703125
+        widget_type: checkbox
+        path: form1[0].page1[0].eight[0].eight_destination[0]
+        on_state: '1'
+        caption: 8. DELIVERY FOB - Select for "DESTINATION."
+        x_petey_caption_source: tooltip
+      delivery_fob_other_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 124.5999755859375
+        - 516.8350219726562
+        - 134.5999755859375
+        widget_type: checkbox
+        path: form1[0].page1[0].eight[0].eight_other[0]
+        on_state: '1'
+        caption: 8. DELIVERY FOB - Select for "OTHER."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - delivery_fob_destination_ind
+      - delivery_fob_other_ind
   contractor_cd:
+    x_petey_id: '1_12'
     type: string
     widget:
       page: 1
@@ -195,6 +214,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contractor_facility:
+    x_petey_id: '1_13'
     type: string
     widget:
       page: 1
@@ -209,6 +229,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contractor_name_address:
+    x_petey_id: '1_15'
     type: string
     semantic_type: person_name
     widget:
@@ -224,9 +245,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   deliver_to_fob_point_by_dt:
+    x_petey_id: '1_16'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -239,7 +260,10 @@ fields:
     description: 10. DELIVER TO FOB POINT BY (Date) (YYYYMMMDD)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   discount_terms:
+    x_petey_id: '1_17'
     type: string
     widget:
       page: 1
@@ -253,52 +277,59 @@ fields:
     description: 12. DISCOUNT TERMS
     x_petey_description_source: tooltip
     label_source: llm
-  business_is_small_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 157.719970703125
-      - 516.8350219726562
-      - 167.719970703125
-      widget_type: checkbox
-      path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_small[0]
-    description: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  business_is_small_disadvantaged_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 170.5
-      - 516.8350219726562
-      - 180.5
-      widget_type: checkbox
-      path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_smallDisadvantaged[0]
-    description: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL DISADVANTAGED."
-    x_petey_description_source: tooltip
-    label_source: llm
-  business_is_women_owned_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 506.8349914550781
-      - 183.0999755859375
-      - 516.8350219726562
-      - 193.0999755859375
-      widget_type: checkbox
-      path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_womenOwned[0]
-    description: 11. X IF BUSINESS IS - Select for "BUSINESS IS WOMEN-OWNED."
-    x_petey_description_source: tooltip
-    label_source: llm
+  business_is_small:
+    x_petey_id: '1_14'
+    type: category
+    values:
+    - business_is_small_ind
+    - business_is_small_disadvantaged_ind
+    - business_is_women_owned_ind
+    widgets:
+      business_is_small_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 157.719970703125
+        - 516.8350219726562
+        - 167.719970703125
+        widget_type: checkbox
+        path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_small[0]
+        on_state: '1'
+        caption: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL."
+        x_petey_caption_source: tooltip
+      business_is_small_disadvantaged_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 170.5
+        - 516.8350219726562
+        - 180.5
+        widget_type: checkbox
+        path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_smallDisadvantaged[0]
+        on_state: '1'
+        caption: 11. X IF BUSINESS IS - Select for "BUSINESS IS SMALL DISADVANTAGED."
+        x_petey_caption_source: tooltip
+      business_is_women_owned_ind:
+        page: 1
+        rect:
+        - 506.8349914550781
+        - 183.0999755859375
+        - 516.8350219726562
+        - 193.0999755859375
+        widget_type: checkbox
+        path: form1[0].page1[0].ten_thirteen[0].eleven[0].eleven_womenOwned[0]
+        on_state: '1'
+        caption: 11. X IF BUSINESS IS - Select for "BUSINESS IS WOMEN-OWNED."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - business_is_small_ind
+      - business_is_small_disadvantaged_ind
+      - business_is_women_owned_ind
   mail_invoices_to_block:
+    x_petey_id: '1_18'
     type: string
     widget:
       page: 1
@@ -313,6 +344,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   ship_to_cd:
+    x_petey_id: '1_19'
     type: string
     widget:
       page: 1
@@ -327,6 +359,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   ship_to:
+    x_petey_id: '1_21'
     type: string
     widget:
       page: 1
@@ -339,6 +372,7 @@ fields:
       path: form1[0].page1[0].fourteen[0].fourteen_info[0]
     label_source: llm
   payment_will_be_made_by_cd:
+    x_petey_id: '1_20'
     type: string
     widget:
       page: 1
@@ -353,6 +387,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   payment_will_be_made_by:
+    x_petey_id: '1_22'
     type: string
     widget:
       page: 1
@@ -367,6 +402,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   type_of_order_delivery_call_ind:
+    x_petey_id: '1_23'
     type: boolean
     semantic_type: indicator
     widget:
@@ -384,6 +420,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   type_of_order_purchase_ind:
+    x_petey_id: '1_25'
     type: boolean
     semantic_type: indicator
     widget:
@@ -399,6 +436,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   purchase_reference_contract_no:
+    x_petey_id: '1_24'
     type: string
     widget:
       page: 1
@@ -414,6 +452,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contractor_nm:
+    x_petey_id: '1_26'
     type: string
     semantic_type: person_name
     widget:
@@ -429,6 +468,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contractor_signature:
+    x_petey_id: '1_27'
     type: string
     widget:
       page: 1
@@ -443,6 +483,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contractor_typed_name_and_title:
+    x_petey_id: '1_28'
     type: string
     semantic_type: person_name
     widget:
@@ -458,9 +499,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contractor_date_signed_dt:
+    x_petey_id: '1_29'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -473,7 +514,10 @@ fields:
     description: 16. TYPE OF ORDER - DATE SIGNED (YYYYMMMDD)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   supplier_must_sign_acceptance_ind:
+    x_petey_id: '1_30'
     type: boolean
     semantic_type: indicator
     widget:
@@ -490,6 +534,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   acceptance_copies_cnt:
+    x_petey_id: '1_31'
     type: integer
     semantic_type: count
     widget:
@@ -503,6 +548,7 @@ fields:
       path: form1[0].page1[0].sixteen[0].sixteen_copies[0]
     label_source: llm
   accounting_and_appropriation_data_local_use:
+    x_petey_id: '1_32'
     type: string
     widget:
       page: 1
@@ -517,6 +563,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   unit_price_currency_cd:
+    x_petey_id: '1_33'
     type: string
     widget:
       page: 1
@@ -532,6 +579,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   item_no_1:
+    x_petey_id: '1_34'
     type: string
     widget:
       page: 1
@@ -546,6 +594,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   schedule_of_supplies_services_1:
+    x_petey_id: '1_35'
     type: string
     widget:
       page: 1
@@ -560,6 +609,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   quantity_ordered_accepted_1:
+    x_petey_id: '1_36'
     type: integer
     semantic_type: count
     widget:
@@ -577,6 +627,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   unit_1:
+    x_petey_id: '1_37'
     type: string
     widget:
       page: 1
@@ -591,8 +642,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   unit_price_1_amt:
+    x_petey_id: '1_38'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -605,9 +657,12 @@ fields:
     description: 22. UNIT PRICE, line 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   amount_1_amt:
+    x_petey_id: '1_39'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -620,7 +675,10 @@ fields:
     description: 23. AMOUNT (automatically calculated), line 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   item_no_2:
+    x_petey_id: '1_40'
     type: string
     widget:
       page: 1
@@ -635,6 +693,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   schedule_of_supplies_services_2:
+    x_petey_id: '1_41'
     type: string
     widget:
       page: 1
@@ -649,6 +708,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   quantity_ordered_accepted_2:
+    x_petey_id: '1_42'
     type: integer
     semantic_type: count
     widget:
@@ -666,6 +726,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   unit_2:
+    x_petey_id: '1_43'
     type: string
     widget:
       page: 1
@@ -680,8 +741,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   unit_price_2_amt:
+    x_petey_id: '1_44'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -694,9 +756,12 @@ fields:
     description: 22. UNIT PRICE, line 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   amount_2_amt:
+    x_petey_id: '1_45'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -709,7 +774,10 @@ fields:
     description: 23. AMOUNT (automatically calculated), line 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   item_no_3:
+    x_petey_id: '1_46'
     type: string
     widget:
       page: 1
@@ -724,6 +792,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   schedule_of_supplies_services_3:
+    x_petey_id: '1_47'
     type: string
     widget:
       page: 1
@@ -738,6 +807,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   quantity_ordered_accepted_3:
+    x_petey_id: '1_48'
     type: integer
     semantic_type: count
     widget:
@@ -755,6 +825,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   unit_3:
+    x_petey_id: '1_49'
     type: string
     widget:
       page: 1
@@ -769,8 +840,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   unit_price_3_amt:
+    x_petey_id: '1_50'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -783,9 +855,12 @@ fields:
     description: 22. UNIT PRICE, line 3.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   amount_3_amt:
+    x_petey_id: '1_51'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -798,7 +873,10 @@ fields:
     description: 23. AMOUNT (automatically calculated), line 3.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   contracting_ordering_officer_signature:
+    x_petey_id: '1_53'
     type: string
     widget:
       page: 1
@@ -811,8 +889,9 @@ fields:
       path: form1[0].page1[0].eighteen_twenty6[0].twenty4[0].twenty4_by[0]
     label_source: llm
   total_amt:
+    x_petey_id: '1_52'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -825,9 +904,12 @@ fields:
     description: 25. TOTAL (automatically calculated)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   differences_1_amt:
+    x_petey_id: '1_54'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -840,9 +922,12 @@ fields:
     description: 26. DIFFERENCES, line 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   differences_2_amt:
+    x_petey_id: '1_55'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -855,53 +940,62 @@ fields:
     description: 26. DIFFERENCES, line 2.
     x_petey_description_source: tooltip
     label_source: llm
-  quantity_inspected_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 38.834999084472656
-      - 575.8599853515625
-      - 48.834999084472656
-      - 585.8599853515625
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty7A[0].twenty7A_inspected[0]
-    description: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "INSPECTED."
-    x_petey_description_source: tooltip
-    label_source: llm
-  quantity_received_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 96.43499755859375
-      - 575.8599853515625
-      - 106.43499755859375
-      - 585.8599853515625
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty7A[0].twenty7A_received[0]
-    description: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "RECEIVED."
-    x_petey_description_source: tooltip
-    label_source: llm
-  quantity_accepted_conforms_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 154.03500366210938
-      - 575.8599853515625
-      - 164.03500366210938
-      - 585.8599853515625
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty7A[0].twenty7A_accepted[0]
-    description: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "ACCEPTED, AND CONFORMS
-      TO THE CONTRACT EXCEPT AS NOTED:"
-    x_petey_description_source: tooltip
-    label_source: llm
+    x_petey_retype:
+    - money
+  quantity:
+    x_petey_id: '1_57'
+    type: category
+    values:
+    - quantity_inspected_ind
+    - quantity_received_ind
+    - quantity_accepted_conforms_ind
+    widgets:
+      quantity_inspected_ind:
+        page: 1
+        rect:
+        - 38.834999084472656
+        - 575.8599853515625
+        - 48.834999084472656
+        - 585.8599853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty7A[0].twenty7A_inspected[0]
+        on_state: '1'
+        caption: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "INSPECTED."
+        x_petey_caption_source: tooltip
+      quantity_received_ind:
+        page: 1
+        rect:
+        - 96.43499755859375
+        - 575.8599853515625
+        - 106.43499755859375
+        - 585.8599853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty7A[0].twenty7A_received[0]
+        on_state: '1'
+        caption: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "RECEIVED."
+        x_petey_caption_source: tooltip
+      quantity_accepted_conforms_ind:
+        page: 1
+        rect:
+        - 154.03500366210938
+        - 575.8599853515625
+        - 164.03500366210938
+        - 585.8599853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty7A[0].twenty7A_accepted[0]
+        on_state: '1'
+        caption: 27a. QUANTITY IN COLUMN 20 HAS BEEN - Select for "ACCEPTED, AND CONFORMS
+          TO THE CONTRACT EXCEPT AS NOTED:"
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - quantity_inspected_ind
+      - quantity_received_ind
+      - quantity_accepted_conforms_ind
   quantity_discrepancy_note:
+    x_petey_id: '1_56'
     type: integer
     semantic_type: count
     widget:
@@ -918,6 +1012,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_govt_representative_signature:
+    x_petey_id: '1_58'
     type: string
     widget:
       page: 1
@@ -932,9 +1027,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_govt_representative_date_dt:
+    x_petey_id: '1_59'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -947,7 +1042,10 @@ fields:
     description: 27c. DATE (YYYYMMMDD)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   authorized_govt_representative_printed_name_and_title:
+    x_petey_id: '1_60'
     type: string
     semantic_type: person_name
     widget:
@@ -963,6 +1061,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_govt_representative_mailing_address:
+    x_petey_id: '1_62'
     type: string
     widget:
       page: 1
@@ -977,6 +1076,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_govt_representative_telephone_no:
+    x_petey_id: '1_69'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -993,6 +1093,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_govt_representative_email_address:
+    x_petey_id: '1_70'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -1009,9 +1110,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   certifying_officer_date_dt:
+    x_petey_id: '1_73'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -1025,7 +1126,10 @@ fields:
       DATE (YYYYMMMDD)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   certifying_officer_signature_and_title:
+    x_petey_id: '1_74'
     type: string
     widget:
       page: 1
@@ -1041,6 +1145,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   received_at:
+    x_petey_id: '1_79'
     type: string
     widget:
       page: 1
@@ -1055,6 +1160,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   received_by_nm:
+    x_petey_id: '1_76'
     type: string
     semantic_type: person_name
     widget:
@@ -1070,9 +1176,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   date_received_dt:
+    x_petey_id: '1_80'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -1085,7 +1191,10 @@ fields:
     description: 39. DATE RECEIVED (YYYYMMMDD)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   shipment_no:
+    x_petey_id: '1_63'
     type: string
     widget:
       page: 1
@@ -1099,82 +1208,96 @@ fields:
     description: 28. SHIPMENT NUMBER
     x_petey_description_source: tooltip
     label_source: llm
-  shipment_partial_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 648.5800170898438
-      - 300.8349914550781
-      - 658.5800170898438
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_partial[0]
-    description: 28. SHIPMENT NUMBER - Select for "PARTIAL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  shipment_final_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 661.1799926757812
-      - 300.8349914550781
-      - 671.1799926757812
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_final[0]
-    description: 28. SHIPMENT NUMBER - Select for "FINAL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  payment_complete_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 686.5599975585938
-      - 300.8349914550781
-      - 696.5599975585938
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_complete[0]
-    description: 31. PAYMENT - Select for "COMPLETE."
-    x_petey_description_source: tooltip
-    label_source: llm
-  payment_partial_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 698.7999877929688
-      - 300.8349914550781
-      - 708.7999877929688
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_partial[0]
-    description: 31. PAYMENT - Select for "PARTIAL."
-    x_petey_description_source: tooltip
-    label_source: llm
-  payment_final_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 290.8349914550781
-      - 710.3200073242188
-      - 300.8349914550781
-      - 720.3200073242188
-      widget_type: checkbox
-      path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_final[0]
-    description: 31. PAYMENT - Select for "FINAL."
-    x_petey_description_source: tooltip
-    label_source: llm
+  shipment:
+    x_petey_id: '1_66'
+    type: category
+    values:
+    - shipment_partial_ind
+    - shipment_final_ind
+    widgets:
+      shipment_partial_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 648.5800170898438
+        - 300.8349914550781
+        - 658.5800170898438
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_partial[0]
+        on_state: '1'
+        caption: 28. SHIPMENT NUMBER - Select for "PARTIAL."
+        x_petey_caption_source: tooltip
+      shipment_final_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 661.1799926757812
+        - 300.8349914550781
+        - 671.1799926757812
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].twenty8_final[0]
+        on_state: '1'
+        caption: 28. SHIPMENT NUMBER - Select for "FINAL."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - shipment_partial_ind
+      - shipment_final_ind
+  payment:
+    x_petey_id: '1_71'
+    type: category
+    values:
+    - payment_complete_ind
+    - payment_partial_ind
+    - payment_final_ind
+    widgets:
+      payment_complete_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 686.5599975585938
+        - 300.8349914550781
+        - 696.5599975585938
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_complete[0]
+        on_state: '1'
+        caption: 31. PAYMENT - Select for "COMPLETE."
+        x_petey_caption_source: tooltip
+      payment_partial_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 698.7999877929688
+        - 300.8349914550781
+        - 708.7999877929688
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_partial[0]
+        on_state: '1'
+        caption: 31. PAYMENT - Select for "PARTIAL."
+        x_petey_caption_source: tooltip
+      payment_final_ind:
+        page: 1
+        rect:
+        - 290.8349914550781
+        - 710.3200073242188
+        - 300.8349914550781
+        - 720.3200073242188
+        widget_type: checkbox
+        path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty8_thirty1[0].thirty1_final[0]
+        on_state: '1'
+        caption: 31. PAYMENT - Select for "FINAL."
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - payment_complete_ind
+      - payment_partial_ind
+      - payment_final_ind
   do_voucher_no:
+    x_petey_id: '1_64'
     type: string
     widget:
       page: 1
@@ -1189,6 +1312,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   initials_1:
+    x_petey_id: '1_61'
     type: string
     widget:
       page: 1
@@ -1203,6 +1327,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   initials_2:
+    x_petey_id: '1_65'
     type: string
     widget:
       page: 1
@@ -1217,6 +1342,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   paid_by:
+    x_petey_id: '1_67'
     type: string
     widget:
       page: 1
@@ -1229,8 +1355,9 @@ fields:
       path: form1[0].page1[0].twenty89_thirty012345_forty012[0].twenty9_thirty012345[0].thirty2[0]
     label_source: llm
   amount_verified_correct_for_amt:
+    x_petey_id: '1_68'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -1243,7 +1370,10 @@ fields:
     description: 33. AMOUNT VERIFIED CORRECT FOR
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   check_no:
+    x_petey_id: '1_72'
     type: string
     widget:
       page: 1
@@ -1258,6 +1388,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   bill_of_lading_no:
+    x_petey_id: '1_75'
     type: string
     widget:
       page: 1
@@ -1272,6 +1403,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   total_containers_cnt:
+    x_petey_id: '1_81'
     type: integer
     semantic_type: count
     widget:
@@ -1287,6 +1419,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sr_account_no:
+    x_petey_id: '1_77'
     type: string
     semantic_type: account_number
     pattern: ^\d{8,17}$
@@ -1303,6 +1436,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sr_voucher_no:
+    x_petey_id: '1_78'
     type: string
     widget:
       page: 1

@@ -10,30 +10,81 @@ description: ''
 instructions: ''
 fields:
   passport_book_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 89.01860046386719
-      - 70.56298828125
-      - 101.58000183105469
-      - 81.489990234375
-      widget_type: checkbox
-      path: Selection
+    x_petey_id: '5_1'
+    type: category
+    values:
+    - Book
+    - Card
+    - Both
+    widgets:
+      Book:
+        page: 5
+        rect:
+        - 89.01860046386719
+        - 70.56298828125
+        - 101.58000183105469
+        - 81.489990234375
+        widget_type: checkbox
+        path: Selection
+        on_state: Book
+        caption: Book
+      Card:
+        page: 5
+        rect:
+        - 212.72799682617188
+        - 70.55999755859375
+        - 225.29200744628906
+        - 81.489990234375
+        widget_type: checkbox
+        path: Selection
+        on_state: Card
+        caption: Card
+      Both:
+        page: 5
+        rect:
+        - 335.9630126953125
+        - 70.55999755859375
+        - 348.5270080566406
+        - 81.489990234375
+        widget_type: checkbox
+        path: Selection
+        on_state: Both
+        caption: Both
+    x_petey_retype:
+    - option_group:boolean->category[3]
   large_book_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 112.58200073242188
-      - 89.6729736328125
-      - 123.38200378417969
-      - 100.4730224609375
-      widget_type: checkbox
-      path: Regular or Large Book
+    x_petey_id: '5_2'
+    type: category
+    values:
+    - Regular
+    - Large
+    widgets:
+      Regular:
+        page: 5
+        rect:
+        - 112.58200073242188
+        - 89.6729736328125
+        - 123.38200378417969
+        - 100.4730224609375
+        widget_type: checkbox
+        path: Regular or Large Book
+        on_state: Regular
+        caption: Regular
+      Large:
+        page: 5
+        rect:
+        - 243.49200439453125
+        - 89.6729736328125
+        - 254.29200744628906
+        - 100.4730224609375
+        widget_type: checkbox
+        path: Regular or Large Book
+        on_state: Large
+        caption: Large
+    x_petey_retype:
+    - option_group:boolean->category[2]
   last_first_middle_nm:
+    x_petey_id: '5_3'
     type: string
     semantic_type: person_name
     widget:
@@ -46,9 +97,9 @@ fields:
       widget_type: text
       path: Applicant Last Name
   date_of_birth_dt:
+    x_petey_id: '5_4'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 5
       rect:
@@ -58,7 +109,10 @@ fields:
       - 179.10601806640625
       widget_type: text
       path: Applicant First Name
+    x_petey_retype:
+    - pattern_dropped
   place_of_birth_txt:
+    x_petey_id: '5_5'
     type: string
     semantic_type: text
     widget:
@@ -71,9 +125,10 @@ fields:
       widget_type: text
       path: Applicant Middle Name
   ssn_pt1:
+    x_petey_id: '5_6'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 5
       rect:
@@ -83,10 +138,13 @@ fields:
       - 212.4739990234375
       widget_type: text
       path: Applicant DOB M
+    x_petey_retype:
+    - part_by_maxlen:2
   ssn_pt2:
+    x_petey_id: '5_7'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 5
       rect:
@@ -96,10 +154,13 @@ fields:
       - 211.2919921875
       widget_type: text
       path: Applicant DOB D
+    x_petey_retype:
+    - part_by_maxlen:2
   ssn_pt3:
+    x_petey_id: '5_8'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 5
       rect:
@@ -109,19 +170,41 @@ fields:
       - 211.2919921875
       widget_type: text
       path: Applicant DOB Y
+    x_petey_retype:
+    - part_by_maxlen:4
   sex_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 5
-      rect:
-      - 242.21400451660156
-      - 200.22698974609375
-      - 254.9770050048828
-      - 212.33599853515625
-      widget_type: checkbox
-      path: Gender
+    x_petey_id: '5_10'
+    type: category
+    values:
+    - M
+    - F
+    widgets:
+      M:
+        page: 5
+        rect:
+        - 242.21400451660156
+        - 200.22698974609375
+        - 254.9770050048828
+        - 212.33599853515625
+        widget_type: checkbox
+        path: Gender
+        on_state: M
+        caption: M
+      F:
+        page: 5
+        rect:
+        - 259.22100830078125
+        - 200.22698974609375
+        - 271.9840087890625
+        - 212.33599853515625
+        widget_type: checkbox
+        path: Gender
+        on_state: F
+        caption: F
+    x_petey_retype:
+    - option_group:boolean->category[2]
   uscis_a_number_txt:
+    x_petey_id: '5_9'
     type: string
     semantic_type: text
     widget:
@@ -134,9 +217,10 @@ fields:
       widget_type: text
       path: Applicant Place of Birth
   ssn_pt1_alt:
+    x_petey_id: '5_11'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
     widget:
       page: 5
       rect:
@@ -146,10 +230,13 @@ fields:
       - 245.98297119140625
       widget_type: text
       path: Applicant SSN 1
+    x_petey_retype:
+    - part_by_maxlen:3
   ssn_pt2_alt:
+    x_petey_id: '5_12'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
     widget:
       page: 5
       rect:
@@ -159,10 +246,13 @@ fields:
       - 245.9429931640625
       widget_type: text
       path: Applicant SSN 2
+    x_petey_retype:
+    - part_by_maxlen:2
   ssn_pt3_alt:
+    x_petey_id: '5_14'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 5
       rect:
@@ -172,7 +262,10 @@ fields:
       - 247.0989990234375
       widget_type: text
       path: Applicant SSN 3
+    x_petey_retype:
+    - part_by_maxlen:4
   email_address_txt:
+    x_petey_id: '5_13'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -186,6 +279,7 @@ fields:
       widget_type: text
       path: Alien Number
   address_line_1_txt:
+    x_petey_id: '5_15'
     type: string
     semantic_type: street_address
     widget:
@@ -197,7 +291,12 @@ fields:
       - 277.0260009765625
       widget_type: text
       path: Applicant Address Street
+    description: 'Mailing Address Line 1: Street/RFD#, P.O. Box, or URB'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   in_care_of_nm:
+    x_petey_id: '5_16'
     type: string
     semantic_type: person_name
     widget:
@@ -210,6 +309,7 @@ fields:
       widget_type: text
       path: Address Line 2
   city_nm:
+    x_petey_id: '5_17'
     type: string
     semantic_type: city
     widget:
@@ -222,6 +322,7 @@ fields:
       widget_type: text
       path: Applicant Address City
   state_abbreviation_cd:
+    x_petey_id: '5_18'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -235,6 +336,7 @@ fields:
       widget_type: text
       path: Applicant Address State
   zip_cd:
+    x_petey_id: '5_19'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -248,6 +350,7 @@ fields:
       widget_type: text
       path: Applicant Address Zip Code
   country_cd:
+    x_petey_id: '5_20'
     type: string
     semantic_type: country_code
     pattern: ^[A-Z]{2}$
@@ -261,6 +364,7 @@ fields:
       widget_type: text
       path: Applicant Address Country
   other_name_a_first_nm:
+    x_petey_id: '5_21'
     type: string
     semantic_type: first_name
     widget:
@@ -273,6 +377,7 @@ fields:
       widget_type: text
       path: Applicant Phone 1
   other_name_a_middle_nm:
+    x_petey_id: '5_22'
     type: string
     semantic_type: person_name
     widget:
@@ -285,6 +390,7 @@ fields:
       widget_type: text
       path: Applicant Phone 2
   other_name_a_last_nm:
+    x_petey_id: '5_23'
     type: string
     semantic_type: last_name
     widget:
@@ -297,6 +403,7 @@ fields:
       widget_type: text
       path: Applicant Phone 3
   other_name_b_first_nm:
+    x_petey_id: '5_24'
     type: string
     semantic_type: first_name
     widget:
@@ -309,6 +416,7 @@ fields:
       widget_type: text
       path: List all other name you have used
   other_name_b_last_nm:
+    x_petey_id: '5_25'
     type: string
     semantic_type: last_name
     widget:
@@ -321,6 +429,7 @@ fields:
       widget_type: text
       path: List all other names you have used
   applicant_last_name:
+    x_petey_id: '6_2'
     type: string
     semantic_type: last_name
     widget:
@@ -333,6 +442,7 @@ fields:
       widget_type: text
       path: Name of Applicant 2
   applicant_first_name:
+    x_petey_id: '6_1'
     type: string
     semantic_type: first_name
     widget:
@@ -345,9 +455,9 @@ fields:
       widget_type: text
       path: Applicant DOB 2
   applicant_dob_dt:
+    x_petey_id: '6_3'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -357,7 +467,10 @@ fields:
       - 93.9520263671875
       widget_type: text
       path: Parent 1 FM Name
+    x_petey_retype:
+    - pattern_dropped
   place_of_birth:
+    x_petey_id: '6_4'
     type: string
     widget:
       page: 6
@@ -369,9 +482,9 @@ fields:
       widget_type: text
       path: Parent 1 Last Name
   date_of_birth_2_dt:
+    x_petey_id: '6_5'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -381,7 +494,10 @@ fields:
       - 128.16400146484375
       widget_type: text
       path: Parent 1 DOB
+    x_petey_retype:
+    - pattern_dropped
   applicant_name_2:
+    x_petey_id: '6_6'
     type: string
     semantic_type: person_name
     widget:
@@ -394,30 +510,69 @@ fields:
       widget_type: text
       path: Parent 1 Place of Birth
   sex_male_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 494.19000244140625
-      - 108.19598388671875
-      - 502.8299865722656
-      - 116.83599853515625
-      widget_type: checkbox
-      path: Parent 1 Gender
+    x_petey_id: '6_7'
+    type: category
+    values:
+    - M
+    - F
+    widgets:
+      M:
+        page: 6
+        rect:
+        - 494.19000244140625
+        - 108.19598388671875
+        - 502.8299865722656
+        - 116.83599853515625
+        widget_type: checkbox
+        path: Parent 1 Gender
+        on_state: M
+        caption: M
+      F:
+        page: 6
+        rect:
+        - 494.19000244140625
+        - 117.375
+        - 502.8299865722656
+        - 126.34197998046875
+        widget_type: checkbox
+        path: Parent 1 Gender
+        on_state: F
+        caption: F
+    x_petey_retype:
+    - option_group:boolean->category[2]
   sex_female_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 530.093017578125
-      - 109.15997314453125
-      - 538.7329711914062
-      - 117.79998779296875
-      widget_type: checkbox
-      path: Parent 1 US Citizen
+    x_petey_id: '6_8'
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 530.093017578125
+        - 109.15997314453125
+        - 538.7329711914062
+        - 117.79998779296875
+        widget_type: checkbox
+        path: Parent 1 US Citizen
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 529.875
+        - 120.09100341796875
+        - 538.5150146484375
+        - 128.927978515625
+        widget_type: checkbox
+        path: Parent 1 US Citizen
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   applicant_name_3:
+    x_petey_id: '6_9'
     type: string
     semantic_type: person_name
     widget:
@@ -430,9 +585,9 @@ fields:
       widget_type: text
       path: Parent 2 FM Name
   applicant_dob_3_dt:
+    x_petey_id: '6_10'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -442,10 +597,12 @@ fields:
       - 158.156982421875
       widget_type: text
       path: Parent 2 Last Name
+    x_petey_retype:
+    - pattern_dropped
   applicant_dob_4_dt:
+    x_petey_id: '6_11'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -455,7 +612,10 @@ fields:
       - 191.41998291015625
       widget_type: text
       path: Parent 2 DOB
+    x_petey_retype:
+    - pattern_dropped
   applicant_name_4:
+    x_petey_id: '6_12'
     type: string
     semantic_type: person_name
     widget:
@@ -468,42 +628,100 @@ fields:
       widget_type: text
       path: Parent 2 Place of Birth
   sex_male_2_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 493.2439880371094
-      - 172.82501220703125
-      - 501.5570068359375
-      - 181.46502685546875
-      widget_type: checkbox
-      path: Parent 2 Gender
+    x_petey_id: '6_13'
+    type: category
+    values:
+    - M
+    - F
+    widgets:
+      M:
+        page: 6
+        rect:
+        - 493.2439880371094
+        - 172.82501220703125
+        - 501.5570068359375
+        - 181.46502685546875
+        widget_type: checkbox
+        path: Parent 2 Gender
+        on_state: M
+        caption: M
+      F:
+        page: 6
+        rect:
+        - 493.2439880371094
+        - 182.22601318359375
+        - 501.8840026855469
+        - 191.1929931640625
+        widget_type: checkbox
+        path: Parent 2 Gender
+        on_state: F
+        caption: F
+    x_petey_retype:
+    - option_group:boolean->category[2]
   sex_female_2_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 530.3709716796875
-      - 174.6259765625
-      - 539.010986328125
-      - 183.2659912109375
-      widget_type: checkbox
-      path: Parent 2 US Citizen
+    x_petey_id: '6_14'
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 530.3709716796875
+        - 174.6259765625
+        - 539.010986328125
+        - 183.2659912109375
+        widget_type: checkbox
+        path: Parent 2 US Citizen
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 530.4439697265625
+        - 183.86199951171875
+        - 539.083984375
+        - 192.50201416015625
+        widget_type: checkbox
+        path: Parent 2 US Citizen
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   travel_with_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 171.86199951171875
-      - 193.46197509765625
-      - 180.5019989013672
-      - 202.10198974609375
-      widget_type: checkbox
-      path: Ever Married
+    x_petey_id: '6_15'
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 171.86199951171875
+        - 193.46197509765625
+        - 180.5019989013672
+        - 202.10198974609375
+        widget_type: checkbox
+        path: Ever Married
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 206.843994140625
+        - 193.75299072265625
+        - 215.48399353027344
+        - 202.39300537109375
+        widget_type: checkbox
+        path: Ever Married
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   parent_guardian_nm:
+    x_petey_id: '6_16'
     type: string
     semantic_type: person_name
     widget:
@@ -516,6 +734,7 @@ fields:
       widget_type: text
       path: Full Name of Current Spouse or Most Recent Spouse (Last, first, Middle)
   parent_guardian_relationship:
+    x_petey_id: '6_17'
     type: string
     widget:
       page: 6
@@ -527,9 +746,9 @@ fields:
       widget_type: text
       path: Current Spouse Date of Birth
   parent_guardian_dob_dt:
+    x_petey_id: '6_18'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -539,22 +758,43 @@ fields:
       - 235.593994140625
       widget_type: text
       path: Current Spouse Place of Birth
+    x_petey_retype:
+    - pattern_dropped
   parent_guardian_deceased_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 29.752700805664062
-      - 247.71600341796875
-      - 38.3927001953125
-      - 256.35699462890625
-      widget_type: checkbox
-      path: Spouse US Citizen
+    x_petey_id: '6_21'
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 29.752700805664062
+        - 247.71600341796875
+        - 38.3927001953125
+        - 256.35699462890625
+        widget_type: checkbox
+        path: Spouse US Citizen
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 58.84360122680664
+        - 247.78900146484375
+        - 67.48359680175781
+        - 256.42901611328125
+        widget_type: checkbox
+        path: Spouse US Citizen
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   parent_guardian_dob_2_dt:
+    x_petey_id: '6_19'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -564,22 +804,43 @@ fields:
       - 258.41900634765625
       widget_type: text
       path: Date of Marriage (mm/dd/yyyy)
+    x_petey_retype:
+    - pattern_dropped
   parent_guardian_2_deceased_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 308.0799865722656
-      - 247.426025390625
-      - 316.7200012207031
-      - 256.06597900390625
-      widget_type: checkbox
-      path: Divorced
+    x_petey_id: '6_22'
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 308.0799865722656
+        - 247.426025390625
+        - 316.7200012207031
+        - 256.06597900390625
+        widget_type: checkbox
+        path: Divorced
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 343.2799987792969
+        - 247.49798583984375
+        - 351.9200134277344
+        - 256.13800048828125
+        widget_type: checkbox
+        path: Divorced
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   parent_guardian_2_dob_dt:
+    x_petey_id: '6_20'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -589,7 +850,10 @@ fields:
       - 258.32501220703125
       widget_type: text
       path: Widow/Divorce Date (mm/dd/yyyy)
+    x_petey_retype:
+    - pattern_dropped
   parent_guardian_2_nm:
+    x_petey_id: '6_23'
     type: string
     semantic_type: person_name
     widget:
@@ -602,18 +866,62 @@ fields:
       widget_type: text
       path: Applicant Additional Contact Phone Numbers
   parent_guardian_2_cell_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 194.55299377441406
-      - 273.97100830078125
-      - 203.1929931640625
-      - 282.6109924316406
-      widget_type: checkbox
-      path: 'Additional #'
+    x_petey_id: '6_26'
+    type: category
+    values:
+    - Home
+    - Work
+    - Cell
+    - Other
+    widgets:
+      Home:
+        page: 6
+        rect:
+        - 194.55299377441406
+        - 273.97100830078125
+        - 203.1929931640625
+        - 282.6109924316406
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Home
+        caption: Home
+      Work:
+        page: 6
+        rect:
+        - 194.77099609375
+        - 283.5710144042969
+        - 203.41099548339844
+        - 292.21099853515625
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Work
+        caption: Work
+      Cell:
+        page: 6
+        rect:
+        - 227.78900146484375
+        - 274.9169921875
+        - 236.4290008544922
+        - 283.5570068359375
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Cell
+        caption: Cell
+      Other:
+        page: 6
+        rect:
+        - 228.0800018310547
+        - 283.93499755859375
+        - 236.72000122070312
+        - 292.57501220703125
+        widget_type: checkbox
+        path: 'Additional #'
+        on_state: Other
+        caption: Other
+    x_petey_retype:
+    - option_group:boolean->category[4]
   parent_guardian_2_relationship:
+    x_petey_id: '6_24'
     type: string
     widget:
       page: 6
@@ -625,6 +933,7 @@ fields:
       widget_type: text
       path: Occupation
   parent_guardian_2_phone:
+    x_petey_id: '6_25'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -638,9 +947,9 @@ fields:
       widget_type: text
       path: Employer or School
   travel_dt:
+    x_petey_id: '6_27'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -650,10 +959,12 @@ fields:
       - 335.7900085449219
       widget_type: text
       path: Height
+    x_petey_retype:
+    - pattern_dropped
   return_dt:
+    x_petey_id: '6_28'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -663,10 +974,12 @@ fields:
       - 335.3420104980469
       widget_type: text
       path: Hair Color
+    x_petey_retype:
+    - pattern_dropped
   applicant_dob_5_dt:
+    x_petey_id: '6_29'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -676,7 +989,10 @@ fields:
       - 335.9750061035156
       widget_type: text
       path: Eye Color
+    x_petey_retype:
+    - pattern_dropped
   countries_to_visit:
+    x_petey_id: '6_30'
     type: string
     widget:
       page: 6
@@ -688,9 +1004,9 @@ fields:
       widget_type: text
       path: Travel Departure Date
   departure_dt:
+    x_petey_id: '6_31'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -700,7 +1016,10 @@ fields:
       - 335.7300109863281
       widget_type: text
       path: Travel Return Date
+    x_petey_retype:
+    - pattern_dropped
   travel_purpose:
+    x_petey_id: '6_32'
     type: string
     widget:
       page: 6
@@ -712,6 +1031,7 @@ fields:
       widget_type: text
       path: Countries to be visited
   emergency_contact_nm:
+    x_petey_id: '6_33'
     type: string
     semantic_type: person_name
     widget:
@@ -724,6 +1044,7 @@ fields:
       widget_type: text
       path: Permanent Address Street
   emergency_contact_phone:
+    x_petey_id: '6_34'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -737,6 +1058,7 @@ fields:
       widget_type: text
       path: Permanent Address Apartment/Unit
   emergency_contact_address:
+    x_petey_id: '6_35'
     type: string
     widget:
       page: 6
@@ -748,6 +1070,7 @@ fields:
       widget_type: text
       path: Permanent Address City
   emergency_contact_state_abbreviation_cd:
+    x_petey_id: '6_36'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -761,6 +1084,7 @@ fields:
       widget_type: text
       path: Permanent Address State
   emergency_contact_zip_cd:
+    x_petey_id: '6_37'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -774,6 +1098,7 @@ fields:
       widget_type: text
       path: Permanent Address Zip Code
   most_recent_passport_book_nm:
+    x_petey_id: '6_38'
     type: string
     semantic_type: person_name
     widget:
@@ -786,6 +1111,7 @@ fields:
       widget_type: text
       path: Emergency Contact Name
   most_recent_passport_book_number:
+    x_petey_id: '6_39'
     type: string
     widget:
       page: 6
@@ -797,9 +1123,9 @@ fields:
       widget_type: text
       path: Emergency Contact Address
   most_recent_passport_book_issue_dt:
+    x_petey_id: '6_40'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -809,7 +1135,10 @@ fields:
       - 456.42498779296875
       widget_type: text
       path: Emergency Contact Apartment/Unit
+    x_petey_retype:
+    - pattern_dropped
   most_recent_passport_card_nm:
+    x_petey_id: '6_41'
     type: string
     semantic_type: person_name
     widget:
@@ -822,6 +1151,7 @@ fields:
       widget_type: text
       path: Emergency Contact City
   most_recent_passport_card_number:
+    x_petey_id: '6_42'
     type: string
     widget:
       page: 6
@@ -833,9 +1163,9 @@ fields:
       widget_type: text
       path: Emergency Contact State
   most_recent_passport_card_issue_dt:
+    x_petey_id: '6_43'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -845,10 +1175,12 @@ fields:
       - 490.7309875488281
       widget_type: text
       path: Emergency Contact Zip Code
+    x_petey_retype:
+    - pattern_dropped
   most_recent_passport_card_expiration_dt:
+    x_petey_id: '6_44'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -858,7 +1190,10 @@ fields:
       - 490.46099853515625
       widget_type: text
       path: Emergency Contact Phone
+    x_petey_retype:
+    - pattern_dropped
   most_recent_passport_card_place_of_issue:
+    x_petey_id: '6_45'
     type: string
     widget:
       page: 6
@@ -870,18 +1205,38 @@ fields:
       widget_type: text
       path: Relationship to Applicant
   name_printed_on_card_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 362.5530090332031
-      - 491.4989929199219
-      - 371.1929931640625
-      - 500.1390075683594
-      widget_type: checkbox
-      path: Ever Applied or Issued
+    x_petey_id: '6_46'
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 6
+        rect:
+        - 362.5530090332031
+        - 491.4989929199219
+        - 371.1929931640625
+        - 500.1390075683594
+        widget_type: checkbox
+        path: Ever Applied or Issued
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 6
+        rect:
+        - 396.11700439453125
+        - 492.00799560546875
+        - 404.7569885253906
+        - 500.64801025390625
+        widget_type: checkbox
+        path: Ever Applied or Issued
+        on_state: 'No'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   most_recent_book_nm:
+    x_petey_id: '6_47'
     type: string
     semantic_type: person_name
     widget:
@@ -894,55 +1249,65 @@ fields:
       widget_type: text
       path: Your name as printed on your most recent U.S. passport book and/or passport
         card
-  book_submitting_with_application_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 159.1909942626953
-      - 512.9990234375
-      - 167.83099365234375
-      - 521.6390380859375
-      widget_type: checkbox
-      path: Book Status Submitting
-  book_stolen_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 159.1909942626953
-      - 525.198974609375
-      - 167.83099365234375
-      - 533.8389892578125
-      widget_type: checkbox
-      path: Book Status Stolen
-  book_lost_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 189.44500732421875
-      - 525.198974609375
-      - 198.0850067138672
-      - 533.8389892578125
-      widget_type: checkbox
-      path: Book Status Lost
-  book_in_my_possession_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 215.28199768066406
-      - 525.198974609375
-      - 223.9219970703125
-      - 533.8389892578125
-      widget_type: checkbox
-      path: Book Status Possession
+  book:
+    x_petey_id: '6_48'
+    type: category
+    values:
+    - book_submitting_with_application_ind
+    - book_stolen_ind
+    - book_lost_ind
+    - book_in_my_possession_ind
+    widgets:
+      book_submitting_with_application_ind:
+        page: 6
+        rect:
+        - 159.1909942626953
+        - 512.9990234375
+        - 167.83099365234375
+        - 521.6390380859375
+        widget_type: checkbox
+        path: Book Status Submitting
+        on_state: Submitting
+      book_stolen_ind:
+        page: 6
+        rect:
+        - 159.1909942626953
+        - 525.198974609375
+        - 167.83099365234375
+        - 533.8389892578125
+        widget_type: checkbox
+        path: Book Status Stolen
+        on_state: Stolen
+      book_lost_ind:
+        page: 6
+        rect:
+        - 189.44500732421875
+        - 525.198974609375
+        - 198.0850067138672
+        - 533.8389892578125
+        widget_type: checkbox
+        path: Book Status Lost
+        on_state: Lost
+      book_in_my_possession_ind:
+        page: 6
+        rect:
+        - 215.28199768066406
+        - 525.198974609375
+        - 223.9219970703125
+        - 533.8389892578125
+        widget_type: checkbox
+        path: Book Status Possession
+        on_state: Possession
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - book_submitting_with_application_ind
+      - book_stolen_ind
+      - book_lost_ind
+      - book_in_my_possession_ind
   most_recent_card_nm:
+    x_petey_id: '6_49'
     type: string
     semantic_type: person_name
     widget:
@@ -954,55 +1319,65 @@ fields:
       - 535.0029907226562
       widget_type: text
       path: Name as printed on your most recent passport card
-  card_submitting_with_application_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 434.60699462890625
-      - 515.48095703125
-      - 443.24700927734375
-      - 524.1209716796875
-      widget_type: checkbox
-      path: Card Status Submitting
-  card_stolen_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 434.77099609375
-      - 526.2440185546875
-      - 443.4110107421875
-      - 534.884033203125
-      widget_type: checkbox
-      path: Card Status Stolen
-  card_lost_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 466.6260070800781
-      - 526.2440185546875
-      - 475.2659912109375
-      - 534.884033203125
-      widget_type: checkbox
-      path: Card Status Lost
-  card_in_my_possession_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 492.82598876953125
-      - 526.2440185546875
-      - 501.46600341796875
-      - 534.884033203125
-      widget_type: checkbox
-      path: Card Status Possession
+  card:
+    x_petey_id: '6_50'
+    type: category
+    values:
+    - card_submitting_with_application_ind
+    - card_stolen_ind
+    - card_lost_ind
+    - card_in_my_possession_ind
+    widgets:
+      card_submitting_with_application_ind:
+        page: 6
+        rect:
+        - 434.60699462890625
+        - 515.48095703125
+        - 443.24700927734375
+        - 524.1209716796875
+        widget_type: checkbox
+        path: Card Status Submitting
+        on_state: Submitting
+      card_stolen_ind:
+        page: 6
+        rect:
+        - 434.77099609375
+        - 526.2440185546875
+        - 443.4110107421875
+        - 534.884033203125
+        widget_type: checkbox
+        path: Card Status Stolen
+        on_state: Stolen
+      card_lost_ind:
+        page: 6
+        rect:
+        - 466.6260070800781
+        - 526.2440185546875
+        - 475.2659912109375
+        - 534.884033203125
+        widget_type: checkbox
+        path: Card Status Lost
+        on_state: Lost
+      card_in_my_possession_ind:
+        page: 6
+        rect:
+        - 492.82598876953125
+        - 526.2440185546875
+        - 501.46600341796875
+        - 534.884033203125
+        widget_type: checkbox
+        path: Card Status Possession
+        on_state: Possession
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:04'
+      from:
+      - card_submitting_with_application_ind
+      - card_stolen_ind
+      - card_lost_ind
+      - card_in_my_possession_ind
   lost_stolen_explanation_txt:
+    x_petey_id: '6_51'
     type: string
     semantic_type: text
     widget:

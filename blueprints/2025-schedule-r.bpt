@@ -11,9 +11,9 @@ description: ''
 instructions: ''
 fields:
   plan_year_begin_dt:
+    x_petey_id: '1_1'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -23,10 +23,15 @@ fields:
       - 146.052001953125
       widget_type: text
       path: planYearBeginDate
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Plan year beginning date
+    x_petey_description_source: tooltip
   plan_year_end_dt:
+    x_petey_id: '1_2'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -36,7 +41,13 @@ fields:
       - 146.052001953125
       widget_type: text
       path: planYearEndDate
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Plan year end date
+    x_petey_description_source: tooltip
   plan_nm:
+    x_petey_id: '1_3'
     type: string
     semantic_type: person_name
     widget:
@@ -49,6 +60,7 @@ fields:
       widget_type: text
       path: planName
   plan_number_cd:
+    x_petey_id: '1_4'
     type: string
     widget:
       page: 1
@@ -59,7 +71,12 @@ fields:
       - 177.7769775390625
       widget_type: text
       path: planNum
+    description: Three-digit plan number (PN)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   plan_sponsor_nm:
+    x_petey_id: '1_5'
     type: string
     semantic_type: person_name
     widget:
@@ -71,7 +88,12 @@ fields:
       - 229.27398681640625
       widget_type: text
       path: sponsDfeName
+    description: Plan sponsor’s name as shown on line 2a of Form 5500
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   sponsor_ein:
+    x_petey_id: '1_6'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -84,9 +106,14 @@ fields:
       - 221.14501953125
       widget_type: text
       path: eIN
+    description: Employer Identification Number (EIN)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   distributions_paid_in_property_amt:
+    x_petey_id: '1_7'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -96,7 +123,14 @@ fields:
       - 278.61798095703125
       widget_type: text
       path: penValueDstrbPdPrptyAmt
+    description: Total value of distributions paid in property other than in cash
+      or the forms of property specified in the instructions
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   payor_ein_1:
+    x_petey_id: '1_8'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -110,6 +144,7 @@ fields:
       widget_type: text
       path: penPayor01EIN
   payor_ein_2:
+    x_petey_id: '1_9'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -123,6 +158,7 @@ fields:
       widget_type: text
       path: penPayor02EIN
   single_sum_distribution_participant_cnt:
+    x_petey_id: '1_10'
     type: integer
     semantic_type: count
     widget:
@@ -134,18 +170,60 @@ fields:
       - 362.3269958496094
       widget_type: text
       path: penBnftDistribSnglSumCnt
+    description: Number of participants (living or deceased) whose benefits were distributed
+      in a single sum, during the plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   section_412d2_election_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 455.0719909667969
-      - 394.85400390625
-      - 463.4179992675781
-      - 407.94500732421875
-      widget_type: text
-      path: P2-4
+    x_petey_id: '1_11'
+    type: category
+    description: Is the plan administrator making an election under Code section 412(d)(2)
+      or ERISA section 302(d)(2)? Mark Yes, No or N/A.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[3]
+    values:
+    - 'Yes'
+    - 'No'
+    - N/A
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 455.0719909667969
+        - 394.85400390625
+        - 463.4179992675781
+        - 407.94500732421875
+        widget_type: radiobutton
+        path: P2-4
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 510.2179870605469
+        - 394.85400390625
+        - 518.56298828125
+        - 407.94500732421875
+        widget_type: radiobutton
+        path: P2-4
+        on_state: 'No'
+        caption: 'No'
+      N/A:
+        page: 1
+        rect:
+        - 558.6539916992188
+        - 394.85400390625
+        - 567.0
+        - 407.94500732421875
+        widget_type: radiobutton
+        path: P2-4
+        on_state: N/A
+        caption: N/A
   waiver_ruling_letter_month:
+    x_petey_id: '1_12'
     type: string
     widget:
       page: 1
@@ -156,7 +234,12 @@ fields:
       - 447.7460021972656
       widget_type: text
       path: penFndngWvrsDateMonth
+    description: Month of of the ruling letter granting the waiver
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   waiver_ruling_letter_day:
+    x_petey_id: '1_13'
     type: string
     widget:
       page: 1
@@ -167,7 +250,12 @@ fields:
       - 447.7460021972656
       widget_type: text
       path: penFndngWvrsDateDay
+    description: Day of of the ruling letter granting the waiver
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   waiver_ruling_letter_yr:
+    x_petey_id: '1_14'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -180,9 +268,14 @@ fields:
       - 447.7460021972656
       widget_type: text
       path: penFndngWvrsDateYear
+    description: Year of the ruling letter granting the waiver
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   minimum_required_contribution_amt:
+    x_petey_id: '1_15'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -192,9 +285,16 @@ fields:
       - 480.5220031738281
       widget_type: text
       path: penEmplrContribRqrAmt
+    description: Enter the minimum required contribution for this plan year (include
+      any prior year accumulated funding deficiency not waived)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_contributed_amt:
+    x_petey_id: '1_16'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -204,9 +304,16 @@ fields:
       - 501.6510009765625
       widget_type: text
       path: penEmplrContribPaidAmt
+    description: Enter the amount contributed by the employer to the plan for this
+      plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   funding_deficiency_amt:
+    x_petey_id: '1_17'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -216,84 +323,309 @@ fields:
       - 527.488037109375
       widget_type: text
       path: penFundingDeficiencyAmt
+    description: Subtract the amount in line 6b from the amount in line 6a. Enter
+      the result (enter a minus sign to the left of a negative amount)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   minimum_funding_met_by_deadline_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 456.0719909667969
-      - 542.4539794921875
-      - 464.4179992675781
-      - 555.5449829101562
-      widget_type: text
-      path: P2-7
+    x_petey_id: '1_18'
+    type: category
+    description: Will the minimum funding amount reported on line 6c be met by the
+      funding deadline? Mark Yes, No or N/A.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[3]
+    values:
+    - 'Yes'
+    - 'No'
+    - N/A
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 456.0719909667969
+        - 542.4539794921875
+        - 464.4179992675781
+        - 555.5449829101562
+        widget_type: radiobutton
+        path: P2-7
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 511.2179870605469
+        - 542.4539794921875
+        - 519.56298828125
+        - 555.5449829101562
+        widget_type: radiobutton
+        path: P2-7
+        on_state: 'No'
+        caption: 'No'
+      N/A:
+        page: 1
+        rect:
+        - 559.6539916992188
+        - 542.4539794921875
+        - 568.0
+        - 555.5449829101562
+        widget_type: radiobutton
+        path: P2-7
+        on_state: N/A
+        caption: N/A
   actuarial_cost_method_change_agree_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 456.0719909667969
-      - 577.14501953125
-      - 464.4179992675781
-      - 590.2359619140625
-      widget_type: text
-      path: P2-8
+    x_petey_id: '1_19'
+    type: category
+    description: If a change in actuarial cost method was made for this plan year
+      pursuant to a revenue procedure or other authority providing automatic approval
+      for the change or a class ruling letter, does the plan sponsor or plan administrator
+      agree with the change? Mark Yes, No or N/A.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[3]
+    values:
+    - 'Yes'
+    - 'No'
+    - N/A
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 456.0719909667969
+        - 577.14501953125
+        - 464.4179992675781
+        - 590.2359619140625
+        widget_type: radiobutton
+        path: P2-8
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 511.2179870605469
+        - 577.14501953125
+        - 519.56298828125
+        - 590.2359619140625
+        widget_type: radiobutton
+        path: P2-8
+        on_state: 'No'
+        caption: 'No'
+      N/A:
+        page: 1
+        rect:
+        - 559.6539916992188
+        - 577.14501953125
+        - 568.0
+        - 590.2359619140625
+        widget_type: radiobutton
+        path: P2-8
+        on_state: N/A
+        caption: N/A
   amendment_increase_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 370.3269958496094
-      - 629.509033203125
-      - 378.6730041503906
-      - 642.5999755859375
-      widget_type: text
-      path: P3-9
+    x_petey_id: '1_20'
+    type: category
+    description: If this is a defined benefit pension plan, were any amendments adopted
+      during this plan year that increased or decreased the value of benefits? If
+      yes, check the appropriate box. If no, check the “No” box
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - Increase
+    - Decrease
+    - Both
+    - 'No'
+    widgets:
+      Increase:
+        page: 1
+        rect:
+        - 370.3269958496094
+        - 629.509033203125
+        - 378.6730041503906
+        - 642.5999755859375
+        widget_type: radiobutton
+        path: P3-9
+        on_state: Increase
+        caption: Increase
+      Decrease:
+        page: 1
+        rect:
+        - 437.4729919433594
+        - 629.509033203125
+        - 445.8179931640625
+        - 642.5999755859375
+        widget_type: radiobutton
+        path: P3-9
+        on_state: Decrease
+        caption: Decrease
+      Both:
+        page: 1
+        rect:
+        - 500.90899658203125
+        - 629.509033203125
+        - 509.2539978027344
+        - 642.5999755859375
+        widget_type: radiobutton
+        path: P3-9
+        on_state: Both
+        caption: Both
+      'No':
+        page: 1
+        rect:
+        - 556.3150024414062
+        - 629.509033203125
+        - 564.6610107421875
+        - 642.5999755859375
+        widget_type: radiobutton
+        path: P3-9
+        on_state: 'No'
+        caption: 'No'
   unallocated_securities_repay_loan_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 521.5419921875
-      - 659.27099609375
-      - 529.8870239257812
-      - 672.3619995117188
-      widget_type: text
-      path: P4-10
+    x_petey_id: '1_21'
+    type: category
+    description: Were unallocated employer securities or proceeds from the sale of
+      unallocated securities used to repay any exempt loan? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[2]
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 521.5419921875
+        - 659.27099609375
+        - 529.8870239257812
+        - 672.3619995117188
+        widget_type: radiobutton
+        path: P4-10
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 562.968017578125
+        - 659.27099609375
+        - 571.3140258789062
+        - 672.3619995117188
+        widget_type: radiobutton
+        path: P4-10
+        on_state: 'No'
+        caption: 'No'
   esop_holds_preferred_stock_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 521.5419921875
-      - 675.5830078125
-      - 529.8870239257812
-      - 688.6740112304688
-      widget_type: text
-      path: P4-11a
+    x_petey_id: '1_22'
+    type: category
+    description: Does the ESOP hold any preferred stock? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[2]
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 521.5419921875
+        - 675.5830078125
+        - 529.8870239257812
+        - 688.6740112304688
+        widget_type: radiobutton
+        path: P4-11a
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 562.968017578125
+        - 675.5830078125
+        - 571.3140258789062
+        - 688.6740112304688
+        widget_type: radiobutton
+        path: P4-11a
+        on_state: 'No'
+        caption: 'No'
   back_to_back_loan_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 521.5419921875
-      - 694.1461181640625
-      - 529.8870239257812
-      - 707.2369995117188
-      widget_type: text
-      path: P4-11b
+    x_petey_id: '1_23'
+    type: category
+    description: If the ESOP has an outstanding exempt loan with the employer as lender,
+      is such loan part of a “back-to-back” loan? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[2]
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 521.5419921875
+        - 694.1461181640625
+        - 529.8870239257812
+        - 707.2369995117188
+        widget_type: radiobutton
+        path: P4-11b
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 562.968017578125
+        - 694.1461181640625
+        - 571.3140258789062
+        - 707.2369995117188
+        widget_type: radiobutton
+        path: P4-11b
+        on_state: 'No'
+        caption: 'No'
   esop_holds_non_tradable_stock_ind:
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 521.5419921875
-      - 714.1148681640625
-      - 529.8870239257812
-      - 727.205810546875
-      widget_type: text
-      path: P4-12
+    x_petey_id: '1_24'
+    type: category
+    description: Does the ESOP hold any stock that is not readily tradable on an established
+      securities market? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[2]
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 521.5419921875
+        - 714.1148681640625
+        - 529.8870239257812
+        - 727.205810546875
+        widget_type: radiobutton
+        path: P4-12
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 562.968017578125
+        - 714.1148681640625
+        - 571.3140258789062
+        - 727.205810546875
+        widget_type: radiobutton
+        path: P4-12
+        on_state: 'No'
+        caption: 'No'
   employer_1_contributing_employer_nm:
+    x_petey_id: '2_1'
     type: string
     semantic_type: business_name
     widget:
@@ -305,7 +637,12 @@ fields:
       - 121.9959716796875
       widget_type: text
       path: penContribEmployerName_01
+    description: Name of contributing employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_1_ein:
+    x_petey_id: '2_2'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -319,8 +656,9 @@ fields:
       widget_type: text
       path: penContribEmployerEIN_01
   employer_1_dollar_amt:
+    x_petey_id: '2_3'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -330,7 +668,13 @@ fields:
       - 138.38702392578125
       widget_type: text
       path: penContribEmployerContribAmt_01
+    description: Dollar amount contributed by employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_1_multiple_cba_ind:
+    x_petey_id: '2_4'
     type: boolean
     semantic_type: indicator
     widget:
@@ -342,7 +686,13 @@ fields:
       - 155.2509765625
       widget_type: checkbox
       path: P5-13d-1
+    description: If employer contributes under more than one collective bargaining
+      agreement, mark box and see instructions regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_1_cba_expiration_month:
+    x_petey_id: '2_5'
     type: string
     widget:
       page: 2
@@ -353,7 +703,12 @@ fields:
       - 163.84002685546875
       widget_type: text
       path: penContribEmployerCbaExpDateMonth_01
+    description: Month collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_1_cba_expiration_day:
+    x_petey_id: '2_6'
     type: string
     widget:
       page: 2
@@ -364,7 +719,12 @@ fields:
       - 163.84002685546875
       widget_type: text
       path: penContribEmployerCbaExpDateDay_01
+    description: Day collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_1_cba_expiration_yr:
+    x_petey_id: '2_7'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -377,7 +737,12 @@ fields:
       - 163.76397705078125
       widget_type: text
       path: penContribEmployerCbaExpDateYear_01
+    description: Year collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_1_multiple_contribution_rates_ind:
+    x_petey_id: '2_8'
     type: boolean
     semantic_type: indicator
     widget:
@@ -389,9 +754,15 @@ fields:
       - 181.1259765625
       widget_type: checkbox
       path: P5-13e-1
+    description: If more than one rate applies, mark this box and see instructions
+      regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_1_contribution_rate_amt:
+    x_petey_id: '2_9'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -401,18 +772,71 @@ fields:
       - 198.32000732421875
       widget_type: text
       path: penContribEmployerMultiRateAmt_01
+    description: Contribution rate (in dollars and cents)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_1_base_unit_hourly_ind:
-    type: string
-    widget:
-      page: 2
-      rect:
-      - 150.8509979248047
-      - 198.927978515625
-      - 159.19700622558594
-      - 212.01898193359375
-      widget_type: text
-      path: P5-13e2-1
+    x_petey_id: '2_10'
+    type: category
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - Hourly
+    - Weekly
+    - Unit
+    - Other
+    widgets:
+      Hourly:
+        page: 2
+        rect:
+        - 150.8509979248047
+        - 198.927978515625
+        - 159.19700622558594
+        - 212.01898193359375
+        widget_type: radiobutton
+        path: P5-13e2-1
+        on_state: Hourly
+        caption: Hourly
+      Weekly:
+        page: 2
+        rect:
+        - 207.66400146484375
+        - 198.927978515625
+        - 216.00999450683594
+        - 212.01898193359375
+        widget_type: radiobutton
+        path: P5-13e2-1
+        on_state: Weekly
+        caption: Weekly
+      Unit:
+        page: 2
+        rect:
+        - 267.5710144042969
+        - 198.927978515625
+        - 275.9159851074219
+        - 212.01898193359375
+        widget_type: radiobutton
+        path: P5-13e2-1
+        on_state: Unit
+        caption: Unit
+      Other:
+        page: 2
+        rect:
+        - 364.0400085449219
+        - 198.927978515625
+        - 372.385986328125
+        - 212.01898193359375
+        widget_type: radiobutton
+        path: P5-13e2-1
+        on_state: Other
+        caption: Other
   employer_1_base_unit_other_specify_txt:
+    x_petey_id: '2_11'
     type: string
     semantic_type: text
     widget:
@@ -424,7 +848,12 @@ fields:
       - 212.15802001953125
       widget_type: text
       path: penContribEmployerOtherBaseUnitText_01
+    description: If other specify
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_2_contributing_employer_nm:
+    x_petey_id: '2_12'
     type: string
     semantic_type: business_name
     widget:
@@ -436,7 +865,12 @@ fields:
       - 230.16400146484375
       widget_type: text
       path: penContribEmployerName_02
+    description: Name of contributing employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_2_ein:
+    x_petey_id: '2_13'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -450,8 +884,9 @@ fields:
       widget_type: text
       path: penContribEmployerEIN_02
   employer_2_dollar_amt:
+    x_petey_id: '2_14'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -461,7 +896,13 @@ fields:
       - 243.68499755859375
       widget_type: text
       path: penContribEmployerContribAmt_02
+    description: Dollar amount contributed by employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_2_multiple_cba_ind:
+    x_petey_id: '2_15'
     type: boolean
     semantic_type: indicator
     widget:
@@ -473,7 +914,13 @@ fields:
       - 260.44000244140625
       widget_type: checkbox
       path: P5-13d-2
+    description: If employer contributes under more than one collective bargaining
+      agreement, mark box and see instructions regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_2_cba_expiration_month:
+    x_petey_id: '2_16'
     type: string
     widget:
       page: 2
@@ -484,7 +931,12 @@ fields:
       - 269.22100830078125
       widget_type: text
       path: penContribEmployerCbaExpDateMonth_02
+    description: Month collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_2_cba_expiration_day:
+    x_petey_id: '2_17'
     type: string
     widget:
       page: 2
@@ -495,7 +947,12 @@ fields:
       - 269.5469970703125
       widget_type: text
       path: penContribEmployerCbaExpDateDay_02
+    description: Day collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_2_cba_expiration_yr:
+    x_petey_id: '2_18'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -508,7 +965,12 @@ fields:
       - 269.5479736328125
       widget_type: text
       path: penContribEmployerCbaExpDateYear_02
+    description: Year collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_2_multiple_contribution_rates_ind:
+    x_petey_id: '2_19'
     type: boolean
     semantic_type: indicator
     widget:
@@ -520,9 +982,15 @@ fields:
       - 286.31500244140625
       widget_type: checkbox
       path: P5-13e-2
+    description: If more than one rate applies, mark this box and see instructions
+      regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_2_contribution_rate_amt:
+    x_petey_id: '2_20'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -532,18 +1000,71 @@ fields:
       - 303.760009765625
       widget_type: text
       path: penContribEmployerMultiRateAmt_02
+    description: Contribution rate (in dollars and cents)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_2_base_unit_hourly_ind:
-    type: string
-    widget:
-      page: 2
-      rect:
-      - 150.8509979248047
-      - 304.1159973144531
-      - 159.19700622558594
-      - 317.2070007324219
-      widget_type: text
-      path: P5-13e2-2
+    x_petey_id: '2_21'
+    type: category
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - Hourly
+    - Weekly
+    - Unit
+    - Other
+    widgets:
+      Hourly:
+        page: 2
+        rect:
+        - 150.8509979248047
+        - 304.1159973144531
+        - 159.19700622558594
+        - 317.2070007324219
+        widget_type: radiobutton
+        path: P5-13e2-2
+        on_state: Hourly
+        caption: Hourly
+      Weekly:
+        page: 2
+        rect:
+        - 207.66400146484375
+        - 304.1159973144531
+        - 216.00999450683594
+        - 317.2070007324219
+        widget_type: radiobutton
+        path: P5-13e2-2
+        on_state: Weekly
+        caption: Weekly
+      Unit:
+        page: 2
+        rect:
+        - 267.5710144042969
+        - 304.1159973144531
+        - 275.9159851074219
+        - 317.2070007324219
+        widget_type: radiobutton
+        path: P5-13e2-2
+        on_state: Unit
+        caption: Unit
+      Other:
+        page: 2
+        rect:
+        - 364.0400085449219
+        - 304.1159973144531
+        - 372.385986328125
+        - 317.2070007324219
+        widget_type: radiobutton
+        path: P5-13e2-2
+        on_state: Other
+        caption: Other
   employer_2_base_unit_other_specify_txt:
+    x_petey_id: '2_22'
     type: string
     semantic_type: text
     widget:
@@ -555,7 +1076,12 @@ fields:
       - 315.1700134277344
       widget_type: text
       path: penContribEmployerOtherBaseUnitText_02
+    description: If other specify
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_3_contributing_employer_nm:
+    x_petey_id: '2_23'
     type: string
     semantic_type: business_name
     widget:
@@ -567,7 +1093,12 @@ fields:
       - 335.53900146484375
       widget_type: text
       path: penContribEmployerName_03
+    description: Name of contributing employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_3_ein:
+    x_petey_id: '2_24'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -581,8 +1112,9 @@ fields:
       widget_type: text
       path: penContribEmployerEIN_03
   employer_3_dollar_amt:
+    x_petey_id: '2_25'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -592,7 +1124,13 @@ fields:
       - 348.81298828125
       widget_type: text
       path: penContribEmployerContribAmt_03
+    description: Dollar amount contributed by employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_3_multiple_cba_ind:
+    x_petey_id: '2_26'
     type: boolean
     semantic_type: indicator
     widget:
@@ -604,7 +1142,13 @@ fields:
       - 365.47698974609375
       widget_type: checkbox
       path: P5-13d-3
+    description: If employer contributes under more than one collective bargaining
+      agreement, mark box and see instructions regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_3_cba_expiration_month:
+    x_petey_id: '2_27'
     type: string
     widget:
       page: 2
@@ -615,7 +1159,12 @@ fields:
       - 374.82598876953125
       widget_type: text
       path: penContribEmployerCbaExpDateMonth_03
+    description: Month collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_3_cba_expiration_day:
+    x_petey_id: '2_28'
     type: string
     widget:
       page: 2
@@ -626,7 +1175,12 @@ fields:
       - 374.5
       widget_type: text
       path: penContribEmployerCbaExpDateDay_03
+    description: Day collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_3_cba_expiration_yr:
+    x_petey_id: '2_29'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -639,7 +1193,12 @@ fields:
       - 374.66400146484375
       widget_type: text
       path: penContribEmployerCbaExpDateYear_03
+    description: Year collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_3_multiple_contribution_rates_ind:
+    x_petey_id: '2_30'
     type: boolean
     semantic_type: indicator
     widget:
@@ -651,9 +1210,15 @@ fields:
       - 391.78399658203125
       widget_type: checkbox
       path: P5-13e-3
+    description: If more than one rate applies, mark this box and see instructions
+      regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_3_contribution_rate_amt:
+    x_petey_id: '2_31'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -663,18 +1228,71 @@ fields:
       - 408.73199462890625
       widget_type: text
       path: penContribEmployerMultiRateAmt_03
+    description: Contribution rate (in dollars and cents)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_3_base_unit_hourly_ind:
-    type: string
-    widget:
-      page: 2
-      rect:
-      - 150.8509979248047
-      - 409.58599853515625
-      - 159.19700622558594
-      - 422.677001953125
-      widget_type: text
-      path: P5-13e2-3
+    x_petey_id: '2_32'
+    type: category
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - Hourly
+    - Weekly
+    - Unit
+    - Other
+    widgets:
+      Hourly:
+        page: 2
+        rect:
+        - 150.8509979248047
+        - 409.58599853515625
+        - 159.19700622558594
+        - 422.677001953125
+        widget_type: radiobutton
+        path: P5-13e2-3
+        on_state: Hourly
+        caption: Hourly
+      Weekly:
+        page: 2
+        rect:
+        - 207.66400146484375
+        - 409.58599853515625
+        - 216.00999450683594
+        - 422.677001953125
+        widget_type: radiobutton
+        path: P5-13e2-3
+        on_state: Weekly
+        caption: Weekly
+      Unit:
+        page: 2
+        rect:
+        - 267.5710144042969
+        - 409.58599853515625
+        - 275.9159851074219
+        - 422.677001953125
+        widget_type: radiobutton
+        path: P5-13e2-3
+        on_state: Unit
+        caption: Unit
+      Other:
+        page: 2
+        rect:
+        - 364.0400085449219
+        - 409.58599853515625
+        - 372.385986328125
+        - 422.677001953125
+        widget_type: radiobutton
+        path: P5-13e2-3
+        on_state: Other
+        caption: Other
   employer_3_base_unit_other_specify_txt:
+    x_petey_id: '2_33'
     type: string
     semantic_type: text
     widget:
@@ -686,7 +1304,12 @@ fields:
       - 420.6940002441406
       widget_type: text
       path: penContribEmployerOtherBaseUnitText_03
+    description: If other specify
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_4_contributing_employer_nm:
+    x_petey_id: '2_34'
     type: string
     semantic_type: business_name
     widget:
@@ -698,7 +1321,12 @@ fields:
       - 442.0780029296875
       widget_type: text
       path: penContribEmployerName_04
+    description: Name of contributing employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_4_ein:
+    x_petey_id: '2_35'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -712,8 +1340,9 @@ fields:
       widget_type: text
       path: penContribEmployerEIN_04
   employer_4_dollar_amt:
+    x_petey_id: '2_36'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -723,7 +1352,13 @@ fields:
       - 455.64898681640625
       widget_type: text
       path: penContribEmployerContribAmt_04
+    description: Dollar amount contributed by employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_4_multiple_cba_ind:
+    x_petey_id: '2_37'
     type: boolean
     semantic_type: indicator
     widget:
@@ -735,7 +1370,13 @@ fields:
       - 472.7850036621094
       widget_type: checkbox
       path: P5-13d-4
+    description: If employer contributes under more than one collective bargaining
+      agreement, mark box and see instructions regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_4_cba_expiration_month:
+    x_petey_id: '2_38'
     type: string
     widget:
       page: 2
@@ -746,7 +1387,12 @@ fields:
       - 481.9490051269531
       widget_type: text
       path: penContribEmployerCbaExpDateMonth_04
+    description: Month collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_4_cba_expiration_day:
+    x_petey_id: '2_39'
     type: string
     widget:
       page: 2
@@ -757,7 +1403,12 @@ fields:
       - 481.9490051269531
       widget_type: text
       path: penContribEmployerCbaExpDateDay_04
+    description: Day collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_4_cba_expiration_yr:
+    x_petey_id: '2_40'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -770,7 +1421,12 @@ fields:
       - 481.9490051269531
       widget_type: text
       path: penContribEmployerCbaExpDateYear_04
+    description: Year collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_4_multiple_contribution_rates_ind:
+    x_petey_id: '2_41'
     type: boolean
     semantic_type: indicator
     widget:
@@ -782,9 +1438,15 @@ fields:
       - 498.6600036621094
       widget_type: checkbox
       path: P5-13e-4
+    description: If more than one rate applies, mark this box and see instructions
+      regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_4_contribution_rate_amt:
+    x_petey_id: '2_42'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -794,18 +1456,71 @@ fields:
       - 515.625
       widget_type: text
       path: penContribEmployerMultiRateAmt_04
+    description: Contribution rate (in dollars and cents)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_4_base_unit_hourly_ind:
-    type: string
-    widget:
-      page: 2
-      rect:
-      - 150.8509979248047
-      - 516.4620361328125
-      - 159.19700622558594
-      - 529.552978515625
-      widget_type: text
-      path: P5-13e2-4
+    x_petey_id: '2_43'
+    type: category
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - Hourly
+    - Weekly
+    - Unit
+    - Other
+    widgets:
+      Hourly:
+        page: 2
+        rect:
+        - 150.8509979248047
+        - 516.4620361328125
+        - 159.19700622558594
+        - 529.552978515625
+        widget_type: radiobutton
+        path: P5-13e2-4
+        on_state: Hourly
+        caption: Hourly
+      Weekly:
+        page: 2
+        rect:
+        - 207.66400146484375
+        - 516.4620361328125
+        - 216.00999450683594
+        - 529.552978515625
+        widget_type: radiobutton
+        path: P5-13e2-4
+        on_state: Weekly
+        caption: Weekly
+      Unit:
+        page: 2
+        rect:
+        - 267.5710144042969
+        - 516.4620361328125
+        - 275.9159851074219
+        - 529.552978515625
+        widget_type: radiobutton
+        path: P5-13e2-4
+        on_state: Unit
+        caption: Unit
+      Other:
+        page: 2
+        rect:
+        - 364.0400085449219
+        - 516.4620361328125
+        - 372.385986328125
+        - 529.552978515625
+        widget_type: radiobutton
+        path: P5-13e2-4
+        on_state: Other
+        caption: Other
   employer_4_base_unit_other_specify_txt:
+    x_petey_id: '2_44'
     type: string
     semantic_type: text
     widget:
@@ -817,7 +1532,12 @@ fields:
       - 527.5260009765625
       widget_type: text
       path: penContribEmployerOtherBaseUnitText_04
+    description: If other specify
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_5_contributing_employer_nm:
+    x_petey_id: '2_45'
     type: string
     semantic_type: business_name
     widget:
@@ -829,7 +1549,12 @@ fields:
       - 549.3200073242188
       widget_type: text
       path: penContribEmployerName_05
+    description: Name of contributing employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_5_ein:
+    x_petey_id: '2_46'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -843,8 +1568,9 @@ fields:
       widget_type: text
       path: penContribEmployerEIN_05
   employer_5_dollar_amt:
+    x_petey_id: '2_47'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -854,7 +1580,13 @@ fields:
       - 562.47900390625
       widget_type: text
       path: penContribEmployerContribAmt_05
+    description: Dollar amount contributed by employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_5_multiple_cba_ind:
+    x_petey_id: '2_48'
     type: boolean
     semantic_type: indicator
     widget:
@@ -866,7 +1598,13 @@ fields:
       - 578.41796875
       widget_type: checkbox
       path: P5-13d-5
+    description: If employer contributes under more than one collective bargaining
+      agreement, mark box and see instructions regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_5_cba_expiration_month:
+    x_petey_id: '2_49'
     type: string
     widget:
       page: 2
@@ -877,7 +1615,12 @@ fields:
       - 587.115966796875
       widget_type: text
       path: penContribEmployerCbaExpDateMonth_05
+    description: Month collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_5_cba_expiration_day:
+    x_petey_id: '2_50'
     type: string
     widget:
       page: 2
@@ -888,7 +1631,12 @@ fields:
       - 587.115966796875
       widget_type: text
       path: penContribEmployerCbaExpDateDay_05
+    description: Day collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_5_cba_expiration_yr:
+    x_petey_id: '2_51'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -901,7 +1649,12 @@ fields:
       - 586.9520263671875
       widget_type: text
       path: penContribEmployerCbaExpDateYear_05
+    description: Year collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_5_multiple_contribution_rates_ind:
+    x_petey_id: '2_52'
     type: boolean
     semantic_type: indicator
     widget:
@@ -913,9 +1666,15 @@ fields:
       - 604.6920166015625
       widget_type: checkbox
       path: P5-13e-5
+    description: If more than one rate applies, mark this box and see instructions
+      regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_5_contribution_rate_amt:
+    x_petey_id: '2_53'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -925,18 +1684,71 @@ fields:
       - 622.4439697265625
       widget_type: text
       path: penContribEmployerMultiRateAmt_05
+    description: Contribution rate (in dollars and cents)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_5_base_unit_hourly_ind:
-    type: string
-    widget:
-      page: 2
-      rect:
-      - 150.8509979248047
-      - 622.4940185546875
-      - 159.19700622558594
-      - 635.5850219726562
-      widget_type: text
-      path: P5-13e2-5
+    x_petey_id: '2_54'
+    type: category
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - Hourly
+    - Weekly
+    - Unit
+    - Other
+    widgets:
+      Hourly:
+        page: 2
+        rect:
+        - 150.8509979248047
+        - 622.4940185546875
+        - 159.19700622558594
+        - 635.5850219726562
+        widget_type: radiobutton
+        path: P5-13e2-5
+        on_state: Hourly
+        caption: Hourly
+      Weekly:
+        page: 2
+        rect:
+        - 207.66400146484375
+        - 622.4940185546875
+        - 216.00999450683594
+        - 635.5850219726562
+        widget_type: radiobutton
+        path: P5-13e2-5
+        on_state: Weekly
+        caption: Weekly
+      Unit:
+        page: 2
+        rect:
+        - 267.5710144042969
+        - 622.4940185546875
+        - 275.9159851074219
+        - 635.5850219726562
+        widget_type: radiobutton
+        path: P5-13e2-5
+        on_state: Unit
+        caption: Unit
+      Other:
+        page: 2
+        rect:
+        - 364.0400085449219
+        - 622.4940185546875
+        - 372.385986328125
+        - 635.5850219726562
+        widget_type: radiobutton
+        path: P5-13e2-5
+        on_state: Other
+        caption: Other
   employer_5_base_unit_other_specify_txt:
+    x_petey_id: '2_55'
     type: string
     semantic_type: text
     widget:
@@ -948,7 +1760,12 @@ fields:
       - 634.3919677734375
       widget_type: text
       path: penContribEmployerOtherBaseUnitText_05
+    description: If other specify
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_6_contributing_employer_nm:
+    x_petey_id: '2_56'
     type: string
     semantic_type: business_name
     widget:
@@ -960,7 +1777,12 @@ fields:
       - 655.6400146484375
       widget_type: text
       path: penContribEmployerName_06
+    description: Name of contributing employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_6_ein:
+    x_petey_id: '2_57'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -974,8 +1796,9 @@ fields:
       widget_type: text
       path: penContribEmployerEIN_06
   employer_6_dollar_amt:
+    x_petey_id: '2_58'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -985,7 +1808,13 @@ fields:
       - 669.16796875
       widget_type: text
       path: penContribEmployerContribAmt_06
+    description: Dollar amount contributed by employer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_6_multiple_cba_ind:
+    x_petey_id: '2_59'
     type: boolean
     semantic_type: indicator
     widget:
@@ -997,7 +1826,13 @@ fields:
       - 685.2550048828125
       widget_type: checkbox
       path: P5-13d-6
+    description: If employer contributes under more than one collective bargaining
+      agreement, mark box and see instructions regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_6_cba_expiration_month:
+    x_petey_id: '2_60'
     type: string
     widget:
       page: 2
@@ -1008,7 +1843,12 @@ fields:
       - 695.2606201171875
       widget_type: text
       path: penContribEmployerCbaExpDateMonth_06
+    description: Month collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_6_cba_expiration_day:
+    x_petey_id: '2_61'
     type: string
     widget:
       page: 2
@@ -1019,7 +1859,12 @@ fields:
       - 695.2606201171875
       widget_type: text
       path: penContribEmployerCbaExpDateDay_06
+    description: Day collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_6_cba_expiration_yr:
+    x_petey_id: '2_62'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -1032,7 +1877,12 @@ fields:
       - 695.2606201171875
       widget_type: text
       path: penContribEmployerCbaExpDateYear_06
+    description: Year collective bargaining agreement expires
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_6_multiple_contribution_rates_ind:
+    x_petey_id: '2_63'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1044,9 +1894,15 @@ fields:
       - 712.130615234375
       widget_type: checkbox
       path: P5-13e-6
+    description: If more than one rate applies, mark this box and see instructions
+      regarding required attachment.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_6_contribution_rate_amt:
+    x_petey_id: '2_64'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1056,18 +1912,71 @@ fields:
       - 728.5609130859375
       widget_type: text
       path: penContribEmployerMultiRateAmt_06
+    description: Contribution rate (in dollars and cents)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employer_6_base_unit_hourly_ind:
-    type: string
-    widget:
-      page: 2
-      rect:
-      - 150.8509979248047
-      - 729.9323120117188
-      - 159.19700622558594
-      - 743.023193359375
-      widget_type: text
-      path: P5-13e2-6
+    x_petey_id: '2_65'
+    type: category
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - Hourly
+    - Weekly
+    - Unit
+    - Other
+    widgets:
+      Hourly:
+        page: 2
+        rect:
+        - 150.8509979248047
+        - 729.9323120117188
+        - 159.19700622558594
+        - 743.023193359375
+        widget_type: radiobutton
+        path: P5-13e2-6
+        on_state: Hourly
+        caption: Hourly
+      Weekly:
+        page: 2
+        rect:
+        - 207.66400146484375
+        - 729.9323120117188
+        - 216.00999450683594
+        - 743.023193359375
+        widget_type: radiobutton
+        path: P5-13e2-6
+        on_state: Weekly
+        caption: Weekly
+      Unit:
+        page: 2
+        rect:
+        - 267.5710144042969
+        - 729.9323120117188
+        - 275.9159851074219
+        - 743.023193359375
+        widget_type: radiobutton
+        path: P5-13e2-6
+        on_state: Unit
+        caption: Unit
+      Other:
+        page: 2
+        rect:
+        - 364.0400085449219
+        - 729.9323120117188
+        - 372.385986328125
+        - 743.023193359375
+        widget_type: radiobutton
+        path: P5-13e2-6
+        on_state: Other
+        caption: Other
   employer_6_base_unit_other_specify_txt:
+    x_petey_id: '2_66'
     type: string
     semantic_type: text
     widget:
@@ -1079,20 +1988,61 @@ fields:
       - 741.0238037109375
       widget_type: text
       path: penContribEmployerOtherBaseUnitText_06
+    description: If other specify
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   inactive_participant_counting_method_cd:
-    type: string
-    widget:
-      page: 3
-      rect:
-      - 116.85099792480469
-      - 101.9320068359375
-      - 125.1969985961914
-      - 115.02301025390625
-      widget_type: text
-      path: P5-14a
+    x_petey_id: '3_1'
+    type: category
+    description: Mark the box to indicate the counting method used to determine the
+      number of inactive participants
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[3]
+    values:
+    - 'ast contributing employer '
+    - alternative
+    - reasonable approximation
+    widgets:
+      'ast contributing employer ':
+        page: 3
+        rect:
+        - 116.85099792480469
+        - 101.9320068359375
+        - 125.1969985961914
+        - 115.02301025390625
+        widget_type: radiobutton
+        path: P5-14a
+        on_state: 'ast contributing employer '
+        caption: 'ast contributing employer '
+      alternative:
+        page: 3
+        rect:
+        - 224.66400146484375
+        - 101.9320068359375
+        - 233.00999450683594
+        - 115.02301025390625
+        widget_type: radiobutton
+        path: P5-14a
+        on_state: alternative
+        caption: alternative
+      reasonable approximation:
+        page: 3
+        rect:
+        - 276.5710144042969
+        - 101.9320068359375
+        - 284.9159851074219
+        - 115.02301025390625
+        widget_type: radiobutton
+        path: P5-14a
+        on_state: reasonable approximation
+        caption: reasonable approximation
   inactive_participants_current_yr_amt:
+    x_petey_id: '3_2'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1102,7 +2052,13 @@ fields:
       - 111.74700927734375
       widget_type: text
       path: penNoContribCurYrCnt
+    description: The current plan year.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   inactive_participants_preceding_yr_change_ind:
+    x_petey_id: '3_3'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1114,9 +2070,15 @@ fields:
       - 140.98101806640625
       widget_type: checkbox
       path: P5-14b
+    description: Mark the box if the number reported is a change from what was previously
+      reported
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   inactive_participants_preceding_yr_amt:
+    x_petey_id: '3_4'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1126,7 +2088,13 @@ fields:
       - 142.89697265625
       widget_type: text
       path: penNoContribPrevYrCnt
+    description: The plan year immediately preceding the current plan year.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   inactive_participants_second_preceding_yr_change_ind:
+    x_petey_id: '3_5'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1138,9 +2106,15 @@ fields:
       - 166.50799560546875
       widget_type: checkbox
       path: P5-14c
+    description: Mark the box if the number reported is a change from what was previously
+      reported
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   inactive_participants_second_preceding_yr_amt:
+    x_petey_id: '3_6'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1150,9 +2124,15 @@ fields:
       - 169.625
       widget_type: text
       path: penNoContrib2ndPrevYrCnt
+    description: The second preceding plan year.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   no_employer_obligation_preceding_yr_ratio_amt:
+    x_petey_id: '3_7'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1162,9 +2142,16 @@ fields:
       - 212.96002197265625
       widget_type: text
       path: penNoContribCurPrevPrcnt
+    description: The corresponding number for the plan year immediately preceding
+      the current plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   no_employer_obligation_second_preceding_yr_ratio_amt:
+    x_petey_id: '3_8'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1174,7 +2161,13 @@ fields:
       - 227.28802490234375
       widget_type: text
       path: penNoContribCur2ndPrevPrcnt
+    description: The corresponding number for the second preceding plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   employers_withdrew_preceding_yr_cnt:
+    x_petey_id: '3_9'
     type: integer
     semantic_type: count
     widget:
@@ -1186,9 +2179,15 @@ fields:
       - 257.77899169921875
       widget_type: text
       path: penEmplrsWithdrwPrevCnt
+    description: Enter the number of employers who withdrew during the preceding plan
+      year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   withdrawal_liability_assessed_amt:
+    x_petey_id: '3_10'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1198,7 +2197,14 @@ fields:
       - 280.67401123046875
       widget_type: text
       path: penWithdrwLiabAmt
+    description: If line 16a is greater than 0, enter the aggregate amount of withdrawal
+      liability assessed or estimated to be assessed against such withdrawn employers
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   assets_liabilities_transferred_merged_ind:
+    x_petey_id: '3_11'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1210,7 +2216,13 @@ fields:
       - 312.4779968261719
       widget_type: checkbox
       path: P5-17
+    description: Mark box if assets and liabilities from another plan have been transferred
+      to or merged with this plan during the plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   liabilities_under_multiple_plans_ind:
+    x_petey_id: '3_12'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1222,7 +2234,15 @@ fields:
       - 365.35400390625
       widget_type: checkbox
       path: P6-18
+    description: Mark if any liabilities to participants or their beneficiaries under
+      the plan as of the end of the plan year consist (in whole or in part) of liabilities
+      to such participants and beneficiaries under two or more pension plans as of
+      immediately before such plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   public_equity_pct:
+    x_petey_id: '3_13'
     type: number
     semantic_type: percent
     widget:
@@ -1234,7 +2254,12 @@ fields:
       - 405.7139892578125
       widget_type: text
       path: penPublicEquityPrcnt
+    description: Public Equity
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   private_equity_pct:
+    x_petey_id: '3_14'
     type: number
     semantic_type: percent
     widget:
@@ -1246,7 +2271,12 @@ fields:
       - 406.7139892578125
       widget_type: text
       path: penPrivateEquityPrcnt
+    description: Private Equity
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   investment_grade_debt_interest_rate_hedging_pct:
+    x_petey_id: '3_15'
     type: number
     semantic_type: percent
     widget:
@@ -1258,7 +2288,12 @@ fields:
       - 407.03900146484375
       widget_type: text
       path: penInvstGradeDebtPrcnt
+    description: Investment-Grade Debt and Interest Rate Hedging Assets
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   high_yield_debt_pct:
+    x_petey_id: '3_16'
     type: number
     semantic_type: percent
     widget:
@@ -1270,7 +2305,12 @@ fields:
       - 417.1210021972656
       widget_type: text
       path: penHiYldDebtPrcnt
+    description: High-Yield Debt
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   real_assets_pct:
+    x_petey_id: '3_17'
     type: number
     semantic_type: percent
     widget:
@@ -1283,6 +2323,7 @@ fields:
       widget_type: text
       path: penRealAssetsPrcnt
   cash_or_cash_equivalents_pct:
+    x_petey_id: '3_18'
     type: number
     semantic_type: percent
     widget:
@@ -1294,7 +2335,12 @@ fields:
       - 418.7139892578125
       widget_type: text
       path: penCashEquivalentPrcnt
+    description: Cash or Cash Equivalents
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   other_assets_pct:
+    x_petey_id: '3_19'
     type: number
     semantic_type: percent
     widget:
@@ -1307,39 +2353,160 @@ fields:
       widget_type: text
       path: penOthAssetPrcnt
   duration_0_5_years_ind:
-    type: string
-    widget:
-      page: 3
-      rect:
-      - 57.413700103759766
-      - 429.9309997558594
-      - 65.75910186767578
-      - 443.0220031738281
-      widget_type: text
-      path: P6-19a
+    x_petey_id: '3_20'
+    type: category
+    description: Mark the average duration of the Investment-Grade Debt and Interest
+      Rate Hedging Assets
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - 0-5 years
+    - 5-10 years
+    - 10-15 years
+    - 15 years or more
+    widgets:
+      0-5 years:
+        page: 3
+        rect:
+        - 57.413700103759766
+        - 429.9309997558594
+        - 65.75910186767578
+        - 443.0220031738281
+        widget_type: radiobutton
+        path: P6-19a
+        on_state: 0-5 years
+        caption: 0-5 years
+      5-10 years:
+        page: 3
+        rect:
+        - 113.22699737548828
+        - 429.9309997558594
+        - 121.5719985961914
+        - 443.0220031738281
+        widget_type: radiobutton
+        path: P6-19a
+        on_state: 5-10 years
+        caption: 5-10 years
+      10-15 years:
+        page: 3
+        rect:
+        - 173.13299560546875
+        - 429.9309997558594
+        - 181.47900390625
+        - 443.0220031738281
+        widget_type: radiobutton
+        path: P6-19a
+        on_state: 10-15 years
+        caption: 10-15 years
+      15 years or more:
+        page: 3
+        rect:
+        - 235.60299682617188
+        - 429.9309997558594
+        - 243.947998046875
+        - 443.0220031738281
+        widget_type: radiobutton
+        path: P6-19a
+        on_state: 15 years or more
+        caption: 15 years or more
   unpaid_min_required_contributions_greater_than_zero_ind:
-    type: string
-    widget:
-      page: 3
-      rect:
-      - 508.5419921875
-      - 459.1820068359375
-      - 516.8880004882812
-      - 472.2720031738281
-      widget_type: text
-      path: P6-20a
+    x_petey_id: '3_21'
+    type: category
+    description: Is the amount of unpaid minimum required contributions for all years
+      from Schedule SB (Form 5500) line 40 greater than zero? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[2]
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 508.5419921875
+        - 459.1820068359375
+        - 516.8880004882812
+        - 472.2720031738281
+        widget_type: radiobutton
+        path: P6-20a
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 540.35498046875
+        - 459.1820068359375
+        - 548.7009887695312
+        - 472.2720031738281
+        widget_type: radiobutton
+        path: P6-20a
+        on_state: 'No'
+        caption: 'No'
   pbgc_notified_ind:
-    type: string
-    widget:
-      page: 3
-      rect:
-      - 57.976200103759766
-      - 484.4939880371094
-      - 66.32160186767578
-      - 497.5849914550781
-      widget_type: text
-      path: P6-20b
+    x_petey_id: '3_22'
+    type: category
+    description: If line 20a is “Yes,” has PBGC been notified as required by ERISA
+      sections 4043(c)(5) and/or 303(k)(4)?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[4]
+    values:
+    - 'Yes'
+    - No-waived
+    - No 30-day
+    - No-Other
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 57.976200103759766
+        - 484.4939880371094
+        - 66.32160186767578
+        - 497.5849914550781
+        widget_type: radiobutton
+        path: P6-20b
+        on_state: 'Yes'
+        caption: 'Yes'
+      No-waived:
+        page: 3
+        rect:
+        - 57.976200103759766
+        - 499.4010009765625
+        - 66.32160186767578
+        - 512.4920043945312
+        widget_type: radiobutton
+        path: P6-20b
+        on_state: No-waived
+        caption: No-waived
+      No 30-day:
+        page: 3
+        rect:
+        - 57.976200103759766
+        - 521.6199951171875
+        - 66.32160186767578
+        - 534.7099609375
+        widget_type: radiobutton
+        path: P6-20b
+        on_state: No 30-day
+        caption: No 30-day
+      No-Other:
+        page: 3
+        rect:
+        - 57.976200103759766
+        - 543.8380126953125
+        - 66.32160186767578
+        - 556.9290161132812
+        widget_type: radiobutton
+        path: P6-20b
+        on_state: No-Other
+        caption: No-Other
   pbgc_notification_other_explanation_txt:
+    x_petey_id: '3_23'
     type: string
     semantic_type: text
     widget:
@@ -1351,69 +2518,113 @@ fields:
       - 583.4609985351562
       widget_type: text
       path: pBGCNotifiedExplanationText
+    description: If no, other, provide explanation
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   permissive_aggregation_rules_ind:
-    type: string
-    widget:
-      page: 3
-      rect:
-      - 162.88299560546875
-      - 609.9329833984375
-      - 171.22900390625
-      - 623.0239868164062
-      widget_type: text
-      path: P7-21a
-  design_based_safe_harbor_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 57.3754997253418
-      - 642.6610107421875
-      - 66.37539672851562
-      - 656.1610107421875
-      widget_type: checkbox
-      path: P7-21b-1
-  prior_year_adp_test_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 57.3754997253418
-      - 657.0050048828125
-      - 66.37539672851562
-      - 670.5050048828125
-      widget_type: checkbox
-      path: P7-21b-2
-  current_year_adp_test_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 57.3754997253418
-      - 671.3489990234375
-      - 66.37539672851562
-      - 684.8489990234375
-      widget_type: checkbox
-      path: P7-21b-3
-  nondiscrimination_na_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 57.3754997253418
-      - 685.9739990234375
-      - 66.37539672851562
-      - 699.4743041992188
-      widget_type: checkbox
-      path: P7-21b-4
+    x_petey_id: '3_24'
+    type: category
+    description: Does the plan satisfy the coverage and nondiscrimination tests of
+      Code sections 410(b) and 401(a)(4) by combining this plan with any other plans
+      under the permissive aggregation rules? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:string->category[2]
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 162.88299560546875
+        - 609.9329833984375
+        - 171.22900390625
+        - 623.0239868164062
+        widget_type: radiobutton
+        path: P7-21a
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 194.38400268554688
+        - 609.9329833984375
+        - 202.72900390625
+        - 623.0239868164062
+        widget_type: radiobutton
+        path: P7-21a
+        on_state: 'No'
+        caption: 'No'
+  group_p3:
+    x_petey_id: '3_25'
+    type: category
+    values:
+    - design_based_safe_harbor_ind
+    - prior_year_adp_test_ind
+    - current_year_adp_test_ind
+    - nondiscrimination_na_ind
+    widgets:
+      design_based_safe_harbor_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 642.6610107421875
+        - 66.37539672851562
+        - 656.1610107421875
+        widget_type: checkbox
+        path: P7-21b-1
+        on_state: 'Yes'
+        caption: Mark if Design-based safe harbor method
+        x_petey_caption_source: tooltip
+      prior_year_adp_test_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 657.0050048828125
+        - 66.37539672851562
+        - 670.5050048828125
+        widget_type: checkbox
+        path: P7-21b-2
+        on_state: 'Yes'
+        caption: Mark if "Prior year" ADP test
+        x_petey_caption_source: tooltip
+      current_year_adp_test_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 671.3489990234375
+        - 66.37539672851562
+        - 684.8489990234375
+        widget_type: checkbox
+        path: P7-21b-3
+        on_state: 'Yes'
+        caption: Mark if "Current year" ADP test
+        x_petey_caption_source: tooltip
+      nondiscrimination_na_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 685.9739990234375
+        - 66.37539672851562
+        - 699.4743041992188
+        widget_type: checkbox
+        path: P7-21b-4
+        on_state: 'Yes'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:58'
+      from:
+      - design_based_safe_harbor_ind
+      - prior_year_adp_test_ind
+      - current_year_adp_test_ind
+      - nondiscrimination_na_ind
   opinion_letter_dt:
+    x_petey_id: '3_26'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -1423,7 +2634,13 @@ fields:
       - 711.3637084960938
       widget_type: text
       path: penOpinLtrDateMonth
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Enter the date of the Opinion Letter
+    x_petey_description_source: tooltip
   opinion_letter_serial_num:
+    x_petey_id: '3_27'
     type: string
     widget:
       page: 3
@@ -1434,3 +2651,7 @@ fields:
       - 722.6727294921875
       widget_type: text
       path: penOpinSerialNum
+    description: Opinion Letter serial number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip

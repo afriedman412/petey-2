@@ -27,9 +27,10 @@ dispatch. It is TRI-STATE, and the distinction is load-bearing:
   * null   — no dispatch instrumentation exists for this run at all.
              Says nothing about the field.
 
-`null` is NOT `false`. Only `extract.py` emits a dispatch; the
-meaning-based methods (`petey:<parser>`) shell out to the Petey CLI,
-which does not. Collapsing the two made every petey `agree` count as
+`null` is NOT `false`. Only `extract.py` emits a dispatch; the judge
+(`judge:<parser>`, the meaning-based arm, which once shelled out to the
+Petey CLI as `petey:<parser>`) does not. Collapsing the two made every
+judge `agree` count as
 `agree_by_absence` — a run where all 48 fields matched on real values
 reported 45 matches "only because both are null." A perfect run and an
 empty one were indistinguishable.
@@ -58,10 +59,15 @@ from typing import Any, Optional
 
 import yaml
 
-REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty"}
+from petey.synth.boxes import widget_key
+
+REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty", "ink"}
 
 
-def _coerce_bool(v: Any) -> Optional[bool]:
+_FALSY_ANSWER = {"n", "no", "false", "0", "off", "/off"}     # as extract.FALSY_ANSWER
+
+
+def _coerce_bool(v: Any, widget_type: Optional[str] = None) -> Optional[bool]:
     """Return True/False for standard truthy/falsy encodings, else None.
 
     Mirrors `extract._coerce_checkbox` exactly: bool passes through; None
@@ -81,6 +87,8 @@ def _coerce_bool(v: Any) -> Optional[bool]:
         s = v.strip().lower()
         if not s or s == "off":
             return False
+        if widget_type not in (None, "checkbox", "radiobutton") and s in _FALSY_ANSWER:
+            return False                    # a Y / N text box: "N" is an answer, not a ticked export value
         return True
     return None
 
@@ -246,6 +254,23 @@ def _values_equal(
     return _canonicalize(a, semantic_type) == _canonicalize(b, semantic_type)
 
 
+
+def _option_selected(raw, w_block: dict) -> bool:
+    """Is this option of a category field selected, given the ground-truth
+    value stored at its path? Options that declare an `on_state` (one field,
+    several kids: radio groups and checkbox fields with kids) are selected
+    when the field holds that state; older per-field checkbox clusters keep
+    the "path is checked" rule."""
+    st = w_block.get("on_state")
+    if st and not isinstance(raw, bool):
+        # one field, several kids: the field holds the selected on-state
+        if isinstance(raw, (list, tuple, set)):
+            return st in {str(x) for x in raw}
+        return raw not in (None, "", "Off") and str(raw) == str(st)
+    # its own checkbox field (a labeler cluster): the generator writes a bool
+    return _coerce_bool(raw) is True
+
+
 def _normalize_ground_truth(
     field: dict, gt: dict[str, Any],
 ) -> tuple[Any, Optional[str]]:
@@ -258,7 +283,7 @@ def _normalize_ground_truth(
         if widgets:
             selected = [
                 v for v, w_block in widgets.items()
-                if _coerce_bool(gt.get(w_block.get("path"))) is True
+                if _option_selected(gt.get(widget_key(w_block)), w_block)
             ]
             if len(selected) == 0:
                 return None, None
@@ -267,7 +292,7 @@ def _normalize_ground_truth(
             return None, f"mutex_violation_{len(selected)}_true"
         widget = field.get("widget")
         if widget:
-            raw = gt.get(widget.get("path"))
+            raw = gt.get(widget_key(widget))
             if raw in (None, "", "Off"):
                 return None, None
             if allowed and raw not in allowed:
@@ -279,29 +304,31 @@ def _normalize_ground_truth(
         widgets = field.get("widgets") or {}
         selected = [
             v for v, w_block in widgets.items()
-            if _coerce_bool(gt.get(w_block.get("path"))) is True
+            if _option_selected(gt.get(widget_key(w_block)), w_block)
         ]
         return selected, None
 
     widget = field.get("widget")
     if not widget:
         return None, "no_widget_block"
-    raw = gt.get(widget.get("path"))
+    raw = gt.get(widget_key(widget))
     if ftype == "boolean":
-        return _coerce_bool(raw), None
+        return _coerce_bool(raw, (widget.get("widget_type") or "text")), None
     return raw, None
 
 
 def _bpt_owned_paths(bp: dict) -> set[str]:
-    """Every AcroForm path claimed by some field in the bpt."""
+    """Every ground-truth key (AcroForm path, or rect key on a flat blueprint) claimed by some field in the bpt."""
     paths: set[str] = set()
     for f in bp.get("fields", {}).values():
         w = f.get("widget")
-        if w and w.get("path"):
-            paths.add(w["path"])
+        k = widget_key(w) if w else None
+        if k:
+            paths.add(k)
         for wb in (f.get("widgets") or {}).values():
-            if wb.get("path"):
-                paths.add(wb["path"])
+            k = widget_key(wb)
+            if k:
+                paths.add(k)
     return paths
 
 
@@ -378,27 +405,120 @@ def _looks_like_ocr_noise(v: Any) -> bool:
     return False
 
 
+def _is_set(v: Any, ftype: str) -> bool:
+    """Does this field hold a value, for the purpose of a cross-field rule?"""
+    if v is None or v == "" or v == [] or v == "Off":
+        return False
+    if ftype == "boolean":
+        return bool(_coerce_bool(v))
+    return True
+
+
+def check_rules(bpt: dict, values: dict[str, Any]) -> list[dict]:
+    """Evaluate the blueprint's cross-field rules against name-keyed values.
+
+    Rules live under `rules:` (spec Appendix B, proposed) or `x_petey_rules`
+    until then. Only `mutex` is implemented: at most one member may hold a
+    value. Returns one record per violated rule. Needs no ground truth —
+    the form's own logic is the referee (STRATEGY_v1 §3.6).
+    """
+    fields = bpt.get("fields", {})
+    out: list[dict] = []
+    for rule in bpt.get("rules") or bpt.get("x_petey_rules") or []:
+        members = rule.get("mutex")
+        if not members:
+            continue
+        held = [f for f in members
+                if _is_set(values.get(f), fields.get(f, {}).get("type", "string"))]
+        if len(held) > 1:
+            out.append({
+                "rule": rule,
+                "held": held,
+                "values": {f: values.get(f) for f in held},
+            })
+    return out
+
+
+_DATE_SHAPES = re.compile(
+    r"\d{8}|\d{4}-\d{2}-\d{2}|\d{1,2}/\d{1,2}/\d{2,4}|\d{1,2}-\d{1,2}-\d{2,4}"
+    r"|[A-Za-z]{3,9}\.? \d{1,2},? \d{4}|\d{1,2} [A-Za-z]{3,9}\.? \d{4}")
+_NUMBER_SHAPE = re.compile(r"[-+(]?\s*\$?\s*[\d,]+(?:\.\d+)?\s*%?\)?")
+
+
+def shape_mismatch(field: dict, value: Any) -> Optional[str]:
+    """Why a label-grounded value contradicts what the field declares.
+
+    The generator fills a box from the label printed next to it; the
+    blueprint declares what it believes the box holds. Where the two
+    disagree on SHAPE the blueprint is the usual suspect: a month box typed
+    `date`, an SSN part typed as a whole SSN, an email box named as a
+    street. Returns None when the value fits or there is nothing to test.
+    """
+    if value is None or value == "" or isinstance(value, bool):
+        return None
+    ftype = field.get("type", "string")
+    s = str(value).strip()
+    if not s:
+        return None
+    if ftype == "date":
+        return None if _DATE_SHAPES.fullmatch(s) else "date_type_vs_value"
+    if ftype in ("number", "integer"):
+        return None if _NUMBER_SHAPE.fullmatch(s) else "number_type_vs_value"
+    if ftype == "category":
+        allowed = field.get("values") or []
+        if allowed and s not in allowed:
+            return "value_not_in_values"
+        return None
+    if ftype == "string":
+        pat = field.get("pattern")
+        if pat:
+            try:
+                if not re.fullmatch(pat, s):
+                    return "pattern_vs_value"
+            except re.error:
+                return None
+        st = field.get("semantic_type")
+        if st in ("street_address", "city", "person_name", "first_name",
+                  "last_name", "entity_name", "business_name") and "@" in s:
+            return "name_vs_value"
+    return None
+
+
 def score(
     bpt: dict,
     ground_truth: dict[str, Any],
     extracted: dict[str, Any],
     dispatch_per_field: Optional[dict[str, Any]] = None,
+    unreached: Optional[set[str]] = None,
 ) -> dict:
-    """Emit a per-field verdict report."""
+    """Emit a per-field verdict report.
+
+    `unreached` names the fields no synthetic box reached (the page finder
+    found nothing at their rect, so the case never filled them). They get
+    their own verdict, `not_generated`, and stay out of agreement: an empty
+    ground truth against an empty extraction says nothing about the field.
+    """
     fields = bpt.get("fields", {})
+    unreached = unreached or set()
+    gt_by_name: dict[str, Any] = {}
+    shape_mismatches: dict[str, str] = {}
     dispatch = dispatch_per_field or {}
     # An empty/absent dispatch means this method emits none at all, not
     # that every field was missed. See the tri-state note in the module
     # docstring.
     instrumented = bool(dispatch)
     per_field: list[dict] = []
-    verdicts = {"agree": 0, "differ": 0, "extract_miss": 0, "gt_defect": 0}
+    verdicts = {"agree": 0, "differ": 0, "extract_miss": 0, "gt_defect": 0, "not_generated": 0}
     agree_confirmed = 0
     agree_by_absence = 0
 
     for name, field in fields.items():
         ftype = field.get("type", "string")
         gt_value, defect = _normalize_ground_truth(field, ground_truth)
+        gt_by_name[name] = gt_value
+        mismatch = shape_mismatch(field, gt_value)
+        if mismatch:
+            shape_mismatches[name] = mismatch
         ex_value = extracted.get(name)
         dispatch_entry = dispatch.get(name)
         reached = _field_reached(dispatch_entry) if instrumented else None
@@ -410,7 +530,9 @@ def score(
             ftype == "boolean" and _coerce_bool(ex_value) is False
         ) or (ftype == "multi_category" and not ex_value)
 
-        if defect is not None:
+        if name in unreached and gt_absent:
+            verdict = "not_generated"
+        elif defect is not None:
             verdict = "gt_defect"
         elif gt_absent and ex_absent:
             verdict = "agree"
@@ -445,6 +567,7 @@ def score(
             "field": name,
             "type": ftype,
             "verdict": verdict,
+            "shape_mismatch": mismatch,
             "reached": reached,
             "gt_value": gt_value,
             "extracted_value": ex_value,
@@ -460,8 +583,23 @@ def score(
         and v not in ("", "Off", False)
     ]
 
+    # Cross-field rules: a violated rule on the extracted side is its own
+    # verdict; on the ground-truth side it means the generator broke the
+    # form's logic (a defective case, not an extraction fault).
+    ex_violations = check_rules(bpt, extracted)
+    gt_violations = check_rules(bpt, gt_by_name)
+    verdicts["rule_violation"] = len(ex_violations)
+    # Ground truth vs declaration: a label-grounded value the blueprint's
+    # own type/pattern rejects is a blueprint defect surfaced at generation
+    # time, independent of extraction. Counted beside the verdicts, not
+    # among them — the same field also gets agree/differ/miss.
+    verdicts["gt_shape_mismatch"] = len(shape_mismatches)
+
     return {
         "verdicts": verdicts,
+        "rule_violations": ex_violations,
+        "gt_rule_violations": gt_violations,
+        "gt_shape_mismatches": shape_mismatches,
         "agree_confirmed_count": agree_confirmed if instrumented else None,
         "agree_by_absence_count": agree_by_absence if instrumented else None,
         "labeler_miss_count": len(labeler_miss_paths),

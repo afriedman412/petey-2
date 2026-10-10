@@ -12,6 +12,7 @@ authoring:
   model: claude-opus-5
 fields:
   completed_by_nm:
+    x_petey_id: '1_24'
     type: string
     semantic_type: person_name
     widget:
@@ -27,6 +28,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   completed_by_title_txt:
+    x_petey_id: '1_27'
     type: string
     semantic_type: text
     widget:
@@ -40,6 +42,7 @@ fields:
       path: 301 Title
     label_source: llm
   completed_by_phone_num:
+    x_petey_id: '1_29'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -54,9 +57,9 @@ fields:
       path: 301 Phone
     label_source: llm
   completed_dt:
+    x_petey_id: '1_30'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -67,7 +70,10 @@ fields:
       widget_type: text
       path: 301 Date
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   employee_full_nm:
+    x_petey_id: '1_2'
     type: string
     semantic_type: person_name
     widget:
@@ -83,6 +89,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_address_line_1_txt:
+    x_petey_id: '1_4'
     type: string
     semantic_type: street_address
     widget:
@@ -98,6 +105,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_city_nm:
+    x_petey_id: '1_7'
     type: string
     semantic_type: city
     widget:
@@ -113,6 +121,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_state_abbreviation_cd:
+    x_petey_id: '1_8'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -129,6 +138,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_zip_cd:
+    x_petey_id: '1_9'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -145,9 +155,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_birth_dt:
+    x_petey_id: '1_12'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -158,10 +168,12 @@ fields:
       widget_type: text
       path: 301 DOB
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   employee_hired_dt:
+    x_petey_id: '1_13'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -174,21 +186,44 @@ fields:
     description: 301 Date Hired
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   employee_gender_cd:
+    x_petey_id: '1_14'
     type: category
     values:
     - Male
     - Female
-    widget:
-      page: 1
-      rect:
-      - 308.6180114746094
-      - 267.7090148925781
-      - 348.5450134277344
-      - 276.2179870605469
-      widget_type: radiobutton
-      path: 301 Gender
+    description: Male or Female
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      Male:
+        page: 1
+        rect:
+        - 308.6180114746094
+        - 267.7090148925781
+        - 317.12701416015625
+        - 275.8909912109375
+        widget_type: radiobutton
+        path: 301 Gender
+        on_state: Male
+        caption: Male
+      Female:
+        page: 1
+        rect:
+        - 340.0360107421875
+        - 268.0360107421875
+        - 348.5450134277344
+        - 276.2179870605469
+        widget_type: radiobutton
+        path: 301 Gender
+        on_state: Female
+        caption: Female
   physician_or_health_care_professional_nm:
+    x_petey_id: '1_16'
     type: string
     semantic_type: person_name
     widget:
@@ -204,6 +239,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   treatment_facility_business_name:
+    x_petey_id: '1_18'
     type: string
     semantic_type: business_name
     widget:
@@ -219,6 +255,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   treatment_facility_address_line_1_txt:
+    x_petey_id: '1_19'
     type: string
     semantic_type: street_address
     widget:
@@ -234,6 +271,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   treatment_facility_city_nm:
+    x_petey_id: '1_21'
     type: string
     semantic_type: city
     widget:
@@ -249,6 +287,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   treatment_facility_state_abbreviation_cd:
+    x_petey_id: '1_22'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -265,6 +304,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   treatment_facility_zip_cd:
+    x_petey_id: '1_23'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -281,34 +321,75 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   treated_in_emergency_room_ind:
+    x_petey_id: '1_25'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 309.27301025390625
-      - 482.3999938964844
-      - 318.1090087890625
-      - 502.0360107421875
-      widget_type: radiobutton
-      path: 301 ER
+    description: 301 Emergency Room Required
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 309.27301025390625
+        - 482.3999938964844
+        - 317.7820129394531
+        - 490.5820007324219
+        widget_type: radiobutton
+        path: 301 ER
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 309.6000061035156
+        - 493.85400390625
+        - 318.1090087890625
+        - 502.0360107421875
+        widget_type: radiobutton
+        path: 301 ER
+        on_state: 'No'
+        caption: 'No'
   hospitalized_overnight_ind:
+    x_petey_id: '1_31'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 309.6000061035156
-      - 528.545166015625
-      - 318.4360046386719
-      - 548.5089111328125
-      widget_type: radiobutton
-      path: 301 Hospitalized
+    description: 301 Hospitalized Overnight
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 309.927001953125
+        - 528.545166015625
+        - 318.4360046386719
+        - 536.7271118164062
+        widget_type: radiobutton
+        path: 301 Hospitalized
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 309.6000061035156
+        - 540.3270263671875
+        - 318.1090087890625
+        - 548.5089111328125
+        widget_type: radiobutton
+        path: 301 Hospitalized
+        on_state: 'No'
+        caption: 'No'
   case_num:
+    x_petey_id: '1_1'
     type: string
     widget:
       page: 1
@@ -323,9 +404,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   injury_or_illness_dt:
+    x_petey_id: '1_3'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -338,7 +419,10 @@ fields:
     description: 301 Date of Injury or Illness
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   employee_began_work_time:
+    x_petey_id: '1_5'
     type: string
     widget:
       page: 1
@@ -353,20 +437,41 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_began_work_time_meridiem_cd:
+    x_petey_id: '1_6'
     type: category
     values:
     - AM
     - PM
-    widget:
-      page: 1
-      rect:
-      - 816.5089721679688
-      - 175.09100341796875
-      - 856.4359741210938
-      - 183.60000610351562
-      widget_type: radiobutton
-      path: 301 Time Employee Began Work AMPM
+    description: 301 Time Employee Began Work AMPM
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      AM:
+        page: 1
+        rect:
+        - 816.5089721679688
+        - 175.09100341796875
+        - 825.0180053710938
+        - 183.27301025390625
+        widget_type: radiobutton
+        path: 301 Time Employee Began Work AMPM
+        on_state: AM
+        caption: AM
+      PM:
+        page: 1
+        rect:
+        - 847.927001953125
+        - 175.41799926757812
+        - 856.4359741210938
+        - 183.60000610351562
+        widget_type: radiobutton
+        path: 301 Time Employee Began Work AMPM
+        on_state: PM
+        caption: PM
   event_time:
+    x_petey_id: '1_10'
     type: string
     widget:
       page: 1
@@ -381,21 +486,53 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   event_time_meridiem_cd:
+    x_petey_id: '1_11'
     type: category
     values:
     - AM
     - PM
     - Unsure
-    widget:
-      page: 1
-      rect:
-      - 775.3629760742188
-      - 194.072998046875
-      - 844.6539916992188
-      - 202.90899658203125
-      widget_type: radiobutton
-      path: 301 Time of Event AMPM
+    description: 301 Time of Event AMPM
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      AM:
+        page: 1
+        rect:
+        - 775.3629760742188
+        - 194.39999389648438
+        - 783.8720092773438
+        - 202.58200073242188
+        widget_type: radiobutton
+        path: 301 Time of Event AMPM
+        on_state: AM
+        caption: AM
+      PM:
+        page: 1
+        rect:
+        - 806.1270141601562
+        - 194.072998046875
+        - 814.635986328125
+        - 202.2550048828125
+        widget_type: radiobutton
+        path: 301 Time of Event AMPM
+        on_state: PM
+        caption: PM
+      Unsure:
+        page: 1
+        rect:
+        - 836.14501953125
+        - 194.72698974609375
+        - 844.6539916992188
+        - 202.90899658203125
+        widget_type: radiobutton
+        path: 301 Time of Event AMPM
+        on_state: Unsure
+        caption: Unsure
   activity_prior_to_event_txt:
+    x_petey_id: '1_15'
     type: string
     semantic_type: text
     widget:
@@ -411,6 +548,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   what_happened_txt:
+    x_petey_id: '1_17'
     type: string
     semantic_type: text
     widget:
@@ -426,6 +564,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   injury_or_illness_description_txt:
+    x_petey_id: '1_20'
     type: string
     semantic_type: description
     widget:
@@ -441,6 +580,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   object_or_substance_harmed_employee_txt:
+    x_petey_id: '1_26'
     type: string
     semantic_type: text
     widget:
@@ -456,9 +596,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   death_dt:
+    x_petey_id: '1_28'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -471,6 +611,8 @@ fields:
     description: 301 Death Date
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
 x_petey_dropped_widgets:
   count: 2
   widgets:

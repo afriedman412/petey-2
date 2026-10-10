@@ -9,6 +9,7 @@ description: ''
 instructions: ''
 fields:
   account_number:
+    x_petey_id: '1_1'
     type: string
     semantic_type: account_number
     pattern: ^\d{8,17}$
@@ -25,6 +26,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   storage_facility_operator_nm:
+    x_petey_id: '1_3'
     type: string
     semantic_type: person_name
     widget:
@@ -40,6 +42,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   telephone_number:
+    x_petey_id: '1_4'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -56,6 +59,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   address_line_1_txt:
+    x_petey_id: '1_5'
     type: string
     semantic_type: street_address
     widget:
@@ -69,6 +73,7 @@ fields:
       path: sfn[0].Page1[0].OperatorDetails[0].Address[0]
     label_source: llm
   city_nm:
+    x_petey_id: '1_6'
     type: string
     semantic_type: city
     widget:
@@ -82,6 +87,7 @@ fields:
       path: sfn[0].Page1[0].OperatorDetails[0].City[0]
     label_source: llm
   zip_cd:
+    x_petey_id: '1_8'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -96,6 +102,7 @@ fields:
       path: sfn[0].Page1[0].OperatorDetails[0].ZipCode[0]
     label_source: llm
   state_abbreviation_cd:
+    x_petey_id: '1_7'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -110,6 +117,7 @@ fields:
       path: sfn[0].Page1[0].OperatorDetails[0].State[0]
     label_source: llm
   ndic_instrument_number:
+    x_petey_id: '1_2'
     type: string
     widget:
       page: 1
@@ -124,24 +132,74 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   financial_assurance_type:
+    x_petey_id: '1_9'
     type: category
     values:
     - '0'
     - '1'
     - '2'
     - '3'
-    widget:
-      page: 1
-      rect:
-      - 29.834999084472656
-      - 233.5050048828125
-      - 38.834999084472656
-      - 296.5050048828125
-      widget_type: radiobutton
-      path: sfn[0].Page1[0].AssuranceAmounts[0].FinancialAssuranceAmounts[0]
+    description: 'One of: 0 = Cash Bond; 1 = Escrow Account; 2 = Trust Fund; 3 = Other
+      Approved Method:'
+    x_petey_description_source: xfa_choices
+    x_petey_retype:
+    - description_from_xfa_choices
+    - option_group:category->category[4]
+    x_petey_xfa:
+      choices:
+        '0': Cash Bond
+        '1': Escrow Account
+        '2': Trust Fund
+        '3': 'Other Approved Method:'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 233.5050048828125
+        - 38.834999084472656
+        - 242.5050048828125
+        widget_type: radiobutton
+        path: sfn[0].Page1[0].AssuranceAmounts[0].FinancialAssuranceAmounts[0]
+        on_state: '0'
+        caption: Cash Bond
+      '1':
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 252.0009765625
+        - 38.834999084472656
+        - 261.0009765625
+        widget_type: radiobutton
+        path: sfn[0].Page1[0].AssuranceAmounts[0].FinancialAssuranceAmounts[0]
+        on_state: '1'
+        caption: Escrow Account
+      '2':
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 269.5050048828125
+        - 38.834999084472656
+        - 278.5050048828125
+        widget_type: radiobutton
+        path: sfn[0].Page1[0].AssuranceAmounts[0].FinancialAssuranceAmounts[0]
+        on_state: '2'
+        caption: Trust Fund
+      '3':
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 287.5050048828125
+        - 38.834999084472656
+        - 296.5050048828125
+        widget_type: radiobutton
+        path: sfn[0].Page1[0].AssuranceAmounts[0].FinancialAssuranceAmounts[0]
+        on_state: '3'
+        caption: 'Other Approved Method:'
   cash_bond_amt:
+    x_petey_id: '1_10'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -152,9 +210,12 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].AssuranceAmounts[0].CashBond[0]
     label_source: llm
+    x_petey_retype:
+    - money
   escrow_account_amt:
+    x_petey_id: '1_11'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -167,9 +228,12 @@ fields:
     description: EscrowAccount
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   trust_fund_amt:
+    x_petey_id: '1_12'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -180,9 +244,12 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].AssuranceAmounts[0].TrustFund[0]
     label_source: llm
+    x_petey_retype:
+    - money
   other_approved_method_amt:
+    x_petey_id: '1_13'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -193,7 +260,10 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].AssuranceAmounts[0].OtherAmount[0]
     label_source: llm
+    x_petey_retype:
+    - money
   other_approved_method_desc_txt:
+    x_petey_id: '1_14'
     type: string
     semantic_type: description
     widget:
@@ -209,6 +279,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   ndic_order_number:
+    x_petey_id: '1_16'
     type: string
     widget:
       page: 1
@@ -223,6 +294,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   carbon_dioxide_storage_facility_nm:
+    x_petey_id: '1_17'
     type: string
     semantic_type: person_name
     widget:
@@ -238,6 +310,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   northstar_facility_number:
+    x_petey_id: '1_15'
     type: string
     widget:
       page: 1
@@ -252,8 +325,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   emergency_remedial_response_amt:
+    x_petey_id: '1_25'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -266,7 +340,10 @@ fields:
     description: EmergencyResponseAmount
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   emergency_and_remedial_response_ind:
+    x_petey_id: '1_24'
     type: boolean
     semantic_type: indicator
     widget:
@@ -282,6 +359,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   post_inj_site_care_and_facility_closure_ind:
+    x_petey_id: '1_22'
     type: boolean
     semantic_type: indicator
     widget:
@@ -297,8 +375,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   post_inj_site_care_and_facility_closure_amt:
+    x_petey_id: '1_23'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -311,9 +390,12 @@ fields:
     description: PostInjSiteAmount
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   inj_well_plugging_amt:
+    x_petey_id: '1_21'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -326,7 +408,10 @@ fields:
     description: InjWellAmount
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   inj_well_plugging_ind:
+    x_petey_id: '1_20'
     type: boolean
     semantic_type: indicator
     widget:
@@ -342,8 +427,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   corrective_action_amt:
+    x_petey_id: '1_19'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -356,7 +442,10 @@ fields:
     description: CorrectiveActionAmount
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   corrective_action_ind:
+    x_petey_id: '1_18'
     type: boolean
     semantic_type: indicator
     widget:
@@ -372,6 +461,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   signature:
+    x_petey_id: '1_26'
     type: string
     widget:
       page: 1
@@ -384,6 +474,7 @@ fields:
       path: sfn[0].Page1[0].SignatureSection[0].Signature[0]
     label_source: llm
   printed_nm:
+    x_petey_id: '1_27'
     type: string
     semantic_type: person_name
     widget:
@@ -399,6 +490,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   title_txt:
+    x_petey_id: '1_28'
     type: string
     semantic_type: text
     widget:
@@ -412,9 +504,8 @@ fields:
       path: sfn[0].Page1[0].SignatureSection[0].Title[0]
     label_source: llm
   state_of_txt:
+    x_petey_id: '1_29'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -425,7 +516,10 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].Stateof[0]
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=125
   name_of_individual_making_statement_nm:
+    x_petey_id: '1_32'
     type: string
     semantic_type: person_name
     widget:
@@ -441,6 +535,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   county_of_txt:
+    x_petey_id: '1_30'
     type: string
     semantic_type: text
     widget:
@@ -454,9 +549,9 @@ fields:
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].Countyof[0]
     label_source: llm
   signed_sworn_dt:
+    x_petey_id: '1_31'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -467,10 +562,12 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].dateAffirmed[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   commission_expiration_dt:
+    x_petey_id: '1_33'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -483,3 +580,5 @@ fields:
     description: Commission Expiration Date
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped

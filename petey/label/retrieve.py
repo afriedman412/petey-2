@@ -24,7 +24,6 @@ from pathlib import Path
 from typing import Sequence
 
 import numpy as np
-import onnxruntime as ort
 import pymupdf
 from tokenizers import Tokenizer
 
@@ -46,6 +45,11 @@ class Embedder:
 
     def __init__(self, model_dir: Path | str = MODEL_DIR):
         d = Path(model_dir)
+        # imported here, not at module level: onnxruntime's telemetry thread
+        # can abort the interpreter at exit (recursive_mutex throw during
+        # __cxa_finalize, seen 2026-09-30 on a --no-retrieval labeling run
+        # that never used it). Only a run that embeds pays for the import.
+        import onnxruntime as ort
         providers = ort.get_available_providers()
         preferred = [p for p in ("CoreMLExecutionProvider",
                                  "CPUExecutionProvider") if p in providers]

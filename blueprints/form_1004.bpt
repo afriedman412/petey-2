@@ -12,6 +12,7 @@ description: ''
 instructions: ''
 fields:
   file_number:
+    x_petey_id: '1_1'
     type: string
     widget:
       page: 1
@@ -24,6 +25,7 @@ fields:
       path: Text1
     label_source: llm
   property_address_line_1_txt:
+    x_petey_id: '1_3'
     type: string
     semantic_type: street_address
     widget:
@@ -39,6 +41,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   property_city_nm:
+    x_petey_id: '1_4'
     type: string
     semantic_type: city
     widget:
@@ -52,6 +55,7 @@ fields:
       path: Ciy
     label_source: llm
   property_state_abbreviation_cd:
+    x_petey_id: '1_2'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -66,6 +70,7 @@ fields:
       path: State 11
     label_source: llm
   property_zip_cd:
+    x_petey_id: '1_5'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -80,6 +85,7 @@ fields:
       path: Zip Code
     label_source: llm
   borrower_nm:
+    x_petey_id: '1_6'
     type: string
     semantic_type: person_name
     widget:
@@ -93,6 +99,7 @@ fields:
       path: Borrower
     label_source: llm
   owner_of_public_record_nm:
+    x_petey_id: '1_7'
     type: string
     semantic_type: person_name
     widget:
@@ -108,6 +115,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   county_nm:
+    x_petey_id: '1_8'
     type: string
     semantic_type: person_name
     widget:
@@ -121,6 +129,7 @@ fields:
       path: County
     label_source: llm
   legal_description_txt:
+    x_petey_id: '1_9'
     type: string
     semantic_type: description
     widget:
@@ -136,6 +145,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   assessors_parcel_number:
+    x_petey_id: '1_11'
     type: string
     widget:
       page: 1
@@ -150,6 +160,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   tax_yr:
+    x_petey_id: '1_10'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -164,8 +175,9 @@ fields:
       path: Tax Year
     label_source: llm
   real_estate_taxes_amt:
+    x_petey_id: '1_12'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -178,7 +190,10 @@ fields:
     description: R.E. Taxes $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   neighborhood_nm:
+    x_petey_id: '1_13'
     type: string
     semantic_type: person_name
     widget:
@@ -194,6 +209,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   map_reference:
+    x_petey_id: '1_14'
     type: string
     widget:
       page: 1
@@ -208,6 +224,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   census_tract:
+    x_petey_id: '1_15'
     type: string
     widget:
       page: 1
@@ -222,23 +239,52 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   occupant_status:
+    x_petey_id: '1_16'
     type: category
     values:
     - Owner
     - Tenant
     - Vacant
-    widget:
-      page: 1
-      rect:
-      - 66.10890197753906
-      - 113.60498046875
-      - 155.7209930419922
-      - 122.6719970703125
-      widget_type: radiobutton
-      path: Group_1
+    widgets:
+      Owner:
+        page: 1
+        rect:
+        - 66.10890197753906
+        - 113.64501953125
+        - 74.93160247802734
+        - 122.6719970703125
+        widget_type: radiobutton
+        path: Group_1
+        on_state: Owner
+        caption: Owner
+      Tenant:
+        page: 1
+        rect:
+        - 106.4800033569336
+        - 113.60498046875
+        - 115.302001953125
+        - 122.63201904296875
+        widget_type: radiobutton
+        path: Group_1
+        on_state: Tenant
+        caption: Tenant
+      Vacant:
+        page: 1
+        rect:
+        - 146.8979949951172
+        - 113.60498046875
+        - 155.7209930419922
+        - 122.63201904296875
+        widget_type: radiobutton
+        path: Group_1
+        on_state: Vacant
+        caption: Vacant
+    x_petey_retype:
+    - option_group:category->category[3]
   special_assessments_amt:
+    x_petey_id: '1_17'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -251,7 +297,10 @@ fields:
     description: Special Assessments $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   pud_ind:
+    x_petey_id: '1_18'
     type: boolean
     semantic_type: indicator
     widget:
@@ -265,35 +314,84 @@ fields:
       path: Check Box1
     label_source: llm
   hoa_assessment_period:
+    x_petey_id: '1_19'
     type: category
     values:
     - Per year
     - Per month
-    widget:
-      page: 1
-      rect:
-      - 498.7699890136719
-      - 113.677001953125
-      - 553.2470092773438
-      - 122.7139892578125
-      widget_type: radiobutton
-      path: Group_2
+    widgets:
+      Per year:
+        page: 1
+        rect:
+        - 498.7699890136719
+        - 113.677001953125
+        - 507.5929870605469
+        - 122.70501708984375
+        widget_type: radiobutton
+        path: Group_2
+        on_state: Per year
+        caption: Per year
+      Per month:
+        page: 1
+        rect:
+        - 544.4249877929688
+        - 113.68597412109375
+        - 553.2470092773438
+        - 122.7139892578125
+        widget_type: radiobutton
+        path: Group_2
+        on_state: Per month
+        caption: Per month
+    x_petey_retype:
+    - option_group:category->category[2]
   property_rights_appraised:
+    x_petey_id: '1_20'
     type: category
     values:
     - Fee Simple
     - Leasehold
     - Other (describe)
-    widget:
-      page: 1
-      rect:
-      - 120.197998046875
-      - 125.864013671875
-      - 237.4290008544922
-      - 135.01397705078125
-      widget_type: radiobutton
-      path: Group_3
+    description: Property Rights Appraised
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Fee Simple:
+        page: 1
+        rect:
+        - 120.197998046875
+        - 125.864013671875
+        - 129.02000427246094
+        - 134.8909912109375
+        widget_type: radiobutton
+        path: Group_3
+        on_state: Fee Simple
+        caption: Fee Simple
+      Leasehold:
+        page: 1
+        rect:
+        - 176.40699768066406
+        - 125.98602294921875
+        - 185.22900390625
+        - 135.01397705078125
+        widget_type: radiobutton
+        path: Group_3
+        on_state: Leasehold
+        caption: Leasehold
+      Other (describe):
+        page: 1
+        rect:
+        - 228.60699462890625
+        - 125.905029296875
+        - 237.4290008544922
+        - 134.9320068359375
+        widget_type: radiobutton
+        path: Group_3
+        on_state: Other (describe)
+        caption: Other (describe)
   property_rights_appraised_other_describe_txt:
+    x_petey_id: '1_21'
     type: string
     semantic_type: text
     widget:
@@ -309,21 +407,53 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   assignment_type:
+    x_petey_id: '1_22'
     type: category
     values:
     - Purchase Transaction
     - Refinance Transaction
     - Other
-    widget:
-      page: 1
-      rect:
-      - 91.01930236816406
-      - 138.10601806640625
-      - 281.7200012207031
-      - 147.1500244140625
-      widget_type: radiobutton
-      path: Group_4
+    description: Assignment Type
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Purchase Transaction:
+        page: 1
+        rect:
+        - 91.01930236816406
+        - 138.10601806640625
+        - 99.85220336914062
+        - 147.02001953125
+        widget_type: radiobutton
+        path: Group_4
+        on_state: Purchase Transaction
+        caption: Purchase Transaction
+      Refinance Transaction:
+        page: 1
+        rect:
+        - 180.9290008544922
+        - 138.1240234375
+        - 189.76199340820312
+        - 147.03900146484375
+        widget_type: radiobutton
+        path: Group_4
+        on_state: Refinance Transaction
+        caption: Refinance Transaction
+      Other:
+        page: 1
+        rect:
+        - 272.89801025390625
+        - 138.12298583984375
+        - 281.7200012207031
+        - 147.1500244140625
+        widget_type: radiobutton
+        path: Group_4
+        on_state: Other
+        caption: Other
   assignment_type_other_describe_txt:
+    x_petey_id: '1_23'
     type: string
     semantic_type: text
     widget:
@@ -339,6 +469,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   lender_client_nm:
+    x_petey_id: '1_24'
     type: string
     semantic_type: person_name
     widget:
@@ -354,6 +485,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   lender_client_address_line_1_txt:
+    x_petey_id: '1_25'
     type: string
     semantic_type: street_address
     widget:
@@ -367,20 +499,42 @@ fields:
       path: Address
     label_source: llm
   subject_property_offered_for_sale_ind:
+    x_petey_id: '1_26'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 496.8070068359375
-      - 162.31402587890625
-      - 536.3930053710938
-      - 171.708984375
-      widget_type: radiobutton
-      path: Group_5
+    description: Is the subject property currently offered for sale or has it been
+      offered for sale in the twelve months prior to the effective date of this appraisal?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 496.8070068359375
+        - 162.31402587890625
+        - 505.6289978027344
+        - 171.34100341796875
+        widget_type: radiobutton
+        path: Group_5
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 527.5700073242188
+        - 162.6820068359375
+        - 536.3930053710938
+        - 171.708984375
+        widget_type: radiobutton
+        path: Group_5
+        on_state: 'No'
+        caption: 'No'
   report_data_sources_txt:
+    x_petey_id: '1_27'
     type: string
     semantic_type: text
     widget:
@@ -396,20 +550,41 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contract_analyzed_ind:
+    x_petey_id: '1_28'
     type: category
     values:
     - did
     - did not
-    widget:
-      page: 1
-      rect:
-      - 32.78860092163086
-      - 200.30401611328125
-      - 65.17500305175781
-      - 209.0040283203125
-      widget_type: radiobutton
-      path: Group_6
+    description: I did or did not
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      did:
+        page: 1
+        rect:
+        - 32.78860092163086
+        - 200.30401611328125
+        - 41.17499923706055
+        - 208.89501953125
+        widget_type: radiobutton
+        path: Group_6
+        on_state: did
+        caption: did
+      did not:
+        page: 1
+        rect:
+        - 56.78860092163086
+        - 200.41302490234375
+        - 65.17500305175781
+        - 209.0040283203125
+        widget_type: radiobutton
+        path: Group_6
+        on_state: did not
+        caption: did not
   contract_analysis_explanation_txt:
+    x_petey_id: '1_29'
     type: string
     semantic_type: text
     widget:
@@ -428,8 +603,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   contract_price_amt:
+    x_petey_id: '1_30'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -442,10 +618,12 @@ fields:
     description: Contract Price $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   date_of_contract_dt:
+    x_petey_id: '1_31'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -458,21 +636,44 @@ fields:
     description: Date of Contract
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   seller_is_owner_of_public_record_ind:
+    x_petey_id: '1_32'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 388.0979919433594
-      - 235.10400390625
-      - 421.02899169921875
-      - 243.8590087890625
-      widget_type: radiobutton
-      path: Group_7
+    description: Is the property seller the owner of public record?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 388.0979919433594
+        - 235.26800537109375
+        - 396.4849853515625
+        - 243.8590087890625
+        widget_type: radiobutton
+        path: Group_7
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 412.64300537109375
+        - 235.10400390625
+        - 421.02899169921875
+        - 243.69500732421875
+        widget_type: radiobutton
+        path: Group_7
+        on_state: 'No'
+        caption: 'No'
   contract_data_sources_txt:
+    x_petey_id: '1_33'
     type: string
     semantic_type: text
     widget:
@@ -488,20 +689,43 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   financial_assistance_ind:
+    x_petey_id: '1_34'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 537.280029296875
-      - 247.24102783203125
-      - 576.1019897460938
-      - 255.885986328125
-      widget_type: radiobutton
-      path: Group_8
+    description: Is there any financial assistance (loan charges, sale concessions,
+      gift or downpayment assistance, etc.) to be paid by any party on behalf of the
+      borrower?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 537.280029296875
+        - 247.29498291015625
+        - 545.666015625
+        - 255.885986328125
+        widget_type: radiobutton
+        path: Group_8
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 567.7150268554688
+        - 247.24102783203125
+        - 576.1019897460938
+        - 255.83197021484375
+        widget_type: radiobutton
+        path: Group_8
+        on_state: 'No'
+        caption: 'No'
   financial_assistance_description_line_1_txt:
+    x_petey_id: '1_35'
     type: string
     semantic_type: description
     widget:
@@ -519,6 +743,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   financial_assistance_description_line_2_txt:
+    x_petey_id: '1_36'
     type: string
     semantic_type: description
     widget:
@@ -536,96 +761,274 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   neighborhood_location:
+    x_petey_id: '1_37'
     type: category
     values:
     - Urban
     - Suburban
     - Rural
-    widget:
-      page: 1
-      rect:
-      - 60.49769973754883
-      - 320.822998046875
-      - 163.46600341796875
-      - 329.44097900390625
-      widget_type: radiobutton
-      path: Group_9
+    widgets:
+      Urban:
+        page: 1
+        rect:
+        - 60.49769973754883
+        - 320.8499755859375
+        - 68.88400268554688
+        - 329.44097900390625
+        widget_type: radiobutton
+        path: Group_9
+        on_state: Urban
+        caption: Urban
+      Suburban:
+        page: 1
+        rect:
+        - 107.89800262451172
+        - 320.822998046875
+        - 116.28399658203125
+        - 329.41400146484375
+        widget_type: radiobutton
+        path: Group_9
+        on_state: Suburban
+        caption: Suburban
+      Rural:
+        page: 1
+        rect:
+        - 155.0800018310547
+        - 320.822998046875
+        - 163.46600341796875
+        - 329.41400146484375
+        widget_type: radiobutton
+        path: Group_9
+        on_state: Rural
+        caption: Rural
+    x_petey_retype:
+    - option_group:category->category[3]
   neighborhood_built_up:
+    x_petey_id: '1_40'
     type: category
     values:
     - Over 75%
     - 25-75%
     - Under 25%
-    widget:
-      page: 1
-      rect:
-      - 60.5796012878418
-      - 332.8499755859375
-      - 163.76600646972656
-      - 341.468017578125
-      widget_type: radiobutton
-      path: Group_10
+    widgets:
+      Over 75%:
+        page: 1
+        rect:
+        - 60.5796012878418
+        - 332.87701416015625
+        - 68.96589660644531
+        - 341.468017578125
+        widget_type: radiobutton
+        path: Group_10
+        on_state: Over 75%
+        caption: Over 75%
+      25-75%:
+        page: 1
+        rect:
+        - 108.197998046875
+        - 332.8499755859375
+        - 116.58399963378906
+        - 341.2230224609375
+        widget_type: radiobutton
+        path: Group_10
+        on_state: 25-75%
+        caption: 25-75%
+      Under 25%:
+        page: 1
+        rect:
+        - 155.3800048828125
+        - 332.8499755859375
+        - 163.76600646972656
+        - 341.44097900390625
+        widget_type: radiobutton
+        path: Group_10
+        on_state: Under 25%
+        caption: Under 25%
+    x_petey_retype:
+    - option_group:category->category[3]
   neighborhood_growth:
+    x_petey_id: '1_46'
     type: category
     values:
     - Rapid
     - Stable
     - Slow
-    widget:
-      page: 1
-      rect:
-      - 60.60689926147461
-      - 345.09600830078125
-      - 163.52000427246094
-      - 353.8499755859375
-      widget_type: radiobutton
-      path: Group_11
+    widgets:
+      Rapid:
+        page: 1
+        rect:
+        - 60.60689926147461
+        - 345.09600830078125
+        - 68.99320220947266
+        - 353.68701171875
+        widget_type: radiobutton
+        path: Group_11
+        on_state: Rapid
+        caption: Rapid
+      Stable:
+        page: 1
+        rect:
+        - 108.00700378417969
+        - 345.20501708984375
+        - 116.39299774169922
+        - 353.7960205078125
+        widget_type: radiobutton
+        path: Group_11
+        on_state: Stable
+        caption: Stable
+      Slow:
+        page: 1
+        rect:
+        - 155.13400268554688
+        - 345.25897216796875
+        - 163.52000427246094
+        - 353.8499755859375
+        widget_type: radiobutton
+        path: Group_11
+        on_state: Slow
+        caption: Slow
+    x_petey_retype:
+    - option_group:category->category[3]
   property_values_trend:
+    x_petey_id: '1_38'
     type: category
     values:
     - Increasing
     - Stable
     - Declining
-    widget:
-      page: 1
-      rect:
-      - 263.1679992675781
-      - 320.79498291015625
-      - 375.1570129394531
-      - 329.5679931640625
-      widget_type: radiobutton
-      path: Group_12
+    description: Property Values
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Increasing:
+        page: 1
+        rect:
+        - 263.1679992675781
+        - 320.79498291015625
+        - 271.82000732421875
+        - 329.52899169921875
+        widget_type: radiobutton
+        path: Group_12
+        on_state: Increasing
+        caption: Increasing
+      Stable:
+        page: 1
+        rect:
+        - 319.68798828125
+        - 320.97698974609375
+        - 328.07501220703125
+        - 329.5679931640625
+        widget_type: radiobutton
+        path: Group_12
+        on_state: Stable
+        caption: Stable
+      Declining:
+        page: 1
+        rect:
+        - 366.7699890136719
+        - 320.958984375
+        - 375.1570129394531
+        - 329.54998779296875
+        widget_type: radiobutton
+        path: Group_12
+        on_state: Declining
+        caption: Declining
   demand_supply:
+    x_petey_id: '1_42'
     type: category
     values:
     - Shortage
     - In Balance
     - Over Supply
-    widget:
-      page: 1
-      rect:
-      - 263.0150146484375
-      - 333.031982421875
-      - 375.3030090332031
-      - 342.04998779296875
-      widget_type: radiobutton
-      path: Group_13
+    description: Demand/Supply
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Shortage:
+        page: 1
+        rect:
+        - 263.0150146484375
+        - 333.031982421875
+        - 271.6669921875
+        - 341.7659912109375
+        widget_type: radiobutton
+        path: Group_13
+        on_state: Shortage
+        caption: Shortage
+      In Balance:
+        page: 1
+        rect:
+        - 319.4530029296875
+        - 333.06298828125
+        - 327.8399963378906
+        - 342.04998779296875
+        widget_type: radiobutton
+        path: Group_13
+        on_state: In Balance
+        caption: In Balance
+      Over Supply:
+        page: 1
+        rect:
+        - 366.5350036621094
+        - 333.031982421875
+        - 375.3030090332031
+        - 341.62298583984375
+        widget_type: radiobutton
+        path: Group_13
+        on_state: Over Supply
+        caption: Over Supply
   marketing_time:
+    x_petey_id: '1_47'
     type: category
     values:
     - Under 3 mths
     - 3-6 mths
     - Over 6 mths
-    widget:
-      page: 1
-      rect:
-      - 263.1650085449219
-      - 345.12701416015625
-      - 375.37200927734375
-      - 354.14599609375
-      widget_type: radiobutton
-      path: Group_14
+    description: Marketing Time
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Under 3 mths:
+        page: 1
+        rect:
+        - 263.1650085449219
+        - 345.12701416015625
+        - 271.489990234375
+        - 353.86199951171875
+        widget_type: radiobutton
+        path: Group_14
+        on_state: Under 3 mths
+        caption: Under 3 mths
+      3-6 mths:
+        page: 1
+        rect:
+        - 319.2760009765625
+        - 345.55499267578125
+        - 327.6629943847656
+        - 354.14599609375
+        widget_type: radiobutton
+        path: Group_14
+        on_state: 3-6 mths
+        caption: 3-6 mths
+      Over 6 mths:
+        page: 1
+        rect:
+        - 366.60400390625
+        - 345.291015625
+        - 375.37200927734375
+        - 353.88201904296875
+        widget_type: radiobutton
+        path: Group_14
+        on_state: Over 6 mths
+        caption: Over 6 mths
   neighborhood_boundaries_txt:
+    x_petey_id: '1_51'
     type: string
     semantic_type: text
     widget:
@@ -641,8 +1044,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   two_four_unit_housing_price_low_amt:
+    x_petey_id: '1_43'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -655,7 +1059,10 @@ fields:
     description: price in $(000) for low 2-4 Unit Housing
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   two_four_unit_housing_age_low_yr:
+    x_petey_id: '1_44'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -672,8 +1079,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   two_four_unit_housing_price_high_amt:
+    x_petey_id: '1_50'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -686,7 +1094,10 @@ fields:
     description: price in $(000) for High 2-4 Unit Housing
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   two_four_unit_housing_age_high_yr:
+    x_petey_id: '1_48'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -703,8 +1114,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   two_four_unit_housing_price_pred_amt:
+    x_petey_id: '1_54'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -717,7 +1129,10 @@ fields:
     description: price in $(000) for Pred. 2-4 Unit Housing
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   two_four_unit_housing_age_pred_yr:
+    x_petey_id: '1_52'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -734,6 +1149,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   present_land_use_one_unit_pct:
+    x_petey_id: '1_39'
     type: number
     semantic_type: percent
     widget:
@@ -749,6 +1165,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   present_land_use_two_four_unit_pct:
+    x_petey_id: '1_41'
     type: number
     semantic_type: percent
     widget:
@@ -764,6 +1181,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   present_land_use_multi_family_pct:
+    x_petey_id: '1_45'
     type: number
     semantic_type: percent
     widget:
@@ -779,6 +1197,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   present_land_use_commercial_pct:
+    x_petey_id: '1_49'
     type: number
     semantic_type: percent
     widget:
@@ -794,6 +1213,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   present_land_use_other_pct:
+    x_petey_id: '1_53'
     type: number
     semantic_type: percent
     widget:
@@ -809,6 +1229,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   neighborhood_description_line_1_txt:
+    x_petey_id: '1_55'
     type: string
     semantic_type: description
     widget:
@@ -824,6 +1245,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   neighborhood_description_line_2_txt:
+    x_petey_id: '1_56'
     type: string
     semantic_type: description
     widget:
@@ -839,6 +1261,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   market_conditions_line_1_txt:
+    x_petey_id: '1_57'
     type: string
     semantic_type: text
     widget:
@@ -855,6 +1278,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   market_conditions_line_2_txt:
+    x_petey_id: '1_58'
     type: string
     semantic_type: text
     widget:
@@ -871,6 +1295,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   site_dimensions_txt:
+    x_petey_id: '1_59'
     type: string
     semantic_type: text
     widget:
@@ -884,6 +1309,7 @@ fields:
       path: Dimesions
     label_source: llm
   site_area_txt:
+    x_petey_id: '1_60'
     type: string
     semantic_type: text
     widget:
@@ -897,6 +1323,7 @@ fields:
       path: Area
     label_source: llm
   site_shape_txt:
+    x_petey_id: '1_61'
     type: string
     semantic_type: text
     widget:
@@ -910,6 +1337,7 @@ fields:
       path: Shape
     label_source: llm
   site_view_txt:
+    x_petey_id: '1_62'
     type: string
     semantic_type: text
     widget:
@@ -923,6 +1351,7 @@ fields:
       path: View
     label_source: llm
   specific_zoning_classification_cd:
+    x_petey_id: '1_63'
     type: string
     widget:
       page: 1
@@ -937,6 +1366,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   zoning_description_txt:
+    x_petey_id: '1_64'
     type: string
     semantic_type: description
     widget:
@@ -952,36 +1382,100 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   zoning_compliance:
+    x_petey_id: '1_65'
     type: category
     values:
     - Legal
     - Legal Nonconforming (Grandfathered Use)
     - No Legal
     - Illegal (describe)
-    widget:
-      page: 1
-      rect:
-      - 98.13410186767578
-      - 480.73297119140625
-      - 354.4429931640625
-      - 489.50799560546875
-      widget_type: radiobutton
-      path: Group_15
+    description: Zoning Compliance
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[4]
+    widgets:
+      Legal:
+        page: 1
+        rect:
+        - 98.13410186767578
+        - 480.82501220703125
+        - 106.81999969482422
+        - 489.47698974609375
+        widget_type: radiobutton
+        path: Group_15
+        on_state: Legal
+        caption: Legal
+      Legal Nonconforming (Grandfathered Use):
+        page: 1
+        rect:
+        - 134.63900756835938
+        - 480.85498046875
+        - 143.3249969482422
+        - 489.50799560546875
+        widget_type: radiobutton
+        path: Group_15
+        on_state: Legal Nonconforming (Grandfathered Use)
+        caption: Legal Nonconforming (Grandfathered Use)
+      No Legal:
+        page: 1
+        rect:
+        - 293.1470031738281
+        - 480.85498046875
+        - 301.8330078125
+        - 489.50701904296875
+        widget_type: radiobutton
+        path: Group_15
+        on_state: No Legal
+        caption: No Legal
+      Illegal (describe):
+        page: 1
+        rect:
+        - 345.7569885253906
+        - 480.73297119140625
+        - 354.4429931640625
+        - 489.385009765625
+        widget_type: radiobutton
+        path: Group_15
+        on_state: Illegal (describe)
+        caption: Illegal (describe)
   highest_best_use_as_present_use_ind:
+    x_petey_id: '1_66'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 446.5169982910156
-      - 492.91900634765625
-      - 485.760986328125
-      - 501.5899963378906
-      widget_type: radiobutton
-      path: Group_17
+    description: Is the highest and best use of the subject property as improved (or
+      as proposed per plans and specifications) the present use?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 446.5169982910156
+        - 492.91900634765625
+        - 455.2040100097656
+        - 501.5719909667969
+        widget_type: radiobutton
+        path: Group_17
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 477.07501220703125
+        - 492.93798828125
+        - 485.760986328125
+        - 501.5899963378906
+        widget_type: radiobutton
+        path: Group_17
+        on_state: 'No'
+        caption: 'No'
   highest_best_use_no_describe_txt:
+    x_petey_id: '1_67'
     type: string
     semantic_type: text
     widget:
@@ -997,20 +1491,41 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   electricity_source:
+    x_petey_id: '1_68'
     type: category
     values:
     - Public
     - Other
-    widget:
-      page: 1
-      rect:
-      - 76.57460021972656
-      - 529.72802734375
-      - 114.91999816894531
-      - 538.2579956054688
-      widget_type: radiobutton
-      path: Group_18
+    description: Electricity Utility
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      Public:
+        page: 1
+        rect:
+        - 76.57460021972656
+        - 529.76904296875
+        - 85.06999969482422
+        - 538.2579956054688
+        widget_type: radiobutton
+        path: Group_18
+        on_state: Public
+        caption: Public
+      Other:
+        page: 1
+        rect:
+        - 106.42500305175781
+        - 529.72802734375
+        - 114.91999816894531
+        - 538.217041015625
+        widget_type: radiobutton
+        path: Group_18
+        on_state: Other
+        caption: Other
   electricity_other_describe_txt:
+    x_petey_id: '1_69'
     type: string
     semantic_type: text
     widget:
@@ -1026,20 +1541,38 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   gas_source:
+    x_petey_id: '1_73'
     type: category
     values:
     - Public
     - Other
-    widget:
-      page: 1
-      rect:
-      - 76.64330291748047
-      - 541.8099975585938
-      - 114.86599731445312
-      - 550.4630126953125
-      widget_type: radiobutton
-      path: Group_19
+    widgets:
+      Public:
+        page: 1
+        rect:
+        - 76.64330291748047
+        - 541.9739990234375
+        - 85.13870239257812
+        - 550.4630126953125
+        widget_type: radiobutton
+        path: Group_19
+        on_state: Public
+        caption: Public
+      Other:
+        page: 1
+        rect:
+        - 106.37000274658203
+        - 541.8099975585938
+        - 114.86599731445312
+        - 550.2990112304688
+        widget_type: radiobutton
+        path: Group_19
+        on_state: Other
+        caption: Other
+    x_petey_retype:
+    - option_group:category->category[2]
   gas_other_describe_txt:
+    x_petey_id: '1_74'
     type: string
     semantic_type: text
     widget:
@@ -1055,20 +1588,41 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   water_source:
+    x_petey_id: '1_70'
     type: category
     values:
     - Public
     - 'Other '
-    widget:
-      page: 1
-      rect:
-      - 280.0090026855469
-      - 529.8370361328125
-      - 319.0639953613281
-      - 538.3399658203125
-      widget_type: radiobutton
-      path: Group_20
+    description: Water Utility
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      Public:
+        page: 1
+        rect:
+        - 280.0090026855469
+        - 529.8370361328125
+        - 288.5039978027344
+        - 538.3259887695312
+        widget_type: radiobutton
+        path: Group_20
+        on_state: Public
+        caption: Public
+      'Other ':
+        page: 1
+        rect:
+        - 310.5690002441406
+        - 529.8510131835938
+        - 319.0639953613281
+        - 538.3399658203125
+        widget_type: radiobutton
+        path: Group_20
+        on_state: 'Other '
+        caption: 'Other '
   water_other_describe_txt:
+    x_petey_id: '1_71'
     type: string
     semantic_type: text
     widget:
@@ -1084,20 +1638,41 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sanitary_sewer_source:
+    x_petey_id: '1_75'
     type: category
     values:
     - Public
     - 'Other '
-    widget:
-      page: 1
-      rect:
-      - 280.02398681640625
-      - 541.9339599609375
-      - 318.9549865722656
-      - 550.4760131835938
-      widget_type: radiobutton
-      path: Group_21
+    description: Sanitary Sewer Utility
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      Public:
+        page: 1
+        rect:
+        - 280.02398681640625
+        - 541.9339599609375
+        - 288.5190124511719
+        - 550.4229736328125
+        widget_type: radiobutton
+        path: Group_21
+        on_state: Public
+        caption: Public
+      'Other ':
+        page: 1
+        rect:
+        - 310.4599914550781
+        - 541.9869995117188
+        - 318.9549865722656
+        - 550.4760131835938
+        widget_type: radiobutton
+        path: Group_21
+        on_state: 'Other '
+        caption: 'Other '
   sanitary_sewer_other_describe_txt:
+    x_petey_id: '1_76'
     type: string
     semantic_type: text
     widget:
@@ -1113,48 +1688,103 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   street_type:
+    x_petey_id: '1_72'
     type: category
     values:
     - Public
     - Private
-    widget:
-      page: 1
-      rect:
-      - 537.0540161132812
-      - 529.8510131835938
-      - 579.1640014648438
-      - 538.3800048828125
-      widget_type: radiobutton
-      path: Group_22
+    widgets:
+      Public:
+        page: 1
+        rect:
+        - 537.0540161132812
+        - 529.8909912109375
+        - 545.5490112304688
+        - 538.3800048828125
+        widget_type: radiobutton
+        path: Group_22
+        on_state: Public
+        caption: Public
+      Private:
+        page: 1
+        rect:
+        - 570.6680297851562
+        - 529.8510131835938
+        - 579.1640014648438
+        - 538.3389892578125
+        widget_type: radiobutton
+        path: Group_22
+        on_state: Private
+        caption: Private
+    x_petey_retype:
+    - option_group:category->category[2]
   alley_type:
+    x_petey_id: '1_77'
     type: category
     values:
     - Public
     - Private
-    widget:
-      page: 1
-      rect:
-      - 537.2050170898438
-      - 541.9329833984375
-      - 579.2730102539062
-      - 550.666015625
-      widget_type: radiobutton
-      path: Group_23
+    widgets:
+      Public:
+        page: 1
+        rect:
+        - 537.2050170898438
+        - 541.9329833984375
+        - 545.7000122070312
+        - 550.4219970703125
+        widget_type: radiobutton
+        path: Group_23
+        on_state: Public
+        caption: Public
+      Private:
+        page: 1
+        rect:
+        - 570.7769775390625
+        - 542.177001953125
+        - 579.2730102539062
+        - 550.666015625
+        widget_type: radiobutton
+        path: Group_23
+        on_state: Private
+        caption: Private
+    x_petey_retype:
+    - option_group:category->category[2]
   fema_special_flood_hazard_area_ind:
+    x_petey_id: '1_78'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 145.28399658203125
-      - 554.2059936523438
-      - 183.48399353027344
-      - 562.8569946289062
-      widget_type: radiobutton
-      path: Group_24
+    description: FEMA Special Flood Hazard Area
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 145.28399658203125
+        - 554.2059936523438
+        - 153.1020050048828
+        - 562.6950073242188
+        widget_type: radiobutton
+        path: Group_24
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 174.98899841308594
+        - 554.3690185546875
+        - 183.48399353027344
+        - 562.8569946289062
+        widget_type: radiobutton
+        path: Group_24
+        on_state: 'No'
+        caption: 'No'
   fema_flood_zone_txt:
+    x_petey_id: '1_79'
     type: string
     semantic_type: text
     widget:
@@ -1170,6 +1800,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   fema_map_number:
+    x_petey_id: '1_80'
     type: string
     widget:
       page: 1
@@ -1184,9 +1815,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   fema_map_dt:
+    x_petey_id: '1_81'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -1199,21 +1830,45 @@ fields:
     description: FEMA Map Date
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   utilities_offsite_improvements_typical_ind:
+    x_petey_id: '1_82'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 261.9179992675781
-      - 566.3280029296875
-      - 300.66400146484375
-      - 574.98095703125
-      widget_type: radiobutton
-      path: Group_25
+    description: Are the utilities and off-site improvements typical for the market
+      area?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 261.9179992675781
+        - 566.4920043945312
+        - 269.7359924316406
+        - 574.98095703125
+        widget_type: radiobutton
+        path: Group_25
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 292.1679992675781
+        - 566.3280029296875
+        - 300.66400146484375
+        - 574.8160400390625
+        widget_type: radiobutton
+        path: Group_25
+        on_state: 'No'
+        caption: 'No'
   utilities_offsite_improvements_no_describe_txt:
+    x_petey_id: '1_83'
     type: string
     semantic_type: text
     widget:
@@ -1229,20 +1884,42 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   adverse_site_conditions_ind:
+    x_petey_id: '1_84'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 456.59100341796875
-      - 578.8189697265625
-      - 495.33599853515625
-      - 587.363037109375
-      widget_type: radiobutton
-      path: Group_26
+    description: Are there any adverse site conditions or external factors (easements,
+      encroachments, environmental conditions, land uses, etc.)?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 456.59100341796875
+        - 578.8740234375
+        - 464.40899658203125
+        - 587.363037109375
+        widget_type: radiobutton
+        path: Group_26
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 486.84100341796875
+        - 578.8189697265625
+        - 495.33599853515625
+        - 587.3070068359375
+        widget_type: radiobutton
+        path: Group_26
+        on_state: 'No'
+        caption: 'No'
   adverse_site_conditions_describe_line_1_txt:
+    x_petey_id: '1_85'
     type: string
     semantic_type: text
     widget:
@@ -1258,6 +1935,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   adverse_site_conditions_describe_line_2_txt:
+    x_petey_id: '1_86'
     type: string
     semantic_type: text
     widget:
@@ -1273,6 +1951,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   adverse_site_conditions_describe_line_3_txt:
+    x_petey_id: '1_87'
     type: string
     semantic_type: text
     widget:
@@ -1288,21 +1967,42 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   units:
+    x_petey_id: '1_88'
     type: category
     values:
     - One
     - One with Accessory Unit
-    widget:
-      page: 1
-      rect:
-      - 48.37260055541992
-      - 642.7459716796875
-      - 87.58180236816406
-      - 651.3720092773438
-      widget_type: radiobutton
-      path: Group_27
+    description: General Description Units
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      One:
+        page: 1
+        rect:
+        - 48.37260055541992
+        - 642.8829956054688
+        - 56.19110107421875
+        - 651.3720092773438
+        widget_type: radiobutton
+        path: Group_27
+        on_state: One
+        caption: One
+      One with Accessory Unit:
+        page: 1
+        rect:
+        - 79.0864028930664
+        - 642.7459716796875
+        - 87.58180236816406
+        - 651.2349853515625
+        widget_type: radiobutton
+        path: Group_27
+        on_state: One with Accessory Unit
+        caption: One with Accessory Unit
   number_of_stories:
-    type: string
+    x_petey_id: '1_92'
+    type: integer
     widget:
       page: 1
       rect:
@@ -1315,37 +2015,103 @@ fields:
     description: Number Of Stories
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   structure_type:
+    x_petey_id: '1_95'
     type: category
     values:
     - Detached
     - Attached
     - Semi-Detached/End Unit
-    widget:
-      page: 1
-      rect:
-      - 49.66809844970703
-      - 667.2109985351562
-      - 114.21099853515625
-      - 675.7940063476562
-      widget_type: radiobutton
-      path: Group_28
+    description: Type of structure
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Detached:
+        page: 1
+        rect:
+        - 49.66809844970703
+        - 667.2239990234375
+        - 57.48649978637695
+        - 675.7130126953125
+        widget_type: radiobutton
+        path: Group_28
+        on_state: Detached
+        caption: Detached
+      Attached:
+        page: 1
+        rect:
+        - 78.52729797363281
+        - 667.3049926757812
+        - 87.02269744873047
+        - 675.7940063476562
+        widget_type: radiobutton
+        path: Group_28
+        on_state: Attached
+        caption: Attached
+      Semi-Detached/End Unit:
+        page: 1
+        rect:
+        - 105.71600341796875
+        - 667.2109985351562
+        - 114.21099853515625
+        - 675.7000122070312
+        widget_type: radiobutton
+        path: Group_28
+        on_state: Semi-Detached/End Unit
+        caption: Semi-Detached/End Unit
   construction_status:
+    x_petey_id: '1_99'
     type: category
     values:
     - Existing
     - Proposed
     - Under Construction
-    widget:
-      page: 1
-      rect:
-      - 28.928300857543945
-      - 679.35400390625
-      - 122.48999786376953
-      - 688.155029296875
-      widget_type: radiobutton
-      path: Group_29
+    description: Construction status
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Existing:
+        page: 1
+        rect:
+        - 28.928300857543945
+        - 679.3670043945312
+        - 36.746700286865234
+        - 687.85595703125
+        widget_type: radiobutton
+        path: Group_29
+        on_state: Existing
+        caption: Existing
+      Proposed:
+        page: 1
+        rect:
+        - 69.3510971069336
+        - 679.666015625
+        - 77.84660339355469
+        - 688.155029296875
+        widget_type: radiobutton
+        path: Group_29
+        on_state: Proposed
+        caption: Proposed
+      Under Construction:
+        page: 1
+        rect:
+        - 113.99400329589844
+        - 679.35400390625
+        - 122.48999786376953
+        - 687.842041015625
+        widget_type: radiobutton
+        path: Group_29
+        on_state: Under Construction
+        caption: Under Construction
   design_style_txt:
+    x_petey_id: '1_103'
     type: string
     semantic_type: text
     widget:
@@ -1361,6 +2127,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   year_built_yr:
+    x_petey_id: '1_108'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -1375,6 +2142,7 @@ fields:
       path: Year Built
     label_source: llm
   effective_age_yr:
+    x_petey_id: '1_112'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -1391,6 +2159,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   attic_none_ind:
+    x_petey_id: '1_117'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1404,6 +2173,7 @@ fields:
       path: '19'
     label_source: llm
   attic_drop_stair_ind:
+    x_petey_id: '1_121'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1419,6 +2189,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   attic_stairs_ind:
+    x_petey_id: '1_122'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1434,6 +2205,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   attic_floor_ind:
+    x_petey_id: '1_127'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1447,6 +2219,7 @@ fields:
       path: '16'
     label_source: llm
   attic_scuttle_ind:
+    x_petey_id: '1_128'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1462,6 +2235,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   attic_finished_ind:
+    x_petey_id: '1_134'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1477,6 +2251,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   attic_heated_ind:
+    x_petey_id: '1_135'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1492,22 +2267,65 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   foundation_type:
+    x_petey_id: '1_89'
     type: category
     values:
     - Concrete Slab
     - Crawl Space
     - Full Basement
     - Partial Basement
-    widget:
-      page: 1
-      rect:
-      - 171.08200073242188
-      - 642.5899658203125
-      - 245.65899658203125
-      - 663.7219848632812
-      widget_type: radiobutton
-      path: Group_31
+    description: Foundation type
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[4]
+    widgets:
+      Concrete Slab:
+        page: 1
+        rect:
+        - 171.1840057373047
+        - 642.6069946289062
+        - 180.1020050048828
+        - 651.469970703125
+        widget_type: radiobutton
+        path: Group_31
+        on_state: Concrete Slab
+        caption: Concrete Slab
+      Crawl Space:
+        page: 1
+        rect:
+        - 236.33599853515625
+        - 642.5899658203125
+        - 245.25399780273438
+        - 651.4539794921875
+        widget_type: radiobutton
+        path: Group_31
+        on_state: Crawl Space
+        caption: Crawl Space
+      Full Basement:
+        page: 1
+        rect:
+        - 171.08200073242188
+        - 654.7359619140625
+        - 180.0
+        - 663.5989990234375
+        widget_type: radiobutton
+        path: Group_31
+        on_state: Full Basement
+        caption: Full Basement
+      Partial Basement:
+        page: 1
+        rect:
+        - 236.74099731445312
+        - 654.8580322265625
+        - 245.65899658203125
+        - 663.7219848632812
+        widget_type: radiobutton
+        path: Group_31
+        on_state: Partial Basement
+        caption: Partial Basement
   basement_area_sq_ft:
+    x_petey_id: '1_96'
     type: string
     widget:
       page: 1
@@ -1522,6 +2340,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   basement_finish_pct:
+    x_petey_id: '1_100'
     type: number
     semantic_type: percent
     widget:
@@ -1537,6 +2356,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   basement_outside_entry_exit_ind:
+    x_petey_id: '1_104'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1552,6 +2372,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   basement_sump_pump_ind:
+    x_petey_id: '1_105'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1565,6 +2386,7 @@ fields:
       path: Check Box8
     label_source: llm
   basement_evidence_of_infestation_ind:
+    x_petey_id: '1_109'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1580,6 +2402,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   basement_evidence_of_dampness_ind:
+    x_petey_id: '1_113'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1595,6 +2418,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   basement_evidence_of_settlement_ind:
+    x_petey_id: '1_114'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1610,22 +2434,65 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   heating_type:
+    x_petey_id: '1_118'
     type: category
     values:
     - FWA
     - HWBB
     - Radiant
     - Other
-    widget:
-      page: 1
-      rect:
-      - 171.10499572753906
-      - 730.5150146484375
-      - 279.87799072265625
-      - 751.3049926757812
-      widget_type: radiobutton
-      path: Group_35
+    description: Heating option
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[4]
+    widgets:
+      FWA:
+        page: 1
+        rect:
+        - 199.97799682617188
+        - 730.5150146484375
+        - 208.89599609375
+        - 739.3779907226562
+        widget_type: radiobutton
+        path: Group_35
+        on_state: FWA
+        caption: FWA
+      HWBB:
+        page: 1
+        rect:
+        - 232.2689971923828
+        - 730.5150146484375
+        - 241.18699645996094
+        - 739.3779907226562
+        widget_type: radiobutton
+        path: Group_35
+        on_state: HWBB
+        caption: HWBB
+      Radiant:
+        page: 1
+        rect:
+        - 270.9599914550781
+        - 730.5870361328125
+        - 279.87799072265625
+        - 739.4500122070312
+        widget_type: radiobutton
+        path: Group_35
+        on_state: Radiant
+        caption: Radiant
+      Other:
+        page: 1
+        rect:
+        - 171.10499572753906
+        - 742.4420166015625
+        - 180.0229949951172
+        - 751.3049926757812
+        widget_type: radiobutton
+        path: Group_35
+        on_state: Other
+        caption: Other
   heating_fuel_txt:
+    x_petey_id: '1_120'
     type: string
     semantic_type: text
     widget:
@@ -1639,21 +2506,53 @@ fields:
       path: Foundation Fuel
     label_source: llm
   cooling_type:
+    x_petey_id: '1_129'
     type: category
     values:
     - Central Air Conditioning
     - Individual
     - Other
-    widget:
-      page: 1
-      rect:
-      - 170.81399536132812
-      - 754.677001953125
-      - 251.22300720214844
-      - 775.886962890625
-      widget_type: radiobutton
-      path: Group_36
+    description: Cooling option
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      Central Air Conditioning:
+        page: 1
+        rect:
+        - 202.54100036621094
+        - 754.677001953125
+        - 211.45899963378906
+        - 763.5399780273438
+        widget_type: radiobutton
+        path: Group_36
+        on_state: Central Air Conditioning
+        caption: Central Air Conditioning
+      Individual:
+        page: 1
+        rect:
+        - 170.81399536132812
+        - 767.0239868164062
+        - 179.73199462890625
+        - 775.886962890625
+        widget_type: radiobutton
+        path: Group_36
+        on_state: Individual
+        caption: Individual
+      Other:
+        page: 1
+        rect:
+        - 242.30499267578125
+        - 766.7330322265625
+        - 251.22300720214844
+        - 775.5960083007812
+        widget_type: radiobutton
+        path: Group_36
+        on_state: Other
+        caption: Other
   foundation_walls_txt:
+    x_petey_id: '1_90'
     type: string
     semantic_type: text
     widget:
@@ -1669,6 +2568,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   exterior_walls_txt:
+    x_petey_id: '1_93'
     type: string
     semantic_type: text
     widget:
@@ -1684,6 +2584,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   roof_surface_txt:
+    x_petey_id: '1_97'
     type: string
     semantic_type: text
     widget:
@@ -1699,6 +2600,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   gutters_downspouts_txt:
+    x_petey_id: '1_101'
     type: string
     semantic_type: text
     widget:
@@ -1714,6 +2616,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   window_type_txt:
+    x_petey_id: '1_106'
     type: string
     semantic_type: text
     widget:
@@ -1727,6 +2630,7 @@ fields:
       path: Exterior Description Window Type
     label_source: llm
   storm_sash_insulated_txt:
+    x_petey_id: '1_110'
     type: string
     semantic_type: text
     widget:
@@ -1742,6 +2646,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   screens_txt:
+    x_petey_id: '1_115'
     type: string
     semantic_type: text
     widget:
@@ -1755,6 +2660,7 @@ fields:
       path: Exterior Description Screens
     label_source: llm
   amenities_woodstove_ind:
+    x_petey_id: '1_119'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1770,6 +2676,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   amenities_fireplace_ind:
+    x_petey_id: '1_123'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1785,6 +2692,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   amenities_fence_ind:
+    x_petey_id: '1_124'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1800,6 +2708,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   amenities_patio_deck_ind:
+    x_petey_id: '1_130'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1815,6 +2724,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   amenities_porch_ind:
+    x_petey_id: '1_131'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1830,6 +2740,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   amenities_pool_ind:
+    x_petey_id: '1_136'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1845,6 +2756,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   amenities_other_ind:
+    x_petey_id: '1_137'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1860,6 +2772,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   interior_floors_txt:
+    x_petey_id: '1_91'
     type: string
     semantic_type: text
     widget:
@@ -1873,6 +2786,7 @@ fields:
       path: Interior Floors
     label_source: llm
   interior_walls_txt:
+    x_petey_id: '1_94'
     type: string
     semantic_type: text
     widget:
@@ -1886,6 +2800,7 @@ fields:
       path: Interior Walls
     label_source: llm
   interior_trim_finish_txt:
+    x_petey_id: '1_98'
     type: string
     semantic_type: text
     widget:
@@ -1899,6 +2814,7 @@ fields:
       path: Interior Tirm Finish
     label_source: llm
   bath_floor_txt:
+    x_petey_id: '1_102'
     type: string
     semantic_type: text
     widget:
@@ -1912,6 +2828,7 @@ fields:
       path: Interior Bath Floor
     label_source: llm
   bath_wainscot_txt:
+    x_petey_id: '1_107'
     type: string
     semantic_type: text
     widget:
@@ -1927,21 +2844,42 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   car_storage_none_or_driveway:
+    x_petey_id: '1_111'
     type: category
     values:
     - None
     - Driveway
-    widget:
-      page: 1
-      rect:
-      - 472.7049865722656
-      - 704.60595703125
-      - 533.4409790039062
-      - 725.8499755859375
-      widget_type: radiobutton
-      path: Group_38
+    description: Interior Car Storage
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      None:
+        page: 1
+        rect:
+        - 524.5230102539062
+        - 704.60595703125
+        - 533.4409790039062
+        - 713.468994140625
+        widget_type: radiobutton
+        path: Group_38
+        on_state: None
+        caption: None
+      Driveway:
+        page: 1
+        rect:
+        - 472.7049865722656
+        - 716.9869995117188
+        - 481.62298583984375
+        - 725.8499755859375
+        widget_type: radiobutton
+        path: Group_38
+        on_state: Driveway
+        caption: Driveway
   driveway_number_of_cars:
-    type: string
+    x_petey_id: '1_116'
+    type: integer
     widget:
       page: 1
       rect:
@@ -1954,7 +2892,11 @@ fields:
     description: Number of Cars
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   car_storage_garage_ind:
+    x_petey_id: '1_125'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1970,7 +2912,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   garage_number_of_cars:
-    type: string
+    x_petey_id: '1_126'
+    type: integer
     widget:
       page: 1
       rect:
@@ -1983,7 +2926,11 @@ fields:
     description: number of Cars
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   car_storage_carport_ind:
+    x_petey_id: '1_132'
     type: boolean
     semantic_type: indicator
     widget:
@@ -1999,7 +2946,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   carport_number_of_cars:
-    type: string
+    x_petey_id: '1_133'
+    type: integer
     widget:
       page: 1
       rect:
@@ -2012,23 +2960,55 @@ fields:
     description: Number of Cars
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   garage_type:
+    x_petey_id: '1_138'
     type: category
     values:
     - Attached
     - Detached
     - Built-In
-    widget:
-      page: 1
-      rect:
-      - 473.0509948730469
-      - 766.8060302734375
-      - 562.2780151367188
-      - 775.9600219726562
-      widget_type: radiobutton
-      path: Group_39
+    widgets:
+      Attached:
+        page: 1
+        rect:
+        - 473.0509948730469
+        - 766.9509887695312
+        - 481.968994140625
+        - 775.81396484375
+        widget_type: radiobutton
+        path: Group_39
+        on_state: Attached
+        caption: Attached
+      Detached:
+        page: 1
+        rect:
+        - 512.9229736328125
+        - 766.8060302734375
+        - 521.8410034179688
+        - 775.6690063476562
+        widget_type: radiobutton
+        path: Group_39
+        on_state: Detached
+        caption: Detached
+      Built-In:
+        page: 1
+        rect:
+        - 553.3599853515625
+        - 767.0969848632812
+        - 562.2780151367188
+        - 775.9600219726562
+        widget_type: radiobutton
+        path: Group_39
+        on_state: Built-In
+        caption: Built-In
+    x_petey_retype:
+    - option_group:category->category[3]
   finished_area_number_of_rooms:
-    type: string
+    x_petey_id: '1_140'
+    type: integer
     widget:
       page: 1
       rect:
@@ -2041,8 +3021,12 @@ fields:
     description: Number of Rooms
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   finished_area_number_of_bedrooms:
-    type: string
+    x_petey_id: '1_141'
+    type: integer
     widget:
       page: 1
       rect:
@@ -2055,8 +3039,12 @@ fields:
     description: Number of Bedrooms
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   finished_area_number_of_baths:
-    type: string
+    x_petey_id: '1_142'
+    type: integer
     widget:
       page: 1
       rect:
@@ -2069,8 +3057,12 @@ fields:
     description: Number of Bath(s)
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   gross_living_area_above_grade_sq_ft:
-    type: string
+    x_petey_id: '1_143'
+    type: integer
     widget:
       page: 1
       rect:
@@ -2083,7 +3075,11 @@ fields:
     description: Number of Square Feet of Gross Living Area above grade
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   additional_features_txt:
+    x_petey_id: '1_144'
     type: string
     semantic_type: text
     widget:
@@ -2099,6 +3095,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   property_condition_line_1_txt:
+    x_petey_id: '1_145'
     type: string
     semantic_type: text
     widget:
@@ -2115,6 +3112,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   property_condition_line_2_txt:
+    x_petey_id: '1_146'
     type: string
     semantic_type: text
     widget:
@@ -2131,6 +3129,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   property_condition_line_3_txt:
+    x_petey_id: '1_147'
     type: string
     semantic_type: text
     widget:
@@ -2147,6 +3146,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   property_condition_line_4_txt:
+    x_petey_id: '1_148'
     type: string
     semantic_type: text
     widget:
@@ -2163,20 +3163,42 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   physical_deficiencies_ind:
+    x_petey_id: '1_149'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 458.9599914550781
-      - 890.8779907226562
-      - 498.2049865722656
-      - 899.9600219726562
-      widget_type: radiobutton
-      path: Group_41
+    description: Are there any physical deficiencies or adverse conditions that affect
+      the livability, soundness, or structural integrity of the property?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 458.9599914550781
+        - 891.0969848632812
+        - 467.87799072265625
+        - 899.9600219726562
+        widget_type: radiobutton
+        path: Group_41
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 489.2869873046875
+        - 890.8779907226562
+        - 498.2049865722656
+        - 899.740966796875
+        widget_type: radiobutton
+        path: Group_41
+        on_state: 'No'
+        caption: 'No'
   physical_deficiencies_describe_line_1_txt:
+    x_petey_id: '1_150'
     type: string
     semantic_type: text
     widget:
@@ -2192,6 +3214,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   physical_deficiencies_describe_line_2_txt:
+    x_petey_id: '1_151'
     type: string
     semantic_type: text
     widget:
@@ -2207,6 +3230,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   physical_deficiencies_describe_line_3_txt:
+    x_petey_id: '1_152'
     type: string
     semantic_type: text
     widget:
@@ -2222,20 +3246,42 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   property_conformity_ind:
+    x_petey_id: '1_153'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 1
-      rect:
-      - 411.5039978027344
-      - 939.9133911132812
-      - 450.75
-      - 948.99462890625
-      widget_type: radiobutton
-      path: Group_42
+    description: Does the property generally conform to the neighborhood (functional
+      utility, style, condition, use, construction, etc.)?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 411.5039978027344
+        - 940.131591796875
+        - 420.4219970703125
+        - 948.99462890625
+        widget_type: radiobutton
+        path: Group_42
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 441.8320007324219
+        - 939.9133911132812
+        - 450.75
+        - 948.7764282226562
+        widget_type: radiobutton
+        path: Group_42
+        on_state: 'No'
+        caption: 'No'
   property_conformity_no_describe_line_1_txt:
+    x_petey_id: '1_154'
     type: string
     semantic_type: text
     widget:
@@ -2251,6 +3297,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   property_conformity_no_describe_line_2_txt:
+    x_petey_id: '1_155'
     type: string
     semantic_type: text
     widget:
@@ -2266,6 +3313,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appliances:
+    x_petey_id: '1_139'
     type: category
     values:
     - Refrigerator
@@ -2275,16 +3323,88 @@ fields:
     - Disposal
     - Microwave
     - Washer/Dryer
-    widget:
-      page: 1
-      rect:
-      - 66.64099884033203
-      - 779.9500122070312
-      - 385.58599853515625
-      - 789.10400390625
-      widget_type: radiobutton
-      path: Group_40
+    widgets:
+      Refrigerator:
+        page: 1
+        rect:
+        - 66.64099884033203
+        - 780.08203125
+        - 75.55889892578125
+        - 788.9450073242188
+        widget_type: radiobutton
+        path: Group_40
+        on_state: Refrigerator
+        caption: Refrigerator
+      Other (Describe):
+        page: 1
+        rect:
+        - 376.6679992675781
+        - 780.16796875
+        - 385.58599853515625
+        - 789.031005859375
+        widget_type: radiobutton
+        path: Group_40
+        on_state: Other (Describe)
+        caption: Other (Describe)
+      Range/Oven:
+        page: 1
+        rect:
+        - 119.90499877929688
+        - 780.094970703125
+        - 128.822998046875
+        - 788.9580078125
+        widget_type: radiobutton
+        path: Group_40
+        on_state: Range/Oven
+        caption: Range/Oven
+      Dishwasher:
+        page: 1
+        rect:
+        - 175.5050048828125
+        - 779.9500122070312
+        - 184.42300415039062
+        - 788.81298828125
+        widget_type: radiobutton
+        path: Group_40
+        on_state: Dishwasher
+        caption: Dishwasher
+      Disposal:
+        page: 1
+        rect:
+        - 226.6320037841797
+        - 780.240966796875
+        - 235.5500030517578
+        - 789.10400390625
+        widget_type: radiobutton
+        path: Group_40
+        on_state: Disposal
+        caption: Disposal
+      Microwave:
+        page: 1
+        rect:
+        - 269.3590087890625
+        - 780.094970703125
+        - 278.2770080566406
+        - 788.9580078125
+        widget_type: radiobutton
+        path: Group_40
+        on_state: Microwave
+        caption: Microwave
+      Washer/Dryer:
+        page: 1
+        rect:
+        - 317.25
+        - 780.094970703125
+        - 326.1679992675781
+        - 788.9580078125
+        widget_type: radiobutton
+        path: Group_40
+        on_state: Washer/Dryer
+        caption: Washer/Dryer
+    x_petey_retype:
+    - option_group:category->category[7]
   comparable_properties_offered_for_sale_cnt:
+    x_petey_id: '2_1'
     type: integer
     semantic_type: count
     widget:
@@ -2300,8 +3420,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comparable_properties_offered_price_from_amt:
+    x_petey_id: '2_2'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2316,9 +3437,12 @@ fields:
       ranging in proce from $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comparable_properties_offered_price_to_amt:
+    x_petey_id: '2_3'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2329,7 +3453,10 @@ fields:
       widget_type: text
       path: to $
     label_source: llm
+    x_petey_retype:
+    - money
   comparable_sales_cnt:
+    x_petey_id: '2_4'
     type: integer
     semantic_type: count
     widget:
@@ -2345,8 +3472,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comparable_sales_price_from_amt:
+    x_petey_id: '2_5'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2361,9 +3489,12 @@ fields:
       ranging in price from $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comparable_sales_price_to_amt:
+    x_petey_id: '2_6'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2374,7 +3505,10 @@ fields:
       widget_type: text
       path: to $ _1
     label_source: llm
+    x_petey_retype:
+    - money
   subject_address:
+    x_petey_id: '2_7'
     type: string
     widget:
       page: 2
@@ -2389,6 +3523,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_address:
+    x_petey_id: '2_8'
     type: string
     widget:
       page: 2
@@ -2403,6 +3538,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_address:
+    x_petey_id: '2_9'
     type: string
     widget:
       page: 2
@@ -2417,6 +3553,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_address:
+    x_petey_id: '2_10'
     type: string
     widget:
       page: 2
@@ -2431,6 +3568,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_proximity_to_subject:
+    x_petey_id: '2_11'
     type: string
     widget:
       page: 2
@@ -2445,6 +3583,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_proximity_to_subject:
+    x_petey_id: '2_12'
     type: string
     widget:
       page: 2
@@ -2459,6 +3598,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_proximity_to_subject:
+    x_petey_id: '2_13'
     type: string
     widget:
       page: 2
@@ -2473,8 +3613,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_sale_price_amt:
+    x_petey_id: '2_14'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2487,9 +3628,12 @@ fields:
     description: Sale Price for subject $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_1_sale_price_amt:
+    x_petey_id: '2_15'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2502,9 +3646,12 @@ fields:
     description: Sale Price for Comparable Sale number 1 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_sale_price_amt:
+    x_petey_id: '2_16'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2517,9 +3664,12 @@ fields:
     description: Sale Price for Comparable Sale number 2 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_sale_price_amt:
+    x_petey_id: '2_17'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2532,9 +3682,12 @@ fields:
     description: Sale Price for Comparable Sale number 3 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_sale_price_per_gross_liv_area_amt:
+    x_petey_id: '2_18'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2547,9 +3700,12 @@ fields:
     description: Subject Sale Price/Gross Liv.Area in square feet for subject $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_1_sale_price_per_gross_liv_area_amt:
+    x_petey_id: '2_19'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2563,9 +3719,12 @@ fields:
       number 1 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_sale_price_per_gross_liv_area_amt:
+    x_petey_id: '2_20'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2579,9 +3738,12 @@ fields:
       number 2 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_sale_price_per_gross_liv_area_amt:
+    x_petey_id: '2_21'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2595,7 +3757,10 @@ fields:
       number 3 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_1_data_sources:
+    x_petey_id: '2_24'
     type: string
     widget:
       page: 2
@@ -2610,6 +3775,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_data_sources:
+    x_petey_id: '2_22'
     type: string
     widget:
       page: 2
@@ -2624,6 +3790,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_data_sources:
+    x_petey_id: '2_23'
     type: string
     widget:
       page: 2
@@ -2638,6 +3805,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_verification_sources:
+    x_petey_id: '2_25'
     type: string
     widget:
       page: 2
@@ -2652,6 +3820,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_verification_sources:
+    x_petey_id: '2_26'
     type: string
     widget:
       page: 2
@@ -2666,6 +3835,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_verification_sources:
+    x_petey_id: '2_27'
     type: string
     widget:
       page: 2
@@ -2680,6 +3850,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_sale_or_financing_concessions:
+    x_petey_id: '2_28'
     type: string
     widget:
       page: 2
@@ -2694,8 +3865,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_sale_or_financing_concessions_adjustment_amt:
+    x_petey_id: '2_29'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2709,7 +3881,10 @@ fields:
       number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_sale_or_financing_concessions:
+    x_petey_id: '2_30'
     type: string
     widget:
       page: 2
@@ -2724,8 +3899,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_sale_or_financing_concessions_adjustment_amt:
+    x_petey_id: '2_31'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2739,7 +3915,10 @@ fields:
       number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_sale_or_financing_concessions:
+    x_petey_id: '2_32'
     type: string
     widget:
       page: 2
@@ -2754,8 +3933,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_sale_or_financing_concessions_adjustment_amt:
+    x_petey_id: '2_33'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2769,10 +3949,12 @@ fields:
       number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_1_date_of_sale_time:
+    x_petey_id: '2_34'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -2785,9 +3967,12 @@ fields:
     description: Date of Sale/Time for comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_1_date_of_sale_time_adjustment_amt:
+    x_petey_id: '2_35'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2800,10 +3985,12 @@ fields:
     description: Date of Sale/Time, +(-) Adjustment for Comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_date_of_sale_time:
+    x_petey_id: '2_36'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -2816,9 +4003,12 @@ fields:
     description: Date of Sale/Time for comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_2_date_of_sale_time_adjustment_amt:
+    x_petey_id: '2_37'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2831,10 +4021,12 @@ fields:
     description: Date of Sale/Time, +(-) Adjustment for Comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_date_of_sale_time:
+    x_petey_id: '2_38'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -2847,9 +4039,12 @@ fields:
     description: Date of Sale/Time for comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_3_date_of_sale_time_adjustment_amt:
+    x_petey_id: '2_39'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2862,7 +4057,10 @@ fields:
     description: Date of Sale/Time, +(-) Adjustment for Comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_location:
+    x_petey_id: '2_40'
     type: string
     widget:
       page: 2
@@ -2877,6 +4075,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_location:
+    x_petey_id: '2_41'
     type: string
     widget:
       page: 2
@@ -2891,8 +4090,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_location_adjustment_amt:
+    x_petey_id: '2_42'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2905,7 +4105,10 @@ fields:
     description: Comparable sale number 1 location +(-) $ Adjustment
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_location:
+    x_petey_id: '2_43'
     type: string
     widget:
       page: 2
@@ -2920,8 +4123,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_location_adjustment_amt:
+    x_petey_id: '2_44'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2934,7 +4138,10 @@ fields:
     description: Comparable sale number 2 location +(-) $ Adjustment
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_location:
+    x_petey_id: '2_45'
     type: string
     widget:
       page: 2
@@ -2949,8 +4156,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_location_adjustment_amt:
+    x_petey_id: '2_46'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2963,7 +4171,10 @@ fields:
     description: Comparable sale number 3 location +(-) $ Adjustment
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_leasehold_fee_simple:
+    x_petey_id: '2_47'
     type: string
     widget:
       page: 2
@@ -2978,6 +4189,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_leasehold_fee_simple:
+    x_petey_id: '2_48'
     type: string
     widget:
       page: 2
@@ -2992,8 +4204,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_leasehold_fee_simple_adjustment_amt:
+    x_petey_id: '2_49'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3007,7 +4220,10 @@ fields:
       1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_leasehold_fee_simple:
+    x_petey_id: '2_50'
     type: string
     widget:
       page: 2
@@ -3022,8 +4238,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_leasehold_fee_simple_adjustment_amt:
+    x_petey_id: '2_51'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3037,7 +4254,10 @@ fields:
       2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_leasehold_fee_simple:
+    x_petey_id: '2_52'
     type: string
     widget:
       page: 2
@@ -3052,8 +4272,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_leasehold_fee_simple_adjustment_amt:
+    x_petey_id: '2_53'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3067,7 +4288,10 @@ fields:
       3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_site:
+    x_petey_id: '2_54'
     type: string
     widget:
       page: 2
@@ -3082,6 +4306,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_site:
+    x_petey_id: '2_55'
     type: string
     widget:
       page: 2
@@ -3096,8 +4321,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_site_adjustment_amt:
+    x_petey_id: '2_56'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3110,7 +4336,10 @@ fields:
     description: comparable sale number 1 +(-) $ Adjustment Site
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_site:
+    x_petey_id: '2_57'
     type: string
     widget:
       page: 2
@@ -3125,8 +4354,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_site_adjustment_amt:
+    x_petey_id: '2_58'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3139,7 +4369,10 @@ fields:
     description: comparable sale number 2 +(-) $ Adjustment Site
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_site:
+    x_petey_id: '2_59'
     type: string
     widget:
       page: 2
@@ -3154,8 +4387,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_site_adjustment_amt:
+    x_petey_id: '2_60'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3168,7 +4402,10 @@ fields:
     description: comparable sale number 3 +(-) $ Adjustment Site
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_view:
+    x_petey_id: '2_61'
     type: string
     widget:
       page: 2
@@ -3183,6 +4420,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_view:
+    x_petey_id: '2_62'
     type: string
     widget:
       page: 2
@@ -3197,8 +4435,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_view_adjustment_amt:
+    x_petey_id: '2_63'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3211,7 +4450,10 @@ fields:
     description: comparable sale number 1 +(-) $ Adjustment View
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_view:
+    x_petey_id: '2_65'
     type: string
     widget:
       page: 2
@@ -3226,8 +4468,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_view_adjustment_amt:
+    x_petey_id: '2_64'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3240,7 +4483,10 @@ fields:
     description: comparable sale number 2 +(-) $ Adjustment View
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_view:
+    x_petey_id: '2_66'
     type: string
     widget:
       page: 2
@@ -3255,8 +4501,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_view_adjustment_amt:
+    x_petey_id: '2_67'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3269,7 +4516,10 @@ fields:
     description: comparable sale number 3 +(-) $ Adjustment View
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_design_style:
+    x_petey_id: '2_68'
     type: string
     widget:
       page: 2
@@ -3284,6 +4534,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_design_style:
+    x_petey_id: '2_69'
     type: string
     widget:
       page: 2
@@ -3298,8 +4549,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_design_style_adjustment_amt:
+    x_petey_id: '2_70'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3312,7 +4564,10 @@ fields:
     description: Design (style), +(-) $ Adjustment for comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_design_style:
+    x_petey_id: '2_71'
     type: string
     widget:
       page: 2
@@ -3327,8 +4582,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_design_style_adjustment_amt:
+    x_petey_id: '2_72'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3341,7 +4597,10 @@ fields:
     description: Design (style), +(-) $ Adjustment for comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_design_style:
+    x_petey_id: '2_73'
     type: string
     widget:
       page: 2
@@ -3356,8 +4615,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_design_style_adjustment_amt:
+    x_petey_id: '2_74'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3370,7 +4630,10 @@ fields:
     description: Design (style), +(-) $ Adjustment for comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_quality_of_construction:
+    x_petey_id: '2_75'
     type: string
     widget:
       page: 2
@@ -3385,6 +4648,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_quality_of_construction:
+    x_petey_id: '2_76'
     type: string
     widget:
       page: 2
@@ -3399,8 +4663,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_quality_of_construction_adjustment_amt:
+    x_petey_id: '2_77'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3414,7 +4679,10 @@ fields:
       1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_quality_of_construction:
+    x_petey_id: '2_78'
     type: string
     widget:
       page: 2
@@ -3429,8 +4697,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_quality_of_construction_adjustment_amt:
+    x_petey_id: '2_79'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3444,7 +4713,10 @@ fields:
       2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_quality_of_construction:
+    x_petey_id: '2_80'
     type: string
     widget:
       page: 2
@@ -3459,8 +4731,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_quality_of_construction_adjustment_amt:
+    x_petey_id: '2_81'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3474,7 +4747,10 @@ fields:
       3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_actual_age:
+    x_petey_id: '2_82'
     type: string
     widget:
       page: 2
@@ -3489,6 +4765,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_actual_age:
+    x_petey_id: '2_83'
     type: string
     widget:
       page: 2
@@ -3503,8 +4780,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_actual_age_adjustment_amt:
+    x_petey_id: '2_84'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3517,7 +4795,10 @@ fields:
     description: +(-) $ Adjustment Actual Age of comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_actual_age:
+    x_petey_id: '2_85'
     type: string
     widget:
       page: 2
@@ -3532,8 +4813,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_actual_age_adjustment_amt:
+    x_petey_id: '2_86'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3546,7 +4828,10 @@ fields:
     description: +(-) $ Adjustment Actual Age of comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_actual_age:
+    x_petey_id: '2_87'
     type: string
     widget:
       page: 2
@@ -3561,8 +4846,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_actual_age_adjustment_amt:
+    x_petey_id: '2_88'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3575,7 +4861,10 @@ fields:
     description: +(-) $ Adjustment Actual Age of comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_condition:
+    x_petey_id: '2_89'
     type: string
     widget:
       page: 2
@@ -3590,6 +4879,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_condition:
+    x_petey_id: '2_90'
     type: string
     widget:
       page: 2
@@ -3604,8 +4894,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_condition_adjustment_amt:
+    x_petey_id: '2_91'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3618,7 +4909,10 @@ fields:
     description: +(-) $ Adjustment Condition of comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_condition:
+    x_petey_id: '2_92'
     type: string
     widget:
       page: 2
@@ -3633,8 +4927,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_condition_adjustment_amt:
+    x_petey_id: '2_93'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3647,7 +4942,10 @@ fields:
     description: +(-) $ Adjustment Condition of comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_condition:
+    x_petey_id: '2_94'
     type: string
     widget:
       page: 2
@@ -3662,8 +4960,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_condition_adjustment_amt:
+    x_petey_id: '2_95'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3676,7 +4975,10 @@ fields:
     description: +(-) $ Adjustment Condition of comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_total_room_cnt:
+    x_petey_id: '2_96'
     type: integer
     semantic_type: count
     widget:
@@ -3692,6 +4994,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_total_bedrooms_cnt:
+    x_petey_id: '2_97'
     type: integer
     semantic_type: count
     widget:
@@ -3707,6 +5010,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_total_bathrooms_cnt:
+    x_petey_id: '2_98'
     type: integer
     semantic_type: count
     widget:
@@ -3722,6 +5026,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_total_room_cnt:
+    x_petey_id: '2_99'
     type: integer
     semantic_type: count
     widget:
@@ -3737,6 +5042,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_total_bedrooms_cnt:
+    x_petey_id: '2_100'
     type: integer
     semantic_type: count
     widget:
@@ -3752,6 +5058,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_total_bathrooms_cnt:
+    x_petey_id: '2_101'
     type: integer
     semantic_type: count
     widget:
@@ -3767,6 +5074,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_total_room_cnt:
+    x_petey_id: '2_102'
     type: integer
     semantic_type: count
     widget:
@@ -3782,6 +5090,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_total_bedrooms_cnt:
+    x_petey_id: '2_103'
     type: integer
     semantic_type: count
     widget:
@@ -3797,6 +5106,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_total_bathrooms_cnt:
+    x_petey_id: '2_104'
     type: integer
     semantic_type: count
     widget:
@@ -3812,6 +5122,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_total_room_cnt:
+    x_petey_id: '2_105'
     type: integer
     semantic_type: count
     widget:
@@ -3827,6 +5138,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_total_bedrooms_cnt:
+    x_petey_id: '2_106'
     type: integer
     semantic_type: count
     widget:
@@ -3842,6 +5154,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_total_bathrooms_cnt:
+    x_petey_id: '2_107'
     type: integer
     semantic_type: count
     widget:
@@ -3857,6 +5170,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_gross_living_area_sq_ft:
+    x_petey_id: '2_108'
     type: string
     widget:
       page: 2
@@ -3871,6 +5185,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_gross_living_area_sq_ft:
+    x_petey_id: '2_109'
     type: string
     widget:
       page: 2
@@ -3885,6 +5200,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_gross_living_area_sq_ft:
+    x_petey_id: '2_110'
     type: string
     widget:
       page: 2
@@ -3899,6 +5215,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_gross_living_area_sq_ft:
+    x_petey_id: '2_111'
     type: string
     widget:
       page: 2
@@ -3913,6 +5230,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_basement_finished_rooms_below_grade:
+    x_petey_id: '2_112'
     type: string
     widget:
       page: 2
@@ -3927,6 +5245,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_basement_finished_rooms_below_grade:
+    x_petey_id: '2_113'
     type: string
     widget:
       page: 2
@@ -3942,8 +5261,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_basement_finished_rooms_below_grade_adjustment_amt:
+    x_petey_id: '2_114'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3957,7 +5277,10 @@ fields:
       sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_basement_finished_rooms_below_grade:
+    x_petey_id: '2_115'
     type: string
     widget:
       page: 2
@@ -3973,8 +5296,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_basement_finished_rooms_below_grade_adjustment_amt:
+    x_petey_id: '2_116'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -3988,7 +5312,10 @@ fields:
       sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_basement_finished_rooms_below_grade:
+    x_petey_id: '2_117'
     type: string
     widget:
       page: 2
@@ -4004,8 +5331,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_basement_finished_rooms_below_grade_adjustment_amt:
+    x_petey_id: '2_118'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4019,7 +5347,10 @@ fields:
       sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_functional_utility:
+    x_petey_id: '2_119'
     type: string
     widget:
       page: 2
@@ -4034,6 +5365,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_functional_utility:
+    x_petey_id: '2_120'
     type: string
     widget:
       page: 2
@@ -4048,8 +5380,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_functional_utility_adjustment_amt:
+    x_petey_id: '2_121'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4063,7 +5396,10 @@ fields:
       1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_functional_utility:
+    x_petey_id: '2_122'
     type: string
     widget:
       page: 2
@@ -4078,8 +5414,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_functional_utility_adjustment_amt:
+    x_petey_id: '2_123'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4093,7 +5430,10 @@ fields:
       2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_functional_utility:
+    x_petey_id: '2_124'
     type: string
     widget:
       page: 2
@@ -4108,8 +5448,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_functional_utility_adjustment_amt:
+    x_petey_id: '2_125'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4123,7 +5464,10 @@ fields:
       3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_heating_cooling:
+    x_petey_id: '2_126'
     type: string
     widget:
       page: 2
@@ -4138,6 +5482,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_heating_cooling:
+    x_petey_id: '2_127'
     type: string
     widget:
       page: 2
@@ -4152,8 +5497,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_heating_cooling_adjustment_amt:
+    x_petey_id: '2_128'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4166,7 +5512,10 @@ fields:
     description: Heating/Cooling, +(-) $ Adjustment comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_heating_cooling:
+    x_petey_id: '2_129'
     type: string
     widget:
       page: 2
@@ -4181,8 +5530,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_heating_cooling_adjustment_amt:
+    x_petey_id: '2_130'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4195,7 +5545,10 @@ fields:
     description: Heating/Cooling, , +(-) $ Adjustment comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_heating_cooling:
+    x_petey_id: '2_131'
     type: string
     widget:
       page: 2
@@ -4210,8 +5563,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_heating_cooling_adjustment_amt:
+    x_petey_id: '2_132'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4224,7 +5578,10 @@ fields:
     description: Heating/Cooling, , +(-) $ Adjustment comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_energy_efficient_items:
+    x_petey_id: '2_133'
     type: string
     widget:
       page: 2
@@ -4239,6 +5596,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_energy_efficient_items:
+    x_petey_id: '2_134'
     type: string
     widget:
       page: 2
@@ -4253,8 +5611,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_energy_efficient_items_adjustment_amt:
+    x_petey_id: '2_135'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4268,7 +5627,10 @@ fields:
       1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_energy_efficient_items:
+    x_petey_id: '2_136'
     type: string
     widget:
       page: 2
@@ -4283,8 +5645,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_energy_efficient_items_adjustment_amt:
+    x_petey_id: '2_137'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4298,7 +5661,10 @@ fields:
       2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_energy_efficient_items:
+    x_petey_id: '2_138'
     type: string
     widget:
       page: 2
@@ -4313,8 +5679,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_energy_efficient_items_adjustment_amt:
+    x_petey_id: '2_139'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4328,7 +5695,10 @@ fields:
       3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_garage_carport:
+    x_petey_id: '2_140'
     type: string
     widget:
       page: 2
@@ -4343,6 +5713,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_garage_carport:
+    x_petey_id: '2_141'
     type: string
     widget:
       page: 2
@@ -4357,8 +5728,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_garage_carport_adjustment_amt:
+    x_petey_id: '2_142'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4371,7 +5743,10 @@ fields:
     description: Garage/Carport, +(-) $ Adjustment comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_garage_carport:
+    x_petey_id: '2_143'
     type: string
     widget:
       page: 2
@@ -4386,8 +5761,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_garage_carport_adjustment_amt:
+    x_petey_id: '2_144'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4400,7 +5776,10 @@ fields:
     description: Garage/Carport, +(-) $ Adjustment comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_garage_carport:
+    x_petey_id: '2_145'
     type: string
     widget:
       page: 2
@@ -4415,8 +5794,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_garage_carport_adjustment_amt:
+    x_petey_id: '2_146'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4429,7 +5809,10 @@ fields:
     description: Garage/Carport, +(-) $ Adjustment comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_porch_patio_deck:
+    x_petey_id: '2_147'
     type: string
     widget:
       page: 2
@@ -4444,6 +5827,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_porch_patio_deck:
+    x_petey_id: '2_148'
     type: string
     widget:
       page: 2
@@ -4458,8 +5842,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_porch_patio_deck_adjustment_amt:
+    x_petey_id: '2_149'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4472,7 +5857,10 @@ fields:
     description: Porch/Patio/Deck, +(-) $ Adjustment comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_porch_patio_deck:
+    x_petey_id: '2_150'
     type: string
     widget:
       page: 2
@@ -4487,8 +5875,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_porch_patio_deck_adjustment_amt:
+    x_petey_id: '2_151'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4501,7 +5890,10 @@ fields:
     description: Garage/Carport, +(-) $ Adjustment comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_porch_patio_deck:
+    x_petey_id: '2_152'
     type: string
     widget:
       page: 2
@@ -4516,8 +5908,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_porch_patio_deck_adjustment_amt:
+    x_petey_id: '2_153'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4530,7 +5923,10 @@ fields:
     description: Garage/Carport, +(-) $ Adjustment comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_1_net_adjustment_plus_ind:
+    x_petey_id: '2_154'
     type: string
     widget:
       page: 2
@@ -4545,6 +5941,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_net_adjustment_minus_ind:
+    x_petey_id: '2_160'
     type: string
     widget:
       page: 2
@@ -4559,8 +5956,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_net_adjustment_total_amt:
+    x_petey_id: '2_155'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4573,7 +5971,10 @@ fields:
     description: Total net adjustment value for comparable sale number 1 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_net_adjustment_plus_ind:
+    x_petey_id: '2_161'
     type: string
     widget:
       page: 2
@@ -4588,6 +5989,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_net_adjustment_minus_ind:
+    x_petey_id: '2_156'
     type: string
     widget:
       page: 2
@@ -4602,8 +6004,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_net_adjustment_total_amt:
+    x_petey_id: '2_157'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4616,7 +6019,10 @@ fields:
     description: Total net adjustment value for comparable sale number 2 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_net_adjustment_plus_ind:
+    x_petey_id: '2_158'
     type: string
     widget:
       page: 2
@@ -4631,6 +6037,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_net_adjustment_minus_ind:
+    x_petey_id: '2_162'
     type: string
     widget:
       page: 2
@@ -4645,8 +6052,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_net_adjustment_total_amt:
+    x_petey_id: '2_159'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4659,7 +6067,10 @@ fields:
     description: Total net adjustment value for comparable sale number 3 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_1_net_adjustment_pct:
+    x_petey_id: '2_167'
     type: number
     semantic_type: percent
     widget:
@@ -4675,6 +6086,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_gross_adjustment_pct:
+    x_petey_id: '2_169'
     type: number
     semantic_type: percent
     widget:
@@ -4690,8 +6102,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_adjusted_sale_price_amt:
+    x_petey_id: '2_163'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4704,7 +6117,10 @@ fields:
     description: Adjustment sale price of comparable sale number 1 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_net_adjustment_pct:
+    x_petey_id: '2_164'
     type: number
     semantic_type: percent
     widget:
@@ -4720,6 +6136,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_gross_adjustment_pct:
+    x_petey_id: '2_170'
     type: number
     semantic_type: percent
     widget:
@@ -4735,8 +6152,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_adjusted_sale_price_amt:
+    x_petey_id: '2_165'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4749,7 +6167,10 @@ fields:
     description: Adjustment sale price of comparable sale number 2 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_net_adjustment_pct:
+    x_petey_id: '2_168'
     type: number
     semantic_type: percent
     widget:
@@ -4765,6 +6186,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_gross_adjustment_pct:
+    x_petey_id: '2_171'
     type: number
     semantic_type: percent
     widget:
@@ -4780,8 +6202,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_adjusted_sale_price_amt:
+    x_petey_id: '2_166'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4794,21 +6217,45 @@ fields:
     description: Adjustment sale price of comparable sale number 3 $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   researched_sale_transfer_history_ind:
+    x_petey_id: '2_172'
     type: category
     values:
     - did
     - did not
-    widget:
-      page: 2
-      rect:
-      - 32.43410110473633
-      - 494.1669921875
-      - 65.67960357666016
-      - 503.08599853515625
-      widget_type: radiobutton
-      path: Group_43
+    description: I did or did not research the sale or transfer history of the subject
+      property and comparable sales.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      did:
+        page: 2
+        rect:
+        - 32.43410110473633
+        - 494.1669921875
+        - 41.3114013671875
+        - 503.08599853515625
+        widget_type: radiobutton
+        path: Group_43
+        on_state: did
+        caption: did
+      did not:
+        page: 2
+        rect:
+        - 56.80220031738281
+        - 494.2760009765625
+        - 65.67960357666016
+        - 502.989990234375
+        widget_type: radiobutton
+        path: Group_43
+        on_state: did not
+        caption: did not
   researched_sale_transfer_history_explain_line_1:
+    x_petey_id: '2_173'
     type: string
     widget:
       page: 2
@@ -4823,6 +6270,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   researched_sale_transfer_history_explain_line_2:
+    x_petey_id: '2_174'
     type: string
     widget:
       page: 2
@@ -4837,20 +6285,43 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_prior_sales_revealed_ind:
+    x_petey_id: '2_175'
     type: category
     values:
     - did
     - did not
-    widget:
-      page: 2
-      rect:
-      - 71.30460357666016
-      - 531.7230224609375
-      - 104.33200073242188
-      - 540.6409912109375
-      widget_type: radiobutton
-      path: Group_44
+    description: My research did or dd not reveal any prior sales or transfers of
+      the subject property for the three years prior to the effective date of this
+      appraisal.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      did:
+        page: 2
+        rect:
+        - 71.30460357666016
+        - 531.7230224609375
+        - 80.18199920654297
+        - 540.6409912109375
+        widget_type: radiobutton
+        path: Group_44
+        on_state: did
+        caption: did
+      did not:
+        page: 2
+        rect:
+        - 96.13159942626953
+        - 531.83203125
+        - 104.33200073242188
+        - 540.5460205078125
+        widget_type: radiobutton
+        path: Group_44
+        on_state: did not
+        caption: did not
   subject_prior_sales_data_sources:
+    x_petey_id: '2_176'
     type: string
     widget:
       page: 2
@@ -4865,20 +6336,43 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_prior_sales_revealed_ind:
+    x_petey_id: '2_177'
     type: category
     values:
     - did
     - did not
-    widget:
-      page: 2
-      rect:
-      - 70.9092025756836
-      - 558.1259765625
-      - 103.93699645996094
-      - 567.0450439453125
-      widget_type: radiobutton
-      path: Group_45
+    description: My research did or dd not reveal any prior sales or transfers of
+      the comparable sales for the year prior to the date of sale of the comparable
+      sale.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      did:
+        page: 2
+        rect:
+        - 70.9092025756836
+        - 558.1259765625
+        - 79.7864990234375
+        - 567.0450439453125
+        widget_type: radiobutton
+        path: Group_45
+        on_state: did
+        caption: did
+      did not:
+        page: 2
+        rect:
+        - 95.05919647216797
+        - 558.2349853515625
+        - 103.93699645996094
+        - 566.948974609375
+        widget_type: radiobutton
+        path: Group_45
+        on_state: did not
+        caption: did not
   comp_prior_sales_data_sources:
+    x_petey_id: '2_178'
     type: string
     widget:
       page: 2
@@ -4893,9 +6387,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_prior_sale_transfer_dt:
+    x_petey_id: '2_179'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -4908,10 +6402,12 @@ fields:
     description: Date of Prior Sale/Transfer_Subject
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_1_prior_sale_transfer_dt:
+    x_petey_id: '2_180'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -4924,10 +6420,12 @@ fields:
     description: Date of Prior Sale/Transfer_Comparable Sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_2_prior_sale_transfer_dt:
+    x_petey_id: '2_181'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -4940,10 +6438,12 @@ fields:
     description: Date of Prior Sale/Transfer_Comparable Sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_3_prior_sale_transfer_dt:
+    x_petey_id: '2_182'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -4956,9 +6456,12 @@ fields:
     description: Date of Prior Sale/Transfer_Comparable Sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   subject_prior_sale_transfer_price_amt:
+    x_petey_id: '2_184'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4971,9 +6474,12 @@ fields:
     description: Price of Prior Sale/Transfer_Subject
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_1_prior_sale_transfer_price_amt:
+    x_petey_id: '2_185'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -4986,9 +6492,12 @@ fields:
     description: Price of Prior Sale/Transfer_Comparable Sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_2_prior_sale_transfer_price_amt:
+    x_petey_id: '2_186'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -5001,9 +6510,12 @@ fields:
     description: Price of Prior Sale/Transfer_Comparable Sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   comp_sale_3_prior_sale_transfer_price_amt:
+    x_petey_id: '2_183'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -5016,7 +6528,10 @@ fields:
     description: Price of Prior Sale/Transfer_Comparable Sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   subject_prior_sale_data_sources:
+    x_petey_id: '2_187'
     type: string
     widget:
       page: 2
@@ -5031,6 +6546,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_1_prior_sale_data_sources:
+    x_petey_id: '2_188'
     type: string
     widget:
       page: 2
@@ -5045,6 +6561,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_2_prior_sale_data_sources:
+    x_petey_id: '2_189'
     type: string
     widget:
       page: 2
@@ -5059,6 +6576,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comp_sale_3_prior_sale_data_sources:
+    x_petey_id: '2_190'
     type: string
     widget:
       page: 2
@@ -5073,9 +6591,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   subject_prior_sale_data_sources_effective_dt:
+    x_petey_id: '2_191'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -5088,10 +6606,12 @@ fields:
     description: Effective Date of Data Source(s)_Subject
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_1_prior_sale_data_sources_effective_dt:
+    x_petey_id: '2_192'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -5104,10 +6624,12 @@ fields:
     description: Effective Date of Data Source(s)_Comparable Sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_2_prior_sale_data_sources_effective_dt:
+    x_petey_id: '2_193'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -5120,10 +6642,12 @@ fields:
     description: Effective Date of Data Source(s)_Comparable Sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comp_sale_3_prior_sale_data_sources_effective_dt:
+    x_petey_id: '2_194'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -5136,7 +6660,10 @@ fields:
     description: Effective Date of Data Source(s)_Comparable Sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   prior_sale_transfer_history_analysis_line_1:
+    x_petey_id: '2_195'
     type: string
     widget:
       page: 2
@@ -5153,6 +6680,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   prior_sale_transfer_history_analysis_line_2:
+    x_petey_id: '2_196'
     type: string
     widget:
       page: 2
@@ -5169,6 +6697,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   prior_sale_transfer_history_analysis_line_3:
+    x_petey_id: '2_197'
     type: string
     widget:
       page: 2
@@ -5185,6 +6714,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   prior_sale_transfer_history_analysis_line_4:
+    x_petey_id: '2_198'
     type: string
     widget:
       page: 2
@@ -5201,6 +6731,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   prior_sale_transfer_history_analysis_line_5:
+    x_petey_id: '2_199'
     type: string
     widget:
       page: 2
@@ -5217,6 +6748,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sales_comparison_approach_summary_line_1:
+    x_petey_id: '2_200'
     type: string
     widget:
       page: 2
@@ -5231,6 +6763,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sales_comparison_approach_summary_line_2:
+    x_petey_id: '2_201'
     type: string
     widget:
       page: 2
@@ -5245,6 +6778,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sales_comparison_approach_summary_line_3:
+    x_petey_id: '2_202'
     type: string
     widget:
       page: 2
@@ -5259,6 +6793,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sales_comparison_approach_summary_line_4:
+    x_petey_id: '2_203'
     type: string
     widget:
       page: 2
@@ -5273,6 +6808,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sales_comparison_approach_summary_line_5:
+    x_petey_id: '2_204'
     type: string
     widget:
       page: 2
@@ -5287,6 +6823,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sales_comparison_approach_summary_line_6:
+    x_petey_id: '2_205'
     type: string
     widget:
       page: 2
@@ -5301,6 +6838,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   sales_comparison_approach_summary_line_7:
+    x_petey_id: '2_206'
     type: string
     widget:
       page: 2
@@ -5315,8 +6853,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   indicated_value_by_sales_comparison_approach_amt:
+    x_petey_id: '2_207'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -5329,9 +6868,12 @@ fields:
     description: Indicated Value by Sales Comparison Approach $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   reconciliation_sales_comparison_approach_amt:
+    x_petey_id: '2_208'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -5344,9 +6886,12 @@ fields:
     description: Sales Comparison Approach $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   reconciliation_cost_approach_amt:
+    x_petey_id: '2_209'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -5359,9 +6904,12 @@ fields:
     description: Cost Approach (if developed) $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   reconciliation_income_approach_amt:
+    x_petey_id: '2_210'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -5374,7 +6922,10 @@ fields:
     description: Income Approach (if developed) $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   appraisal_made_subject_to_cd:
+    x_petey_id: '2_211'
     type: category
     values:
     - 'as is '
@@ -5384,16 +6935,69 @@ fields:
       condition that the repairs or alterations have been completed
     - subject to the following required inspection based on the extraordinary assumption
       that the condition or deficiency does not require alteration or repair.
-    widget:
-      page: 2
-      rect:
-      - 66.57949829101562
-      - 893.0869750976562
-      - 542.719970703125
-      - 912.76318359375
-      widget_type: radiobutton
-      path: Group_46
+    description: This appraisal is made
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[4]
+    widgets:
+      'as is ':
+        page: 2
+        rect:
+        - 104.5770034790039
+        - 893.3599853515625
+        - 113.45500183105469
+        - 902.2780151367188
+        widget_type: radiobutton
+        path: Group_46
+        on_state: 'as is '
+        caption: 'as is '
+      ? subject to completion per plans and specifications based on the hypothetical
+        condition that the improvements have been completed.
+      : page: 2
+        rect:
+        - 140.78199768066406
+        - 893.0869750976562
+        - 149.65899658203125
+        - 901.801025390625
+        widget_type: radiobutton
+        path: Group_46
+        on_state: subject to completion per plans and specifications based on the
+          hypothetical condition that the improvements have been completed.
+        caption: subject to completion per plans and specifications based on the hypothetical
+          condition that the improvements have been completed.
+      ? subject to the following repairs or alterations on the basis of a hypothetical
+        condition that the repairs or alterations have been completed
+      : page: 2
+        rect:
+        - 66.57949829101562
+        - 903.6810302734375
+        - 75.45680236816406
+        - 912.5994873046875
+        widget_type: radiobutton
+        path: Group_46
+        on_state: subject to the following repairs or alterations on the basis of
+          a hypothetical condition that the repairs or alterations have been completed
+        caption: subject to the following repairs or alterations on the basis of a
+          hypothetical condition that the repairs or alterations have been completed
+      ? subject to the following required inspection based on the extraordinary assumption
+        that the condition or deficiency does not require alteration or repair.
+      : page: 2
+        rect:
+        - 533.843017578125
+        - 903.844970703125
+        - 542.719970703125
+        - 912.76318359375
+        widget_type: radiobutton
+        path: Group_46
+        on_state: subject to the following required inspection based on the extraordinary
+          assumption that the condition or deficiency does not require alteration
+          or repair.
+        caption: subject to the following required inspection based on the extraordinary
+          assumption that the condition or deficiency does not require alteration
+          or repair.
   required_inspection_extraordinary_assumption_txt:
+    x_petey_id: '2_212'
     type: string
     semantic_type: text
     widget:
@@ -5410,8 +7014,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   market_value_amt:
+    x_petey_id: '2_213'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -5424,10 +7029,12 @@ fields:
     description: 'Market Value: $'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   effective_date_of_appraisal_dt:
+    x_petey_id: '2_214'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -5440,10 +7047,12 @@ fields:
     description: 'Effective Date of Appraisal:'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   date_of_inspection_dt:
+    x_petey_id: '2_215'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -5456,7 +7065,10 @@ fields:
     description: Date of Inspection
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   uniform_residential_appraisal_report_line_1:
+    x_petey_id: '3_1'
     type: string
     widget:
       page: 3
@@ -5471,6 +7083,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_2:
+    x_petey_id: '3_2'
     type: string
     widget:
       page: 3
@@ -5485,6 +7098,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_3:
+    x_petey_id: '3_3'
     type: string
     widget:
       page: 3
@@ -5499,6 +7113,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_4:
+    x_petey_id: '3_4'
     type: string
     widget:
       page: 3
@@ -5513,6 +7128,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_5:
+    x_petey_id: '3_5'
     type: string
     widget:
       page: 3
@@ -5527,6 +7143,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_6:
+    x_petey_id: '3_6'
     type: string
     widget:
       page: 3
@@ -5541,6 +7158,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_7:
+    x_petey_id: '3_7'
     type: string
     widget:
       page: 3
@@ -5555,6 +7173,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_8:
+    x_petey_id: '3_8'
     type: string
     widget:
       page: 3
@@ -5569,6 +7188,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_9:
+    x_petey_id: '3_9'
     type: string
     widget:
       page: 3
@@ -5583,6 +7203,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_10:
+    x_petey_id: '3_10'
     type: string
     widget:
       page: 3
@@ -5597,6 +7218,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_11:
+    x_petey_id: '3_11'
     type: string
     widget:
       page: 3
@@ -5611,6 +7233,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_12:
+    x_petey_id: '3_12'
     type: string
     widget:
       page: 3
@@ -5625,6 +7248,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_13:
+    x_petey_id: '3_13'
     type: string
     widget:
       page: 3
@@ -5639,6 +7263,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_14:
+    x_petey_id: '3_14'
     type: string
     widget:
       page: 3
@@ -5653,6 +7278,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_15:
+    x_petey_id: '3_15'
     type: string
     widget:
       page: 3
@@ -5667,6 +7293,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_23:
+    x_petey_id: '3_16'
     type: string
     widget:
       page: 3
@@ -5681,6 +7308,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_34:
+    x_petey_id: '3_17'
     type: string
     widget:
       page: 3
@@ -5695,6 +7323,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_18:
+    x_petey_id: '3_18'
     type: string
     widget:
       page: 3
@@ -5709,6 +7338,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_19:
+    x_petey_id: '3_19'
     type: string
     widget:
       page: 3
@@ -5723,6 +7353,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_20:
+    x_petey_id: '3_20'
     type: string
     widget:
       page: 3
@@ -5737,6 +7368,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_24:
+    x_petey_id: '3_21'
     type: string
     widget:
       page: 3
@@ -5751,6 +7383,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_22:
+    x_petey_id: '3_22'
     type: string
     widget:
       page: 3
@@ -5765,6 +7398,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_23b:
+    x_petey_id: '3_23'
     type: string
     widget:
       page: 3
@@ -5779,6 +7413,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_24b:
+    x_petey_id: '3_24'
     type: string
     widget:
       page: 3
@@ -5793,6 +7428,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_25:
+    x_petey_id: '3_25'
     type: string
     widget:
       page: 3
@@ -5807,6 +7443,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_26:
+    x_petey_id: '3_26'
     type: string
     widget:
       page: 3
@@ -5821,6 +7458,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_27:
+    x_petey_id: '3_27'
     type: string
     widget:
       page: 3
@@ -5835,6 +7473,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_28:
+    x_petey_id: '3_28'
     type: string
     widget:
       page: 3
@@ -5849,6 +7488,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_29:
+    x_petey_id: '3_29'
     type: string
     widget:
       page: 3
@@ -5863,6 +7503,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_30:
+    x_petey_id: '3_30'
     type: string
     widget:
       page: 3
@@ -5877,6 +7518,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_31:
+    x_petey_id: '3_31'
     type: string
     widget:
       page: 3
@@ -5891,6 +7533,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_32:
+    x_petey_id: '3_32'
     type: string
     widget:
       page: 3
@@ -5905,6 +7548,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_33:
+    x_petey_id: '3_33'
     type: string
     widget:
       page: 3
@@ -5919,6 +7563,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_34b:
+    x_petey_id: '3_34'
     type: string
     widget:
       page: 3
@@ -5933,6 +7578,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_35:
+    x_petey_id: '3_35'
     type: string
     widget:
       page: 3
@@ -5947,6 +7593,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_36:
+    x_petey_id: '3_36'
     type: string
     widget:
       page: 3
@@ -5961,6 +7608,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_37:
+    x_petey_id: '3_37'
     type: string
     widget:
       page: 3
@@ -5975,6 +7623,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   uniform_residential_appraisal_report_line_38:
+    x_petey_id: '3_38'
     type: string
     widget:
       page: 3
@@ -5989,6 +7638,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   support_opinion_site_value_line_1:
+    x_petey_id: '3_39'
     type: string
     widget:
       page: 3
@@ -6005,6 +7655,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   support_opinion_site_value_line_2:
+    x_petey_id: '3_40'
     type: string
     widget:
       page: 3
@@ -6021,6 +7672,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   support_opinion_site_value_line_3:
+    x_petey_id: '3_41'
     type: string
     widget:
       page: 3
@@ -6037,20 +7689,38 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   estimated_reproduction_or_replacement_cost_new:
+    x_petey_id: '3_42'
     type: category
     values:
     - Reproduction
     - Replacement Cost new
-    widget:
-      page: 3
-      rect:
-      - 77.48860168457031
-      - 582.0809936523438
-      - 179.85699462890625
-      - 591.260009765625
-      widget_type: radiobutton
-      path: Group_48
+    widgets:
+      Reproduction:
+        page: 3
+        rect:
+        - 77.48860168457031
+        - 582.0809936523438
+        - 86.36589813232422
+        - 590.9990234375
+        widget_type: radiobutton
+        path: Group_48
+        on_state: Reproduction
+        caption: Reproduction
+      Replacement Cost new:
+        page: 3
+        rect:
+        - 170.97999572753906
+        - 582.3410034179688
+        - 179.85699462890625
+        - 591.260009765625
+        widget_type: radiobutton
+        path: Group_48
+        on_state: Replacement Cost new
+        caption: Replacement Cost new
+    x_petey_retype:
+    - option_group:category->category[2]
   source_of_cost_data:
+    x_petey_id: '3_44'
     type: string
     widget:
       page: 3
@@ -6065,6 +7735,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   quality_rating_from_cost_service:
+    x_petey_id: '3_47'
     type: string
     widget:
       page: 3
@@ -6079,9 +7750,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   effective_dt_of_cost_data:
+    x_petey_id: '3_48'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -6094,7 +7765,10 @@ fields:
     description: Effective date of cost data
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   comments_on_cost_approach_line_1:
+    x_petey_id: '3_51'
     type: string
     semantic_type: text
     widget:
@@ -6112,6 +7786,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comments_on_cost_approach_line_2:
+    x_petey_id: '3_54'
     type: string
     semantic_type: text
     widget:
@@ -6129,6 +7804,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comments_on_cost_approach_line_3:
+    x_petey_id: '3_56'
     type: string
     semantic_type: text
     widget:
@@ -6146,6 +7822,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comments_on_cost_approach_line_4:
+    x_petey_id: '3_57'
     type: string
     semantic_type: text
     widget:
@@ -6163,6 +7840,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comments_on_cost_approach_line_5:
+    x_petey_id: '3_62'
     type: string
     semantic_type: text
     widget:
@@ -6180,6 +7858,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comments_on_cost_approach_line_6:
+    x_petey_id: '3_64'
     type: string
     semantic_type: text
     widget:
@@ -6197,6 +7876,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   comments_on_cost_approach_line_7:
+    x_petey_id: '3_66'
     type: string
     semantic_type: text
     widget:
@@ -6214,6 +7894,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   estimated_remaining_economic_life_yrs:
+    x_petey_id: '3_67'
     type: string
     widget:
       page: 3
@@ -6228,8 +7909,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   opinion_of_site_value_amt:
+    x_petey_id: '3_43'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6242,7 +7924,10 @@ fields:
     description: OPINION OF SITE VALUE amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   dwelling_1_sq_ft:
+    x_petey_id: '3_45'
     type: string
     widget:
       page: 3
@@ -6257,8 +7942,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   dwelling_1_amt:
+    x_petey_id: '3_46'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6271,7 +7957,10 @@ fields:
     description: Dwelling 1 amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   dwelling_2_sq_ft:
+    x_petey_id: '3_49'
     type: string
     widget:
       page: 3
@@ -6286,8 +7975,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   dwelling_2_amt:
+    x_petey_id: '3_50'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6300,7 +7990,10 @@ fields:
     description: Dwelling 2 amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   garage_carport_sq_ft:
+    x_petey_id: '3_52'
     type: string
     widget:
       page: 3
@@ -6315,8 +8008,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   garage_carport_amt:
+    x_petey_id: '3_53'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6329,9 +8023,12 @@ fields:
     description: Garage/Carport amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   total_estimate_of_cost_new_amt:
+    x_petey_id: '3_55'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6344,7 +8041,10 @@ fields:
     description: Total Estimate of Cost-New amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   physical_depreciation:
+    x_petey_id: '3_58'
     type: string
     widget:
       page: 3
@@ -6359,6 +8059,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   functional_depreciation:
+    x_petey_id: '3_59'
     type: string
     widget:
       page: 3
@@ -6373,6 +8074,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   external_depreciation:
+    x_petey_id: '3_60'
     type: string
     widget:
       page: 3
@@ -6387,8 +8089,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   total_depreciation_amt:
+    x_petey_id: '3_61'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6401,9 +8104,12 @@ fields:
     description: Total Depreciation amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   depreciated_cost_of_improvements_amt:
+    x_petey_id: '3_63'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6416,9 +8122,12 @@ fields:
     description: Depreciated Cost of Improvements amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   as_is_value_of_site_improvements_amt:
+    x_petey_id: '3_65'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6431,9 +8140,12 @@ fields:
     description: '"As-is" Value of Site Improvements amount $'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   indicated_value_by_cost_approach_amt:
+    x_petey_id: '3_68'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6446,9 +8158,12 @@ fields:
     description: Indicated Value By Cost Approach amount $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   estimated_monthly_market_rent_amt:
+    x_petey_id: '3_69'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6461,7 +8176,10 @@ fields:
     description: Estimated Monthly Market Rent $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   gross_rent_multiplier:
+    x_petey_id: '3_70'
     type: string
     widget:
       page: 3
@@ -6476,8 +8194,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   income_approach_value_amt:
+    x_petey_id: '3_71'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6488,9 +8207,12 @@ fields:
       widget_type: text
       path: '1516548488'
     label_source: llm
+    x_petey_retype:
+    - money
   indicated_value_by_income_approach_amt:
+    x_petey_id: '3_72'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -6503,7 +8225,10 @@ fields:
     description: Indicated Value by Income Approach
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   summary_of_income_approach:
+    x_petey_id: '3_73'
     type: string
     widget:
       page: 3
@@ -6519,34 +8244,76 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   developer_builder_controls_hoa_ind:
+    x_petey_id: '3_74'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 277.8340148925781
-      - 800.7130126953125
-      - 317.3110046386719
-      - 809.6320190429688
-      widget_type: radiobutton
-      path: Group_49
+    description: Is the developer/builder in control of the Homeowners’ Association
+      (HOA)?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 277.8340148925781
+        - 800.7130126953125
+        - 286.71099853515625
+        - 809.6320190429688
+        widget_type: radiobutton
+        path: Group_49
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 308.4339904785156
+        - 800.7130126953125
+        - 317.3110046386719
+        - 809.6309814453125
+        widget_type: radiobutton
+        path: Group_49
+        on_state: 'No'
+        caption: 'No'
   unit_type:
+    x_petey_id: '3_75'
     type: category
     values:
     - Detached
     - Attached
-    widget:
-      page: 3
-      rect:
-      - 383.3429870605469
-      - 800.677001953125
-      - 442.1659851074219
-      - 809.6320190429688
-      widget_type: radiobutton
-      path: Group_50
+    description: Unit type(s)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      Detached:
+        page: 3
+        rect:
+        - 383.3429870605469
+        - 800.677001953125
+        - 392.2200012207031
+        - 809.594970703125
+        widget_type: radiobutton
+        path: Group_50
+        on_state: Detached
+        caption: Detached
+      Attached:
+        page: 3
+        rect:
+        - 433.2879943847656
+        - 800.7130126953125
+        - 442.1659851074219
+        - 809.6320190429688
+        widget_type: radiobutton
+        path: Group_50
+        on_state: Attached
+        caption: Attached
   legal_project_nm:
+    x_petey_id: '3_76'
     type: string
     semantic_type: person_name
     widget:
@@ -6562,7 +8329,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   total_number_of_phases:
-    type: string
+    x_petey_id: '3_77'
+    type: integer
     widget:
       page: 3
       rect:
@@ -6575,8 +8343,12 @@ fields:
     description: Total number of phases
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   total_number_of_units:
-    type: string
+    x_petey_id: '3_78'
+    type: integer
     widget:
       page: 3
       rect:
@@ -6589,8 +8361,12 @@ fields:
     description: Total number of units
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   total_number_of_units_sold:
-    type: string
+    x_petey_id: '3_79'
+    type: integer
     widget:
       page: 3
       rect:
@@ -6603,8 +8379,12 @@ fields:
     description: Total number of units sold
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   total_number_of_units_rented:
-    type: string
+    x_petey_id: '3_81'
+    type: integer
     widget:
       page: 3
       rect:
@@ -6617,8 +8397,12 @@ fields:
     description: Total number of units rented
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   total_number_of_units_for_sale:
-    type: string
+    x_petey_id: '3_80'
+    type: integer
     widget:
       page: 3
       rect:
@@ -6631,7 +8415,11 @@ fields:
     description: Total number of units for sale
     x_petey_description_source: tooltip
     label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
   pud_data_sources:
+    x_petey_id: '3_82'
     type: string
     widget:
       page: 3
@@ -6646,23 +8434,44 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   project_created_by_conversion_ind:
+    x_petey_id: '3_83'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 295.9700012207031
-      - 863.1950073242188
-      - 335.447998046875
-      - 872.113037109375
-      widget_type: radiobutton
-      path: Group_4222
+    description: Was the project created by the conversion of an existing building(s)
+      into a PUD?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 295.9700012207031
+        - 863.1950073242188
+        - 304.8479919433594
+        - 872.113037109375
+        widget_type: radiobutton
+        path: Group_4222
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 326.57000732421875
+        - 863.1950073242188
+        - 335.447998046875
+        - 872.113037109375
+        widget_type: radiobutton
+        path: Group_4222
+        on_state: 'No'
+        caption: 'No'
   conversion_dt:
+    x_petey_id: '3_84'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -6675,21 +8484,44 @@ fields:
     description: If yes, date of conversion
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   project_contains_multi_dwelling_units_ind:
+    x_petey_id: '3_85'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 197.13400268554688
-      - 876.177001953125
-      - 236.61099243164062
-      - 885.094970703125
-      widget_type: radiobutton
-      path: Group_51
+    description: Does the project contain any multi-dwelling units?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 197.13400268554688
+        - 876.177001953125
+        - 206.01100158691406
+        - 885.094970703125
+        widget_type: radiobutton
+        path: Group_51
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 227.73399353027344
+        - 876.177001953125
+        - 236.61099243164062
+        - 885.094970703125
+        widget_type: radiobutton
+        path: Group_51
+        on_state: 'No'
+        caption: 'No'
   multi_dwelling_units_data_sources:
+    x_petey_id: '3_86'
     type: string
     widget:
       page: 3
@@ -6704,20 +8536,41 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   units_common_elements_recreation_complete_ind:
+    x_petey_id: '3_87'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 256.64300537109375
-      - 888.259033203125
-      - 296.1199951171875
-      - 897.177001953125
-      widget_type: radiobutton
-      path: Group_52
+    description: Are the units, common elements, and recreation facilities complete?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 256.64300537109375
+        - 888.259033203125
+        - 265.5199890136719
+        - 897.177001953125
+        widget_type: radiobutton
+        path: Group_52
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 287.2430114746094
+        - 888.259033203125
+        - 296.1199951171875
+        - 897.177001953125
+        widget_type: radiobutton
+        path: Group_52
+        on_state: 'No'
+        caption: 'No'
   status_of_completion_line_1:
+    x_petey_id: '3_88'
     type: string
     widget:
       page: 3
@@ -6732,6 +8585,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   status_of_completion_line_2:
+    x_petey_id: '3_89'
     type: string
     widget:
       page: 3
@@ -6746,20 +8600,41 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   common_elements_leased_to_hoa_ind:
+    x_petey_id: '3_90'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 274.343994140625
-      - 926.7144775390625
-      - 313.4119873046875
-      - 935.7965087890625
-      widget_type: radiobutton
-      path: Group_53
+    description: Are the common elements leased to or by the Homeowner's Association?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 274.343994140625
+        - 926.878173828125
+        - 283.22100830078125
+        - 935.7965087890625
+        widget_type: radiobutton
+        path: Group_53
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 304.53399658203125
+        - 926.7144775390625
+        - 313.4119873046875
+        - 935.6328125
+        widget_type: radiobutton
+        path: Group_53
+        on_state: 'No'
+        caption: 'No'
   rental_terms_and_options:
+    x_petey_id: '3_91'
     type: string
     widget:
       page: 3
@@ -6774,6 +8649,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   describe_common_elements_and_recreational_facilities:
+    x_petey_id: '3_92'
     type: string
     widget:
       page: 3
@@ -6788,6 +8664,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_signature:
+    x_petey_id: '6_1'
     type: string
     widget:
       page: 6
@@ -6802,6 +8679,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_nm:
+    x_petey_id: '6_3'
     type: string
     semantic_type: person_name
     widget:
@@ -6817,6 +8695,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_company_name:
+    x_petey_id: '6_5'
     type: string
     semantic_type: business_name
     widget:
@@ -6832,6 +8711,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_company_address_line_1_txt:
+    x_petey_id: '6_7'
     type: string
     semantic_type: street_address
     widget:
@@ -6847,6 +8727,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_company_address_line_2_txt:
+    x_petey_id: '6_9'
     type: string
     semantic_type: street_address
     widget:
@@ -6862,6 +8743,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_telephone_number:
+    x_petey_id: '6_11'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -6878,6 +8760,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_email_address:
+    x_petey_id: '6_13'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -6894,9 +8777,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_signature_dt:
+    x_petey_id: '6_15'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -6909,10 +8792,12 @@ fields:
     description: Date of Signature and Report
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   appraiser_effective_dt:
+    x_petey_id: '6_17'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -6925,10 +8810,11 @@ fields:
     description: Effective date of Appraisal
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   appraiser_state_certification_number:
+    x_petey_id: '6_19'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -6941,10 +8827,11 @@ fields:
     description: State Certification number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=188
   appraiser_state_license_number:
+    x_petey_id: '6_21'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -6957,7 +8844,10 @@ fields:
     description: State License number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=194
   appraiser_other_credential_desc:
+    x_petey_id: '6_23'
     type: string
     semantic_type: description
     widget:
@@ -6973,6 +8863,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_other_credential_state_number:
+    x_petey_id: '6_24'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -6989,9 +8880,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraiser_state_abbreviation_cd:
+    x_petey_id: '6_26'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -7002,10 +8892,12 @@ fields:
       widget_type: text
       path: State_1
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=243
   appraiser_certification_or_license_expiration_dt:
+    x_petey_id: '6_27'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -7018,7 +8910,10 @@ fields:
     description: Expiration date of Certification or License
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   appraised_property_address_line_1_txt:
+    x_petey_id: '6_29'
     type: string
     semantic_type: street_address
     widget:
@@ -7034,6 +8929,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraised_property_address_line_2_txt:
+    x_petey_id: '6_31'
     type: string
     semantic_type: street_address
     widget:
@@ -7049,8 +8945,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   appraised_value_amt:
+    x_petey_id: '6_33'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 6
       rect:
@@ -7063,7 +8960,10 @@ fields:
     description: Appraised value of subject property $
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - money
   lender_client_nm_2:
+    x_petey_id: '6_36'
     type: string
     semantic_type: person_name
     widget:
@@ -7079,6 +8979,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   lender_client_company_name:
+    x_petey_id: '6_37'
     type: string
     semantic_type: business_name
     widget:
@@ -7094,6 +8995,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   lender_client_company_address_line_1_txt:
+    x_petey_id: '6_38'
     type: string
     semantic_type: street_address
     widget:
@@ -7109,6 +9011,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   lender_client_company_address_line_2_txt:
+    x_petey_id: '6_40'
     type: string
     semantic_type: street_address
     widget:
@@ -7124,6 +9027,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   lender_client_email_address:
+    x_petey_id: '6_43'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -7140,6 +9044,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_signature:
+    x_petey_id: '6_2'
     type: string
     widget:
       page: 6
@@ -7154,6 +9059,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_nm:
+    x_petey_id: '6_4'
     type: string
     semantic_type: person_name
     widget:
@@ -7169,6 +9075,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_company_name:
+    x_petey_id: '6_6'
     type: string
     semantic_type: business_name
     widget:
@@ -7184,6 +9091,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_company_address_line_1_txt:
+    x_petey_id: '6_8'
     type: string
     semantic_type: street_address
     widget:
@@ -7199,6 +9107,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_company_address_line_2_txt:
+    x_petey_id: '6_10'
     type: string
     semantic_type: street_address
     widget:
@@ -7214,6 +9123,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_telephone_number:
+    x_petey_id: '6_12'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -7230,6 +9140,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_email_address:
+    x_petey_id: '6_14'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -7246,9 +9157,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_signature_dt:
+    x_petey_id: '6_16'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -7261,10 +9172,11 @@ fields:
     description: Supervisory Appraiser Date of Signature
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   supervisory_appraiser_state_certification_number:
+    x_petey_id: '6_18'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -7277,10 +9189,11 @@ fields:
     description: Supervisory Appraiser State Certification
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=175
   supervisory_appraiser_state_license_number:
+    x_petey_id: '6_20'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -7293,10 +9206,11 @@ fields:
     description: Supervisory Appraiser or State License
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=181
   supervisory_appraiser_state_abbreviation_cd:
+    x_petey_id: '6_22'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -7309,10 +9223,12 @@ fields:
     description: Supervisory Appraiser State
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=231
   supervisory_appraiser_certification_or_license_expiration_dt:
+    x_petey_id: '6_25'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -7325,7 +9241,10 @@ fields:
     description: Supervisory Appraiser Expiration Date of Certification or License
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   supervisory_appraiser_did_not_inspect_subject_property_ind:
+    x_petey_id: '6_28'
     type: boolean
     semantic_type: indicator
     widget:
@@ -7341,6 +9260,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_inspected_exterior_from_street_ind:
+    x_petey_id: '6_30'
     type: boolean
     semantic_type: indicator
     widget:
@@ -7356,9 +9276,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_exterior_inspection_dt:
+    x_petey_id: '6_32'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -7371,7 +9291,10 @@ fields:
     description: Date of Inspection exterior of subject property from street
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   supervisory_appraiser_inspected_interior_and_exterior_ind:
+    x_petey_id: '6_34'
     type: boolean
     semantic_type: indicator
     widget:
@@ -7387,9 +9310,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_interior_exterior_inspection_dt:
+    x_petey_id: '6_35'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -7402,7 +9325,10 @@ fields:
     description: Are the common elements leased to or by the Homeowner's Association?
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   supervisory_appraiser_did_not_inspect_comparable_sales_exterior_ind:
+    x_petey_id: '6_39'
     type: boolean
     semantic_type: indicator
     widget:
@@ -7419,6 +9345,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_inspected_comparable_sales_exterior_from_street_ind:
+    x_petey_id: '6_41'
     type: boolean
     semantic_type: indicator
     widget:
@@ -7434,9 +9361,9 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   supervisory_appraiser_comparable_sales_inspection_dt:
+    x_petey_id: '6_42'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 6
       rect:
@@ -7449,6 +9376,8 @@ fields:
     description: Date of Inspection exterior of comparable sales from street
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
 x_petey_dedup_log:
   duplicate_labels_reassigned: 1
   collisions:

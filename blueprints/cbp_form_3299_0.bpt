@@ -10,6 +10,7 @@ description: ''
 instructions: ''
 fields:
   residence_abroad_is_ind:
+    x_petey_id: '1_14'
     type: boolean
     semantic_type: indicator
     widget:
@@ -22,7 +23,13 @@ fields:
       widget_type: checkbox
       path: F[0].P1[0].is[0]
     label_source: llm
+    description: PART 2 - TO BE COMPLETED BY ALL PERSONS EXCEPT U.S. PERSONNEL AND
+      EVACUEES. 9. I declare that my place of residence abroad IS.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   residence_abroad_was_ind:
+    x_petey_id: '1_15'
     type: boolean
     semantic_type: indicator
     widget:
@@ -35,59 +42,102 @@ fields:
       widget_type: checkbox
       path: F[0].P1[0].was[0]
     label_source: llm
-  eligibility_c1_nonresident_household_effects_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 319.25299072265625
-      - 415.4800109863281
-      - 329.25299072265625
-      - 425.4800109863281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC1[0]
-    label_source: llm
-  eligibility_a1_household_effects_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.25200080871582
-      - 415.4800109863281
-      - 35.25199890136719
-      - 425.4800109863281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA1[0]
-    label_source: llm
-  eligibility_a2_instruments_tools_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.25200080871582
-      - 457.4809875488281
-      - 35.25199890136719
-      - 467.4809875488281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA1[1]
-    label_source: llm
-  eligibility_c2_nonresident_conveyance_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 319.25299072265625
-      - 457.4809875488281
-      - 329.25299072265625
-      - 467.4809875488281
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC2[0]
-    label_source: llm
+    description: 9. I declare that my place of residence abroad WAS.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  eligibility_2:
+    x_petey_id: '1_21'
+    type: multi_category
+    values:
+    - eligibility_c1_nonresident_household_effects_ind
+    - eligibility_c2_nonresident_conveyance_ind
+    widgets:
+      eligibility_c1_nonresident_household_effects_ind:
+        page: 1
+        rect:
+        - 319.25299072265625
+        - 415.4800109863281
+        - 329.25299072265625
+        - 425.4800109863281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC1[0]
+        on_state: '1'
+        caption: 10. C. 1. All household effects acquired abroad for which free entry
+          is sought were used abroad for at least one year by me or my family in a
+          household of which I or my family was a resident member during such period
+          of use, and are not intended for any other person or for sale. (9804.00.05,
+          H T S U S A.)
+        x_petey_caption_source: tooltip
+      eligibility_c2_nonresident_conveyance_ind:
+        page: 1
+        rect:
+        - 319.25299072265625
+        - 457.4809875488281
+        - 329.25299072265625
+        - 467.4809875488281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC2[0]
+        on_state: '1'
+        caption: 10. C. 2. Any vehicles, trailers, bicycles or other means of conveyance
+          being imported are for the transport of me and my family and such incident
+          a carriage of articles as are appropriate to my personal use of the conveyance.
+          (9804.00.35, H T S U S A.)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:02'
+      from:
+      - eligibility_c1_nonresident_household_effects_ind
+      - eligibility_c2_nonresident_conveyance_ind
+  eligibility:
+    x_petey_id: '1_20'
+    type: multi_category
+    values:
+    - eligibility_a1_household_effects_ind
+    - eligibility_a2_instruments_tools_ind
+    widgets:
+      eligibility_a1_household_effects_ind:
+        page: 1
+        rect:
+        - 25.25200080871582
+        - 415.4800109863281
+        - 35.25199890136719
+        - 425.4800109863281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA1[0]
+        on_state: '1'
+        caption: 10. STATEMENT(S) OF ELIGIBILITY FOR FREE ENTRY OF ARTICLES. I the
+          undersigned further declare that ("X" all applicable items and submit packing
+          list). A. Applicable to RESIDENT and NONRESIDENT. 1. All household effects
+          acquired abroad for which free entry is sought were used abroad for at least
+          one year by me or my family in a household of which I or my family was a
+          resident member during such period of use, and are not intended for any
+          other person or for sale. (9804.00.05, H T S U S A.)
+        x_petey_caption_source: tooltip
+      eligibility_a2_instruments_tools_ind:
+        page: 1
+        rect:
+        - 25.25200080871582
+        - 457.4809875488281
+        - 35.25199890136719
+        - 467.4809875488281
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA1[1]
+        on_state: '1'
+        caption: 10. A. 2. All instruments, implements, or tools of trade, occupation
+          or employment, and all professional books for which free entry is sought
+          were taken abroad by me or for my account or I am an emigrant who owned
+          and used them abroad. (9804.00.10,9804.00.15, H T S U S A.)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:02'
+      from:
+      - eligibility_a1_household_effects_ind
+      - eligibility_a2_instruments_tools_ind
   eligibility_b_resident_personal_effects_ind:
+    x_petey_id: '1_22'
     type: boolean
     semantic_type: indicator
     widget:
@@ -100,150 +150,204 @@ fields:
       widget_type: checkbox
       path: F[0].P1[0].CheckBoxB1[0]
     label_source: llm
-  part_iv_a1_articles_other_person_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.25200080871582
-      - 673.4810180664062
-      - 35.25199890136719
-      - 683.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA1a[0]
-    label_source: llm
-  part_iv_a3_firearms_ammunition_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.2549991607666
-      - 697.22998046875
-      - 35.255001068115234
-      - 707.22998046875
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA3a[0]
-    label_source: llm
-  part_iv_a5_fruits_plants_seeds_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 25.2549991607666
-      - 719.7369995117188
-      - 35.255001068115234
-      - 729.7369995117188
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA5a[0]
-    label_source: llm
-  part_iv_a2_articles_for_sale_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 151.2550048828125
-      - 673.2490234375
-      - 161.2550048828125
-      - 683.2490234375
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA2a[0]
-    label_source: llm
-  part_iv_a4_alcoholic_tobacco_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 151.2550048828125
-      - 697.22998046875
-      - 161.2550048828125
-      - 707.22998046875
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA4a[0]
-    label_source: llm
-  part_iv_a6_fish_wildlife_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 151.2550048828125
-      - 719.7369995117188
-      - 161.2550048828125
-      - 729.7369995117188
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxA6a[0]
-    label_source: llm
-  part_iv_b7_foreign_household_effects_less_one_yr_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.62200927734375
-      - 673.4810180664062
-      - 299.62200927734375
-      - 683.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxB7[0]
-    label_source: llm
-  part_iv_b8_foreign_household_effects_more_one_yr_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 439.25201416015625
-      - 673.4810180664062
-      - 449.25201416015625
-      - 683.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxB8[0]
-    label_source: llm
-  part_iv_c9_personal_effects_acquired_abroad_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.2539978027344
-      - 708.625
-      - 299.2539978027344
-      - 718.625
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC9[0]
-    label_source: llm
-  part_iv_c10_foreign_articles_previously_declared_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.2539978027344
-      - 721.47998046875
-      - 299.2539978027344
-      - 731.47998046875
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC10[0]
-    label_source: llm
-  part_iv_c11_articles_alterations_repairs_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 289.2539978027344
-      - 745.4810180664062
-      - 299.2539978027344
-      - 755.4810180664062
-      widget_type: checkbox
-      path: F[0].P1[0].CheckBoxC11[0]
-    label_source: llm
+    description: 10. B. All personal effects for which free entry is sought were taken
+      abroad by me or for my account. (9804.00.45, H T S U S A.)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  part_iv:
+    x_petey_id: '1_25'
+    type: multi_category
+    values:
+    - part_iv_a1_articles_other_person_ind
+    - part_iv_a2_articles_for_sale_ind
+    - part_iv_a3_firearms_ammunition_ind
+    - part_iv_a4_alcoholic_tobacco_ind
+    - part_iv_a5_fruits_plants_seeds_ind
+    - part_iv_a6_fish_wildlife_ind
+    widgets:
+      part_iv_a1_articles_other_person_ind:
+        page: 1
+        rect:
+        - 25.25200080871582
+        - 673.4810180664062
+        - 35.25199890136719
+        - 683.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA1a[0]
+        on_state: '1'
+        caption: PART FOUR - TO BE COMPLETED BY ALL PERSONS SEEKING FREE ENTRY OF
+          ARTICLES (Certain articles may be subject to duty and/or other requirements
+          and must be specifically declared herein. Please check all applicable items
+          and list them separately in item D on the reverse.) A. For U.S. Personnel,
+          Evacuees, Residents and Non-Residents. 1. Articles for the account of other
+          person.
+        x_petey_caption_source: tooltip
+      part_iv_a2_articles_for_sale_ind:
+        page: 1
+        rect:
+        - 151.2550048828125
+        - 673.2490234375
+        - 161.2550048828125
+        - 683.2490234375
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA2a[0]
+        on_state: '1'
+        caption: A. 2. Articles for sale or commercial use.
+        x_petey_caption_source: tooltip
+      part_iv_a3_firearms_ammunition_ind:
+        page: 1
+        rect:
+        - 25.2549991607666
+        - 697.22998046875
+        - 35.255001068115234
+        - 707.22998046875
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA3a[0]
+        on_state: '1'
+        caption: A. 3. Firearms and/or ammunition.
+        x_petey_caption_source: tooltip
+      part_iv_a4_alcoholic_tobacco_ind:
+        page: 1
+        rect:
+        - 151.2550048828125
+        - 697.22998046875
+        - 161.2550048828125
+        - 707.22998046875
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA4a[0]
+        on_state: '1'
+        caption: A. 4. Alcoholic articles of all types or tobacco products.
+        x_petey_caption_source: tooltip
+      part_iv_a5_fruits_plants_seeds_ind:
+        page: 1
+        rect:
+        - 25.2549991607666
+        - 719.7369995117188
+        - 35.255001068115234
+        - 729.7369995117188
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA5a[0]
+        on_state: '1'
+        caption: A. 5. Fruits, plants, seeds, meats, or birds.
+        x_petey_caption_source: tooltip
+      part_iv_a6_fish_wildlife_ind:
+        page: 1
+        rect:
+        - 151.2550048828125
+        - 719.7369995117188
+        - 161.2550048828125
+        - 729.7369995117188
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxA6a[0]
+        on_state: '1'
+        caption: A. 6. Fish, wildlife, animal products thereof.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:02'
+      from:
+      - part_iv_a1_articles_other_person_ind
+      - part_iv_a2_articles_for_sale_ind
+      - part_iv_a3_firearms_ammunition_ind
+      - part_iv_a4_alcoholic_tobacco_ind
+      - part_iv_a5_fruits_plants_seeds_ind
+      - part_iv_a6_fish_wildlife_ind
+  part_iv_2:
+    x_petey_id: '1_26'
+    type: multi_category
+    values:
+    - part_iv_b7_foreign_household_effects_less_one_yr_ind
+    - part_iv_b8_foreign_household_effects_more_one_yr_ind
+    widgets:
+      part_iv_b7_foreign_household_effects_less_one_yr_ind:
+        page: 1
+        rect:
+        - 289.62200927734375
+        - 673.4810180664062
+        - 299.62200927734375
+        - 683.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxB7[0]
+        on_state: '1'
+        caption: B. 7. Foreign household effects acquired abroad and used less than
+          one year.
+        x_petey_caption_source: tooltip
+      part_iv_b8_foreign_household_effects_more_one_yr_ind:
+        page: 1
+        rect:
+        - 439.25201416015625
+        - 673.4810180664062
+        - 449.25201416015625
+        - 683.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxB8[0]
+        on_state: '1'
+        caption: B. 8. Foreign household effects acquired abroad and used more than
+          one year.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:02'
+      from:
+      - part_iv_b7_foreign_household_effects_less_one_yr_ind
+      - part_iv_b8_foreign_household_effects_more_one_yr_ind
+  part_iv_3:
+    x_petey_id: '1_27'
+    type: multi_category
+    values:
+    - part_iv_c9_personal_effects_acquired_abroad_ind
+    - part_iv_c10_foreign_articles_previously_declared_ind
+    - part_iv_c11_articles_alterations_repairs_ind
+    widgets:
+      part_iv_c9_personal_effects_acquired_abroad_ind:
+        page: 1
+        rect:
+        - 289.2539978027344
+        - 708.625
+        - 299.2539978027344
+        - 718.625
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC9[0]
+        on_state: '1'
+        caption: C. 9. Personal effects acquired abroad.
+        x_petey_caption_source: tooltip
+      part_iv_c10_foreign_articles_previously_declared_ind:
+        page: 1
+        rect:
+        - 289.2539978027344
+        - 721.47998046875
+        - 299.2539978027344
+        - 731.47998046875
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC10[0]
+        on_state: '1'
+        caption: C. 10. Foreign made articles acquired in the United States and taken
+          abroad on this trip or acquired abroad on another trip that was previously
+          declared to C B P.
+        x_petey_caption_source: tooltip
+      part_iv_c11_articles_alterations_repairs_ind:
+        page: 1
+        rect:
+        - 289.2539978027344
+        - 745.4810180664062
+        - 299.2539978027344
+        - 755.4810180664062
+        widget_type: checkbox
+        path: F[0].P1[0].CheckBoxC11[0]
+        on_state: '1'
+        caption: C. 11. Articles taken abroad for which alterations or repairs were
+          performed abroad.
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:02'
+      from:
+      - part_iv_c9_personal_effects_acquired_abroad_ind
+      - part_iv_c10_foreign_articles_previously_declared_ind
+      - part_iv_c11_articles_alterations_repairs_ind
   importer_nm:
+    x_petey_id: '1_1'
     type: string
     semantic_type: person_name
     widget:
@@ -256,7 +360,16 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportersName[0]
     label_source: llm
+    description: PART 1 - TO BE COMPLETED BY ALL PERSONS SEEKING FREE ENTRY OF ARTICLES
+      (Please consult with the C B P official for additional information or assistance.
+      REMEMBER -- All of your statements are subject to verification. False declarations
+      or failure to declare articles could result in penalties.) 1. Importer's Name
+      (Last, first and middle). Last name.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   importer_us_address_line_1_txt:
+    x_petey_id: '1_4'
     type: string
     semantic_type: street_address
     widget:
@@ -269,10 +382,14 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportersUSAddress[0]
     label_source: llm
+    description: 4. Importer's U S Address.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   importer_birth_dt:
+    x_petey_id: '1_2'
     type: date
     semantic_type: birth_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -283,10 +400,16 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportersDateOfBirth[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 2. Importer's Date of Birth. Enter 2-digit month, 2-digit day and
+      4-digit year.
+    x_petey_description_source: tooltip
   importer_arrival_dt:
+    x_petey_id: '1_3'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -297,7 +420,14 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportersDateOfArrival[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 3. Importer's Date of Arrival. Enter 2-digit month, 2-digit day and
+      4-digit year.
+    x_petey_description_source: tooltip
   importer_port_of_arrival_nm:
+    x_petey_id: '1_5'
     type: string
     semantic_type: person_name
     widget:
@@ -310,7 +440,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportersPortOfArrival[0]
     label_source: llm
+    description: 5. Importer's Port of Arrival.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   arriving_vessel_carrier_flight_nm:
+    x_petey_id: '1_6'
     type: string
     semantic_type: person_name
     widget:
@@ -323,7 +458,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].NameOfArrivingVessel[0]
     label_source: llm
+    description: 6. Name of arriving vessel carrier and flight / train.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   accompanying_household_members_nm:
+    x_petey_id: '1_7'
     type: string
     semantic_type: person_name
     widget:
@@ -336,10 +476,15 @@ fields:
       widget_type: text
       path: F[0].P1[0].NamesOfHousehold[0]
     label_source: llm
+    description: 7. NAME(S) OF ACCOMPANYING HOUSEHOLD MEMBERS (wife, husband, minor
+      children, etcetera).
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   shipment_dt:
+    x_petey_id: '1_8'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -350,7 +495,15 @@ fields:
       widget_type: text
       path: F[0].P1[0].ImportedBelongingsDate[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 8. THE ARTICLES FOR WHICH FREE ENTRY IS CLAIMED BELONG TO ME AND
+      / OR MY FAMILY AND WERE IMPORTED. A. Date. Enter 2-digit month, 2-digit day
+      and 4-digit year.
+    x_petey_description_source: tooltip
   vessel_carrier_nm:
+    x_petey_id: '1_9'
     type: string
     semantic_type: person_name
     widget:
@@ -363,7 +516,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].NameOfVesselCarrier[0]
     label_source: llm
+    description: 8. B. Name of Vessel / Carrier.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   origin_country_nm:
+    x_petey_id: '1_10'
     type: string
     semantic_type: country
     widget:
@@ -376,7 +534,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].FromCountry[0]
     label_source: llm
+    description: 8. C. From (Country).
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   bl_awb_it_no:
+    x_petey_id: '1_11'
     type: string
     widget:
       page: 1
@@ -388,7 +551,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].BLorAWBorIT_Number[0]
     label_source: llm
+    description: 8. D. B / L or. A. W B or I T Number.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   number_kinds_containers_txt:
+    x_petey_id: '1_12'
     type: string
     semantic_type: text
     widget:
@@ -401,7 +569,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].NumberOfContainers[0]
     label_source: llm
+    description: 8. E. Number and kinds of containers.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   marks_and_numbers_txt:
+    x_petey_id: '1_13'
     type: string
     semantic_type: text
     widget:
@@ -414,7 +587,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].Marks_Numbers[0]
     label_source: llm
+    description: 8. F. Marks and Numbers.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   country_of_residence_nm:
+    x_petey_id: '1_16'
     type: string
     semantic_type: country
     widget:
@@ -427,10 +605,14 @@ fields:
       widget_type: text
       path: F[0].P1[0].NameOfCountry[0]
     label_source: llm
+    description: 9. A. Name of Country.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   importer_last_departure_dt:
+    x_petey_id: '1_23'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -441,10 +623,16 @@ fields:
       widget_type: text
       path: F[0].P1[0].DateOfImportersLast[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 1. Date of importer's last departure from the U S. Enter 2-digit
+      month, 2-digit day and 4-digit year.
+    x_petey_description_source: tooltip
   travel_orders_issued_dt:
+    x_petey_id: '1_24'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -455,7 +643,15 @@ fields:
       widget_type: text
       path: F[0].P1[0].DateOrdersIssued[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 2. A COPY OF THE IMPORTER'S TRAVEL ORDERS IS ATTACHED AND THE ORDERS
+      WERE ISSUED ON. Date orders issued on. Enter 2-digit month, 2-digit day and
+      4-digit year.
+    x_petey_description_source: tooltip
   length_of_time_yr:
+    x_petey_id: '1_17'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -469,7 +665,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].LengthOfTime_Year[0]
     label_source: llm
+    description: 9. B. Length of time. Year.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   length_of_time_mo:
+    x_petey_id: '1_18'
     type: string
     widget:
       page: 1
@@ -481,7 +682,12 @@ fields:
       widget_type: text
       path: F[0].P1[0].LengthOfTime_Month[0]
     label_source: llm
+    description: 9. B. Length of time. Month.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_2_description_txt:
+    x_petey_id: '2_2'
     type: string
     semantic_type: description
     widget:
@@ -494,7 +700,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise1[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 1 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_2_foreign_merchandise_txt:
+    x_petey_id: '2_3'
     type: string
     semantic_type: text
     widget:
@@ -507,7 +718,14 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise1[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 1 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   carrier_nm:
+    x_petey_id: '2_37'
     type: string
     semantic_type: person_name
     widget:
@@ -520,7 +738,18 @@ fields:
       widget_type: text
       path: F[0].P2[0].NameOfCarrier[0]
     label_source: llm
+    description: PART 5 - CARRIER'S CERTIFICATE AND RELEASE ORDER. The undersigned
+      carrier, to whom of upon whose order the articles described in PART I, 8., must
+      be released, hereby certifies that the person named in Part I, 1., is the owner
+      or consignee of such articles within the purview of section 4 84 (h), Tariff
+      Act of 19 30. In accordance with provisions of section 4 84(h), Tariff Act of
+      19 30, authority is hereby given to release the articles to such consignee.
+      1. Name of Carrier.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   agent_signature_print_nm:
+    x_petey_id: '2_41'
     type: string
     semantic_type: person_name
     widget:
@@ -534,9 +763,9 @@ fields:
       path: F[0].P2[0].SignatureOfAgent[0]
     label_source: llm
   carrier_agent_signature_dt:
+    x_petey_id: '2_42'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -547,7 +776,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].Date[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 2. Signature Date. Enter 2-digit month, 2-digit day and 4-digit year.
+    x_petey_description_source: tooltip
   declarant_signature_txt:
+    x_petey_id: '2_44'
     type: string
     semantic_type: text
     widget:
@@ -561,9 +796,9 @@ fields:
       path: F[0].P2[0].PersonSeekingFreeEntrySignature[0]
     label_source: llm
   declarant_signature_dt:
+    x_petey_id: '2_45'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -574,7 +809,14 @@ fields:
       widget_type: text
       path: F[0].P2[0].DateFreeEntrySignature[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 3. Date of Signature. Enter 2-digit month, 2-digit day and 4-digit
+      year.
+    x_petey_description_source: tooltip
   cbp_official_signature_txt:
+    x_petey_id: '2_46'
     type: string
     semantic_type: text
     widget:
@@ -587,10 +829,17 @@ fields:
       widget_type: text
       path: F[0].P2[0].SignatureOfCBP_Official[0]
     label_source: llm
+    description: PART 7 - C B P USE ONLY (Inspected and Released). 1. Signature of
+      C B P Official (Sign in ink). This signature field can not be signed with a
+      digital signature and the signee's name can not be typewritten into this space.
+      This is a protected field. Print and sign in ink.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   cbp_official_signature_dt:
+    x_petey_id: '2_47'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -601,7 +850,14 @@ fields:
       widget_type: text
       path: F[0].P2[0].DateOfSignature[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: 2. Date of Signature. Enter 2-digit month, 2-digit day and 4-digit
+      year.
+    x_petey_description_source: tooltip
   article_1_item_number_txt:
+    x_petey_id: '2_1'
     type: string
     semantic_type: text
     widget:
@@ -614,9 +870,15 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber1[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 1 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_1_repair_cost_amt:
+    x_petey_id: '2_4'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -627,7 +889,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value1[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 1 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_2_item_number_txt:
+    x_petey_id: '2_5'
     type: string
     semantic_type: text
     widget:
@@ -640,7 +908,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber2[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 2 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_3_item_number_txt:
+    x_petey_id: '2_9'
     type: string
     semantic_type: text
     widget:
@@ -653,7 +927,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber3[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 3 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_4_item_number_txt:
+    x_petey_id: '2_13'
     type: string
     semantic_type: text
     widget:
@@ -666,7 +946,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber4[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 4 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_5_item_number_txt:
+    x_petey_id: '2_17'
     type: string
     semantic_type: text
     widget:
@@ -679,7 +965,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber5[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 5 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_6_item_number_txt:
+    x_petey_id: '2_21'
     type: string
     semantic_type: text
     widget:
@@ -692,7 +984,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber6[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 6 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_7_item_number_txt:
+    x_petey_id: '2_25'
     type: string
     semantic_type: text
     widget:
@@ -705,7 +1003,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber7[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 7 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_8_item_number_txt:
+    x_petey_id: '2_29'
     type: string
     semantic_type: text
     widget:
@@ -718,7 +1022,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber8[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 8 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_9_item_number_txt:
+    x_petey_id: '2_33'
     type: string
     semantic_type: text
     widget:
@@ -731,7 +1041,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].itemnumber9[0]
     label_source: llm
+    description: D. List of articles. 1. ITEM NUMBER CHECKED IN PART FOUR, A., B.,
+      C. Line 9 of 9
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_2_foreign_merchandise_2_txt:
+    x_petey_id: '2_7'
     type: string
     semantic_type: text
     widget:
@@ -744,9 +1060,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise2[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 2 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_2_repair_cost_amt:
+    x_petey_id: '2_8'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -757,7 +1080,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value2[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 2 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_2_description_2_txt:
+    x_petey_id: '2_6'
     type: string
     semantic_type: description
     widget:
@@ -770,7 +1099,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise2[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 2 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_3_foreign_merchandise_txt:
+    x_petey_id: '2_11'
     type: string
     semantic_type: text
     widget:
@@ -783,9 +1117,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise3[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 3 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_3_repair_cost_amt:
+    x_petey_id: '2_12'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -796,7 +1137,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value3[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 3 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_3_description_txt:
+    x_petey_id: '2_10'
     type: string
     semantic_type: description
     widget:
@@ -809,7 +1156,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise3[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 3 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_4_foreign_merchandise_txt:
+    x_petey_id: '2_15'
     type: string
     semantic_type: text
     widget:
@@ -822,9 +1174,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise4[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 4 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_4_repair_cost_amt:
+    x_petey_id: '2_16'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -835,7 +1194,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value4[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 4 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_4_description_txt:
+    x_petey_id: '2_14'
     type: string
     semantic_type: description
     widget:
@@ -848,7 +1213,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise4[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 4 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_5_foreign_merchandise_txt:
+    x_petey_id: '2_19'
     type: string
     semantic_type: text
     widget:
@@ -861,9 +1231,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise5[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 5 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_5_repair_cost_amt:
+    x_petey_id: '2_20'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -874,7 +1251,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value5[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 5 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_5_description_txt:
+    x_petey_id: '2_18'
     type: string
     semantic_type: description
     widget:
@@ -887,7 +1270,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise5[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 5 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_6_foreign_merchandise_txt:
+    x_petey_id: '2_23'
     type: string
     semantic_type: text
     widget:
@@ -900,9 +1288,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise6[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 6 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_6_repair_cost_amt:
+    x_petey_id: '2_24'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -913,7 +1308,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value6[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 6 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_6_description_txt:
+    x_petey_id: '2_22'
     type: string
     semantic_type: description
     widget:
@@ -926,7 +1327,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise6[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 6 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_7_foreign_merchandise_txt:
+    x_petey_id: '2_27'
     type: string
     semantic_type: text
     widget:
@@ -939,9 +1345,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise7[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 7 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_7_repair_cost_amt:
+    x_petey_id: '2_28'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -952,7 +1365,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value7[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 7 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_7_description_txt:
+    x_petey_id: '2_26'
     type: string
     semantic_type: description
     widget:
@@ -965,7 +1384,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise7[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 7 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_8_foreign_merchandise_txt:
+    x_petey_id: '2_31'
     type: string
     semantic_type: text
     widget:
@@ -978,9 +1402,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise8[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 8 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_8_repair_cost_amt:
+    x_petey_id: '2_32'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -991,7 +1422,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value8[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 8 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_8_description_txt:
+    x_petey_id: '2_30'
     type: string
     semantic_type: description
     widget:
@@ -1004,7 +1441,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise8[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 8 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_9_foreign_merchandise_txt:
+    x_petey_id: '2_35'
     type: string
     semantic_type: text
     widget:
@@ -1017,9 +1459,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].ForeignMerchandise9[0]
     label_source: llm
+    description: '4. FOREIGN MERCHANDISE TAKEN ABROAD THIS TRIP: State where in the
+      U S the foreign merchandise was acquired or when and where it was previously
+      declared to C B P. Line 9 of 9.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   article_9_repair_cost_amt:
+    x_petey_id: '2_36'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1030,7 +1479,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].value9[0]
     label_source: llm
+    description: 3. Value of cost of repairs. Line 9 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   article_9_description_txt:
+    x_petey_id: '2_34'
     type: string
     semantic_type: description
     widget:
@@ -1043,7 +1498,12 @@ fields:
       widget_type: text
       path: F[0].P2[0].DescriptionOfMerchandise9[0]
     label_source: llm
+    description: 2. DESCRIPTION OF MERCHANDISE. Line 9 of 9.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   agent_print_nm:
+    x_petey_id: '2_38'
     type: string
     semantic_type: person_name
     widget:
@@ -1056,7 +1516,13 @@ fields:
       widget_type: text
       path: F[0].P2[0].SignatureOfAgentPrint[0]
     label_source: llm
+    description: 2. Signature of Agent (Print and sign). Print name. This is a protected
+      field.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   agent_sign_txt:
+    x_petey_id: '2_39'
     type: string
     semantic_type: text
     widget:
@@ -1069,10 +1535,14 @@ fields:
       widget_type: text
       path: F[0].P2[0].SignatureOfAgentPrint[1]
     label_source: llm
+    description: 2. Signature of Agent (Print and sign). Print name. This is a protected
+      field.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   agent_sign_dt:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    x_petey_id: '2_40'
+    type: string
     widget:
       page: 2
       rect:
@@ -1083,7 +1553,16 @@ fields:
       widget_type: text
       path: F[0].P2[0].SignatureOfAgentPrint[2]
     label_source: llm
+    pattern: ^\d{1,3}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=3,width=42
+    - description_from_tooltip
+    description: 2. Signature of Agent (Print and sign). Print name. This is a protected
+      field.
+    x_petey_description_source: tooltip
   residency_status:
+    x_petey_id: '1_19'
     type: category
     values:
     - nonresident_emigrating
@@ -1099,6 +1578,9 @@ fields:
         - 387.2690124511719
         widget_type: checkbox
         path: F[0].P1[0].ReturningResidentUS[0]
+        on_state: '1'
+        caption: (1) Returning resident of the U.S
+        x_petey_caption_source: page_text
       nonresident_emigrating:
         page: 1
         rect:
@@ -1108,6 +1590,9 @@ fields:
         - 387.2690124511719
         widget_type: checkbox
         path: F[0].P1[0].EmigratingToTheUS[0]
+        on_state: '1'
+        caption: a. Emigrating to the U.S
+        x_petey_caption_source: page_text
       nonresident_visiting:
         page: 1
         rect:
@@ -1117,7 +1602,11 @@ fields:
         - 387.2690124511719
         widget_type: checkbox
         path: F[0].P1[0].VisitingTheUS[0]
+        on_state: '1'
+        caption: b. Visiting the U.S
+        x_petey_caption_source: page_text
   certifier_type:
+    x_petey_id: '2_43'
     type: category
     values:
     - authorized_agent_ind
@@ -1132,6 +1621,9 @@ fields:
         - 665.4810180664062
         widget_type: checkbox
         path: F[0].P2[0].A_AuthorizedAgent[0]
+        on_state: '1'
+        caption: '"X"'
+        x_petey_caption_source: page_text
       importer_ind:
         page: 2
         rect:
@@ -1141,3 +1633,6 @@ fields:
         - 665.4810180664062
         widget_type: checkbox
         path: F[0].P2[0].B_Importer[0]
+        on_state: '1'
+        caption: SEEKING
+        x_petey_caption_source: page_text

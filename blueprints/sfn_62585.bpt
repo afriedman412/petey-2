@@ -10,6 +10,7 @@ description: ''
 instructions: ''
 fields:
   financial_instrument_number:
+    x_petey_id: '1_1'
     type: string
     widget:
       page: 1
@@ -21,7 +22,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].finInstNo[0]
     label_source: llm
+    description: Financial Instrument Number (if applicable)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   ndic_instrument_number:
+    x_petey_id: '1_2'
     type: string
     widget:
       page: 1
@@ -33,10 +39,13 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].ndicInstNo[0]
     label_source: llm
+    description: NDIC Instrument Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   state_incorporated_in:
+    x_petey_id: '1_5'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -47,7 +56,13 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].stateInst[0]
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=570
+    - description_from_tooltip
+    description: The State the Financial Instrument Company is Incorporated in
+    x_petey_description_source: tooltip
   principal_nm:
+    x_petey_id: '1_3'
     type: string
     semantic_type: person_name
     widget:
@@ -60,7 +75,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].namePrinc[0]
     label_source: llm
+    description: Name of Principal of This Instrument
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   financial_instrument_company_business_name:
+    x_petey_id: '1_4'
     type: string
     semantic_type: business_name
     widget:
@@ -73,9 +93,14 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].compNm[0]
     label_source: llm
+    description: Financial Instrument Company Name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   indebted_amt:
+    x_petey_id: '1_6'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -86,21 +111,52 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].amtIndebt[0]
     label_source: llm
+    description: Amount Principal and Instrument Company is Indebted to the State
+      of North Dakota
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   financial_instrument_type:
+    x_petey_id: '1_7'
     type: category
     values:
     - '0'
     - '1'
-    widget:
-      page: 1
-      rect:
-      - 44.1609992980957
-      - 415.0039978027344
-      - 54.1609992980957
-      - 441.7200012207031
-      widget_type: radiobutton
-      path: carbonDioxideBond[0].#subform[0].RadioButtonList[0]
+    description: 'One of: 0 = Surety Bond; 1 = Insurance'
+    x_petey_description_source: xfa_choices
+    x_petey_retype:
+    - description_from_xfa_choices
+    - option_group:category->category[2]
+    x_petey_xfa:
+      choices:
+        '0': Surety Bond
+        '1': Insurance
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 44.1609992980957
+        - 415.0039978027344
+        - 54.1609992980957
+        - 425.0039978027344
+        widget_type: radiobutton
+        path: carbonDioxideBond[0].#subform[0].RadioButtonList[0]
+        on_state: '0'
+        caption: Surety Bond
+      '1':
+        page: 1
+        rect:
+        - 44.1609992980957
+        - 431.7200012207031
+        - 54.1609992980957
+        - 441.7200012207031
+        widget_type: radiobutton
+        path: carbonDioxideBond[0].#subform[0].RadioButtonList[0]
+        on_state: '1'
+        caption: Insurance
   principal_city_nm:
+    x_petey_id: '1_22'
     type: string
     semantic_type: city
     widget:
@@ -114,6 +170,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].City[0]
     label_source: llm
   ndic_order_number:
+    x_petey_id: '1_10'
     type: string
     widget:
       page: 1
@@ -125,7 +182,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].ndicOrder[0]
     label_source: llm
+    description: NDIC Order Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   northstar_facility_number:
+    x_petey_id: '1_9'
     type: string
     widget:
       page: 1
@@ -137,9 +199,14 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].nstarNo[0]
     label_source: llm
+    description: NorthSTAR Facility Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   emergency_remedial_response_amt:
+    x_petey_id: '1_18'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -150,7 +217,13 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].FillableNoLabel[0]
     label_source: llm
+    description: FillableNoLabel
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   emergency_remedial_response_ind:
+    x_petey_id: '1_17'
     type: boolean
     semantic_type: indicator
     widget:
@@ -163,7 +236,12 @@ fields:
       widget_type: checkbox
       path: carbonDioxideBond[0].#subform[0].Yes[0]
     label_source: llm
+    description: Emergency and Remedial Response
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   post_injection_site_care_closure_ind:
+    x_petey_id: '1_13'
     type: boolean
     semantic_type: indicator
     widget:
@@ -176,9 +254,14 @@ fields:
       widget_type: checkbox
       path: carbonDioxideBond[0].#subform[0].Yes[1]
     label_source: llm
+    description: Post-injection Site Care and Facility Closure
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   post_injection_site_care_closure_amt:
+    x_petey_id: '1_14'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -189,9 +272,15 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].FillableNoLabel[1]
     label_source: llm
+    description: FillableNoLabel
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   injection_well_plugging_amt:
+    x_petey_id: '1_16'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -202,7 +291,13 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].FillableNoLabel[2]
     label_source: llm
+    description: FillableNoLabel
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   injection_well_plugging_ind:
+    x_petey_id: '1_15'
     type: boolean
     semantic_type: indicator
     widget:
@@ -215,9 +310,14 @@ fields:
       widget_type: checkbox
       path: carbonDioxideBond[0].#subform[0].Yes[2]
     label_source: llm
+    description: Injection Well Plugging
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   corrective_action_amt:
+    x_petey_id: '1_12'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -228,7 +328,13 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].FillableNoLabel[3]
     label_source: llm
+    description: FillableNoLabel
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   corrective_action_ind:
+    x_petey_id: '1_11'
     type: boolean
     semantic_type: indicator
     widget:
@@ -241,7 +347,12 @@ fields:
       widget_type: checkbox
       path: carbonDioxideBond[0].#subform[0].Yes[3]
     label_source: llm
+    description: Corrective Action
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   principal_signature_nm:
+    x_petey_id: '1_19'
     type: string
     semantic_type: person_name
     widget:
@@ -254,7 +365,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].deptName[0]
     label_source: llm
+    description: Name of Principal of This Instrument (See other side for notary)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   principal_address_line_1_txt:
+    x_petey_id: '1_21'
     type: string
     semantic_type: street_address
     widget:
@@ -268,6 +384,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].Address[0]
     label_source: llm
   principal_zip_cd:
+    x_petey_id: '1_24'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -282,6 +399,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].ZipCode[0]
     label_source: llm
   principal_state_abbreviation_cd:
+    x_petey_id: '1_23'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -296,6 +414,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].State[0]
     label_source: llm
   principal_printed_nm:
+    x_petey_id: '1_26'
     type: string
     semantic_type: person_name
     widget:
@@ -308,7 +427,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].deptName[1]
     label_source: llm
+    description: Printed Name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   principal_title:
+    x_petey_id: '1_27'
     type: string
     widget:
       page: 1
@@ -321,6 +445,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].deptName[2]
     label_source: llm
   principal_signature:
+    x_petey_id: '1_25'
     type: string
     widget:
       page: 1
@@ -333,6 +458,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].deptName[3]
     label_source: llm
   principal_telephone_number:
+    x_petey_id: '1_20'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -346,7 +472,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].telephone[0]
     label_source: llm
+    description: Telephone Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   surety_city_nm:
+    x_petey_id: '1_31'
     type: string
     semantic_type: city
     widget:
@@ -360,6 +491,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].City[1]
     label_source: llm
   surety_insurer_nm:
+    x_petey_id: '1_28'
     type: string
     semantic_type: person_name
     widget:
@@ -372,7 +504,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].deptName[4]
     label_source: llm
+    description: Name of Surety or Insurer (See other side for notary)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   surety_address_line_1_txt:
+    x_petey_id: '1_30'
     type: string
     semantic_type: street_address
     widget:
@@ -386,6 +523,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].Address[1]
     label_source: llm
   surety_zip_cd:
+    x_petey_id: '1_33'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -400,6 +538,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].ZipCode[1]
     label_source: llm
   surety_state_abbreviation_cd:
+    x_petey_id: '1_32'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -414,6 +553,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].State[1]
     label_source: llm
   surety_printed_nm:
+    x_petey_id: '1_35'
     type: string
     semantic_type: person_name
     widget:
@@ -426,7 +566,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].deptName[5]
     label_source: llm
+    description: Printed Name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   surety_title:
+    x_petey_id: '1_36'
     type: string
     widget:
       page: 1
@@ -439,6 +584,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].deptName[6]
     label_source: llm
   surety_signature:
+    x_petey_id: '1_34'
     type: string
     widget:
       page: 1
@@ -451,6 +597,7 @@ fields:
       path: carbonDioxideBond[0].#subform[0].deptName[7]
     label_source: llm
   surety_telephone_number:
+    x_petey_id: '1_29'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -464,7 +611,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].telephone[1]
     label_source: llm
+    description: Telephone Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   facility_nm_and_number:
+    x_petey_id: '1_8'
     type: string
     semantic_type: person_name
     widget:
@@ -477,10 +629,13 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[0].facName[0]
     label_source: llm
+    description: Carbon Dioxide Storage Facility Name and Number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   principal_acknowledgment_state:
+    x_petey_id: '2_1'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 2
       rect:
@@ -491,7 +646,10 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].stateOf[0]
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=125
   principal_acknowledgment_county:
+    x_petey_id: '2_2'
     type: string
     widget:
       page: 2
@@ -504,9 +662,9 @@ fields:
       path: carbonDioxideBond[0].#subform[1].countyOf[0]
     label_source: llm
   principal_sworn_dt:
+    x_petey_id: '2_3'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -517,7 +675,10 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].dateSworn[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   principal_statement_individual_nm:
+    x_petey_id: '2_4'
     type: string
     semantic_type: person_name
     widget:
@@ -530,7 +691,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].personStatement[0]
     label_source: llm
+    description: Name(s) of Individual(s) Making Statement
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   principal_notary_signature:
+    x_petey_id: '2_5'
     type: string
     widget:
       page: 2
@@ -542,10 +708,14 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].signatureNotary[0]
     label_source: llm
+    description: Signature of Notary Public or Other Authorized Officer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   principal_notary_dt:
+    x_petey_id: '2_6'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -556,10 +726,11 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].dateSigned[0]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   surety_acknowledgment_state:
+    x_petey_id: '2_7'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 2
       rect:
@@ -570,10 +741,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].stateOf[1]
     label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=125
   surety_sworn_dt:
+    x_petey_id: '2_9'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -584,7 +757,10 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].dateSworn[1]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   surety_statement_individual_nm:
+    x_petey_id: '2_10'
     type: string
     semantic_type: person_name
     widget:
@@ -597,7 +773,12 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].personStatement[1]
     label_source: llm
+    description: Name(s) of Individual(s) Making Statement
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   surety_notary_signature:
+    x_petey_id: '2_11'
     type: string
     widget:
       page: 2
@@ -609,10 +790,14 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].signatureNotary[1]
     label_source: llm
+    description: Signature of Notary Public or Other Authorized Officer
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   surety_notary_dt:
+    x_petey_id: '2_12'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 2
       rect:
@@ -623,7 +808,10 @@ fields:
       widget_type: text
       path: carbonDioxideBond[0].#subform[1].dateSigned[1]
     label_source: llm
+    x_petey_retype:
+    - pattern_dropped
   surety_acknowledgment_county:
+    x_petey_id: '2_8'
     type: string
     widget:
       page: 2

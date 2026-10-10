@@ -33,6 +33,31 @@ class SemanticType:
 # beat address-token modifiers (state, city, country) to avoid
 # `state_tax_amt` routing via `_state`.
 REGISTRY: tuple[SemanticType, ...] = (
+    # --- parts of a date or an ID, before the whole-value rules ---
+    # A month box named `birth_dt_mm` matched `_dt` and was typed `date`;
+    # on 526EZ that was 79 of 328 fields, every one a generation-time
+    # contradiction (RESULTS.md, gt_shape_mismatch). Parts are strings
+    # with their own shape; the whole-value rules stay for whole values.
+    SemanticType(
+        name="date_month", matches=("_mm",), whole_names=("mm", "month"),
+        pattern=r"^\d{1,2}$", ocr_whitelist="0123456789",
+    ),
+    SemanticType(
+        name="date_day", matches=("_dd",), whole_names=("dd", "day"),
+        pattern=r"^\d{1,2}$", ocr_whitelist="0123456789",
+    ),
+    SemanticType(
+        name="date_year", matches=("_yyyy", "_yy"), whole_names=("yyyy", "yy"),
+        pattern=r"^\d{2,4}$", ocr_whitelist="0123456789",
+    ),
+    SemanticType(
+        name="id_part",
+        matches=("_part1", "_part2", "_part3", "_part4", "_part_1", "_part_2",
+                 "_part_3", "_first_three", "_second_two", "_last_four",
+                 "_first3", "_middle2", "_last4"),
+        pattern=r"^\d{1,5}$", ocr_whitelist="0123456789",
+    ),
+
     # --- distinctive IDs ---
     SemanticType(
         name="ssn", matches=("_ssn",), whole_names=("ssn",),
@@ -84,8 +109,11 @@ REGISTRY: tuple[SemanticType, ...] = (
     ),
 
     # --- money / percent / count (must beat _state, _city, _country) ---
+    # An `_amt` name is a sum of money (the labeler's convention); whole dollars only where the form asks for them,
+    # and an amount of something else (barrels, miles) is not money: both decided at emit by
+    # `petey.validate.retype.money_kind` (Andrew, 2026-10-07).
     SemanticType(
-        name="money_whole_dollar",
+        name="money",
         matches=("_amt", "_amount"),
         bpt_type="number",
         ocr_whitelist="0123456789.,-",
@@ -141,7 +169,7 @@ REGISTRY: tuple[SemanticType, ...] = (
         matches=("_phone", "_telephone", "_phone_number", "_phone_no",
                  "_fax", "_fax_number"),
         whole_names=("phone", "telephone", "fax"),
-        pattern=r"^\d{3}-\d{3}-\d{4}$",
+        pattern=r"^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$",
         ocr_whitelist="0123456789-()  ",
     ),
     SemanticType(
@@ -236,16 +264,15 @@ CHECKBOX_TYPE = SemanticType(
 )
 
 # Spec §5.8.1 registers values that this module has no slug matcher for.
-# `money` is one: the AcroForm path always resolves an amount slug to the
-# more specific `money_whole_dollar`, so nothing here would ever assign
-# plain `money` — but it is a legal, registered value, and the vision
-# path (which assigns by judgment rather than by slug) does emit it.
+# `money_whole_dollar` is one since 2026-10-07: an amount slug resolves to
+# plain `money`, and whole dollars come from the form's own words at emit
+# (`retype.money_kind`), never from the name.
 #
 # Kept out of REGISTRY deliberately. REGISTRY is ordered for `lookup`,
 # and adding an entry there changes what slugs match; this tuple carries
 # vocabulary membership only.
 SPEC_ONLY_TYPES: tuple[SemanticType, ...] = (
-    SemanticType(name="money", matches=(), bpt_type="number"),
+    SemanticType(name="money_whole_dollar", matches=(), bpt_type="number", ocr_whitelist="0123456789.,-"),
 )
 
 # Every value registered by spec §5.8.1 — the canonical vocabulary, as
@@ -292,7 +319,9 @@ def enrich_field(label: str, widget_type: str) -> dict:
             "type": "string"
         }
     spec: dict = {"type": st.bpt_type, "semantic_type": st.name}
-    if st.pattern:
+    # `pattern` is only valid on `type: string` (spec §5.6); the registry
+    # keeps canonical shapes for date/number types as documentation.
+    if st.pattern and st.bpt_type == "string":
         spec["pattern"] = st.pattern
     return spec
 

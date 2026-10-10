@@ -1,6 +1,17 @@
 """LLM-driven synthetic case generator that reads the blank PDF directly.
 
-The LLM sees:
+Blind mode (the default, `generate_from_pdf(..., blind=True)`): the model
+sees the page image with a numbered red rectangle on every box the page
+finder found (`synth.boxes`) and the list of numbers, nothing from the
+AcroForm layer, and returns `{box: value}`; `unblind_rects` keys the case
+by page and rect. Text boxes get strings, mark boxes get bools. The rect
+filler (`render.render_case`) puts it on the page.
+
+Full-inventory mode (`blind=False`, `--full-inventory`) is the original
+widget-based prompt, kept for debugging and for reading the imported
+non-blind cases; it is not a generation path.
+
+In full-inventory mode the LLM sees:
   - The blank form's page images (multimodal), so it can associate widget
     positions with the visible labels on the page.
   - An AcroForm inventory: `[{path, widget_type, export_values, page,
@@ -23,6 +34,7 @@ from __future__ import annotations
 
 import base64
 import json
+import time
 import re
 from pathlib import Path
 from typing import Any, Optional
@@ -30,6 +42,7 @@ from typing import Any, Optional
 import pymupdf
 
 MODEL = "claude-sonnet-4-6"
+BLIND_PROMPT_VERSION = "rect-1"
 MAX_TOKENS = 32768
 PAGE_DPI = 150
 
@@ -91,6 +104,70 @@ dollars for IRS forms.
 """
 
 
+BLIND_SYSTEM_PROMPT = """You generate one realistic filled case for a blank form. \
+You see the form's page image with a numbered red rectangle drawn on every \
+box a layout pass found, and the list of box numbers. Nothing else is known \
+about the boxes: read the printed label next to each one and fill it with a \
+value that makes sense there. Some rectangles are not fillable boxes at all \
+(the layout pass over-proposes: headings, instruction lines, table cells \
+that hold no value); give those null.
+
+OUTPUT SHAPE:
+- Return JSON only. No prose, no markdown, no code fences.
+- Top-level shape: {"values": {"<box number>": <value>, ...}}
+- One entry per box number in the list.
+- Values by what the box is:
+  * a text box -> a string. Realistic per the printed label (name, SSN, \
+address, date, money amount, etc.). Keep it short enough for the box: a \
+narrow cell holds a few characters, a comb of N cells holds N digits.
+  * a box that takes a MARK (a checkbox square, a radio circle, a small \
+cell where an X is typed) -> true (marked) or false (not marked). ALWAYS a \
+JSON bool. When several such boxes are the options of ONE question (Yes / \
+No; Single / Married / Divorced; Apt / Ste / Flr), mark at most one of them.
+  * not a fillable box -> null.
+- Use null also for boxes that are legitimately blank on real filings \
+(optional sub-totals, "Other" description when Other isn't selected, \
+reserved fields).
+
+GROUND EVERY VALUE IN THIS DOCUMENT. You may recognize this form. Do \
+not fill it from that recollection: revisions change field sets, line \
+numbering and layout, and the page image supplied here is authoritative \
+for THIS file. Fill a box from the label printed next to it, not from \
+where you remember that field living.
+
+ONE FILER. Every box that holds the same person's identifier (their SSN in \
+the header of every page, their name at the top and by the signature) \
+holds the same value. Other text values are distinct from one another, so \
+a value found in the wrong box is recognisable.
+
+COHERENCE:
+- ZIP / state / phone area code align (e.g., MA ZIP 01xxx, area 617).
+- Dates flow logically (birth < service < today; policy effective < \
+expiration by 12 months).
+- Related amounts have plausible relative sizes.
+- Names formatted "Last, First M" unless the label describes a business, \
+trust, estate, or organization.
+
+FIDELITY:
+- Use real US city names. Vary across cases.
+- SSNs: area numbers 100-899. EINs: XX-XXXXXXX.
+- ISO dates for date fields: YYYY-MM-DD, unless the box shows a \
+different printed format (MM/DD/YYYY) or is a single date part.
+- Money: dollars-and-cents for healthcare / insurance / payroll; whole \
+dollars for IRS forms.
+"""
+
+
+BLIND_USER_TEMPLATE = """Box numbers on this page: {ids}
+
+The page image is attached with each box number drawn at the top-left \
+corner of its red rectangle. Fill every box per the label printed next \
+to it (null for a rectangle that is not a fillable box). Return JSON:
+
+{{"values": {{"<box number>": <value>, ...}}}}
+"""
+
+
 USER_TEMPLATE = """Widget inventory:
 
 ```json
@@ -119,6 +196,12 @@ def _unescape_pdf_name(s: Optional[str]) -> Optional[str]:
         lambda m: chr(int(m.group(1), 16)),
         s,
     )
+
+
+def _choice_exports(values) -> list:
+    """Combobox choices as export strings: pymupdf returns (export, display)
+    pairs on some forms (I-765 state lists)."""
+    return [c[0] if isinstance(c, (list, tuple)) else c for c in (values or [])]
 
 
 def _widget_type_string(field_type: int) -> str:
@@ -154,7 +237,7 @@ def enumerate_widgets(pdf_path: Path) -> list[dict]:
                     "on_state": (_unescape_pdf_name(w.on_state())
                                  if wt in ("checkbox", "radiobutton")
                                  else None),
-                    "choices": (list(w.choice_values)
+                    "choices": (_choice_exports(w.choice_values)
                                 if wt in ("combobox", "listbox")
                                 and w.choice_values else None),
                 })
@@ -195,6 +278,19 @@ def enumerate_widgets(pdf_path: Path) -> list[dict]:
     return grouped
 
 
+def unblind_rects(values: dict[str, Any], key: dict[str, dict]) -> dict[str, Any]:
+    """Model output `{box id: value}` -> `{rect_key: value}`; null values
+    (not a fillable box, or legitimately blank) are dropped, so the case
+    holds only what the page carries."""
+    out: dict[str, Any] = {}
+    for bid, v in values.items():
+        b = key.get(str(bid))
+        if b is None or v is None:
+            continue
+        out[b["key"]] = v
+    return out
+
+
 def render_page_pngs(pdf_path: Path, dpi: int = PAGE_DPI) -> list[bytes]:
     """Render each page to PNG bytes for the multimodal prompt."""
     doc = pymupdf.open(str(pdf_path))
@@ -232,12 +328,101 @@ def _extract_json_object(text: str) -> Optional[dict]:
     return None
 
 
-def _call_llm_one_page(
-    client, model: str, page_png: bytes, page_inventory: list[dict],
-) -> dict[str, Any]:
-    """One LLM call for one page's widgets. Returns `{path: value}`."""
-    inventory_json = json.dumps(page_inventory, indent=2)
-    user_text = USER_TEMPLATE.format(inventory_json=inventory_json)
+# Other vendors' models speak the OpenAI chat-completions dialect at their own
+# endpoints; one client class covers them all. Keys come from this repo's .env,
+# then petey-master's (the user keeps the non-Anthropic keys there).
+PROVIDERS = {
+    # prefix -> (base_url, key env var). None base_url = api.openai.com
+    "gpt-": (None, "OPENAI_API_KEY"),
+    "o1": (None, "OPENAI_API_KEY"),
+    "o3": (None, "OPENAI_API_KEY"),
+    "o4": (None, "OPENAI_API_KEY"),
+    "gemini-": ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY"),
+    "deepseek-": ("https://api.deepseek.com", "DEEPSEEK_API_KEY"),
+    "mistral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
+    "pixtral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
+    "accounts/fireworks/": ("https://api.fireworks.ai/inference/v1", "FIREWORKS_API_KEY"),
+}
+_ENV_FILES = (Path(__file__).resolve().parents[2] / ".env",
+              Path(__file__).resolve().parents[3] / "petey-master" / ".env")
+
+
+def provider_for(model: str):
+    """(base_url, key_env) for a non-Anthropic model id, else None."""
+    for pre, cfg in PROVIDERS.items():
+        if model.startswith(pre):
+            return cfg
+    return None
+
+
+def _load_keys() -> None:
+    import os
+    for env in _ENV_FILES:
+        if not env.exists():
+            continue
+        for line in env.read_text().splitlines():
+            if "=" in line and not line.lstrip().startswith("#"):
+                k, v = line.split("=", 1)
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
+def make_client(model: str):
+    """An SDK client for `model`: Anthropic by default, OpenAI-compatible for
+    the vendors in PROVIDERS."""
+    import os
+    _load_keys()
+    cfg = provider_for(model)
+    if cfg is None:
+        import anthropic
+        # A page call is under a minute; without a timeout one stalled stream
+        # held the 526EZ classification for three hours (2026-09-30).
+        return anthropic.Anthropic(timeout=300, max_retries=3)
+    from openai import OpenAI
+    base_url, key_env = cfg
+    key = os.environ.get(key_env)
+    if not key:
+        raise RuntimeError(f"{key_env} not set (looked in {', '.join(str(e) for e in _ENV_FILES)})")
+    return OpenAI(api_key=key, base_url=base_url, timeout=600)
+
+
+def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system: str,
+                                     user_text: str, tag: str) -> str:
+    """Same page, same prompt, chat-completions dialect. Returns the text."""
+    from petey.label import call_log
+    t0 = time.time()
+    data_url = "data:image/png;base64," + base64.standard_b64encode(page_png).decode("ascii")
+    kwargs = dict(
+        model=model,
+        messages=[{"role": "system", "content": system},
+                  {"role": "user", "content": [
+                      {"type": "image_url", "image_url": {"url": data_url}},
+                      {"type": "text", "text": user_text}]}],
+    )
+    # reasoning models take max_completion_tokens and reject temperature
+    if model.startswith(("gpt-5", "o1", "o3", "o4")):
+        kwargs["max_completion_tokens"] = MAX_TOKENS
+    else:
+        kwargs["max_tokens"] = MAX_TOKENS
+        kwargs["temperature"] = 0
+    resp = client.chat.completions.create(**kwargs)
+    choice = resp.choices[0]
+    text = choice.message.content or ""
+    u = getattr(resp, "usage", None)
+    call_log.record(tag, raw=text, finish_reason=getattr(choice, "finish_reason", None),
+                    request={"model": model, "prompt_chars": len(user_text)},
+                    usage={"input_tokens": getattr(u, "prompt_tokens", None),
+                           "output_tokens": getattr(u, "completion_tokens", None)} if u else None,
+                    elapsed=time.time() - t0)
+    return text
+
+
+def call_page(client, model: str, page_png: bytes, system: str, user_text: str,
+              tag: str) -> str:
+    """One multimodal call: a page image plus text, any vendor. Returns the
+    raw text; the caller parses. Shared by value generation and by the
+    classification pass (`synth.classify`)."""
+    if provider_for(model) is not None:
+        return _call_openai_compatible_one_page(client, model, page_png, system, user_text, tag)
     content = [
         {
             "type": "image",
@@ -249,16 +434,42 @@ def _call_llm_one_page(
         },
         {"type": "text", "text": user_text},
     ]
+    t0 = time.time()
     with client.messages.stream(
         model=model,
         max_tokens=MAX_TOKENS,
-        system=SYSTEM_PROMPT,
+        system=system,
         messages=[{"role": "user", "content": content}],
     ) as stream:
         final = stream.get_final_message()
     text = "".join(
         b.text for b in final.content if getattr(b, "type", None) == "text"
     )
+    from petey.label import call_log
+    u = getattr(final, "usage", None)
+    call_log.record(tag, raw=text, finish_reason=getattr(final, "stop_reason", None),
+                    request={"model": model, "prompt_chars": len(user_text)},
+                    usage={"input_tokens": getattr(u, "input_tokens", None),
+                           "output_tokens": getattr(u, "output_tokens", None)} if u else None,
+                    elapsed=time.time() - t0)
+    return text
+
+
+def _call_llm_one_page(
+    client, model: str, page_png: bytes, page_inventory: list[dict],
+    blind: bool = False, tag: str = "generate",
+) -> dict[str, Any]:
+    """One LLM call for one page's widgets. Returns `{path: value}`
+    (or `{box id: value}` in blind mode; the caller unblinds)."""
+    if blind:
+        # page_inventory is the list of finder boxes on this page; the model
+        # gets their numbers and nothing else (synth.boxes)
+        user_text = BLIND_USER_TEMPLATE.format(ids=", ".join(b["id"] for b in page_inventory))
+        system = BLIND_SYSTEM_PROMPT
+    else:
+        user_text = USER_TEMPLATE.format(inventory_json=json.dumps(page_inventory, indent=2))
+        system = SYSTEM_PROMPT
+    text = call_page(client, model, page_png, system, user_text, tag)
     parsed = _extract_json_object(text)
     if not parsed or "values" not in parsed:
         raise RuntimeError(
@@ -279,8 +490,17 @@ def generate_from_pdf(
     model: str = MODEL,
     cache_dir: Optional[Path] = None,
     cache_key_prefix: Optional[str] = None,
+    blind: bool = True,
+    client: Any = None,
+    cache_only: bool = False,
 ) -> list[dict[str, Any]]:
     """Generate N cases. Each case is `{path: value}` covering every widget.
+
+    `blind` (default) shows the model numbered boxes on the page image and
+    an inventory of ids and control types only — no AcroForm names, no
+    export values — and maps ids back to paths here (`blind_inventory`,
+    `unblind`). `blind=False` is the original prompt with the full
+    inventory. `client` lets a test inject a stand-in for the API.
 
     One LLM call per page, so total response tokens scale with widgets-per-
     page, not widgets-per-form. Necessary for forms like 990-PF (1147 widgets
@@ -294,7 +514,6 @@ def generate_from_pdf(
     when the same blank PDF is generated against multiple times (e.g., pass
     the form_id so different validation runs don't collide).
     """
-    import anthropic
     import hashlib
 
     pdf_path = Path(pdf_path)
@@ -310,6 +529,9 @@ def generate_from_pdf(
         h.update(pdf_bytes)
         h.update(b"\x00")
         h.update(model.encode("utf-8"))
+        if blind:
+            from petey.synth.boxes import FINDER_VERSION
+            h.update(b"\x00blind-rect\x00" + FINDER_VERSION.encode("utf-8") + b"\x00" + BLIND_PROMPT_VERSION.encode("utf-8"))
         h.update(b"\x00")
         h.update((cache_key_prefix or "").encode("utf-8"))
         h.update(b"\x00")
@@ -317,31 +539,97 @@ def generate_from_pdf(
         cache_dir.mkdir(parents=True, exist_ok=True)
         return cache_dir / f"{h.hexdigest()}.json"
 
-    inventory = enumerate_widgets(pdf_path)
-    page_pngs = render_page_pngs(pdf_path)
+    if cache_only:
+        hits = [_cache_path_for(i) for i in range(n)]
+        if not all(cp is not None and cp.exists() for cp in hits):
+            return []
+        return [json.loads(cp.read_text(encoding="utf-8")) for cp in hits]
 
-    by_page: dict[int, list[dict]] = {}
-    for entry in inventory:
-        by_page.setdefault(entry["page"], []).append(entry)
+    key: dict[str, dict] = {}
+    if blind:
+        from petey.synth.boxes import find_boxes, render_numbered_pages
+        boxes = find_boxes(pdf_path)
+        key = {b["id"]: b for b in boxes}
+        pngs_by_page = render_numbered_pages(pdf_path, boxes)
+        by_page = {}
+        for b in boxes:
+            by_page.setdefault(b["page"], []).append(b)
+        page_pngs = [pngs_by_page.get(p) for p in range(1, max(by_page, default=0) + 1)]
+    else:
+        inventory = enumerate_widgets(pdf_path)
+        page_pngs = render_page_pngs(pdf_path)
+        by_page = {}
+        for entry in inventory:
+            by_page.setdefault(entry["page"], []).append(entry)
 
-    client: Any = None
     cases: list[dict[str, Any]] = []
     for i in range(n):
         cp = _cache_path_for(i)
         if cp is not None and cp.exists():
             cases.append(json.loads(cp.read_text(encoding="utf-8")))
             continue
+        if cache_only:
+            return []  # caller decides; no API call is made
         if client is None:
-            client = anthropic.Anthropic()
+            client = make_client(model)
         merged: dict[str, Any] = {}
+        tag = f"generate/{cache_key_prefix or pdf_path.stem}/{model.replace('/', '_')}"
         for page_no in sorted(by_page.keys()):
             page_inventory = by_page[page_no]
             page_png = page_pngs[page_no - 1]
             values = _call_llm_one_page(
-                client, model, page_png, page_inventory,
+                client, model, page_png, page_inventory, blind=blind, tag=tag,
             )
+            if blind:
+                values = unblind_rects(values, key)
             merged.update(values)
         if cp is not None:
             cp.write_text(json.dumps(merged, indent=2))
         cases.append(merged)
     return cases
+
+
+def dry_run(pdf_path: Path, out_dir: Path) -> dict:
+    """Write exactly what the blind generator would send: one numbered PNG
+    per page and the box list. Lets the pages be eyeballed without an API
+    call. Same renderer as the classifier."""
+    from petey.synth.boxes import find_boxes, render_numbered_pages
+    out_dir.mkdir(parents=True, exist_ok=True)
+    boxes = find_boxes(pdf_path)
+    pngs = render_numbered_pages(pdf_path, boxes)
+    for page_no, png in pngs.items():
+        (out_dir / f"page_{page_no:02d}.png").write_bytes(png)
+    (out_dir / "boxes.json").write_text(json.dumps(boxes, indent=1))
+    return {"pages": len(pngs), "boxes": len(boxes), "out": str(out_dir)}
+
+
+def main() -> int:
+    import argparse
+    ap = argparse.ArgumentParser(
+        description="Synthetic ground truth from a blank form (multimodal LLM).")
+    ap.add_argument("pdf", type=Path)
+    ap.add_argument("--dry-run", type=Path, metavar="DIR",
+                    help="write the blind payload (annotated pages + inventory) "
+                         "to DIR and stop; no API call")
+    ap.add_argument("--n", type=int, default=1)
+    ap.add_argument("--model", default=MODEL)
+    ap.add_argument("--full-inventory", action="store_true",
+                    help="original prompt: paths and export values go to the model")
+    ap.add_argument("--out", type=Path)
+    args = ap.parse_args()
+    if args.dry_run:
+        print(dry_run(args.pdf, args.dry_run))
+        return 0
+    cases = generate_from_pdf(args.pdf, n=args.n, model=args.model,
+                              blind=not args.full_inventory)
+    text = json.dumps(cases, indent=2)
+    if args.out:
+        args.out.write_text(text)
+        print(f"[ok] {len(cases)} case(s) -> {args.out}")
+    else:
+        print(text)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

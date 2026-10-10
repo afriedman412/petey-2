@@ -25,7 +25,7 @@ Emits a `.bpt` YAML with this shape:
         widget:
           page: <int>
           rect: [x0, y0, x1, y1]
-          widget_type: text | checkbox
+          widget_type: text | checkbox | combobox | listbox
           path: <AcroForm path>
 
 For mutex-grouped checkbox clusters (`<group>.<value>` dot-notation
@@ -46,6 +46,7 @@ import collections
 import hashlib
 import json
 import re
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -54,13 +55,20 @@ import yaml
 
 from petey.label import call_log
 from petey.bpt_version import stamp_version
+from petey.validate import field_ids
 from petey.label.dedup import DedupState
 from petey.label.page_signature import collapse_copy_pages
 from petey.label.vocab import load_form_vocab
+from petey.label import xfa as xfa_mod
 from petey.label.retrieve import Embedder, match_labels_to_widgets
-from petey.semantic_types import enrich_field
+from petey.semantic_types import ALL_TYPES, enrich_field
+from petey.locate import enumerate_geometry
+from petey.locate.acroform import enumerate_widgets, _widget_type_string, _unescape_pdf_name  # noqa: F401
 
-MODEL = "claude-sonnet-4-6"
+MODEL = "gemini-3.8-flash"     # 2026-10-06, Andrew: switch the labeler to Gemini (RESULTS 2026-09-30: within noise of Sonnet 4.6 on W-9 / ACORD 25 / I-765 at about a third of the price)
+# Call-log tag prefix; main() appends the form name so one form's labeler
+# usage can be summed even when several forms label concurrently.
+CALL_TAG = "auto_label"
 # Measured, not estimated: 150 labels cost 4,190 output tokens on Form 1025
 # page 3, so ~28 tokens per label — not the 15-20 assumed when LABEL_BATCH was
 # chosen. At 8192 the ceiling held only ~290 labels, which a single dense page
@@ -87,142 +95,74 @@ MIN_PAGE_WORDS = 15
 COPY_RE = re.compile(r"Copy[A-Za-z0-9]+\[\d+\]")
 
 
-def _unescape_pdf_name(s: Optional[str]) -> Optional[str]:
-    """Decode PDF name-object hex escapes (`#XX` → the byte).
+_WORD_STATE = re.compile(r"^[A-Za-z][A-Za-z0-9 _/&'().-]*$")
+_ORDINAL_STATE = re.compile(r"^\d+$")
 
-    pymupdf returns raw AcroForm names — a radio on-state of "N/A"
-    comes through as "N#2FA". Un-escape once at read time so the .bpt's
-    `values:` list holds "N/A" and downstream (LLM prompt, fill,
-    extract, score) all speak the decoded form.
+
+def option_widgets(members: list[dict], group: dict) -> dict[str, dict]:
+    """`{on_state: widget block}` for one option group, first appearance per state."""
+    out: dict[str, dict] = {}
+    for m in members:
+        st = m.get("on_state")
+        if not st or st in out:
+            continue
+        out[st] = {
+            "page": m["page"],
+            "rect": m["rect"],
+            "widget_type": m.get("widget_type") or group.get("true_widget_type") or "radiobutton",
+            "path": group.get("path"),
+            "on_state": st,
+        }
+    return out
+
+
+def caption_options(spec: dict) -> None:
+    """Put the printed caption on each option: the XFA member caption when the
+    template declares one, else the on-state itself when it is a word
+    (`Medicare`, `Yes`); ordinal states (`0`, `1`) with no declaration stay
+    uncaptioned — the description still carries `One of: ...` when the XFA
+    gave it. Nothing is guessed."""
+    widgets = spec.get("widgets") or {}
+    if not widgets:
+        return
+    declared = ((spec.get("x_petey_xfa") or {}).get("choices")) or {}
+    for st, block in widgets.items():
+        cap = declared.get(st)
+        if not cap and not _ORDINAL_STATE.match(st) and st.lower() not in ("on", "off", "true", "false"):
+            # "0-5 years", "1 . Single.", "MINOR: BY CLINIC HOSPITAL",
+            # "Medicare": the publisher wrote the state; it is the caption
+            cap = st.capitalize() if st.lower() in ("yes", "no") else st
+        if cap:
+            block["caption"] = cap
+        else:
+            block.pop("caption", None)
+
+
+def option_group_paths(widgets: list[dict]) -> set[str]:
+    """Paths of button FIELDS that have more than one widget.
+
+    One AcroForm field, several kids, each kid an option with its own
+    on-state: that is a radio group whatever the field's flag says. The
+    corpus survey (eval/radio_survey.py, 2026-09-29) found 692 such fields
+    flagged radio and 480 flagged checkbox; the checkbox-flagged ones used
+    to dedup to their first kid, so CMS-1500's seven-way insurance type
+    became one boolean.
     """
-    if not s or "#" not in s:
-        return s
-    return re.sub(
-        r"#([0-9A-Fa-f]{2})",
-        lambda m: chr(int(m.group(1), 16)),
-        s,
-    )
-
-
-def _widget_type_string(field_type: int) -> str:
-    """Map pymupdf widget-type constants to blueprint widget_type.
-
-    AcroForm widget type is authoritative — the VLM is never allowed to
-    reclassify. Radio buttons preserve their identity so the labeler can
-    group them by shared field_name and emit them as `type: category`
-    at the group level (or `type: boolean` for singleton groups).
-    Comboboxes / listboxes: single-choice string, treat as text.
-    Signatures: no text value, treat as text.
-
-    Pushbuttons used to land here too, and that was the bug behind
-    OBSERVATIONS class 12 — 106 fields across 12 blueprints bound to
-    controls that hold no value at all. They are dropped in
-    `enumerate_widgets` now rather than typed.
-    """
-    if field_type == pymupdf.PDF_WIDGET_TYPE_CHECKBOX:
-        return "checkbox"
-    if field_type == pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON:
-        return "radiobutton"
-    return "text"
-
-
-# PDF field flag bit 17. A pushbutton is a control: it fires an action and
-# retains no value, verified across the corpus as `field_value == ''` on
-# every one. The flag is exact — of 51,919 widgets in `source_pdfs/`, all
-# 548 carrying it are type Button, and no CheckBox, RadioButton, ComboBox,
-# Signature or Text does.
-PUSHBUTTON_FLAG = 1 << 16
-
-# PDF field flag bit 1 (ReadOnly), combined with a non-empty default value.
-# Some form-conversion tools emit the printed CAPTION as a locked form field
-# sitting beside the data field it labels: Form5020 carries a widget named
-# `31` holding `'31. SOCIAL SECURITY NUMBER'` next to `31_SOC_A_SECUPITi_NUMB`
-# (the garbled name gives the tool away) which holds the actual number.
-#
-# Labeled as a data field it is poison in both directions: the generator
-# writes a value into a widget that cannot hold one, and a meaning-based
-# reader asked for `employee_ssn` correctly returns the real SSN and is
-# scored against the caption. That is how it was found — `petey` was right
-# and the blueprint was wrong.
-#
-# Both conditions are required. ReadOnly ALONE is a locked but real data
-# field, often calculated — 1,683 of those in `source_pdfs/` against 384
-# captions, so dropping on the flag alone would discard four times more
-# real fields than captions.
-READONLY_FLAG = 1 << 0
-
-
-def _is_caption_widget(w) -> bool:
-    """A locked widget whose value IS the printed label."""
-    if not ((w.field_flags or 0) & READONLY_FLAG):
-        return False
-    return bool((w.field_value or "").strip())
-
-
-def enumerate_widgets(pdf_path: Path) -> tuple[list[dict], list[dict]]:
-    """Return `(widgets, dropped)`.
-
-    Dropped widgets are REPORTED, not silently skipped. A silent filter
-    would give us no way to notice the form where the assumption breaks,
-    whereas `_dedup.py` logging its collisions is exactly what made class
-    13 enumerable across the library without measuring anything. The
-    corpus behind this filter is 482 mostly-US-government forms; non-US
-    and commercial forms are where a different convention would show up.
-    """
-    doc = pymupdf.open(str(pdf_path))
-    widgets: list[dict] = []
-    dropped: list[dict] = []
-    idx = 0
-    for page_num, page in enumerate(doc, start=1):
-        for w in page.widgets():
-            tooltip = (w.field_label or "").strip() or None
-            if (w.field_flags or 0) & PUSHBUTTON_FLAG:
-                dropped.append({
-                    "path": w.field_name,
-                    "page": page_num,
-                    "reason": "pushbutton",
-                    "field_type": w.field_type_string,
-                    "tooltip": tooltip,
-                })
-                continue
-            if _is_caption_widget(w):
-                dropped.append({
-                    "path": w.field_name,
-                    "page": page_num,
-                    "reason": "caption",
-                    "field_type": w.field_type_string,
-                    "tooltip": tooltip,
-                    "caption": (w.field_value or "").strip()[:80],
-                })
-                continue
-            wt = _widget_type_string(w.field_type)
-            entry = {
-                "id": idx,
-                "page": page_num,
-                "rect": [float(x) for x in w.rect],
-                "widget_type": wt,
-                "path": w.field_name,
-            }
-            if tooltip:
-                entry["tooltip"] = tooltip
-            if wt == "radiobutton":
-                entry["on_state"] = _unescape_pdf_name(w.on_state())
-            widgets.append(entry)
-            idx += 1
-    doc.close()
-    return widgets, dropped
+    counts: dict[str, int] = {}
+    for w in widgets:
+        if w["widget_type"] in ("radiobutton", "checkbox"):
+            counts[w["path"]] = counts.get(w["path"], 0) + 1
+    return {path for path, n in counts.items() if n > 1}
 
 
 def first_copy_ids(widgets: list[dict]) -> set[int]:
-    """First-copy dedup for non-radio widgets; keep all radios.
-
-    Radio widgets sharing a `field_name` (AcroForm group) get grouped by
-    `_group_radios_for_labeling` downstream, not by the Copy A/B/C
-    heuristic here.
-    """
+    """First-copy dedup for ordinary widgets; keep every member of an
+    option group (see `option_group_paths`), which `_group_radios_for_labeling`
+    collapses downstream instead of the Copy A/B/C heuristic here."""
+    grouped = option_group_paths(widgets)
     groups: dict[str, list[dict]] = {}
     for w in widgets:
-        if w["widget_type"] == "radiobutton":
+        if w["path"] in grouped:
             continue
         key = COPY_RE.sub("COPY", w["path"])
         groups.setdefault(key, []).append(w)
@@ -231,7 +171,7 @@ def first_copy_ids(widgets: list[dict]) -> set[int]:
         arr.sort(key=lambda w: (w["page"], w["id"]))
         keep.add(arr[0]["id"])
     for w in widgets:
-        if w["widget_type"] == "radiobutton":
+        if w["path"] in grouped:
             keep.add(w["id"])
     return keep
 
@@ -246,10 +186,11 @@ def _group_radios_for_labeling(
     per-member on-state export values, so the VLM sees the group as a
     single choice-set rather than N independent widgets.
     """
+    grouped = option_group_paths(widgets)
     radios_by_path: dict[str, list[dict]] = {}
     others: list[dict] = []
     for w in widgets:
-        if w["widget_type"] == "radiobutton":
+        if w["path"] in grouped or w["widget_type"] == "radiobutton":
             radios_by_path.setdefault(w["path"], []).append(w)
         else:
             others.append(w)
@@ -263,13 +204,22 @@ def _group_radios_for_labeling(
         xs = [c for m in same_page for c in (m["rect"][0], m["rect"][2])]
         ys = [c for m in same_page for c in (m["rect"][1], m["rect"][3])]
         union_rect = [min(xs), min(ys), max(xs), max(ys)]
+        # distinct on-states in page order; kids that repeat a state are
+        # extra appearances of the same option (Form400 mirrors a box on
+        # pages 1 and 3), not extra options
+        seen: list[str] = []
+        for m in members:
+            st = m.get("on_state")
+            if st and st not in seen:
+                seen.append(st)
         group_entries.append({
             "id": first["id"],
             "page": first["page"],
             "rect": union_rect,
-            "widget_type": "radiobutton",
+            "widget_type": "radiobutton",  # the label prompt's group entry kind
+            "true_widget_type": first["widget_type"],
             "path": path,
-            "options": [m.get("on_state") for m in members],
+            "options": seen,
         })
         members_by_id[first["id"]] = members
     return others + group_entries, members_by_id
@@ -364,13 +314,26 @@ words, ignore it when it does not.
 sometimes to the LEFT. This is the weakest evidence, because nearby text \
 only happens to sit close by, while 1 and 2 were written ABOUT this \
 widget.
-When the path or tooltip names the field and the nearby text disagrees, \
-the publisher wins.
+When the path or tooltip names the field and merely NEARBY text disagrees \
+(a neighbouring box's caption, a section heading), the publisher wins.
+- ONE EXCEPTION, the box's own caption: when printed words lie INSIDE the \
+widget's rect, or the widget sits in a ruled cell whose caption is printed \
+at the top of that same cell, that caption is what a filer reads for this \
+box, and a filer types by position. If the tooltip or path says something \
+else, the publisher placed the widget in the wrong box: name the field for \
+the caption. (Kansas DO-10: a widget whose tooltip says EIN/SSN/PTIN sits \
+inside the cell captioned "Area Code & Phone Number"; it holds a phone \
+number.)
+- A tooltip or path that says nothing about the value carries nothing: a \
+control word or generator default ("Control", "Text16", "Check Box1", \
+"Field", "Button", "Dropdown2"). Name such a widget from its caption, \
+never from that word.
 - A widget may carry `"tooltip"` — the form publisher's own description \
 of that field, embedded in the document. It refers to THAT widget \
 specifically, whereas nearby printed text only happens to sit close by. \
 When a tooltip is present, prefer it over proximity: it is the stronger \
-evidence and it is the publisher's intent, not an inference.
+evidence and it is the publisher's intent, not an inference — except \
+against the box's own caption (above).
 - A tooltip may open with a COPY PREFIX identifying which repetition of \
 the form the widget belongs to: "Slip 1. Employer's name", \
 "Copy B - Wages", "Column (c) Amount". FOLD that prefix into the slug as a \
@@ -380,7 +343,9 @@ it. "Slip 1. Employer's name" yields `slip1_employer_business_name` and \
 prefix is real information about which occurrence a value belongs to, and \
 the form publisher's own field names usually carry it too.
 - Emit snake_case slugs following IRS MeF-style conventions where \
-possible: `_amt` for money, `_dt` for date, `_ind` for checkbox \
+possible: `_amt` for a sum of money only (an amount of anything else is \
+named for what it measures: `_bbl`, `_mcf`, `_miles`, `_hours`, `_qty`, `_cnt`; \
+a percentage `_pct`), `_dt` for date, `_ind` for checkbox \
 indicator, `_cd` for code, `_yr` for year, `_ssn`/`_ein` for taxpayer \
 IDs, `_zip_cd` for ZIP, `_city_nm` for city, \
 `_state_abbreviation_cd` for state, `_country_cd` for country, \
@@ -537,9 +502,28 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL):
     return merged
 
 
-def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
-    import anthropic
+def dropdown_spec(spec: dict, w: dict) -> dict:
+    """A dropdown's field takes its choice list as `values` (Andrew, 2026-10-07: hard-code dropdowns and their
+    options). A closed list is `category` (`multi_category` for a list box that takes several); a combobox that also
+    takes typed text stays `string` with the choices as `values`, since a filer may write something else. On a closed
+    list the name's semantic type stays only when every choice fits its shape (a state list keeps `state_abbr`;
+    `quarter_ended_dt` offering 1st..4th loses `iso_date`), and the pattern goes."""
+    spec["values"] = list(w["choices"])
+    if w.get("multiselect"):
+        spec["type"] = "multi_category"
+    elif not w.get("editable"):
+        spec["type"] = "category"
+    if spec["type"] != "string":
+        spec.pop("pattern", None)
+        st = next((t for t in ALL_TYPES if t.name == spec.get("semantic_type")), None)
+        if st is not None and not (st.pattern and all(re.match(st.pattern, v) for v in spec["values"])):
+            spec.pop("semantic_type")
+    if w.get("choice_labels"):
+        spec["x_petey_choice_labels"] = dict(w["choice_labels"])
+    return spec
 
+
+def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
     widget_lines = []
     for w in widgets_on_page:
         x0, y0, x1, y1 = w["rect"]
@@ -550,6 +534,10 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
         if w["widget_type"] == "radiobutton" and w.get("options"):
             opts = ", ".join(f'"{s}"' for s in w["options"] if s)
             line += f', "options": [{opts}]'
+        if w.get("choices"):                    # a dropdown: what it offers says what it is
+            shown = w.get("choice_labels") or {}
+            opts = ", ".join(json.dumps(shown.get(c, c)) for c in w["choices"][:12])
+            line += f', "choices": [{opts}{", ..." if len(w["choices"]) > 12 else ""}]'
         # /TU, the AcroForm tooltip. Written by the form's publisher and
         # present in the document, so it grounds the label far better than
         # inferring from whatever text happens to sit nearby — which is
@@ -578,30 +566,51 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
         f"Emit a snake_case label for every widget."
     )
 
-    client = anthropic.Anthropic()
-    with client.messages.stream(
-        model=model, max_tokens=MAX_TOKENS,
-        system=LABEL_SYSTEM,
-        messages=[{"role": "user", "content": user_text}],
-    ) as stream:
-        final = stream.get_final_message()
-    text = "".join(
-        b.text for b in final.content
-        if getattr(b, "type", None) == "text"
-    )
-    # `stop_reason` is the difference between "the model answered badly"
-    # and "the answer was cut off at MAX_TOKENS". Log every call, so a
-    # failure never needs a re-run to diagnose. See call_log.py.
-    stop = getattr(final, "stop_reason", None)
-    usage = getattr(final, "usage", None)
+    from petey.synth.generate import make_client, provider_for
+    t0 = time.time()
+    client = make_client(model)
+    if provider_for(model) is not None:
+        # other vendors, chat-completions dialect (same prompt, text only)
+        kwargs = dict(model=model, messages=[{"role": "system", "content": LABEL_SYSTEM},
+                                             {"role": "user", "content": user_text}])
+        if model.startswith(("gpt-5", "o1", "o3", "o4")):
+            kwargs["max_completion_tokens"] = MAX_TOKENS
+        else:
+            # Gemini counts its hidden thinking against max_tokens: at 32,768 a 48-126 widget page spent most of it
+            # thinking and the labels were cut at ~3,300 chars (GCP runner, 2026-10-06); 65,536 is its output cap
+            kwargs["max_tokens"] = 65536 if model.startswith("gemini-") else MAX_TOKENS
+            kwargs["temperature"] = 0
+        resp = client.chat.completions.create(**kwargs)
+        choice = resp.choices[0]
+        text = choice.message.content or ""
+        stop = getattr(choice, "finish_reason", None)
+        u = getattr(resp, "usage", None)
+        in_tok, out_tok = (getattr(u, "prompt_tokens", None), getattr(u, "completion_tokens", None)) if u else (None, None)
+    else:
+        with client.messages.stream(
+            model=model, max_tokens=MAX_TOKENS,
+            system=LABEL_SYSTEM,
+            messages=[{"role": "user", "content": user_text}],
+        ) as stream:
+            final = stream.get_final_message()
+        text = "".join(
+            b.text for b in final.content
+            if getattr(b, "type", None) == "text"
+        )
+        # `stop_reason` is the difference between "the model answered badly"
+        # and "the answer was cut off at MAX_TOKENS". Log every call, so a
+        # failure never needs a re-run to diagnose. See call_log.py.
+        stop = getattr(final, "stop_reason", None)
+        usage = getattr(final, "usage", None)
+        in_tok, out_tok = (getattr(usage, "input_tokens", None), getattr(usage, "output_tokens", None)) if usage else (None, None)
     call_log.record(
-        f"auto_label/{model}", raw=text, finish_reason=stop,
+        f"{CALL_TAG}/{model.replace('/', '_')}", raw=text, finish_reason=stop,
         request={"widgets": len(widgets_on_page),
                  "max_tokens": MAX_TOKENS,
                  "prompt_chars": len(user_text)},
-        usage={"output_tokens": getattr(usage, "output_tokens", None),
-               "input_tokens": getattr(usage, "input_tokens", None)}
-        if usage else None,
+        usage={"output_tokens": out_tok, "input_tokens": in_tok}
+        if in_tok is not None or out_tok is not None else None,
+        elapsed=time.time() - t0,
     )
     parsed = _parse_json_object(text)
     if not parsed or "labels" not in parsed:
@@ -652,8 +661,11 @@ def build_blueprint(
     model: str = MODEL,
     use_retrieval: bool = True,
     retrieval_threshold: float = RETRIEVAL_ACCEPT,
+    geometry: str = "auto",
+    use_llm: bool = True,
 ) -> dict:
-    widgets, dropped_widgets = enumerate_widgets(blank_pdf)
+    widgets, dropped_widgets, geometry_method = enumerate_geometry(blank_pdf, geometry)
+    print(f"[auto_label] geometry: {geometry_method} ({len(widgets)} fields)")
     if dropped_widgets:
         by_reason: dict[str, int] = {}
         for d in dropped_widgets:
@@ -669,19 +681,38 @@ def build_blueprint(
         print(f"[auto_label] dropped {len(dropped_widgets)} widgets: "
               + ", ".join(parts or ["other"]))
     if not widgets:
-        raise SystemExit(f"No AcroForm widgets in {blank_pdf}")
+        raise SystemExit(f"No geometry in {blank_pdf}: no AcroForm widgets, and step2flat found no fields")
 
-    # Step 1: cross-page copy collapse (multi-copy tax forms)
-    widgets, copy_page_info = collapse_copy_pages(widgets)
+    # The publisher's own field-level validation, when the form is an XFA
+    # hybrid (STRATEGY_v1 §3.5): joined to widgets by AcroForm path, so
+    # only meaningful with AcroForm geometry.
+    xfa_tpl = None
+    if geometry_method == "acroform":
+        try:
+            xfa_tpl = xfa_mod.parse(blank_pdf)
+        except Exception as e:  # a broken packet must not sink the draft
+            print(f"[auto_label] XFA template unreadable: {e}")
+        if xfa_tpl is not None:
+            print(f"[auto_label] XFA template: {xfa_tpl.census()}")
 
-    # Step 2: same-canonical-path copy dedup (Copy A/B in AcroForm path).
-    # Radios are exempt — they group by shared field_name in step 3.
-    keep_ids = first_copy_ids(widgets)
-    kept = [w for w in widgets if w["id"] in keep_ids]
+    if geometry_method == "acroform":
+        # Step 1: cross-page copy collapse (multi-copy tax forms)
+        widgets, copy_page_info = collapse_copy_pages(widgets)
 
-    # Step 3: collapse radio-group siblings so the VLM sees one entry
-    # per group, not one per individual radio widget.
-    label_entries, radio_members_by_id = _group_radios_for_labeling(kept)
+        # Step 2: same-canonical-path copy dedup (Copy A/B in AcroForm path).
+        # Radios are exempt — they group by shared field_name in step 3.
+        keep_ids = first_copy_ids(widgets)
+        kept = [w for w in widgets if w["id"] in keep_ids]
+
+        # Step 3: collapse radio-group siblings so the VLM sees one entry
+        # per group, not one per individual radio widget.
+        label_entries, radio_members_by_id = _group_radios_for_labeling(kept)
+    else:
+        # Programmatic geometry has no paths: no copy pages to detect, no
+        # AcroForm radio groups to collapse. Every field is its own entry.
+        copy_page_info = {}
+        kept = widgets
+        label_entries, radio_members_by_id = list(widgets), {}
     pages_with_widgets = sorted({w["page"] for w in label_entries})
 
     if copy_page_info.get("dropped_as_copies"):
@@ -785,6 +816,14 @@ def build_blueprint(
                             if w["page"] == page_no]
             page_obj = doc[page_no - 1]
 
+            if not use_llm:
+                # Placeholder names: the geometry-only draft. Real names
+                # come from a later labeling pass or the validation loop.
+                for w in page_widgets:
+                    labels_by_id[w["id"]] = f"p{w['page']}_{w['widget_type'][0]}{w['id']:03d}"
+                    audit_by_id[w["id"]] = {"source": "placeholder"}
+                continue
+
             retrieval_hits: dict[int, dict] = {}
             if embedder is not None and vocab:
                 retrieval_hits = retrieval_prepass(
@@ -840,8 +879,24 @@ def build_blueprint(
 
     fields: dict[str, dict] = {}
     mutex_widgets: dict[str, dict[str, dict]] = {}
+    page_captions: list[dict] = []
     dedup = DedupState()
     n_tooltip_descriptions = 0
+    xfa_changes: collections.Counter = collections.Counter()
+
+    def _overlay_xfa(spec: dict, path: Optional[str]) -> dict:
+        """Declared beats inferred: XFA picture/nullTest/items over
+        whatever `enrich_field` guessed from the name."""
+        if xfa_tpl is None:
+            return spec
+        rec = xfa_tpl.lookup(path)
+        if rec is None:
+            xfa_changes["unjoined"] += 1
+            return spec
+        xfa_changes["joined"] += 1
+        for k in xfa_mod.apply_declared(spec, rec):
+            xfa_changes[k] += 1
+        return spec
 
     labeled = sorted(
         (w for w in label_entries if w.get("label")),
@@ -876,7 +931,7 @@ def build_blueprint(
             "page": w["page"],
             "rect": w["rect"],
             "widget_type": w["widget_type"],
-            "path": w["path"],
+            "path": w.get("path"),
         }
 
         # Radio group — single AcroForm field, N selectable states.
@@ -885,39 +940,61 @@ def build_blueprint(
         # skips them), so no audit is attached.
         if w["widget_type"] == "radiobutton":
             members = radio_members_by_id.get(w["id"], [])
-            on_states = [m.get("on_state") for m in members
-                         if m.get("on_state")]
+            on_states = list(w.get("options") or [])
             assigned = dedup.assign(
                 label, page=w["page"], rect=w["rect"],
             )
             if len(on_states) <= 1:
+                # one state (or none): a checkbox, possibly drawn in several
+                # places; the first appearance is the widget
+                first = members[0] if members else w
                 fields[assigned] = {
-                    "type": "boolean", "widget": widget_block,
+                    "type": "boolean",
+                    "widget": {"page": first["page"], "rect": first["rect"],
+                               "widget_type": first.get("widget_type") or w.get("true_widget_type") or "checkbox",
+                               "path": w.get("path")},
                 }
+                if len(members) > 1:
+                    fields[assigned]["x_petey_appearances"] = len(members)
             else:
+                # one field, one option per on-state, each with the box it
+                # is drawn in: what a person sees on the page. `values`
+                # stays the on-states (what the field stores) so the
+                # generator, filler and scorer are unchanged.
                 fields[assigned] = {
                     "type": "category",
                     "values": on_states,
-                    "widget": widget_block,
+                    "widgets": option_widgets(members, w),
                 }
+            _overlay_xfa(fields[assigned], w.get("path"))
+            caption_options(fields[assigned])
+            if fields[assigned].get("widgets"):
+                page_captions.append(fields[assigned]["widgets"])
             continue
 
         if "." in label:
             group, value = label.split(".", 1)
             if value in mutex_widgets.get(group, {}):
                 continue
+            if w.get("on_state"):
+                widget_block = dict(widget_block, on_state=w["on_state"])
             mutex_widgets.setdefault(group, {})[value] = widget_block
             continue
         assigned = dedup.assign(
             label, page=w["page"], rect=w["rect"],
         )
         spec = enrich_field(label, w["widget_type"])
+        if w.get("choices"):
+            dropdown_spec(spec, w)
         spec["widget"] = widget_block
+        if "confidence" in w:  # programmatic geometry: the rect is an estimate; say how good
+            spec["x_petey_geometry"] = {"confidence": w["confidence"], "source": w.get("geometry_source")}
         desc = _description_from_tooltip(w.get("tooltip"))
         if desc:
             spec["description"] = desc
             spec["x_petey_description_source"] = "tooltip"
             n_tooltip_descriptions += 1
+        _overlay_xfa(spec, w.get("path"))
         fields[assigned] = _attach_audit(spec, w["id"])
 
     for group, val_to_widget in mutex_widgets.items():
@@ -934,6 +1011,34 @@ def build_blueprint(
             "values": values,
             "widgets": val_to_widget,
         }
+        # captions for the cluster's options: the on-state when the
+        # publisher wrote it as a word (I-765: Widowed / Divorced / Single /
+        # Married), else the page text beside the box
+        for v, wb in val_to_widget.items():
+            st = wb.get("on_state")
+            if st and not _ORDINAL_STATE.match(st) and st.lower() not in ("on", "off", "yes", "no", "true", "false"):
+                wb["caption"] = st
+        page_captions.append(val_to_widget)
+
+    # captions still missing after the XFA and on-state rules come from the
+    # page text beside (or above) each option box; nothing else is guessed
+    if page_captions:
+        from petey.label.captions import caption_options_from_page
+        _doc = pymupdf.open(str(blank_pdf))
+        try:
+            _rects: dict[int, list] = {}
+            for _ws in page_captions:
+                for _b in _ws.values():
+                    _rects.setdefault(_b["page"], []).append(_b["rect"])
+            _texts: dict[int, list] = {}           # write-in boxes: an option followed by one gets no fallback caption
+            for _w in widgets:
+                if _w.get("widget_type") == "text":
+                    _texts.setdefault(_w["page"], []).append(_w["rect"])
+            n_page_captions = sum(caption_options_from_page(_doc, _ws, _rects, _texts) for _ws in page_captions)
+        finally:
+            _doc.close()
+        if n_page_captions:
+            print(f"  [captions] {n_page_captions} option captions from page text")
 
     bp = {
         "bpt_version": BPT_VERSION,  # re-stamped from content below
@@ -953,7 +1058,12 @@ def build_blueprint(
         # its neighbours.
         "authoring": {
             "method": "auto_label",
-            "model": model,
+            "model": model if use_llm else None,
+            "geometry": geometry_method,
+            "labels": "llm" if use_llm else "placeholder",
+            # when it was labeled (2026-10-05): side copies live under runs/, outside git, and a file's mtime
+            # moves with every loop edit
+            "when": time.strftime("%Y-%m-%d %H:%M:%S"),
         },
         "fields": fields,
     }
@@ -974,6 +1084,50 @@ def build_blueprint(
         }
     if n_tooltip_descriptions:
         print(f"  [tooltip] {n_tooltip_descriptions} descriptions from /TU")
+    if xfa_changes:
+        print(f"  [xfa] declared over inferred: {dict(xfa_changes)}")
+        if set(xfa_changes) - {"joined", "unjoined"}:
+            bp["x_petey_xfa_log"] = dict(xfa_changes)
+    if geometry_method == "acroform":
+        # The loop's deterministic repairs, run at emit instead of after:
+        # they need only the blueprint, the box geometry and the XFA
+        # template, all in hand here. Parts from box length, separator-free
+        # comb patterns, short shapes off wide boxes, dates on boxes too
+        # small for one, tooltips and radio captions into descriptions.
+        # Imported here: retype imports this module.
+        from petey.synth.local import widget_limits
+        from petey.validate.retype import describe_blueprint, money_kind, retype_blueprint, type_from_description
+        limits = widget_limits(blank_pdf)
+        emit_fixes = retype_blueprint(bp, limits)
+        emit_fixes.update(describe_blueprint(bp, limits, xfa_tpl))
+        emit_fixes.update(type_from_description(bp))      # needs the descriptions; conflicts are left for review
+        emit_fixes.update(money_kind(bp, blank_pdf, limits))   # after the descriptions: units, whole dollars
+        if emit_fixes:
+            bp["x_petey_emit_fixes"] = dict(emit_fixes)
+            print(f"  [emit] loop rules applied at emit: {dict(emit_fixes)}")
+    if xfa_tpl is not None:
+        # Cross-field rules (STRATEGY_v1 §3.5, spec Appendix B proposal):
+        # reciprocal clear-others script groups become `mutex` rules over
+        # the emitted field names. Under x_petey_ until the spec adopts it.
+        tmpl_path_to_name: dict[str, str] = {}
+        for fname, fspec in fields.items():
+            paths = []
+            if fspec.get("widget", {}).get("path"):
+                paths.append(fspec["widget"]["path"])
+            paths += [wb.get("path") for wb in (fspec.get("widgets") or {}).values()]
+            for p in paths:
+                rec = xfa_tpl.lookup(p)
+                if rec is not None:
+                    tmpl_path_to_name[rec.path] = fname
+        rules = []
+        for group in xfa_mod.mutex_groups(xfa_tpl):
+            names = sorted({tmpl_path_to_name[p] for p in group if p in tmpl_path_to_name})
+            if len(names) >= 2:
+                rules.append({"mutex": names, "source": "xfa_script"})
+        if rules:
+            bp["x_petey_rules"] = rules
+            print(f"  [xfa] {len(rules)} mutex rules from scripts")
+    field_ids.assign(bp)                    # a fixed id per field, for referring to it (x_petey_id)
     return stamp_version(bp)
 
 
@@ -984,14 +1138,21 @@ def main() -> int:
     )
     ap.add_argument("--blank", required=True, type=Path,
                     help="path to blank AcroForm PDF")
-    ap.add_argument("--output", required=True, type=Path,
-                    help="output blueprint .bpt path")
+    ap.add_argument("--output", type=Path, default=None,
+                    help="output blueprint .bpt path (default: blueprints/<form_id>.bpt)")
     ap.add_argument("--name", type=str, default=None,
-                    help="form_id (default: derived from --output stem)")
+                    help="form_id (default: from the registry via petey.ingest, "
+                         "else the --output stem)")
+    ap.add_argument("--no-register", action="store_true",
+                    help="do not identify the form or write to the registry")
     ap.add_argument("--form-version", type=str, default=None,
                     help='form revision year (e.g. "2025")')
     ap.add_argument("--model", type=str, default=MODEL,
                     help="LLM model for labeling (default sonnet-4.6)")
+    ap.add_argument("--geometry", choices=["auto", "acroform", "sibling", "step2flat"], default="auto",
+                    help="where field rects come from; auto = AcroForm if present, else step2flat (sibling is opt-in)")
+    ap.add_argument("--no-llm", action="store_true",
+                    help="emit placeholder field names; no API call (geometry-only draft)")
     ap.add_argument("--no-retrieval", action="store_true",
                     help="disable local retrieval prepass; LLM-only")
     ap.add_argument("--retrieval-threshold", type=float,
@@ -1010,12 +1171,34 @@ def main() -> int:
     if not args.blank.exists():
         raise SystemExit(f"Blank PDF not found: {args.blank}")
 
-    name = args.name or args.output.stem
+    identity = None
+    if not args.no_register:
+        # Identify the document and resolve or register its form, so the
+        # blueprint is born with the registry's id, edition and provenance.
+        from petey.ingest import ingest
+        identity = ingest(args.blank, name=args.name)
+        print(f"[ingest] form_id={identity['form_id']} via={identity['via']} "
+              f"canonical={identity['canonical']} edition={identity['edition']} "
+              f"created={identity['created']}")
+    # The blueprint's own name: the caller's --name, else the --output stem,
+    # else the registry form id. The registry link always uses the form id.
+    name = args.name or (args.output.stem if args.output else None) or (identity or {}).get("form_id")
+    if not name:
+        raise SystemExit("--name or --output is required with --no-register")
+    global CALL_TAG
+    CALL_TAG = f"auto_label/{name}"
+    if args.output is None:
+        from petey.paths import BLUEPRINTS
+        args.output = BLUEPRINTS / f"{name}.bpt"
+    if args.form_version is None and identity and identity.get("edition"):
+        args.form_version = identity["edition"]
     bp = build_blueprint(
         args.blank, name,
         form_version=args.form_version,
         model=args.model,
         use_retrieval=not args.no_retrieval,
+        geometry=args.geometry,
+        use_llm=not args.no_llm,
         retrieval_threshold=args.retrieval_threshold,
     )
 
@@ -1028,6 +1211,11 @@ def main() -> int:
         encoding="utf-8",
     )
     print(f"[ok] wrote {args.output}")
+    if identity is not None:
+        from petey.ingest import record_blueprint
+        if record_blueprint(identity["form_id"], args.output, args.blank, placeholder_names=args.no_llm,
+                            spec_version=str(bp.get("bpt_version"))):
+            print(f"[ingest] registered {args.output.name} as an artifact of {name}")
     return 0
 
 

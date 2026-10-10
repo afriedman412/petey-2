@@ -121,8 +121,9 @@ def norm(v: Any) -> Optional[str]:
     return s or None
 
 
-def load_case(run_dir: Path) -> Optional[tuple[dict, dict, dict]]:
-    """(blueprint, ground_truth, petey_values) for a run's intact case.
+def load_cases(run_dir: Path) -> Optional[tuple[dict, list[tuple[dict, dict]]]]:
+    """(blueprint, [(ground_truth, petey_values), ...]) for a run's intact
+    cases: one pair per member of a case set, one for a single-case run.
 
     Intact only. A flattened case adds extraction difficulty on top of
     naming, and this pass is about naming.
@@ -131,20 +132,36 @@ def load_case(run_dir: Path) -> Optional[tuple[dict, dict, dict]]:
     cases = sorted(run_dir.glob("case_*_intact"))
     if not bp_path.exists() or not cases:
         return None
-    case = cases[0]
-    gt_path = case / "ground_truth.json"
-    pet = next(iter(sorted(case.glob("extract_petey:*.json"))), None)
-    if not gt_path.exists() or pet is None:
-        return None
     try:
         bp = yaml.safe_load(bp_path.read_text(encoding="utf-8"))
-        gt = json.loads(gt_path.read_text(encoding="utf-8"))
-        pv = json.loads(pet.read_text(encoding="utf-8"))
     except Exception:
         return None
     if not isinstance(bp, dict) or "fields" not in bp:
         return None
-    return bp, gt, pv
+    pairs = []
+    for case in cases:
+        gt_path = case / "ground_truth.json"
+        # the judge's extract, under its name since 2026-09-30 or the old one
+        pet = next(iter(sorted(case.glob("extract_judge:*.json")) + sorted(case.glob("extract_petey:*.json"))), None)
+        if not gt_path.exists() or pet is None:
+            continue
+        try:
+            pairs.append((json.loads(gt_path.read_text(encoding="utf-8")),
+                          json.loads(pet.read_text(encoding="utf-8"))))
+        except Exception:
+            continue
+    return (bp, pairs) if pairs else None
+
+
+def load_case(run_dir: Path) -> Optional[tuple[dict, dict, dict]]:
+    """(blueprint, ground_truth, petey_values) for the FIRST intact case.
+    Kept for callers that want one case; the correction pass itself reads
+    every case (`load_cases`)."""
+    loaded = load_cases(run_dir)
+    if loaded is None:
+        return None
+    bp, pairs = loaded
+    return bp, pairs[0][0], pairs[0][1]
 
 
 def field_paths(bp: dict) -> dict[str, str]:
@@ -609,11 +626,26 @@ def plan_rebinds(group: list[str], closed: bool,
 
 
 def analyse_run(form: str, run_dir: Path) -> Optional[dict]:
-    loaded = load_case(run_dir)
+    """Edges over the run's case set: an edge A -> B counts only if every
+    case draws it. One case's coincidence (two fields that happened to get
+    look-alike values) cannot move a widget; a binding fault shows in every
+    draw. `stats["edges_unstable"]` counts edges some cases drew and others
+    did not; `stats["cases"]` says over how many."""
+    loaded = load_cases(run_dir)
     if loaded is None:
         return None
-    bp, gt, pv = loaded
-    edges, stats = build_edges(bp, gt, pv)
+    bp, pairs = loaded
+    stats = collections.Counter()
+    per_case: list[dict[tuple[str, str], dict]] = []
+    for gt, pv in pairs:
+        e, st = build_edges(bp, gt, pv)
+        stats.update(st)
+        per_case.append({(x["from"], x["to"]): x for x in e})
+    stats["cases"] = len(pairs)
+    common = set.intersection(*(set(d) for d in per_case)) if per_case else set()
+    seen = set().union(*(set(d) for d in per_case)) if per_case else set()
+    stats["edges_unstable"] = len(seen - common)
+    edges = [per_case[0][k] for k in sorted(common)]
     if not edges:
         return {"form": form, "run": run_dir.name, "edges": [],
                 "cycles": [], "chains": [], "stats": dict(stats)}

@@ -11,9 +11,9 @@ description: ''
 instructions: ''
 fields:
   plan_year_begin_dt:
+    x_petey_id: '1_1'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -23,10 +23,15 @@ fields:
       - 113.70501708984375
       widget_type: text
       path: planYearBeginDate
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Enter beginning date
+    x_petey_description_source: tooltip
   plan_year_end_dt:
+    x_petey_id: '1_2'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -36,127 +41,181 @@ fields:
       - 113.8330078125
       widget_type: text
       path: planYearEndDate
-  single_employer_plan_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 115.85400390625
-      - 155.1269989013672
-      - 129.27301025390625
-      widget_type: checkbox
-      path: Check P1-A1
-  multiple_employer_plan_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 115.85400390625
-      - 278.03399658203125
-      - 129.27301025390625
-      widget_type: checkbox
-      path: Check P1-A2
-  first_return_report_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 153.823974609375
-      - 155.1269989013672
-      - 167.24200439453125
-      widget_type: checkbox
-      path: Check P1-B1
-  final_return_report_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 153.823974609375
-      - 278.03399658203125
-      - 167.24200439453125
-      widget_type: checkbox
-      path: Check P1-B2
-  amended_return_report_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 168.448974609375
-      - 155.1269989013672
-      - 181.86700439453125
-      widget_type: checkbox
-      path: Check P1-B3
-  short_plan_year_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 168.448974609375
-      - 278.03399658203125
-      - 181.86700439453125
-      widget_type: checkbox
-      path: Check P1-B4
-  form_5558_extension_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 188.41802978515625
-      - 155.1269989013672
-      - 201.83599853515625
-      widget_type: checkbox
-      path: Check P1-C1
-  automatic_extension_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 269.8529968261719
-      - 188.41802978515625
-      - 278.03399658203125
-      - 201.83599853515625
-      widget_type: checkbox
-      path: Check P1-C2
-  dfvc_program_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 421.447998046875
-      - 188.41802978515625
-      - 429.6289978027344
-      - 201.83599853515625
-      widget_type: checkbox
-      path: Check P1-C3
-  special_extension_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 146.94500732421875
-      - 202.760986328125
-      - 155.1269989013672
-      - 216.17999267578125
-      widget_type: checkbox
-      path: Check P1-C4
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Enter end date
+    x_petey_description_source: tooltip
+  group_p1:
+    x_petey_id: '1_3'
+    type: category
+    values:
+    - single_employer_plan_ind
+    - multiple_employer_plan_ind
+    widgets:
+      single_employer_plan_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 115.85400390625
+        - 155.1269989013672
+        - 129.27301025390625
+        widget_type: checkbox
+        path: Check P1-A1
+        on_state: 'Yes'
+        caption: Mark if this return/report is for a single-employer plan
+        x_petey_caption_source: tooltip
+      multiple_employer_plan_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 115.85400390625
+        - 278.03399658203125
+        - 129.27301025390625
+        widget_type: checkbox
+        path: Check P1-A2
+        on_state: 'Yes'
+        caption: Mark if this return/report is for a multiple-employer plan
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - single_employer_plan_ind
+      - multiple_employer_plan_ind
+  group_p1_2:
+    x_petey_id: '1_4'
+    type: category
+    values:
+    - first_return_report_ind
+    - final_return_report_ind
+    - amended_return_report_ind
+    - short_plan_year_ind
+    widgets:
+      first_return_report_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 153.823974609375
+        - 155.1269989013672
+        - 167.24200439453125
+        widget_type: checkbox
+        path: Check P1-B1
+        on_state: 'Yes'
+        caption: Mark if this return/report is the first return/report
+        x_petey_caption_source: tooltip
+      final_return_report_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 153.823974609375
+        - 278.03399658203125
+        - 167.24200439453125
+        widget_type: checkbox
+        path: Check P1-B2
+        on_state: 'Yes'
+        caption: Mark if this return/report is the final return/report
+        x_petey_caption_source: tooltip
+      amended_return_report_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 168.448974609375
+        - 155.1269989013672
+        - 181.86700439453125
+        widget_type: checkbox
+        path: Check P1-B3
+        on_state: 'Yes'
+        caption: Mark if this return/report is an amended return/report
+        x_petey_caption_source: tooltip
+      short_plan_year_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 168.448974609375
+        - 278.03399658203125
+        - 181.86700439453125
+        widget_type: checkbox
+        path: Check P1-B4
+        on_state: 'Yes'
+        caption: Mark if this return/report is a short plan year return/report (less
+          than 12 months)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - first_return_report_ind
+      - final_return_report_ind
+      - amended_return_report_ind
+      - short_plan_year_ind
+  group_p1_3:
+    x_petey_id: '1_5'
+    type: category
+    values:
+    - form_5558_extension_ind
+    - automatic_extension_ind
+    - dfvc_program_ind
+    - special_extension_ind
+    widgets:
+      form_5558_extension_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 188.41802978515625
+        - 155.1269989013672
+        - 201.83599853515625
+        widget_type: checkbox
+        path: Check P1-C1
+        on_state: 'Yes'
+        caption: Mark if filing under Form 5558
+        x_petey_caption_source: tooltip
+      automatic_extension_ind:
+        page: 1
+        rect:
+        - 269.8529968261719
+        - 188.41802978515625
+        - 278.03399658203125
+        - 201.83599853515625
+        widget_type: checkbox
+        path: Check P1-C2
+        on_state: 'Yes'
+        caption: Mark if filing under automatic extension
+        x_petey_caption_source: tooltip
+      dfvc_program_ind:
+        page: 1
+        rect:
+        - 421.447998046875
+        - 188.41802978515625
+        - 429.6289978027344
+        - 201.83599853515625
+        widget_type: checkbox
+        path: Check P1-C3
+        on_state: 'Yes'
+        caption: Mark if filing under DFVC program
+        x_petey_caption_source: tooltip
+      special_extension_ind:
+        page: 1
+        rect:
+        - 146.94500732421875
+        - 202.760986328125
+        - 155.1269989013672
+        - 216.17999267578125
+        widget_type: checkbox
+        path: Check P1-C4
+        on_state: 'Yes'
+        caption: Mark if filing under a special extension
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:11:05'
+      from:
+      - form_5558_extension_ind
+      - automatic_extension_ind
+      - dfvc_program_ind
+      - special_extension_ind
   special_extension_description_txt:
+    x_petey_id: '1_6'
     type: string
     semantic_type: description
     widget:
@@ -168,7 +227,12 @@ fields:
       - 215.54998779296875
       widget_type: text
       path: extSpecialText
+    description: Enter special extension description
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   collectively_bargained_plan_ind:
+    x_petey_id: '1_7'
     type: boolean
     semantic_type: indicator
     widget:
@@ -180,7 +244,12 @@ fields:
       - 229.67999267578125
       widget_type: checkbox
       path: Check P1-D1
+    description: Mark if the plan is a collectively-bargained plan
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   retroactively_adopted_plan_ind:
+    x_petey_id: '1_8'
     type: boolean
     semantic_type: indicator
     widget:
@@ -192,7 +261,13 @@ fields:
       - 244.02398681640625
       widget_type: checkbox
       path: Check P1-E1
+    description: Mark if this is a retroactively adopted plan permitted by SECURE
+      Act section 201
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   plan_nm:
+    x_petey_id: '1_10'
     type: string
     semantic_type: person_name
     widget:
@@ -204,7 +279,12 @@ fields:
       - 303.7030029296875
       widget_type: text
       path: planName
+    description: Enter plan name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   plan_number_cd:
+    x_petey_id: '1_9'
     type: string
     widget:
       page: 1
@@ -215,10 +295,14 @@ fields:
       - 274.68902587890625
       widget_type: text
       path: sponsPlanNum
+    description: Three-digit plan number (PN)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   plan_effective_dt:
+    x_petey_id: '1_11'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -228,7 +312,13 @@ fields:
       - 302.78900146484375
       widget_type: text
       path: planEffDate
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Effective date of plan
+    x_petey_description_source: tooltip
   plan_sponsor_nm:
+    x_petey_id: '1_13'
     type: string
     semantic_type: person_name
     widget:
@@ -240,7 +330,12 @@ fields:
       - 344.2560119628906
       widget_type: text
       path: sponsorName
+    description: Plan sponsor’s name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   sponsor_address_line_1_txt:
+    x_petey_id: '1_14'
     type: string
     semantic_type: street_address
     widget:
@@ -252,7 +347,12 @@ fields:
       - 355.5060119628906
       widget_type: text
       path: sponsorDBAName
+    description: Plan sponsor’s name of business
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   sponsor_address_line_2_txt:
+    x_petey_id: '1_16'
     type: string
     semantic_type: street_address
     widget:
@@ -264,10 +364,13 @@ fields:
       - 365.7569885253906
       widget_type: text
       path: sponsorCareOfName
+    description: Plan sponsor’s care of name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   sponsor_city_state_country_txt:
+    x_petey_id: '1_17'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -277,7 +380,13 @@ fields:
       - 397.1000061035156
       widget_type: text
       path: sponsorMailingAddress
+    x_petey_retype:
+    - wide_widget_short_pattern:width=193
+    - description_from_tooltip
+    description: Plan sponsor’s mailing address
+    x_petey_description_source: tooltip
   sponsor_zip_cd:
+    x_petey_id: '1_18'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -290,7 +399,12 @@ fields:
       - 397.1000061035156
       widget_type: text
       path: sponsorLocationAddress
+    description: Plan sponsor’s location address if different than mailing address
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   sponsor_ein:
+    x_petey_id: '1_12'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -303,7 +417,12 @@ fields:
       - 327.6300048828125
       widget_type: text
       path: sponsorEIN
+    description: Employer Identification Number (EIN)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   sponsor_telephone_num:
+    x_petey_id: '1_15'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -316,7 +435,12 @@ fields:
       - 351.6940002441406
       widget_type: text
       path: sponsorPhone
+    description: Sponsor’s telephone number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   business_cd:
+    x_petey_id: '1_19'
     type: string
     widget:
       page: 1
@@ -327,7 +451,12 @@ fields:
       - 383.8340148925781
       widget_type: text
       path: businessCode
+    description: Business code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   administrator_same_as_sponsor_ind:
+    x_petey_id: '1_20'
     type: boolean
     semantic_type: indicator
     widget:
@@ -339,7 +468,13 @@ fields:
       - 412.4309997558594
       widget_type: checkbox
       path: Check P2-3a
+    description: Mark if plan administrator’s name and address are the Same as Plan
+      Sponsor.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   administrator_nm:
+    x_petey_id: '1_22'
     type: string
     semantic_type: person_name
     widget:
@@ -351,7 +486,12 @@ fields:
       - 447.27899169921875
       widget_type: text
       path: administratorName
+    description: Administrator’s name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   administrator_address_line_1_txt:
+    x_petey_id: '1_23'
     type: string
     semantic_type: street_address
     widget:
@@ -363,7 +503,12 @@ fields:
       - 447.71600341796875
       widget_type: text
       path: administratorAddress
+    description: Administrator’s address
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   administrator_ein:
+    x_petey_id: '1_21'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -376,7 +521,12 @@ fields:
       - 417.65301513671875
       widget_type: text
       path: administratorEIN
+    description: Administrator’s EIN
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   administrator_telephone_num:
+    x_petey_id: '1_24'
     type: string
     semantic_type: phone
     pattern: ^\d{3}-\d{3}-\d{4}$
@@ -389,7 +539,12 @@ fields:
       - 445.0610046386719
       widget_type: text
       path: administratorPhoneNum
+    description: Administrator’s telephone number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   prior_sponsor_nm:
+    x_petey_id: '1_27'
     type: string
     semantic_type: person_name
     widget:
@@ -401,7 +556,12 @@ fields:
       - 514.7890014648438
       widget_type: text
       path: lastRptSponsName
+    description: Sponsor’s name
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   prior_plan_nm:
+    x_petey_id: '1_28'
     type: string
     semantic_type: person_name
     widget:
@@ -414,6 +574,7 @@ fields:
       widget_type: text
       path: lastRptPlanName
   prior_sponsor_ein:
+    x_petey_id: '1_25'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -427,6 +588,7 @@ fields:
       widget_type: text
       path: lastRptSponsEIN
   prior_plan_number_cd:
+    x_petey_id: '1_26'
     type: string
     widget:
       page: 1
@@ -438,6 +600,7 @@ fields:
       widget_type: text
       path: lastRptPlanNum
   total_participants_begin_yr_cnt:
+    x_petey_id: '1_29'
     type: integer
     semantic_type: count
     widget:
@@ -449,7 +612,12 @@ fields:
       - 548.5499877929688
       widget_type: text
       path: totPartcpBoyCnt
+    description: Total number of participants at the beginning of the plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   total_participants_end_yr_cnt:
+    x_petey_id: '1_30'
     type: integer
     semantic_type: count
     widget:
@@ -461,7 +629,12 @@ fields:
       - 562.8829956054688
       widget_type: text
       path: totActRtdSepBenefCnt
+    description: Total number of participants at the end of the plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   participants_account_balances_begin_yr_cnt:
+    x_petey_id: '1_31'
     type: integer
     semantic_type: count
     widget:
@@ -473,7 +646,13 @@ fields:
       - 582.8189697265625
       widget_type: text
       path: partcpAccountBalCntBoy
+    description: Number of participants with account balances as of the beginning
+      of the plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   participants_account_balances_end_yr_cnt:
+    x_petey_id: '1_32'
     type: integer
     semantic_type: count
     widget:
@@ -485,7 +664,13 @@ fields:
       - 604.1400146484375
       widget_type: text
       path: partcpAccountBalCnt
+    description: Number of participants with account balances as of the end of the
+      plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   active_participants_begin_yr_cnt:
+    x_petey_id: '1_33'
     type: integer
     semantic_type: count
     widget:
@@ -497,7 +682,13 @@ fields:
       - 620.3179931640625
       widget_type: text
       path: totActPartcpBoyCnt
+    description: Total number of active participants at the beginning of the plan
+      year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   active_participants_end_yr_cnt:
+    x_petey_id: '1_34'
     type: integer
     semantic_type: count
     widget:
@@ -509,7 +700,12 @@ fields:
       - 634.698974609375
       widget_type: text
       path: totActPartcpEoyCnt
+    description: Total number of active participants at the end of the plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   terminated_participants_not_fully_vested_cnt:
+    x_petey_id: '1_35'
     type: integer
     semantic_type: count
     widget:
@@ -521,7 +717,13 @@ fields:
       - 655.4990234375
       widget_type: text
       path: sepPartcpPartlVstdCnt
+    description: Number of participants who terminated employment during the plan
+      year with accrued benefits that were less than 100% vested
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   plan_administrator_signature_txt:
+    x_petey_id: '1_36'
     type: string
     semantic_type: text
     widget:
@@ -533,10 +735,14 @@ fields:
       - 710.2269897460938
       widget_type: text
       path: adminDerivedName
+    description: Signature of plan administrator
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   plan_administrator_signature_dt:
+    x_petey_id: '1_37'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -546,7 +752,13 @@ fields:
       - 710.2269897460938
       widget_type: text
       path: adminSignatureSignedDate
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Date signed by administrator
+    x_petey_description_source: tooltip
   plan_administrator_signer_nm:
+    x_petey_id: '1_38'
     type: string
     semantic_type: person_name
     widget:
@@ -558,7 +770,12 @@ fields:
       - 710.22802734375
       widget_type: text
       path: adminSignatureSignedName
+    description: Name of individual signing as plan administrator
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_plan_sponsor_signature_txt:
+    x_petey_id: '1_39'
     type: string
     semantic_type: text
     widget:
@@ -570,10 +787,14 @@ fields:
       - 740.5095825195312
       widget_type: text
       path: sponsDerivedName
+    description: Signature of employer/plan sponsor
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   employer_plan_sponsor_signature_dt:
+    x_petey_id: '1_40'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 1
       rect:
@@ -583,7 +804,13 @@ fields:
       - 740.5095825195312
       widget_type: text
       path: sponsSignatureSignedDate
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Date signed by employer/plan sponsor
+    x_petey_description_source: tooltip
   employer_plan_sponsor_signer_nm:
+    x_petey_id: '1_41'
     type: string
     semantic_type: person_name
     widget:
@@ -595,50 +822,130 @@ fields:
       - 740.5095825195312
       widget_type: text
       path: sponsSignatureSignedName
+    description: Name of individual signing as employer or plan sponsor
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   all_assets_eligible_ind:
+    x_petey_id: '2_1'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 529.7440185546875
-      - 64.58197021484375
-      - 572.072021484375
-      - 78.43597412109375
-      widget_type: radiobutton
-      path: P2-6a
+    description: Were all of the plan’s assets during the plan year invested in eligible
+      assets? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 529.7440185546875
+        - 64.58197021484375
+        - 539.0170288085938
+        - 78.43597412109375
+        widget_type: radiobutton
+        path: P2-6a
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 562.7990112304688
+        - 64.58197021484375
+        - 572.072021484375
+        - 78.43597412109375
+        widget_type: radiobutton
+        path: P2-6a
+        on_state: 'No'
+        caption: 'No'
   iqpa_waiver_claimed_ind:
+    x_petey_id: '2_2'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 529.7440185546875
-      - 84.54498291015625
-      - 572.072021484375
-      - 98.4000244140625
-      widget_type: radiobutton
-      path: P2-6b
+    description: Are you claiming a waiver of the annual examination and report of
+      an independent qualified public accountant (IQPA) under 29 CFR 2520.104-46?
+      Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 529.7440185546875
+        - 84.54498291015625
+        - 539.0170288085938
+        - 98.4000244140625
+        widget_type: radiobutton
+        path: P2-6b
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 562.7990112304688
+        - 84.54498291015625
+        - 572.072021484375
+        - 98.4000244140625
+        widget_type: radiobutton
+        path: P2-6b
+        on_state: 'No'
+        caption: 'No'
   pbgc_insurance_coverage_ind:
+    x_petey_id: '2_3'
     type: category
     values:
     - 'Yes'
     - 'No'
     - N/A
-    widget:
-      page: 2
-      rect:
-      - 458.7439880371094
-      - 110.72698974609375
-      - 527.8720092773438
-      - 124.58197021484375
-      widget_type: radiobutton
-      path: P2-6c
+    description: If the plan is a defined benefit plan, is it covered under the PBGC
+      insurance program (see ERISA section 4021)? Mark Yes, No or Not determined.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 458.7439880371094
+        - 110.72698974609375
+        - 468.0169982910156
+        - 124.58197021484375
+        widget_type: radiobutton
+        path: P2-6c
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 489.79901123046875
+        - 110.72698974609375
+        - 499.0719909667969
+        - 124.58197021484375
+        widget_type: radiobutton
+        path: P2-6c
+        on_state: 'No'
+        caption: 'No'
+      N/A:
+        page: 2
+        rect:
+        - 518.5989990234375
+        - 110.72698974609375
+        - 527.8720092773438
+        - 124.58197021484375
+        widget_type: radiobutton
+        path: P2-6c
+        on_state: N/A
+        caption: N/A
   pbgc_my_paa_confirmation_number:
+    x_petey_id: '2_4'
     type: string
     widget:
       page: 2
@@ -649,9 +956,15 @@ fields:
       - 136.7459716796875
       widget_type: text
       path: premiumFilingConfirmationNum
+    description: If “Yes” is checked, enter the My PAA confirmation number from the
+      PBGC premium filing for this plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   total_plan_assets_boy_amt:
+    x_petey_id: '2_5'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -661,9 +974,15 @@ fields:
       - 186.176025390625
       widget_type: text
       path: totAssetsBoyAmt
+    description: Total plan assets beginning of year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   total_plan_assets_eoy_amt:
+    x_petey_id: '2_6'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -673,9 +992,15 @@ fields:
       - 186.176025390625
       widget_type: text
       path: totAssetsEoyAmt
+    description: Total plan assets end of year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   total_plan_liabilities_boy_amt:
+    x_petey_id: '2_7'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -685,9 +1010,15 @@ fields:
       - 199.37701416015625
       widget_type: text
       path: totLiabilitiesBoyAmt
+    description: Total plan liabilities beginning of year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   total_plan_liabilities_eoy_amt:
+    x_petey_id: '2_8'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -697,9 +1028,15 @@ fields:
       - 199.37701416015625
       widget_type: text
       path: totLiabilitiesEoyAmt
+    description: Total plan liabilities end of year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   net_plan_assets_boy_amt:
+    x_petey_id: '2_9'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -709,9 +1046,15 @@ fields:
       - 213.57501220703125
       widget_type: text
       path: netAssetsBoyAmt
+    description: Net plan assets (subtract line 7b from line 7a) beginning of year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   net_plan_assets_eoy_amt:
+    x_petey_id: '2_10'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -721,9 +1064,15 @@ fields:
       - 213.57501220703125
       widget_type: text
       path: netAssetsEoyAmt
+    description: Net plan assets (subtract line 7b from line 7a) end of year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   contributions_employers_amt:
+    x_petey_id: '2_11'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -733,9 +1082,15 @@ fields:
       - 250.63299560546875
       widget_type: text
       path: emplrContribIncomeAmt
+    description: Contributions received or receivable from Employers
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   contributions_participants_amt:
+    x_petey_id: '2_12'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -745,9 +1100,15 @@ fields:
       - 264.0670166015625
       widget_type: text
       path: participantContribIncomeAmt
+    description: Contributions received or receivable from Participants
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   contributions_others_amt:
+    x_petey_id: '2_13'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -757,9 +1118,15 @@ fields:
       - 277.92401123046875
       widget_type: text
       path: othContribRcvdAmt
+    description: Contributions received or receivable from Others (including rollovers)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   other_income_loss_amt:
+    x_petey_id: '2_14'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -769,9 +1136,15 @@ fields:
       - 291.8009948730469
       widget_type: text
       path: otherIncomeAmt
+    description: Other income (loss)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   total_income_amt:
+    x_petey_id: '2_15'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -781,9 +1154,15 @@ fields:
       - 306.13299560546875
       widget_type: text
       path: totIncomeAmt
+    description: Total income (add lines 8a(1), 8a(2), 8a(3), and 8b)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   benefits_paid_amt:
+    x_petey_id: '2_16'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -793,9 +1172,16 @@ fields:
       - 327.8299865722656
       widget_type: text
       path: totDistribBnftAmt
+    description: Benefits paid (including direct rollovers and insurance premiums
+      to provide benefits)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   deemed_corrective_distributions_amt:
+    x_petey_id: '2_17'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -805,9 +1191,15 @@ fields:
       - 341.9200134277344
       widget_type: text
       path: correctiveDeemedDistribAmt
+    description: Certain deemed and/or corrective distributions
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   administrative_service_providers_amt:
+    x_petey_id: '2_18'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -817,9 +1209,15 @@ fields:
       - 355.76300048828125
       widget_type: text
       path: adminSrvcProvidersAmt
+    description: Administrative service providers
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   other_expenses_amt:
+    x_petey_id: '2_19'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -829,9 +1227,15 @@ fields:
       - 369.7749938964844
       widget_type: text
       path: othExpensesAmt
+    description: Other expenses
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   total_expenses_amt:
+    x_petey_id: '2_20'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -841,9 +1245,15 @@ fields:
       - 383.447998046875
       widget_type: text
       path: totExpensesAmt
+    description: Total expenses (add lines 8d, 8e, 8f, and 8g)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   net_income_loss_amt:
+    x_petey_id: '2_21'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -853,9 +1263,15 @@ fields:
       - 398.1830139160156
       widget_type: text
       path: netIncomeAmt
+    description: Net income (loss) (subtract line 8h from line 8c)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   transfers_to_from_plan_amt:
+    x_petey_id: '2_22'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -865,7 +1281,13 @@ fields:
       - 413.7829895019531
       widget_type: text
       path: totPlanTransfersAmt
+    description: Transfers to (from) the plan
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   pension_feature_cd_1:
+    x_petey_id: '2_23'
     type: string
     widget:
       page: 2
@@ -876,7 +1298,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.0
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_2:
+    x_petey_id: '2_24'
     type: string
     widget:
       page: 2
@@ -887,7 +1314,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.1
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_3:
+    x_petey_id: '2_25'
     type: string
     widget:
       page: 2
@@ -898,7 +1330,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.2
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_4:
+    x_petey_id: '2_26'
     type: string
     widget:
       page: 2
@@ -909,7 +1346,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.3
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_5:
+    x_petey_id: '2_27'
     type: string
     widget:
       page: 2
@@ -920,7 +1362,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.4
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_6:
+    x_petey_id: '2_28'
     type: string
     widget:
       page: 2
@@ -931,7 +1378,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.5
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_7:
+    x_petey_id: '2_29'
     type: string
     widget:
       page: 2
@@ -942,7 +1394,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.6
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_8:
+    x_petey_id: '2_30'
     type: string
     widget:
       page: 2
@@ -953,7 +1410,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.7
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_9:
+    x_petey_id: '2_31'
     type: string
     widget:
       page: 2
@@ -964,7 +1426,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.8
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_10:
+    x_petey_id: '2_32'
     type: string
     widget:
       page: 2
@@ -975,7 +1442,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.9
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_11:
+    x_petey_id: '2_33'
     type: string
     widget:
       page: 2
@@ -986,7 +1458,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.10
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_12:
+    x_petey_id: '2_34'
     type: string
     widget:
       page: 2
@@ -997,7 +1474,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.11
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_13:
+    x_petey_id: '2_35'
     type: string
     widget:
       page: 2
@@ -1008,7 +1490,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.12
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_14:
+    x_petey_id: '2_36'
     type: string
     widget:
       page: 2
@@ -1019,7 +1506,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.13
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_15:
+    x_petey_id: '2_37'
     type: string
     widget:
       page: 2
@@ -1030,7 +1522,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.14
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_16:
+    x_petey_id: '2_38'
     type: string
     widget:
       page: 2
@@ -1041,7 +1538,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.15
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_17:
+    x_petey_id: '2_39'
     type: string
     widget:
       page: 2
@@ -1052,7 +1554,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.16
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_18:
+    x_petey_id: '2_40'
     type: string
     widget:
       page: 2
@@ -1063,7 +1570,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.17
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_19:
+    x_petey_id: '2_41'
     type: string
     widget:
       page: 2
@@ -1074,7 +1586,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.18
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   pension_feature_cd_20:
+    x_petey_id: '2_42'
     type: string
     widget:
       page: 2
@@ -1085,7 +1602,12 @@ fields:
       - 450.65399169921875
       widget_type: text
       path: typePensionBnftcode.19
+    description: Pension feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_1:
+    x_petey_id: '2_43'
     type: string
     widget:
       page: 2
@@ -1096,7 +1618,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.0
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_2:
+    x_petey_id: '2_44'
     type: string
     widget:
       page: 2
@@ -1107,7 +1634,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.1
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_3:
+    x_petey_id: '2_45'
     type: string
     widget:
       page: 2
@@ -1118,7 +1650,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.2
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_4:
+    x_petey_id: '2_46'
     type: string
     widget:
       page: 2
@@ -1129,7 +1666,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.3
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_5:
+    x_petey_id: '2_47'
     type: string
     widget:
       page: 2
@@ -1140,7 +1682,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.4
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_6:
+    x_petey_id: '2_48'
     type: string
     widget:
       page: 2
@@ -1151,7 +1698,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.5
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_7:
+    x_petey_id: '2_49'
     type: string
     widget:
       page: 2
@@ -1162,7 +1714,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.6
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_8:
+    x_petey_id: '2_50'
     type: string
     widget:
       page: 2
@@ -1173,7 +1730,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.7
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_9:
+    x_petey_id: '2_51'
     type: string
     widget:
       page: 2
@@ -1184,7 +1746,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.8
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_10:
+    x_petey_id: '2_52'
     type: string
     widget:
       page: 2
@@ -1195,7 +1762,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.9
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_11:
+    x_petey_id: '2_53'
     type: string
     widget:
       page: 2
@@ -1206,7 +1778,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.10
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_12:
+    x_petey_id: '2_54'
     type: string
     widget:
       page: 2
@@ -1217,7 +1794,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.11
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_13:
+    x_petey_id: '2_55'
     type: string
     widget:
       page: 2
@@ -1228,7 +1810,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.12
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_14:
+    x_petey_id: '2_56'
     type: string
     widget:
       page: 2
@@ -1239,7 +1826,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.13
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_15:
+    x_petey_id: '2_57'
     type: string
     widget:
       page: 2
@@ -1250,7 +1842,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.14
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_16:
+    x_petey_id: '2_58'
     type: string
     widget:
       page: 2
@@ -1261,7 +1858,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.15
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_17:
+    x_petey_id: '2_59'
     type: string
     widget:
       page: 2
@@ -1272,7 +1874,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.16
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_18:
+    x_petey_id: '2_60'
     type: string
     widget:
       page: 2
@@ -1283,7 +1890,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.17
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_19:
+    x_petey_id: '2_61'
     type: string
     widget:
       page: 2
@@ -1294,7 +1906,12 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.18
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   welfare_feature_cd_20:
+    x_petey_id: '2_62'
     type: string
     widget:
       page: 2
@@ -1305,23 +1922,49 @@ fields:
       - 473.8909912109375
       widget_type: text
       path: typeWelfareBnftcode.19
+    description: Welfare feature code
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   failure_to_transmit_contributions_ind:
+    x_petey_id: '2_63'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.83599853515625
-      - 516.1090087890625
-      - 462.4360046386719
-      - 534.1090087890625
-      widget_type: radiobutton
-      path: P5-10a
+    description: Was there a failure to transmit to the plan any participant contributions
+      within the time period described in 29 CFR 2510.3-102? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.83599853515625
+        - 516.1090087890625
+        - 440.83599853515625
+        - 534.1090087890625
+        widget_type: radiobutton
+        path: P5-10a
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.4360046386719
+        - 516.1090087890625
+        - 462.4360046386719
+        - 534.1090087890625
+        widget_type: radiobutton
+        path: P5-10a
+        on_state: 'No'
+        caption: 'No'
   failure_to_transmit_contributions_amt:
+    x_petey_id: '2_64'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1331,23 +1974,50 @@ fields:
       - 534.4229736328125
       widget_type: text
       path: failTransmitContribAmt
+    description: Enter failed to transfer amount
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   nonexempt_party_in_interest_transactions_ind:
+    x_petey_id: '2_65'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.83599853515625
-      - 539.6719970703125
-      - 462.4360046386719
-      - 557.6719970703125
-      widget_type: radiobutton
-      path: P5-10b
+    description: Were there any nonexempt transactions with any party-in-interest?
+      (Do not include transactions reported on line 10a? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.83599853515625
+        - 539.6719970703125
+        - 440.83599853515625
+        - 557.6719970703125
+        widget_type: radiobutton
+        path: P5-10b
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.4360046386719
+        - 539.6719970703125
+        - 462.4360046386719
+        - 557.6719970703125
+        widget_type: radiobutton
+        path: P5-10b
+        on_state: 'No'
+        caption: 'No'
   nonexempt_party_in_interest_transactions_amt:
+    x_petey_id: '2_66'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1357,23 +2027,46 @@ fields:
       - 556.8699951171875
       widget_type: text
       path: partyInIntNotRptdAmt
+    x_petey_retype:
+    - money
   fidelity_bond_coverage_ind:
+    x_petey_id: '2_67'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.83599853515625
-      - 559.3090209960938
-      - 462.4360046386719
-      - 577.3090209960938
-      widget_type: radiobutton
-      path: P5-10c
+    description: Was the plan covered by a fidelity bond? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.83599853515625
+        - 559.3090209960938
+        - 440.83599853515625
+        - 577.3090209960938
+        widget_type: radiobutton
+        path: P5-10c
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.4360046386719
+        - 559.3090209960938
+        - 462.4360046386719
+        - 577.3090209960938
+        widget_type: radiobutton
+        path: P5-10c
+        on_state: 'No'
+        caption: 'No'
   fidelity_bond_coverage_amt:
+    x_petey_id: '2_68'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1383,23 +2076,50 @@ fields:
       - 574.4229736328125
       widget_type: text
       path: planInsFdltyBondAmt
+    description: Enter amount of fidelity bond
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   plan_loss_fidelity_bond_ind:
+    x_petey_id: '2_69'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.83599853515625
-      - 579.27197265625
-      - 462.4360046386719
-      - 597.27197265625
-      widget_type: radiobutton
-      path: P5-10d
+    description: Did the plan have a loss, whether or not reimbEnteursed by the plan’s
+      fidelity bond, that was caused by fraud or dishonesty? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.83599853515625
+        - 579.27197265625
+        - 440.83599853515625
+        - 597.27197265625
+        widget_type: radiobutton
+        path: P5-10d
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.4360046386719
+        - 579.27197265625
+        - 462.4360046386719
+        - 597.27197265625
+        widget_type: radiobutton
+        path: P5-10d
+        on_state: 'No'
+        caption: 'No'
   plan_loss_fidelity_bond_amt:
+    x_petey_id: '2_70'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1409,23 +2129,51 @@ fields:
       - 597.385009765625
       widget_type: text
       path: lossDiscvDurYearAmt
+    description: Enter loss amount caused by dishonesty
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   fees_commissions_paid_ind:
+    x_petey_id: '2_71'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.83599853515625
-      - 611.0180053710938
-      - 462.4360046386719
-      - 629.0180053710938
-      widget_type: radiobutton
-      path: P5-10e
+    description: Were any fees or commissions paid to any brokers, agents, or other
+      persons by an insurance carrier, insurance service, or other organization that
+      provides some or all of the benefits under the plan? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.83599853515625
+        - 611.0180053710938
+        - 440.83599853515625
+        - 629.0180053710938
+        widget_type: radiobutton
+        path: P5-10e
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.4360046386719
+        - 611.0180053710938
+        - 462.4360046386719
+        - 629.0180053710938
+        widget_type: radiobutton
+        path: P5-10e
+        on_state: 'No'
+        caption: 'No'
   fees_commissions_paid_amt:
+    x_petey_id: '2_72'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1435,23 +2183,50 @@ fields:
       - 629.3599853515625
       widget_type: text
       path: brokerFeesPaidAmt
+    description: Enter fees paid for covered benefits
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   failure_to_provide_benefit_ind:
+    x_petey_id: '2_73'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.0469970703125
-      - 631.4110107421875
-      - 461.6470031738281
-      - 649.4110107421875
-      widget_type: radiobutton
-      path: P5-10f
+    description: Has the plan failed to provide any benefit when due under the plan?
+      Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.0469970703125
+        - 631.4110107421875
+        - 440.0469970703125
+        - 649.4110107421875
+        widget_type: radiobutton
+        path: P5-10f
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 443.6470031738281
+        - 631.4110107421875
+        - 461.6470031738281
+        - 649.4110107421875
+        widget_type: radiobutton
+        path: P5-10f
+        on_state: 'No'
+        caption: 'No'
   failure_to_provide_benefit_amt:
+    x_petey_id: '2_74'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1461,23 +2236,49 @@ fields:
       - 646.6439819335938
       widget_type: text
       path: failProvideBenefitDueAmt
+    description: Enter amount of benefits failed to provide
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   participant_loans_ind:
+    x_petey_id: '2_75'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.6099853515625
-      - 649.1300048828125
-      - 462.2099914550781
-      - 667.1300048828125
-      widget_type: radiobutton
-      path: P5-10g
+    description: Did the plan have any participant loans? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.6099853515625
+        - 649.1300048828125
+        - 440.6099853515625
+        - 667.1300048828125
+        widget_type: radiobutton
+        path: P5-10g
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.2099914550781
+        - 649.1300048828125
+        - 462.2099914550781
+        - 667.1300048828125
+        widget_type: radiobutton
+        path: P5-10g
+        on_state: 'No'
+        caption: 'No'
   participant_loans_amt:
+    x_petey_id: '2_76'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1487,51 +2288,121 @@ fields:
       - 663.4400024414062
       widget_type: text
       path: partcpLoansEoyAmt
+    description: Enter loan amount as of year end.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   blackout_period_ind:
+    x_petey_id: '2_77'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.83599853515625
-      - 668.6179809570312
-      - 462.4360046386719
-      - 686.6179809570312
-      widget_type: radiobutton
-      path: P5-10h
+    description: If this is an individual account plan, was there a blackout period?
+      Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.83599853515625
+        - 668.6179809570312
+        - 440.83599853515625
+        - 686.6179809570312
+        widget_type: radiobutton
+        path: P5-10h
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.4360046386719
+        - 668.6179809570312
+        - 462.4360046386719
+        - 686.6179809570312
+        widget_type: radiobutton
+        path: P5-10h
+        on_state: 'No'
+        caption: 'No'
   blackout_notice_provided_ind:
+    x_petey_id: '2_78'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 2
-      rect:
-      - 422.83599853515625
-      - 690.5449829101562
-      - 462.4360046386719
-      - 708.5449829101562
-      widget_type: radiobutton
-      path: P5-10i
+    description: If 10h was answered “Yes,” check the box if you either provided the
+      required notice or one of the exceptions to providing the notice applied under
+      29 CFR 2520.101-3. Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 2
+        rect:
+        - 422.83599853515625
+        - 690.5449829101562
+        - 440.83599853515625
+        - 708.5449829101562
+        widget_type: radiobutton
+        path: P5-10i
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 2
+        rect:
+        - 444.4360046386719
+        - 690.5449829101562
+        - 462.4360046386719
+        - 708.5449829101562
+        widget_type: radiobutton
+        path: P5-10i
+        on_state: 'No'
+        caption: 'No'
   line_11_defined_benefit_minimum_funding_ind:
+    x_petey_id: '3_1'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 520.6909790039062
-      - 90.98199462890625
-      - 561.8250122070312
-      - 105.04400634765625
-      widget_type: radiobutton
-      path: P6-11
+    description: Is this a defined benefit plan subject to minimum funding requirements?
+      Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 520.6909790039062
+        - 90.98199462890625
+        - 529.2000122070312
+        - 105.04400634765625
+        widget_type: radiobutton
+        path: P6-11
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 553.3159790039062
+        - 90.98199462890625
+        - 561.8250122070312
+        - 105.04400634765625
+        widget_type: radiobutton
+        path: P6-11
+        on_state: 'No'
+        caption: 'No'
   line_11a_unpaid_minimum_required_contribution_amt:
+    x_petey_id: '3_2'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1541,23 +2412,74 @@ fields:
       - 123.81597900390625
       widget_type: text
       path: unpaidMinContribCurrYrTotAmt
+    description: Enter the unpaid minimum required contributions for all years from
+      Schedule SB (Form 5500) line 40
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   line_11b_pbgc_notified_cd:
+    x_petey_id: '3_3'
     type: category
     values:
     - 'Yes'
     - No-waived
     - No-30-day
     - No-Other
-    widget:
-      page: 3
-      rect:
-      - 55.355098724365234
-      - 148.2540283203125
-      - 64.14550018310547
-      - 222.2239990234375
-      widget_type: radiobutton
-      path: P6-11b
+    description: If the plan is covered by PBGC and the amount reported on line 11a
+      is greater than $0, has PBGC been notified as required by ERISA sections 4043(c)(5)
+      and/or 303(k)(4)? Mark applicable box.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[4]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 55.63639831542969
+        - 148.2540283203125
+        - 64.14550018310547
+        - 162.3170166015625
+        widget_type: radiobutton
+        path: P6-11b
+        on_state: 'Yes'
+        caption: 'Yes'
+      No-waived:
+        page: 3
+        rect:
+        - 55.355098724365234
+        - 162.8800048828125
+        - 63.86429977416992
+        - 176.9420166015625
+        widget_type: radiobutton
+        path: P6-11b
+        on_state: No-waived
+        caption: No-waived
+      No-30-day:
+        page: 3
+        rect:
+        - 55.355098724365234
+        - 185.9420166015625
+        - 63.86429977416992
+        - 200.0050048828125
+        widget_type: radiobutton
+        path: P6-11b
+        on_state: No-30-day
+        caption: No-30-day
+      No-Other:
+        page: 3
+        rect:
+        - 55.355098724365234
+        - 208.1610107421875
+        - 63.86429977416992
+        - 222.2239990234375
+        widget_type: radiobutton
+        path: P6-11b
+        on_state: No-Other
+        caption: No-Other
   line_11b_pbgc_no_other_explanation_txt:
+    x_petey_id: '3_4'
     type: string
     semantic_type: text
     widget:
@@ -1569,21 +2491,48 @@ fields:
       - 255.98297119140625
       widget_type: text
       path: pBGCNotifiedExplanationText
+    description: Enter explanation for No - Other.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   line_12_defined_contribution_minimum_funding_ind:
+    x_petey_id: '3_5'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 520.6909790039062
-      - 273.23297119140625
-      - 561.8250122070312
-      - 287.2959899902344
-      widget_type: radiobutton
-      path: P6-12
+    description: Is this a defined contribution plan subject to the minimum funding
+      requirements of section 412 of the Code or section 302 of ERISA? Mark Yes or
+      No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 520.6909790039062
+        - 273.23297119140625
+        - 529.2000122070312
+        - 287.2959899902344
+        widget_type: radiobutton
+        path: P6-12
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 553.3159790039062
+        - 273.23297119140625
+        - 561.8250122070312
+        - 287.2959899902344
+        widget_type: radiobutton
+        path: P6-12
+        on_state: 'No'
+        caption: 'No'
   line_12a_waiver_letter_ruling_day:
+    x_petey_id: '3_6'
     type: string
     widget:
       page: 3
@@ -1594,7 +2543,12 @@ fields:
       - 319.92401123046875
       widget_type: text
       path: rulingLetterGrantDateMonth
+    description: Enter month of waiver letter
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   line_12a_waiver_letter_ruling_month:
+    x_petey_id: '3_7'
     type: string
     widget:
       page: 3
@@ -1605,7 +2559,12 @@ fields:
       - 319.5150146484375
       widget_type: text
       path: rulingLetterGrantDateDay
+    description: Enter day of waiver letter
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   line_12a_waiver_letter_ruling_yr:
+    x_petey_id: '3_8'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
@@ -1618,9 +2577,14 @@ fields:
       - 320.0069885253906
       widget_type: text
       path: rulingLetterGrantDateYear
+    description: Enter year of waiver letter
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   line_12b_minimum_required_contribution_amt:
+    x_petey_id: '3_9'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1630,9 +2594,15 @@ fields:
       - 344.8970031738281
       widget_type: text
       path: sec412ReqContribAmt
+    description: Enter the minimum required contribution for this plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   line_12c_employer_contribution_amt:
+    x_petey_id: '3_10'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1642,9 +2612,16 @@ fields:
       - 358.552001953125
       widget_type: text
       path: emplrContribPaidAmt
+    description: Enter the amount contributed by the employer to the plan for this
+      plan year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   line_12d_net_contribution_amt:
+    x_petey_id: '3_11'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1654,38 +2631,98 @@ fields:
       - 379.9989929199219
       widget_type: text
       path: fundingDeficiencyAmt
+    description: Subtract the amount in line 12c from the amount in line 12b. Enter
+      the result
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   line_12e_minimum_funding_deadline_met_ind:
+    x_petey_id: '3_12'
     type: category
     values:
     - 'Yes'
     - 'No'
     - N/A
-    widget:
-      page: 3
-      rect:
-      - 468.94000244140625
-      - 385.1719970703125
-      - 551.2310180664062
-      - 399.2340087890625
-      widget_type: radiobutton
-      path: P6-12e
+    description: Will the minimum funding amount reported on line 12d be met by the
+      funding deadline? Mark Yes, No or N/A.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[3]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 468.94000244140625
+        - 385.1719970703125
+        - 477.4490051269531
+        - 399.2340087890625
+        widget_type: radiobutton
+        path: P6-12e
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 507.5660095214844
+        - 385.1719970703125
+        - 516.0750122070312
+        - 399.2340087890625
+        widget_type: radiobutton
+        path: P6-12e
+        on_state: 'No'
+        caption: 'No'
+      N/A:
+        page: 3
+        rect:
+        - 542.7219848632812
+        - 385.1719970703125
+        - 551.2310180664062
+        - 399.2340087890625
+        widget_type: radiobutton
+        path: P6-12e
+        on_state: N/A
+        caption: N/A
   line_13a_termination_resolution_adopted_ind:
+    x_petey_id: '3_13'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 479.06500244140625
-      - 418.6409912109375
-      - 532.2000122070312
-      - 432.7030029296875
-      widget_type: radiobutton
-      path: P7-13a
+    description: Has a resolution to terminate the plan been adopted in any plan year?
+      Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 479.06500244140625
+        - 418.6409912109375
+        - 487.5740051269531
+        - 432.7030029296875
+        widget_type: radiobutton
+        path: P7-13a
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 523.6909790039062
+        - 418.6409912109375
+        - 532.2000122070312
+        - 432.7030029296875
+        widget_type: radiobutton
+        path: P7-13a
+        on_state: 'No'
+        caption: 'No'
   line_13a_plan_assets_reverted_to_employer_amt:
+    x_petey_id: '3_14'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 3
       rect:
@@ -1695,21 +2732,50 @@ fields:
       - 445.7149963378906
       widget_type: text
       path: resTermPlanAdptAmt
+    description: If “Yes,” enter the amount of any plan assets that reverted to the
+      employer this year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - money
   line_13b_plan_assets_distributed_or_transferred_ind:
+    x_petey_id: '3_15'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 506.62799072265625
-      - 450.1409912109375
-      - 547.9500122070312
-      - 464.2030029296875
-      widget_type: radiobutton
-      path: P7-13b
+    description: Were all the plan assets distributed to participants or beneficiaries,
+      transferred to another plan, or brought under the control of the PBGC? Mark
+      Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 506.62799072265625
+        - 450.1409912109375
+        - 515.1370239257812
+        - 464.2030029296875
+        widget_type: radiobutton
+        path: P7-13b
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 539.4409790039062
+        - 450.1409912109375
+        - 547.9500122070312
+        - 464.2030029296875
+        widget_type: radiobutton
+        path: P7-13b
+        on_state: 'No'
+        caption: 'No'
   line_13c1_transferred_plan_nm:
+    x_petey_id: '3_16'
     type: string
     semantic_type: person_name
     widget:
@@ -1721,7 +2787,12 @@ fields:
       - 562.5670166015625
       widget_type: text
       path: planTransferTransferName_01
+    description: Name of plan(s)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   line_13c2_transferred_plan_ein:
+    x_petey_id: '3_17'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -1735,6 +2806,7 @@ fields:
       widget_type: text
       path: planTransferTransferEIN_01
   line_13c3_transferred_plan_pn:
+    x_petey_id: '3_18'
     type: string
     widget:
       page: 3
@@ -1746,23 +2818,45 @@ fields:
       widget_type: text
       path: planTransferTransferPlanNum_01
   line_14a_permissive_aggregation_ind:
+    x_petey_id: '3_19'
     type: category
     values:
     - 'Yes'
     - 'No'
-    widget:
-      page: 3
-      rect:
-      - 164.343994140625
-      - 587.5169677734375
-      - 204.07200622558594
-      - 597.9229736328125
-      widget_type: radiobutton
-      path: P8-14a
+    description: Does the plan satisfy the coverage and nondiscrimination tests of
+      Code sections 410(b) and 401(a)(4) by combining this plan with any other plans
+      under the permissive aggregation rules? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    - option_group:category->category[2]
+    widgets:
+      'Yes':
+        page: 3
+        rect:
+        - 164.343994140625
+        - 587.5169677734375
+        - 172.85299682617188
+        - 597.9229736328125
+        widget_type: radiobutton
+        path: P8-14a
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 3
+        rect:
+        - 195.56300354003906
+        - 587.5169677734375
+        - 204.07200622558594
+        - 597.9229736328125
+        widget_type: radiobutton
+        path: P8-14a
+        on_state: 'No'
+        caption: 'No'
   line_15_opinion_letter_dt:
+    x_petey_id: '3_21'
     type: date
     semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
     widget:
       page: 3
       rect:
@@ -1772,7 +2866,13 @@ fields:
       - 692.7528076171875
       widget_type: text
       path: opinLtrDateMonth
+    x_petey_retype:
+    - pattern_dropped
+    - description_from_tooltip
+    description: Opinion Letter date
+    x_petey_description_source: tooltip
   line_15_opinion_letter_serial_num:
+    x_petey_id: '3_22'
     type: string
     widget:
       page: 3
@@ -1783,7 +2883,12 @@ fields:
       - 702.0906982421875
       widget_type: text
       path: opinSerialNum
+    description: Opinion Letter serial number
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   line_14b_nondiscrimination_method:
+    x_petey_id: '3_20'
     type: category
     values:
     - current_year_adp_test_ind
@@ -1800,6 +2905,8 @@ fields:
         - 632.5360107421875
         widget_type: checkbox
         path: Check P8-14b-1
+        on_state: Design
+        caption: Design
       prior_year_adp_test_ind:
         page: 3
         rect:
@@ -1809,6 +2916,8 @@ fields:
         - 646.8800048828125
         widget_type: checkbox
         path: Check P8-14b-2
+        on_state: Prior
+        caption: Prior
       current_year_adp_test_ind:
         page: 3
         rect:
@@ -1818,6 +2927,8 @@ fields:
         - 661.2239990234375
         widget_type: checkbox
         path: Check P8-14b-3
+        on_state: Current
+        caption: Current
       na_ind:
         page: 3
         rect:
@@ -1827,3 +2938,5 @@ fields:
         - 676.4119873046875
         widget_type: checkbox
         path: Check P8-14b-4
+        on_state: N/A
+        caption: N/A

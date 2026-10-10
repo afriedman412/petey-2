@@ -59,19 +59,22 @@ arms and they see different defects:
 
     native   reads each value back through the SAME AcroForm path the
              generator wrote it by. Grades the plumbing.
-    petey    never sees the widget layer; finds each value on the page by
-             the blueprint's own name and description.
+    judge    never sees the widget layer; finds each value on the page by
+             the blueprint's own name and description. A dev-time LLM
+             judge of the names, not product extraction. Named `petey`
+             before 2026-09-30, and the signatures, canonical cases and
+             notes below still use that name for it.
 
 Ground truth is keyed by AcroForm path, and the blueprint's binding decides
 which ground-truth value a field is graded against. So under `native` alone a
 wrong name REDEFINES the target instead of failing it — the arm that reports
 95.1% agreement across 40,230 field-instances is structurally incapable of
-seeing a misbinding. `petey` is the escape, and it has run on 74 of 796 cases.
+seeing a misbinding. The judge is the escape, and it has run on 74 of 796 cases.
 
 `validation` records that, per class:
 
     native         the blind arm's own verdicts surface it
-    petey          needs the meaning-based arm; native cancels it out
+    judge          needs the judge (meaning-based arm); native cancels it out
     external       VALIDATION-PROOF. No run of any arm reveals it; it takes
                    evidence from outside the loop — the publisher's AcroForm
                    name or tooltip, a VLM, or a person.
@@ -108,9 +111,9 @@ from typing import Optional
 @dataclass(frozen=True)
 class DefectClass:
     name: str
-    owner: str          # labeler | generator | blueprint | parser | scorer | reader
+    owner: str          # labeler | generator | blueprint | parser | scorer | reader | reviewer
     tier: Optional[int]  # which tier repairs it; None = nothing does yet
-    signature: str      # the gt / native / petey relationship that shows it
+    signature: str      # the gt / native / judge relationship that shows it ("petey" in older entries)
     fix: str            # what the repair actually is
     # Which arm of the validation loop can SEE this class. See the module
     # docstring: `external` means validation is structurally blind to it and
@@ -144,7 +147,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="name_rotation",
         owner="labeler", tier=2,
         canonical="cf_1_fillable — a 4-long cycle spanning two pages, which is why the geometric pass cannot see it",
-        validation="petey",
+        validation="judge",
         signature="edges petey[A]==gt[path_B] close a cycle",
         fix="permute the widget blocks around the cycle",
         detector="correct.py",
@@ -160,7 +163,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="name_slide",
         owner="labeler", tier=2,
         canonical="2022_rev_form_1014r:city_nm — its gt is an EMAIL; the chain slides email -> city -> state by one widget",
-        validation="petey",
+        validation="judge",
         signature="the same edges form an open chain",
         fix="rebind along the chain; the tail widget is orphaned",
         detector="correct.py; also publisher_name.py --types where it "
@@ -179,7 +182,12 @@ REGISTRY: tuple[DefectClass, ...] = (
               "often a defensible refinement — but together they found 76 "
               "fields, and the publisher's name then NAMES the field the "
               "widget really holds, which the value-identity edges in "
-              "correct.py cannot supply.",
+              "correct.py cannot supply.\n\n"
+              "2026-09-30: a slide across checkbox rows (acord25's automobile "
+              "column: the box beside ANY AUTO is named auto_liability_ind, "
+              "beside OWNED is auto_any_auto_ind, ...) was invisible to the "
+              "text reader until the mark tokens; now the reader answers what "
+              "the page shows and the slide surfaces as reader disagreement.",
     ),
     DefectClass(
         name="block_renumbered",
@@ -187,7 +195,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         conflicts_with=("name_rotation", "name_slide",),
         precedence="RENUMBER BEFORE PERMUTING. Both want the same 42 fields on 2025-schedule-a. The corrector infers rebindings from value identity, which on five interchangeable broker blocks is near-worthless -- any broker's name matches any slot -- so it manufactures cycles. The publisher's ordinal is deterministic. Renumber from it, THEN run the corrector on what is left.",
         canonical="2025-schedule-a:agent_broker_1a_name_address_line_1_txt — bound to the publisher's insBrokerName_03, i.e. broker 3",
-        validation="petey",
+        validation="judge",
         signature="inside one publisher-numbered repeating block, our row "
                   "index RESTARTS, so two rows claim the same index",
         fix="take the row index from the publisher's own ordinal",
@@ -247,7 +255,7 @@ REGISTRY: tuple[DefectClass, ...] = (
     DefectClass(
         name="wrong_widget",
         owner="labeler", tier=3,
-        validation="petey",
+        validation="judge",
         signature="gt==native!=petey with no edge to any other widget",
         fix="relabel from the page; no permutation explains it",
         detector="method_delta.py",
@@ -322,7 +330,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         name="ambiguous_target",
         owner="generator", tier=None,
         canonical="cf_2_fillable:established_loc_no vs footer_loc_no — one value, two fields that could take it",
-        validation="petey",
+        validation="judge",
         signature="the value petey returned was written into 2+ widgets",
         fix="generator: distinct values per widget, so diagnosis is possible",
         detector="correct.py",
@@ -332,12 +340,16 @@ REGISTRY: tuple[DefectClass, ...] = (
               "not unique. cf_2_fillable writes 'LC-2024-TX-00847' into "
               "both established_loc_no and footer_loc_no. Cheap to fix "
               "gen-side and it would convert 39 unknowns into signal.",
+        # 2026-09-30: ND 1TP's swapped pair (process_types / primary_waste_streams) was read swapped by the judge in
+        # all three cases, and correct.py still built no 2-cycle: the bank's free text comes from a ten-line pool,
+        # so the same line sat in two boxes of a case and the edges were dropped as ambiguous. Fix: the bank makes
+        # free-text and unclassed values unique within a case.
     ),
     DefectClass(
         name="similar_entity",
         owner="blueprint", tier=3,
         canonical="principal_organization_nm — petey returns 'Lone Star Compression LLC' where gt is 'Lone Star Energy Services LLC'; name and type are both right",
-        validation="petey",
+        validation="judge",
         signature="gt and petey are both valid values of the same kind",
         fix="prose: a description saying which of the two is meant",
         detector="s2_meaning.py — a model is shown the filled page and the "
@@ -359,7 +371,7 @@ REGISTRY: tuple[DefectClass, ...] = (
         conflicts_with=("name_rotation", "name_slide",),
         precedence="NEITHER WINS; the comparison is tiered instead. Garble breaks exact value identity and so HIDES real rebindings, while tolerating it manufactures false ones. correct.py therefore compares in three tiers (exact, punct, fuzzy) and never applies a fuzzy edge that name_agrees does not independently support.",
         canonical="1099_nec_blank:recipient_nm — petey returns 'Cll J R' for 'Calloway, James R'; characters dropped, not a different field",
-        validation="petey",
+        validation="judge",
         signature="petey's value is a near-miss of the right one",
         fix="scorer: absorb it via is_transcription_noise",
         detector="worklist.py",
@@ -451,15 +463,36 @@ REGISTRY: tuple[DefectClass, ...] = (
               "them, so this is tier 0, not a correction.",
     ),
     DefectClass(
+        name="export_caption_mismatch",
+        owner="blueprint", tier=1,
+        canonical="i765:preparer_unit_type — the box printed 'Apt.' exports ' FLR ', 'Ste.' exports ' APT ', "
+                  "'Flr.' exports ' STE ': the publisher's export values are rotated one place against the captions",
+        validation="judge",
+        signature="an option's on-state word disagrees with the caption printed beside its box",
+        fix="caption from the page text; keep the export word as x_petey_on_state_word; never fill, "
+            "caption or bank values by the export word",
+        detector="petey/label/captions.py (caption_options_from_page verifies on-state captions against the page)",
+        inline_fix="expand_options recaption",
+        notes="Found 2026-09-30 when mark tokens in the text reader carried the export word and the "
+              "reader answered 'apt' for the box printed 'Ste.'. Ground truth by path is unaffected; "
+              "anything that trusts the export value as a label is. The labeler had named the boxes "
+              "by the printed captions, correctly.",
+    ),
+    DefectClass(
         name="yn_column",
         owner="parser", tier=1,
-        validation="petey",
+        validation="judge",
         signature="paired Yes/No checkboxes with export_value Yes/No",
         fix="extract: radio/checkbox group handling",
         detector=None,
         observations_class="class 7 / C8",
         notes="Class 7 fix landed; the residue is the column layout where "
-              "Yes and No sit in separate columns of a grid.",
+              "Yes and No sit in separate columns of a grid.\n\n"
+              "2026-09-30: the text-mode reader now gets a [x] / [ ] token at "
+              "every option box, decided by ink in the box against the blank "
+              "(petey/validate/ink.py, extract_llm.page_texts_with_marks), with "
+              "the column header carried in the token when nothing is printed "
+              "beside the box. 10-10EZ went from 19 unlocatable groups to 0.",
     ),
     DefectClass(
         name="mistyped_field",
@@ -515,17 +548,322 @@ REGISTRY: tuple[DefectClass, ...] = (
     DefectClass(
         name="opaque_widget_name",
         owner="labeler", tier=None,
-        canonical="1099_nec_blank — every path is `f1_6`-style; the number is a widget index carrying no meaning",
+        canonical="1099_nec_blank — every path is `f1_6`-style; the number is a widget index carrying no meaning. tx_dmv_1756: 15 fields named control ... control_15 because the publisher's tooltip on each is the word 'Control'",
         validation="external",
-        signature="no readable AcroForm name and no /TU tooltip",
-        fix="none available; the labeler has only proximity to work from",
-        detector="name_sources.py",
+        signature="no readable AcroForm name and no /TU tooltip, or a tooltip / path that is a control word or generator default (Control, Text16, Check Box1) copied into the field name",
+        fix="name the box from its own caption: the labeler prompt treats a control-word tooltip or path as no evidence, and the reviewer renames an uninformative name from the caption (2026-09-30)",
+        detector="name_sources.py; the judge (it cannot find a field called `control`) through review's caption gate; name_caption screen",
         observations_class=None,
         notes="32.6% of data widgets corpus-wide, but 80% within tax — the "
               "vertical the library is otherwise measured best on. Not a "
               "defect: a precondition that predicts where the labeler is "
               "working blind, and the reason an orphan escalates to tier 3 "
               "rather than resolving locally.",
+    ),
+    # ---- classes found 2026-09-28 with label-grounded ground truth -------
+    # `score.shape_mismatch` compares the VLM's value for a box against
+    # what the blueprint DECLARES for it (type / pattern / values); the
+    # geometry arm cannot see any of these because it reads by path.
+    # The retype pass (`retype.py`) is their in-place repair.
+    DefectClass(
+        name="pattern_on_nonstring",
+        owner="labeler", tier=0,
+        canonical="vba21526ez:disability_1_approximate_onset_dt — `type: date` carrying `^\\d{4}-\\d{2}-\\d{2}$`, which spec §5.6 forbids",
+        validation="external",
+        signature="field.type in (date, number, integer) and 'pattern' in field",
+        fix="semantic_types.enrich_field emits `pattern` only for type string",
+        detector="retype.py (pattern_dropped)",
+        inline_fix="retype.py: drop the pattern (1,348 fields, 2026-09-28)",
+        notes="The registry keeps canonical shapes on date/number types as documentation; the emitter used to copy them onto the field.",
+    ),
+    DefectClass(
+        name="part_typed_as_whole",
+        owner="labeler", tier=0,
+        canonical="vba21526ez:birth_dt_mm — a 2-digit month box typed `date` because `_dt` matched; 79 of 328 fields on that form",
+        validation="judge",
+        signature="gt == native; value shorter than the declared pattern's minimum width, or a date/number type on a box whose maxlen/width cannot hold one",
+        fix="semantic_types: date_month / date_day / date_year / id_part rules BEFORE the whole-value rules; parts are strings with their own shape",
+        detector="score.shape_mismatch (date_type_vs_value, pattern_vs_value); retype.py (part_by_name, part_by_maxlen, date_narrow_widget)",
+        inline_fix="retype.py: string + part pattern from the name, else from the box max length (`^\\d{1,n}$`), else from a box narrower than 28pt",
+        aliases=("date_part_as_date", "ssn_part_as_ssn"),
+        notes="Separator-free comb boxes are NOT parts: an SSN in a 9-cell comb keeps `ssn` with the dashes removed from the pattern (separators_dropped_by_maxlen).",
+    ),
+    DefectClass(
+        name="short_shape_on_wide_box",
+        owner="labeler", tier=2,
+        canonical="1099_nec_blank:recipient_city_state_zip_txt — `_state` matched inside the name, so a 2-letter pattern sits on a box 200pt wide holding 'Nashville, TN 37203'",
+        validation="judge",
+        signature="pattern max width <= 5 on a text box wider than 120pt with no maxlen",
+        fix="none at the labeler yet: the registry's token match (`_state`, `_zip`) fires inside compound names",
+        detector="score.shape_mismatch (pattern_vs_value); retype.py (wide_widget_short_pattern)",
+        inline_fix="retype.py: drop the pattern and semantic_type (256 fields, 2026-09-28)",
+        notes="A labeler-side fix would be a compound-name guard in semantic_types.lookup (city_state_zip is not a state).",
+    ),
+    DefectClass(
+        name="missing_description",
+        owner="labeler", tier=0,
+        canonical="vba21526ez — 322 widgets with a publisher tooltip, 0 descriptions in the committed blueprint; 51 fields unlocatable by name for the meaning-based reader",
+        validation="judge",
+        signature="method_delta: petey returns null for a field whose name alone does not locate it (unlocatable)",
+        fix="auto_label carries /TU tooltips and XFA radio captions into `description`",
+        detector="method_delta.py (unlocatable)",
+        inline_fix="retype.py --describe: tooltips and XFA choice captions into empty descriptions (8,221 fields, 2026-09-28)",
+        notes="On 526EZ (image mode) unlocatable went 51 -> 39 and agree 173 -> 190 with descriptions in place.",
+    ),
+    DefectClass(
+        name="repeated_section_ambiguity",
+        owner="labeler", tier=None,
+        canonical="vba21526ez:veteran_ssn_part1_3 — the by-name reader returns the FIRST SSN on the form; correct.py marks every such chain contradicted",
+        validation="judge",
+        signature="gt == native != petey, and petey's value equals another copy of the same field (veteran vs claimant, table rows)",
+        fix="a naming convention that carries the copy or row (section/row prefix), applied at labeling time",
+        detector="correct.py (contradicted chains); method_delta.py (unlocatable/substring)",
+        inline_fix=None,
+        notes="The largest residue in the 589 library-wide candidates (2026-09-28). Not a rebind: the widget is right, the name is under-specified.",
+    ),
+    DefectClass(
+        name="nonnumeric_in_numeric_field",
+        owner="blueprint", tier=None,
+        canonical="f720:irs_no_79_other_fuels_rate — a `percent` column whose printed value is 'Various' or 'Free' (24 on f720, 85 on CBP 7501)",
+        validation="judge",
+        signature="type number/integer; label-grounded value is a word",
+        fix="type string with a pattern that admits the printed vocabulary, or a `values` list where the column is closed",
+        detector="score.shape_mismatch (number_type_vs_value)",
+        inline_fix=None,
+        notes="162 library-wide after the retype pass; concentrated on rate/duty columns.",
+    ),
+    DefectClass(
+        name="approximate_date_month_year",
+        owner="generator", tier=None,
+        canonical="vba21526ez:disability_1_approximate_onset_dt — tooltip asks for MM/DD/YYYY, the printed label says 'approximate', the generator wrote 03/2008",
+        validation="judge",
+        signature="type date; value matches MM/YYYY or YYYY-MM",
+        fix="generator: honour the tooltip's format when the label is looser; or blueprint: `date` with a month precision flag (spec question)",
+        detector="score.shape_mismatch (date_type_vs_value)",
+        inline_fix=None,
+        notes="35 fields on 526EZ; the blueprint is right by the publisher's own tooltip.",
+    ),
+    DefectClass(
+        name="value_overflows_box",
+        owner="generator", tier=1,
+        canonical="f1040 flat case, local generator before fit_to_widget: 'Consulting rendered invoice' in a 2-digit comb box; dashed SSN in a 9-cell comb loses two digits",
+        validation="native",
+        signature="gt != native on the flat case only; native holds a prefix of gt",
+        fix="generator sizes values to the box: maxlen, comb, rect width (synth.local.fit_to_widget; blind prompt states maxlen)",
+        detector="method_delta.py (flat-only substring)",
+        inline_fix=None,
+        notes="The old cached ground truth was generated without box limits, so its flat cases still carry this class.",
+    ),
+    DefectClass(
+        name="rule_violation",
+        owner="generator", tier=1,
+        canonical="i130: two of child_adopted_ind / child_born_in_wedlock_ind / ... held at once (a reciprocal clear-others group in the XFA scripts)",
+        validation="native",
+        signature="more than one member of a `mutex` rule holds a value, on the extracted side or in the ground truth",
+        fix="generator enforces `rules:` after the draw (synth.local); the scorer reports `rule_violation` as its own verdict",
+        detector="score.check_rules",
+        inline_fix=None,
+        notes="Rules come from reciprocal XFA clear-others scripts (30 checkbox groups on 5 hybrids, 2026-09-28); the emitter writes them as x_petey_rules.",
+    ),
+
+    # ---- case inventory vs blueprint inventory ------------------------
+    # The rect-keyed synthetic path finds its boxes on the page (synth.boxes)
+    # and never reads the widget layer; the blueprint's fields carry rects
+    # from it. Scoring cross-references the two inventories, and every
+    # mismatch is one of these. A mismatch says THAT the inventories
+    # disagree, not who is wrong: on an AcroForm the widget layer is the
+    # third reference that attributes it (a diagnosis after the case is
+    # made, never an input to it); on a flat form it stays a flag.
+    # Measured 2026-09-30 on the five test forms by eval/finder_vs_widgets.py.
+    DefectClass(
+        name="box_unreached",
+        owner="generator", tier=None,
+        canonical="va_form_10_10ez:DateFrom1 — page 5's seven date / specify boxes have no finder box; "
+                  "the widgets are never filled and their fields score AGREE on empty",
+        validation="self_scoring",
+        signature="a blueprint field whose rect matches no case box; the filler never wrote its widget",
+        fix="page finder recall (synth.boxes); until then the field is untested, not empty",
+        detector=None,
+        notes="14 of ~830 widgets on the five forms (W-9 2, ACORD 25 4, 526EZ 1, 10-10EZ 7; I-765's seven are its "
+              "barcode, which no field claims). Today rect_join leaves the field out of the ground truth, the "
+              "scorer reads that as empty and the reader finds nothing: a pass. The cross-reference gives such "
+              "fields their own verdict (`not_generated`) and keeps them out of agreement. A field whose widget is "
+              "a caption or a button is `caption_field` / `pushbutton_field`, not this. The same verdict covers a "
+              "box the classifier wrongly called `none`.",
+    ),
+    DefectClass(
+        name="merged_box",
+        owner="generator", tier=None,
+        canonical="acord25:Producer_MailingAddress_LineOne_A + LineTwo_A — one finder box contains both widgets "
+                  "(overlap 1.0 each); one line is written, the other never",
+        validation="self_scoring",
+        signature="one case box contains the rects of two or more blueprint fields (or widgets)",
+        fix="finder splits a box at the rules printed inside it; at scoring, the fields whose rects sit inside "
+            "the box name exactly which boxes it ate",
+        detector=None,
+        notes="ACORD 25 6, 526EZ 8 (Date_Of_Birth day / year inside one box), 10-10EZ 7. `match_rect` scores "
+              "intersection over the SMALLER area, so containment ties at 1.0 and list order picks the widget. "
+              "Two faults at once: the eaten siblings are `box_unreached` in effect (scored agree on empty), and "
+              "the written widget holds a value classed for the whole box (a whole date in the year box, cut by "
+              "MaxLen), which surfaces as a false blueprint flag. Resolving which boxes were eaten needs no widget "
+              "layer: the blueprint's own field rects inside the box name them, so it works on flat forms too.",
+    ),
+    DefectClass(
+        name="split_box",
+        owner="generator", tier=1,
+        canonical="vba21526ez — 69 widgets each claimed by several finder boxes, mostly comb cells (SSN, phone, dates)",
+        validation="native",
+        signature="several case boxes inside one blueprint field's rect",
+        fix="rect_join concatenates the cells in reading order, as the filler wrote them",
+        detector="rect_join.case_to_paths (the `inside` join)",
+        notes="Benign while the classifier classes the cells as parts of one value; a fault only when cells of one "
+              "widget get unrelated classes and the bank fills them independently (I-765 13, 10-10EZ 8, W-9 2, "
+              "ACORD 25 1).",
+    ),
+    DefectClass(
+        name="uncovered_widget",
+        owner="labeler", tier=None,
+        canonical=None,
+        validation="external",
+        signature="a case box with no blueprint field, and a widget under it",
+        fix="the labeler names every data widget; inline: add a field named from the path / tooltip, else escalate",
+        detector=None,
+        aliases=("labeler_miss",),
+        notes="The page and the widget layer agree a box is there; the blueprint dropped it. score.py's "
+              "`labeler_miss_paths` counts the path-keyed version of this; the cross-reference is the rect-keyed one. "
+              "No canonical case until the cross-reference runs.",
+    ),
+    DefectClass(
+        name="unbacked_box",
+        owner="generator", tier=None,
+        canonical="fw9 — 49 finder boxes with no widget behind them (526EZ 253, I-765 87); how many the classifier "
+                  "keeps as fillable is unmeasured",
+        validation="native",
+        signature="a case box classed fillable, with no blueprint field and no widget under it",
+        fix="the classifier's `none` class rejects finder over-proposals; a box the page prints but the publisher "
+            "never made fillable is recorded, not filled",
+        detector=None,
+        notes="Harmless on an AcroForm (the filler has no widget to write; the value is dropped). On a flat form the "
+              "value is drawn on the page, so a false box becomes a false value the reader may find. Two causes, "
+              "attributed by eye for now: finder over-proposal kept by the classifier, or a real printed box with "
+              "no widget (a structure fact about the form).",
+    ),
+    DefectClass(
+        name="option_group_mismatch",
+        owner="labeler", tier=None,
+        canonical=None,
+        validation="external",
+        signature="the classifier's `group` for a set of option boxes and the blueprint's option groups partition "
+                  "the same boxes differently (one page group across several fields, or one field across several "
+                  "page groups)",
+        fix="group by the page's question (the classifier's group, the printed caption run); the widget layer's "
+            "shared path is evidence, not the answer",
+        detector=None,
+        aliases=("ungrouped_options", "group_name_mismatch"),
+        notes="The group-level form of the cross-reference; falls out of the same rect join. The widget layer "
+              "attributes it on AcroForms: a page group spanning several radio paths is a publisher split, a "
+              "blueprint field spanning several page groups is a labeler merge. Distinct paths per kid (I-765's "
+              "marital status and unit type) are why neither the inventory nor the filler saw those groups.",
+    ),
+    # ---- found by the judge-informativeness rounds (2026-09-30, 24 new forms) -
+    DefectClass(
+        name="publisher_misplaced_widget",
+        owner="labeler", tier=0,
+        canonical="ks_dor_do10:ein_ssn_ptin — tooltip and path say EIN/SSN/PTIN, the widget sits inside the cell captioned "
+                  "'Area Code & Phone Number'; the column's five widgets are one row off",
+        validation="judge",
+        signature="the field's name follows the publisher's tooltip / path, which disagree with the caption printed in the "
+                  "widget's own cell; the judge, reading by name, finds the value elsewhere",
+        fix="the box's own caption outranks the publisher's tooltip and path (labeler and reviewer prompts, 2026-09-30); "
+            "a filer types by position, so the value in the widget is what the caption asks for",
+        detector="method_delta.py (judge) through review's caption gate; class_check when the kinds differ",
+        inline_fix="reviewer renames from the caption printed for the box (`caption_printed_for_this_box` in its evidence)",
+        notes="ACORD 25's six 'phone' fields on state / ZIP boxes are the same pattern. Before 2026-09-30 both the labeler "
+              "('the publisher wins') and the reviewer ('publisher evidence outranks printed text') kept the wrong name; "
+              "on DO-10 the reviewer saw the judge's flags and kept all five.",
+    ),
+    DefectClass(
+        name="description_contradicts_name",
+        owner="reviewer", tier=None,
+        canonical="nd_form1tp:process_types — bound to the box captioned 'Identify the Primary Waste Streams'; the "
+                  "reviewer added the description 'Primary waste streams to be accepted' and kept the name",
+        validation="self_scoring",
+        signature="a field whose description describes a different value than its name",
+        fix="reviewer prompt: never write a description that contradicts the name; a swapped pair is renamed (or rebound "
+            "by correct.py), not described",
+        detector=None,
+        notes="The loop scores it AGREE: the judge reads the description and finds the right box, so the contradiction "
+              "passes every later round. A consumer reading the name gets the wrong value.",
+    ),
+    DefectClass(
+        name="empty_cell_shift",
+        owner="reader", tier=None,
+        canonical="al_dor_al8379:line10a_wages_other_spouse_amt — the joint-return column is empty; the text layer "
+                  "drops the empty box and the judge reads column (b)'s value into the joint column",
+        validation="judge",
+        signature="the judge gives a field the value of a neighbouring box (or returns a value where the case left the box "
+                  "empty), the field's name agrees with its box's caption",
+        fix="text mode marks empty text boxes the way it marks option boxes, or image mode for grid pages; the review "
+            "gate keeps these flags from the reviewer while the name agrees with the caption",
+        detector="eval/judge_informativeness.py (layout_shift); review's caption gate",
+        notes="The largest family of judge disagreements: 193 of 308 on 24 new forms. Not a blueprint defect; a reviewer "
+              "handed one renames a correct field.",
+    ),
+    DefectClass(
+        name="unanchored_cell_value",
+        owner="reader", tier=None,
+        canonical="form_5020:source_txt — a one-letter code 'P' in a grid of code columns; acord25 ADDL INSD / SUBR WVD "
+                  "typed X cells",
+        validation="judge",
+        signature="a short value (a code letter, a typed X) in a grid cell, with nothing in the text layer tying it to its "
+                  "column or row; the judge cannot find it",
+        fix="text mode tags each cell's value with its column caption, or image mode for grid pages",
+        detector="eval/judge_informativeness.py (code_cell, mark_cell)",
+    ),
+    DefectClass(
+        name="text_stored_order",
+        owner="reader", tier=None,
+        canonical="ok_occ_1003 — every filled value in the text layer, as one block after the page's printed text; the "
+                  "judge missed 73-81 of 113 fields per case",
+        validation="judge",
+        signature="text mode on a form with no option boxes: `page_texts` passes get_text() through in stored order, and a "
+                  "filled AcroForm lists widget values after the printed text, away from their labels",
+        fix="sort every text-mode page into reading order (as page_texts_with_marks does) and key the reader cache on the "
+            "text sent",
+        detector=None,
+        notes="None of the five test forms lacks option boxes, so it never showed before 2026-09-30.",
+    ),
+    DefectClass(
+        name="caption_misattributed",
+        owner="generator", tier=None,
+        canonical="lic100:out_of_state_state_abbreviation_cd — the box sits under 'C5. State'; the page classifier gave it "
+                  "the caption 'B16. Name' (two rows up) and the reviewer renamed a right field to applicant_nm",
+        validation="external",
+        signature="the classifier's caption for a box is a neighbouring box's caption; the finder box and the widget "
+                  "align, so the rect join is right and the reading is wrong",
+        fix="the caption used for review and for the gate comes from the page geometry (words inside the box's rect, "
+            "else directly above it within its cell), cross-checked with the classifier's label; when they disagree "
+            "the caption is uncertain and no rename rests on it",
+        detector="petey/validate/field_chain.py (stage 'class': the classifier's caption is none of the lines lined up "
+                 "with the widget, nor its column header or row label)",
+        inline_fix="review.flags_from_run and iterate.field_status drop the class, regex and judge signals of a "
+                   "class-stage field, so no rename or verdict rests on the misreading",
+        notes="Found 2026-09-30, batch 2: two wrong renames (LIC100, Utah WC-122 time_of_occurrence -> "
+              "date_of_injury_illness). LIC100 shows a run of them, every mailing-address box one caption off.",
+    ),
+    DefectClass(
+        name="implausible_case_value",
+        owner="generator", tier=None,
+        canonical="i_9:list_b_issuing_authority — the bank wrote 'Services maintenance' into a box captioned Issuing "
+                  "Authority; ok_occ_1003 township 'Consulti', pipe size 'North'",
+        validation="judge",
+        signature="the value is in the box (native agrees) but is not a value the caption asks for; the judge, asked by "
+                  "name, does not accept it and returns nothing",
+        fix="the bank needs values for the box's kind: domain classes or pools (township, range, issuing authority), or "
+            "the blind generator for boxes the classifier calls `other`",
+        detector="eval/judge_informativeness.py (implausible); review's caption gate",
+        notes="46 of 308 judge disagreements on 24 new forms. Andrew: a value of the right type is enough; these are the "
+              "boxes where the bank's type is too coarse.",
     ),
 )
 
@@ -641,7 +979,7 @@ def main() -> int:
         corr = "yes" if d.fix else "-- NONE --"
         retro = "yes" if d.inline_fix else ("n/a" if d.owner not in
                                             ("labeler", "blueprint") else "NO")
-        vis = {"native": "native", "petey": "petey arm",
+        vis = {"native": "native", "judge": "judge arm",
                "external": "NO - external", "self_scoring": "NO - PASSES IT",
                None: "-- unset --"}[d.validation]
         print(f"{d.name:22s} {d.owner:10s} {t:>4}  "
@@ -673,7 +1011,7 @@ def main() -> int:
     print()
     print("  what the validation loop can see:")
     for k, label in (("native", "the blind arm's own verdicts"),
-                     ("petey", "only the meaning-based arm"),
+                     ("judge", "only the judge (meaning-based arm)"),
                      ("external", "NOTHING in the loop — needs outside "
                                   "evidence"),
                      ("self_scoring", "the loop PASSES it — a green run "
@@ -685,7 +1023,7 @@ def main() -> int:
     if unset:
         print(f"    !! {len(unset)} unset: {', '.join(unset)}")
     print(f"  {len(blind)} of {len(REGISTRY)} classes are validation-proof; "
-          f"the petey arm has run on 74 of 796 cases")
+          f"the judge arm (then `petey`) has run on 74 of 796 cases")
 
     print()
     by_tier = collections.Counter(

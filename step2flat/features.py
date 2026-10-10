@@ -5,10 +5,36 @@ from itertools import groupby
 import pymupdf
 from .geometry import iou
 
-LINE_CUE = re.compile(r'[_.\u2026\u00b7\-]{3,}')   # typed underscores / dot leaders are line cues, not text
+LINE_CUE = re.compile(r'[^\w\s]?[_.\u2026\u00b7\-]{3,}')   # typed underscores / dot leaders are line cues, not text;
+# one leading sign allowed: `$___________` on B106I / B410 counted as text and sank 56 amount cells (2026-10-01)
+
+# A checkbox square drawn as a text glyph: ZapfDingbats '\u25a0' (LA 7006), Wingdings2 0xF0A3 (TX RRC R-32), Wingdings
+# 0xF071 / 0xF06F (B410, KS DO-41), or a box character. Not text for the features, and a candidate in its own right
+# (lattice.lattice_fields): the raster reader erases recognised text before it looks for boxes, so these left no
+# candidate; where the lattice had one, the glyph made it text_filled and header and it sank to 0.45 (2026-10-01).
+GLYPH_CHARS = set('\u25a0\u25a1\u2610\u2611\u2612\u2751\u2752\u25a2\u25fb\u25fc\u25aa\u25ab')
+
+def is_glyph(t):
+    return len(t) == 1 and (t in GLYPH_CHARS or 0xE000 <= ord(t) <= 0xF8FF)
+
+def glyph_rects(page):
+    """Squares for the glyph checkboxes on a page: the character's advance width, centred on its bbox (the bbox is
+    the font's line height, not the drawn square: with the full bbox DO-41's 7 pt radios sat in boxes over 3x their
+    area)."""
+    out = []
+    for b in page.get_text('rawdict').get('blocks', []):
+        for ln in b.get('lines', []):
+            for sp in ln.get('spans', []):
+                for c in sp.get('chars', []):
+                    if not is_glyph(c['c']): continue
+                    r = pymupdf.Rect(c['bbox'])
+                    if not (4 <= r.width <= 20 and 4 <= r.height <= 20): continue
+                    side = r.width; cy = (r.y0 + r.y1) / 2
+                    out.append(pymupdf.Rect(r.x0, cy - side / 2, r.x0 + side, cy + side / 2))
+    return out
 
 def _page_info(pa):
-    W = [(pymupdf.Rect(w[:4]), w[4]) for w in pa.get_text('words') if not LINE_CUE.fullmatch(w[4])]
+    W = [(pymupdf.Rect(w[:4]), w[4]) for w in pa.get_text('words') if not LINE_CUE.fullmatch(w[4]) and not is_glyph(w[4])]
     fills = []
     for x in pa.get_drawings():
         f = x.get('fill')

@@ -112,7 +112,8 @@ def refine(cell,words,t):
     return cell,'label_fills'
 
 def lattice_fields(doc):
-    """All lattice-derived candidate fields for a (flat) document."""
+    """All lattice-derived candidate fields for a (flat) document, plus the glyph checkboxes (features.glyph_rects)."""
+    from .features import glyph_rects
     P=[]
     for pg in range(len(doc)):
         words=doc[pg].get_text('words')
@@ -121,4 +122,6 @@ def lattice_fields(doc):
             fld,how=refine(c,words,'CheckBox' if sq else 'Text')
             if how=='label_fills': continue          # a cell that is all label is not an entry area
             P.append(dict(page=pg,rect=list(fld),kind='checkbox' if sq else 'text',source='lattice:'+how,caption=''))
+        for r in glyph_rects(doc[pg]):               # a square drawn as a symbol-font character (2026-10-01)
+            P.append(dict(page=pg,rect=list(r),kind='checkbox',source='glyph',caption=''))
     return P

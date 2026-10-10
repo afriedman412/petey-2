@@ -9,6 +9,7 @@ description: ''
 instructions: ''
 fields:
   address_line_1_txt:
+    x_petey_id: '1_1'
     type: string
     semantic_type: street_address
     widget:
@@ -21,6 +22,7 @@ fields:
       widget_type: text
       path: insurance_name
   address_line_2_txt:
+    x_petey_id: '1_2'
     type: string
     semantic_type: street_address
     widget:
@@ -33,6 +35,7 @@ fields:
       widget_type: text
       path: insurance_address
   address_line_3_txt:
+    x_petey_id: '1_3'
     type: string
     semantic_type: street_address
     widget:
@@ -45,6 +48,7 @@ fields:
       widget_type: text
       path: insurance_address2
   address_line_4_txt:
+    x_petey_id: '1_4'
     type: string
     semantic_type: street_address
     widget:
@@ -57,18 +61,98 @@ fields:
       widget_type: text
       path: insurance_city_state_zip
   amended_return_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 20.893800735473633
-      - 108.1309814453125
-      - 30.993799209594727
-      - 118.23199462890625
-      widget_type: checkbox
-      path: insurance_type
+    x_petey_id: '1_5'
+    type: category
+    values:
+    - Medicare
+    - Medicaid
+    - Tricare
+    - Champva
+    - Group
+    - Feca
+    - Other
+    widgets:
+      Medicare:
+        page: 1
+        rect:
+        - 20.893800735473633
+        - 108.1309814453125
+        - 30.993799209594727
+        - 118.23199462890625
+        widget_type: checkbox
+        path: insurance_type
+        on_state: Medicare
+        caption: Medicare
+      Medicaid:
+        page: 1
+        rect:
+        - 69.26200103759766
+        - 108.04998779296875
+        - 79.36199951171875
+        - 118.1500244140625
+        widget_type: checkbox
+        path: insurance_type
+        on_state: Medicaid
+        caption: Medicaid
+      Tricare:
+        page: 1
+        rect:
+        - 119.94599914550781
+        - 108.33599853515625
+        - 130.04600524902344
+        - 118.43597412109375
+        widget_type: checkbox
+        path: insurance_type
+        on_state: Tricare
+        caption: Tricare
+      Champva:
+        page: 1
+        rect:
+        - 184.8350067138672
+        - 108.04998779296875
+        - 194.93499755859375
+        - 118.1500244140625
+        widget_type: checkbox
+        path: insurance_type
+        on_state: Champva
+        caption: Champva
+      Group:
+        page: 1
+        rect:
+        - 235.3350067138672
+        - 108.04998779296875
+        - 245.43499755859375
+        - 118.1500244140625
+        widget_type: checkbox
+        path: insurance_type
+        on_state: Group
+        caption: Group
+      Feca:
+        page: 1
+        rect:
+        - 292.69000244140625
+        - 108.04998779296875
+        - 302.7900085449219
+        - 118.1500244140625
+        widget_type: checkbox
+        path: insurance_type
+        on_state: Feca
+        caption: Feca
+      Other:
+        page: 1
+        rect:
+        - 336.0329895019531
+        - 108.333984375
+        - 346.13299560546875
+        - 118.43499755859375
+        widget_type: checkbox
+        path: insurance_type
+        on_state: Other
+        caption: Other
+    x_petey_retype:
+    - option_group:boolean->category[7]
   entity_nm:
+    x_petey_id: '1_6'
     type: string
     semantic_type: entity_name
     widget:
@@ -81,6 +165,7 @@ fields:
       widget_type: text
       path: insurance_id
   description_1_txt:
+    x_petey_id: '1_7'
     type: string
     semantic_type: description
     widget:
@@ -93,9 +178,8 @@ fields:
       widget_type: text
       path: pt_name
   date_acquired_1_mo:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    x_petey_id: '1_8'
+    type: string
     widget:
       page: 1
       rect:
@@ -105,10 +189,13 @@ fields:
       - 143.21197509765625
       widget_type: text
       path: birth_mm
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=2,width=16
   date_acquired_1_dy:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    x_petey_id: '1_9'
+    type: string
     widget:
       page: 1
       rect:
@@ -118,10 +205,13 @@ fields:
       - 143.21197509765625
       widget_type: text
       path: birth_dd
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=2,width=17
   date_acquired_1_yr:
-    type: date
-    semantic_type: iso_date
-    pattern: ^\d{4}-\d{2}-\d{2}$
+    x_petey_id: '1_10'
+    type: string
     widget:
       page: 1
       rect:
@@ -131,21 +221,45 @@ fields:
       - 143.21197509765625
       widget_type: text
       path: birth_yy
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - pattern_dropped
+    - narrow_widget:maxlen=0,width=27
   inherited_1_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 314.4339904785156
-      - 131.906005859375
-      - 324.552001953125
-      - 141.9420166015625
-      widget_type: checkbox
-      path: sex
+    x_petey_id: '1_11'
+    type: category
+    values:
+    - M
+    - F
+    widgets:
+      M:
+        page: 1
+        rect:
+        - 314.4339904785156
+        - 131.906005859375
+        - 324.552001953125
+        - 141.9420166015625
+        widget_type: checkbox
+        path: sex
+        on_state: M
+        caption: M
+      F:
+        page: 1
+        rect:
+        - 350.28399658203125
+        - 131.906005859375
+        - 360.4020080566406
+        - 141.9420166015625
+        widget_type: checkbox
+        path: sex
+        on_state: F
+        caption: F
+    x_petey_retype:
+    - option_group:boolean->category[2]
   gross_proceeds_1_amt:
+    x_petey_id: '1_12'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -155,7 +269,10 @@ fields:
       - 142.21197509765625
       widget_type: text
       path: ins_name
+    x_petey_retype:
+    - money
   description_2_txt:
+    x_petey_id: '1_13'
     type: string
     semantic_type: description
     widget:
@@ -168,20 +285,64 @@ fields:
       widget_type: text
       path: pt_street
   inherited_2_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 249.91099548339844
-      - 156.5059814453125
-      - 260.02099609375
-      - 166.614990234375
-      widget_type: checkbox
-      path: rel_to_ins
+    x_petey_id: '1_15'
+    type: category
+    values:
+    - S
+    - M
+    - C
+    - O
+    widgets:
+      S:
+        page: 1
+        rect:
+        - 249.91099548339844
+        - 156.5059814453125
+        - 260.02099609375
+        - 166.614990234375
+        widget_type: checkbox
+        path: rel_to_ins
+        on_state: S
+        caption: S
+      M:
+        page: 1
+        rect:
+        - 286.0260009765625
+        - 156.541015625
+        - 296.135986328125
+        - 166.64898681640625
+        widget_type: checkbox
+        path: rel_to_ins
+        on_state: M
+        caption: M
+      C:
+        page: 1
+        rect:
+        - 314.49798583984375
+        - 156.7030029296875
+        - 324.6080017089844
+        - 166.81298828125
+        widget_type: checkbox
+        path: rel_to_ins
+        on_state: C
+        caption: C
+      O:
+        page: 1
+        rect:
+        - 350.7030029296875
+        - 156.09100341796875
+        - 360.81201171875
+        - 166.197998046875
+        widget_type: checkbox
+        path: rel_to_ins
+        on_state: O
+        caption: O
+    x_petey_retype:
+    - option_group:boolean->category[4]
   gross_proceeds_2_amt:
+    x_petey_id: '1_14'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -191,7 +352,10 @@ fields:
       - 164.31097412109375
       widget_type: text
       path: ins_street
+    x_petey_retype:
+    - money
   description_3_txt:
+    x_petey_id: '1_16'
     type: string
     semantic_type: description
     widget:
@@ -204,8 +368,9 @@ fields:
       widget_type: text
       path: pt_city
   gross_proceeds_3_amt:
+    x_petey_id: '1_17'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -215,7 +380,10 @@ fields:
       - 189.21197509765625
       widget_type: text
       path: ins_city
+    x_petey_retype:
+    - money
   city_nm:
+    x_petey_id: '1_18'
     type: string
     semantic_type: city
     widget:
@@ -228,6 +396,7 @@ fields:
       widget_type: text
       path: pt_zip
   state_abbreviation_cd:
+    x_petey_id: '1_19'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -241,6 +410,7 @@ fields:
       widget_type: text
       path: pt_AreaCode
   zip_cd:
+    x_petey_id: '1_20'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -254,6 +424,7 @@ fields:
       widget_type: text
       path: pt_phone
   description_4_txt:
+    x_petey_id: '1_21'
     type: string
     semantic_type: description
     widget:
@@ -266,8 +437,9 @@ fields:
       widget_type: text
       path: other_ins_name
   gross_proceeds_4_amt:
+    x_petey_id: '1_22'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -277,7 +449,10 @@ fields:
       - 238.083984375
       widget_type: text
       path: ins_policy
+    x_petey_retype:
+    - money
   description_5_txt:
+    x_petey_id: '1_23'
     type: string
     semantic_type: description
     widget:
@@ -290,18 +465,38 @@ fields:
       widget_type: text
       path: other_ins_policy
   inherited_5_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 264.1199951171875
-      - 252.39599609375
-      - 274.2300109863281
-      - 262.5040283203125
-      widget_type: checkbox
-      path: employment
+    x_petey_id: '1_24'
+    type: category
+    values:
+    - 'YES'
+    - 'NO'
+    widgets:
+      'YES':
+        page: 1
+        rect:
+        - 264.1199951171875
+        - 252.39599609375
+        - 274.2300109863281
+        - 262.5040283203125
+        widget_type: checkbox
+        path: employment
+        on_state: 'YES'
+        caption: 'Yes'
+      'NO':
+        page: 1
+        rect:
+        - 307.97100830078125
+        - 252.7540283203125
+        - 318.08099365234375
+        - 262.86199951171875
+        widget_type: checkbox
+        path: employment
+        on_state: 'NO'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   description_6_txt:
+    x_petey_id: '1_25'
     type: string
     semantic_type: description
     widget:
@@ -314,30 +509,69 @@ fields:
       widget_type: text
       path: '40'
   inherited_6_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 264.8800048828125
-      - 276.322021484375
-      - 274.989990234375
-      - 286.42999267578125
-      widget_type: checkbox
-      path: pt_auto_accident
+    x_petey_id: '1_26'
+    type: category
+    values:
+    - 'YES'
+    - 'NO'
+    widgets:
+      'YES':
+        page: 1
+        rect:
+        - 264.8800048828125
+        - 276.322021484375
+        - 274.989990234375
+        - 286.42999267578125
+        widget_type: checkbox
+        path: pt_auto_accident
+        on_state: 'YES'
+        caption: 'Yes'
+      'NO':
+        page: 1
+        rect:
+        - 308.7309875488281
+        - 276.677978515625
+        - 318.84100341796875
+        - 286.7879943847656
+        widget_type: checkbox
+        path: pt_auto_accident
+        on_state: 'NO'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   inherited_7_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 264.36700439453125
-      - 299.55499267578125
-      - 274.47698974609375
-      - 309.6629943847656
-      widget_type: checkbox
-      path: other_accident
+    x_petey_id: '1_28'
+    type: category
+    values:
+    - 'YES'
+    - 'NO'
+    widgets:
+      'YES':
+        page: 1
+        rect:
+        - 264.36700439453125
+        - 299.55499267578125
+        - 274.47698974609375
+        - 309.6629943847656
+        widget_type: checkbox
+        path: other_accident
+        on_state: 'YES'
+        caption: 'Yes'
+      'NO':
+        page: 1
+        rect:
+        - 308.2179870605469
+        - 299.9129943847656
+        - 318.3280029296875
+        - 310.02099609375
+        widget_type: checkbox
+        path: other_accident
+        on_state: 'NO'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   description_7_txt:
+    x_petey_id: '1_27'
     type: string
     semantic_type: description
     widget:
@@ -350,8 +584,9 @@ fields:
       widget_type: text
       path: '41'
   gross_proceeds_7_amt:
+    x_petey_id: '1_29'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -361,7 +596,10 @@ fields:
       - 310.2120056152344
       widget_type: text
       path: ins_plan_name
+    x_petey_retype:
+    - money
   description_8_txt:
+    x_petey_id: '1_30'
     type: string
     semantic_type: description
     widget:
@@ -374,6 +612,7 @@ fields:
       widget_type: text
       path: other_ins_plan_name
   payee_nm:
+    x_petey_id: '1_32'
     type: string
     semantic_type: person_name
     widget:
@@ -386,6 +625,7 @@ fields:
       widget_type: text
       path: pt_signature
   account_number_txt:
+    x_petey_id: '1_33'
     type: string
     semantic_type: account_number
     pattern: ^\d{8,17}$
@@ -399,8 +639,9 @@ fields:
       widget_type: text
       path: pt_date
   interest_amt:
+    x_petey_id: '1_34'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -410,31 +651,72 @@ fields:
       - 379.2120056152344
       widget_type: text
       path: ins_signature
+    x_petey_retype:
+    - money
   foreign_acct_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 386.1579895019531
-      - 324.375
-      - 396.26800537109375
-      - 334.4010009765625
-      widget_type: checkbox
-      path: ins_benefit_plan
+    x_petey_id: '1_31'
+    type: category
+    values:
+    - 'YES'
+    - 'NO'
+    widgets:
+      'YES':
+        page: 1
+        rect:
+        - 386.1579895019531
+        - 324.375
+        - 396.26800537109375
+        - 334.4010009765625
+        widget_type: checkbox
+        path: ins_benefit_plan
+        on_state: 'YES'
+        caption: 'Yes'
+      'NO':
+        page: 1
+        rect:
+        - 422.4849853515625
+        - 324.6210021972656
+        - 432.593994140625
+        - 334.6470031738281
+        widget_type: checkbox
+        path: ins_benefit_plan
+        on_state: 'NO'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   foreign_acct_ind_2:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 387.1400146484375
-      - 444.489013671875
-      - 397.260986328125
-      - 454.50299072265625
-      widget_type: checkbox
-      path: lab
+    x_petey_id: '1_36'
+    type: category
+    values:
+    - 'YES'
+    - 'NO'
+    widgets:
+      'YES':
+        page: 1
+        rect:
+        - 387.1400146484375
+        - 444.489013671875
+        - 397.260986328125
+        - 454.50299072265625
+        widget_type: checkbox
+        path: lab
+        on_state: 'YES'
+        caption: 'Yes'
+      'NO':
+        page: 1
+        rect:
+        - 423.385009765625
+        - 444.3659973144531
+        - 433.4649963378906
+        - 454.3389892578125
+        widget_type: checkbox
+        path: lab
+        on_state: 'NO'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   foreign_country_nm:
+    x_petey_id: '1_35'
     type: string
     semantic_type: country
     widget:
@@ -447,6 +729,7 @@ fields:
       widget_type: text
       path: charge
   payer_nm_1_txt:
+    x_petey_id: '1_37'
     type: string
     semantic_type: business_name
     widget:
@@ -459,8 +742,9 @@ fields:
       widget_type: text
       path: Suppl
   ordinary_dividends_1_amt:
+    x_petey_id: '1_38'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -470,7 +754,10 @@ fields:
       - 539.22998046875
       widget_type: text
       path: local1a
+    x_petey_retype:
+    - money
   payer_nm_2_txt:
+    x_petey_id: '1_39'
     type: string
     semantic_type: business_name
     widget:
@@ -483,8 +770,9 @@ fields:
       widget_type: text
       path: Suppla
   ordinary_dividends_2_amt:
+    x_petey_id: '1_40'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -494,7 +782,10 @@ fields:
       - 563.1309814453125
       widget_type: text
       path: local2a
+    x_petey_retype:
+    - money
   payer_nm_3_txt:
+    x_petey_id: '1_41'
     type: string
     semantic_type: business_name
     widget:
@@ -507,8 +798,9 @@ fields:
       widget_type: text
       path: Supplb
   ordinary_dividends_3_amt:
+    x_petey_id: '1_42'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -518,7 +810,10 @@ fields:
       - 587.4580078125
       widget_type: text
       path: local3a
+    x_petey_retype:
+    - money
   payer_nm_4_txt:
+    x_petey_id: '1_43'
     type: string
     semantic_type: business_name
     widget:
@@ -531,8 +826,9 @@ fields:
       widget_type: text
       path: Supplc
   ordinary_dividends_4_amt:
+    x_petey_id: '1_44'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -542,7 +838,10 @@ fields:
       - 611.2940063476562
       widget_type: text
       path: local4a
+    x_petey_retype:
+    - money
   payer_nm_5_txt:
+    x_petey_id: '1_45'
     type: string
     semantic_type: business_name
     widget:
@@ -555,8 +854,9 @@ fields:
       widget_type: text
       path: Suppld
   ordinary_dividends_5_amt:
+    x_petey_id: '1_46'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -566,7 +866,10 @@ fields:
       - 635.4760131835938
       widget_type: text
       path: local5a
+    x_petey_retype:
+    - money
   payer_nm_6_txt:
+    x_petey_id: '1_47'
     type: string
     semantic_type: business_name
     widget:
@@ -579,8 +882,9 @@ fields:
       widget_type: text
       path: Supple
   ordinary_dividends_6_amt:
+    x_petey_id: '1_48'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: money
     widget:
       page: 1
       rect:
@@ -590,7 +894,10 @@ fields:
       - 659.0670166015625
       widget_type: text
       path: local6a
+    x_petey_retype:
+    - money
   foreign_trust_ind:
+    x_petey_id: '1_49'
     type: boolean
     semantic_type: indicator
     widget:
@@ -602,7 +909,12 @@ fields:
       - 681.5250244140625
       widget_type: checkbox
       path: '276'
+    description: On/Off Total
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   grantor_nm:
+    x_petey_id: '1_50'
     type: string
     semantic_type: person_name
     widget:
@@ -615,6 +927,7 @@ fields:
       widget_type: text
       path: tax_id
   grantor_address_txt:
+    x_petey_id: '1_51'
     type: string
     semantic_type: text
     widget:
@@ -627,30 +940,69 @@ fields:
       widget_type: text
       path: pt_account
   yes_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 136.2169952392578
-      - 683.9920043945312
-      - 146.3459930419922
-      - 694.1204833984375
-      widget_type: checkbox
-      path: ssn
+    x_petey_id: '1_52'
+    type: category
+    values:
+    - SSN
+    - EIN
+    widgets:
+      SSN:
+        page: 1
+        rect:
+        - 136.2169952392578
+        - 683.9920043945312
+        - 146.3459930419922
+        - 694.1204833984375
+        widget_type: checkbox
+        path: ssn
+        on_state: SSN
+        caption: SSN
+      EIN:
+        page: 1
+        rect:
+        - 150.1580047607422
+        - 684.2789916992188
+        - 160.28700256347656
+        - 694.3796997070312
+        widget_type: checkbox
+        path: ssn
+        on_state: EIN
+        caption: EIN
+    x_petey_retype:
+    - option_group:boolean->category[2]
   no_ind:
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 287.1029968261719
-      - 684.4320068359375
-      - 297.21099853515625
-      - 694.5291137695312
-      widget_type: checkbox
-      path: assignment
+    x_petey_id: '1_53'
+    type: category
+    values:
+    - 'YES'
+    - 'NO'
+    widgets:
+      'YES':
+        page: 1
+        rect:
+        - 287.1029968261719
+        - 684.4320068359375
+        - 297.21099853515625
+        - 694.5291137695312
+        widget_type: checkbox
+        path: assignment
+        on_state: 'YES'
+        caption: 'Yes'
+      'NO':
+        page: 1
+        rect:
+        - 322.7900085449219
+        - 684.5239868164062
+        - 332.9410095214844
+        - 694.638427734375
+        widget_type: checkbox
+        path: assignment
+        on_state: 'NO'
+        caption: 'No'
+    x_petey_retype:
+    - option_group:boolean->category[2]
   grantor_ein:
+    x_petey_id: '1_54'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$

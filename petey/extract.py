@@ -10,6 +10,12 @@ Dispatches per-field across three strategies, in order:
    (flattened AcroForm, print-to-PDF, or OCR-underlaid scan), clip the
    page text to the field's rect. No AcroForm needed, no OCR.
 
+2b. **Ink** — an option box on a blueprint with no form layer (a flat
+   form, widget `path: null`): the box's rect rendered from the filled
+   page against the same rect on the blank; added ink is a mark
+   (`petey.validate.ink`, the detector the judge's `[x]` tokens use).
+   A drawn X or check is not text, so text_clip cannot see it. Needs
+   the blank, resolved from the blueprint's `source_pdf`.
 3. **Zonal OCR** — if the field's rect has no embedded text (pure image
    scan), rasterize the widget rect at 300 DPI and run Tesseract on
    the crop via `tesserocr` (C-API bindings, no subprocess overhead).
@@ -47,6 +53,8 @@ except ImportError:
 
 
 TRUTHY_CHECKBOX = {"yes", "on", "true", "/yes", "1"}
+FALSY_ANSWER = {"n", "no", "false", "0", "off", "/off"}     # an explicit negative typed into a yes/no text box
+TRUTHY_CHECKBOX |= {"y"}
 
 # Characters that plausibly represent a check-mark when Tesseract OCRs a
 # filled checkbox/radio widget. Whitelist approach: anything outside this
@@ -102,6 +110,26 @@ def _tessdata_path() -> Optional[str]:
         if p.exists() and (p / "eng.traineddata").exists():
             return c
     return None
+
+
+def _selected_states(doc, widget: dict) -> Optional[set[str]]:
+    """On-states currently selected on the field at `widget["path"]`, read
+    from every widget of that field on the page (each kid reports its own
+    state; the selected kid reports its on-state, the others `Off`).
+    None when the path is not in the AcroForm layer."""
+    page_no = int(widget.get("page", 1)) - 1
+    if page_no < 0 or page_no >= len(doc):
+        return None
+    matches = [pw for pw in doc[page_no].widgets()
+               if pw.field_name == widget.get("path")]
+    if not matches:
+        return None
+    out: set[str] = set()
+    for pw in matches:
+        v = _unescape_pdf_name(pw.field_value)
+        if v not in (None, "", "Off"):
+            out.add(str(v))
+    return out
 
 
 def _coerce_checkbox(v: Any) -> bool:
@@ -183,6 +211,9 @@ def _looks_like_label(line: str, hint: set[str]) -> bool:
     return hits / len(toks) >= 0.5
 
 
+_RULE_RUN_RE = re.compile(r"_{3,}|\.{4,}|-{4,}")
+
+
 def _clean_text_clip(txt: str, label_hint: Optional[set] = None) -> str:
     """Filter text_clip's raw output for common capture artifacts.
 
@@ -203,9 +234,17 @@ def _clean_text_clip(txt: str, label_hint: Optional[set] = None) -> str:
     filtered, return the original stripped text. Downstream numeric
     coercion still has _parse_leading_number as a fallback.
     """
-    lines = [ln.strip() for ln in txt.split("\n") if ln.strip()]
+    # Printed underlines and dot leaders are text on many flat forms (`_____`,
+    # `.....`): the line a filer writes on, never the value. Dropped first, so a
+    # box that holds only its underline reads as empty (TX RRC EP-3, 2026-10-05).
+    txt = _RULE_RUN_RE.sub(" ", txt)
+    # a caption's trailing colon or separator bar clipped with the value (ACORD 25's "INSURER A :" rows)
+    lines = [ln.strip().strip(":;|").strip() for ln in txt.split("\n")]
+    lines = [ln for ln in lines if ln]
+    if not lines:
+        return ""
     if len(lines) <= 1:
-        return txt
+        return lines[0]
 
     # A widget rect frequently encloses its own printed caption, so the clip
     # returns `'City\nWilliston'` or `'Zip Code\n58801'`. The rules below
@@ -326,6 +365,7 @@ def _parse_leading_number(s: str) -> Optional[float]:
 def _coerce_typed(
     raw: Any, type_hint: str,
     allowed_values: Optional[list] = None,
+    widget_type: Optional[str] = None,
 ) -> Any:
     """Best-effort coerce a raw string to the declared bpt type.
 
@@ -344,6 +384,13 @@ def _coerce_typed(
     if raw is None or raw == "":
         return None
     if type_hint == "boolean":
+        # A yes/no answer typed into a text box (ACORD's Y / N columns): an explicit negative is False. Without this,
+        # "N" fell through to the radio-button rule (any other export value is a selection) and read as True
+        # (2026-10-07). Text boxes only: on a checkbox the value is its export value, and a ticked "No" box
+        # (`..._no_ind`) stores "No" and is selected.
+        if (widget_type not in ("checkbox", "radiobutton") and isinstance(raw, str)
+                and raw.strip().lower() in FALSY_ANSWER):
+            return False
         return _coerce_checkbox(raw)
     if type_hint == "integer":
         s = str(raw).replace(",", "").strip()
@@ -482,9 +529,56 @@ def _extract_widget(
     return (text or None, "ocr")
 
 
-def extract(blueprint: dict, pdf_path: Path) -> dict:
-    """Extract every field from the input PDF using the blueprint."""
+def _resolve_blank(blueprint: dict) -> Optional[Path]:
+    try:
+        from petey.validate.retype import resolve_blank      # imported here: retype imports the labeler
+        return resolve_blank(blueprint)
+    except Exception:
+        return None
+
+
+def _flat_option_blocks(blueprint: dict) -> bool:
+    """Does any option box of this blueprint lack a widget path (a flat blueprint)? Marks there are ink."""
+    for field in blueprint.get("fields", {}).values():
+        if not isinstance(field, dict):
+            continue
+        for wb in (field.get("widgets") or {}).values():
+            if isinstance(wb, dict) and not wb.get("path"):
+                return True
+        w = field.get("widget")
+        if isinstance(w, dict) and not w.get("path") and (
+                field.get("type") == "boolean" or w.get("widget_type") in ("checkbox", "radiobutton")):
+            return True
+    return False
+
+
+def _ink_marked(doc, blank_doc, widget: dict) -> Optional[bool]:
+    """Path 2b: is there added ink in this box, against the blank? None when the blank cannot be compared."""
+    if blank_doc is None:
+        return None
+    page_no = int(widget.get("page", 0)) - 1
+    if page_no < 0 or page_no >= len(doc) or page_no >= len(blank_doc) or not widget.get("rect"):
+        return None
+    from petey.validate.ink import is_marked
+    try:
+        return bool(is_marked(doc[page_no], blank_doc[page_no], widget["rect"]))
+    except Exception:
+        return None
+
+
+def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -> dict:
+    """Extract every field from the input PDF using the blueprint.
+
+    `blank_pdf`: the blank the blueprint describes, for the ink read of
+    option boxes that have no widget path (a flat blueprint). Resolved
+    from the blueprint's `source_pdf` when not given; without a blank such
+    boxes fall through to text_clip and OCR as before."""
     doc = pymupdf.open(str(pdf_path))
+    blank_doc = None
+    if _flat_option_blocks(blueprint):
+        bp_blank = Path(blank_pdf) if blank_pdf else _resolve_blank(blueprint)
+        if bp_blank is not None and Path(bp_blank).exists():
+            blank_doc = pymupdf.open(str(bp_blank))
 
     tessdata = _tessdata_path() if _TESSEROCR_OK else None
     ocr_api = None
@@ -496,7 +590,7 @@ def extract(blueprint: dict, pdf_path: Path) -> dict:
     values: dict[str, Any] = {}
     path_counts = {
         "acroform": 0, "acroform_empty": 0,
-        "text_clip": 0, "ocr": 0, "missing": 0,
+        "text_clip": 0, "ink": 0, "ocr": 0, "missing": 0,
     }
     # Per-field dispatch record — for scalar fields it's a single path
     # string; for mutex (`widgets:`) fields it's `{value: path}`. Lets the
@@ -514,6 +608,26 @@ def extract(blueprint: dict, pdf_path: Path) -> dict:
                 selected: list[str] = []
                 per_value_dispatch: dict[str, str] = {}
                 for value, w_block in field["widgets"].items():
+                    if w_block.get("on_state"):
+                        # Option of a group: selected when the field at
+                        # this path holds THIS option's on-state. Radio
+                        # options share one path and differ only by
+                        # on-state, so "is the path checked" would select
+                        # every option at once.
+                        states = _selected_states(doc, w_block)
+                        path_counts["acroform" if states is not None else "acroform_empty"] += 1
+                        per_value_dispatch[value] = "acroform"
+                        if states and w_block["on_state"] in states:
+                            selected.append(value)
+                        continue
+                    if not w_block.get("path") and blank_doc is not None:
+                        marked = _ink_marked(doc, blank_doc, w_block)
+                        if marked is not None:
+                            path_counts["ink"] += 1
+                            per_value_dispatch[value] = "ink"
+                            if marked:
+                                selected.append(value)
+                            continue
                     raw, path = _extract_widget(
                         doc, w_block,
                         ocr_api=ocr_api,
@@ -538,6 +652,14 @@ def extract(blueprint: dict, pdf_path: Path) -> dict:
                 dispatch_per_field[field_name] = "no_widget"
                 continue
 
+            if (not w_block.get("path") and blank_doc is not None
+                    and (field.get("type") == "boolean" or w_block.get("widget_type") in ("checkbox", "radiobutton"))):
+                marked = _ink_marked(doc, blank_doc, w_block)
+                if marked is not None:
+                    path_counts["ink"] += 1
+                    dispatch_per_field[field_name] = "ink"
+                    values[field_name] = marked
+                    continue
             whitelist = ocr_whitelist_for(field.get("semantic_type"))
             raw, path = _extract_widget(
                 doc, w_block,
@@ -552,11 +674,14 @@ def extract(blueprint: dict, pdf_path: Path) -> dict:
             values[field_name] = _coerce_typed(
                 raw, field.get("type", "string"),
                 allowed_values=field.get("values"),
+                widget_type=w_block.get("widget_type"),
             )
     finally:
         if ocr_api is not None:
             ocr_api.End()
         doc.close()
+        if blank_doc is not None:
+            blank_doc.close()
 
     values["_meta"] = {
         "dispatch_counts": path_counts,
@@ -594,7 +719,7 @@ def main() -> int:
     print(
         f"  dispatch: acroform={d['acroform']} "
         f"acroform_empty={d['acroform_empty']} "
-        f"text_clip={d['text_clip']} ocr={d['ocr']} "
+        f"text_clip={d['text_clip']} ink={d.get('ink', 0)} ocr={d['ocr']} "
         f"missing={d['missing']}"
     )
 
