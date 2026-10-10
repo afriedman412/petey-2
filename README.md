@@ -16,17 +16,21 @@ blank form ──► label ──► check & repair ──► review ──► b
 
 1. **Locate** the fields (`petey/locate/`): from the AcroForm widgets on a fillable form, from a fillable twin of
    the same form, or from the page itself on a flat form (`step2flat/`, below).
+
 2. **Label** (`petey/label/auto_label.py`): a model names and types every field from the text around it. Declared
    publisher data comes first: XFA captions, pictures and choice lists (`label/xfa.py`), tooltips, dropdown
    lists. Option groups (radio buttons, checkbox sets) become one field with a caption per option.
+
 3. **Check and repair** (`petey/validate/`): the loop fills the blank with synthetic values, extracts them, scores
    the result, applies rule fixes, sends the rest to an LLM reviewer and an adjudicator, and repeats until stable
    (`form_run.py`, `iterate.py`). Independent **witnesses** (`witness.py`) say whether each field's name is
    supported: the publisher's tooltip, the printed text at the box, a vision classifier, the read-back, and a
    whole-page vision check (`page_check.py`).
+
 4. **Review** (`blueprint_review.py`): a web page that draws every field on the page, sorts fields by how
    contested they are, and takes accept / flag / edit, regrouping of options, and adding or removing fields.
    Suggested fixes (a caption, a type, a pattern) apply with one click.
+
 5. **Extract** (`petey/extract.py`): per field, the AcroForm value if the form layer survives, else the text
    clipped to the field's box, else ink in an option box, else zonal OCR (Tesseract).
 
@@ -38,6 +42,7 @@ Two checks catch the most common blueprint errors, names slid one box over and c
   (a swap, a one-row slip), or does not describe its name at all. Only near fields in the same section count,
   texts several fields share are ignored, and a flag counts only when the tooltip agrees with the text printed at
   the box. Word overlap and a local model (`label/text_match.py`) both judge; either one's flag counts.
+
 - **Captions** (`label/caption_choice.py`): for each checkbox or radio option, the text printed around its box is
   scored against what the option means, and the best caption is offered on the review page. Captions the XFA
   declares or a person wrote are never replaced.
@@ -107,13 +112,20 @@ python eval/evaluate.py path/to/fillable_pdfs --tag mybatch
 - `petey/`: the package. `extract.py` (extraction), `label/` (labeler, XFA, captions, text-match model),
   `locate/` (field geometry), `synth/` (synthetic cases: page classifier, value bank, filling), `validate/`
   (the loop, witnesses, checks, review pages).
+
 - `blueprints/`: the library (153 blueprints). Fresh runs land in `runs/judge_eval/blueprints/` until promoted.
+
 - `registry/`: form identity (issuer, form number, edition); `canonical_lookups/`: IRS MeF field names.
+
 - `step2flat/`, `harness/`: the flat-form reader and its scoring harness.
+
 - `eval/`: measurements, each a script with its result in `docs/RESULTS.md`.
+
 - `scripts/`: running forms (`run_form.sh`), the GCP runner, syncing blanks and review records.
+
 - `docs/`: start with `GLOSSARY.md` (the project's vocabulary), then the latest `HANDOFF_*.md`, `TODO.md`,
   `STRATEGY_v1.md` and `RESULTS.md`.
+
 - Not in git: `runs/` (results, caches, hand-review records; the review records are backed up on the
   `review-records` branch), `source_pdfs/` (the blanks; `scripts/fetch_blanks.sh`), `models/`.
 
