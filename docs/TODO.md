@@ -3,6 +3,42 @@
 Edited in place; the history is `git log --follow -- docs/TODO.md`. Priorities are Andrew's; the ordering is a
 proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`; terms: `docs/GLOSSARY.md`.
 
+## Open after the name and caption work (2026-10-10)
+
+Built and on `main` (PR #3): honed 'belongs to', the text-match model, the printed-text gate, the caption chooser.
+Numbers: RESULTS "Name checks, the text-match model and the caption chooser". Handoff: `docs/HANDOFF_2026-10-10.md`.
+
+1. **Caption suggestions, then automatic (Andrew).** Andrew uses or skips the chooser's suggestions on the review
+   page; if they come back clean, apply them automatically where the model and Jev pick the same caption
+   (93.9% right when they agree). Same gate for automatic name fixes later.
+2. **Corrections list** (found this session, not yet applied to the library): ACORD 125 attachment block slid one
+   box (13 of 14 confirmed by the page), the I-130 swaps (9, flagged by Andrew), lib__acord25's shifted producer /
+   insured / certificate-holder block (9; `runs/relabel/blueprints/acord25_relabel.bpt` is correct), 1014r
+   `city_nm`, 5500-SF `sponsor_zip_cd`, f5500sf day / month.
+3. **Which copy wins** when a form exists as `lib__` and `je__` (or a relabel): the promotion rule. Parked by
+   Andrew until after the model work, which is now done.
+4. **Money vs `money_whole_dollar` (pinned, Andrew).** `money_retype.keep_reason`'s page rule is wrong both ways:
+   a form-wide header does not reach pages that do not repeat it (Schedule H x3 p3-4, il1040 p2, it201 p3-4) and a
+   one-line instruction makes a whole page whole-dollar (irs_8962 p1, 90 fields; ga500 p3; va760 p2; ca540 p1 / p5).
+   Proposal: a general statement -> whole form; an instruction on a field's line -> that field; '.00' printed after
+   a box -> that box. Cents-box mixes (IRS 94x, ACORD) are right.
+5. **Demote the classifier's 'class contradicts type'** to a hint: 2 flagged of 63 looked-at. Its 'caption shares
+   no words with the name' half is a good signal (6 flagged of 19).
+6. **Group names from their members** (Andrew): Schedule H `opinion` / `no_opinion` / `line4b_yes_no`, ACORD 125
+   `additional_interest_1` / `_1_2` need descriptive names; derive from the members' common part or the question.
+7. **Re-save ca_courts_dv_110 / dv_130 grouping** in Groups (records written against an older blueprint), then
+   apply.
+8. **Shared-prefix trimming** between a field and its rivals (Andrew's idea): judge 'belongs to' on the part of
+   the tooltip that differs, so a long shared preamble does not drown 'Hazel' vs 'Green'. Not built.
+9. **Model weak spots**: insurance paraphrase, rows differing by a number, abbreviations it was never shown
+   (faa8710 `tol`). Next training data: the review corrections as they come in.
+10. **Speed**: the witness with the model scores in small batches (~5.5 s per hand-review record, 24 min for the
+    fixture); batch per form before any library-wide run.
+11. **The runner and fresh clones** have no `models/text_match/` (gitignored): copy it or retrain
+    (`eval/text_match_train.py`) before a runner batch, or runs there use the rules alone.
+12. **Housekeeping**: remove the `../petey-2-belongs` worktree and its 5006 review page once nothing needs them;
+    the training venv is `~/Documents/code/.venvs/petey-train`.
+
 ## Handoff: the two items, where they stand (2026-10-01, evening)
 
 Numbers and the full reading: RESULTS "The rename adjudicator, and the box stage measured". Direction from Andrew

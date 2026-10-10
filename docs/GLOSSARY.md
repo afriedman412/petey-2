@@ -137,6 +137,24 @@ module, the module is given. Older documents use some of these loosely; this pag
   judge (read back by name), structure (option grouping), adjudicator, page check (accepted / flagged). **Tier**: `contested` (any against),
   `settled` (two or more for, none against), `single`, `unknown`; the hand-review page sorts by it and can accept
   the settled fields in bulk. No API calls.
+- **Rival** (`witness.Names.rivals`, 2026-10-09): a field a swap or a one-row slip could involve: same page,
+  within an inch of the box, same XFA subform, no heavier-than-usual rule line between. "Belongs to another
+  field" only ever names a rival.
+- **Belongs to / does not describe**: the two ways a text witness turns against a name. *Belongs to*: the text
+  fits a rival clearly better than this field (and better than the rival's own text). *Does not describe*: the
+  text-match model gives P < 0.01 that the text describes the name. A text several fields carry word for word
+  is never used to flag (it cannot tell them apart).
+- **Printed-text gate** (`witness.printed_agrees`, Andrew 2026-10-09): a publisher flag counts (contests the
+  field) only when the tooltip shares two thirds of its words with a line printed at the box; otherwise it is
+  *unconfirmed*, a hint, and the loop's reviewer never gets it.
+- **Text-match model** (`petey/label/text_match.py`): a local cross-encoder (MiniLM-L6, fine-tuned, ONNX) that
+  scores whether a text describes a field, 0 to 1. Weights in `models/text_match/` (gitignored);
+  `PETEY_TEXT_MATCH=0` turns it off and the witness falls back to word overlap.
+- **Caption chooser** (`petey/label/caption_choice.py`): picks an option's printed caption from the text around
+  its box with the text-match model; its proposals are review-page suggestions. Never replaces an XFA or hand
+  caption.
+- **Jev** (TypeSafe System One, API): a calibrated yes/no model used as an independent second opinion
+  (`eval/jev_hand_check.py`, `eval/text_match_eval.py`).
 
 - **Flat calibration** (`eval/flat_calibration.py`): the whole flat path run on a form whose truth is known (a
   test form baked flat, or a true flat copy with a fillable twin) and compared with the widget layer (structure)

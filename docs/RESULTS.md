@@ -1582,3 +1582,59 @@ What this says about a real flat form: structure is the risk, not meaning. On th
 of text widgets at the right size and 99% of option boxes, and proposes a fifth more rects than the form has
 fields. A real flat form inherits that, and nothing in the loop can see it; the twins table's weak forms (p_15:
 3 of 15) are where it bites. The next steps are in TODO under "Flat forms through the loop".
+
+## Name checks, the text-match model and the caption chooser (2026-10-09/10; `witness.py`, `label/text_match.py`, `label/caption_choice.py`)
+
+**Fixture.** `eval/belongs_to_fixture.py`: every hand-reviewed field (3,999 on 2026-10-10), which text witnesses
+flag it, against the 21 fields Andrew flagged or corrected for their NAME (`NAME_FLAGS`: 9 I-130, 4 ACORD 125, 2
+each 5500-SF / 1014r / 5021, 1 each cms_10883 / rdt120). "Looked at" excludes bulk verdicts (`bulk: settled`,
+`auto: only the tooltip check questioned it`), which turned out to hide real errors.
+
+**"Belongs to another field", honed** (rival within an inch, same XFA subform, no heavier rule between; margin
+0.10; texts several fields carry skipped; fit both ways): firings 1,862 -> 118, looked-at false alarms 285 -> 12,
+name errors caught unchanged. Ablation (firings without the part): reach 193, margin 338, shared text 208, sections
+131, two-way fit 248. Among the bulk-accepted fields it still fired on, the page confirmed slides: ACORD 125
+attachments (13 of 14 one box off), I-130 eye colour / race / province-country (Andrew flagged all 9), f5500sf
+day / month.
+
+**Text-match model** (MiniLM-L6 cross-encoder, fine-tuned one epoch, ~13 min on the M1; 355 training forms, every
+reviewed form and a fifth of the rest held out; pairs = publisher text or readable path against the own name and
+near rivals, plus option captions). Held-out pair tests, `eval/text_match_eval.py`, Jev on a seeded sample:
+
+| | local model | Jev (jev-1.13.0) | right when both pick the same |
+|---|---|---|---|
+| names: true field over near rivals (22,428 groups) | 86.6% (tooltips 93.8%, paths 79.5%) | 87.0% | 95.4% |
+| captions: true caption over siblings and nearby lines (1,238) | 89.1% | 80.5% | 93.9% |
+
+Caption truth excludes publisher option codes that are not printed at the box (I-130 stores `Y` for Female, `HZL`
+for Hazel); with them the caption test penalised Jev for picking the printed caption. Jev cost ~$0.10 for both runs.
+Weak spots: insurance paraphrase ('name of the previous insurer' vs `prior_carrier_company_name`), rows that
+differ only by a number (q8 / q10), and text-against-text (use word overlap there).
+
+**Combined witness** (rules or model 'belongs to', model 'does not describe' below 0.01, Snowball stems,
+word-for-word shared texts, path only without a tooltip, and Andrew's printed-text gate: a publisher flag is an
+error only when the tooltip shares two thirds of its words with a line printed at the box):
+
+| | caught (of 21) | looked-at false alarms |
+|---|---|---|
+| old tooltip check (an error until 10-07) | 11 | 93 (1,667 reviewed fields flagged) |
+| honed rules | 11 | 12 |
+| rules + gate | 12 | 9 |
+| rules + model + gate | 15 | 22 |
+
+About half the 22 look like real errors with an accept verdict (lib__acord25's shifted producer / insured block,
+1014r `city_nm`, 5500-SF `sponsor_zip_cd`). Still missed: cms_10883 (no useful text), 5021 `patient_birth_dt`
+(the printed label is not next to the box), rdt120 (publisher texts disagree), ACORD 125 aircraft / boat / vehicle
+item boxes. Ignoring rival comparisons when the two tooltips are mostly the same text was measured and rejected:
+the real errors are 67-92% shared with their rival (templated neighbours), so a 70% cutoff loses 10 of 13 for 2
+fewer false alarms. All cutoffs were set on these 21 errors; the next reviews are the test.
+
+**Caption chooser** (`eval/caption_choice_eval.py`): candidates are the text printed around the box plus the part
+of the tooltip the siblings do not share; the model scores them against the option's meaning; captions unique per
+group; XFA and hand captions never replaced; a proposal needs P >= 0.6 and 0.2 over the current caption.
+Flagged groups 12/13 (*Gender / Person / Nonbinary *Race -> M / F / Nonbinary, FILING / DATE -> P / N,
+Temporary -> Amended, missing SOLID FUEL found); hand corrections 31/34 (misses: cms_10883, whose printed text is
+'n M / n F'); 499 sentence-length captions (group apply copied tooltips), a short caption proposed for 214. On
+1,256 held-out options chosen as if the caption were missing: 75% picked, 92% of picks right; of the proposals that
+change a caption the test called right, most replace a publisher code (`Y` -> Male) or a rotated set (I-129F
+APT / STE / FLR on the wrong boxes, which Andrew had corrected by hand).
