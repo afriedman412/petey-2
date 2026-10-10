@@ -9,7 +9,12 @@ group, key and own tooltip. Which fields a text is compared against (near the bo
 `witness.Names.rivals`, not here.
 
 Trained by `eval/text_match_train.py` on pairs from `eval/text_match_data.py`; weights in `models/text_match/`
-(gitignored). Without the model file every scorer returns None and callers fall back to the rules.
+(gitignored). Without a model file every scorer returns None and callers fall back to the rules.
+
+`model.int8.onnx` (dynamic int8 quantization, written by the training script) is 2.3x faster on the M1 with held-out
+top-1 86.6% -> 86.4%, but it moves scores near the witness's 'does not describe' cutoff (P < 0.01): on the name
+fixture it lost 2 of 15 real errors (1014r 'Contractor or Agent' vs `email_address_txt`: 0.0067 -> 0.0115). The
+full-precision model is the default; PETEY_TEXT_MATCH_INT8=1 picks int8 for long dev runs (the fixture: 24 -> 9 min).
 """
 from __future__ import annotations
 
@@ -22,6 +27,7 @@ from petey.paths import MODELS
 
 MODEL_DIR = MODELS / "text_match"
 MAX_LEN = 96
+_BATCH = 64
 
 # slug pieces the labeler writes, in words; the model learns the rest (street ~ address, M ~ male)
 _WORDS = {"nm": "name", "no": "number", "nbr": "number", "num": "number", "dt": "date", "amt": "amount",
@@ -87,7 +93,10 @@ def clean_text(t: Optional[str]) -> Optional[str]:
 
 @lru_cache(maxsize=1)
 def _session():
+    import os
     onnx = MODEL_DIR / "model.onnx"
+    if os.environ.get("PETEY_TEXT_MATCH_INT8") == "1" and (MODEL_DIR / "model.int8.onnx").exists():
+        onnx = MODEL_DIR / "model.int8.onnx"        # dev runs only: see the module docstring
     if not onnx.exists():
         return None
     import onnxruntime as ort
@@ -112,15 +121,16 @@ def score_pairs(pairs: list[tuple[str, str]]) -> Optional[list[float]]:
     import numpy as np
     sess, tok = s
     todo = list(dict.fromkeys(p for p in pairs if p not in _cache))     # a witness asks the same pair many times
+    todo.sort(key=lambda p: len(p[0]) + len(p[1]))       # similar lengths together: each batch pads to its longest
     names = {i.name for i in sess.get_inputs()}
-    for i in range(0, len(todo), 64):
-        enc = tok.encode_batch(todo[i:i + 64])
+    for i in range(0, len(todo), _BATCH):
+        enc = tok.encode_batch(todo[i:i + _BATCH])
         feed = {"input_ids": np.array([e.ids for e in enc], dtype=np.int64),
                 "attention_mask": np.array([e.attention_mask for e in enc], dtype=np.int64)}
         if "token_type_ids" in names:
             feed["token_type_ids"] = np.array([e.type_ids for e in enc], dtype=np.int64)
         logits = sess.run(None, feed)[0].reshape(-1)
-        _cache.update(zip(todo[i:i + 64], (1.0 / (1.0 + np.exp(-logits))).tolist()))
+        _cache.update(zip(todo[i:i + _BATCH], (1.0 / (1.0 + np.exp(-logits))).tolist()))
     return [_cache[p] for p in pairs]
 
 

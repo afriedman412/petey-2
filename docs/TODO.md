@@ -41,8 +41,11 @@ Numbers: RESULTS "Name checks, the text-match model and the caption chooser". Ha
 9. **Model weak spots**: insurance paraphrase, rows differing by a number, abbreviations it was never shown
    (faa8710 `tol`). Next training data: the review corrections as they come in.
 
-10. **Speed**: the witness with the model scores in small batches (~5.5 s per hand-review record, 24 min for the
-    fixture); batch per form before any library-wide run.
+10. **Speed (2026-10-10)**: per-form batching built (`witness.prefetch_scores`) but barely faster: the cost is per
+    pair, and dense forms with long tooltips hit the 96-token cap (I-130 4,610 pairs, ~13 s). int8 quantization is
+    2.3x faster (fixture 24 -> 9 min) but lost 2 of 15 real errors at the 'does not describe' cutoff, so it is
+    opt-in (`PETEY_TEXT_MATCH_INT8=1`) for dev runs. Open ideas: re-score with full precision only the pairs near a
+    cutoff (int8 speed, full-precision decisions); trim shared tooltip preambles (item 8) to shorten inputs.
 
 11. **The runner and fresh clones** have no `models/text_match/` (gitignored): copy it or retrain
     (`eval/text_match_train.py`) before a runner batch, or runs there use the rules alone.

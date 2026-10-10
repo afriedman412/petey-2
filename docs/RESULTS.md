@@ -1638,3 +1638,14 @@ Temporary -> Amended, missing SOLID FUEL found); hand corrections 31/34 (misses:
 1,256 held-out options chosen as if the caption were missing: 75% picked, 92% of picks right; of the proposals that
 change a caption the test called right, most replace a publisher code (`Y` -> Male) or a rotated set (I-129F
 APT / STE / FLR on the wrong boxes, which Andrew had corrected by hand).
+
+**Speed (2026-10-10).** The witness with the model: ACORD 25 5.8 s, ACORD 125 13.5 s, I-130 13.9 s per blueprint
+(rules alone 0.3 / 1.4 / 0.7 s); nearly all of it is model scoring (I-130: 4,610 pairs, nearly all at the 96-token
+cap). Scoring the form's pairs in one length-sorted pass instead of field by field (2,359 calls on ACORD 125)
+changed almost nothing; tokenizing is 1% of the time. int8 dynamic quantization: 986 vs 436 pairs/s (2.3x),
+21 MB vs 86 MB, held-out name top-1 86.6% -> 86.4%, per form 2.5 / 6.6 / 6.1 s, fixture 554 s vs ~24 min; but it
+caught 13 of 21 name errors instead of 15, both losses at the 'does not describe' cutoff (1014r 'Contractor or
+Agent' vs `email_address_txt` 0.0067 -> 0.0115; 5021 'middle initial' 0.0159 -> 0.0178 via the classifier). Captions
+unchanged (12/13, 31/34; sentence proposals 214 -> 206). Full precision stays the default; int8 is opt-in for dev
+runs.
+

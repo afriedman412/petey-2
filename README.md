@@ -89,7 +89,9 @@ PYTHONPATH=. venv/bin/python eval/text_match_data.py                      # pair
 PYTHONPATH=. venv/bin/python eval/text_match_eval.py                      # held-out forms (and Jev, if keyed)
 ```
 
-`PETEY_TEXT_MATCH=0` turns the model off.
+`PETEY_TEXT_MATCH=0` turns the model off. `PETEY_TEXT_MATCH_INT8=1` uses the int8 copy the training script also
+writes: 2.3x faster, for long dev runs, but it shifts a few decisions at the "does not describe" cutoff, so it is not
+the default.
 
 ## step2flat: fields on a flat form
 

@@ -302,6 +302,28 @@ class Names:
         return True, ""
 
 
+def prefetch_scores(fields: dict, by_witness: dict[str, "Names"]) -> int:
+    """Score every (text, name) pair the witnesses will ask about in one pass, so `_judge_model` reads them from
+    `text_match`'s cache instead of asking field by field (ACORD 125: 2,359 calls for 4,907 pairs). The same pairs
+    `_judge_model` builds: each text of a field against its own name and its rivals' (none for a shared text). Page
+    and classifier texts are only judged for text fields. Measured 2026-10-10: barely faster, since the cost is per
+    pair (dense forms with long tooltips hit the 96-token cap: I-130 4,610 pairs, ~12 s); the speed lever is the
+    int8 model (`text_match`, PETEY_TEXT_MATCH_INT8). Returns the number of pairs."""
+    pairs = []
+    for k, nm in by_witness.items():
+        for name, spec in fields.items():
+            if k != "publisher" and spec.get("widgets"):
+                continue
+            for t in nm.own_texts.get(name) or []:
+                if not t or not _toks(t):
+                    continue
+                rivals = [] if _same_text(t) in nm.shared else nm.rivals(name)
+                pairs += [(t, text_match.name_words(n)) for n in [name] + rivals]
+    pairs = list(dict.fromkeys(pairs))
+    text_match.score_pairs(pairs)
+    return len(pairs)
+
+
 _LOW = 0.01        # model: below this the text does not describe the name (0.2 flagged 286 looked-at accepts)
 _MARGIN_M = 0.3    # model: how much better another field must be described
 
@@ -902,6 +924,8 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
                      ("classifier", {n: [b["label"]] if b and b.get("label") else [] for n, b in boxes.items()})):
         by_witness[k] = Names(fields, section_ys)
         by_witness[k].set_own(texts)
+    if use_model():
+        prefetch_scores(fields, by_witness)
     out = {}
     for name, spec in fields.items():
         pv = _per_line(name, pub[name], by_witness["publisher"])
