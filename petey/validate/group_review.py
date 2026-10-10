@@ -292,7 +292,11 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                     key, block = it["field"], copy.deepcopy(src["widget"])
                     if iid in on_states:
                         block["on_state"] = on_states[iid]
-                    if src.get("description") and src.get("x_petey_description_source") in ("tooltip", "xfa"):
+                    # a short tooltip is the option's caption; a sentence ('Check the box (if applicable): Indicates
+                    # the legal entity code ... is "Corporation"') is not, and the review page's caption chooser
+                    # proposes one from the page instead (2026-10-10: 575 such captions)
+                    if src.get("description") and src.get("x_petey_description_source") in ("tooltip", "xfa") \
+                            and len(src["description"].split()) <= 8:
                         block.setdefault("caption", src["description"])
                         block.setdefault("x_petey_caption_source", src["x_petey_description_source"])
                 k, n = key, 2

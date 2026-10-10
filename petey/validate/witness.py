@@ -735,6 +735,30 @@ def stated_captions(spec: dict, reason: str) -> dict[str, dict]:
     return out
 
 
+_PAGE_CTX: dict[str, tuple] = {}
+
+
+def caption_suggestion(name: str, spec: dict, blank: Optional[Path], words: dict) -> Optional[dict]:
+    """The caption chooser's proposals for an option group, as a review-page suggestion with a fix the 'use' button
+    applies (`caption_choice.choose`: printed text around each box, judged by `text_match`; XFA and hand captions
+    are never touched). None for a text field, without the model, or when it proposes nothing."""
+    from petey.label import caption_choice
+    if not spec.get("widgets") or not blank or not blank.exists() or not use_model():
+        return None
+    key = str(blank)
+    if key not in _PAGE_CTX:
+        _PAGE_CTX.clear()                          # one blank at a time
+        _PAGE_CTX[key] = caption_choice.page_context(blank)
+    page_words, page_lines = _PAGE_CTX[key]
+    res = caption_choice.choose(name, spec, page_words, page_lines, words)
+    props = {k: r for k, r in res.items() if r["propose"]}
+    if not props:
+        return None
+    text = ", ".join(f"{(r['current'] or '(none)')[:30]!s} -> {r['best']}" for r in props.values())
+    return {"kind": "suggestion", "text": f"Captions from the page: {text}",
+            "fix": {"options": {k: {"caption": r["best"]} for k, r in props.items()}}}
+
+
 def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> list[dict]:
     """One plain sentence per reason the field is questioned, for the review page (Andrew, 2026-10-07: the
     individual checks' output is opaque). [{"kind": "error" | "suggestion", "text"}], errors first."""
@@ -912,8 +936,10 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
         ws = {k: v for k, v in ws.items() if v[0] is not None or v[1]}
         out[name] = {"tier": tier(ws), "stage": r.get("stage") if same_name else None,
                      "witnesses": {k: [v[0], v[1]] for k, v in ws.items()}}
+        cap = caption_suggestion(name, spec, blank, words)
         out[name]["why"] = sorted(explain(name, spec, ws, pc)
-                                  + [{"kind": r["grade"], "text": r["text"], "fix": r.get("fix")} for r in rules],
+                                  + [{"kind": r["grade"], "text": r["text"], "fix": r.get("fix")} for r in rules]
+                                  + ([cap] if cap else []),
                                   key=lambda x: x["kind"] != "error")
     return {"blueprint": str(bpt_path), "run": run_dir.name if run_dir else None, "fields": out}
 
