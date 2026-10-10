@@ -31,6 +31,14 @@ NAME_FLAGS = {
     ("lib__2022_rev_form_1014r", "state_abbreviation_cd"), ("lib__2022_rev_form_1014r", "email_address_txt"),
     ("je__cms_10883", "treating_dentist_phone_prefix"),
     ("je__rdt120", "partnership_partners_names_line1"),
+    # 2026-10-09 review of the honed check's firings and of lib__acord125
+    ("lib__i-130", "parent_1_country_of_birth"), ("lib__i-130", "race_native_hawaiian_pacific_islander_ind"),
+    ("lib__i-130", "race_black_or_african_american_ind"), ("lib__i-130", "eye_color_green_ind"),
+    ("lib__i-130", "eye_color_gray_ind"), ("lib__i-130", "current_marriage_country"),
+    ("lib__i-130", "current_marriage_province"), ("lib__i-130", "preparer_street_address_line_1_txt"),
+    ("lib__i-130", "preparer_city_nm"),
+    ("lib__acord125", "additional_interest_1_vehicle_txt"), ("lib__acord125", "additional_interest_1_boat_txt"),
+    ("lib__acord125", "additional_interest_1_aircraft_txt"), ("lib__acord125", "additional_interest_1_airport_txt"),
 }
 
 
