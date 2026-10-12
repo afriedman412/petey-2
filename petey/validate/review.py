@@ -47,11 +47,12 @@ import pymupdf
 import yaml
 
 from petey.label import xfa as xfa_mod
+from petey.models import model_for
 from petey.paths import BLUEPRINTS, RUNS
 from petey.synth.local import widget_limits
 from petey.validate.retype import resolve_blank
 
-DEFAULT_MODEL = "claude-opus-5"
+DEFAULT_MODEL = model_for("reviewer")
 PRICES = {  # $ per million tokens, input / output (list price, 2026-06)
     "claude-opus-5": (5.0, 25.0), "claude-opus-4-8": (5.0, 25.0),
     "claude-sonnet-5": (2.0, 10.0), "claude-sonnet-4-6": (3.0, 15.0),
@@ -401,7 +402,10 @@ def build_evidence(bp: dict, blank: Path, flags: dict[str, list[dict]], scope: s
 
 # ------------------------------------------------------------------- model
 
-def _client():
+def _client(model: str = DEFAULT_MODEL):
+    from petey.synth.generate import make_client, provider_for
+    if provider_for(model) is not None:                 # Gemini, a local model (petey/models.py)
+        return make_client(model)
     try:
         from dotenv import find_dotenv, load_dotenv
         load_dotenv(find_dotenv(usecwd=True))
@@ -415,6 +419,15 @@ def ask(client, model: str, effort: str, form_title: str, fields: list[dict]) ->
     user = (f"Form: {form_title}\n\nFlagged fields ({len(fields)}), one JSON object each:\n"
             + "\n".join(json.dumps(f, ensure_ascii=False) for f in fields)
             + "\n\nReturn one decision per field.")
+    from petey.synth.generate import chat_compat, provider_for
+    if provider_for(model) is not None:
+        text, stop, usage = chat_compat(client, model, system=SYSTEM, content=user, max_tokens=64000,
+                                        schema=DECISION_SCHEMA)
+        try:
+            return json.loads(text).get("decisions", []), usage
+        except json.JSONDecodeError:
+            usage["parse_error"] = f"{stop}: {text[:120]}"     # truncated: the caller splits the chunk
+            return [], usage
     output_config: dict[str, Any] = {"format": {"type": "json_schema", "schema": DECISION_SCHEMA}}
     if not re.search(r"-(4-[0-5]|3-\d)", model):
         output_config["effort"] = effort   # Haiku 4.5 and older reject `effort`
@@ -570,7 +583,7 @@ def review(form: str, *, run_dir: Optional[Path] = None, scope: str = "flagged",
         flags = collections.defaultdict(list, {f: v for f, v in flags.items() if f not in skip})
     evidence = [e for e in build_evidence(bp, blank, flags, scope) if e.get("field") not in (skip or ())]
     title = bp.get("name") or form
-    client = _client() if evidence else None
+    client = _client(model) if evidence else None
     decisions: list[dict] = []
     usage_total = collections.Counter()
     t0 = time.time()

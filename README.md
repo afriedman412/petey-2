@@ -79,6 +79,11 @@ API keys go in `.env` (never committed). Long batches run on a GCP VM: `docs/RUN
 | name and caption matching (`label/text_match.py`) | MiniLM-L6 cross-encoder, fine-tuned | local (onnxruntime) |
 | extraction | none | local |
 
+Each step's model is set in `petey/models.py`, and `PETEY_MODEL_<STEP>` swaps one step and leaves the rest at
+their defaults (`PETEY_MODEL_REVIEWER=gemini-3.8-flash scripts/run_form.sh ...`). The prefix picks the provider:
+`claude-*` Anthropic, `gemini-*` Google, `local-*` a llama.cpp server at `PETEY_LOCAL_LLM_URL`. The run record
+lists the swapped steps.
+
 The text-match weights live in `models/text_match/`, which is gitignored. Without them the checks fall back to word
 overlap alone, so a fresh clone or the runner behaves as before until the model is copied in or retrained.
 Retraining runs in a separate PyTorch venv and takes about 13 minutes on an M1:
