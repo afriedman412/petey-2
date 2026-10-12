@@ -18,6 +18,7 @@ full-precision model is the default; PETEY_TEXT_MATCH_INT8=1 picks int8 for long
 """
 from __future__ import annotations
 
+import os
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -25,7 +26,7 @@ from typing import Optional
 
 from petey.paths import MODELS
 
-MODEL_DIR = MODELS / "text_match"
+MODEL_DIR = Path(os.environ.get("PETEY_TEXT_MATCH_DIR") or MODELS / "text_match")     # override: compare two models
 MAX_LEN = 96
 _BATCH = 64
 
@@ -44,14 +45,15 @@ _GENERIC = re.compile(r"^(?:text|field|check|box|checkbox|button|radio|group|cho
                       r"page|subform|f|c|p|tf|cb|rb|txt|undefined|fill|textfield|dropdown|list|combo)$")
 
 
-def name_words(name: str) -> str:
-    """`patient_sex_cd` -> 'patient sex code'; `line_12a_waiver_letter_ruling_day` -> 'line 12a waiver letter
-    ruling day'."""
+def name_words(name: str, expand: bool = True) -> str:
+    """`patient_sex_cd` -> 'patient sex code'; `insured_policy_eff_dt2` -> 'insured policy effective date 2' (a
+    number glued to a word is split off, so the word is read as itself). `expand=False` keeps the labeler's
+    abbreviations ('insured policy eff dt 2'): training sees both, so the model learns abbreviations `_WORDS`
+    does not list (`gl`, `insd`) from examples."""
     out = []
-    for t in re.split(r"[_\s]+", name or ""):
-        if not t:
-            continue
-        out.append(_WORDS.get(t.lower(), t.lower()))
+    for t in re.split(r"[_\s]+", (name or "").lower()):
+        for p in re.sub(r"^([a-z]+)(\d+)$", r"\1 \2", t).split():
+            out.append(_WORDS.get(p, p) if expand else p)
     return " ".join(w for w in out if w)
 
 
@@ -93,7 +95,6 @@ def clean_text(t: Optional[str]) -> Optional[str]:
 
 @lru_cache(maxsize=1)
 def _session():
-    import os
     onnx = MODEL_DIR / "model.onnx"
     if os.environ.get("PETEY_TEXT_MATCH_INT8") == "1" and (MODEL_DIR / "model.int8.onnx").exists():
         onnx = MODEL_DIR / "model.int8.onnx"        # dev runs only: see the module docstring

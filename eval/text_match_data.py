@@ -11,6 +11,10 @@ and the other lines printed near its box with 0.
 
 Split by form, not by row: every form a person reviewed (any verdict not written in bulk) is held out (it is the
 name test), plus one in five of the rest (`_held_out`); a form's library and judge-eval copies fall together.
+The split is written to split.json for the evals. It is for measuring; a model to ship can train on every form.
+
+Training name rows come twice, with the name expanded (`tm.name_words`) and as the labeler wrote it
+(`expand=False`), so the model learns abbreviations from examples rather than from `_WORDS` alone.
 
     PYTHONPATH=. venv/bin/python eval/text_match_data.py            # -> runs/text_match/{train,test}.jsonl
 """
@@ -178,10 +182,15 @@ def main() -> int:
             r.update({"form": k, "copy": f"{src}__{p.stem}"})
             files[split].write(json.dumps(r) + "\n")
             counts[(split, r["kind"], r.get("label", "group"))] += 1
+            if split == "train" and "name" in r and tm.name_words(r["name"], expand=False) != r["field"]:
+                raw = {**r, "field": tm.name_words(r["name"], expand=False), "raw": True}
+                files[split].write(json.dumps(raw) + "\n")
+                counts[(split, r["kind"] + " raw", r["label"])] += 1
         if i % 50 == 0:
             print(f"  {i}/{len(paths)}", file=sys.stderr, flush=True)
     for f in files.values():
         f.close()
+    (OUT / "split.json").write_text(json.dumps(split_of, indent=0, sort_keys=True))
     forms = collections.Counter(split_of.values())
     print(f"forms: {dict(forms)}")
     for key, n in sorted(counts.items(), key=str):

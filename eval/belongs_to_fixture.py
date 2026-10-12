@@ -39,6 +39,12 @@ NAME_FLAGS = {
     ("lib__i-130", "preparer_city_nm"),
     ("lib__acord125", "additional_interest_1_vehicle_txt"), ("lib__acord125", "additional_interest_1_boat_txt"),
     ("lib__acord125", "additional_interest_1_aircraft_txt"), ("lib__acord125", "additional_interest_1_airport_txt"),
+    # 2026-10-12: from earlier hand flags ("should be ..."), for forms not yet in the set, so I-130 (9) weighs less
+    ("lib__acord130", "contact_name_nm"), ("lib__acord130", "increased_limits_factor"),
+    ("lib__acord130", "expense_constant_factor"),
+    ("lib__acord25", "gl_policy_insr_ltr_cd"), ("lib__acord25", "auto_policy_insr_ltr_cd"),
+    ("lib__acord25", "umbrella_policy_insr_ltr_cd"),
+    ("je__al_dor_2848a", "taxpayer_signature"),
 }
 
 
@@ -73,6 +79,8 @@ def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
 
 
 def table(rows: list[dict], what: str = "belongs") -> dict:
+    for r in rows:
+        r["name_flag"] = (r["bid"], r["field"]) in NAME_FLAGS
     out = {}
     for k in TEXT_WITNESSES + ("any",):
         hit = [r for r in rows if (r.get(what) if k == "any" else k in (r.get(what) or {}))]
@@ -93,6 +101,13 @@ def show(rows: list[dict], label: str, what: str = "belongs") -> None:
         print(f"  {k:11} {c['fired']:>6} {c['accepted']:>9} {c['looked_at']:>12} {c['name_flags']:>8}/{n_name:<2} "
               f"{c['other_flags']:>12}")
     caught = {(r["bid"], r["field"]) for r in rows if r["name_flag"] and r.get(what)}
+    by_form = collections.defaultdict(list)
+    for bid, f in NAME_FLAGS:
+        if any(r["bid"] == bid and r["field"] == f for r in rows):
+            by_form[bid].append((bid, f) in caught)
+    if by_form:
+        print(f"  caught, each form weighted equally: {sum(sum(v) / len(v) for v in by_form.values()) / len(by_form):.0%} "
+              f"over {len(by_form)} forms")
     for bid, f in sorted(NAME_FLAGS):
         print(f"    {'caught' if (bid, f) in caught else 'missed'}  {bid} {f}")
 
@@ -104,8 +119,10 @@ def main() -> int:
     ap.add_argument("--no-run", action="store_true", help="publisher and page only (no class map, no judge)")
     ap.add_argument("--only", nargs="*", help="hand-review ids (e.g. lib__5021)")
     ap.add_argument("--list", action="store_true", help="every firing on an accepted field")
+    ap.add_argument("--load", help="show a saved run (--save) instead of computing one")
     args = ap.parse_args()
-    rows = collect(use_run=not args.no_run, only=set(args.only) if args.only else None)
+    rows = (json.loads(Path(args.load).read_text()) if args.load
+            else collect(use_run=not args.no_run, only=set(args.only) if args.only else None))
     if args.save:
         Path(args.save).parent.mkdir(parents=True, exist_ok=True)
         Path(args.save).write_text(json.dumps(rows, indent=1))

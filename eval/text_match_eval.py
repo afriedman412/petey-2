@@ -10,7 +10,13 @@ Jev (TypeSafe System One, `eval/jev_hand_check.py`) is asked one pair per call, 
 request hash. It runs on a seeded sample of groups (`--name-groups`, `--caption-groups`); the local model runs on
 the same sample and on every group.
 
+Big forms dominate a pooled score (I-485 and I-130 are 13% of the name groups), so every score is also given with
+each form weighted equally and with each issuer family (registry.db: irs, uscis, acord, ca_courts...) weighted
+equally, and Jev's sample takes at most `--per-form` groups from a form (2026-10-12).
+
     PYTHONPATH=. venv/bin/python eval/text_match_eval.py [--name-groups 300] [--caption-groups 200] [--no-jev]
+    PETEY_TEXT_MATCH_DIR=models/text_match_2026-10-10 PYTHONPATH=. venv/bin/python eval/text_match_eval.py \
+        --test runs/text_match/2026-10-10/test.jsonl --no-jev        # an older model on the data it was built with
 """
 from __future__ import annotations
 
@@ -20,10 +26,12 @@ import concurrent.futures as cf
 import hashlib
 import json
 import random
+import re
+import sqlite3
 from pathlib import Path
 
 from petey.label import text_match as tm
-from petey.paths import RUNS
+from petey.paths import REPO, RUNS
 
 TEST = RUNS / "text_match" / "test.jsonl"
 URL = "https://api.typesafe.ai/v1/systemone"
@@ -48,10 +56,37 @@ DESCRIBES = {
 }
 
 
-def groups(kind_prefix: str) -> list[dict]:
+def families() -> dict[str, str]:
+    """Form key (as `text_match_data.form_key` writes it) -> issuer, from the registry's identities."""
+    conn = sqlite3.connect(f"file:{REPO / 'registry' / 'registry.db'}?mode=ro", uri=True)
+    out = {}
+    for path, issuer in conn.execute("SELECT path, issuer FROM identities WHERE issuer IS NOT NULL AND issuer <> ''"):
+        key = re.sub(r"(_fillable|_blank|_v\d+|_run\d+|_prev)$", "", Path(path).stem.lower())
+        out.setdefault(key, issuer)
+    return out
+
+
+def balanced(gs: list[dict], right: list[bool], fam: dict[str, str]) -> str:
+    """Pooled, per-form and per-family accuracy: the mean over forms (families) of each one's own accuracy."""
+    def mean_of(key):
+        by = collections.defaultdict(list)
+        for g, ok in zip(gs, right):
+            by[key(g)].append(ok)
+        return sum(sum(v) / len(v) for v in by.values()) / max(len(by), 1), len(by)
+    pooled = sum(right) / max(len(right), 1)
+    f, nf = mean_of(lambda g: g["form"])
+    i, ni = mean_of(lambda g: fam.get(g["form"], "other"))
+    return f"pooled {pooled:.1%} | forms equal {f:.1%} ({nf}) | families equal {i:.1%} ({ni})"
+
+
+def is_right(s: list[float | None]) -> bool:
+    return None not in s and s[0] > max(s[1:])
+
+
+def groups(kind_prefix: str, test: Path = TEST) -> list[dict]:
     """Name groups `{text, true, others}` keyed by (copy, text, own field); caption groups straight from the file."""
     out, by = [], collections.OrderedDict()
-    for line in TEST.open():
+    for line in test.open():
         r = json.loads(line)
         if kind_prefix == "caption" and r["kind"] == "caption" and r["wrong"]:
             out.append({"text_options": [r["caption"]] + r["wrong"], "field": r["option"], "form": r["form"]})
@@ -127,33 +162,43 @@ def main() -> int:
     ap.add_argument("--caption-groups", type=int, default=200)
     ap.add_argument("--no-jev", action="store_true")
     ap.add_argument("--show", type=int, default=10, help="disagreements to print per task")
+    ap.add_argument("--per-form", type=int, default=5, help="at most this many groups per form in Jev's sample")
+    ap.add_argument("--test", type=Path, default=TEST)
     args = ap.parse_args()
+    fam = families()
     if not tm.available():
         raise SystemExit(f"no model at {tm.MODEL_DIR}")
     rng = random.Random(11)
     for task, pairs_of, n in (("name", name_pairs_of, args.name_groups),
                               ("caption", caption_pairs_of, args.caption_groups)):
-        gs = groups(task)
+        gs = groups(task, args.test)
         local_all = score_groups(gs, pairs_of, tm.score_pairs)
         r, t = top1(local_all)
         chance = sum(1 / len(pairs_of(g)) for g in gs) / max(len(gs), 1)
         print(f"\n{task}: {t} test groups (chance {chance:.0%})")
         print(f"  local model, all groups      {r}/{t} = {r / t:.1%}")
+        print(f"    {balanced(gs, [is_right(s) for s in local_all], fam)}")
         if task == "name":
             for kind in ("name_publisher", "name_path"):
                 sub = [s for g, s in zip(gs, local_all) if g["kind"] == kind]
                 r2, t2 = top1(sub)
                 print(f"    {kind:26} {r2}/{t2} = {r2 / max(t2, 1):.1%}")
-        idx = sorted(rng.sample(range(len(gs)), min(n, len(gs))))
+        by_form = collections.defaultdict(list)
+        for i, g in enumerate(gs):
+            by_form[g["form"]].append(i)
+        capped = [i for ix in by_form.values() for i in rng.sample(ix, min(args.per_form, len(ix)))]
+        idx = sorted(rng.sample(capped, min(n, len(capped))))
         sample = [gs[i] for i in idx]
         loc = [local_all[i] for i in idx]
         r, t = top1(loc)
-        print(f"  local model, sample          {r}/{t} = {r / t:.1%}")
+        print(f"  local model, sample          {r}/{t} = {r / t:.1%}  ({len({g['form'] for g in sample})} forms)")
+        print(f"    {balanced(sample, [is_right(s) for s in loc], fam)}")
         if args.no_jev:
             continue
         jv = score_groups(sample, pairs_of, jev)
         r, t = top1(jv)
         print(f"  Jev, sample                  {r}/{t} = {r / t:.1%}")
+        print(f"    {balanced(sample, [is_right(s) for s in jv], fam)}")
         both = sum(1 for a, b in zip(loc, jv) if None not in b and a[0] > max(a[1:]) and b[0] > max(b[1:]))
         agree = sum(1 for a, b in zip(loc, jv) if None not in b
                     and max(range(len(a)), key=a.__getitem__) == max(range(len(b)), key=b.__getitem__))
