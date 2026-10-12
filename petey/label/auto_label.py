@@ -580,6 +580,11 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
             # thinking and the labels were cut at ~3,300 chars (GCP runner, 2026-10-06); 65,536 is its output cap
             kwargs["max_tokens"] = 65536 if model.startswith("gemini-") else MAX_TOKENS
             kwargs["temperature"] = 0
+            if model.startswith("local-"):
+                # labels run to ~4k tokens at most; the context is shared with a prompt of up to ~32k. No hidden
+                # thinking: it would cost minutes per page on a laptop (llama-server started with --jinja)
+                kwargs["max_tokens"] = 8192
+                kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
         resp = client.chat.completions.create(**kwargs)
         choice = resp.choices[0]
         text = choice.message.content or ""

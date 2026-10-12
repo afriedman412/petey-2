@@ -32,6 +32,8 @@ truth (which would mask labeler bugs).
 """
 from __future__ import annotations
 
+import os
+
 import base64
 import json
 import time
@@ -342,6 +344,9 @@ PROVIDERS = {
     "mistral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
     "pixtral-": ("https://api.mistral.ai/v1", "MISTRAL_API_KEY"),
     "accounts/fireworks/": ("https://api.fireworks.ai/inference/v1", "FIREWORKS_API_KEY"),
+    # a model served on this machine by llama.cpp's llama-server (OpenAI-compatible); the id after `local-` is
+    # only a label, the server runs whatever model it was started with (2026-10-12)
+    "local-": (os.environ.get("PETEY_LOCAL_LLM_URL", "http://127.0.0.1:8080/v1"), "PETEY_LOCAL_LLM_KEY"),
 }
 _ENV_FILES = (Path(__file__).resolve().parents[2] / ".env",
               Path(__file__).resolve().parents[3] / "petey-master" / ".env")
@@ -379,10 +384,11 @@ def make_client(model: str):
         return anthropic.Anthropic(timeout=300, max_retries=3)
     from openai import OpenAI
     base_url, key_env = cfg
-    key = os.environ.get(key_env)
+    key = os.environ.get(key_env) or ("local" if model.startswith("local-") else None)   # llama-server wants none
     if not key:
         raise RuntimeError(f"{key_env} not set (looked in {', '.join(str(e) for e in _ENV_FILES)})")
-    return OpenAI(api_key=key, base_url=base_url, timeout=600)
+    # a local 27B model reads a 20k-token labeler prompt for many minutes on an M1
+    return OpenAI(api_key=key, base_url=base_url, timeout=7200 if model.startswith("local-") else 600)
 
 
 def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system: str,
