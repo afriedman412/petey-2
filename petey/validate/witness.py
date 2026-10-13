@@ -955,12 +955,17 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
         by_witness[k].set_own(texts)
     if use_model():
         prefetch_scores(fields, by_witness)
-    out = {}
-    for name, spec in fields.items():
+    pvs = {}
+    for name in fields:
         pv = _per_line(name, pub[name], by_witness["publisher"])
         if pv[0] is False and ("belongs to:" in pv[1] or "does not describe" in pv[1]) \
                 and not printed_agrees(pub[name], printed[name]):
             pv = (False, "unconfirmed; " + pv[1])      # the page does not echo the tooltip: a hint (`grade`)
+        pvs[name] = pv
+    pvs.update(second_opinion(pvs, pub))
+    out = {}
+    for name, spec in fields.items():
+        pv = pvs[name]
         ws: dict[str, tuple] = {"publisher": pv,
                                 "page": page_witness(name, spec, lines, printed[name], by_witness["page"])}
         if by_page:
@@ -995,6 +1000,26 @@ def witnesses(bpt_path: Path, run_dir: Optional[Path] = None, *, use_run: bool =
                                   + ([cap] if cap else []),
                                   key=lambda x: x["kind"] != "error")
     return {"blueprint": str(bpt_path), "run": run_dir.name if run_dir else None, "fields": out}
+
+
+def second_opinion(pvs: dict[str, tuple], pub: dict[str, list[str]]) -> dict[str, tuple]:
+    """Jev on the tooltip flags that still count (`label/jev.py`): one it reads as a clear match (`_JEV_OK`) gets a
+    note for the reviewer, '(Jev reads a match, 0.82)'; the flag still counts. Demoting such flags to hints was
+    measured 2026-10-13 on 57 known name errors: 2 looked-at false alarms cleared, 2 real errors lost (combined
+    names that contain the right words, `gl_addl_insd_subr_wvd_cd`), so Jev informs and does not vote (Andrew:
+    cheap and fast enough to keep). The name is written out against the tooltip as the text-match model reads it."""
+    from petey.label import jev
+    todo = [n for n, (v, d) in pvs.items() if v is False and not d.startswith("unconfirmed")
+            and ("belongs to:" in d or "does not describe" in d) and pub.get(n)]
+    if not todo or not jev.available():
+        return {}
+    texts = {n: " | ".join(pub[n]) for n in todo}
+    got = jev.describes([(texts[n], text_match.name_words(n, text=texts[n])) for n in todo])
+    return {n: (False, pvs[n][1] + f" (Jev reads a match, {s:.2f})")
+            for n, s in zip(todo, got) if s is not None and s >= _JEV_OK}
+
+
+_JEV_OK = 0.7      # Jev's 'same thing' above which a tooltip flag carries its note
 
 
 # ------------------------------------------------------------------- the loop's view

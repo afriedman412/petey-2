@@ -8,6 +8,12 @@ accepted. A field counts once per witness. "Looked at" leaves out the verdicts w
 `auto: only the tooltip check questioned it`): those were never seen, and the honed check found real slides among
 them (ACORD 125 attachments, I-130 eye colour and race, f5500sf day / month).
 
+A blueprint corrected by hand (`hand_review.apply_edits` leaves `x_petey_hand_edit` {from, to} on each field) is
+judged as it was before: its renamed fields get their old names back in a copy saved under runs/belongs_to/before/
+(`before_copy`), and every hand rename is a known name error alongside `NAME_FLAGS` (2026-10-13: ACORD 25's
+corrected blocks). The catch rate is also given with each form weighted equally, so one form's many renames do not
+swamp the rest.
+
     PYTHONPATH=. venv/bin/python eval/belongs_to_fixture.py --save runs/belongs_to/baseline.json
     PYTHONPATH=. venv/bin/python eval/belongs_to_fixture.py --against runs/belongs_to/baseline.json
 """
@@ -18,6 +24,8 @@ import collections
 import json
 import sys
 from pathlib import Path
+
+import yaml
 
 from petey.paths import RUNS
 from petey.validate import witness
@@ -48,6 +56,31 @@ NAME_FLAGS = {
 }
 
 
+BEFORE = RUNS / "belongs_to" / "before"
+
+
+def before_copy(bid: str, bpt: Path) -> tuple[Path, dict[str, str]]:
+    """The blueprint as it was before its hand renames: each field whose `x_petey_hand_edit` changed its name gets
+    the old name back (a chain A -> B -> C unwinds, since every field returns to its own `from`). Saved as
+    runs/belongs_to/before/<bid>/<same file name>, so `witness.run_for` still finds the form's run. Returns the path
+    to judge and {current name: old name}; the blueprint itself when nothing was renamed."""
+    bp = yaml.safe_load(bpt.read_text(encoding="utf-8")) or {}
+    fields = bp.get("fields") or {}
+    old = {}
+    for n, spec in fields.items():
+        he = spec.get("x_petey_hand_edit") if isinstance(spec, dict) else None
+        was = ((he or {}).get("from") or {}).get("name")
+        if was and was != n:
+            old[n] = was
+    if not old or len(set(old.values()) | (set(fields) - set(old))) != len(fields):
+        return bpt, {}                      # nothing renamed, or the old names would collide: judge it as it is
+    bp["fields"] = {old.get(n, n): spec for n, spec in fields.items()}
+    out = BEFORE / bid / bpt.name
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+    return out, old
+
+
 def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
     rows = []
     for vp in sorted((RUNS / "hand_review").glob("*.json")):
@@ -58,9 +91,10 @@ def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
         bpt = Path(v["blueprint"])
         if not bpt.exists():
             continue
-        res = witness.witnesses(bpt, use_run=use_run)
+        judged, old = before_copy(bid, bpt)
+        res = witness.witnesses(judged, use_run=use_run)
         for name, rec in (v.get("verdicts") or {}).items():
-            f = res["fields"].get(name)
+            f = res["fields"].get(old.get(name, name))
             if f is None:
                 continue
             note = rec.get("note") or ""
@@ -71,16 +105,22 @@ def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
             # the model's other verdict: the text does not describe the name (5021: 'Parient Last Name')
             undescribed = {k: d for k, (val, d) in f["witnesses"].items() if k in TEXT_WITNESSES and val is False
                            and "does not describe" in (d or "") and not (d or "").startswith("unconfirmed")}
-            rows.append({"bid": bid, "field": name, "wrong": wrong, "name_flag": (bid, name) in NAME_FLAGS,
+            rows.append({"bid": bid, "field": name, "before": old.get(name), "wrong": wrong or name in old,
+                         "name_flag": (bid, name) in NAME_FLAGS,
                          "bulk": note.startswith(("auto:", "bulk")), "note": note[:80], "belongs": belongs,
                          "undescribed": undescribed})
         print(f"  {bid}", file=sys.stderr)
     return rows
 
 
+def is_known(r: dict) -> bool:
+    """A known name error: hand-picked (`NAME_FLAGS`, by its name then or now) or renamed by hand."""
+    return bool(r.get("before")) or (r["bid"], r["field"]) in NAME_FLAGS or (r["bid"], r.get("before")) in NAME_FLAGS
+
+
 def table(rows: list[dict], what: str = "belongs") -> dict:
     for r in rows:
-        r["name_flag"] = (r["bid"], r["field"]) in NAME_FLAGS
+        r["name_flag"] = is_known(r)
     out = {}
     for k in TEXT_WITNESSES + ("any",):
         hit = [r for r in rows if (r.get(what) if k == "any" else k in (r.get(what) or {}))]
@@ -100,16 +140,16 @@ def show(rows: list[dict], label: str, what: str = "belongs") -> None:
     for k, c in t.items():
         print(f"  {k:11} {c['fired']:>6} {c['accepted']:>9} {c['looked_at']:>12} {c['name_flags']:>8}/{n_name:<2} "
               f"{c['other_flags']:>12}")
-    caught = {(r["bid"], r["field"]) for r in rows if r["name_flag"] and r.get(what)}
+    known = sorted((r for r in rows if r["name_flag"]), key=lambda r: (r["bid"], r["field"]))
     by_form = collections.defaultdict(list)
-    for bid, f in NAME_FLAGS:
-        if any(r["bid"] == bid and r["field"] == f for r in rows):
-            by_form[bid].append((bid, f) in caught)
+    for r in known:
+        by_form[r["bid"]].append(bool(r.get(what)))
     if by_form:
         print(f"  caught, each form weighted equally: {sum(sum(v) / len(v) for v in by_form.values()) / len(by_form):.0%} "
               f"over {len(by_form)} forms")
-    for bid, f in sorted(NAME_FLAGS):
-        print(f"    {'caught' if (bid, f) in caught else 'missed'}  {bid} {f}")
+    for r in known:
+        was = f" (was {r['before']})" if r.get("before") else ""
+        print(f"    {'caught' if r.get(what) else 'missed'}  {r['bid']} {r['field']}{was}")
 
 
 def main() -> int:

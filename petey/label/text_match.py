@@ -112,11 +112,42 @@ def clean_text(t: Optional[str]) -> Optional[str]:
     return t[:300]
 
 
+def _onnx() -> Path:
+    if os.environ.get("PETEY_TEXT_MATCH_INT8") == "1" and (MODEL_DIR / "model.int8.onnx").exists():
+        return MODEL_DIR / "model.int8.onnx"        # dev runs only: see the module docstring
+    return MODEL_DIR / "model.onnx"
+
+
+@lru_cache(maxsize=1)
+def _model_id() -> str:
+    """The model file's content hash: the disk cache's key, so two models (or fp32 and int8) never share scores."""
+    import hashlib
+    h = hashlib.sha1()
+    with open(_onnx(), "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:16]
+
+
+@lru_cache(maxsize=1)
+def _disk():
+    """Scores kept between runs (2026-10-13: a name-fixture rerun after a rules-only change rescored everything,
+    ~25 min): runs/text_match/score_cache.sqlite, keyed by (model id, text, field). PETEY_TEXT_MATCH_DISK=0 skips it."""
+    if os.environ.get("PETEY_TEXT_MATCH_DISK", "1") == "0":
+        return None
+    import sqlite3
+    from petey.paths import RUNS
+    path = RUNS / "text_match" / "score_cache.sqlite"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    db = sqlite3.connect(str(path), timeout=30, check_same_thread=False)
+    db.execute("PRAGMA journal_mode=WAL")
+    db.execute("CREATE TABLE IF NOT EXISTS s (model TEXT, text TEXT, field TEXT, p REAL, PRIMARY KEY (model, text, field))")
+    return db
+
+
 @lru_cache(maxsize=1)
 def _session():
-    onnx = MODEL_DIR / "model.onnx"
-    if os.environ.get("PETEY_TEXT_MATCH_INT8") == "1" and (MODEL_DIR / "model.int8.onnx").exists():
-        onnx = MODEL_DIR / "model.int8.onnx"        # dev runs only: see the module docstring
+    onnx = _onnx()
     if not onnx.exists():
         return None
     import onnxruntime as ort
@@ -141,6 +172,17 @@ def score_pairs(pairs: list[tuple[str, str]]) -> Optional[list[float]]:
     import numpy as np
     sess, tok = s
     todo = list(dict.fromkeys(p for p in pairs if p not in _cache))     # a witness asks the same pair many times
+    db = _disk()
+    if db is not None and todo:
+        mid = _model_id()
+        for i in range(0, len(todo), 400):
+            chunk = todo[i:i + 400]
+            q = " OR ".join("(text=? AND field=?)" for _ in chunk)
+            for t, f, pv in db.execute(f"SELECT text, field, p FROM s WHERE model=? AND ({q})",
+                                       [mid] + [x for p in chunk for x in p]):
+                _cache[(t, f)] = pv
+        todo = [p for p in todo if p not in _cache]
+    new = list(todo)
     todo.sort(key=lambda p: len(p[0]) + len(p[1]))       # similar lengths together: each batch pads to its longest
     names = {i.name for i in sess.get_inputs()}
     for i in range(0, len(todo), _BATCH):
@@ -151,6 +193,9 @@ def score_pairs(pairs: list[tuple[str, str]]) -> Optional[list[float]]:
             feed["token_type_ids"] = np.array([e.type_ids for e in enc], dtype=np.int64)
         logits = sess.run(None, feed)[0].reshape(-1)
         _cache.update(zip(todo[i:i + _BATCH], (1.0 / (1.0 + np.exp(-logits))).tolist()))
+    if db is not None and new:
+        db.executemany("INSERT OR REPLACE INTO s VALUES (?, ?, ?, ?)", [(_model_id(), t, f, _cache[(t, f)]) for t, f in new])
+        db.commit()
     return [_cache[p] for p in pairs]
 
 
