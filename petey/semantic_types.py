@@ -240,10 +240,6 @@ REGISTRY: tuple[SemanticType, ...] = (
         name="last_name",
         matches=("_last_name", "_last_nm"),
     ),
-    SemanticType(
-        name="person_name",
-        matches=("_nm", "_name"),
-    ),
 
     # --- text catch-alls ---
     SemanticType(
@@ -273,6 +269,9 @@ CHECKBOX_TYPE = SemanticType(
 # vocabulary membership only.
 SPEC_ONLY_TYPES: tuple[SemanticType, ...] = (
     SemanticType(name="money_whole_dollar", matches=(), bpt_type="number", ocr_whitelist="0123456789.,-"),
+    # no longer matched from the name (Andrew, 2026-10-13): '_nm' / '_name' anywhere gave county, plan, firm and
+    # facility names a person type, and the type says nothing a string does not. Still valid where it is set.
+    SemanticType(name="person_name", matches=()),
 )
 
 # Every value registered by spec §5.8.1 — the canonical vocabulary, as
@@ -340,7 +339,12 @@ def prompt_vocabulary() -> str:
     documents spoke a different dialect than the rest of the library
     (spec §14, deviation 3). Prompts draw from here instead.
     """
-    return "[" + ", ".join(f'"{n}"' for n in registered_names()) + "]"
+    return "[" + ", ".join(f'"{n}"' for n in registered_names() if n not in NOT_OFFERED) + "]"
+
+
+# valid where a blueprint has them, never offered to a model (person_name: Andrew, 2026-10-13, says nothing a string
+# does not)
+NOT_OFFERED = {"person_name"}
 
 
 def ocr_whitelist_for(semantic_type: Optional[str]) -> Optional[str]:
