@@ -58,7 +58,8 @@ def hand_wrong() -> tuple[set[str], set[tuple[str, str]]]:
         for name, rec in (v.get("verdicts") or {}).items():
             if not (rec.get("note") or "").startswith(("auto:", "bulk")):
                 forms.add(key)                      # a person looked at this form (bulk accepts alone do not count)
-            if rec.get("verdict") == "flag" or rec.get("edit"):
+            # a wrong name: flagged, or renamed by hand; not a type-only edit or a suffix-only rename (2026-10-13)
+            if rec.get("verdict") == "flag" or ("name" in (rec.get("edit") or {}) and "suffix:" not in (rec.get("note") or "")):
                 wrong.add((key, name))
     return forms, wrong
 
