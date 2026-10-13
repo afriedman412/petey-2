@@ -1253,6 +1253,12 @@ MODE.groups = (() => {
     const ou = optUnits(), n = ou.length, ok = ou.filter(u => u.confirmed).length, g = ou.filter(isGroup).length, t = units.filter(isText).length;
     const ch = PLAN ? ` · <b>${PLAN.changes.length}</b> change${PLAN.changes.length === 1 ? '' : 's'}${PLAN.errors.length ? ` <span class="stale">(${PLAN.errors.length} to fix)</span>` : ''}` : '';
     el.innerHTML = `<b>${ok}</b> of ${n} confirmed · ${g} groups, ${n - g} loose${t ? ` · ${t} text combined` : ''}${ch}`;
+    // the apply button in the bar as well as under the change list (2026-10-13: saved groups that never reached the
+    // blueprint, because the only button sat at the bottom of the sidebar)
+    if (PLAN && PLAN.changes.length) {
+      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="gApplyBar" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : 'title="write the saved grouping into the blueprint; Review shows it after"'}>apply ${PLAN.changes.length} change${PLAN.changes.length === 1 ? '' : 's'} to blueprint</button>`);
+      $('#gApplyBar').onclick = applyPlan;
+    }
   }
   function next(step) {
     const ou = optUnits(); if (!ou.length) return;

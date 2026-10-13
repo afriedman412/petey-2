@@ -5285,23 +5285,43 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__faa8710.json
-  examiner_accepted_student_pilot_application_ind:
-    x_petey_id: '6_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 40.68000030517578
-      - 162.84002685546875
-      - 48.720001220703125
-      - 172.08001708984375
-      widget_type: checkbox
-      path: Accepted Student Pilot Application
-    description: Accepted Student Pilot Application
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  designated_examiner_application_status:
+    x_petey_id: '6_113'
+    type: category
+    values:
+    - examiner_accepted_student_pilot_application_ind
+    - examiner_rejected_student_pilot_application_ind
+    widgets:
+      examiner_accepted_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 40.68000030517578
+        - 162.84002685546875
+        - 48.720001220703125
+        - 172.08001708984375
+        widget_type: checkbox
+        path: Accepted Student Pilot Application
+        on_state: 'On'
+        caption: Accepted Student Pilot Application
+        x_petey_caption_source: tooltip
+      examiner_rejected_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 345.9599914550781
+        - 162.84002685546875
+        - 354.1199951171875
+        - 172.08001708984375
+        widget_type: checkbox
+        path: Rejected Student Pilot Application
+        on_state: 'On'
+        caption: 'Designated Examiner report: Rejected Student Pilot Application'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - examiner_accepted_student_pilot_application_ind
+      - examiner_rejected_student_pilot_application_ind
   examiner_reviewed_logbook_ind:
     x_petey_id: '6_14'
     type: boolean
@@ -5382,7 +5402,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  group_p6:
+  designated_examiner_result:
     x_petey_id: '6_110'
     type: category
     values:
@@ -5415,10 +5435,13 @@ fields:
         x_petey_caption_source: tooltip
     x_petey_grouping:
       source: group_review
-      when: '2026-10-13 11:05:01'
+      when: '2026-10-13 11:17:13'
       from:
-      - approved_temporary_certificate_issued_ind
-      - disapproved_notice_issued_ind
+      - group_p6::approved_temporary_certificate_issued_ind
+      - group_p6::disapproved_notice_issued_ind
+      renamed_from: group_p6
+      name_from: labeler
+    label_source: llm
   test_location_nm:
     x_petey_id: '6_20'
     type: string
@@ -5937,40 +5960,43 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  asi_accepted_student_pilot_application_ind:
-    x_petey_id: '6_49'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 40.5546989440918
-      - 435.4590148925781
-      - 48.61309814453125
-      - 444.2619934082031
-      widget_type: checkbox
-      path: Accepted-Student Pilot Application
-    description: Accepted-Student Pilot Application
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  asi_rejected_student_pilot_application_ind:
-    x_petey_id: '6_50'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 457.489013671875
-      - 435.4159851074219
-      - 465.6789855957031
-      - 444.218994140625
-      widget_type: checkbox
-      path: Rejected-Student Pilot Application
-    description: Rejected-Student Pilot Application
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  asi:
+    x_petey_id: '6_115'
+    type: category
+    values:
+    - asi_accepted_student_pilot_application_ind
+    - asi_rejected_student_pilot_application_ind
+    widgets:
+      asi_accepted_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 40.5546989440918
+        - 435.4590148925781
+        - 48.61309814453125
+        - 444.2619934082031
+        widget_type: checkbox
+        path: Accepted-Student Pilot Application
+        on_state: 'Yes'
+        caption: Accepted-Student Pilot Application
+        x_petey_caption_source: tooltip
+      asi_rejected_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 457.489013671875
+        - 435.4159851074219
+        - 465.6789855957031
+        - 444.218994140625
+        widget_type: checkbox
+        path: Rejected-Student Pilot Application
+        on_state: 'Yes'
+        caption: Rejected-Student Pilot Application
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - asi_accepted_student_pilot_application_ind
+      - asi_rejected_student_pilot_application_ind
   asi_test_location_nm:
     x_petey_id: '6_51'
     type: string
@@ -6387,57 +6413,59 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  flight_instructor_initial_ind:
-    x_petey_id: '6_65'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 302.6400146484375
-      - 512.6400146484375
-      - 309.239990234375
-      - 520.7999877929688
-      widget_type: checkbox
-      path: Flight Instructor Certificate Issued-Initial
-    description: Flight Instructor Certificate Issued-Initial
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  flight_instructor_renewal_ind:
-    x_petey_id: '6_66'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 324.6000061035156
-      - 512.6400146484375
-      - 331.20001220703125
-      - 520.7999877929688
-      widget_type: checkbox
-      path: Flight Instructor Certificate Issued-Renewal
-    description: Flight Instructor Certificate Issued-Renewal
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  flight_instructor_reinstatement_ind:
-    x_petey_id: '6_67'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 354.3599853515625
-      - 512.6400146484375
-      - 360.9599914550781
-      - 520.7999877929688
-      widget_type: checkbox
-      path: Flight Instructor Certificate Issued-Reinstatement
-    description: Flight Instructor Certificate Issued-Reinstatement
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  flight_instructor_certificate_issued:
+    x_petey_id: '6_116'
+    type: category
+    values:
+    - flight_instructor_initial_ind
+    - flight_instructor_renewal_ind
+    - flight_instructor_reinstatement_ind
+    widgets:
+      flight_instructor_initial_ind:
+        page: 6
+        rect:
+        - 302.6400146484375
+        - 512.6400146484375
+        - 309.239990234375
+        - 520.7999877929688
+        widget_type: checkbox
+        path: Flight Instructor Certificate Issued-Initial
+        on_state: 'On'
+        caption: Flight Instructor Certificate Issued-Initial
+        x_petey_caption_source: tooltip
+      flight_instructor_renewal_ind:
+        page: 6
+        rect:
+        - 324.6000061035156
+        - 512.6400146484375
+        - 331.20001220703125
+        - 520.7999877929688
+        widget_type: checkbox
+        path: Flight Instructor Certificate Issued-Renewal
+        on_state: 'On'
+        caption: Flight Instructor Certificate Issued-Renewal
+        x_petey_caption_source: tooltip
+      flight_instructor_reinstatement_ind:
+        page: 6
+        rect:
+        - 354.3599853515625
+        - 512.6400146484375
+        - 360.9599914550781
+        - 520.7999877929688
+        widget_type: checkbox
+        path: Flight Instructor Certificate Issued-Reinstatement
+        on_state: 'On'
+        caption: Flight Instructor Certificate Issued-Reinstatement
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - flight_instructor_initial_ind
+      - flight_instructor_renewal_ind
+      - flight_instructor_reinstatement_ind
+      name_from: labeler
   instructor_renewal_activity_ind:
     x_petey_id: '6_74'
     type: boolean
@@ -7459,20 +7487,20 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__faa8710.json
-  other_info:
+  other_information_requests:
     x_petey_id: '5_1'
     type: multi_category
     values:
-    - flight_review_ind
     - initial_ind
-    - instrument_proficiency_check_ind
-    - ipl_ind
-    - limitation_removal_ind
-    - medical_flight_test_ind
     - reexamination_ind
-    - reinstatement_ind
-    - reissuance_ind
+    - instrument_proficiency_check_ind
     - renewal_ind
+    - reissuance_ind
+    - medical_flight_test_ind
+    - reinstatement_ind
+    - flight_review_ind
+    - limitation_removal_ind
+    - ipl_ind
     widgets:
       initial_ind:
         page: 5
@@ -7486,30 +7514,6 @@ fields:
         on_state: 'On'
         caption: Initial
         x_petey_caption_source: page_text
-      renewal_ind:
-        page: 5
-        rect:
-        - 387.7200012207031
-        - 122.03997802734375
-        - 395.1600036621094
-        - 131.15997314453125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Renewal'
-        on_state: 'On'
-        caption: Renewal
-        x_petey_caption_source: page_text
-      reinstatement_ind:
-        page: 5
-        rect:
-        - 387.7200012207031
-        - 133.08001708984375
-        - 395.1600036621094
-        - 142.20001220703125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Reinstatement'
-        on_state: 'On'
-        caption: Reinstatement
-        x_petey_caption_source: page_text
       reexamination_ind:
         page: 5
         rect:
@@ -7521,30 +7525,6 @@ fields:
         path: 'Other Information/Requests: Reexamination'
         on_state: 'On'
         caption: Reexamination
-        x_petey_caption_source: page_text
-      reissuance_ind:
-        page: 5
-        rect:
-        - 439.20001220703125
-        - 122.03997802734375
-        - 446.6400146484375
-        - 131.15997314453125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Reissuance'
-        on_state: 'On'
-        caption: Reissuance
-        x_petey_caption_source: page_text
-      flight_review_ind:
-        page: 5
-        rect:
-        - 439.20001220703125
-        - 133.08001708984375
-        - 446.6400146484375
-        - 142.20001220703125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Flight Review'
-        on_state: 'On'
-        caption: Flight Review
         x_petey_caption_source: page_text
       instrument_proficiency_check_ind:
         page: 5
@@ -7558,6 +7538,30 @@ fields:
         on_state: 'On'
         caption: Instrument Proficiency Check
         x_petey_caption_source: page_text
+      renewal_ind:
+        page: 5
+        rect:
+        - 387.7200012207031
+        - 122.03997802734375
+        - 395.1600036621094
+        - 131.15997314453125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Renewal'
+        on_state: 'On'
+        caption: Renewal
+        x_petey_caption_source: page_text
+      reissuance_ind:
+        page: 5
+        rect:
+        - 439.20001220703125
+        - 122.03997802734375
+        - 446.6400146484375
+        - 131.15997314453125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Reissuance'
+        on_state: 'On'
+        caption: Reissuance
+        x_petey_caption_source: page_text
       medical_flight_test_ind:
         page: 5
         rect:
@@ -7569,6 +7573,30 @@ fields:
         path: 'Other Information/Requests: Medical Flight Test'
         on_state: 'On'
         caption: Medical Flight Test
+        x_petey_caption_source: page_text
+      reinstatement_ind:
+        page: 5
+        rect:
+        - 387.7200012207031
+        - 133.08001708984375
+        - 395.1600036621094
+        - 142.20001220703125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Reinstatement'
+        on_state: 'On'
+        caption: Reinstatement
+        x_petey_caption_source: page_text
+      flight_review_ind:
+        page: 5
+        rect:
+        - 439.20001220703125
+        - 133.08001708984375
+        - 446.6400146484375
+        - 142.20001220703125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Flight Review'
+        on_state: 'On'
+        caption: Flight Review
         x_petey_caption_source: page_text
       limitation_removal_ind:
         page: 5
@@ -7607,6 +7635,23 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__faa8710.json
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - other_info::initial_ind
+      - other_info::reexamination_ind
+      - other_info::instrument_proficiency_check_ind
+      - other_info::renewal_ind
+      - other_info::reissuance_ind
+      - other_info::medical_flight_test_ind
+      - other_info::reinstatement_ind
+      - other_info::flight_review_ind
+      - other_info::limitation_removal_ind
+      - other_info::ipl_ind
+      renamed_from: other_info
+      name_from: labeler
   air_carrier_training:
     x_petey_id: '5_59'
     type: category
@@ -7664,73 +7709,45 @@ fields:
         on_state: 'Yes'
         caption: Recurrent
         x_petey_caption_source: page_text
-  examiner_rejected_student_pilot_application_ind:
-    x_petey_id: '6_113'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 345.9599914550781
-      - 162.84002685546875
-      - 354.1199951171875
-      - 172.08001708984375
-      widget_type: checkbox
-      path: Rejected Student Pilot Application
-      on_state: 'On'
-    description: 'Designated Examiner report: Rejected Student Pilot Application'
-    x_petey_description_source: tooltip
-    x_petey_added:
-      when: '2026-10-13 11:05:39'
-      by: claude
-      why: the PDF gives this box the same field name as another box ('Rejected Student
-        Pilot Application'), so the blueprint had skipped it; added at Andrew's request
-  asi_approved_temporary_certificate_issued_ind:
+  aviation_safety_inspector_report_result:
     x_petey_id: '6_114'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 114.23999786376953
-      - 426.3599853515625
-      - 122.27999877929688
-      - 435.4800109863281
-      widget_type: checkbox
-      path: Approved-Temporary Certificate Issued (Original Attached)
-      on_state: 'On'
-    description: 'Aviation Safety Inspector report: Approved - Temporary Certificate
-      Issued (Original Attached)'
-    x_petey_description_source: tooltip
-    x_petey_added:
-      when: '2026-10-13 11:05:39'
-      by: claude
-      why: the PDF gives this box the same field name as another box ('Approved-Temporary
-        Certificate Issued (Original Attached)'), so the blueprint had skipped it;
-        added at Andrew's request
-  asi_disapproved_notice_issued_ind:
-    x_petey_id: '6_115'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 296.5199890136719
-      - 426.3599853515625
-      - 304.55999755859375
-      - 435.4800109863281
-      widget_type: checkbox
-      path: Disapproved-Disapproval Notice Issued (Original Attached)
-      on_state: 'On'
-    description: 'Aviation Safety Inspector report: Disapproved - Disapproval Notice
-      Issued (Original Attached)'
-    x_petey_description_source: tooltip
-    x_petey_added:
-      when: '2026-10-13 11:05:39'
-      by: claude
-      why: the PDF gives this box the same field name as another box ('Disapproved-Disapproval
-        Notice Issued (Original Attached)'), so the blueprint had skipped it; added
-        at Andrew's request
+    type: category
+    values:
+    - asi_approved_temporary_certificate_issued_ind
+    - asi_disapproved_notice_issued_ind
+    widgets:
+      asi_approved_temporary_certificate_issued_ind:
+        page: 6
+        rect:
+        - 114.23999786376953
+        - 426.3599853515625
+        - 122.27999877929688
+        - 435.4800109863281
+        widget_type: checkbox
+        path: Approved-Temporary Certificate Issued (Original Attached)
+        on_state: 'On'
+        caption: Approved – Temporary
+        x_petey_caption_source: page_text
+      asi_disapproved_notice_issued_ind:
+        page: 6
+        rect:
+        - 296.5199890136719
+        - 426.3599853515625
+        - 304.55999755859375
+        - 435.4800109863281
+        widget_type: checkbox
+        path: Disapproved-Disapproval Notice Issued (Original Attached)
+        on_state: 'On'
+        caption: Temporary Certificate Issued (Original Attached)
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - asi_approved_temporary_certificate_issued_ind
+      - asi_disapproved_notice_issued_ind
+      name_from: labeler
 x_petey_dedup_log:
   duplicate_labels_reassigned: 3
   collisions:
