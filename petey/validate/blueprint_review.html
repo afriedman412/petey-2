@@ -1173,7 +1173,7 @@ MODE.groups = (() => {
       : {kind: 'option', page: first.page, rect, widget: {path: first.path}};
     el.disabled = true; el.textContent = 'asking…';
     try {
-      const r = await send('POST', mapi('add', '/labeler'), {proposal});
+      const r = await send('POST', mapi('add', '/labeler'), {proposal, from: 'groups'});
       if (r.name) { rename(u.uid, uniqueName(r.name, u), 'labeler'); note(`${r.model}: ${r.name}`); }
       else { note('the labeler returned no name'); el.disabled = false; el.textContent = 'ask the labeler'; }
     } catch (e) { note('labeler failed: ' + e.message); el.disabled = false; el.textContent = 'ask the labeler'; }

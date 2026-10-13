@@ -569,8 +569,9 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
     return {"proposals": out, "notes": notes}
 
 
-def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL) -> Optional[str]:
-    """One call to the AcroForm labeler for this proposal, with the page's printed words."""
+def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL, think: bool = True) -> Optional[str]:
+    """One call to the AcroForm labeler for this proposal, with the page's printed words. `think=False`: Groups'
+    button, without the model's hidden thinking (a few seconds instead of eight)."""
     entry = {"id": 1, "page": p["page"], "rect": p["rect"],
              "widget_type": {"text": "text", "option": "checkbox", "group": "radiobutton"}[p["kind"]]}
     if p["kind"] == "group":
@@ -584,7 +585,7 @@ def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL) -> Optional[st
     finally:
         doc.close()
     auto_label.CALL_TAG = f"field_add/{ctx.path.stem}"
-    got = auto_label.label_page_via_llm([entry], words, model=model)
+    got = auto_label.label_page_via_llm([entry], words, model=model, think=think)
     n = _slug((got.get(1) or "").replace(".", "_"))
     return n or None
 

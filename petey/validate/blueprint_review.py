@@ -336,7 +336,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: field_add.propose(APP.add.ctx(bid), int(body.get("page") or 1), body.get("rect"),
                                                          body.get("sid"), set(body.get("taken") or [])), bid)
         if (mode, what) == ("add", "labeler"):
-            return self._route(lambda: {"name": field_add.labeler_name(APP.add.ctx(bid), body["proposal"]),
+            return self._route(lambda: {"name": field_add.labeler_name(APP.add.ctx(bid), body["proposal"],
+                                                                       think=body.get("from") != "groups"),
                                         "model": field_add.LABEL_MODEL}, bid)
         if (mode, what) == ("add", "finder"):
             def run():
