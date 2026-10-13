@@ -30,7 +30,10 @@ from typing import Any, Optional
 
 from petey.paths import RUNS
 from petey.synth.boxes import FINDER_VERSION, find_boxes, render_numbered_pages
-from petey.synth.generate import MODEL, _extract_json_object, call_page, make_client
+from petey.models import model_for
+from petey.synth.generate import _extract_json_object, call_page, make_client
+
+MODEL = model_for("classifier")
 
 PROMPT_VERSION = "4"
 CACHE_DIR = RUNS / "_gen_cache" / "classify"

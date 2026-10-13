@@ -392,7 +392,7 @@ def reviewed_pairs(snapshot: str, bp_path: Path, res: dict) -> set[tuple[str, st
 def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n_flat: int,
             gen_cache_only: bool, label_model: Optional[str], gen_key: Optional[str],
             max_iter: int, describe: bool, apply_correct: bool,
-            review: str = "none", review_model: str = "claude-opus-5",
+            review: str = "none", review_model: Optional[str] = None,
             review_effort: str = "medium", review_rounds: int = 4,
             allow_dirty: bool = False, case_set: Optional[int] = None,
             n_cases: Optional[int] = None, bpt: Optional[Path] = None,
@@ -406,6 +406,8 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
     round's record, once the blueprint on disk is the state the next round starts from (`form_run.py` keeps that
     state round by round and spot-checks the fields the round changed). It may return field names to reopen: new
     evidence (a spot-check flag) on a definition the reviewer already judged, so the next round reviews it again."""
+    if review_model is None:
+        from petey.validate.review import DEFAULT_MODEL as review_model     # PETEY_MODEL_REVIEWER
     history = []
     status = "max_iter"
     bp_path = bpt or BLUEPRINTS / f"{form}.bpt"   # a side copy (validate --bpt) runs the loop outside the library
@@ -550,7 +552,7 @@ def main() -> int:
     ap.add_argument("--review", choices=["none", "flagged", "all"], default="none",
                     help="LLM reviewer on flagged (or all) fields after the rule fixes; "
                          "kept only if the next validation detects less")
-    ap.add_argument("--review-model", default="claude-opus-5")
+    ap.add_argument("--review-model", default=None, help="default: review.DEFAULT_MODEL (PETEY_MODEL_REVIEWER)")
     ap.add_argument("--review-effort", default="medium")
     ap.add_argument("--review-rounds", type=int, default=4,
                     help="cap on review rounds; a round runs only while some flagged field is unreviewed as it stands")

@@ -31,9 +31,10 @@ from typing import Any, Optional
 import pymupdf
 import yaml
 
+from petey.models import model_for
 from petey.paths import RUNS
 
-DEFAULT_MODEL = "claude-sonnet-4-6"
+DEFAULT_MODEL = model_for("reader")
 CACHE = RUNS / "_petey_cache"
 MAX_FIELDS_PER_CALL = 120
 MAX_PAGES = 40   # a hard ceiling; the pages sent are the ones that carry fields
@@ -279,6 +280,15 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
         out = _parse(_ask_local(model, fields, doc_parts))
         cached.write_text(json.dumps(out, indent=2, default=str))
         return out
+    from petey.synth.generate import chat_compat, provider_for
+    if provider_for(model) is not None:
+        text, _, u = chat_compat(client, model, system=SYSTEM, content=content, max_tokens=MAX_TOKENS)
+        USAGE["input_tokens"] += u["input_tokens"]
+        USAGE["output_tokens"] += u["output_tokens"]
+        USAGE["calls"] += 1
+        out = _parse(text)
+        cached.write_text(json.dumps(out, indent=2, default=str))
+        return out
     kwargs: dict = dict(model=model, max_tokens=MAX_TOKENS, system=SYSTEM,
                         messages=[{"role": "user", "content": content}])
     # The reader is the loop's judge, so it should read the same way twice.
@@ -331,8 +341,12 @@ def extract_llm(
         raise ValueError(f"unknown parser {parser!r}; use pymupdf or image")
     fields = field_view(bpt)
     if client is None and not model.startswith("ollama:"):
-        import anthropic
-        client = anthropic.Anthropic()
+        from petey.synth.generate import make_client, provider_for
+        if provider_for(model) is not None:             # Gemini, a local model (petey/models.py)
+            client = make_client(model)
+        else:
+            import anthropic
+            client = anthropic.Anthropic()
     values: dict[str, Any] = {}
     for i in range(0, len(fields), MAX_FIELDS_PER_CALL):
         batch = fields[i:i + MAX_FIELDS_PER_CALL]

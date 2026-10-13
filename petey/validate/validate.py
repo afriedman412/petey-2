@@ -54,7 +54,9 @@ from petey.validate.score import score  # noqa: E402
 from petey.validate.method_delta import is_judge, judge_name, legacy_name  # noqa: E402
 
 from petey.paths import REPO, RUNS, BLUEPRINTS
-DEFAULT_MODEL = "claude-sonnet-4-6"
+from petey.models import model_for  # noqa: E402
+DEFAULT_MODEL = model_for("reader")     # the judge; also the generator / labeler fallback when not given
+
 
 
 PETEY_CACHE_DIR = RUNS / "_petey_cache"
