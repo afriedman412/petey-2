@@ -539,10 +539,15 @@ MODE.review = (() => {
     if (v && v.note === 'removed') await putV({[f.name]: null});
     placeAll(); panel();
   }
+  // Claude's changes, the riskiest first (Andrew, 2026-10-13: the saved blueprint is the ground truth, so the review
+  // time goes to the changes most likely to be wrong): wrong names, added boxes, suggestions, then the rest
+  const CLAUDE_RANK = {wrong: 0, add: 1, caption: 3, type: 4, clarity: 5, suffix: 6};
+  const claudeRank = f => f.claude ? (CLAUDE_RANK[f.claude.kind] ?? 5) : (f.why || []).some(w => /^Claude:/.test(w.text)) ? 2 : 9;
   function ordered() {
     const list = BP.fields.filter(f => !unrevOnly || !verdictOf(f.name));
     if (order === 'risk') list.sort((a, b) => ((TIER_RANK[a.tier] ?? 1) - (TIER_RANK[b.tier] ?? 1)) || (a.idx - b.idx));
     else if (order === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
+    else if (order === 'claude') return list.filter(f => claudeRank(f) < 9).sort((a, b) => (claudeRank(a) - claudeRank(b)) || (a.idx - b.idx));
     return list;
   }
   function select(name, scroll = true, opt = null) {
@@ -791,7 +796,7 @@ MODE.review = (() => {
   const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}<span class="fid">${esc(f.id || 'p' + f.page)}</span> · ${esc(f.name)}${(BP.verdicts[f.name] || {}).edit ? ` <b>→ ${esc(BP.verdicts[f.name].edit.name || f.name)}${BP.verdicts[f.name].edit.type ? ' : ' + esc(BP.verdicts[f.name].edit.type) : ''}${BP.verdicts[f.name].edit.semantic_type ? ' / ' + esc(BP.verdicts[f.name].edit.semantic_type) : ''}</b>` : ''}</div>`).join('')}</div>`;
   // the list's order, just above the list (Andrew, 2026-10-07; it was in the bar)
   const orderHtml = () => `<div class="listorder"><label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only</label>
-    <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option><option value="name" ${order === 'name' ? 'selected' : ''}>by name</option></select></label></div>`;
+    <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option><option value="name" ${order === 'name' ? 'selected' : ''}>by name</option><option value="claude" ${order === 'claude' ? 'selected' : ''}>Claude's changes</option></select></label></div>`;
   function bindList() {
     document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n));
     const o = $('#order'); if (o) o.onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
@@ -836,6 +841,7 @@ MODE.review = (() => {
         <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction: it goes into the working copy and the field is accepted">save correction</button>
           <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>${saved}</div>
       </div>
+      ${f.claude ? `<div class="loop"><b>Claude's pass</b> (${esc(f.claude.kind)})${f.claude.from && f.claude.from !== f.name ? ` was <code>${esc(f.claude.from)}</code>` : ''}: ${esc(f.claude.why || '')}</div>` : ''}
       ${whyHtml(f)}${agentHtml(v)}${loop}${adj}
       ${isRemoved(f.name) ? `<div class="rbanner">Recorded for removal, not removed yet (see Add / remove's change list). <button class="btn" id="vKeep">keep it</button></div>` : ''}
       <div class="sect"><h4>Verdict</h4><div class="verdict" style="margin-top:0">

@@ -138,9 +138,24 @@ def field_rows(bp: dict) -> list[dict]:
             "loop": ({"changed": rv.get("changed"), "reason": rv.get("reason"), "old_name": rv.get("old_name"),
                       "before": rv.get("before")} if rv else None),
             "adjudication": spec.get("x_petey_adjudication"),
+            "claude": claude_change(spec),
         })
     rows.sort(key=lambda r: (r["page"], round(r["rects"][0]["rect"][1] / 6), r["rects"][0]["rect"][0]))
     return rows
+
+
+def claude_change(spec: dict) -> Optional[dict]:
+    """What Claude's pass did to a field (`eval/claude_pass_apply.py`): {kind, why, from, when}, or None."""
+    if not isinstance(spec, dict):
+        return None
+    he = spec.get("x_petey_hand_edit") or {}
+    if he.get("by") == "claude":
+        return {"kind": he.get("kind") or "wrong", "why": he.get("why"), "from": (he.get("from") or {}).get("name"),
+                "when": he.get("when")}
+    ad = spec.get("x_petey_added") or {}
+    if ad.get("name_from") == "claude":
+        return {"kind": "add", "why": ad.get("why"), "from": None, "when": ad.get("when")}
+    return None
 
 
 def reviewable(bp: dict) -> list[str]:
