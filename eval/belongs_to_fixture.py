@@ -70,7 +70,7 @@ def before_copy(bid: str, bpt: Path) -> tuple[Path, dict[str, str]]:
     for n, spec in fields.items():
         he = spec.get("x_petey_hand_edit") if isinstance(spec, dict) else None
         was = ((he or {}).get("from") or {}).get("name")
-        if was and was != n:
+        if was and was != n and (he or {}).get("kind") not in ("suffix", "clarity"):   # the old name meant the same
             old[n] = was
     if not old or len(set(old.values()) | (set(fields) - set(old))) != len(fields):
         return bpt, {}                      # nothing renamed, or the old names would collide: judge it as it is
@@ -98,7 +98,9 @@ def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
             if f is None:
                 continue
             note = rec.get("note") or ""
-            wrong = rec["verdict"] == "flag" or bool(rec.get("edit"))
+            # a wrong NAME: flagged, renamed by hand (not a suffix-only rename), or a rename not yet applied; a
+            # type-only edit leaves the name right (2026-10-13, FAA 8710's money -> count)
+            wrong = rec["verdict"] == "flag" or name in old or ("name" in (rec.get("edit") or {}) and not rec.get("applied"))
             # flags that count (an unconfirmed publisher flag is a hint: the page does not echo its tooltip)
             belongs = {k: d for k, (val, d) in f["witnesses"].items() if k in TEXT_WITNESSES and val is False
                        and "belongs to:" in (d or "") and not (d or "").startswith("unconfirmed")}

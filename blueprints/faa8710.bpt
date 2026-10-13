@@ -133,7 +133,7 @@ fields:
   residential_address_txt:
     x_petey_id: '5_16'
     type: string
-    semantic_type: text
+    semantic_type: street_address
     widget:
       page: 5
       rect:
@@ -147,10 +147,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: residential_address_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: residential_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   mailing_address_txt:
     x_petey_id: '5_17'
     type: string
-    semantic_type: text
+    semantic_type: street_address
     widget:
       page: 5
       rect:
@@ -166,6 +179,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: mailing_address_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: mailing_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   citizenship_nationality_cd:
     x_petey_id: '5_15'
     type: category
@@ -188,7 +214,8 @@ fields:
         widget_type: radiobutton
         path: F. Citizenship/Nationality
         on_state: Choice1
-        caption: Choice1
+        caption: USA
+        x_petey_caption_source: hand
       F. Citizenship/Nationality:
         page: 5
         rect:
@@ -199,7 +226,29 @@ fields:
         widget_type: radiobutton
         path: F. Citizenship/Nationality
         on_state: F. Citizenship/Nationality
-        caption: F. Citizenship/Nationality
+        caption: Other
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: citizenship_nationality_cd
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Choice1: Choice1
+          F. Citizenship/Nationality: F. Citizenship/Nationality
+      to:
+        name: citizenship_nationality_cd
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Choice1:
+            caption: USA
+          F. Citizenship/Nationality:
+            caption: Other
+      record: runs/hand_review/lib__faa8710.json
   citizenship_other_specify_txt:
     x_petey_id: '5_18'
     type: string
@@ -253,8 +302,7 @@ fields:
         caption: 'No'
   height_inches_amt:
     x_petey_id: '5_22'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -269,10 +317,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: height_inches_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      to:
+        name: height_inches_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   weight_pounds_amt:
     x_petey_id: '5_23'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -287,6 +349,21 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: weight_pounds_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      to:
+        name: weight_pounds_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   hair_color_txt:
     x_petey_id: '5_19'
     type: string
@@ -376,7 +453,8 @@ fields:
         widget_type: radiobutton
         path: M. Do you hold or have you ever held an FAA pilot certificate?
         on_state: Yes_3
-        caption: Yes_3
+        caption: 'Yes'
+        x_petey_caption_source: hand
       No_3:
         page: 5
         rect:
@@ -387,7 +465,29 @@ fields:
         widget_type: radiobutton
         path: M. Do you hold or have you ever held an FAA pilot certificate?
         on_state: No_3
-        caption: No_3
+        caption: 'No'
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: holds_faa_pilot_certificate_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Yes_3: Yes_3
+          No_3: No_3
+      to:
+        name: holds_faa_pilot_certificate_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Yes_3:
+            caption: 'Yes'
+          No_3:
+            caption: 'No'
+      record: runs/hand_review/lib__faa8710.json
   pilot_certificate_grade_txt:
     x_petey_id: '5_25'
     type: string
@@ -464,7 +564,8 @@ fields:
         widget_type: radiobutton
         path: Do you hold, or have you ever held a Medical Certificate?
         on_state: Choice1
-        caption: Choice1
+        caption: Yes - FAA
+        x_petey_caption_source: hand
       Choice2:
         page: 5
         rect:
@@ -475,7 +576,8 @@ fields:
         widget_type: radiobutton
         path: Do you hold, or have you ever held a Medical Certificate?
         on_state: Choice2
-        caption: Choice2
+        caption: Yes - Foreign
+        x_petey_caption_source: hand
       Choice3:
         page: 5
         rect:
@@ -486,7 +588,8 @@ fields:
         widget_type: radiobutton
         path: Do you hold, or have you ever held a Medical Certificate?
         on_state: Choice3
-        caption: Choice3
+        caption: Yes - Military
+        x_petey_caption_source: hand
       Choice4:
         page: 5
         rect:
@@ -497,7 +600,35 @@ fields:
         widget_type: radiobutton
         path: Do you hold, or have you ever held a Medical Certificate?
         on_state: Choice4
-        caption: Choice4
+        caption: 'No'
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: holds_medical_certificate_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Choice1: Choice1
+          Choice2: Choice2
+          Choice3: Choice3
+          Choice4: Choice4
+      to:
+        name: holds_medical_certificate_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Choice1:
+            caption: Yes - FAA
+          Choice2:
+            caption: Yes - Foreign
+          Choice3:
+            caption: Yes - Military
+          Choice4:
+            caption: 'No'
+      record: runs/hand_review/lib__faa8710.json
   medical_certificate_class_txt:
     x_petey_id: '5_29'
     type: string
@@ -575,7 +706,8 @@ fields:
           relating to narcotic drugs, marijuana, or depressant or stimulant drugs
           or substances?
         on_state: Yes_3
-        caption: Yes_3
+        caption: 'Yes'
+        x_petey_caption_source: hand
       No_4:
         page: 5
         rect:
@@ -588,7 +720,29 @@ fields:
           relating to narcotic drugs, marijuana, or depressant or stimulant drugs
           or substances?
         on_state: No_4
-        caption: No_4
+        caption: 'No'
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: drug_conviction_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Yes_3: Yes_3
+          No_4: No_4
+      to:
+        name: drug_conviction_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Yes_3:
+            caption: 'Yes'
+          No_4:
+            caption: 'No'
+      record: runs/hand_review/lib__faa8710.json
   drug_conviction_date_dt:
     x_petey_id: '5_33'
     type: date
@@ -644,7 +798,6 @@ fields:
   flight_time_amt:
     x_petey_id: '5_34'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -659,10 +812,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: flight_time_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: flight_time_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_in_command_time_amt:
     x_petey_id: '5_35'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -677,6 +844,21 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_in_command_time_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_in_command_time_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   basis_military_competence_ind:
     x_petey_id: '5_41'
     type: boolean
@@ -802,7 +984,6 @@ fields:
   training_agency_nm:
     x_petey_id: '5_44'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -812,6 +993,19 @@ fields:
       - 398.3999938964844
       widget_type: text
       path: 1a. Name
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: training_agency_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: training_agency_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   training_agency_location_txt:
     x_petey_id: '5_45'
     type: string
@@ -1020,7 +1214,6 @@ fields:
   air_carrier_nm:
     x_petey_id: '5_57'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -1034,6 +1227,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: air_carrier_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: air_carrier_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   air_carrier_training_began_dt:
     x_petey_id: '5_58'
     type: date
@@ -1055,7 +1261,6 @@ fields:
   pilot_time_airplane_total_amt:
     x_petey_id: '5_60'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1070,10 +1275,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_instruction_received_amt:
     x_petey_id: '5_61'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1088,10 +1307,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_solo_amt:
     x_petey_id: '5_62'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1106,10 +1339,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_pic_amt:
     x_petey_id: '5_63'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1124,10 +1371,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_sic_amt:
     x_petey_id: '5_76'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1142,10 +1403,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_xc_instruction_amt:
     x_petey_id: '5_64'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1160,10 +1435,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_xc_solo_amt:
     x_petey_id: '5_65'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1178,10 +1467,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_xc_pic_amt:
     x_petey_id: '5_66'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1196,10 +1499,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_xc_sic_amt:
     x_petey_id: '5_77'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1214,10 +1531,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_instrument_amt:
     x_petey_id: '5_67'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1232,10 +1563,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_night_instruction_amt:
     x_petey_id: '5_68'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1250,10 +1595,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_night_takeoff_landing_amt:
     x_petey_id: '5_69'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -1268,10 +1628,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_night_takeoff_landing_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_airplane_night_takeoff_landing_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_night_pic_amt:
     x_petey_id: '5_70'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1286,10 +1660,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_night_sic_amt:
     x_petey_id: '5_78'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1304,10 +1692,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_airplane_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_airplane_night_tol_pic_amt:
     x_petey_id: '5_71'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -1322,10 +1724,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_airplane_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_airplane_night_tol_sic_amt:
     x_petey_id: '5_79'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -1340,10 +1757,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_airplane_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_airplane_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_rotorcraft_total_amt:
     x_petey_id: '5_84'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1358,10 +1790,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_instruction_received_amt:
     x_petey_id: '5_85'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1376,10 +1822,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_solo_amt:
     x_petey_id: '5_86'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1394,10 +1854,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_pic_amt:
     x_petey_id: '5_92'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1412,10 +1886,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_sic_amt:
     x_petey_id: '5_96'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1430,10 +1918,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_xc_instruction_amt:
     x_petey_id: '5_87'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1448,10 +1950,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_xc_solo_amt:
     x_petey_id: '5_88'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1466,10 +1982,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_xc_pic_amt:
     x_petey_id: '5_93'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1484,10 +2014,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_xc_sic_amt:
     x_petey_id: '5_97'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1502,10 +2046,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_instrument_amt:
     x_petey_id: '5_89'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1520,10 +2078,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_night_instruction_amt:
     x_petey_id: '5_90'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1538,10 +2110,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_night_tol_amt:
     x_petey_id: '5_91'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -1556,10 +2143,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_night_pic_amt:
     x_petey_id: '5_94'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1574,10 +2175,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_night_sic_amt:
     x_petey_id: '5_98'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1592,10 +2207,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_rotorcraft_night_tol_pic_amt:
     x_petey_id: '5_95'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -1610,10 +2239,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_rotorcraft_night_tol_sic_amt:
     x_petey_id: '5_99'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -1628,10 +2272,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_rotorcraft_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_rotorcraft_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_powered_lift_total_amt:
     x_petey_id: '5_100'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1646,10 +2305,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_instruction_received_amt:
     x_petey_id: '5_101'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1664,10 +2337,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_solo_amt:
     x_petey_id: '5_102'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1682,10 +2369,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_pic_amt:
     x_petey_id: '5_108'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1700,10 +2401,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_sic_amt:
     x_petey_id: '5_116'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1718,10 +2433,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_xc_instruction_amt:
     x_petey_id: '5_103'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1736,10 +2465,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_xc_solo_amt:
     x_petey_id: '5_104'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1754,10 +2497,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_xc_pic_amt:
     x_petey_id: '5_109'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1772,10 +2529,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_xc_sic_amt:
     x_petey_id: '5_117'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1790,10 +2561,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_instrument_amt:
     x_petey_id: '5_105'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1808,10 +2593,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_night_instruction_amt:
     x_petey_id: '5_106'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1826,10 +2625,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_night_tol_amt:
     x_petey_id: '5_107'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -1844,10 +2658,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_night_pic_amt:
     x_petey_id: '5_110'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1862,10 +2690,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_night_sic_amt:
     x_petey_id: '5_118'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1880,10 +2722,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_powered_lift_night_tol_pic_amt:
     x_petey_id: '5_111'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -1898,10 +2754,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_powered_lift_night_tol_sic_amt:
     x_petey_id: '5_119'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -1916,10 +2787,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_powered_lift_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_powered_lift_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_glider_total_amt:
     x_petey_id: '5_124'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1934,10 +2820,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_glider_instruction_received_amt:
     x_petey_id: '5_125'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1952,10 +2852,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_glider_solo_amt:
     x_petey_id: '5_126'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1970,10 +2884,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_glider_pic_amt:
     x_petey_id: '5_130'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -1985,10 +2913,24 @@ fields:
       path: Gliders-PIC
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_glider_sic_amt:
     x_petey_id: '5_133'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2000,10 +2942,24 @@ fields:
       path: Gliders-SIC
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_glider_xc_instruction_amt:
     x_petey_id: '5_127'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2018,10 +2974,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_glider_xc_solo_amt:
     x_petey_id: '5_128'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2036,10 +3006,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_glider_instrument_amt:
     x_petey_id: '5_129'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2054,10 +3038,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_glider_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_glider_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_total_amt:
     x_petey_id: '5_134'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2072,10 +3070,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_instruction_received_amt:
     x_petey_id: '5_135'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2090,10 +3102,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_instruction_received_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_solo_amt:
     x_petey_id: '5_136'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2108,10 +3134,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_pic_amt:
     x_petey_id: '5_142'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2126,10 +3166,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_sic_amt:
     x_petey_id: '5_148'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2144,10 +3198,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_xc_instruction_amt:
     x_petey_id: '5_137'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2162,10 +3230,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_xc_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_xc_solo_amt:
     x_petey_id: '5_138'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2180,10 +3262,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_xc_solo_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_xc_pic_amt:
     x_petey_id: '5_143'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2198,10 +3294,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_xc_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_xc_sic_amt:
     x_petey_id: '5_149'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2216,10 +3326,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_xc_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_instrument_amt:
     x_petey_id: '5_139'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2234,10 +3358,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_night_instruction_amt:
     x_petey_id: '5_140'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2252,10 +3390,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_night_tol_amt:
     x_petey_id: '5_141'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2270,10 +3423,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_night_pic_amt:
     x_petey_id: '5_144'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2288,10 +3455,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_night_sic_amt:
     x_petey_id: '5_150'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2306,10 +3487,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_night_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_lighter_than_air_night_tol_pic_amt:
     x_petey_id: '5_145'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -2324,10 +3519,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_lighter_than_air_night_tol_sic_amt:
     x_petey_id: '5_151'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -2342,10 +3552,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_lighter_than_air_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_lighter_than_air_night_tol_sic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_ffs_total_amt:
     x_petey_id: '5_152'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2357,10 +3582,24 @@ fields:
       path: FFS-Total
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ffs_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ffs_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ffs_instruction_amt:
     x_petey_id: '5_153'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2375,10 +3614,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ffs_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ffs_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ffs_instrument_amt:
     x_petey_id: '5_154'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2393,10 +3646,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ffs_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ffs_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ffs_night_instruction_amt:
     x_petey_id: '5_155'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2411,10 +3678,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ffs_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ffs_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ffs_night_tol_amt:
     x_petey_id: '5_156'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2429,10 +3711,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ffs_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_ffs_night_tol_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ffs_night_pic_amt:
     x_petey_id: '5_157'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2447,10 +3743,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ffs_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ffs_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ffs_night_tol_pic_amt:
     x_petey_id: '5_158'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 5
       rect:
@@ -2465,10 +3775,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ffs_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pilot_time_ffs_night_tol_pic_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+    semantic_type: count
   pilot_time_ftd_total_amt:
     x_petey_id: '5_162'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2480,10 +3805,24 @@ fields:
       path: FTD-Total
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ftd_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ftd_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ftd_instruction_amt:
     x_petey_id: '5_163'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2498,10 +3837,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ftd_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ftd_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ftd_instrument_amt:
     x_petey_id: '5_164'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2516,10 +3869,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ftd_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ftd_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ftd_night_instruction_amt:
     x_petey_id: '5_165'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2534,10 +3901,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ftd_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ftd_night_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_ftd_night_pic_amt:
     x_petey_id: '5_166'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2552,10 +3933,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_ftd_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_ftd_night_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_atd_total_amt:
     x_petey_id: '5_170'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2567,10 +3962,24 @@ fields:
       path: ATD-Total
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_atd_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_atd_total_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_atd_instruction_amt:
     x_petey_id: '5_171'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2585,10 +3994,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_atd_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_atd_instruction_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   pilot_time_atd_instrument_amt:
     x_petey_id: '5_172'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2603,10 +4026,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  glider_class_totals_sel_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: pilot_time_atd_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: pilot_time_atd_instrument_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
+  glider_flights_amt:
     x_petey_id: '5_72'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2621,10 +4059,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  glider_class_totals_mel_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: glider_class_totals_sel_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: glider_flights_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  glider_aero_tows_amt:
     x_petey_id: '5_73'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2639,10 +4092,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  glider_class_totals_ses_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: glider_class_totals_mel_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: glider_aero_tows_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  glider_ground_launches_amt:
     x_petey_id: '5_74'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2657,10 +4125,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  glider_class_totals_mes_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: glider_class_totals_ses_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: glider_ground_launches_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  glider_powered_launches_amt:
     x_petey_id: '5_75'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2675,10 +4158,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  lighter_than_air_class_totals_sel_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: glider_class_totals_mes_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: glider_powered_launches_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  lighter_than_air_flights_amt:
     x_petey_id: '5_80'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2693,10 +4191,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  lighter_than_air_class_totals_mel_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: lighter_than_air_class_totals_sel_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: lighter_than_air_flights_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  lighter_than_air_aero_tows_amt:
     x_petey_id: '5_81'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2711,10 +4224,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  lighter_than_air_class_totals_ses_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: lighter_than_air_class_totals_mel_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: lighter_than_air_aero_tows_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  lighter_than_air_ground_launches_amt:
     x_petey_id: '5_82'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2729,10 +4257,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  lighter_than_air_class_totals_mes_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: lighter_than_air_class_totals_ses_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: lighter_than_air_ground_launches_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  lighter_than_air_powered_launches_amt:
     x_petey_id: '5_83'
-    type: number
-    semantic_type: money
+    type: integer
+    semantic_type: count
     widget:
       page: 5
       rect:
@@ -2747,10 +4290,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  powered_lift_class_totals_helo_pic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: lighter_than_air_class_totals_mes_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: lighter_than_air_powered_launches_amt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_sel_pic_amt:
     x_petey_id: '5_112'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2765,10 +4322,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  powered_lift_class_totals_helo_sic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: powered_lift_class_totals_helo_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_sel_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_sel_sic_amt:
     x_petey_id: '5_120'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2783,10 +4354,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  powered_lift_class_totals_gyro_pic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: powered_lift_class_totals_helo_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_sel_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_mel_pic_amt:
     x_petey_id: '5_113'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2801,10 +4386,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  powered_lift_class_totals_gyro_sic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: powered_lift_class_totals_gyro_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_mel_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_mel_sic_amt:
     x_petey_id: '5_121'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2819,10 +4418,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  rotorcraft_class_totals_helo_pic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: powered_lift_class_totals_gyro_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_mel_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_ses_pic_amt:
     x_petey_id: '5_114'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2837,10 +4450,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  rotorcraft_class_totals_helo_sic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: rotorcraft_class_totals_helo_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_ses_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_ses_sic_amt:
     x_petey_id: '5_122'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2855,10 +4482,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  rotorcraft_class_totals_gyro_pic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: rotorcraft_class_totals_helo_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_ses_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_mes_pic_amt:
     x_petey_id: '5_115'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2873,10 +4514,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  rotorcraft_class_totals_gyro_sic_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: rotorcraft_class_totals_gyro_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_mes_pic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  airplane_mes_sic_amt:
     x_petey_id: '5_123'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2891,10 +4546,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  glider_rotorcraft_class_totals_helicopter_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: rotorcraft_class_totals_gyro_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: airplane_mes_sic_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  rotorcraft_helicopter_amt:
     x_petey_id: '5_131'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2909,10 +4578,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  glider_rotorcraft_class_totals_gyroplane_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: glider_rotorcraft_class_totals_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: rotorcraft_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
+  rotorcraft_gyroplane_amt:
     x_petey_id: '5_132'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2927,10 +4610,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: glider_rotorcraft_class_totals_gyroplane_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: rotorcraft_gyroplane_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: name
   lighter_than_air_class_totals_balloon_amt:
     x_petey_id: '5_146'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2945,10 +4642,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: lighter_than_air_class_totals_balloon_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: lighter_than_air_class_totals_balloon_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   lighter_than_air_class_totals_airship_amt:
     x_petey_id: '5_147'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2963,10 +4674,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: lighter_than_air_class_totals_airship_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: lighter_than_air_class_totals_airship_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   ffs_class_totals_se_amt:
     x_petey_id: '5_159'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2978,10 +4703,24 @@ fields:
       path: FFS-SE
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ffs_class_totals_se_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ffs_class_totals_se_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   ffs_class_totals_me_amt:
     x_petey_id: '5_160'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -2993,10 +4732,24 @@ fields:
       path: FFS-ME
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ffs_class_totals_me_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ffs_class_totals_me_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   ffs_class_totals_helicopter_amt:
     x_petey_id: '5_161'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -3011,10 +4764,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ffs_class_totals_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ffs_class_totals_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   ftd_class_totals_se_amt:
     x_petey_id: '5_167'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -3026,10 +4793,24 @@ fields:
       path: FTD-SE
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ftd_class_totals_se_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ftd_class_totals_se_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   ftd_class_totals_me_amt:
     x_petey_id: '5_168'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -3041,10 +4822,24 @@ fields:
       path: FTD-ME
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ftd_class_totals_me_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ftd_class_totals_me_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   ftd_class_totals_helicopter_amt:
     x_petey_id: '5_169'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -3059,10 +4854,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ftd_class_totals_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ftd_class_totals_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   atd_class_totals_se_amt:
     x_petey_id: '5_173'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -3074,10 +4883,24 @@ fields:
       path: ATD-SE
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: atd_class_totals_se_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: atd_class_totals_se_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   atd_class_totals_me_amt:
     x_petey_id: '5_174'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -3089,10 +4912,24 @@ fields:
       path: ATD-ME
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: atd_class_totals_me_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: atd_class_totals_me_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   atd_class_totals_helicopter_amt:
     x_petey_id: '5_175'
     type: number
-    semantic_type: money
     widget:
       page: 5
       rect:
@@ -3107,6 +4944,21 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: atd_class_totals_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: atd_class_totals_helicopter_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   previously_denied_certificate_ind:
     x_petey_id: '5_176'
     type: category
@@ -3131,7 +4983,8 @@ fields:
         path: Have you previously received a Notice of Disapproval or been denied
           for any reason for the certificate AND/OR rating for which you are applying?
         on_state: Yes_4
-        caption: Yes_4
+        caption: 'Yes'
+        x_petey_caption_source: hand
       No_5:
         page: 5
         rect:
@@ -3143,7 +4996,29 @@ fields:
         path: Have you previously received a Notice of Disapproval or been denied
           for any reason for the certificate AND/OR rating for which you are applying?
         on_state: No_5
-        caption: No_5
+        caption: 'No'
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: previously_denied_certificate_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Yes_4: Yes_4
+          No_5: No_5
+      to:
+        name: previously_denied_certificate_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          Yes_4:
+            caption: 'Yes'
+          No_5:
+            caption: 'No'
+      record: runs/hand_review/lib__faa8710.json
   applicant_signature_dt:
     x_petey_id: '5_177'
     type: date
@@ -3277,7 +5152,6 @@ fields:
   authorized_flight_instructor_signature_nm:
     x_petey_id: '6_7'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3291,6 +5165,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: authorized_flight_instructor_signature_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: authorized_flight_instructor_signature_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   flight_instructor_certificate_number:
     x_petey_id: '6_8'
     type: string
@@ -3328,7 +5215,6 @@ fields:
   air_agency_course_nm:
     x_petey_id: '6_10'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3342,6 +5228,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: air_agency_course_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: air_agency_course_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   air_agency_recommendation_dt:
     x_petey_id: '6_11'
     type: date
@@ -3360,7 +5259,6 @@ fields:
   agency_nm_and_number:
     x_petey_id: '6_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3374,23 +5272,56 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  examiner_accepted_student_pilot_application_ind:
-    x_petey_id: '6_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 40.68000030517578
-      - 162.84002685546875
-      - 48.720001220703125
-      - 172.08001708984375
-      widget_type: checkbox
-      path: Accepted Student Pilot Application
-    description: Accepted Student Pilot Application
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: agency_nm_and_number
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: agency_nm_and_number
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+  designated_examiner_application_status:
+    x_petey_id: '6_113'
+    type: category
+    values:
+    - examiner_accepted_student_pilot_application_ind
+    - examiner_rejected_student_pilot_application_ind
+    widgets:
+      examiner_accepted_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 40.68000030517578
+        - 162.84002685546875
+        - 48.720001220703125
+        - 172.08001708984375
+        widget_type: checkbox
+        path: Accepted Student Pilot Application
+        on_state: 'On'
+        caption: Accepted Student Pilot Application
+        x_petey_caption_source: tooltip
+      examiner_rejected_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 345.9599914550781
+        - 162.84002685546875
+        - 354.1199951171875
+        - 172.08001708984375
+        widget_type: checkbox
+        path: Rejected Student Pilot Application
+        on_state: 'On'
+        caption: 'Designated Examiner report: Rejected Student Pilot Application'
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - examiner_accepted_student_pilot_application_ind
+      - examiner_rejected_student_pilot_application_ind
   examiner_reviewed_logbook_ind:
     x_petey_id: '6_14'
     type: boolean
@@ -3471,52 +5402,46 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  approved_temporary_certificate_issued_ind:
-    x_petey_id: '6_18'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 112.68000030517578
-      - 213.1199951171875
-      - 120.72000122070312
-      - 222.3599853515625
-      widget_type: checkbox
-      path: Approved-Temporary Certificate Issued (Original Attached)
-    description: Approved-Temporary Certificate Issued (Original Attached)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:appearances
-    - option_group:appearances
-    - option_group:appearances
-    - option_group:appearances
-    - option_group:appearances
-    x_petey_appearances: 2
-  disapproved_notice_issued_ind:
-    x_petey_id: '6_19'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 292.67999267578125
-      - 213.1199951171875
-      - 300.7200012207031
-      - 222.3599853515625
-      widget_type: checkbox
-      path: Disapproved-Disapproval Notice Issued (Original Attached)
-    description: Disapproved-Disapproval Notice Issued (Original Attached)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:appearances
-    - option_group:appearances
-    - option_group:appearances
-    - option_group:appearances
-    - option_group:appearances
-    x_petey_appearances: 2
+  designated_examiner_result:
+    x_petey_id: '6_110'
+    type: category
+    values:
+    - approved_temporary_certificate_issued_ind
+    - disapproved_notice_issued_ind
+    widgets:
+      approved_temporary_certificate_issued_ind:
+        page: 6
+        rect:
+        - 112.68000030517578
+        - 213.1199951171875
+        - 120.72000122070312
+        - 222.3599853515625
+        widget_type: checkbox
+        path: Approved-Temporary Certificate Issued (Original Attached)
+        on_state: 'On'
+        caption: Approved-Temporary Certificate Issued (Original Attached)
+        x_petey_caption_source: tooltip
+      disapproved_notice_issued_ind:
+        page: 6
+        rect:
+        - 292.67999267578125
+        - 213.1199951171875
+        - 300.7200012207031
+        - 222.3599853515625
+        widget_type: checkbox
+        path: Disapproved-Disapproval Notice Issued (Original Attached)
+        on_state: 'On'
+        caption: Disapproved-Disapproval Notice Issued (Original Attached)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - group_p6::approved_temporary_certificate_issued_ind
+      - group_p6::disapproved_notice_issued_ind
+      renamed_from: group_p6
+      name_from: labeler
+    label_source: llm
   test_location_nm:
     x_petey_id: '6_20'
     type: string
@@ -3537,7 +5462,6 @@ fields:
   ground_oral_duration_amt:
     x_petey_id: '6_21'
     type: number
-    semantic_type: money
     widget:
       page: 6
       rect:
@@ -3552,10 +5476,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ground_oral_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ground_oral_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   ffs_ftd_duration_amt:
     x_petey_id: '6_22'
     type: number
-    semantic_type: money
     widget:
       page: 6
       rect:
@@ -3567,10 +5505,24 @@ fields:
       path: FFS  / FTD
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: ffs_ftd_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ffs_ftd_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   flight_duration_amt:
     x_petey_id: '6_23'
     type: number
-    semantic_type: money
     widget:
       page: 6
       rect:
@@ -3582,6 +5534,21 @@ fields:
       path: Flight
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: flight_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: flight_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   certificate_or_rating_applied_for:
     x_petey_id: '6_24'
     type: string
@@ -3993,40 +5960,43 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  asi_accepted_student_pilot_application_ind:
-    x_petey_id: '6_49'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 40.5546989440918
-      - 435.4590148925781
-      - 48.61309814453125
-      - 444.2619934082031
-      widget_type: checkbox
-      path: Accepted-Student Pilot Application
-    description: Accepted-Student Pilot Application
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  asi_rejected_student_pilot_application_ind:
-    x_petey_id: '6_50'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 457.489013671875
-      - 435.4159851074219
-      - 465.6789855957031
-      - 444.218994140625
-      widget_type: checkbox
-      path: Rejected-Student Pilot Application
-    description: Rejected-Student Pilot Application
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  asi:
+    x_petey_id: '6_115'
+    type: category
+    values:
+    - asi_accepted_student_pilot_application_ind
+    - asi_rejected_student_pilot_application_ind
+    widgets:
+      asi_accepted_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 40.5546989440918
+        - 435.4590148925781
+        - 48.61309814453125
+        - 444.2619934082031
+        widget_type: checkbox
+        path: Accepted-Student Pilot Application
+        on_state: 'Yes'
+        caption: Accepted-Student Pilot Application
+        x_petey_caption_source: tooltip
+      asi_rejected_student_pilot_application_ind:
+        page: 6
+        rect:
+        - 457.489013671875
+        - 435.4159851074219
+        - 465.6789855957031
+        - 444.218994140625
+        widget_type: checkbox
+        path: Rejected-Student Pilot Application
+        on_state: 'Yes'
+        caption: Rejected-Student Pilot Application
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - asi_accepted_student_pilot_application_ind
+      - asi_rejected_student_pilot_application_ind
   asi_test_location_nm:
     x_petey_id: '6_51'
     type: string
@@ -4047,7 +6017,6 @@ fields:
   asi_ground_oral_duration_amt:
     x_petey_id: '6_52'
     type: number
-    semantic_type: money
     widget:
       page: 6
       rect:
@@ -4062,10 +6031,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: asi_ground_oral_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: asi_ground_oral_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   asi_ffs_ftd_duration_amt:
     x_petey_id: '6_53'
     type: number
-    semantic_type: money
     widget:
       page: 6
       rect:
@@ -4077,10 +6060,24 @@ fields:
       path: FFS / FTD_2
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: asi_ffs_ftd_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: asi_ffs_ftd_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   asi_flight_duration_amt:
     x_petey_id: '6_54'
     type: number
-    semantic_type: money
     widget:
       page: 6
       rect:
@@ -4092,6 +6089,21 @@ fields:
       path: Flight_2
     x_petey_retype:
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 10:26:54'
+      from:
+        name: asi_flight_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: asi_flight_duration_amt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+      by: claude
+      kind: suffix
   asi_certificate_or_rating_applied_for:
     x_petey_id: '6_55'
     type: string
@@ -4159,41 +6171,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+  examiner_recommendation:
+    x_petey_id: '6_111'
+    type: category
+    values:
+    - examiner_recommendation_accepted_ind
+    - examiner_recommendation_rejected_ind
+    widgets:
+      examiner_recommendation_accepted_ind:
+        page: 6
+        rect:
+        - 47.52000045776367
+        - 509.8800048828125
+        - 54.119998931884766
+        - 517.7999877929688
+        widget_type: checkbox
+        path: Examiner's Recommendation Provided/Reviewed-Accepted
+        on_state: 'On'
+        caption: Examiner's Recommendation Provided/Reviewed-Accepted
+        x_petey_caption_source: tooltip
+      examiner_recommendation_rejected_ind:
+        page: 6
+        rect:
+        - 77.4000015258789
+        - 509.8800048828125
+        - 84.0
+        - 517.7999877929688
+        widget_type: checkbox
+        path: Examiner's Recommendation Provided/Reviewed-Rejected
+        on_state: 'On'
+        caption: Examiner's Recommendation Provided/Reviewed-Rejected
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:05:01'
+      from:
+      - examiner_recommendation_accepted_ind
+      - examiner_recommendation_rejected_ind
   student_pilot_application_accepted_ind:
-    x_petey_id: '6_62'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 47.52000045776367
-      - 509.8800048828125
-      - 54.119998931884766
-      - 517.7999877929688
-      widget_type: checkbox
-      path: Examiner's Recommendation Provided/Reviewed-Accepted
-    description: Examiner's Recommendation Provided/Reviewed-Accepted
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  student_pilot_application_rejected_ind:
-    x_petey_id: '6_63'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 77.4000015258789
-      - 509.8800048828125
-      - 84.0
-      - 517.7999877929688
-      widget_type: checkbox
-      path: Examiner's Recommendation Provided/Reviewed-Rejected
-    description: Examiner's Recommendation Provided/Reviewed-Rejected
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  reissue_exchange_certificate_ind:
     x_petey_id: '6_70'
     type: boolean
     semantic_type: indicator
@@ -4210,7 +6225,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  change_of_name_nationality_gender_dob_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: reissue_exchange_certificate_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: student_pilot_application_accepted_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+  reissue_exchange_certificate_ind:
     x_petey_id: '6_72'
     type: boolean
     semantic_type: indicator
@@ -4227,7 +6255,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  sic_type_rating_issued_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: change_of_name_nationality_gender_dob_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: reissue_exchange_certificate_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+  change_of_name_nationality_gender_dob_ind:
     x_petey_id: '6_77'
     type: boolean
     semantic_type: indicator
@@ -4244,7 +6285,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  ground_instructor_certificate_issued_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: sic_type_rating_issued_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: change_of_name_nationality_gender_dob_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+  sic_type_rating_issued_ind:
     x_petey_id: '6_80'
     type: boolean
     semantic_type: indicator
@@ -4261,6 +6315,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: ground_instructor_certificate_issued_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: sic_type_rating_issued_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   ground_instructor_certificate_issued_ind_2:
     x_petey_id: '6_59'
     type: boolean
@@ -4278,57 +6345,57 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  ground_instructor_basic_ind:
-    x_petey_id: '6_64'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 194.63999938964844
-      - 512.6400146484375
-      - 201.24000549316406
-      - 520.7999877929688
-      widget_type: checkbox
-      path: Ground Instructor Certificate Issued-Basic
-    description: Ground Instructor Certificate Issued-Basic
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ground_instructor_advanced_ind:
-    x_petey_id: '6_71'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 194.63999938964844
-      - 523.5599975585938
-      - 201.24000549316406
-      - 531.719970703125
-      widget_type: checkbox
-      path: Ground Instructor Certificate Issued-Advanced
-    description: Ground Instructor Certificate Issued-Advanced
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ground_instructor_instrument_ind:
-    x_petey_id: '6_73'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 194.63999938964844
-      - 533.6400146484375
-      - 201.24000549316406
-      - 541.5599975585938
-      widget_type: checkbox
-      path: Ground Instructor Certificate Issued-Instrument
-    description: Ground Instructor Certificate Issued-Instrument
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  ground_instructor_certificate:
+    x_petey_id: '6_112'
+    type: category
+    values:
+    - ground_instructor_basic_ind
+    - ground_instructor_advanced_ind
+    - ground_instructor_instrument_ind
+    widgets:
+      ground_instructor_basic_ind:
+        page: 6
+        rect:
+        - 194.63999938964844
+        - 512.6400146484375
+        - 201.24000549316406
+        - 520.7999877929688
+        widget_type: checkbox
+        path: Ground Instructor Certificate Issued-Basic
+        on_state: 'On'
+        caption: Ground Instructor Certificate Issued-Basic
+        x_petey_caption_source: tooltip
+      ground_instructor_advanced_ind:
+        page: 6
+        rect:
+        - 194.63999938964844
+        - 523.5599975585938
+        - 201.24000549316406
+        - 531.719970703125
+        widget_type: checkbox
+        path: Ground Instructor Certificate Issued-Advanced
+        on_state: 'On'
+        caption: Ground Instructor Certificate Issued-Advanced
+        x_petey_caption_source: tooltip
+      ground_instructor_instrument_ind:
+        page: 6
+        rect:
+        - 194.63999938964844
+        - 533.6400146484375
+        - 201.24000549316406
+        - 541.5599975585938
+        widget_type: checkbox
+        path: Ground Instructor Certificate Issued-Instrument
+        on_state: 'On'
+        caption: Ground Instructor Certificate Issued-Instrument
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:05:01'
+      from:
+      - ground_instructor_basic_ind
+      - ground_instructor_advanced_ind
+      - ground_instructor_instrument_ind
   flight_instructor_certificate_issued_ind:
     x_petey_id: '6_60'
     type: boolean
@@ -4346,57 +6413,59 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  flight_instructor_initial_ind:
-    x_petey_id: '6_65'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 302.6400146484375
-      - 512.6400146484375
-      - 309.239990234375
-      - 520.7999877929688
-      widget_type: checkbox
-      path: Flight Instructor Certificate Issued-Initial
-    description: Flight Instructor Certificate Issued-Initial
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  flight_instructor_renewal_ind:
-    x_petey_id: '6_66'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 324.6000061035156
-      - 512.6400146484375
-      - 331.20001220703125
-      - 520.7999877929688
-      widget_type: checkbox
-      path: Flight Instructor Certificate Issued-Renewal
-    description: Flight Instructor Certificate Issued-Renewal
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  flight_instructor_reinstatement_ind:
-    x_petey_id: '6_67'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 354.3599853515625
-      - 512.6400146484375
-      - 360.9599914550781
-      - 520.7999877929688
-      widget_type: checkbox
-      path: Flight Instructor Certificate Issued-Reinstatement
-    description: Flight Instructor Certificate Issued-Reinstatement
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  flight_instructor_certificate_issued:
+    x_petey_id: '6_116'
+    type: category
+    values:
+    - flight_instructor_initial_ind
+    - flight_instructor_renewal_ind
+    - flight_instructor_reinstatement_ind
+    widgets:
+      flight_instructor_initial_ind:
+        page: 6
+        rect:
+        - 302.6400146484375
+        - 512.6400146484375
+        - 309.239990234375
+        - 520.7999877929688
+        widget_type: checkbox
+        path: Flight Instructor Certificate Issued-Initial
+        on_state: 'On'
+        caption: Flight Instructor Certificate Issued-Initial
+        x_petey_caption_source: tooltip
+      flight_instructor_renewal_ind:
+        page: 6
+        rect:
+        - 324.6000061035156
+        - 512.6400146484375
+        - 331.20001220703125
+        - 520.7999877929688
+        widget_type: checkbox
+        path: Flight Instructor Certificate Issued-Renewal
+        on_state: 'On'
+        caption: Flight Instructor Certificate Issued-Renewal
+        x_petey_caption_source: tooltip
+      flight_instructor_reinstatement_ind:
+        page: 6
+        rect:
+        - 354.3599853515625
+        - 512.6400146484375
+        - 360.9599914550781
+        - 520.7999877929688
+        widget_type: checkbox
+        path: Flight Instructor Certificate Issued-Reinstatement
+        on_state: 'On'
+        caption: Flight Instructor Certificate Issued-Reinstatement
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - flight_instructor_initial_ind
+      - flight_instructor_renewal_ind
+      - flight_instructor_reinstatement_ind
+      name_from: labeler
   instructor_renewal_activity_ind:
     x_petey_id: '6_74'
     type: boolean
@@ -5018,7 +7087,7 @@ fields:
       path: 'REMARKS:'
   certificate:
     x_petey_id: '5_2'
-    type: category
+    type: multi_category
     values:
     - atp_ind
     - atp_restricted_ind
@@ -5099,9 +7168,22 @@ fields:
         on_state: 'On'
         caption: ATP
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: certificate
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: certificate
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   instructor_rating:
     x_petey_id: '5_3'
-    type: category
+    type: multi_category
     values:
     - flight_ind
     - ground_ind
@@ -5130,9 +7212,22 @@ fields:
         on_state: 'On'
         caption: Ground
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: instructor_rating
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: instructor_rating
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   category_class:
     x_petey_id: '5_4'
-    type: category
+    type: multi_category
     values:
     - airship_ind
     - ame_ind
@@ -5265,9 +7360,22 @@ fields:
         on_state: 'On'
         caption: Sea
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: category_class
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: category_class
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   instrument_rating:
     x_petey_id: '5_5'
-    type: category
+    type: multi_category
     values:
     - airplane_ind
     - helicopter_ind
@@ -5309,9 +7417,22 @@ fields:
         on_state: 'On'
         caption: Powered-Lift
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: instrument_rating
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: instrument_rating
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
   ground_instructor:
     x_petey_id: '5_6'
-    type: category
+    type: multi_category
     values:
     - advanced_ind
     - basic_ind
@@ -5353,20 +7474,33 @@ fields:
         on_state: 'On'
         caption: Instrument
         x_petey_caption_source: page_text
-  other_info:
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: ground_instructor
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: ground_instructor
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+  other_information_requests:
     x_petey_id: '5_1'
-    type: category
+    type: multi_category
     values:
-    - flight_review_ind
     - initial_ind
-    - instrument_proficiency_check_ind
-    - ipl_ind
-    - limitation_removal_ind
-    - medical_flight_test_ind
     - reexamination_ind
-    - reinstatement_ind
-    - reissuance_ind
+    - instrument_proficiency_check_ind
     - renewal_ind
+    - reissuance_ind
+    - medical_flight_test_ind
+    - reinstatement_ind
+    - flight_review_ind
+    - limitation_removal_ind
+    - ipl_ind
     widgets:
       initial_ind:
         page: 5
@@ -5380,30 +7514,6 @@ fields:
         on_state: 'On'
         caption: Initial
         x_petey_caption_source: page_text
-      renewal_ind:
-        page: 5
-        rect:
-        - 387.7200012207031
-        - 122.03997802734375
-        - 395.1600036621094
-        - 131.15997314453125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Renewal'
-        on_state: 'On'
-        caption: Renewal
-        x_petey_caption_source: page_text
-      reinstatement_ind:
-        page: 5
-        rect:
-        - 387.7200012207031
-        - 133.08001708984375
-        - 395.1600036621094
-        - 142.20001220703125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Reinstatement'
-        on_state: 'On'
-        caption: Reinstatement
-        x_petey_caption_source: page_text
       reexamination_ind:
         page: 5
         rect:
@@ -5415,30 +7525,6 @@ fields:
         path: 'Other Information/Requests: Reexamination'
         on_state: 'On'
         caption: Reexamination
-        x_petey_caption_source: page_text
-      reissuance_ind:
-        page: 5
-        rect:
-        - 439.20001220703125
-        - 122.03997802734375
-        - 446.6400146484375
-        - 131.15997314453125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Reissuance'
-        on_state: 'On'
-        caption: Reissuance
-        x_petey_caption_source: page_text
-      flight_review_ind:
-        page: 5
-        rect:
-        - 439.20001220703125
-        - 133.08001708984375
-        - 446.6400146484375
-        - 142.20001220703125
-        widget_type: checkbox
-        path: 'Other Information/Requests: Flight Review'
-        on_state: 'On'
-        caption: Flight Review
         x_petey_caption_source: page_text
       instrument_proficiency_check_ind:
         page: 5
@@ -5452,6 +7538,30 @@ fields:
         on_state: 'On'
         caption: Instrument Proficiency Check
         x_petey_caption_source: page_text
+      renewal_ind:
+        page: 5
+        rect:
+        - 387.7200012207031
+        - 122.03997802734375
+        - 395.1600036621094
+        - 131.15997314453125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Renewal'
+        on_state: 'On'
+        caption: Renewal
+        x_petey_caption_source: page_text
+      reissuance_ind:
+        page: 5
+        rect:
+        - 439.20001220703125
+        - 122.03997802734375
+        - 446.6400146484375
+        - 131.15997314453125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Reissuance'
+        on_state: 'On'
+        caption: Reissuance
+        x_petey_caption_source: page_text
       medical_flight_test_ind:
         page: 5
         rect:
@@ -5463,6 +7573,30 @@ fields:
         path: 'Other Information/Requests: Medical Flight Test'
         on_state: 'On'
         caption: Medical Flight Test
+        x_petey_caption_source: page_text
+      reinstatement_ind:
+        page: 5
+        rect:
+        - 387.7200012207031
+        - 133.08001708984375
+        - 395.1600036621094
+        - 142.20001220703125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Reinstatement'
+        on_state: 'On'
+        caption: Reinstatement
+        x_petey_caption_source: page_text
+      flight_review_ind:
+        page: 5
+        rect:
+        - 439.20001220703125
+        - 133.08001708984375
+        - 446.6400146484375
+        - 142.20001220703125
+        widget_type: checkbox
+        path: 'Other Information/Requests: Flight Review'
+        on_state: 'On'
+        caption: Flight Review
         x_petey_caption_source: page_text
       limitation_removal_ind:
         page: 5
@@ -5488,6 +7622,36 @@ fields:
         on_state: 'On'
         caption: IPL
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 11:00:10'
+      from:
+        name: other_info
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_info
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__faa8710.json
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - other_info::initial_ind
+      - other_info::reexamination_ind
+      - other_info::instrument_proficiency_check_ind
+      - other_info::renewal_ind
+      - other_info::reissuance_ind
+      - other_info::medical_flight_test_ind
+      - other_info::reinstatement_ind
+      - other_info::flight_review_ind
+      - other_info::limitation_removal_ind
+      - other_info::ipl_ind
+      renamed_from: other_info
+      name_from: labeler
   air_carrier_training:
     x_petey_id: '5_59'
     type: category
@@ -5545,6 +7709,45 @@ fields:
         on_state: 'Yes'
         caption: Recurrent
         x_petey_caption_source: page_text
+  aviation_safety_inspector_report_result:
+    x_petey_id: '6_114'
+    type: category
+    values:
+    - asi_approved_temporary_certificate_issued_ind
+    - asi_disapproved_notice_issued_ind
+    widgets:
+      asi_approved_temporary_certificate_issued_ind:
+        page: 6
+        rect:
+        - 114.23999786376953
+        - 426.3599853515625
+        - 122.27999877929688
+        - 435.4800109863281
+        widget_type: checkbox
+        path: Approved-Temporary Certificate Issued (Original Attached)
+        on_state: 'On'
+        caption: Approved – Temporary
+        x_petey_caption_source: page_text
+      asi_disapproved_notice_issued_ind:
+        page: 6
+        rect:
+        - 296.5199890136719
+        - 426.3599853515625
+        - 304.55999755859375
+        - 435.4800109863281
+        widget_type: checkbox
+        path: Disapproved-Disapproval Notice Issued (Original Attached)
+        on_state: 'On'
+        caption: Temporary Certificate Issued (Original Attached)
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 11:17:13'
+      from:
+      - asi_approved_temporary_certificate_issued_ind
+      - asi_disapproved_notice_issued_ind
+      name_from: labeler
 x_petey_dedup_log:
   duplicate_labels_reassigned: 3
   collisions:
