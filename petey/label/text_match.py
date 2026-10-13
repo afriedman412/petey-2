@@ -45,16 +45,35 @@ _GENERIC = re.compile(r"^(?:text|field|check|box|checkbox|button|radio|group|cho
                       r"page|subform|f|c|p|tf|cb|rb|txt|undefined|fill|textfield|dropdown|list|combo)$")
 
 
-def name_words(name: str, expand: bool = True) -> str:
+def name_words(name: str, expand: bool = True, text: Optional[str] = None) -> str:
     """`patient_sex_cd` -> 'patient sex code'; `insured_policy_eff_dt2` -> 'insured policy effective date 2' (a
     number glued to a word is split off, so the word is read as itself). `expand=False` keeps the labeler's
     abbreviations ('insured policy eff dt 2'): training sees both, so the model learns abbreviations `_WORDS`
-    does not list (`gl`, `insd`) from examples."""
+    does not list (`gl`, `insd`) from examples. With `text`, a part `_WORDS` does not know is written out as the
+    text's word it abbreviates (`abbreviates`): `gl_addl_insd_txt` against '... named as an additional insured'
+    -> 'gl additional insured text' (2026-10-12; the model read 'gl addl insd text' at 0.09, written out 0.74)."""
+    tw = re.findall(r"[a-z]+", text.lower()) if (text and expand) else []
+    seen = set(tw)
     out = []
     for t in re.split(r"[_\s]+", (name or "").lower()):
         for p in re.sub(r"^([a-z]+)(\d+)$", r"\1 \2", t).split():
-            out.append(_WORDS.get(p, p) if expand else p)
+            if expand and p in _WORDS:
+                out.append(_WORDS[p])
+            elif p not in seen and (w := next((w for w in tw if abbreviates(p, w)), None)):
+                out.append(w)
+            else:
+                out.append(p)
     return " ".join(w for w in out if w)
+
+
+def abbreviates(short: str, long: str) -> bool:
+    """`short` reads as an abbreviation of `long`: at least three letters, the same first letter, and its letters
+    in `long` in order ('addl' ~ 'additional', 'insd' ~ 'insured', 'subr' ~ 'subrogation', 'wvd' ~ 'waived'). No
+    list (Andrew, 2026-10-12). It also matches 'insd' ~ 'inside': callers compare against one text's words."""
+    if len(short) < 3 or len(short) >= len(long) or short[0] != long[0] or not short.isalpha():
+        return False
+    it = iter(long)
+    return all(c in it for c in short)
 
 
 def path_words(path: Optional[str]) -> Optional[str]:

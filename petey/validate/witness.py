@@ -60,6 +60,7 @@ import collections
 import functools
 import json
 import math
+import os
 import re
 import string
 from pathlib import Path
@@ -156,6 +157,19 @@ _EXPAND_WORDS = {"ssn": ("social", "security"), "ein": ("employer", "identificat
 
 @functools.lru_cache(maxsize=None)
 def _stem(w: str) -> str:
+    """Snowball by default. PETEY_STEM=plural strips plurals only ('addresses' ~ 'address', 'insured' stays apart
+    from 'insurer', which Snowball joins); PETEY_STEM=none keeps words as they are (a test, 2026-10-12)."""
+    mode = os.environ.get("PETEY_STEM", "snowball")
+    if mode == "none":
+        return w
+    if mode == "plural":
+        if len(w) > 4 and w.endswith("ies"):
+            return w[:-3] + "y"
+        if len(w) > 4 and w.endswith(("ses", "xes", "zes", "ches", "shes")):
+            return w[:-2]
+        if len(w) > 3 and w.endswith("s") and not w.endswith(("ss", "us", "is")):
+            return w[:-1]
+        return w
     return _STEMMER.stemWord(w)
 
 
@@ -277,7 +291,7 @@ class Names:
         """How well the field's own texts (of this witness) describe it, by the model; cached."""
         if field not in self._own_model:
             ts = [t for t in (self.own_texts.get(field) or []) if t]
-            got = text_match.score_pairs([(t, text_match.name_words(field)) for t in ts]) if ts else []
+            got = text_match.score_pairs([(t, text_match.name_words(field, text=t)) for t in ts]) if ts else []
             self._own_model[field] = max(got or [0.0])
         return self._own_model[field]
 
@@ -289,7 +303,7 @@ class Names:
         text = " | ".join(texts)
         shared = _same_text(text) in self.shared   # a text several fields carry names none of them: no verdict
         rivals = [] if shared else self.rivals(name)
-        got = text_match.score_pairs([(text, text_match.name_words(n)) for n in [name] + rivals])
+        got = text_match.score_pairs([(text, text_match.name_words(n, text=text)) for n in [name] + rivals])
         mine, theirs = got[0], dict(zip(rivals, got[1:]))
         best, who = mine + _MARGIN_M, None
         for other, s in theirs.items():
@@ -318,7 +332,7 @@ def prefetch_scores(fields: dict, by_witness: dict[str, "Names"]) -> int:
                 if not t or not _toks(t):
                     continue
                 rivals = [] if _same_text(t) in nm.shared else nm.rivals(name)
-                pairs += [(t, text_match.name_words(n)) for n in [name] + rivals]
+                pairs += [(t, text_match.name_words(n, text=t)) for n in [name] + rivals]
     pairs = list(dict.fromkeys(pairs))
     text_match.score_pairs(pairs)
     return len(pairs)
@@ -340,13 +354,28 @@ def printed_agrees(texts: list[str], printed: list[str]) -> bool:
     (of the shorter) with a line printed at the box. A flag built on a text the page does not echo is a hint: the
     tooltip may be a copy-paste from another box. On the 21 hand-flagged name errors: false alarms on looked-at
     fields 57 -> 22, real errors caught 16 -> 15."""
-    for t in texts:
-        a = _toks(t)
-        for line in printed:
-            b = _toks(line)
-            if a and b and len(a & b) / min(len(a), len(b)) >= _AGREE:
-                return True
-    return False
+    return any(_agreement(t, line) >= _AGREE for t in texts for line in printed)
+
+
+def _agreement(a: str, b: str) -> float:
+    """The share of the shorter text's words the other one has: the same word (`_toks`: abbreviations written out,
+    stemmed), or one an abbreviation of the other (`text_match.abbreviates`: the printed header 'ADDL INSD' ~ the
+    tooltip's 'additional insured'; 2026-10-12, before which ACORD 25's ADDL INSD flags were all demoted). Each
+    word of the longer text answers for one word only."""
+    wa, wb = (list(dict.fromkeys(w for w in re.findall(r"[a-z]+", (x or "").lower()) if _toks(w)))
+              for x in (a, b))
+    if len(wa) > len(wb):
+        wa, wb = wb, wa
+    if not wa:
+        return 0.0
+    left, hit = list(wb), 0
+    for w in wa:
+        for i, v in enumerate(left):
+            if _toks(w) & _toks(v) or text_match.abbreviates(w, v) or text_match.abbreviates(v, w):
+                hit += 1
+                del left[i]
+                break
+    return hit / len(wa)
 
 
 _AGREE = 2 / 3
