@@ -787,10 +787,22 @@ MODE.review = (() => {
   function showClashCount() {
     const nc = new Set(Object.values(clashGroups()).map(x => x.to)).size;
     if (!nc) clashOn = false;
-    const cb = $('#clashBtn'); if (cb) { cb.textContent = `clashes (${nc})`; cb.disabled = !nc; cb.classList.toggle('primary', clashOn); }
+    const cb = $('#clashBtn'); if (cb) {
+      cb.textContent = `clashes (${nc})`; cb.disabled = !nc; cb.classList.toggle('primary', clashOn);
+      const sets = {}; Object.entries(clashGroups()).forEach(([n, x]) => (sets[x.to] = sets[x.to] || []).push(n));
+      cb.title = nc ? Object.entries(sets).map(([to, ns]) => `${ns.join(' + ')} -> ${to}`).join('\n')
+                    : 'no two fields would share a name once saved corrections are applied';
+    }
   }
   return {
-    toggleClashes() { clashOn = !clashOn; placeAll(); showClashCount(); },
+    toggleClashes() {
+      clashOn = !clashOn; showClashCount();
+      const cl = clashOn ? clashGroups() : {}, names = Object.keys(cl);
+      if (!names.length) { placeAll(); return; }
+      // go to a clashing field: one on this page if there is one, else the first (they may all be on another page)
+      const here = names.find(n => (BP.fields.find(f => f.name === n) || {}).page === page);
+      select(here || names[0]);
+    },
     async load() { const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; },
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
