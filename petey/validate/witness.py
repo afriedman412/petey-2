@@ -148,6 +148,18 @@ def _toks(s: str) -> set[str]:
     return out
 
 
+_NUM_WORDS = {w: str(i) for i, ws in enumerate((("zero",), ("one", "first"), ("two", "second"), ("three", "third"),
+                                                  ("four", "fourth"), ("five", "fifth"), ("six", "sixth"),
+                                                  ("seven", "seventh"), ("eight", "eighth"), ("nine", "ninth"),
+                                                  ("ten", "tenth"))) for w in ws}
+
+
+def _nums(s: str) -> set[str]:
+    """The numbers in a name or text, digits or words ('address line one' ~ `address_line_1`)."""
+    return set(re.findall(r"\d+", s or "")) | {_NUM_WORDS[w] for w in re.findall(r"[a-z]+", (s or "").lower())
+                                               if w in _NUM_WORDS}
+
+
 _MORE_ABBR = {"nbr": "number"}     # slugs the labeler writes that `name_caption._ABBR` lacks
 # a name token that stands for several caption words, in whole words (name_caption._EXPAND has five-letter stems)
 _EXPAND_WORDS = {"ssn": ("social", "security"), "ein": ("employer", "identification"),
@@ -248,6 +260,19 @@ class Names:
             out.append(other)
         return out
 
+    def tells(self, name: str, other: str, text: str) -> bool:
+        """Whether the text can say the other field is meant: it holds a word or number the other name has and this
+        one lacks, or the other name has nothing this one lacks (this one then claims words the text does not say:
+        ACORD 25 `gl_addl_insd_subr_wvd_cd` on 'SUBR WVD'). A row label ('17.6. Other financial account') names
+        neither the institution box nor the amount box beside it, so it cannot say which one it belongs to
+        (2026-10-13, Andrew: Schedule A/B's ten institution / amount flags). PETEY_TELLS=0 turns the rule off."""
+        if os.environ.get("PETEY_TELLS", "1") == "0":
+            return True
+        mine = self.toks.get(name, set()) | _nums(name)
+        theirs = self.toks.get(other, set()) | _nums(other)
+        only = theirs - mine
+        return not only or bool(only & (_toks(text) | _nums(text)))
+
     def judge(self, name: str, texts: list[str]) -> tuple[Optional[bool], str]:
         """True: the text explains the name; False: the text has words and the name shares none of them, or the
         text belongs to a nearby field more than to this one and more than that field's own text does (a swap, a
@@ -283,7 +308,7 @@ class Names:
         best, who = mine + _MARGIN, None
         for other in self.rivals(name):
             s = self.fit(other, tt)
-            if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN:
+            if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN and self.tells(name, other, " ".join(texts)):
                 best, who = s, other
         return (False, f"belongs to: {who}") if who else (True, "")
 
@@ -307,7 +332,7 @@ class Names:
         mine, theirs = got[0], dict(zip(rivals, got[1:]))
         best, who = mine + _MARGIN_M, None
         for other, s in theirs.items():
-            if s > best and s > self._own_score(other) + 0.05:
+            if s > best and s > self._own_score(other) + 0.05 and self.tells(name, other, text):
                 best, who = s, other
         if who:
             return False, f"belongs to: {who}"

@@ -88,6 +88,8 @@ def collect(use_run: bool = True, only: set[str] | None = None) -> list[dict]:
         if only and bid not in only:
             continue
         v = json.loads(vp.read_text())
+        if "blueprint" not in v:                 # runs/hand_review/focus.json: the picker's list, not a record
+            continue
         bpt = Path(v["blueprint"])
         if not bpt.exists():
             continue
