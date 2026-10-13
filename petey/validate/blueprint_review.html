@@ -173,6 +173,7 @@
   .gcur ol { margin:6px 0; padding-left:20px; }
   .btn.ok { border-color:rgba(134,239,172,.4); color:var(--green); } .btn.ok:hover:not(:disabled) { border-color:var(--green); color:var(--green); }
   .btn.ok.on { background:var(--green); border-color:var(--green); color:#000; font-weight:700; }
+  #draftBar { display:flex; gap:6px; align-items:center; font-size:.8rem; } #draftBar[hidden] { display:none; }
   .badge.edit { background:var(--amber-dim); color:var(--amber); } .badge.new { background:var(--accent-dim); color:var(--text-muted); } .badge.ok { background:rgba(134,239,172,.12); color:var(--green); }
   .warn { color:var(--red); font-size:12px; }
   .changes { font-size:12px; } .changes li { margin:2px 0; } .changes .err { color:var(--red); }
@@ -221,6 +222,7 @@
     <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button>
   </span>
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
+  <span id="draftBar" hidden></span>
   <span class="spacer"></span>
   <span class="ctl">Zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
@@ -329,6 +331,7 @@ function pickerText(b) {
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
   if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
   if (b.focus) bits.unshift(`${b.focus} name flags to confirm`);
+  if (b.draft) bits.unshift(`working copy, ${b.draft.changes} unsaved`);
   if (b.rerun || b.launch) {
     if (b.check_errors != null) bits.push(`${b.check_errors} errors, ${b.check_suggestions} suggestions`);
     else if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
@@ -360,11 +363,46 @@ function renderPicker() {
   }
   if (keep && LIST.some(b => b.id === keep)) pick.value = keep;
 }
-function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); }
+function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); if (e.id === bid) renderDraft(); }
+
+// the working copy (2026-10-13, Andrew: "everything should be reading from the same source"): every change goes into
+// one copy of the blueprint that all three modes read; this bar saves it over the blueprint or throws it away
+function renderDraft() {
+  const el = $('#draftBar'), d = bid && (LIST.find(b => b.id === bid) || {}).draft;
+  if (!d) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = `${d.real_changed ? '<span class="stale" title="a loop run or an edit by hand changed the blueprint after the working copy was made">file changed on disk</span>' : ''}
+    <button class="btn ok" id="dSave" title="${esc(d.log.length ? d.log.join('\n') : 'no changes to the blueprint yet (verdicts only)')}">save blueprint (${d.changes} change${d.changes === 1 ? '' : 's'})</button>
+    <button class="btn" id="dDiscard" title="throw the working copy away (made ${esc(d.made)}); verdicts and notes since then go with it">discard</button>`;
+  $('#dSave').onclick = saveDraft; $('#dDiscard').onclick = discardDraft;
+}
+async function saveDraft() {
+  if (mode === 'groups') await MODE.groups.leave();
+  const d = (LIST.find(b => b.id === bid) || {}).draft; if (!d) return;
+  if (!confirm(`Write ${d.changes} change(s) into the blueprint?\n\n${d.log.slice(0, 40).join('\n')}${d.log.length > 40 ? `\n… ${d.log.length - 40} more` : ''}`)) return;
+  let out;
+  try { out = await send('POST', mapi('draft', '/save')); }
+  catch (e) {
+    if (!/changed on disk/.test(e.message) || !confirm(e.message + '\n\nOverwrite it with the working copy anyway?')) { alert('Not saved: ' + e.message); return; }
+    try { out = await send('POST', mapi('draft', '/save'), {force: true}); } catch (e2) { alert('Not saved: ' + e2.message); return; }
+  }
+  updateEntry(out.entry); await loadMode();
+  toast(`Saved ${out.changes} change(s) to ${out.saved.split('/').pop()}.`);
+}
+async function discardDraft() {
+  const d = (LIST.find(b => b.id === bid) || {}).draft; if (!d) return;
+  if (!confirm(`Throw away the working copy (${d.changes} change(s) since ${d.made})?\n\nVerdicts and notes made since then go with it.`)) return;
+  let out;
+  try { out = await send('POST', mapi('draft', '/discard')); } catch (e) { alert('Discard failed: ' + e.message); return; }
+  updateEntry(out.entry); await loadMode();
+  toast(`Discarded ${out.discarded} change(s); the blueprint is as it was.`);
+}
+async function syncSha() { try { shaSeen = (await j(`/api/blueprints/${encodeURIComponent(bid)}/sha`)).sha; } catch (e) {} }
 
 async function openBlueprint(id) {
   if (!id) return;
-  bid = id; setHash();
+  if (bid && mode === 'groups') await MODE.groups.leave();
+  bid = id; setHash(); renderDraft();
   $('#panel').innerHTML = '<p class="help">loading…</p>';
   await loadMode();
 }
@@ -385,13 +423,14 @@ async function checkFresh() {
 async function loadMode() {
   try { await M().load(); }
   catch (e) { $('#panel').innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
-  try { shaSeen = (await j(`/api/blueprints/${encodeURIComponent(bid)}/sha`)).sha; } catch (e) {}
+  await syncSha(); renderDraft();
   const pages = M().pages();
   if (!pages.some(p => p.page === page) || !M().pageLabel(page)) page = M().startPage() || (pages[0] || {}).page || 1;
   renderModebar(); renderPages(); await showPage(); M().panel(); M().progress();
 }
 async function setMode(m) {
   if (!MODE[m] || m === mode) return;
+  if (bid && mode === 'groups') await MODE.groups.leave();
   mode = m; store('br_mode', m); renderTabs(); setHash();
   if (!$('#helpmenu').hidden) toggleHelp(true);
   document.querySelectorAll('#canvas > div').forEach(e => e.remove());
@@ -478,11 +517,21 @@ MODE.review = (() => {
   async function putRemovals() {
     const out = await send('PUT', mapi('review', '/removals'), {removed});
     updateEntry(out.entry);
+    return out;
   }
+  async function load() { const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; }
+  // the page reads the working copy again after a change went into it (a correction, a removal)
+  async function reload() { await load(); await syncSha(); renderPages(); placeAll(); panel(); progress(); }
   async function removeField() {
     const f = BP.fields.find(x => x.name === selected); if (!f || isRemoved(f.name)) return;
+    const list = ordered(), after = list[(list.indexOf(f) + 1) % list.length];
     removed.push({name: f.name, page: f.page, rect: f.rects[0].rect, when: localNow(), from: 'review'});
-    await putRemovals();
+    const out = await putRemovals();
+    if (out.applied && out.applied.length) {             // gone from the working copy
+      await reload(); if (after && after !== f && BP.fields.some(x => x.name === after.name)) select(after.name);
+      toast(`Removed ${f.name} from the working copy.`); return;
+    }
+    if (out.apply_error || (out.errors && out.errors.length)) toast('Recorded, not removed yet: ' + (out.apply_error || out.errors.join('; ')));
     if (!verdictOf(f.name)) await putV({[f.name]: {verdict: 'accept', note: 'removed'}});   // removing it is the fix
     next();
   }
@@ -513,12 +562,17 @@ MODE.review = (() => {
     i = (i + step + list.length) % list.length;
     select(list[i].name);
   }
+  // a correction goes into the working copy as it is saved; one that would take a name another field still has is
+  // held back (apply_error) until that field is renamed
   async function putV(verdicts) {
     const out = await send('PUT', mapi('review', '/verdicts'), {verdicts});
     BP.verdicts = out.verdicts; BP.stale = false;
     const was = !!BP.checked; BP.checked = out.entry ? out.entry.checked : null;
-    updateEntry(out.entry); progress();
+    updateEntry(out.entry);
+    if (out.applied && out.applied.length) await reload(); else progress();
+    if (out.apply_error) alert('Saved, but held back from the working copy: ' + out.apply_error + '\n\nRename the other field first (the clashes button shows both); then both go in.');
     if (!was && BP.checked) { const el = $('#progress'); el.classList.add('justchecked'); setTimeout(() => el.classList.remove('justchecked'), 2500); }
+    return out;
   }
   async function setVerdict(verdict) {
     if (!selected) return;
@@ -548,16 +602,14 @@ MODE.review = (() => {
     };
     setTimeout(poll, 3000);
   }
-  async function applyCorrections() {
-    const pending = Object.entries(BP.verdicts).filter(([, v]) => v.edit && !v.applied);
-    const lines = pending.map(([n, v]) => `${n}${v.edit.name ? ' → ' + v.edit.name : ''}${v.edit.type ? ' : ' + v.edit.type : ''}${v.edit.semantic_type ? ' / semantic ' + v.edit.semantic_type : ''}${v.edit.pattern ? ' / pattern ' + v.edit.pattern : ''}${v.edit.options ? ' / options ' + Object.entries(v.edit.options).map(([k, d]) => k + (d.key ? ' → ' + d.key : '') + ('caption' in d ? ' "' + d.caption + '"' : '')).join(', ') : ''}`);
-    if (!confirm(`Write ${pending.length} correction(s) into ${BP.path}?\n\n${lines.join('\n')}`)) return;
+  async function applyCorrections() {                      // a retry for corrections held back by a clash
     let out;
     try { out = await send('POST', mapi('review', '/apply')); }
     catch (e) { alert('Apply failed: ' + e.message); return; }
-    LIST = await j('/api/blueprints'); renderPicker();
-    await loadMode();
-    toast(`Applied ${pending.length} correction(s) to the blueprint.`);
+    updateEntry(out.entry);
+    if (out.apply_error) { alert('Still held back: ' + out.apply_error); return; }
+    await reload();
+    toast(`${(out.applied || []).length} correction(s) went into the working copy.`);
   }
   // a correction (2026-10-07): the field's name, type, semantic type and pattern are edited in place in the field
   // card; saved as a flag with a structured edit, written into the blueprint by the apply button (or
@@ -610,10 +662,12 @@ MODE.review = (() => {
     if (same && !v.edit) { toast('Nothing changed.'); return; }
     // the verdicts (Andrew, 2026-10-07): accept = the field is good to go, a saved correction included (apply writes
     // it); flag = "I can't or don't want to fix this myself", the note says what is wrong and "review edits" sends it on
-    try { await putV({[selected]: same ? {verdict: v.verdict || 'accept', note} : {verdict: 'accept', note, edit}}); }
+    let out;
+    try { out = await putV({[selected]: same ? {verdict: v.verdict || 'accept', note} : {verdict: 'accept', note, edit}}); }
     catch (e) { alert('Could not save the correction: ' + e.message); return; }
-    if (same) { toast('Correction withdrawn: the field is back to what the blueprint has.'); placeAll(); panel(); }
-    else next();
+    if (same) { toast('Correction withdrawn: the field is back to what the blueprint has.'); placeAll(); panel(); return; }
+    if (out.applied && out.applied.length && edit.name !== f.name && BP.fields.some(x => x.name === edit.name)) selected = edit.name;
+    next();
   }
   async function bulkAccept() {
     const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
@@ -761,7 +815,7 @@ MODE.review = (() => {
        <input class="ocap" value="${esc(s.options[o.on_state].caption)}" placeholder="no caption" title="the text printed at this box; empty clears it"></span>`).join('')}</span>` : '';
     const loop = f.loop ? `<div class="loop"><b>Loop changed</b> ${esc((f.loop.changed || []).join(', '))}${f.loop.old_name ? ` (was <code>${esc(f.loop.old_name)}</code>)` : ''}<br>${esc(f.loop.reason || '')}</div>` : '';
     const adj = f.adjudication ? `<div class="adj"><b>Adjudicator</b> ${esc(f.adjudication.verdict)} for <code>${esc(f.adjudication.proposed)}</code>: ${esc(f.adjudication.reason || '')}</div>` : '';
-    const saved = v.edit ? `<span class="help">Correction saved${v.applied ? ' and applied' : ', not applied yet (apply button in the bar)'}; the blueprint has
+    const saved = v.edit && !v.applied ? `<span class="help">Correction saved, held back from the working copy (a name another field has; the apply button in the bar retries); the working copy has
         <code>${esc(f.name)}</code> : ${esc(f.type || '')}${f.semantic_type ? ' / ' + esc(f.semantic_type) : ''}${f.pattern ? ` / <code>${esc(f.pattern)}</code>` : ''}${v.edit.options ? `; ${Object.keys(v.edit.options).length} option(s) changed` : ''}</span>` : '';
     a.innerHTML = `<div class="rpanel">${head}
       <div class="fcard sect">
@@ -776,11 +830,11 @@ MODE.review = (() => {
           ${opts}
         </div>
         <datalist id="semList">${[...(BP.semantic_types || [])].sort().map(t => `<option>${esc(t)}</option>`).join('')}</datalist>
-        <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction; the field is then accepted, and apply writes it into the blueprint">save correction</button>
+        <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction: it goes into the working copy and the field is accepted">save correction</button>
           <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>${saved}</div>
       </div>
       ${whyHtml(f)}${agentHtml(v)}${loop}${adj}
-      ${isRemoved(f.name) ? `<div class="rbanner">To be removed from the blueprint (<code>field_add --apply</code>). <button class="btn" id="vKeep">keep it</button></div>` : ''}
+      ${isRemoved(f.name) ? `<div class="rbanner">Recorded for removal, not removed yet (see Add / remove's change list). <button class="btn" id="vKeep">keep it</button></div>` : ''}
       <div class="sect"><h4>Verdict</h4><div class="verdict" style="margin-top:0">
         <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" id="vAccept" title="the field is right; go to the next">accept</button>
         <button class="btn flag ${v.verdict === 'flag' ? 'on' : ''}" id="vFlag" title="I can't or don't want to fix this myself: say what is wrong in the note (review edits sends it to the agent)">flag</button>
@@ -831,10 +885,10 @@ MODE.review = (() => {
         $('#rAgent').onclick = reviewEdits;
       }
     }
-    // corrections saved but not yet written into the blueprint: an apply button (2026-10-07)
+    // corrections held back from the working copy (a rename onto a name another field still has): a retry button
     const pending = Object.values(BP.verdicts).filter(v => v.edit && !v.applied).length;
     if (pending) {
-      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="rApply" title="write the saved field-name and type corrections into the blueprint (hand_review --apply)">apply ${pending} correction${pending === 1 ? '' : 's'} to blueprint</button>`);
+      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="rApply" title="corrections held back by a name clash: try them again once the other field is renamed">apply ${pending} held-back correction${pending === 1 ? '' : 's'}</button>`);
       $('#rApply').onclick = applyCorrections;
     }
   }
@@ -875,7 +929,7 @@ MODE.review = (() => {
       const here = names.find(n => (BP.fields.find(f => f.name === n) || {}).page === page);
       select(here || names[0]);
     },
-    async load() { const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; },
+    load,
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
     pageLabel(p) { const n = BP.fields.filter(f => f.page === p).length; return n ? `p${p} (${n})` : null; },
@@ -885,7 +939,7 @@ MODE.review = (() => {
                   ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'previous field'],
                   ['u', 'unreviewed only on / off']],
            tips: ['Edit the field\'s name, type, semantic type, pattern or option captions in place: Enter, "save correction" or accept saves the changes; Esc undoes them. Empty a semantic type or pattern box to clear it.',
-                  'Saving a correction accepts the field; the apply button in the bar writes saved corrections into the blueprint.',
+                  'Saving a correction accepts the field and puts it into the working copy; "save blueprint" in the header writes the working copy into the blueprint.',
                   'Flag a field you cannot or do not want to fix yourself, with a note saying what is wrong: "review edits" sends flags with notes to the agent.',
                   'The note saves when you leave the box or press Enter; Shift+Enter for a new line.']},
     bindBar() {
@@ -1283,23 +1337,35 @@ MODE.groups = (() => {
   function renderChanges() {
     const el = $('#gChanges'); if (!el || !PLAN) return;
     const errs = PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join(''), ch = PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('');
-    el.innerHTML = `<h4>What applying would change in the blueprint (${PLAN.changes.length})</h4>
-      ${errs || ch ? `<ul>${errs}${ch}</ul>` : '<p class="help">nothing: the grouping is the blueprint\'s</p>'}
-      ${PLAN.changes.length ? `<button class="btn ok" id="gApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to blueprint</button>` : ''}
-      <div class="help">Edits are saved as a record; Review shows them once they are applied (the button, or
-        <code>PYTHONPATH=. venv/bin/python -m petey.validate.group_review --apply ${esc(bid)}</code>).</div>`;
+    el.innerHTML = `<h4>What applying would change in the working copy (${PLAN.changes.length})</h4>
+      ${errs || ch ? `<ul>${errs}${ch}</ul>` : '<p class="help">nothing: the grouping is the working copy\'s</p>'}
+      ${PLAN.changes.length ? `<button class="btn ok" id="gApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to working copy</button>` : ''}
+      <div class="help">The regrouping goes into the working copy when you leave Groups (another mode or form, or
+        "save blueprint"), or now with the button; "save blueprint" in the header writes the blueprint.</div>`;
     const b = $('#gApply'); if (b) b.onclick = applyPlan;
   }
   async function applyPlan() {
-    if (!confirm(`Write ${PLAN.changes.length} change(s) into ${BP.path}?`)) return;
     clearTimeout(planTimer);
     await save();                          // apply reads the saved record, so it must hold the last edit
     let out;
     try { out = await send('POST', mapi('groups', '/apply')); }
     catch (e) { alert('Apply failed: ' + e.message); return; }
-    LIST = await j('/api/blueprints'); renderPicker();
+    updateEntry(out.entry);
     await loadMode();
-    toast(`Applied ${out.changes.length} change(s) to the blueprint; Review now shows them.`);
+    toast(`${out.changes.length} change(s) went into the working copy.`);
+  }
+  // leaving Groups (another mode, another form, the header's save): the regrouping goes into the working copy when it
+  // plans cleanly, so the other modes read it; with errors it stays recorded, and save refuses until they are fixed
+  async function leave() {
+    if (!BP || !undoStack.length && !(PLAN && PLAN.changes.length)) return;
+    clearTimeout(planTimer);
+    await save();
+    let pl;
+    try { pl = await send('POST', mapi('groups', '/plan'), {units: units.map(({uid, ...u}) => u)}); } catch (e) { return; }
+    if (!pl.changes.length) return;
+    if (pl.errors.length) { toast(`Groups not applied: ${pl.errors.length} error(s) to fix first.`); return; }
+    try { const out = await send('POST', mapi('groups', '/apply')); updateEntry(out.entry); toast(`Groups: ${out.changes.length} change(s) went into the working copy.`); }
+    catch (e) { toast('Groups not applied: ' + e.message); }
   }
   function progress() {
     const el = $('#progress'); if (!el || !BP) return;
@@ -1309,7 +1375,7 @@ MODE.groups = (() => {
     // the apply button in the bar as well as under the change list (2026-10-13: saved groups that never reached the
     // blueprint, because the only button sat at the bottom of the sidebar)
     if (PLAN && PLAN.changes.length) {
-      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="gApplyBar" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : 'title="write the saved grouping into the blueprint; Review shows it after"'}>apply ${PLAN.changes.length} change${PLAN.changes.length === 1 ? '' : 's'} to blueprint</button>`);
+      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="gApplyBar" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : 'title="put the regrouping into the working copy now (leaving Groups does it too)"'}>apply ${PLAN.changes.length} change${PLAN.changes.length === 1 ? '' : 's'} to working copy</button>`);
       $('#gApplyBar').onclick = applyPlan;
     }
   }
@@ -1387,7 +1453,7 @@ MODE.groups = (() => {
       for (const u of units.filter(x => isText(x) && onPage(x))) placeUnit(u);
       for (const it of looseText()) placeItem(it, null, 'var(--txt)', false);
     },
-    panel, progress,
+    panel, progress, leave,
     mousedown(e) {
       if (e.button !== 0 || !(e.shiftKey || e.target === $('#canvas'))) return;
       e.preventDefault(); areaStart = gpt(e); areaAdd = e.shiftKey;
@@ -1453,7 +1519,7 @@ MODE.add = (() => {
     const f = (BP.field_specs || {})[picked] || {}, gone = isRemoved(picked);
     return `<div class="acard"><h3>${f.x_petey_id ? `<code class="fid">${esc(f.x_petey_id)}</code> ` : ''}${esc(picked)} <span class="help">· a field of the blueprint</span></h3>
       <div class="help">${esc(f.type || '')}${f.semantic_type ? '/' + esc(f.semantic_type) : ''}${f.description ? ' · ' + esc(f.description) : ''}</div>
-      ${gone ? `<div class="rbanner">to be removed from the blueprint</div>` : ''}
+      ${gone ? `<div class="rbanner">recorded for removal, not removed yet (see the list below)</div>` : ''}
       <div class="arow">${gone ? '<button class="btn" id="aKeep">keep it</button>' : '<button class="btn warn" id="aRemove">remove this field</button>'}
         <button class="btn" id="cancel">close</button></div></div>`;
   }
@@ -1584,8 +1650,19 @@ MODE.add = (() => {
     props = []; notes = []; save().then(() => gotoSuggestion(1));
   }
   function cancel() { props = []; notes = []; picked = null; placeAll(); panel(); }
+  // a save goes into the working copy when it plans cleanly: added fields become fields, removed ones go, and the
+  // page reads the copy again (the suggestions follow)
   async function save() {
-    try { PLAN = await send('PUT', mapi('add', '/record'), {added, dismissed, removed}); BP.stale = false; updateEntry(PLAN.entry); }
+    try {
+      PLAN = await send('PUT', mapi('add', '/record'), {added, dismissed, removed}); BP.stale = false; updateEntry(PLAN.entry);
+      if (PLAN.applied && PLAN.applied.length) {
+        const d = await j(mapi('add')); BP = d; added = d.added; dismissed = d.dismissed; removed = d.removed || [];
+        if (picked && !(BP.field_specs || {})[picked]) picked = null;
+        await syncSha(); renderPages();
+        toast(PLAN.applied.length === 1 ? `Working copy: ${PLAN.applied[0]}` : `${PLAN.applied.length} changes went into the working copy.`);
+      }
+      if (PLAN.apply_error) notes = ['not applied: ' + PLAN.apply_error];
+    }
     catch (e) { alert('Save failed: ' + e.message); }
     placeAll(); panel();
   }
@@ -1598,22 +1675,13 @@ MODE.add = (() => {
   function renderChanges() {
     const el = $('#aChanges'); if (!el) return;
     if (!PLAN || (!added.length && !removed.length)) { el.innerHTML = ''; return; }
-    el.innerHTML = `<h4>What applying would change in the blueprint</h4><ul>
-      ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${PLAN.skipped.map(e => `<li class="help">skip ${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
-      ${PLAN.changes.length ? `<button class="btn ok" id="aApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to blueprint</button>` : ''}
-      <div class="help">Saved as a record; the button writes it into the blueprint (the same as
-        <code>PYTHONPATH=. venv/bin/python -m petey.validate.field_add --apply ${esc(bid)}</code>).</div>`;
+    el.innerHTML = `<h4>Not in the working copy yet</h4><ul>
+      ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${(PLAN.skipped || []).map(e => `<li class="help">skip ${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+      ${PLAN.changes.length ? `<button class="btn ok" id="aApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to working copy</button>` : ''}
+      <div class="help">Additions and removals go into the working copy as they are saved, unless something above stops them.</div>`;
     const b = $('#aApply'); if (b) b.onclick = applyAdds;
   }
-  async function applyAdds() {
-    if (!confirm(`Write ${PLAN.changes.length} change(s) into ${BP.path}?`)) return;
-    let out;
-    try { out = await send('POST', mapi('add', '/apply')); }
-    catch (e) { alert('Apply failed: ' + e.message); return; }
-    LIST = await j('/api/blueprints'); renderPicker();
-    await loadMode();
-    toast(`Applied ${out.changes.length} change(s) to the blueprint.`);
-  }
+  async function applyAdds() { await save(); }
   function progress() { const el = $('#progress'); if (el && BP) el.innerHTML = `<b>${added.length}</b> to add · <b>${removed.length}</b> to remove · <b>${dismissed.length}</b> not fields · <b>${remaining().length}</b> suggestions left`; }
   const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
   return {

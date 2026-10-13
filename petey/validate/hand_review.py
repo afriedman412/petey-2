@@ -10,7 +10,8 @@ this asks them to judge the ones a blueprint already has.
 Blueprints offered: the library (`blueprints/`), the judge-eval side copies (`runs/judge_eval/blueprints/`, current
 files only) and the relabels (`runs/relabel/blueprints/`). Verdicts go to `runs/hand_review/<id>.json` with the
 blueprint's path, sha and build stamp, and are keyed by field name; a verdict written against one version of the
-file is reported as stale when the file changes.
+file is reported as stale when the file changes. Since 2026-10-13 a correction saved on the page goes into the
+page's working copy of the blueprint at once (`draft.py`); the header's save writes the blueprint.
 
 Keys on the page: a accept, f flag, c clear, n / p next and previous field, u toggle unreviewed only, 1-9 page.
 Every verdict saves immediately.
@@ -63,6 +64,14 @@ def blueprint_paths() -> dict[str, Path]:
                 continue
             out[f"{tag}__{p.stem}"] = p
     return out
+
+
+def working_path(bid: str, paths: Optional[dict] = None) -> Optional[Path]:
+    """The file the review page reads and writes for a blueprint: its working copy while one is open (`draft.py`,
+    2026-10-13), else the blueprint itself. Records keep the blueprint's own path (`blueprint_paths`)."""
+    from petey.validate import draft
+    p = (paths if paths is not None else blueprint_paths()).get(bid)
+    return draft.working(bid, p) if p is not None else None
 
 
 def _launch_tiers() -> dict[str, str]:
@@ -275,8 +284,12 @@ class State:
         self._git_here: dict[str, dict] = {}
         self._git_origin: dict[str, dict] = {}
 
+    def path(self, bid: str) -> Optional[Path]:
+        return working_path(bid, self.paths)
+
     def _entry(self, bid: str) -> dict:
-        p = self.paths[bid]
+        from petey.validate import draft
+        real, p = self.paths[bid], self.path(bid)
         focus = (_focus().get("forms") or {}).get(bid)
         bp = _load(p)
         v = load_verdicts(bid); vs = v.get("verdicts") or {}
@@ -287,7 +300,7 @@ class State:
                 "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
                 "checked": checked(v, p, bp),
                 "finder": (bp.get("x_petey_build") or {}).get("finder"),
-                "age": age(p, bp, self._git_here, self._git_origin),
+                "age": age(real, bp, self._git_here, self._git_origin),
                 # a library form run again through the current code (scripts/run_form.sh, form_run.py): the picker
                 # lists these first, with the page check's count and whether the loop stopped on its own
                 "rerun": bid.startswith("je__") and (BLUEPRINTS / f"{p.stem}.bpt").exists(),
@@ -297,7 +310,8 @@ class State:
                 "run": {k: (bp.get("x_petey_run") or {}).get(k) for k in ("stable", "stop")}
                        if bp.get("x_petey_run") else None,
                 # listed first in the picker: forms with name-check flags still to confirm (runs/hand_review/focus.json)
-                "focus": focus}
+                "focus": focus,
+                "draft": draft.status(bid, real)}
 
     def index(self) -> None:
         """Read every blueprint once at startup; the listing is served from memory and one entry is refreshed
@@ -314,9 +328,10 @@ class State:
         return list(self._index.values())
 
     def detail(self, bid: str) -> Optional[dict]:
-        p = self.paths.get(bid)
+        p = self.path(bid)
         if p is None:
             return None
+        real = self.paths[bid]
         bp = _load(p)
         blank = resolve_blank(bp)
         pages = []
@@ -335,12 +350,13 @@ class State:
         for r in rows:
             w = (wit.get("fields") or {}).get(r["name"]) or {}
             r["tier"], r["witnesses"], r["why"] = w.get("tier"), w.get("witnesses"), w.get("why") or []
-        return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": _sha(p),
+        return {"id": bid, "path": str(real), "working": str(p) if p != real else None,
+                "blank": str(blank) if blank else None, "sha": _sha(p),
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
                 "verdicts": v.get("verdicts") or {}, "stale": bool(v) and v.get("blueprint_sha") != _sha(p),
                 "agent_running": _flag_agent().running(bid), "agent_todo": len(_flag_agent().todo(v)),
                 "semantic_types": __import__("petey.semantic_types", fromlist=["registered_names"]).registered_names(),
-                "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(p, bp),
+                "witness_run": wit.get("run"), "witness_error": wit.get("error"), "made": made(real, bp),
                 "checked": checked(v, p, bp), "dpi": DPI}
 
     def witnesses(self, bid: str, p: Path) -> dict:
@@ -357,7 +373,7 @@ class State:
         key = (bid, page)
         if key in self.png:
             return self.png[key]
-        p = self.paths.get(bid)
+        p = self.path(bid)
         if p is None:
             return None
         bp = _load(p)
@@ -375,10 +391,14 @@ class State:
         self.png[key] = png
         return png
 
-    def put_verdicts(self, bid: str, incoming: dict) -> dict:
-        p = self.paths.get(bid)
+    def put_verdicts(self, bid: str, incoming: dict, on_pending=None) -> dict:
+        """Merge the page's verdicts into the record. `on_pending` is called before the record is written when it
+        holds a correction not yet applied (the page opens its working copy there, so the copy's snapshot of the
+        record predates the correction)."""
+        p = self.path(bid)
         if p is None:
             raise KeyError(bid)
+        real = self.paths[bid]
         bp = _load(p)
         cur = load_verdicts(bid)
         vs = cur.get("verdicts") or {}
@@ -398,8 +418,10 @@ class State:
                     vs[name]["applied"] = prev["applied"]       # re-saving a verdict keeps it applied
                 if prev.get("agent") and (prev["agent"].get("for_note") or "") == vs[name]["note"]:
                     vs[name]["agent"] = prev["agent"]           # the post-review agent's proposal survives re-saves
+        if on_pending is not None and any(x.get("edit") and not x.get("applied") for x in vs.values()):
+            on_pending()
         sha = _sha(p)
-        out = {"blueprint": str(p), "form": p.stem, "blueprint_sha": sha, "build": bp.get("x_petey_build"),
+        out = {"blueprint": str(real), "form": real.stem, "blueprint_sha": sha, "build": bp.get("x_petey_build"),
                "updated": now, "verdicts": vs}
         # checked: every reviewable field has a verdict. The first moment that holds is kept (re-saving a note
         # does not move it); clearing a verdict, or completing it again on a changed file, starts over
@@ -506,9 +528,9 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
     a type change drops what no longer fits (`pattern` unless the field stays a string; `semantic_type` on boolean /
     category / multi_category; `values` unless one of those, and an option group turned into one gets its keys as
     `values` when it has none). Each field records `x_petey_hand_edit` {when, from, to, record}; the review
-    record follows the rename; a form_run blueprint gets a `hand_edit` round in its run record."""
-    paths = blueprint_paths()
-    p = paths.get(bid)
+    record follows the rename; a form_run blueprint gets a `hand_edit` round in its run record. Writes the working
+    copy while one is open (`draft.py`)."""
+    p = working_path(bid)
     if p is None:
         raise SystemExit(f"{bid}: no such blueprint")
     rec = load_verdicts(bid)
@@ -607,7 +629,7 @@ def summary() -> None:
     rows = []
     for vp in sorted(OUT.glob("*.json")):
         v = json.loads(vp.read_text(encoding="utf-8")); vs = v.get("verdicts") or {}
-        p = paths.get(vp.stem)
+        p = working_path(vp.stem, paths)
         stale = p is None or v.get("blueprint_sha") != _sha(p)
         acc = sum(1 for r in vs.values() if r.get("verdict") == "accept")
         flg = [(n, r.get("note", "")) for n, r in vs.items() if r.get("verdict") == "flag"]

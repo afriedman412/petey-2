@@ -10,11 +10,15 @@ page and zoom:
     PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review [--port 5005] [--mode review|groups|add]
 
 Each mode's logic, record and command line stay in its own module; this file serves the one page and routes to
-them. The page records, with one exception: Groups has an apply button, the same as `group_review --apply <id>`,
-so a regrouping shows in Review at once (2026-10-06). Otherwise blueprints change through each module's `--apply`
-(`field_add --apply <id>`), and `hand_review --summary` lists verdicts. The old entry points
-(`python -m petey.validate.hand_review`, `group_review`, `field_add` with no subcommand) open this page in their
-mode.
+them. The old entry points (`python -m petey.validate.hand_review`, `group_review`, `field_add` with no subcommand)
+open this page in their mode.
+
+One working copy (2026-10-13, Andrew: "everything should be reading from the same source"): the page's first change
+to a blueprint opens a copy of it (`draft.py`), and every change is applied to the copy at once, so all three modes
+show the same file: a Review correction or removal as it is saved, an Add / remove change as it is saved, a Groups
+regrouping when you leave Groups (or press its apply button; mid-regrouping states are often not valid yet). The
+header's "save blueprint" copies it over the blueprint; "discard" throws it away and puts the three records back.
+The modules' `--apply` command lines still write whichever file the page would (the copy while one is open).
 """
 from __future__ import annotations
 
@@ -34,7 +38,7 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import field_add, group_review, hand_review
+from petey.validate import draft, field_add, group_review, hand_review
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
@@ -54,13 +58,37 @@ class App:
     def index(self) -> None:
         self.review.index()
         self.groups.index()
-        self.mtimes = {bid: p.stat().st_mtime for bid, p in self.paths.items()}
+        self.mtimes = {bid: self.working(bid).stat().st_mtime for bid in self.paths}
+
+    def working(self, bid: str) -> Path:
+        return hand_review.working_path(bid, self.paths)
+
+    def open_draft(self, bid: str) -> Path:
+        return draft.ensure(bid, self.paths[bid])
+
+    def follow(self, bid: str, before: str) -> None:
+        """After a change the page made itself (a regrouping, fields added or removed), the Review and Add / remove
+        records written against the file before it move to the file after it, so they do not read as stale. The
+        Groups record is left alone: its units name fields, and a stale one is rebased by its boxes."""
+        import json
+        after = hand_review._sha(self.working(bid))
+        for rp in (hand_review.verdict_path(bid), field_add.record_path(bid)):
+            if not rp.exists():
+                continue
+            rec = json.loads(rp.read_text(encoding="utf-8"))
+            if rec.get("blueprint_sha") != before:
+                continue
+            rec["blueprint_sha"] = after
+            ck = rec.get("checked")
+            if isinstance(ck, dict) and ck.get("blueprint_sha") == before:
+                ck["blueprint_sha"] = after
+            rp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
 
     def refresh(self) -> None:
         """Re-read the picker rows of blueprints whose file changed since they were indexed (an --apply, a loop, an
         edit by hand): the indexes are built once at startup."""
-        for bid, p in self.paths.items():
-            m = p.stat().st_mtime
+        for bid in self.paths:
+            m = self.working(bid).stat().st_mtime
             if self.mtimes.get(bid) == m:
                 continue
             self.mtimes[bid] = m
@@ -83,14 +111,93 @@ class App:
                         "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])}}
 
     def apply_groups(self, bid: str) -> dict:
-        """Groups' apply button: `group_review --apply` from the page, so Review sees the grouping without a trip
-        to the command line (Andrew, 2026-10-06)."""
+        """Groups' regrouping into the working copy (on leaving Groups, its apply button, or Save)."""
+        before = hand_review._sha(self.open_draft(bid))
         try:
             pl = group_review.apply(bid)
         except SystemExit as e:                 # apply's refusals (stale record, plan errors) are SystemExit
             raise ValueError(str(e)) from None
+        self.follow(bid, before)
+        draft.log(bid, "groups", pl["changes"])
         self.refresh()
         return {"changes": pl["changes"], "entry": self.entry(bid)}
+
+    def apply_review(self, bid: str) -> dict:
+        """The record's corrections not yet applied, into the working copy. A refusal (a rename onto a name another
+        field still has) leaves them pending and comes back as `apply_error`; applying again once the other field is
+        renamed takes both."""
+        vs = hand_review.load_verdicts(bid).get("verdicts") or {}
+        if not any(v.get("edit") and not v.get("applied") for v in vs.values()):
+            return {}
+        self.open_draft(bid)
+        lines: list[str] = []
+        try:
+            hand_review.apply_edits(bid, log=lines.append)
+        except SystemExit as e:
+            return {"apply_error": str(e)}
+        changes = [ln.strip() for ln in lines if ln.startswith("  ")]
+        draft.log(bid, "review", changes)
+        self.refresh()
+        return {"applied": changes}
+
+    def apply_add(self, bid: str, out: dict) -> dict:
+        """Add / remove's recorded additions and removals, into the working copy, when they plan cleanly."""
+        if not out.get("changes") or out.get("errors"):
+            return out
+        before = hand_review._sha(self.open_draft(bid))
+        try:
+            pl = field_add.apply(bid) or {}
+        except SystemExit as e:
+            return {**out, "apply_error": str(e)}
+        self.follow(bid, before)
+        draft.log(bid, "add", pl.get("changes") or [])
+        self.refresh()
+        return {**out, "applied": pl.get("changes") or [], "changes": [], "skipped": pl.get("skipped") or []}
+
+    def put_verdicts(self, bid: str, body: dict) -> dict:
+        out = self.review.put_verdicts(bid, body, on_pending=lambda: self.open_draft(bid))
+        ap = self.apply_review(bid)
+        if ap.get("applied"):
+            out = hand_review.load_verdicts(bid)
+        return {**out, **ap, "entry": self.entry(bid)}
+
+    def save_add(self, bid: str, body: dict) -> dict:
+        if body.get("added") or body.get("removed"):
+            self.open_draft(bid)
+        out = self.apply_add(bid, self.add.save(bid, body))
+        return {**out, "entry": self.entry(bid)}
+
+    def save_draft(self, bid: str, force: bool = False) -> dict:
+        """The header's save: whatever is still pending goes into the copy first (a Groups regrouping not applied
+        yet); a correction that cannot be applied, or a regrouping or addition with errors, stops it."""
+        p = self.working(bid)
+        if p == self.paths[bid]:
+            raise ValueError("no working copy open")
+        bp = hand_review._load(p)
+        _, units, _ = group_review.current_units(bid, bp, hand_review._sha(p))
+        gp = group_review.plan(bp, units, resolve_blank(bp))
+        if gp["errors"]:
+            raise ValueError("Groups has errors to fix first:\n  " + "\n  ".join(gp["errors"]))
+        if gp["changes"]:
+            self.apply_groups(bid)
+        self.apply_review(bid)                  # corrections saved before the working copy (the old apply button)
+        vs = hand_review.load_verdicts(bid).get("verdicts") or {}
+        fields = hand_review._load(self.working(bid)).get("fields") or {}
+        stuck = [n for n, v in vs.items() if v.get("edit") and not v.get("applied") and n in fields]
+        if stuck:
+            raise ValueError(f"{len(stuck)} correction(s) could not be applied (a name another field has): "
+                             + ", ".join(stuck))
+        rec = field_add.load_record(bid)
+        if rec.get("added") or rec.get("removed"):
+            raise ValueError("Add / remove has changes that do not apply cleanly; see its change list")
+        out = draft.save(bid, self.paths[bid], force)
+        self.refresh()
+        return {**out, "entry": self.entry(bid)}
+
+    def discard_draft(self, bid: str) -> dict:
+        out = draft.discard(bid, self.paths[bid])
+        self.refresh()
+        return {**out, "entry": self.entry(bid)}
 
     def listing(self) -> list[dict]:
         if not self.review._index:
@@ -101,7 +208,7 @@ class App:
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)
         if key not in self.png:
-            p = self.paths.get(bid)
+            p = self.working(bid) if bid in self.paths else None
             blank = resolve_blank(hand_review._load(p)) if p else None
             if not blank or not blank.exists():
                 return None
@@ -172,7 +279,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if path == "/api/blueprints":
             return self._json(APP.listing())
         if len(parts) == 4 and parts[:2] == ["api", "blueprints"] and parts[3] == "sha":
-            return self._route(lambda: {"sha": hand_review._sha(APP.paths[parts[2]])}, parts[2])
+            return self._route(lambda: {"sha": hand_review._sha(APP.working(parts[2]))}, parts[2])
+        if len(parts) == 3 and parts[:2] == ["api", "draft"]:
+            return self._route(lambda: {"draft": draft.status(parts[2], APP.paths[parts[2]])}, parts[2])
         if len(parts) == 5 and parts[:2] == ["api", "blueprints"] and parts[3] == "png":
             png = APP.page_png(parts[2], int(parts[4]))
             return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
@@ -191,13 +300,16 @@ class Handler(http.server.BaseHTTPRequestHandler):
         mode, bid, what = parts[1], parts[2], parts[3]
         body = self._body()
         if (mode, what) == ("review", "verdicts"):
-            return self._route(lambda: APP.review.put_verdicts(bid, body) | {"entry": APP.entry(bid)}, bid)
+            return self._route(lambda: APP.put_verdicts(bid, body), bid)
         if (mode, what) == ("groups", "units"):
-            return self._route(lambda: APP.groups.put_units(bid, body) | {"entry": APP.entry(bid)}, bid)
+            def units():
+                APP.open_draft(bid)
+                return APP.groups.put_units(bid, body) | {"entry": APP.entry(bid)}
+            return self._route(units, bid)
         if (mode, what) == ("review", "removals"):           # Review's remove button: the field-add record's removals
-            return self._route(lambda: APP.add.save(bid, {"removed": body.get("removed") or []}) | {"entry": APP.entry(bid)}, bid)
+            return self._route(lambda: APP.save_add(bid, {"removed": body.get("removed") or []}), bid)
         if (mode, what) == ("add", "record"):
-            return self._route(lambda: APP.add.save(bid, body) | {"entry": APP.entry(bid)}, bid)
+            return self._route(lambda: APP.save_add(bid, body), bid)
         self._send(b"not found", "text/plain", 404)
 
     def do_POST(self):
@@ -212,6 +324,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(b"not found", "text/plain", 404)
         mode, bid, what = parts[1], parts[2], parts[3]
         body = self._body()
+        if (mode, what) == ("draft", "save"):
+            return self._route(lambda: APP.save_draft(bid, bool(body.get("force"))), bid)
+        if (mode, what) == ("draft", "discard"):
+            return self._route(lambda: APP.discard_draft(bid), bid)
         if (mode, what) == ("groups", "plan"):
             return self._route(lambda: APP.groups.plan_for(bid, body), bid)
         if (mode, what) == ("groups", "apply"):
@@ -227,8 +343,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 APP.add.ctx(bid).load_finder(run=True)
                 return APP.add.detail(bid)
             return self._route(run, bid)
-        if (mode, what) in (("review", "apply"), ("add", "apply")):
-            return self._route(lambda: apply_from_page(mode, bid), bid)
+        if (mode, what) == ("review", "apply"):          # a retry, after a clash that held a correction back
+            return self._route(lambda: {**APP.apply_review(bid), "entry": APP.entry(bid)}, bid)
+        if (mode, what) == ("add", "apply"):
+            return self._route(lambda: APP.save_add(bid, {}), bid)
         if (mode, what) == ("review", "agent"):          # "review edits": the flags with notes go to the agent
             from petey.validate import flag_agent
             return self._route(lambda: {"started": flag_agent.start(bid)}, bid)
@@ -236,22 +354,6 @@ class Handler(http.server.BaseHTTPRequestHandler):
             from petey.validate import flag_agent
             return self._route(lambda: flag_agent.propose_field(bid, body["name"], body.get("note") or ""), bid)
         self._send(b"not found", "text/plain", 404)
-
-
-def apply_from_page(mode: str, bid: str) -> dict:
-    """The Review and Add / remove apply buttons (Andrew, 2026-10-07: blueprint changes committed from the page, not
-    only the command line): `hand_review --apply <id>` (name / type corrections) and `field_add --apply <id>`
-    (fields added or removed). Their refusals (a rename that would collide, plan errors) come back as the error."""
-    lines: list[str] = []
-    try:
-        if mode == "review":
-            hand_review.apply_edits(bid, log=lines.append)
-        else:
-            lines = list((field_add.apply(bid) or {}).get("changes") or [])
-    except SystemExit as e:
-        raise ValueError(str(e)) from None
-    APP.refresh()
-    return {"changes": [ln.strip() for ln in lines if ln.strip()], "entry": APP.entry(bid)}
 
 
 def serve(port: int = 5005, mode: str = "review", open_browser: bool = True) -> int:

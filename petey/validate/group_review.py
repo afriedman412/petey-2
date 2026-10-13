@@ -23,7 +23,8 @@ member's place in reading order; what each member was (name, path, box, type) is
 The page only records: `runs/group_review/<id>.json` holds the grouping as the person left it (units, their names,
 one-of or any-of, confirmed or not) with the blueprint's sha. `--apply` rewrites the blueprint from that record and
 then re-derives the record from the new file, keeping the confirmations. Blueprints offered are the hand review's
-(library, judge-eval and relabel side copies, flat forms).
+(library, judge-eval and relabel side copies, flat forms). Since 2026-10-13 the review page applies the record to its
+working copy of the blueprint when you leave Groups (`draft.py`), and `--apply` writes that copy while it is open.
 
 What --apply writes, in the shape `expand_options` gave the library (2026-09-29): a group is one `category` (or
 `multi_category`) field whose `widgets` are keyed by option; an orphan that joins a group is keyed by its former
@@ -47,7 +48,7 @@ import yaml
 from petey.paths import RUNS
 from petey.label.captions import text_rects
 from petey.validate import field_ids
-from petey.validate.hand_review import _load, _sha, blueprint_paths
+from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "group_review"
@@ -453,8 +454,9 @@ def _combine_text(bp: dict, out: dict, text_units: list[dict], now: str, changes
 
 def apply(bid: str, page_captions: bool = True) -> dict:
     """Write the record into the blueprint, then re-derive the record from the new file (confirmations kept by unit
-    name and membership)."""
-    p = blueprint_paths()[bid]
+    name and membership). Writes the working copy while one is open (`draft.py`)."""
+    real = blueprint_paths()[bid]
+    p = working_path(bid)
     bp = _load(p)
     sha = _sha(p)
     items, units, info = current_units(bid, bp, sha)
@@ -473,7 +475,7 @@ def apply(bid: str, page_captions: bool = True) -> dict:
     new_sha = _sha(p)
     confirmed = {(u["name"], len(u["items"])) for u in units if u.get("confirmed")}
     _, fresh = option_items(bp)
-    rec = {"blueprint": str(p), "form": p.stem, "blueprint_sha": new_sha,
+    rec = {"blueprint": str(real), "form": real.stem, "blueprint_sha": new_sha,
            "updated": time.strftime("%Y-%m-%d %H:%M:%S"),
            "applied": {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "sha_before": sha, "sha_after": new_sha,
                        "changes": pl["changes"]},
@@ -495,8 +497,11 @@ class State:
         self.png: dict[tuple[str, int], bytes] = {}
         self._index: dict[str, dict] = {}
 
+    def path(self, bid: str) -> Optional[Path]:
+        return working_path(bid, self.paths)
+
     def _entry(self, bid: str) -> Optional[dict]:
-        p = self.paths[bid]
+        p = self.path(bid)
         bp = _load(p)
         items, units, info = current_units(bid, bp, _sha(p))
         combos = sum(1 for u in units if u.get("kind") == "text")
@@ -522,7 +527,7 @@ class State:
         return list(self._index.values())
 
     def detail(self, bid: str) -> Optional[dict]:
-        p = self.paths.get(bid)
+        p = self.path(bid)
         if p is None:
             return None
         bp = _load(p)
@@ -539,7 +544,7 @@ class State:
         items, units, info = current_units(bid, bp, sha)
         opt_items, base = option_items(bp)
         option_fields = {it["field"] for it in opt_items.values()}
-        return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
+        return {"id": bid, "path": str(self.paths[bid]), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
                 "info": info}
@@ -547,7 +552,7 @@ class State:
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)
         if key not in self.png:
-            p = self.paths.get(bid)
+            p = self.path(bid)
             blank = resolve_blank(_load(p)) if p else None
             if not blank or not blank.exists():
                 return None
@@ -562,7 +567,7 @@ class State:
         return self.png[key]
 
     def put_units(self, bid: str, incoming: dict) -> dict:
-        p = self.paths.get(bid)
+        p = self.path(bid)
         if p is None:
             raise KeyError(bid)
         bp = _load(p)
@@ -573,7 +578,7 @@ class State:
         for u in units:
             u["items"] = [i for i in u.get("items") or [] if i in items]
         units = [u for u in units if u["items"]]
-        rec = {"blueprint": str(p), "form": p.stem, "blueprint_sha": _sha(p),
+        rec = {"blueprint": str(self.paths[bid]), "form": p.stem, "blueprint_sha": _sha(p),
                "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "applied": load_record(bid).get("applied"),
                "units": units, "boxes": item_boxes(items, units)}
         OUT.mkdir(parents=True, exist_ok=True)
@@ -584,7 +589,7 @@ class State:
         return {"saved": rec["updated"], "entry": e}
 
     def plan_for(self, bid: str, incoming: Optional[dict] = None) -> dict:
-        p = self.paths[bid]
+        p = self.path(bid)
         bp = _load(p)
         units = (incoming or {}).get("units") or current_units(bid, bp, _sha(p))[1]
         pl = plan(bp, units, resolve_blank(bp))
@@ -597,7 +602,7 @@ def summary() -> None:
     n = 0
     for rp in sorted(OUT.glob("*.json")):
         rec = json.loads(rp.read_text(encoding="utf-8"))
-        p = paths.get(rp.stem)
+        p = working_path(rp.stem, paths)
         if p is None:
             continue
         bp = _load(p)
@@ -630,7 +635,7 @@ def main() -> int:
         if args.apply:
             apply(bid, page_captions=not args.no_page_captions)
             return 0
-        p = blueprint_paths()[bid]
+        p = working_path(bid)
         bp = _load(p)
         _, units, info = current_units(bid, bp, _sha(p))
         pl = plan(bp, units, resolve_blank(bp))
