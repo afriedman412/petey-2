@@ -47,6 +47,11 @@
   input[type=checkbox] { accent-color:var(--accent); vertical-align:-2px; }
   textarea::placeholder, input::placeholder { color:var(--text-dim); }
   header select { max-width:520px; }
+  /* one line (2026-10-13): the form menu gives way first, then the subtitle */
+  header { flex-wrap:nowrap; gap:8px; } header > * { flex-shrink:0; }
+  header #listorder { width:112px; }
+  header #pick { flex:0 1 380px; min-width:140px; width:380px; }
+  @media (max-width:1500px) { .brand .sub { display:none; } }
   header .ctl select { text-transform:none; letter-spacing:0; font-weight:400; font-size:.8rem; }
 
   /* toggle group, as petey-web's mode toggle */
@@ -219,14 +224,14 @@
 <header>
   <div class="brand"><h1>Petey<span class="dot">.</span></h1><span class="sub">Blueprint review</span></div>
   <select id="pick"></select>
-  <label class="ctl">List <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most errors first</option></select></label>
+  <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most errors first</option></select></label>
   <span class="tabs" id="tabs">
     <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button>
   </span>
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span id="draftBar" hidden></span>
   <span class="spacer"></span>
-  <span class="ctl">Zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
+  <span class="ctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
@@ -321,25 +326,12 @@ function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mod
 function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); }
 
 function pickerText(b) {
-  const bits = [`${b.fields} fields`];
+  // short (Andrew, 2026-10-13: the long rows widened the menu and pushed the header buttons onto a second line):
+  // fields, reviewed, VALIDATED; a * marks an unsaved working copy
   const done = b.accepted + b.flagged;
-  if (b.checked && b.checked.validated) bits.unshift('VALIDATED');
-  else if (b.checked) bits.push(b.checked.stale ? 'checked, file changed since'
-    : `checked${b.checked.flagged ? `, ${b.checked.flagged} flagged` : ''}${b.checked.pending ? `, ${b.checked.pending} correction${b.checked.pending === 1 ? '' : 's'} to apply` : ''}`);
-  else if (done) bits.push(`${done} reviewed`);
-  if (b.stale) bits.push('verdicts stale');
-  // (the groups confirmed count was dropped 2026-10-07: Groups is for fixing, not validation)
-  if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
-  if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
-  if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
-  if (b.focus) bits.unshift(`${b.focus} name flags to confirm`);
-  if (b.draft) bits.unshift(`working copy, ${b.draft.changes} unsaved`);
-  if (b.rerun || b.launch) {
-    if (b.check_errors != null) bits.push(`${b.check_errors} errors, ${b.check_suggestions} suggestions`);
-    else if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
-    if (b.run) bits.push(b.run.stable ? 'stable' : `NOT stable: ${b.run.stop}`);
-  }
-  return `${b.form}  (${bits.join(', ')})`;     // who made it and when: Blueprint details (2026-10-07)
+  const bits = [`${b.fields} fields`, `${done} reviewed`];
+  if (b.checked && b.checked.validated) bits.push('VALIDATED');
+  return `${b.form}${b.draft ? ' *' : ''}  (${bits.join(', ')})`;
 }
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || bid;
@@ -374,7 +366,7 @@ function renderDraft() {
   if (!d) { el.hidden = true; el.innerHTML = ''; return; }
   el.hidden = false;
   el.innerHTML = `${d.real_changed ? '<span class="stale" title="a loop run or an edit by hand changed the blueprint after the working copy was made">file changed on disk</span>' : ''}
-    <button class="btn ok" id="dSave" title="${esc(d.log.length ? d.log.join('\n') : 'no changes to the blueprint yet (verdicts only)')}">save blueprint (${d.changes} change${d.changes === 1 ? '' : 's'})</button>
+    <button class="btn ok" id="dSave" title="${esc('save the working copy into the blueprint\n\n' + (d.log.length ? d.log.join('\n') : 'no changes to the blueprint yet (verdicts only)'))}">save (${d.changes})</button>
     <button class="btn" id="dDiscard" title="throw the working copy away (made ${esc(d.made)}); verdicts and notes since then go with it">discard</button>`;
   $('#dSave').onclick = saveDraft; $('#dDiscard').onclick = discardDraft;
 }
