@@ -108,6 +108,8 @@
   .rbanner { background:rgba(195,47,39,.14); border:1px solid rgba(195,47,39,.45); color:var(--red); padding:7px 10px; border-radius:var(--r); margin:8px 0; }
   .rv.clash { outline:3px solid var(--cc); outline-offset:1px; z-index:6; }
   .rv.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
+  .rv.optsel { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent); z-index:3; }
+  .orow.osel input { outline:2px solid var(--accent); outline-offset:-1px; }
   dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } dt { color:var(--text-dim); } dd { margin:0; word-break:break-word; }
   .rpanel h2 { font-size:15px; margin:0 0 6px; word-break:break-all; }
   .verdict { display:flex; gap:8px; margin:12px 0 6px; }
@@ -507,6 +509,7 @@ function onKey(e) {
 
 // ======================================================================= Review: accept / flag / note per field
 MODE.review = (() => {
+  let selOpt = null;           // the option box clicked on the page, within a group (its key): highlighted in the card
   let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [], clashOn = false;
   const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
   const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
@@ -546,10 +549,11 @@ MODE.review = (() => {
   function ordered() {
     const list = BP.fields.filter(f => !unrevOnly || !verdictOf(f.name));
     if (order === 'risk') list.sort((a, b) => ((TIER_RANK[a.tier] ?? 1) - (TIER_RANK[b.tier] ?? 1)) || (a.idx - b.idx));
+    else if (order === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
     return list;
   }
-  function select(name, scroll = true) {
-    selected = name;
+  function select(name, scroll = true, opt = null) {
+    selected = name; selOpt = opt;
     const f = BP.fields.find(x => x.name === name);
     if (f && f.page !== page) { page = f.page; renderPages(); showPage().then(() => { panel(); if (scroll) scrollSel(); }); return; }
     placeAll(); panel(); if (scroll) scrollSel();
@@ -788,7 +792,7 @@ MODE.review = (() => {
   const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}<span class="fid">${esc(f.id || 'p' + f.page)}</span> · ${esc(f.name)}${(BP.verdicts[f.name] || {}).edit ? ` <b>→ ${esc(BP.verdicts[f.name].edit.name || f.name)}${BP.verdicts[f.name].edit.type ? ' : ' + esc(BP.verdicts[f.name].edit.type) : ''}${BP.verdicts[f.name].edit.semantic_type ? ' / ' + esc(BP.verdicts[f.name].edit.semantic_type) : ''}</b>` : ''}</div>`).join('')}</div>`;
   // the list's order, just above the list (Andrew, 2026-10-07; it was in the bar)
   const orderHtml = () => `<div class="listorder"><label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only</label>
-    <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option></select></label></div>`;
+    <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option><option value="name" ${order === 'name' ? 'selected' : ''}>by name</option></select></label></div>`;
   function bindList() {
     document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n));
     const o = $('#order'); if (o) o.onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
@@ -848,6 +852,12 @@ MODE.review = (() => {
     $('#vFix').onclick = saveFix; $('#vUndo').onclick = resetBoxes;
     $('#fref').onclick = () => copyRef(f);
     bindFixes(f); bindAgent(v);
+    // the option row of the box clicked on the page, and the other way round: a row focused or hovered lights its box
+    for (const r of optRows()) {
+      if (r.dataset.k === selOpt) { r.classList.add('osel'); r.scrollIntoView({block: 'nearest'}); }
+      const pick = () => { if (selOpt === r.dataset.k) return; selOpt = r.dataset.k; optRows().forEach(x => x.classList.toggle('osel', x === r)); placeAll(); };
+      r.addEventListener('focusin', pick); r.addEventListener('mouseenter', pick);
+    }
     document.querySelectorAll('.fref').forEach(r => r.onclick = e => { e.preventDefault(); select(r.dataset.n); });
     [...FIX_BOXES.map(([sel]) => $(sel)), ...document.querySelectorAll('.okey, .ocap')].forEach(el => {
       el.addEventListener('input', markDirty); el.addEventListener('change', markDirty);
@@ -950,10 +960,11 @@ MODE.review = (() => {
       for (const f of BP.fields) {
         f.rects.forEach((r, i) => {
           if (r.page !== page) return;
-          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : '') + (cl[f.name] ? ' clash' : ''), r.rect,
+          const opt = f.options.length && f.options[i] ? f.options[i].on_state : null;
+          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : '') + (selected === f.name && opt && opt === selOpt ? ' optsel' : '') + (cl[f.name] ? ' clash' : ''), r.rect,
                         `${f.id ? f.id + ' · ' : ''}${f.name}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}`);
           if (cl[f.name]) { d.style.setProperty('--cc', cl[f.name].color); d.title += ` · clashes on ${cl[f.name].to}`; }
-          d.onclick = () => select(f.name, false);
+          d.onclick = () => select(f.name, false, opt);   // a box of a group: its key / caption row lights up
         });
       }
     },

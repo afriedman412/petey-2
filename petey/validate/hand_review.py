@@ -557,12 +557,21 @@ def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str,
                     spec.pop("values", None)
                 elif not spec.get("values") and spec.get("widgets"):
                     spec["values"] = list(spec["widgets"])      # an option group: its keys (1_126 lost them)
+            old_st = spec.get("semantic_type") if "semantic_type" in e else None
             for k in ("semantic_type", "pattern"):
                 if k in e:
                     if e[k] == "none":
                         spec.pop(k, None)
                     else:
                         spec[k] = e[k]
+            # a semantic type brings its pattern (Andrew, 2026-10-13: "the entire point of having them"); changed or
+            # cleared, the old type's pattern goes with it. An explicit pattern in the edit wins.
+            if "semantic_type" in e and "pattern" not in e:
+                from petey.semantic_types import pattern_for
+                if spec.get("pattern") and spec.get("pattern") == pattern_for(old_st):
+                    spec.pop("pattern")
+                if spec.get("type", "string") == "string" and pattern_for(spec.get("semantic_type")):
+                    spec["pattern"] = pattern_for(spec.get("semantic_type"))
             if e.get("options"):
                 ws, renamed = {}, {}
                 for k, w in (spec.get("widgets") or {}).items():

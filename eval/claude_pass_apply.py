@@ -32,7 +32,7 @@ import yaml
 from petey.paths import RUNS
 from petey.validate import draft, field_add, field_ids
 from petey.validate.hand_review import (_load, _sha, blueprint_paths, clean_edit, edit_fields, load_verdicts,
-                                        working_path)
+                                        verdict_path, working_path)
 
 PROPOSALS = RUNS / "claude_pass" / "proposals"
 SUGGESTIONS = RUNS / "claude_pass" / "suggestions"
@@ -41,6 +41,32 @@ EDIT_KEYS = ("name", "type", "semantic_type", "pattern", "options")
 
 def _hand_accepted(v: dict) -> bool:
     return v.get("verdict") == "accept" and not (v.get("note") or "").startswith(("bulk", "auto"))
+
+
+def _move_verdicts(bid: str, ren: dict) -> None:
+    """The review record follows the renames, all at once (a swap moves both): verdicts are filed by field name, and
+    left behind they attach to whichever field takes the name (2026-10-13: an I-130 correction saved for one field
+    was applied to its neighbour after this pass renamed both). A pending rename of a moved field is superseded by
+    this one (noted on the verdict); its other parts stay pending."""
+    if not ren:
+        return
+    rec = load_verdicts(bid)
+    vs = rec.get("verdicts") or {}
+    out = {}
+    for k, v in vs.items():
+        if k in ren:
+            e = v.get("edit")
+            if e and not v.get("applied") and "name" in e:
+                v["note"] = (v.get("note") or "") + f" [rename to {e['name']} superseded by {ren[k]}]"
+                e = {x: y for x, y in e.items() if x != "name"}
+                if e:
+                    v["edit"] = e
+                else:
+                    v.pop("edit")
+        out[ren.get(k, k)] = v
+    assert len(out) == len(vs), f"{bid}: moving verdicts would put two on one field"
+    rec["verdicts"] = out
+    verdict_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
 
 
 def apply(bid: str, dry: bool = False, log=print) -> dict:
@@ -158,6 +184,7 @@ def apply(bid: str, dry: bool = False, log=print) -> dict:
         field_ids.assign(bp)
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
         draft.follow(bid, before, _sha(p))        # a finished check moves with the change; Andrew sees it before saving
+        _move_verdicts(bid, {n: t for n, t in renames.items() if t != n})
         draft.log(bid, "claude", lines)
     SUGGESTIONS.mkdir(parents=True, exist_ok=True)
     (SUGGESTIONS / f"{bid}.json").write_text(json.dumps(sugg, indent=1, ensure_ascii=False))
