@@ -137,10 +137,44 @@ def _signature(u: dict) -> tuple:
     return u["name"], u["type"], tuple(sorted(u["items"]))
 
 
+def _box(it: dict) -> str:
+    """An item's box: page and rect, which a rename never moves."""
+    return f"{it['page']}:" + ",".join(str(round(float(c))) for c in it["rect"])
+
+
+def item_boxes(items: dict[str, dict], units: list[dict]) -> dict[str, str]:
+    """{item id: box} for every item the units hold, kept with the record so a later rename cannot move an item to
+    another box (Andrew, 2026-10-13: a group saved, then a Review apply that renamed its boxes, then a rebase by name
+    that put the wrong box in the group)."""
+    return {i: _box(items[i]) for u in units for i in u.get("items") or [] if i in items}
+
+
+def _rebase(rec: dict, bp: dict, items: dict[str, dict]) -> dict[str, str]:
+    """{id in the record: id now} for a record written against another version of the blueprint. By box when the
+    record kept its boxes; else (older records) through the renames the blueprint notes on its fields
+    (`x_petey_hand_edit` from -> to: the last rename of each field)."""
+    if rec.get("boxes"):
+        now = {_box(it): i for i, it in items.items()}
+        return {i: now[b] for i, b in rec["boxes"].items() if b in now and now[b] != i}
+    renamed = {}
+    for name, spec in (bp.get("fields") or {}).items():
+        was = (((spec or {}).get("x_petey_hand_edit") or {}).get("from") or {}).get("name") if isinstance(spec, dict) else None
+        if was and was != name:
+            renamed[was] = name
+    out = {}
+    for u in rec.get("units") or []:
+        for i in u.get("items") or []:
+            field, sep, key = i.partition("::")
+            if field in renamed:
+                out[i] = renamed[field] + sep + key
+    return out
+
+
 def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]:
     """The units as the page should show them: the record's grouping laid over the blueprint's. A record written
-    against another version of the file is rebased: its units keep the items that still exist, items it never saw
-    stay where the blueprint has them, and it is reported stale."""
+    against another version of the file is rebased: each item follows its box to whatever the blueprint calls it now
+    (`_rebase`), units keep the items that still exist, items it never saw stay where the blueprint has them, and
+    it is reported stale."""
     items, base = option_items(bp)
     items = {**items, **text_items(bp)}
     rec = load_record(bid)
@@ -150,8 +184,11 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
         units = [dict(u, confirmed=False) for u in base]
     else:
         units, seen = [], set()
+        moved = _rebase(rec, bp, items) if info["stale"] else {}
+        info["rebased"] = len(moved)
         for u in rec["units"]:
-            ids = [i for i in u.get("items") or [] if i in items and i not in seen]
+            ids = [moved.get(i, i) for i in u.get("items") or []]
+            ids = [i for i in ids if i in items and i not in seen]
             if not ids or (u.get("kind") == "text" and len(ids) < 2):
                 continue
             seen.update(ids)
@@ -421,7 +458,7 @@ def apply(bid: str, page_captions: bool = True) -> dict:
     bp = _load(p)
     sha = _sha(p)
     items, units, info = current_units(bid, bp, sha)
-    if info["stale"]:
+    if info["stale"] and not load_record(bid).get("boxes"):     # a record with its boxes rebases safely
         raise SystemExit(f"{bid}: the record was written against another version of the blueprint; open it in the "
                          f"page, check the grouping and save again before applying")
     pl = plan(bp, units, resolve_blank(bp), page_captions)
@@ -441,6 +478,8 @@ def apply(bid: str, page_captions: bool = True) -> dict:
            "applied": {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "sha_before": sha, "sha_after": new_sha,
                        "changes": pl["changes"]},
            "units": [dict(u, confirmed=(u["name"], len(u["items"])) in confirmed) for u in fresh]}
+    fresh_items, _ = option_items(bp)
+    rec["boxes"] = item_boxes({**fresh_items, **text_items(bp)}, rec["units"])
     record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{bid}: wrote {p}")
     for c in pl["changes"]:
@@ -536,7 +575,7 @@ class State:
         units = [u for u in units if u["items"]]
         rec = {"blueprint": str(p), "form": p.stem, "blueprint_sha": _sha(p),
                "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "applied": load_record(bid).get("applied"),
-               "units": units}
+               "units": units, "boxes": item_boxes(items, units)}
         OUT.mkdir(parents=True, exist_ok=True)
         record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
         e = self._entry(bid)
