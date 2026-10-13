@@ -405,7 +405,12 @@ class State:
         cur = load_verdicts(bid)
         vs = cur.get("verdicts") or {}
         now = time.strftime("%Y-%m-%d %H:%M:%S")
+        fields = bp.get("fields") or {}
         for name, rec in (incoming.get("verdicts") or {}).items():
+            # a correction for a field that is gone, asking for a name a field has: a repeat sent after the rename went
+            # in (2026-10-13, ACORD 130: a second save while the page reloaded left three dead 'held-back' entries)
+            if name not in fields and isinstance((rec or {}).get("edit"), dict) and (rec["edit"].get("name") or "") in fields:
+                continue
             if rec is None or not rec.get("verdict"):
                 vs.pop(name, None)
             else:

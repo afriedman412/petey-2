@@ -642,7 +642,13 @@ MODE.review = (() => {
     for (const r of optRows()) { r.querySelector('.okey').value = was.options[r.dataset.k].key; r.querySelector('.ocap').value = was.options[r.dataset.k].caption; }
     markDirty();
   }
+  let fixing = false;          // one save at a time: a second one while the first reloads re-sends the old name
   async function saveFix() {
+    if (fixing) return;
+    fixing = true;
+    try { await saveFixOnce(); } finally { fixing = false; }
+  }
+  async function saveFixOnce() {
     if (!selected || !$('#eName')) return;
     const f = BP.fields.find(x => x.name === selected), v = BP.verdicts[f.name] || {}, o = orig(f), now = boxes();
     const cleared = k => now[k] === o[k] ? '' : (now[k] || 'none');
@@ -889,7 +895,8 @@ MODE.review = (() => {
       }
     }
     // corrections held back from the working copy (a rename onto a name another field still has): a retry button
-    const pending = Object.values(BP.verdicts).filter(v => v.edit && !v.applied).length;
+    const names = new Set(BP.fields.map(f => f.name));
+    const pending = Object.entries(BP.verdicts).filter(([n, v]) => v.edit && !v.applied && names.has(n)).length;
     if (pending) {
       el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="rApply" title="corrections held back by a name clash: try them again once the other field is renamed">apply ${pending} held-back correction${pending === 1 ? '' : 's'}</button>`);
       $('#rApply').onclick = applyCorrections;
