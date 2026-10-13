@@ -175,12 +175,13 @@ def score_pairs(pairs: list[tuple[str, str]]) -> Optional[list[float]]:
     db = _disk()
     if db is not None and todo:
         mid = _model_id()
-        for i in range(0, len(todo), 400):
-            chunk = todo[i:i + 400]
-            q = " OR ".join("(text=? AND field=?)" for _ in chunk)
-            for t, f, pv in db.execute(f"SELECT text, field, p FROM s WHERE model=? AND ({q})",
-                                       [mid] + [x for p in chunk for x in p]):
-                _cache[(t, f)] = pv
+        # one primary-key lookup per pair: an OR of 400 (text, field) terms is not served by the index and scanned
+        # the whole table each time (2026-10-13: 2.8 s per chunk at 395k rows, 50 s to open FAA 8710 in Review;
+        # by key, 0.02 s for all 6,772 pairs)
+        for t, f in todo:
+            row = db.execute("SELECT p FROM s WHERE model=? AND text=? AND field=?", (mid, t, f)).fetchone()
+            if row:
+                _cache[(t, f)] = row[0]
         todo = [p for p in todo if p not in _cache]
     new = list(todo)
     todo.sort(key=lambda p: len(p[0]) + len(p[1]))       # similar lengths together: each batch pads to its longest

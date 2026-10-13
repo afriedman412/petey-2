@@ -860,8 +860,11 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
             said = cap.group(1) if k == "classifier" and cap else said
             said = re.sub(r"\s+", " ", said.split(" | ")[0]).strip(" ;")
             said = said if len(said) <= 70 else said[:69] + "…"     # the text's start, not its first "sentence"
+            # "use" takes that name (Andrew, 2026-10-13); the other field still has it, so the page holds the rename
+            # back as a clash until that one is renamed too (usually a swap in a shifted block)
             out.append({"kind": "error", "text": f"{_WITNESS_TEXT[k]} ({said!r}) fits "
-                                                 f"`{m.group(2)}` better than this field."})
+                                                 f"`{m.group(2)}` better than this field.",
+                        "fix": {"name": m.group(2)}})
         elif k == "classifier" and "nothing goes here" in (detail or ""):
             out.append({"kind": "error", "text": "The page classifier read this box as one where nothing is written."})
         elif k == "judge":
