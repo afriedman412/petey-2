@@ -314,6 +314,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.save_draft(bid, bool(body.get("force"))), bid)
         if (mode, what) == ("draft", "discard"):
             return self._route(lambda: APP.discard_draft(bid), bid)
+        if (mode, what) == ("groups", "captions"):       # "re-read captions" on a group
+            return self._route(lambda: APP.groups.captions_for(bid, body), bid)
         if (mode, what) == ("groups", "plan"):
             return self._route(lambda: APP.groups.plan_for(bid, body), bid)
         if (mode, what) == ("groups", "apply"):

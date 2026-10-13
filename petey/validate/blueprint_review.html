@@ -1016,7 +1016,8 @@ MODE.groups = (() => {
     units.sort((a, b) => cmpKey(orderKey(firstItem(a)), orderKey(firstItem(b))));
   }
   const onPage = (u, p = page) => u.items.some(id => item(id).page === p);
-  const label = id => { const it = item(id); return it.kind === 'text' ? it.field : (it.caption || (it.key ?? it.field)); };
+  const label = id => { const it = item(id), u = unitOf(id), c = u && u.captions && u.captions[id];
+    return it.kind === 'text' ? it.field : (c || it.caption || (it.key ?? it.field)); };
   const looseText = (p = page) => Object.values(BP.items).filter(it => it.kind === 'text' && it.page === p && !unitOf(it.id));
   function colorOf(u) {
     if (isText(u)) return 'var(--txt)';
@@ -1201,6 +1202,21 @@ MODE.groups = (() => {
       else { note('the labeler returned no name'); el.disabled = false; el.textContent = 'ask the labeler'; }
     } catch (e) { note('labeler failed: ' + e.message); el.disabled = false; el.textContent = 'ask the labeler'; }
   }
+  // "re-read captions" (Andrew, 2026-10-13): the page's best caption per box for this group's name and keys; kept
+  // with the unit and written when the grouping is applied
+  async function rereadCaptions(u, el) {
+    el.disabled = true; el.textContent = 'reading…';
+    try {
+      const r = await send('POST', mapi('groups', '/captions'), {name: u.name, items: u.items});
+      const caps = Object.fromEntries(Object.entries(r.captions).filter(([, c]) => c.caption && !c.locked && c.caption !== c.current).map(([id, c]) => [id, c.caption]));
+      const kept = Object.values(r.captions).filter(c => c.locked).length;
+      if (!Object.keys(caps).length) { note(`captions: nothing better on the page${kept ? ` (${kept} locked)` : ''}`); el.disabled = false; el.textContent = 're-read captions'; return; }
+      snapshot(); u.captions = {...(u.captions || {}), ...caps};
+      const src = (Object.values(r.captions)[0] || {}).source;
+      note(`captions: ${Object.keys(caps).length} re-read${src ? ' by ' + src : ''}${kept ? `, ${kept} locked kept` : ''}`);
+      afterEdit();
+    } catch (e) { note('captions failed: ' + e.message); el.disabled = false; el.textContent = 're-read captions'; }
+  }
   function setDesc(uid, d) { const u = unitByUid(uid); if (!u || (u.description || '') === d) return; snapshot(); u.description = d; afterEdit(); }
   function setType(uid, type) { const u = unitByUid(uid); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(); }
   function separate(u) { snapshot(); units = units.filter(x => x !== u); selected = optUnits().length ? optUnits()[0].uid : null; afterEdit(); }
@@ -1299,6 +1315,7 @@ MODE.groups = (() => {
       <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${u.locked ? '' : ' <button class="btn" id="gLabel" title="one call to the labeler with the words on this page">ask the labeler</button>'}${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}${was}
       ${bad ? `<div class="warn">${bad}</div>` : ''}
       ${what}${group ? `<ol>${items}</ol>` : ''}
+      ${group && !u.locked ? '<div class="row"><button class="btn" id="gCaps" title="read each box\'s printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF\'s form data or set by hand stay">re-read captions</button></div>' : ''}
       <div class="row">
         <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right' : 'stands alone')}</button>
         ${b && status(u) !== 'as blueprint' ? '<button class="btn" id="gRevert" title="put this unit back as the blueprint has it">back to blueprint</button>' : ''}
@@ -1340,6 +1357,7 @@ MODE.groups = (() => {
       const c = $('#gConfirm'); if (c) c.onclick = () => confirmUnit(u.uid);
       const rv = $('#gRevert'); if (rv) rv.onclick = () => revert(u);
       const sp = $('#gSplit'); if (sp) sp.onclick = () => separate(u);
+      const gc = $('#gCaps'); if (gc) gc.onclick = () => rereadCaptions(u, gc);
     }
     document.querySelectorAll('.gcard').forEach(card => {
       const uid = Number(card.dataset.unit);

@@ -135,7 +135,59 @@ def _order_key(items: dict, u: dict) -> tuple:
 
 
 def _signature(u: dict) -> tuple:
-    return u["name"], u["type"], tuple(sorted(u["items"]))
+    return u["name"], u["type"], tuple(sorted(u["items"])), tuple(sorted((u.get("captions") or {}).items()))
+
+
+def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[str], model: bool = True) -> dict[str, dict]:
+    """The caption printed at each option of a group (Andrew, 2026-10-13: a group made in Groups keeps its members'
+    old captions; re-read them for the group's name and keys), keyed by item id: {"caption", "current", "locked",
+    "source"}. By default one call to the review page's agent (`flag_agent.propose`: the page image with the boxes
+    numbered; reads sentence-long captions, which the chooser cuts short: CMS-855A's reasons for applying came back
+    'Check' and 'You'); without it, or when the call fails, the caption chooser (`caption_choice.choose`, the
+    text-match model over the words around each box, no API call). A caption from the XFA template or set by hand
+    is locked and kept."""
+    from petey.label.caption_choice import choose, page_context
+    from petey.validate.witness import publisher_words
+    items = {**option_items(bp)[0], **text_items(bp)}
+    fields = bp.get("fields") or {}
+    if blank is None or not item_ids:
+        return {}
+    ws, key_of = {}, {}
+    for iid in item_ids:
+        it = items.get(iid)
+        if it is None:
+            continue
+        src = fields[it["field"]]
+        block = dict(src["widgets"][it["key"]]) if it["key"] is not None else dict(src.get("widget") or {})
+        if it["key"] is None and not block.get("caption") and _is_orphan(src):
+            block["caption"] = src.get("description")
+        k, n = str(it["key"] if it["key"] is not None else it["field"]), 2
+        while k in ws:
+            k, n = f"{k}_{n}", n + 1
+        ws[k], key_of[k] = block, iid
+    best, source = {}, "chooser"
+    if model:
+        try:
+            from petey.synth.generate import make_client
+            from petey.validate import flag_agent
+            got = flag_agent.propose(make_client(flag_agent.MODEL), blank, name, {"type": "category", "widgets": ws},
+                                     "Give every numbered option box its caption exactly as printed beside it "
+                                     "(the whole label, not an abbreviation). Change nothing else.", "", {})
+            best = {k: o.get("caption") for k, o in (got.get("options") or {}).items() if o.get("caption")}
+            source = flag_agent.MODEL
+        except Exception:                               # no key, no network: the local chooser
+            best = {}
+    if not best:
+        words, lines = page_context(blank)
+        best = {k: r.get("best") for k, r in choose(name, {"widgets": ws}, words, lines, publisher_words(blank)).items()}
+        source = "chooser"
+    out = {}
+    for k, iid in key_of.items():
+        w = ws[k]
+        locked = w.get("x_petey_caption_source") in ("xfa", "hand")
+        out[iid] = {"caption": w.get("caption") if locked else (best.get(k) or w.get("caption")),
+                    "current": w.get("caption"), "locked": locked, "source": source}
+    return out
 
 
 def _box(it: dict) -> str:
@@ -368,6 +420,13 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                 blocks[k] = block
             for k, cap in (_page_captions(blank, blocks, items, text_rects(fields)) if page_captions else {}).items():
                 blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_text"
+            # captions re-read in Groups ("re-read captions": suggest_captions), where the person kept them
+            for iid, cap in (u.get("captions") or {}).items():
+                k = dict(zip(u["items"], blocks)).get(iid)
+                if k and cap and blocks[k].get("caption") != cap:
+                    blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_choice"
+                    if b is not None:
+                        changes.append(f"group {u['name']}: {k} caption {cap!r}")
             spec["values"] = list(blocks)
             spec["widgets"] = blocks
             def shown(ks):          # the key and the caption the reader will show for it
@@ -598,7 +657,8 @@ class State:
         bp = _load(p)
         items, _ = option_items(bp)
         items = {**items, **text_items(bp)}
-        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when", "name_from")
+        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when", "name_from",
+                "captions")
         units = [{k: u.get(k) for k in keep if u.get(k) is not None} for u in incoming.get("units") or []]
         for u in units:
             u["items"] = [i for i in u.get("items") or [] if i in items]
@@ -612,6 +672,12 @@ class State:
         if e:
             self._index[bid] = e
         return {"saved": rec["updated"], "entry": e}
+
+    def captions_for(self, bid: str, body: dict) -> dict:
+        p = self.path(bid)
+        bp = _load(p)
+        return {"captions": suggest_captions(bp, resolve_blank(bp), body.get("name") or "", body.get("items") or [],
+                                             model=body.get("model", True))}
 
     def plan_for(self, bid: str, incoming: Optional[dict] = None) -> dict:
         p = self.path(bid)
