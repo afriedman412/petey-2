@@ -54,6 +54,7 @@
   .rv.removed { border:2px dashed var(--bad); background:rgba(197,34,31,.18); }
   .rlist div.removed { text-decoration:line-through; color:var(--muted); }
   .rbanner { background:#fce8e6; border:1px solid #f4c7c3; color:#a50e0e; padding:6px 8px; border-radius:4px; margin:8px 0; }
+  .rv.clash { outline:3px solid var(--cc); outline-offset:1px; z-index:6; }
   .rv.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
   dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } dt { color:var(--muted); } dd { margin:0; word-break:break-word; }
   .rpanel h2 { font-size:15px; margin:0 0 6px; word-break:break-all; }
@@ -166,6 +167,7 @@
   <span class="tabs" id="tabs">
     <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button>
   </span>
+  <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span class="help">zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
@@ -210,6 +212,7 @@ async function init() {
   $('#pick').addEventListener('change', () => openBlueprint($('#pick').value));
   $('#listorder').addEventListener('change', e => { store('br_listorder', e.target.value); renderPicker(); });
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  $('#clashBtn').onclick = async () => { if (mode !== 'review') await setMode('review'); MODE.review.toggleClashes(); };
   $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
   $('#reboot').onclick = reboot;
   $('#helpBtn').onclick = e => { e.stopPropagation(); toggleHelp(); };
@@ -393,7 +396,7 @@ function onKey(e) {
 
 // ======================================================================= Review: accept / flag / note per field
 MODE.review = (() => {
-  let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [];
+  let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [], clashOn = false;
   const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
   const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
   const verdictOf = n => { const v = BP.verdicts[n]; return v ? v.verdict : ''; };
@@ -746,6 +749,7 @@ MODE.review = (() => {
     el.innerHTML = ck + ` <b>${acc}</b> accepted · <b>${flg}</b> flagged · <b>${n - acc - flg}</b> left of ${n}` + (tiers ? ` <span class="help">(${tiers})</span>` : '') + (BP.witness_error ? ` <span class="stale">witnesses failed: ${esc(BP.witness_error)}</span>` : '');
     const left = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name)).length;
     const b = $('#bulk'); if (b) { b.textContent = `accept settled (${left})`; b.disabled = !left; }
+    showClashCount();
     const props = Object.values(BP.verdicts).filter(v => v.agent).length;
     if (BP.agent_running) el.insertAdjacentHTML('beforeend', ' <span class="help">· the agent is reviewing your edits…</span>');
     else {
@@ -762,7 +766,31 @@ MODE.review = (() => {
       $('#rApply').onclick = applyCorrections;
     }
   }
+  // names two or more fields would have once saved corrections are applied (Andrew, 2026-10-13: a rename onto a name
+  // another field has, or is getting, makes apply fail); each set gets its own color while the clashes button is on
+  const CLASH_COLORS = ['#e37400', '#9334e6', '#1a73e8', '#188038', '#d93025', '#00838f', '#b06000', '#c2185b'];
+  function clashGroups() {
+    const by = {}, out = {};
+    if (!BP) return out;
+    for (const f of BP.fields) {
+      if (isRemoved(f.name)) continue;
+      const v = BP.verdicts[f.name] || {};
+      const to = v.edit && v.edit.name && !v.applied ? v.edit.name : f.name;
+      (by[to] = by[to] || []).push(f.name);
+    }
+    let i = 0;
+    for (const [to, names] of Object.entries(by)) if (names.length > 1) {
+      const color = CLASH_COLORS[i++ % CLASH_COLORS.length]; names.forEach(n => out[n] = {to, color});
+    }
+    return out;
+  }
+  function showClashCount() {
+    const nc = new Set(Object.values(clashGroups()).map(x => x.to)).size;
+    if (!nc) clashOn = false;
+    const cb = $('#clashBtn'); if (cb) { cb.textContent = `clashes (${nc})`; cb.disabled = !nc; cb.classList.toggle('primary', clashOn); }
+  }
   return {
+    toggleClashes() { clashOn = !clashOn; placeAll(); showClashCount(); },
     async load() { const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; },
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
@@ -780,11 +808,13 @@ MODE.review = (() => {
       $('#bulk').onclick = bulkAccept; if (BP) progress();
     },
     place() {
+      const cl = clashOn ? clashGroups() : {};
       for (const f of BP.fields) {
         f.rects.forEach((r, i) => {
           if (r.page !== page) return;
-          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : ''), r.rect,
+          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : '') + (cl[f.name] ? ' clash' : ''), r.rect,
                         `${f.id ? f.id + ' · ' : ''}${f.name}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}`);
+          if (cl[f.name]) { d.style.setProperty('--cc', cl[f.name].color); d.title += ` · clashes on ${cl[f.name].to}`; }
           d.onclick = () => select(f.name, false);
         });
       }
