@@ -12,7 +12,8 @@ as suggestions the page shows on the field with a "use" button.
       {"remove": "<field>", "sure": true, "why": "..."}]}
 
 Rules this enforces whatever the proposal says: a field Andrew accepted by hand is only ever a suggestion; an option
-caption from the XFA template or set by hand is never changed; a rename onto a name another field keeps becomes a
+caption from the XFA template or set by hand is never changed (both unless the entry carries `"asked_by": "andrew"`,
+a change he asked for); a rename onto a name another field keeps becomes a
 suggestion; a value the review page would refuse (`hand_review.clean_edit`) is dropped with a note. Every field
 still typed `person_name` loses it (no longer assigned, 2026-10-13). Each applied edit carries `x_petey_hand_edit`
 {by: claude, kind, why}; the draft's log reads "claude: ..." line by line, so the page's save button lists them.
@@ -64,8 +65,9 @@ def apply(bid: str, dry: bool = False, log=print) -> dict:
             continue
         e = {k: c[k] for k in EDIT_KEYS if c.get(k) not in (None, "")}
         ws = spec.get("widgets") or {}
-        locked = {k for k, w in ws.items() if (w.get("x_petey_caption_source") in ("xfa", "hand")
-                                              or k in ((spec.get("x_petey_xfa") or {}).get("choices") or {}))}
+        asked = c.get("asked_by") == "andrew"          # his own request, carried out here: may change what he locked
+        locked = set() if asked else {k for k, w in ws.items() if (w.get("x_petey_caption_source") in ("xfa", "hand")
+                                      or k in ((spec.get("x_petey_xfa") or {}).get("choices") or {}))}
         if e.get("options"):
             e["options"] = {k: {x: y for x, y in o.items() if not (x == "caption" and k in locked)}
                             for k, o in e["options"].items() if k in ws}
@@ -80,26 +82,31 @@ def apply(bid: str, dry: bool = False, log=print) -> dict:
         if not ce:
             continue
         why = (c.get("why") or "").strip()
-        if not c.get("sure") or _hand_accepted(vs.get(n) or {}):
+        if not c.get("sure") or (_hand_accepted(vs.get(n) or {}) and not asked):
             suggest(n, why or "a better definition", {k: ce[k] for k in ("name", "type", "semantic_type", "pattern")
                                                       if k in ce} | ({"options": ce["options"]} if ce.get("options") else {}))
             continue
         edits[n] = ce
-        extra[n] = {"kind": c.get("kind") or "wrong", "why": why}
+        extra[n] = {"kind": c.get("kind") or "wrong", "why": why, **({"asked_by": "andrew"} if asked else {})}
     for n, spec in fields.items():                        # person_name is no longer assigned (2026-10-13)
         if isinstance(spec, dict) and spec.get("semantic_type") == "person_name" and "semantic_type" not in edits.get(n, {}):
             edits.setdefault(n, {})["semantic_type"] = "none"
             extra.setdefault(n, {"kind": "type", "why": "person_name is no longer assigned (it changed nothing)"})
-    renames = {n: e.get("name", n) for n, e in edits.items()}
-    targets = list(renames.values())
-    for n in list(edits):
-        to = renames[n]
-        if to != n and ((to in fields and to not in edits) or targets.count(to) > 1):
-            suggest(n, f"{extra[n]['why']} (held back: another field is named {to})", {"name": to})
+    # a rename onto a name some other field ends up with is held back; holding one back can block the next in a
+    # chain (A -> B, B -> C held: A now lands on B), so repeat until nothing changes
+    while True:
+        renames = {n: e.get("name", n) for n, e in edits.items()}
+        final = [renames.get(n, n) for n in fields]
+        held = [n for n in edits if renames[n] != n and final.count(renames[n]) > 1]
+        if not held:
+            break
+        for n in held:
+            suggest(n, f"{extra[n]['why']} (held back: another field is named {renames[n]})", {"name": renames[n]})
             edits[n].pop("name")
-            renames[n] = n
             if not edits[n]:
                 edits.pop(n)
+    final = [renames.get(n, n) for n in fields]
+    assert len(set(final)) == len(final), f"{bid}: two fields would share a name"
     adds = [c for c in prop.get("changes") or [] if c.get("add")]
     removes = [c for c in prop.get("changes") or [] if c.get("remove")]
     lines = [f"{n} " + ", ".join(f"{k} -> {v}" for k, v in e.items() if k != "options")
