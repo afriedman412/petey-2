@@ -206,11 +206,16 @@ class Context:
                 if path_stem(w["path"]):
                     self.by_stem.setdefault(path_stem(w["path"]), owner[w["path"]])
         first = auto_label.first_copy_ids(ws)            # the labeler names Copy A only; B, C ... repeat it
+        placed = {f["name"] for f in self.fields}        # fields with a box of their own somewhere
         for w in ws:
             w["sid"] = f"w{w['id']}"
             w["maxlen"] = maxlen.get((w["page"], w["path"], round(w["rect"][0]), round(w["rect"][1])))
+            # a box the blueprint covers where it is; by path only when the field holding the path has no box of its
+            # own. A box that shares its PDF name with a field placed elsewhere is a separate box the PDF ties to it
+            # (FAA 8710: the instructor's and the examiner's 'Rejected Student Pilot Application' boxes, 2026-10-13)
             w["claimed_by"] = self._claimed(w["page"], w["rect"]) or (
-                f"{owner[w['path']]} (same path)" if w["path"] in owner else None)
+                f"{owner[w['path']]} (same path)" if w["path"] in owner and owner[w["path"]] not in placed else None)
+            w["shares_path_with"] = owner.get(w["path"]) if not w["claimed_by"] else None
             w["copy"] = w["id"] not in first
         self.widgets = ws
         self.load_finder(run=False)
@@ -257,7 +262,9 @@ class Context:
         for w in free_w:
             out.append({"sid": w["sid"], "source": "widget", "page": w["page"], "rect": w["rect"], "copy": w["copy"],
                         "what": f"{w['widget_type']} widget {w['path'].split('.')[-1]}"
-                                + (" (a repeated copy of the form)" if w["copy"] else "")})
+                                + (" (a repeated copy of the form)" if w["copy"] else "")
+                                + (f" (shares its PDF name with field {w['shares_path_with']}: the PDF fills both "
+                                   f"with one value)" if w.get("shares_path_with") else "")})
         # finder boxes: screened by the classifier when its map is cached; unscreened only on a flat blank, where
         # nothing else marks a field (on a form layer they are mostly printed cells the widgets already cover)
         screened = bool(self.cmap)
