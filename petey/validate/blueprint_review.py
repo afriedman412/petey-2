@@ -33,6 +33,7 @@ from urllib.parse import unquote, urlparse
 
 import pymupdf
 
+from petey import web
 from petey.validate import field_add, group_review, hand_review
 from petey.validate.retype import resolve_blank
 
@@ -162,6 +163,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         return unquote(urlparse(self.path).path).strip("/").split("/")
 
     def do_GET(self):
+        if web.route(self, "GET"):                       # the extractor (petey.web), at /extract
+            return
         path = unquote(urlparse(self.path).path)
         parts = self._parts()
         if path in ("/", "/index.html"):
@@ -198,6 +201,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         self._send(b"not found", "text/plain", 404)
 
     def do_POST(self):
+        if web.route(self, "POST"):
+            return
         parts = self._parts()
         if parts == ["api", "restart"]:
             self._json({"restarting": True})
@@ -257,6 +262,8 @@ def serve(port: int = 5005, mode: str = "review", open_browser: bool = True) -> 
     t0 = time.time()
     APP.index()
     print(f"  indexed in {time.time() - t0:.1f}s")
+    web.REVIEW["on"] = True
+    web.start()
     socketserver.TCPServer.allow_reuse_address = True
     with socketserver.ThreadingTCPServer(("127.0.0.1", port), Handler) as srv:
         url = f"http://127.0.0.1:{port}/#{mode}"
