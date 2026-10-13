@@ -54,6 +54,7 @@ import pymupdf
 import yaml
 
 from petey.label import call_log
+from petey.models import model_for
 from petey.bpt_version import stamp_version
 from petey.validate import field_ids
 from petey.label.dedup import DedupState
@@ -65,7 +66,7 @@ from petey.semantic_types import ALL_TYPES, enrich_field
 from petey.locate import enumerate_geometry
 from petey.locate.acroform import enumerate_widgets, _widget_type_string, _unescape_pdf_name  # noqa: F401
 
-MODEL = "gemini-3.8-flash"     # 2026-10-06, Andrew: switch the labeler to Gemini (RESULTS 2026-09-30: within noise of Sonnet 4.6 on W-9 / ACORD 25 / I-765 at about a third of the price)
+MODEL = model_for("labeler")   # gemini-3.8-flash since 2026-10-06, Andrew: switch the labeler to Gemini (RESULTS 2026-09-30: within noise of Sonnet 4.6 on W-9 / ACORD 25 / I-765 at about a third of the price)
 # Call-log tag prefix; main() appends the form name so one form's labeler
 # usage can be summed even when several forms label concurrently.
 CALL_TAG = "auto_label"

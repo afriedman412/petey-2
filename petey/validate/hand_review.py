@@ -277,6 +277,7 @@ class State:
 
     def _entry(self, bid: str) -> dict:
         p = self.paths[bid]
+        focus = (_focus().get("forms") or {}).get(bid)
         bp = _load(p)
         v = load_verdicts(bid); vs = v.get("verdicts") or {}
         fields = [n for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)]
@@ -294,7 +295,9 @@ class State:
                 **_check_counts(bp),
                 "launch": LAUNCH_TIERS.get(Path(str(bp.get("source_pdf") or "")).name) if bid.startswith("je__") else None,
                 "run": {k: (bp.get("x_petey_run") or {}).get(k) for k in ("stable", "stop")}
-                       if bp.get("x_petey_run") else None}
+                       if bp.get("x_petey_run") else None,
+                # listed first in the picker: forms with name-check flags still to confirm (runs/hand_review/focus.json)
+                "focus": focus}
 
     def index(self) -> None:
         """Read every blueprint once at startup; the listing is served from memory and one entry is refreshed
@@ -486,6 +489,16 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
         if got:
             out["options"] = got
     return out or None
+
+
+def _focus() -> dict:
+    """runs/hand_review/focus.json: `{"why": ..., "forms": {bid: count}}`, the review list put at the top of the
+    picker (2026-10-13: the name-check flags on fields not yet confirmed, form by form); {} when there is none."""
+    p = OUT / "focus.json"
+    try:
+        return json.loads(p.read_text()) if p.exists() else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
 
 
 def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:

@@ -253,6 +253,7 @@ function pickerText(b) {
   if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
   if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
   if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
+  if (b.focus) bits.unshift(`${b.focus} name flags to confirm`);
   if (b.rerun || b.launch) {
     if (b.check_errors != null) bits.push(`${b.check_errors} errors, ${b.check_suggestions} suggestions`);
     else if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
@@ -263,7 +264,7 @@ function pickerText(b) {
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || bid;
   pick.innerHTML = '<option value="">pick a blueprint…</option>';
-  const groups = {t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
+  const groups = {focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
                   rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies',
                   rl: 'relabels', fl: 'flat forms'};
   const how = $('#listorder').value;
@@ -273,10 +274,10 @@ function renderPicker() {
   const order = how === 'oldest' ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
               : how === 'errors' ? (a, b) => (errs(b) - errs(a)) || (sugs(b) - sugs(a)) || a.form.localeCompare(b.form)
               : (a, b) => a.form.localeCompare(b.form);
-  const groupOf = x => x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
+  const groupOf = x => x.focus ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
   for (const src of Object.keys(groups)) {
     const items = LIST.filter(x => groupOf(x) === src); if (!items.length) continue;
-    items.sort(order);
+    items.sort(src === 'focus' ? (a, b) => (b.focus - a.focus) || a.form.localeCompare(b.form) : order);
     const nv = items.filter(x => x.checked && x.checked.validated).length;
     const og = document.createElement('optgroup'); og.label = `${groups[src]} (${nv} of ${items.length} validated)`;
     for (const b of items) { const o = document.createElement('option'); o.value = b.id; o.textContent = pickerText(b); og.appendChild(o); }

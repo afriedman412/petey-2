@@ -42,14 +42,15 @@ from typing import Optional
 
 import yaml
 
+from petey.models import model_for, overrides
 from petey.paths import BLUEPRINTS, RUNS
 from petey.validate import field_ids, page_check
 
 E = RUNS / "judge_eval"
 WORK, OUT, RECORDS = E / "work", E / "blueprints", E / "form_runs"
 UNSTABLE = ("review cap", "max iterations")
-FIRST_MODEL = "gemini-3.8-flash"     # round 0: every field (Andrew, 2026-10-06: Gemini for the first run ...
-LOOP_MODEL = "claude-opus-5"         # ... Opus for the loop: the changed fields and their neighbours)
+FIRST_MODEL = model_for("page_check_first")   # round 0: every field (Andrew, 2026-10-06: Gemini for the first run ...
+LOOP_MODEL = model_for("page_check_loop")     # ... Opus for the loop: the changed fields and their neighbours)
 NEAR_X, NEAR_Y = 60.0, 24.0          # points around a changed box that count as its neighbourhood
 RUN_KEYS = ("model", "prompt", "pages", "usage", "cost_usd", "when", "per_page")
 
@@ -233,6 +234,7 @@ def pipeline_config(first_model: str, loop_model: str) -> dict:
         "adjudicator": adjudicate.MODEL,
         "loop": {"max_iter": 8, "review_rounds_cap": 4, "case_set": 1, "methods": "native,judge:pymupdf",
                  "apply_correct": True},
+        "model_overrides": overrides(),        # steps swapped by PETEY_MODEL_<STEP> (petey/models.py)
     }
 
 
