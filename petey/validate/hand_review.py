@@ -347,9 +347,11 @@ class State:
         v = load_verdicts(bid)
         rows = field_rows(bp)
         wit = self.witnesses(bid, p)
+        cs = claude_suggestions(bid)
         for r in rows:
             w = (wit.get("fields") or {}).get(r["name"]) or {}
             r["tier"], r["witnesses"], r["why"] = w.get("tier"), w.get("witnesses"), w.get("why") or []
+            r["why"] = r["why"] + [{"kind": "suggestion", **x} for x in cs.get(r["name"]) or []]
         return {"id": bid, "path": str(real), "working": str(p) if p != real else None,
                 "blank": str(blank) if blank else None, "sha": _sha(p),
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
@@ -513,6 +515,16 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
     return out or None
 
 
+def claude_suggestions(bid: str) -> dict:
+    """runs/claude_pass/suggestions/<id>.json: Claude's unsure changes, {field: [{"text", "fix"}]}, shown under the
+    field with a "use" button (`eval/claude_pass_apply.py`, 2026-10-13); {} when there are none."""
+    p = RUNS / "claude_pass" / "suggestions" / f"{bid}.json"
+    try:
+        return json.loads(p.read_text()) if p.exists() else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
 def _focus() -> dict:
     """runs/hand_review/focus.json: `{"why": ..., "forms": {bid: count}}`, the review list put at the top of the
     picker (2026-10-13: the name-check flags on fields not yet confirmed, form by form); {} when there is none."""
@@ -521,6 +533,62 @@ def _focus() -> dict:
         return json.loads(p.read_text()) if p.exists() else {}
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str, by: Optional[str] = None,
+                extra: Optional[dict] = None) -> dict:
+    """The blueprint's fields with `edits` ({name: clean_edit output}) applied, in place, each edited field marked
+    `x_petey_hand_edit` {when, from, to, record[, by], **extra[name]} (Claude's pass adds why and kind). `renames` is {name: new name} for every edited field.
+    Shared by the review page's corrections and Claude's pass (`eval/claude_pass_apply.py`, by: claude)."""
+    out = {}
+    for n, spec in fields.items():
+        if n in edits:
+            e = edits[n]
+            spec = dict(spec)
+            before = {"name": n, "type": spec.get("type")}
+            before.update(semantic_type=spec.get("semantic_type"), pattern=spec.get("pattern"))
+            if "type" in e:
+                spec["type"] = e["type"]
+                if e["type"] != "string":
+                    spec.pop("pattern", None)
+                if e["type"] in ("boolean",) + _CHOICE:
+                    spec.pop("semantic_type", None)
+                if e["type"] not in _CHOICE:
+                    spec.pop("values", None)
+                elif not spec.get("values") and spec.get("widgets"):
+                    spec["values"] = list(spec["widgets"])      # an option group: its keys (1_126 lost them)
+            for k in ("semantic_type", "pattern"):
+                if k in e:
+                    if e[k] == "none":
+                        spec.pop(k, None)
+                    else:
+                        spec[k] = e[k]
+            if e.get("options"):
+                ws, renamed = {}, {}
+                for k, w in (spec.get("widgets") or {}).items():
+                    o, w = e["options"].get(k) or {}, dict(w)
+                    if "caption" in o:
+                        if o["caption"]:
+                            w["caption"], w["x_petey_caption_source"] = o["caption"], by or "hand"
+                        else:
+                            w.pop("caption", None)
+                            w.pop("x_petey_caption_source", None)
+                    ws[o.get("key", k)] = w
+                    renamed[k] = o.get("key", k)
+                spec["widgets"] = ws
+                if spec.get("values"):
+                    spec["values"] = [renamed.get(x, x) for x in spec["values"]]
+                before["options"] = {k: (fields[n]["widgets"][k].get("caption")) for k in e["options"]}
+            spec["x_petey_hand_edit"] = {"when": now, "from": before,
+                                         "to": {"name": renames[n], "type": spec.get("type"),
+                                                "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern"),
+                                                **({"options": e["options"]} if e.get("options") else {})},
+                                         "record": record, **({"by": by} if by else {}),
+                                         **((extra or {}).get(n) or {})}
+            out[renames[n]] = spec
+        else:
+            out[n] = spec
+    return out
 
 
 def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
@@ -552,53 +620,7 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
         renames[n] = to
     if dry:
         return len(edits)
-    out = {}
-    for n, spec in fields.items():
-        if n in edits:
-            e = edits[n]
-            spec = dict(spec)
-            before = {"name": n, "type": spec.get("type")}
-            before.update(semantic_type=spec.get("semantic_type"), pattern=spec.get("pattern"))
-            if "type" in e:
-                spec["type"] = e["type"]
-                if e["type"] != "string":
-                    spec.pop("pattern", None)
-                if e["type"] in ("boolean",) + _CHOICE:
-                    spec.pop("semantic_type", None)
-                if e["type"] not in _CHOICE:
-                    spec.pop("values", None)
-                elif not spec.get("values") and spec.get("widgets"):
-                    spec["values"] = list(spec["widgets"])      # an option group: its keys (1_126 lost them)
-            for k in ("semantic_type", "pattern"):
-                if k in e:
-                    if e[k] == "none":
-                        spec.pop(k, None)
-                    else:
-                        spec[k] = e[k]
-            if e.get("options"):
-                ws, renamed = {}, {}
-                for k, w in (spec.get("widgets") or {}).items():
-                    o, w = e["options"].get(k) or {}, dict(w)
-                    if "caption" in o:
-                        if o["caption"]:
-                            w["caption"], w["x_petey_caption_source"] = o["caption"], "hand"
-                        else:
-                            w.pop("caption", None)
-                            w.pop("x_petey_caption_source", None)
-                    ws[o.get("key", k)] = w
-                    renamed[k] = o.get("key", k)
-                spec["widgets"] = ws
-                if spec.get("values"):
-                    spec["values"] = [renamed.get(x, x) for x in spec["values"]]
-                before["options"] = {k: (fields[n]["widgets"][k].get("caption")) for k in e["options"]}
-            spec["x_petey_hand_edit"] = {"when": now, "from": before,
-                                         "to": {"name": renames[n], "type": spec.get("type"),
-                                                "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern"),
-                                                **({"options": e["options"]} if e.get("options") else {})},
-                                         "record": f"runs/hand_review/{bid}.json"}
-            out[renames[n]] = spec
-        else:
-            out[n] = spec
+    out = edit_fields(fields, edits, renames, now, f"runs/hand_review/{bid}.json")
     bp["fields"] = out
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
     run = (bp.get("x_petey_run") or {}).get("record")
