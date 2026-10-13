@@ -41,6 +41,8 @@
   #canvas img { display:block; -webkit-user-drag:none; pointer-events:none; }
   aside { width:440px; border-left:1px solid var(--line); overflow:auto; padding:12px 14px; display:flex; flex-direction:column; gap:10px; }
   aside > * { flex-shrink:0; }
+  #sidegrip { width:6px; margin-left:-3px; cursor:col-resize; flex-shrink:0; z-index:7; }
+  #sidegrip:hover, #sidegrip.drag { background:var(--accent-dim); }
   #toast { position:fixed; left:16px; bottom:16px; background:var(--fg); color:var(--bg); padding:6px 12px; border-radius:4px; font-size:12px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:10; }
   #toast.on { opacity:.92; }
   h4 { margin:0 0 4px; font-size:12px; color:var(--muted); font-weight:600; }
@@ -179,6 +181,7 @@
     <div class="pages" id="pages"></div>
     <div id="stage"><div id="canvas"><img id="img" alt=""></div></div>
   </div>
+  <div id="sidegrip" title="drag to resize the sidebar"></div>
   <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
 </main>
 <div id="toast"></div>
@@ -198,6 +201,21 @@ function overlap(a, b) {
   const i = ix * iy; if (i <= 0) return 0;
   return i / Math.min(Math.max((a[2] - a[0]) * (a[3] - a[1]), 1e-6), Math.max((b[2] - b[0]) * (b[3] - b[1]), 1e-6));
 }
+// the sidebar's width: drag its left edge; kept per browser (Andrew, 2026-10-13: long field names did not fit)
+function bindSideGrip() {
+  const g = $('#sidegrip'), a = $('#panel'); if (!g || !a) return;
+  const setW = w => { a.style.width = Math.max(280, Math.min(window.innerWidth - 320, w)) + 'px'; };
+  const saved = +store('br_side_w'); if (saved) setW(saved);
+  g.onmousedown = e => {
+    e.preventDefault(); g.classList.add('drag');
+    const move = ev => setW(window.innerWidth - ev.clientX);
+    const up = () => {
+      g.classList.remove('drag'); window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up);
+      store('br_side_w', parseInt(a.style.width)); if (bid) placeAll();
+    };
+    window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
+  };
+}
 function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
 
 async function init() {
@@ -212,6 +230,7 @@ async function init() {
   $('#pick').addEventListener('change', () => openBlueprint($('#pick').value));
   $('#listorder').addEventListener('change', e => { store('br_listorder', e.target.value); renderPicker(); });
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+  bindSideGrip();
   $('#clashBtn').onclick = async () => { if (mode !== 'review') await setMode('review'); MODE.review.toggleClashes(); };
   $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
   $('#reboot').onclick = reboot;
