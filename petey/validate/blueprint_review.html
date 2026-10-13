@@ -159,6 +159,7 @@
   .gh { position:absolute; border:1.5px dashed var(--c); background:color-mix(in srgb, var(--c) 7%, transparent); border-radius:3px; z-index:1; cursor:pointer; }
   .gh.sel { border-style:solid; border-width:2px; background:color-mix(in srgb, var(--c) 14%, transparent); z-index:2; }
   .gh.ok { border-style:solid; }
+  .gh.rvg, .gh.rvg.sel { z-index:0; }      /* Review's group hulls sit under the field boxes, which stay clickable */
   .gi { position:absolute; border:2px solid var(--c); background:color-mix(in srgb, var(--c) 18%, transparent); z-index:3; cursor:grab; }
   .gi::after { content:''; position:absolute; inset:-3px; }
   .gi.orphan { border-style:dashed; background:transparent; }
@@ -896,6 +897,7 @@ MODE.review = (() => {
   }
   // names two or more fields would have once saved corrections are applied (Andrew, 2026-10-13: a rename onto a name
   // another field has, or is getting, makes apply fail); each set gets its own color while the clashes button is on
+  const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd', '#dce775'];
   const CLASH_COLORS = ['#e37400', '#9334e6', '#1a73e8', '#188038', '#d93025', '#00838f', '#b06000', '#c2185b'];
   function clashGroups() {
     const by = {}, out = {};
@@ -949,6 +951,17 @@ MODE.review = (() => {
     },
     place() {
       const cl = clashOn ? clashGroups() : {};
+      // option groups drawn as in Groups (2026-10-13, Andrew): a dashed hull in the group's color around its boxes on
+      // this page, solid when the field is selected; the boxes keep their verdict colors
+      let gi = 0;
+      for (const f of BP.fields) {
+        if (f.options.length < 2) continue;
+        const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = f.rects.filter(r => r.page === page).map(r => r.rect);
+        if (!rs.length) continue;
+        const hull = [Math.min(...rs.map(r => r[0])) - 4, Math.min(...rs.map(r => r[1])) - 4, Math.max(...rs.map(r => r[2])) + 4, Math.max(...rs.map(r => r[3])) + 4];
+        const h = put('gh rvg' + (selected === f.name ? ' sel' : ''), hull, `${f.id ? f.id + ' · ' : ''}${f.name} (${f.options.length} options)`);
+        h.style.setProperty('--c', c); h.onclick = () => select(f.name, false);
+      }
       for (const f of BP.fields) {
         f.rects.forEach((r, i) => {
           if (r.page !== page) return;
