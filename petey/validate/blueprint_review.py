@@ -67,22 +67,8 @@ class App:
         return draft.ensure(bid, self.paths[bid])
 
     def follow(self, bid: str, before: str) -> None:
-        """After a change the page made itself (a regrouping, fields added or removed), the Review and Add / remove
-        records written against the file before it move to the file after it, so they do not read as stale. The
-        Groups record is left alone: its units name fields, and a stale one is rebased by its boxes."""
-        import json
-        after = hand_review._sha(self.working(bid))
-        for rp in (hand_review.verdict_path(bid), field_add.record_path(bid)):
-            if not rp.exists():
-                continue
-            rec = json.loads(rp.read_text(encoding="utf-8"))
-            if rec.get("blueprint_sha") != before:
-                continue
-            rec["blueprint_sha"] = after
-            ck = rec.get("checked")
-            if isinstance(ck, dict) and ck.get("blueprint_sha") == before:
-                ck["blueprint_sha"] = after
-            rp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+        """After a change the page made itself (a regrouping, fields added or removed): `draft.follow`."""
+        draft.follow(bid, before, hand_review._sha(self.working(bid)))
 
     def refresh(self) -> None:
         """Re-read the picker rows of blueprints whose file changed since they were indexed (an --apply, a loop, an

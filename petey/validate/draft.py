@@ -92,6 +92,23 @@ def log(bid: str, mode: str, lines) -> None:
     _write_meta(bid, m)
 
 
+def follow(bid: str, before: str, after: str) -> None:
+    """After a change made through the page or Claude's pass (both checked by Andrew before he saves), the Review and
+    Add / remove records written against the file before it move to the file after it, so a finished check does
+    not read as stale. The Groups record is left alone: its units name fields, and a stale one is rebased."""
+    for kind, rp in _records(bid).items():
+        if kind == "group_review" or not rp.exists():
+            continue
+        rec = json.loads(rp.read_text(encoding="utf-8"))
+        if rec.get("blueprint_sha") != before:
+            continue
+        rec["blueprint_sha"] = after
+        ck = rec.get("checked")
+        if isinstance(ck, dict) and ck.get("blueprint_sha") == before:
+            ck["blueprint_sha"] = after
+        rp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+
+
 def status(bid: str, real: Path) -> Optional[dict]:
     """What the page shows in its header: None when no copy is open."""
     m = meta(bid)

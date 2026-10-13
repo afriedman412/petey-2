@@ -31,7 +31,7 @@ import yaml
 
 from petey.paths import RUNS
 from petey.validate import draft, field_add, field_ids
-from petey.validate.hand_review import (_load, blueprint_paths, clean_edit, edit_fields, load_verdicts,
+from petey.validate.hand_review import (_load, _sha, blueprint_paths, clean_edit, edit_fields, load_verdicts,
                                         working_path)
 
 PROPOSALS = RUNS / "claude_pass" / "proposals"
@@ -117,6 +117,7 @@ def apply(bid: str, dry: bool = False, log=print) -> dict:
         return {"edits": len(edits), "suggestions": sum(map(len, sugg.values())), "adds": len(adds), "removes": len(removes)}
     if edits or adds or removes:
         p = draft.ensure(bid, real)
+        before = _sha(p)
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     if edits:
         bp["fields"] = fields = edit_fields(fields, edits, renames, now, f"runs/claude_pass/proposals/{bid}.json",
@@ -156,6 +157,7 @@ def apply(bid: str, dry: bool = False, log=print) -> dict:
     if edits or adds or removes:
         field_ids.assign(bp)
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+        draft.follow(bid, before, _sha(p))        # a finished check moves with the change; Andrew sees it before saving
         draft.log(bid, "claude", lines)
     SUGGESTIONS.mkdir(parents=True, exist_ok=True)
     (SUGGESTIONS / f"{bid}.json").write_text(json.dumps(sugg, indent=1, ensure_ascii=False))
