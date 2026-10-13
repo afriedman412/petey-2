@@ -410,6 +410,12 @@ def _call_openai_compatible_one_page(client, model: str, page_png: bytes, system
     else:
         kwargs["max_tokens"] = MAX_TOKENS
         kwargs["temperature"] = 0
+    if model.startswith("local-"):
+        # thinking off, as auto_label does (llama-server's --reasoning-budget 0 did not stop it). With it on,
+        # Underdog's DD 1155 page took a 5,755-token essay, its reply was cut at 16,384 characters (unparsable,
+        # so the retry ran), and the recovered answer was worse: captions matching Sonnet 47 of 87 against 74
+        # without thinking, the essay having narrated the form in reading order instead of the numbered boxes
+        kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
     resp = client.chat.completions.create(**kwargs)
     choice = resp.choices[0]
     text = choice.message.content or ""
