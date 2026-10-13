@@ -73,8 +73,13 @@ class App:
     def refresh(self) -> None:
         """Re-read the picker rows of blueprints whose file changed since they were indexed (an --apply, a loop, an
         edit by hand): the indexes are built once at startup."""
-        for bid in self.paths:
-            m = self.working(bid).stat().st_mtime
+        for bid in list(self.paths):
+            try:
+                m = self.working(bid).stat().st_mtime
+            except FileNotFoundError:              # a blueprint removed while the server runs (2026-10-13: i-485)
+                for d in (self.paths, self.mtimes, self.review._index, self.groups._index):
+                    d.pop(bid, None)
+                continue
             if self.mtimes.get(bid) == m:
                 continue
             self.mtimes[bid] = m
