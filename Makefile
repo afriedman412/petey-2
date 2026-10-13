@@ -65,6 +65,11 @@ format:
 guni:
 	gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
+.PHONY: review
+
+review:
+	PYTHONPATH=. $(PYTHON) -m petey.validate.blueprint_review
+
 .PHONY: hooks
 
 hooks:

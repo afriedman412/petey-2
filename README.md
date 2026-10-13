@@ -60,7 +60,7 @@ PYTHONPATH=. venv/bin/python -m petey.extract --blueprint blueprints/fw9.bpt --p
 scripts/run_form.sh <form> <blank path under source_pdfs/>
 
 # review blueprints in the browser (http://127.0.0.1:5005)
-PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review
+make review
 
 # witnesses for one blueprint, and their calibration against hand review
 PYTHONPATH=. venv/bin/python -m petey.validate.witness blueprints/acord25.bpt --show
