@@ -157,10 +157,15 @@ def _rebase(rec: dict, bp: dict, items: dict[str, dict]) -> dict[str, str]:
     if rec.get("boxes"):
         now = {_box(it): i for i, it in items.items()}
         return {i: now[b] for i, b in rec["boxes"].items() if b in now and now[b] != i}
+    # only renames made after the record was written: an earlier one is already in the record's names, and following
+    # it again moves each item one field along a renamed run (2026-10-13, FAA 8710 page 6: Andrew's 11:00 renames
+    # re-applied to his 11:56 record shifted change_of_name / sic_type_rating / reissue by one)
+    since = rec.get("updated") or ""
     renamed = {}
     for name, spec in (bp.get("fields") or {}).items():
-        was = (((spec or {}).get("x_petey_hand_edit") or {}).get("from") or {}).get("name") if isinstance(spec, dict) else None
-        if was and was != name:
+        he = ((spec or {}).get("x_petey_hand_edit") or {}) if isinstance(spec, dict) else {}
+        was = (he.get("from") or {}).get("name")
+        if was and was != name and (he.get("when") or "") > since:
             renamed[was] = name
     out = {}
     for u in rec.get("units") or []:
@@ -187,13 +192,33 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
         units, seen = [], set()
         moved = _rebase(rec, bp, items) if info["stale"] else {}
         info["rebased"] = len(moved)
+        fmoved = {a.partition("::")[0]: b.partition("::")[0] for a, b in moved.items()
+                  if a.partition("::")[0] != b.partition("::")[0]}
         for u in rec["units"]:
             ids = [moved.get(i, i) for i in u.get("items") or []]
             ids = [i for i in ids if i in items and i not in seen]
             if not ids or (u.get("kind") == "text" and len(ids) < 2):
                 continue
             seen.update(ids)
-            units.append({k: v for k, v in u.items() if k != "items"} | {"items": ids})
+            unit = {k: v for k, v in u.items() if k != "items"} | {"items": ids}
+            # a unit that is a field as it was, which has since been renamed (in Review), takes the new name: kept,
+            # its old name would rename the field back on apply (2026-10-13: FAA 8710 asi -> asi_result)
+            was = {i.partition("::")[0] for i in u.get("items") or []}
+            now = {i.partition("::")[0] for i in ids}
+            if moved and was == {u.get("name")} and len(now) == 1 and now != was:
+                unit["name"] = next(iter(now))
+            if u.get("origin") in fmoved:                # the field it came from, by its name now
+                unit["origin"] = fmoved[u["origin"]]
+            # a later edit of that field (Review, Claude's pass) wins over what the record says about its name and
+            # type: the record predates it (2026-10-13: category -> multi_category set after the record, reverted)
+            spec = (bp.get("fields") or {}).get(unit.get("origin"))
+            he = (spec or {}).get("x_petey_hand_edit") if isinstance(spec, dict) else None
+            if info["stale"] and he and (he.get("when") or "") > (rec.get("updated") or "") and \
+                    {i.partition("::")[0] for i in ids} == {unit["origin"]}:
+                unit["name"] = unit["origin"]
+                if (he.get("to") or {}).get("type") != (he.get("from") or {}).get("type"):
+                    unit["type"] = spec.get("type")
+            units.append(unit)
         for u in base:                                   # items the record never saw
             ids = [i for i in u["items"] if i not in seen]
             if ids:
