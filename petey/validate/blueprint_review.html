@@ -114,12 +114,11 @@
   .rv.clash { outline:3px solid var(--cc); outline-offset:1px; z-index:6; }
   /* the selected field, loud (Andrew, 2026-10-14: hard to find on a dense page): a thick border, a white ring that
      shows on any background, a wide glow, and one pulse when it is selected */
-  .rv.sel { border:3px solid var(--sel); box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 22px 8px rgba(26,115,232,.55);
-            z-index:2; animation:selpulse .9s ease-out 1; }
-  @keyframes selpulse { 0% { box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 0 0 rgba(26,115,232,.9); }
-                        60% { box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 0 26px rgba(26,115,232,0); }
-                        100% { box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 22px 8px rgba(26,115,232,.55); } }
-  .rv.optsel { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent); z-index:3; }
+  .rv.sel { border:3px solid var(--sel); box-shadow:0 0 18px 6px rgba(26,115,232,.55); z-index:2; }
+  .rv.sel.pulse { animation:selpulse .9s ease-out 1; }     /* only when a different field is selected */
+  @keyframes selpulse { 0% { box-shadow:0 0 0 0 rgba(26,115,232,.9); } 60% { box-shadow:0 0 0 24px rgba(26,115,232,0); }
+                        100% { box-shadow:0 0 18px 6px rgba(26,115,232,.55); } }
+  .rv.optsel { border-color:var(--accent); box-shadow:0 0 14px 5px color-mix(in srgb, var(--accent) 60%, transparent); z-index:3; }
   .orow.osel input { outline:2px solid var(--accent); outline-offset:-1px; }
   dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } dt { color:var(--text-dim); } dd { margin:0; word-break:break-word; }
   .rpanel h2 { font-size:15px; margin:0 0 6px; word-break:break-all; }
@@ -511,7 +510,7 @@ MODE.review = (() => {
   let selOpt = null;           // the option box clicked on the page, within a group (its key): highlighted in the card
   // p / ←: back through the fields actually visited, like a browser's back button (Andrew, 2026-10-14: stepping back
   // through the list landed elsewhere once accepting a field reordered or filtered it)
-  let visited = [], goingBack = false, visitedFor = null;
+  let visited = [], goingBack = false, visitedFor = null, pulsed = null;
   let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [], clashOn = false;
   // Claude's changes only: a filter beside 'unreviewed only' (Andrew, 2026-10-14), not an order
   let claudeOnly = store('hr_claude') === '1';
@@ -884,7 +883,12 @@ MODE.review = (() => {
     // the option row of the box clicked on the page, and the other way round: a row focused or hovered lights its box
     for (const r of optRows()) {
       if (r.dataset.k === selOpt) { r.classList.add('osel'); r.scrollIntoView({block: 'nearest'}); }
-      const pick = () => { if (selOpt === r.dataset.k) return; selOpt = r.dataset.k; optRows().forEach(x => x.classList.toggle('osel', x === r)); placeAll(); };
+      // only that box changes: redrawing the page would replay the selection pulse on the whole group
+      const pick = () => {
+        if (selOpt === r.dataset.k) return; selOpt = r.dataset.k; optRows().forEach(x => x.classList.toggle('osel', x === r));
+        document.querySelectorAll('.rv.optsel').forEach(e => e.classList.remove('optsel'));
+        document.querySelectorAll(`.rv[data-f="${CSS.escape(selected)}"][data-o="${CSS.escape(selOpt)}"]`).forEach(e => e.classList.add('optsel'));
+      };
       r.addEventListener('focusin', pick); r.addEventListener('mouseenter', pick);
     }
     document.querySelectorAll('.fref').forEach(r => r.onclick = e => { e.preventDefault(); select(r.dataset.n); });
@@ -999,13 +1003,15 @@ MODE.review = (() => {
         const h = put('gh rvg' + (selected === f.name ? ' sel' : ''), hull, `${f.id ? f.id + ' · ' : ''}${f.name} (${f.options.length} options)`);
         h.style.setProperty('--c', c); h.onclick = () => select(f.name, false);
       }
+      const pulse = selected && selected !== pulsed; pulsed = selected;
       for (const f of BP.fields) {
         f.rects.forEach((r, i) => {
           if (r.page !== page) return;
           const opt = f.options.length && f.options[i] ? f.options[i].on_state : null;
-          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : '') + (selected === f.name && opt && opt === selOpt ? ' optsel' : '') + (cl[f.name] ? ' clash' : ''), r.rect,
+          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' + (pulse ? ' pulse' : '') : '') + (selected === f.name && opt && opt === selOpt ? ' optsel' : '') + (cl[f.name] ? ' clash' : ''), r.rect,
                         `${f.id ? f.id + ' · ' : ''}${f.name}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}`);
           if (cl[f.name]) { d.style.setProperty('--cc', cl[f.name].color); d.title += ` · clashes on ${cl[f.name].to}`; }
+          d.dataset.f = f.name; d.dataset.o = opt || '';
           d.onclick = () => select(f.name, false, opt);   // a box of a group: its key / caption row lights up
         });
       }
