@@ -150,8 +150,9 @@ def claude_change(spec: dict) -> Optional[dict]:
         return None
     he = spec.get("x_petey_hand_edit") or {}
     # clearing person_name alone needs no review (Andrew, 2026-10-14): it changed nothing the field holds
-    if he.get("by") == "claude" and (he.get("why") or "").startswith("person_name is no longer assigned"):
-        return None
+    if he.get("by") == "claude" and (he.get("why") or "").startswith(("person_name is no longer assigned",
+                                                                       "the pattern of its semantic type")):
+        return None                             # ... nor the pattern a semantic type brings with it
     if he.get("by") == "claude":
         return {"kind": he.get("kind") or "wrong", "why": he.get("why"), "from": (he.get("from") or {}).get("name"),
                 "when": he.get("when")}
