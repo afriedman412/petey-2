@@ -577,7 +577,9 @@ MODE.review = (() => {
     next(-1);                                  // nothing visited yet on this form: the previous field in the list
   }
   function next(step = 1) {
-    const list = ordered(); if (!list.length) return;
+    const list = ordered();
+    // the last one in the list (unreviewed only, Claude's changes only): stay, but show the verdict that was just saved
+    if (!list.length || (list.length === 1 && list[0].name === selected)) { placeAll(); panel(); progress(); toast('No more fields in this list.'); return; }
     let i = list.findIndex(f => f.name === selected);
     if (i < 0) { const all = BP.fields; const j0 = all.findIndex(f => f.name === selected); i = list.findIndex(f => all.indexOf(f) > j0) - 1; }
     i = (i + step + list.length) % list.length;
