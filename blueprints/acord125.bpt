@@ -32,7 +32,7 @@ fields:
   agency_name:
     x_petey_id: '1_2'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -46,6 +46,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: agency_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: agency_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: Producer / agency full name is a business, not a person (path Producer_FullName_A);
+        person_name is being removed
   agency_address_line_1_txt:
     x_petey_id: '1_5'
     type: string
@@ -136,7 +153,6 @@ fields:
   contact_name:
     x_petey_id: '1_13'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -151,6 +167,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: contact_name
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   agency_phone_no_ext:
     x_petey_id: '1_14'
     type: string
@@ -260,7 +292,6 @@ fields:
   carrier_name:
     x_petey_id: '1_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -276,6 +307,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: carrier_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: carrier_name
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   naic_cd:
     x_petey_id: '1_4'
     type: string
@@ -350,7 +397,6 @@ fields:
   underwriter_name:
     x_petey_id: '1_15'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -365,6 +411,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: underwriter_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: underwriter_name
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   underwriter_office:
     x_petey_id: '1_16'
     type: string
@@ -418,7 +480,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  bound_time_2:
+  bound_time_am_pm:
     x_petey_id: '1_22'
     type: category
     values:
@@ -435,9 +497,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Status_EffectiveTimeAMIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the effective time of the
-          policy status is before 12:00 pm.'
-        x_petey_caption_source: tooltip
+        caption: AM
+        x_petey_caption_source: claude
       bound_time_pm_ind:
         page: 1
         rect:
@@ -448,15 +509,41 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Status_EffectiveTimePMIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the effective time of the
-          policy status is 12:00 pm or later.'
-        x_petey_caption_source: tooltip
+        caption: PM
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - bound_time_am_ind
       - bound_time_pm_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: bound_time_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          bound_time_am_ind: 'Check the box (if applicable): Indicates the effective
+            time of the policy status is before 12:00 pm.'
+          bound_time_pm_ind: 'Check the box (if applicable): Indicates the effective
+            time of the policy status is 12:00 pm or later.'
+      to:
+        name: bound_time_am_pm
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          bound_time_am_ind:
+            caption: AM
+          bound_time_pm_ind:
+            caption: PM
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: AM/PM boxes for the status effective time (paths Policy_Status_EffectiveTimeAMIndicator
+        / PMIndicator); captions printed beside them are AM and PM
   line_boiler_machinery_ind:
     x_petey_id: '1_26'
     type: boolean
@@ -1000,7 +1087,7 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_glass_sign_section_ind:
+  line_other_1_ind:
     x_petey_id: '1_36'
     type: boolean
     semantic_type: indicator
@@ -1018,7 +1105,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_glass_sign_section_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_glass_sign_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: line_other_1_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: lines of business other than those listed; path Policy_LineOfBusiness_OtherIndicator_A,
+        blank row 1 of column 3 (Andrew: should be other); the name is an attachment
+        title'
+  line_other_1_txt:
     x_petey_id: '1_37'
     type: string
     semantic_type: description
@@ -1035,7 +1140,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_glass_sign_section_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_glass_sign_section_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: line_other_1_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other line of business; path OtherLineOfBusinessDescription_A,
+        row 1'
+  line_other_1_premium_amt:
     x_petey_id: '1_38'
     type: number
     semantic_type: money
@@ -1053,7 +1175,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_installation_builders_risk_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_glass_sign_section_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_other_1_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: premium for the other line of business; path OtherPremiumAmount_A,
+        row 1'
+  line_other_2_ind:
     x_petey_id: '1_43'
     type: boolean
     semantic_type: indicator
@@ -1071,7 +1210,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_installation_builders_risk_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_installation_builders_risk_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: line_other_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: lines of business other than those listed; path Policy_LineOfBusiness_OtherIndicator_B,
+        blank row 2 of column 3 (Andrew: should be other); the name is an attachment
+        title'
+  line_other_2_txt:
     x_petey_id: '1_44'
     type: string
     semantic_type: description
@@ -1088,7 +1245,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_installation_builders_risk_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_installation_builders_risk_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: line_other_2_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other line of business; path OtherLineOfBusinessDescription_B,
+        row 2'
+  line_other_2_premium_amt:
     x_petey_id: '1_45'
     type: number
     semantic_type: money
@@ -1106,7 +1280,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_hotel_motel_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_installation_builders_risk_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_other_2_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: premium for the other line of business; path OtherPremiumAmount_B,
+        row 2'
+  line_other_3_ind:
     x_petey_id: '1_50'
     type: boolean
     semantic_type: indicator
@@ -1124,7 +1315,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_hotel_motel_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_hotel_motel_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: line_other_3_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: lines of business other than those listed; path Policy_LineOfBusiness_OtherIndicator_C,
+        blank row 3 of column 3 (Andrew: should be other); the name is an attachment
+        title'
+  line_other_3_txt:
     x_petey_id: '1_51'
     type: string
     semantic_type: description
@@ -1141,7 +1350,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_hotel_motel_supplement_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_hotel_motel_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: line_other_3_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other line of business; path OtherLineOfBusinessDescription_C,
+        row 3'
+  line_other_3_premium_amt:
     x_petey_id: '1_52'
     type: number
     semantic_type: money
@@ -1159,7 +1385,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_open_cargo_section_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_hotel_motel_supplement_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_other_3_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: premium for the other line of business; path OtherPremiumAmount_C,
+        row 3'
+  line_other_4_ind:
     x_petey_id: '1_57'
     type: boolean
     semantic_type: indicator
@@ -1177,7 +1420,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_open_cargo_section_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_open_cargo_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: line_other_4_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: lines of business other than those listed; path Policy_LineOfBusiness_OtherIndicator_D,
+        blank row 4 of column 3 (Andrew: should be other); the name is an attachment
+        title'
+  line_other_4_txt:
     x_petey_id: '1_58'
     type: string
     semantic_type: description
@@ -1194,7 +1455,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_open_cargo_section_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_open_cargo_section_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: line_other_4_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other line of business; path OtherLineOfBusinessDescription_D,
+        row 4'
+  line_other_4_premium_amt:
     x_petey_id: '1_59'
     type: number
     semantic_type: money
@@ -1212,7 +1490,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_international_liability_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_open_cargo_section_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_other_4_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: premium for the other line of business; path OtherPremiumAmount_D,
+        row 4'
+  line_other_5_ind:
     x_petey_id: '1_64'
     type: boolean
     semantic_type: indicator
@@ -1230,7 +1525,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_international_liability_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_international_liability_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: line_other_5_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: lines of business other than those listed; path Policy_LineOfBusiness_OtherIndicator_E,
+        blank row 5 of column 3 (Andrew: should be other); the name is an attachment
+        title'
+  line_other_5_txt:
     x_petey_id: '1_65'
     type: string
     semantic_type: description
@@ -1247,7 +1560,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_international_liability_supplement_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_international_liability_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: line_other_5_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other line of business; path OtherLineOfBusinessDescription_E,
+        row 5'
+  line_other_5_premium_amt:
     x_petey_id: '1_66'
     type: number
     semantic_type: money
@@ -1265,7 +1595,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_international_property_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_international_liability_supplement_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_other_5_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: premium for the other line of business; path OtherPremiumAmount_E,
+        row 5'
+  line_other_6_ind:
     x_petey_id: '1_71'
     type: boolean
     semantic_type: indicator
@@ -1283,7 +1630,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_international_property_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_international_property_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: line_other_6_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: lines of business other than those listed; path Policy_LineOfBusiness_OtherIndicator_F,
+        blank row 6 of column 3 (Andrew: should be other); the name is an attachment
+        title'
+  line_other_6_txt:
     x_petey_id: '1_72'
     type: string
     semantic_type: description
@@ -1300,7 +1665,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  line_international_property_supplement_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_international_property_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: line_other_6_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other line of business; path OtherLineOfBusinessDescription_F,
+        row 6'
+  line_other_6_premium_amt:
     x_petey_id: '1_73'
     type: number
     semantic_type: money
@@ -1318,6 +1700,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: line_international_property_supplement_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_other_6_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: premium for the other line of business; path OtherPremiumAmount_F,
+        row 6'
   attachment_accounts_receivable_valuable_papers_ind:
     x_petey_id: '1_74'
     type: boolean
@@ -1336,7 +1735,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_additional_premises_information_schedule_ind:
+  attachment_additional_interest_schedule_ind:
     x_petey_id: '1_77'
     type: boolean
     semantic_type: indicator
@@ -1354,7 +1753,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_apartment_building_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_additional_premises_information_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_additional_interest_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (AdditionalInterestScheduleIndicator) say this
+        box is the ACORD 45 Additional Interest Schedule attachment; the attachment
+        names are shifted along the block
+  attachment_additional_premises_information_schedule_ind:
     x_petey_id: '1_80'
     type: boolean
     semantic_type: indicator
@@ -1372,7 +1789,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_condo_assn_bylaws_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_apartment_building_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_additional_premises_information_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (AdditionalPremisesScheduleIndicator) say this
+        box is the Additional Premises Information Schedule attachment; the attachment
+        names are shifted along the block
+  attachment_apartment_building_supplement_ind:
     x_petey_id: '1_83'
     type: boolean
     semantic_type: indicator
@@ -1390,7 +1825,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_coverages_schedule_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_condo_assn_bylaws_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_apartment_building_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (ApartmentBuildingSupplementIndicator) say this
+        box is the Apartment Building Supplement attachment; the attachment names
+        are shifted along the block
+  attachment_condo_assn_bylaws_ind:
     x_petey_id: '1_86'
     type: boolean
     semantic_type: indicator
@@ -1408,6 +1861,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_coverages_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_condo_assn_bylaws_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (CondominiumAssociationByLawsIndicator) say this
+        box is the condominium association bylaws attachment; the attachment names
+        are shifted along the block
   attachment_contractors_supplement_ind:
     x_petey_id: '1_90'
     type: boolean
@@ -1426,7 +1897,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_dealers_section_ind:
+  attachment_coverages_schedule_ind:
     x_petey_id: '1_94'
     type: boolean
     semantic_type: indicator
@@ -1444,7 +1915,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_driver_information_schedule_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_dealers_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_coverages_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (CoveragesScheduleIndicator) say this box is the
+        coverages schedule (printed COVERAGES SCHEDULE; Andrew flagged it) attachment;
+        the attachment names are shifted along the block
+  attachment_dealers_section_ind:
     x_petey_id: '1_98'
     type: boolean
     semantic_type: indicator
@@ -1462,7 +1951,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_electronic_data_processing_section_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_driver_information_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_dealers_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (DealerIndicator) say this box is the Dealers Section
+        attachment; the attachment names are shifted along the block
+  attachment_driver_information_schedule_ind:
     x_petey_id: '1_102'
     type: boolean
     semantic_type: indicator
@@ -1480,7 +1986,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_additional_interest_schedule_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_electronic_data_processing_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_driver_information_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (DriverInformationScheduleIndicator) say this box
+        is the Driver Information Schedule attachment; the attachment names are shifted
+        along the block
+  attachment_electronic_data_processing_section_ind:
     x_petey_id: '1_106'
     type: boolean
     semantic_type: indicator
@@ -1498,7 +2022,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_loss_summary_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_additional_interest_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_electronic_data_processing_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (ElectronicDataProcessingIndicator) say this box
+        is the Electronic Data Processing Section attachment; the attachment names
+        are shifted along the block
+  attachment_glass_sign_section_ind:
     x_petey_id: '1_75'
     type: boolean
     semantic_type: indicator
@@ -1516,7 +2058,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_additional_interest_schedule_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_loss_summary_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_glass_sign_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (GlassAndSignIndicator) say this box is the Glass
+        and Sign Section attachment; the attachment names are shifted along the block
+  attachment_hotel_motel_supplement_ind:
     x_petey_id: '1_78'
     type: boolean
     semantic_type: indicator
@@ -1534,7 +2093,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_state_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_additional_interest_schedule_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_hotel_motel_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (HotelMotelSupplementIndicator) say this box is
+        the Hotel / Motel Supplement attachment; the attachment names are shifted
+        along the block
+  attachment_installation_builders_risk_section_ind:
     x_petey_id: '1_81'
     type: boolean
     semantic_type: indicator
@@ -1552,7 +2129,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_vacant_building_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_state_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_installation_builders_risk_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (InstallationBuildersRiskIndicator) say this box
+        is the Installation / Builder's Risk Section attachment; the attachment names
+        are shifted along the block
+  attachment_international_liability_exposure_supplement_ind:
     x_petey_id: '1_84'
     type: boolean
     semantic_type: indicator
@@ -1570,7 +2165,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_vehicle_schedule_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_vacant_building_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_international_liability_exposure_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (InternationalLiabilityExposureSupplementIndicator)
+        say this box is the International Liability Exposure Supplement attachment;
+        the attachment names are shifted along the block
+  attachment_international_property_exposure_supplement_ind:
     x_petey_id: '1_87'
     type: boolean
     semantic_type: indicator
@@ -1588,7 +2201,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_international_liability_exposure_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_vehicle_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_international_property_exposure_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (InternationalPropertyExposureSupplementIndicator)
+        say this box is the International Property Exposure Supplement attachment;
+        the attachment names are shifted along the block
+  attachment_loss_summary_ind:
     x_petey_id: '1_91'
     type: boolean
     semantic_type: indicator
@@ -1606,7 +2237,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_international_property_exposure_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_international_liability_exposure_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_loss_summary_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (LossSummaryIndicator) say this box is the loss
+        summary attachment; the attachment names are shifted along the block
+  attachment_open_cargo_section_ind:
     x_petey_id: '1_95'
     type: boolean
     semantic_type: indicator
@@ -1624,7 +2272,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_professional_liability_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_international_property_exposure_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_open_cargo_section_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (OpenCargoIndicator) say this box is the Open Cargo
+        Section attachment; the attachment names are shifted along the block
+  attachment_premium_payment_supplement_ind:
     x_petey_id: '1_99'
     type: boolean
     semantic_type: indicator
@@ -1642,7 +2307,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_restaurant_tavern_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_professional_liability_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_premium_payment_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (PremiumPaymentSupplementIndicator) say this box
+        is the Premium Payment Supplement attachment; the attachment names are shifted
+        along the block
+  attachment_professional_liability_supplement_ind:
     x_petey_id: '1_103'
     type: boolean
     semantic_type: indicator
@@ -1660,7 +2343,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_premium_payment_supplement_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_restaurant_tavern_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_professional_liability_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (ProfessionalLiabilitySupplementIndicator) say
+        this box is the Professional Liability Supplement attachment; the attachment
+        names are shifted along the block
+  attachment_restaurant_tavern_supplement_ind:
     x_petey_id: '1_107'
     type: boolean
     semantic_type: indicator
@@ -1678,6 +2379,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_premium_payment_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_restaurant_tavern_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (RestaurantTavernSupplementIndicator) say this
+        box is the Restaurant / Tavern Supplement attachment; the attachment names
+        are shifted along the block
   attachment_statement_schedule_of_values_ind:
     x_petey_id: '1_76'
     type: boolean
@@ -1696,7 +2415,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_state_supplement_2_ind:
+  attachment_state_supplement_ind:
     x_petey_id: '1_79'
     type: boolean
     semantic_type: indicator
@@ -1714,7 +2433,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_vacant_building_supplement_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_state_supplement_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_state_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (StateSupplementIndicator) say this box is the
+        state supplement attachment; the attachment names are shifted along the block
+  attachment_vacant_building_supplement_ind:
     x_petey_id: '1_82'
     type: boolean
     semantic_type: indicator
@@ -1732,7 +2468,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_vehicle_schedule_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_vacant_building_supplement_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_vacant_building_supplement_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (VacantBuildingSupplementIndicator) say this box
+        is the Vacant Building Supplement attachment; the attachment names are shifted
+        along the block
+  attachment_vehicle_schedule_ind:
     x_petey_id: '1_85'
     type: boolean
     semantic_type: indicator
@@ -1750,7 +2504,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_loss_summary_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_vehicle_schedule_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_vehicle_schedule_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: Tooltip and widget path (VehicleScheduleIndicator) say this box is the
+        Vehicle Schedule attachment; the attachment names are shifted along the block
+  attachment_other_1_ind:
     x_petey_id: '1_88'
     type: boolean
     semantic_type: indicator
@@ -1768,7 +2539,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_loss_summary_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_loss_summary_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_other_1_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: an attachment other than those listed; path CommercialPolicy_Attachment_OtherIndicator_A
+        (blank ''other'' row 1 of column 3)'
+  attachment_other_1_txt:
     x_petey_id: '1_89'
     type: string
     semantic_type: description
@@ -1785,7 +2573,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_international_liability_exposure_supplement_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_loss_summary_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: attachment_other_1_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other attachment; path Attachment_OtherDescription_A
+        (Andrew: should be other txt)'
+  attachment_other_2_ind:
     x_petey_id: '1_92'
     type: boolean
     semantic_type: indicator
@@ -1803,7 +2608,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_international_liability_exposure_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_international_liability_exposure_supplement_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_other_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: an attachment other than those listed; path CommercialPolicy_Attachment_OtherIndicator_B
+        (blank ''other'' row 2 of column 3)'
+  attachment_other_2_txt:
     x_petey_id: '1_93'
     type: string
     semantic_type: description
@@ -1820,7 +2642,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_international_property_exposure_supplement_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_international_liability_exposure_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: attachment_other_2_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other attachment; path Attachment_OtherDescription_B
+        (Andrew: should be other txt)'
+  attachment_other_3_ind:
     x_petey_id: '1_96'
     type: boolean
     semantic_type: indicator
@@ -1838,7 +2677,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_international_property_exposure_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_international_property_exposure_supplement_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_other_3_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: an attachment other than those listed; path CommercialPolicy_Attachment_OtherIndicator_C
+        (blank ''other'' row 3 of column 3)'
+  attachment_other_3_txt:
     x_petey_id: '1_97'
     type: string
     semantic_type: description
@@ -1855,7 +2711,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_professional_liability_supplement_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_international_property_exposure_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: attachment_other_3_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other attachment; path Attachment_OtherDescription_C
+        (Andrew: should be other txt)'
+  attachment_other_4_ind:
     x_petey_id: '1_100'
     type: boolean
     semantic_type: indicator
@@ -1873,7 +2746,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_professional_liability_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_professional_liability_supplement_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_other_4_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: an attachment other than those listed; path CommercialPolicy_Attachment_OtherIndicator_D
+        (blank ''other'' row 4 of column 3)'
+  attachment_other_4_txt:
     x_petey_id: '1_101'
     type: string
     semantic_type: description
@@ -1890,7 +2780,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_restaurant_tavern_supplement_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_professional_liability_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: attachment_other_4_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other attachment; path Attachment_OtherDescription_D
+        (Andrew: should be other txt)'
+  attachment_other_5_ind:
     x_petey_id: '1_104'
     type: boolean
     semantic_type: indicator
@@ -1908,7 +2815,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_restaurant_tavern_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_restaurant_tavern_supplement_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_other_5_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: an attachment other than those listed; path CommercialPolicy_Attachment_OtherIndicator_E
+        (blank ''other'' row 5 of column 3)'
+  attachment_other_5_txt:
     x_petey_id: '1_105'
     type: string
     semantic_type: description
@@ -1925,7 +2849,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_premium_payment_supplement_2_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_restaurant_tavern_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: attachment_other_5_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other attachment; path Attachment_OtherDescription_E
+        (Andrew: should be other txt)'
+  attachment_other_6_ind:
     x_petey_id: '1_108'
     type: boolean
     semantic_type: indicator
@@ -1943,7 +2884,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attachment_premium_payment_supplement_desc:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_premium_payment_supplement_2_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: attachment_other_6_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: an attachment other than those listed; path CommercialPolicy_Attachment_OtherIndicator_F
+        (blank ''other'' row 6 of column 3)'
+  attachment_other_6_txt:
     x_petey_id: '1_109'
     type: string
     semantic_type: description
@@ -1960,6 +2918,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: attachment_premium_payment_supplement_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: attachment_other_6_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: description of the other attachment; path Attachment_OtherDescription_F
+        (Andrew: should be other txt)'
   proposed_eff_dt:
     x_petey_id: '1_110'
     type: date
@@ -2016,9 +2991,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Payment_DirectBillIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is to be direct
-          billed.'
-        x_petey_caption_source: tooltip
+        caption: DIRECT
+        x_petey_caption_source: claude
       billing_plan_agency_ind:
         page: 1
         rect:
@@ -2029,15 +3003,41 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Payment_ProducerBillIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is to be producer
-          / agency billed.'
-        x_petey_caption_source: tooltip
+        caption: AGENCY
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - billing_plan_direct_ind
       - billing_plan_agency_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: billing_plan
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          billing_plan_direct_ind: 'Check the box (if applicable): Indicates the policy
+            is to be direct billed.'
+          billing_plan_agency_ind: 'Check the box (if applicable): Indicates the policy
+            is to be producer / agency billed.'
+      to:
+        name: billing_plan
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          billing_plan_direct_ind:
+            caption: DIRECT
+          billing_plan_agency_ind:
+            caption: AGENCY
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: caption
+      why: Captions are tooltip text; the words printed beside the boxes are DIRECT
+        and AGENCY
   payment_plan_txt:
     x_petey_id: '1_112'
     type: string
@@ -2056,7 +3056,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  audit_txt:
+  method_of_payment_txt:
     x_petey_id: '1_113'
     type: string
     semantic_type: text
@@ -2073,10 +3073,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  deposit_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: audit_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: method_of_payment_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: the method the invoice will be paid; path Policy_PaymentMethod_MethodDescription_A,
+        printed METHOD OF PAYMENT'
+  audit_cd:
     x_petey_id: '1_114'
-    type: number
-    semantic_type: money
+    type: string
     widget:
       page: 1
       rect:
@@ -2093,7 +3109,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  minimum_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: deposit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: audit_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Policy_Audit_FrequencyCode_A): the audit term code A/S/Q/M/O,
+        printed AUDIT (Andrew: should be audit); a code, not money'
+  deposit_amt:
     x_petey_id: '1_115'
     type: number
     semantic_type: money
@@ -2111,7 +3144,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  policy_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: minimum_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: deposit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: premium received as a deposit; path Policy_Payment_DepositAmount_A,
+        printed DEPOSIT'
+  minimum_premium_amt:
     x_petey_id: '1_116'
     type: number
     semantic_type: money
@@ -2129,6 +3179,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: policy_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: minimum_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: minimum premium for the policy; path Policy_Payment_MinimumPremiumAmount_A,
+        printed MINIMUM PREMIUM'
   policy_premium_total_amt:
     x_petey_id: '1_117'
     type: number
@@ -2150,7 +3217,6 @@ fields:
   first_named_insured_name:
     x_petey_id: '1_119'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2165,6 +3231,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: first_named_insured_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: first_named_insured_name
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   first_named_insured_address_line_1_txt:
     x_petey_id: '1_124'
     type: string
@@ -2399,7 +3481,6 @@ fields:
   other_named_insured_1_name:
     x_petey_id: '1_134'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2414,6 +3495,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: other_named_insured_1_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_named_insured_1_name
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_named_insured_1_address_line_1_txt:
     x_petey_id: '1_139'
     type: string
@@ -2648,7 +3745,6 @@ fields:
   other_named_insured_2_name:
     x_petey_id: '1_149'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2663,6 +3759,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: other_named_insured_2_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_named_insured_2_name
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_named_insured_2_address_line_1_txt:
     x_petey_id: '1_154'
     type: string
@@ -2930,7 +4042,6 @@ fields:
   contact_1_nm:
     x_petey_id: '2_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -2944,6 +4055,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_1_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: contact_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   contact_1_primary_phone_nbr:
     x_petey_id: '2_10'
     type: string
@@ -2962,7 +4089,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_1_primary_phone_2:
+  contact_1_primary_phone_type:
     x_petey_id: '2_6'
     type: category
     values:
@@ -2980,9 +4107,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_PrimaryHomePhoneIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s primary
-          phone is a home phone.'
-        x_petey_caption_source: tooltip
+        caption: HOME
+        x_petey_caption_source: claude
       contact_1_primary_phone_bus_ind:
         page: 2
         rect:
@@ -2993,9 +4119,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_PrimaryBusinessPhoneIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s primary
-          phone is a business phone.'
-        x_petey_caption_source: tooltip
+        caption: BUS
+        x_petey_caption_source: claude
       contact_1_primary_phone_cell_ind:
         page: 2
         rect:
@@ -3006,9 +4131,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_PrimaryCellPhoneIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s primary
-          phone is a cell phone.'
-        x_petey_caption_source: tooltip
+        caption: CELL
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -3016,6 +4140,38 @@ fields:
       - contact_1_primary_phone_home_ind
       - contact_1_primary_phone_bus_ind
       - contact_1_primary_phone_cell_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_1_primary_phone_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_1_primary_phone_home_ind: 'Check the box (if applicable): Indicates
+            the contact''s primary phone is a home phone.'
+          contact_1_primary_phone_bus_ind: 'Check the box (if applicable): Indicates
+            the contact''s primary phone is a business phone.'
+          contact_1_primary_phone_cell_ind: 'Check the box (if applicable): Indicates
+            the contact''s primary phone is a cell phone.'
+      to:
+        name: contact_1_primary_phone_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_1_primary_phone_home_ind:
+            caption: HOME
+          contact_1_primary_phone_bus_ind:
+            caption: BUS
+          contact_1_primary_phone_cell_ind:
+            caption: CELL
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Option group says which kind of phone the contact's primary number is (home
+        / bus / cell boxes); the number itself is contact_1_primary_phone_nbr; captions
+        are tooltip text, printed HOME BUS CELL
   contact_1_secondary_phone_nbr:
     x_petey_id: '2_11'
     type: string
@@ -3034,7 +4190,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_1_secondary_phone:
+  contact_1_secondary_phone_type:
     x_petey_id: '2_7'
     type: category
     values:
@@ -3052,9 +4208,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_SecondaryHomePhoneIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s secondary
-          phone number is a home phone.'
-        x_petey_caption_source: tooltip
+        caption: HOME
+        x_petey_caption_source: claude
       contact_1_secondary_phone_bus_ind:
         page: 2
         rect:
@@ -3065,9 +4220,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_SecondaryBusinessPhoneIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s secondary
-          phone number is a business phone.'
-        x_petey_caption_source: tooltip
+        caption: BUS
+        x_petey_caption_source: claude
       contact_1_secondary_phone_cell_ind:
         page: 2
         rect:
@@ -3078,9 +4232,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_SecondaryCellPhoneIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s secondary
-          phone number is a cell phone.'
-        x_petey_caption_source: tooltip
+        caption: CELL
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -3088,6 +4241,38 @@ fields:
       - contact_1_secondary_phone_home_ind
       - contact_1_secondary_phone_bus_ind
       - contact_1_secondary_phone_cell_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_1_secondary_phone
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_1_secondary_phone_home_ind: 'Check the box (if applicable): Indicates
+            the contact''s secondary phone number is a home phone.'
+          contact_1_secondary_phone_bus_ind: 'Check the box (if applicable): Indicates
+            the contact''s secondary phone number is a business phone.'
+          contact_1_secondary_phone_cell_ind: 'Check the box (if applicable): Indicates
+            the contact''s secondary phone number is a cell phone.'
+      to:
+        name: contact_1_secondary_phone_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_1_secondary_phone_home_ind:
+            caption: HOME
+          contact_1_secondary_phone_bus_ind:
+            caption: BUS
+          contact_1_secondary_phone_cell_ind:
+            caption: CELL
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Option group says which kind of phone the contact's secondary number is
+        (home / bus / cell boxes); the number itself is contact_1_secondary_phone_nbr;
+        captions are tooltip text, printed HOME BUS CELL
   contact_1_primary_email_address_txt:
     x_petey_id: '2_14'
     type: string
@@ -3143,7 +4328,6 @@ fields:
   contact_2_nm:
     x_petey_id: '2_5'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -3157,6 +4341,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_2_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: contact_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   contact_2_primary_phone_nbr:
     x_petey_id: '2_12'
     type: string
@@ -3175,7 +4375,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_2_primary_phone:
+  contact_2_primary_phone_type:
     x_petey_id: '2_8'
     type: category
     values:
@@ -3193,9 +4393,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_PrimaryHomePhoneIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s primary
-          phone is a home phone.'
-        x_petey_caption_source: tooltip
+        caption: HOME
+        x_petey_caption_source: claude
       contact_2_primary_phone_bus_ind:
         page: 2
         rect:
@@ -3206,9 +4405,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_PrimaryBusinessPhoneIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s primary
-          phone is a business phone.'
-        x_petey_caption_source: tooltip
+        caption: BUS
+        x_petey_caption_source: claude
       contact_2_primary_phone_cell_ind:
         page: 2
         rect:
@@ -3219,9 +4417,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_PrimaryCellPhoneIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s primary
-          phone is a cell phone.'
-        x_petey_caption_source: tooltip
+        caption: CELL
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -3229,6 +4426,38 @@ fields:
       - contact_2_primary_phone_home_ind
       - contact_2_primary_phone_bus_ind
       - contact_2_primary_phone_cell_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_2_primary_phone
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_2_primary_phone_home_ind: 'Check the box (if applicable): Indicates
+            the contact''s primary phone is a home phone.'
+          contact_2_primary_phone_bus_ind: 'Check the box (if applicable): Indicates
+            the contact''s primary phone is a business phone.'
+          contact_2_primary_phone_cell_ind: 'Check the box (if applicable): Indicates
+            the contact''s primary phone is a cell phone.'
+      to:
+        name: contact_2_primary_phone_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_2_primary_phone_home_ind:
+            caption: HOME
+          contact_2_primary_phone_bus_ind:
+            caption: BUS
+          contact_2_primary_phone_cell_ind:
+            caption: CELL
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Option group says which kind of phone the contact's primary number is (home
+        / bus / cell boxes); the number itself is contact_2_primary_phone_nbr; captions
+        are tooltip text, printed HOME BUS CELL
   contact_2_secondary_phone_nbr:
     x_petey_id: '2_13'
     type: string
@@ -3247,7 +4476,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_2_secondary_phone:
+  contact_2_secondary_phone_type:
     x_petey_id: '2_9'
     type: category
     values:
@@ -3265,9 +4494,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_SecondaryHomePhoneIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s secondary
-          phone number is a home phone.'
-        x_petey_caption_source: tooltip
+        caption: HOME
+        x_petey_caption_source: claude
       contact_2_secondary_phone_bus_ind:
         page: 2
         rect:
@@ -3278,9 +4506,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_SecondaryBusinessPhoneIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s secondary
-          phone number is a business phone.'
-        x_petey_caption_source: tooltip
+        caption: BUS
+        x_petey_caption_source: claude
       contact_2_secondary_phone_cell_ind:
         page: 2
         rect:
@@ -3291,9 +4518,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].NamedInsured_Contact_SecondaryCellPhoneIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the contact''s secondary
-          phone number is a cell phone.'
-        x_petey_caption_source: tooltip
+        caption: CELL
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -3301,6 +4527,38 @@ fields:
       - contact_2_secondary_phone_home_ind
       - contact_2_secondary_phone_bus_ind
       - contact_2_secondary_phone_cell_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_2_secondary_phone
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_2_secondary_phone_home_ind: 'Check the box (if applicable): Indicates
+            the contact''s secondary phone number is a home phone.'
+          contact_2_secondary_phone_bus_ind: 'Check the box (if applicable): Indicates
+            the contact''s secondary phone number is a business phone.'
+          contact_2_secondary_phone_cell_ind: 'Check the box (if applicable): Indicates
+            the contact''s secondary phone number is a cell phone.'
+      to:
+        name: contact_2_secondary_phone_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          contact_2_secondary_phone_home_ind:
+            caption: HOME
+          contact_2_secondary_phone_bus_ind:
+            caption: BUS
+          contact_2_secondary_phone_cell_ind:
+            caption: CELL
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Option group says which kind of phone the contact's secondary number is
+        (home / bus / cell boxes); the number itself is contact_2_secondary_phone_nbr;
+        captions are tooltip text, printed HOME BUS CELL
   contact_2_primary_email_address_txt:
     x_petey_id: '2_15'
     type: string
@@ -3474,7 +4732,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_1_interest:
+  premises_1_city_limits:
     x_petey_id: '2_22'
     type: category
     values:
@@ -3491,9 +4749,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is within
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: INSIDE
+        x_petey_caption_source: claude
       premises_1_interest_outside_ind:
         page: 2
         rect:
@@ -3504,16 +4761,43 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is outside
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: OUTSIDE
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_1_interest_inside_ind
       - premises_1_interest_outside_ind
-  premises_1_city_limits_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_1_interest_inside_ind: 'Check the box (if applicable): Indicates
+            the building is within the city limits.'
+          premises_1_interest_outside_ind: 'Check the box (if applicable): Indicates
+            the building is outside the city limits.'
+      to:
+        name: premises_1_city_limits
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_1_interest_inside_ind:
+            caption: INSIDE
+          premises_1_interest_outside_ind:
+            caption: OUTSIDE
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Boxes are Inside / Outside city limits (paths RiskLocation_InsideCityLimitsIndicator
+        / OutsideCityLimitsIndicator, printed CITY LIMITS: INSIDE / OUTSIDE), not
+        the insured''s interest'
+  premises_1_city_limits_other_ind:
     x_petey_id: '2_32'
     type: boolean
     semantic_type: indicator
@@ -3531,10 +4815,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_1_city_limits_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_city_limits_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_1_city_limits_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: building is neither inside nor outside city limits (path RiskLocation_OtherIndicator);
+        it is the ''other'' box of the city-limits question'
+  premises_1_city_limits_other_txt:
     x_petey_id: '2_33'
     type: string
-    semantic_type: city
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -3549,7 +4850,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_1_interest_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_city_limits_txt
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: premises_1_city_limits_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the risk location if not inside nor outside city
+        limits (path RiskLocation_OtherDescription); free text, not a city'
+  premises_1_interest:
     x_petey_id: '2_23'
     type: category
     values:
@@ -3566,9 +4884,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its owner.'
-        x_petey_caption_source: tooltip
+        caption: OWNER
+        x_petey_caption_source: claude
       premises_1_interest_tenant_ind:
         page: 2
         rect:
@@ -3579,16 +4896,42 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its tenant.'
-        x_petey_caption_source: tooltip
+        caption: TENANT
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_1_interest_owner_ind
       - premises_1_interest_tenant_ind
-  premises_1_interest_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_interest_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_1_interest_owner_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its owner.'
+          premises_1_interest_tenant_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its tenant.'
+      to:
+        name: premises_1_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_1_interest_owner_ind:
+            caption: OWNER
+          premises_1_interest_tenant_ind:
+            caption: TENANT
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Owner / Tenant boxes are the INTEREST group (paths InsuredInterest_OwnerIndicator
+        / TenantIndicator); captions printed OWNER and TENANT
+  premises_1_interest_other_ind:
     x_petey_id: '2_34'
     type: boolean
     semantic_type: indicator
@@ -3606,7 +4949,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_1_interest_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_interest_cd
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_1_interest_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: insured''s interest is other than those listed (path InsuredInterest_OtherIndicator);
+        a checkbox, not a code'
+  premises_1_interest_other_txt:
     x_petey_id: '2_35'
     type: string
     semantic_type: text
@@ -3624,6 +4984,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_interest_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: premises_1_interest_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the insured''s interest when other than those
+        listed (path InsuredInterest_OtherDescription)'
   premises_1_full_time_empl_nbr:
     x_petey_id: '2_24'
     type: integer
@@ -3680,7 +5057,7 @@ fields:
     - money
   premises_1_occupied_area_sq_ft:
     x_petey_id: '2_25'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -3695,9 +5072,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_occupied_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_1_occupied_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet occupied by the insured; a whole number like
+        the total building area field'
   premises_1_open_to_public_area_sq_ft:
     x_petey_id: '2_28'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -3711,6 +5105,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_1_open_to_public_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_1_open_to_public_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet open to the public; a whole number like the
+        total building area field'
   premises_1_total_building_area_sq_ft:
     x_petey_id: '2_37'
     type: integer
@@ -3912,7 +5323,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_2_interest:
+  premises_2_city_limits:
     x_petey_id: '2_44'
     type: category
     values:
@@ -3929,9 +5340,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is within
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: INSIDE
+        x_petey_caption_source: claude
       premises_2_interest_outside_ind:
         page: 2
         rect:
@@ -3942,16 +5352,43 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is outside
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: OUTSIDE
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_2_interest_inside_ind
       - premises_2_interest_outside_ind
-  premises_2_city_limits_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_2_interest_inside_ind: 'Check the box (if applicable): Indicates
+            the building is within the city limits.'
+          premises_2_interest_outside_ind: 'Check the box (if applicable): Indicates
+            the building is outside the city limits.'
+      to:
+        name: premises_2_city_limits
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_2_interest_inside_ind:
+            caption: INSIDE
+          premises_2_interest_outside_ind:
+            caption: OUTSIDE
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Boxes are Inside / Outside city limits (paths RiskLocation_InsideCityLimitsIndicator
+        / OutsideCityLimitsIndicator, printed CITY LIMITS: INSIDE / OUTSIDE), not
+        the insured''s interest'
+  premises_2_city_limits_other_ind:
     x_petey_id: '2_54'
     type: boolean
     semantic_type: indicator
@@ -3969,10 +5406,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_2_city_limits_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_city_limits_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_2_city_limits_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: building is neither inside nor outside city limits (path RiskLocation_OtherIndicator);
+        it is the ''other'' box of the city-limits question'
+  premises_2_city_limits_other_txt:
     x_petey_id: '2_55'
     type: string
-    semantic_type: city
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -3987,7 +5441,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_2_interest_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_city_limits_txt
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: premises_2_city_limits_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the risk location if not inside nor outside city
+        limits (path RiskLocation_OtherDescription); free text, not a city'
+  premises_2_interest:
     x_petey_id: '2_45'
     type: category
     values:
@@ -4004,9 +5475,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its owner.'
-        x_petey_caption_source: tooltip
+        caption: OWNER
+        x_petey_caption_source: claude
       premises_2_interest_tenant_ind:
         page: 2
         rect:
@@ -4017,16 +5487,42 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its tenant.'
-        x_petey_caption_source: tooltip
+        caption: TENANT
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_2_interest_owner_ind
       - premises_2_interest_tenant_ind
-  premises_2_interest_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_interest_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_2_interest_owner_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its owner.'
+          premises_2_interest_tenant_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its tenant.'
+      to:
+        name: premises_2_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_2_interest_owner_ind:
+            caption: OWNER
+          premises_2_interest_tenant_ind:
+            caption: TENANT
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Owner / Tenant boxes are the INTEREST group (paths InsuredInterest_OwnerIndicator
+        / TenantIndicator); captions printed OWNER and TENANT
+  premises_2_interest_other_ind:
     x_petey_id: '2_56'
     type: boolean
     semantic_type: indicator
@@ -4044,7 +5540,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_2_interest_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_interest_cd
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_2_interest_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: insured''s interest is other than those listed (path InsuredInterest_OtherIndicator);
+        a checkbox, not a code'
+  premises_2_interest_other_txt:
     x_petey_id: '2_57'
     type: string
     semantic_type: text
@@ -4062,6 +5575,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_interest_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: premises_2_interest_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the insured''s interest when other than those
+        listed (path InsuredInterest_OtherDescription)'
   premises_2_full_time_empl_nbr:
     x_petey_id: '2_46'
     type: integer
@@ -4118,7 +5648,7 @@ fields:
     - money
   premises_2_occupied_area_sq_ft:
     x_petey_id: '2_47'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -4133,9 +5663,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_occupied_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_2_occupied_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet occupied by the insured; a whole number like
+        the total building area field'
   premises_2_open_to_public_area_sq_ft:
     x_petey_id: '2_50'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -4149,6 +5696,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_2_open_to_public_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_2_open_to_public_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet open to the public; a whole number like the
+        total building area field'
   premises_2_total_building_area_sq_ft:
     x_petey_id: '2_59'
     type: integer
@@ -4350,7 +5914,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_3_interest_2:
+  premises_3_city_limits:
     x_petey_id: '2_66'
     type: category
     values:
@@ -4367,9 +5931,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_C[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is within
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: INSIDE
+        x_petey_caption_source: claude
       premises_3_interest_outside_ind:
         page: 2
         rect:
@@ -4380,16 +5943,43 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_C[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is outside
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: OUTSIDE
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_3_interest_inside_ind
       - premises_3_interest_outside_ind
-  premises_3_city_limits_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_interest_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_3_interest_inside_ind: 'Check the box (if applicable): Indicates
+            the building is within the city limits.'
+          premises_3_interest_outside_ind: 'Check the box (if applicable): Indicates
+            the building is outside the city limits.'
+      to:
+        name: premises_3_city_limits
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_3_interest_inside_ind:
+            caption: INSIDE
+          premises_3_interest_outside_ind:
+            caption: OUTSIDE
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Boxes are Inside / Outside city limits (paths RiskLocation_InsideCityLimitsIndicator
+        / OutsideCityLimitsIndicator, printed CITY LIMITS: INSIDE / OUTSIDE), not
+        the insured''s interest'
+  premises_3_city_limits_other_ind:
     x_petey_id: '2_76'
     type: boolean
     semantic_type: indicator
@@ -4407,10 +5997,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_3_city_limits_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_city_limits_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_3_city_limits_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: building is neither inside nor outside city limits (path RiskLocation_OtherIndicator);
+        it is the ''other'' box of the city-limits question'
+  premises_3_city_limits_other_txt:
     x_petey_id: '2_77'
     type: string
-    semantic_type: city
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -4425,6 +6032,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_city_limits_txt
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: premises_3_city_limits_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the risk location if not inside nor outside city
+        limits (path RiskLocation_OtherDescription); free text, not a city'
   premises_3_interest:
     x_petey_id: '2_67'
     type: category
@@ -4442,9 +6066,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_C[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its owner.'
-        x_petey_caption_source: tooltip
+        caption: OWNER
+        x_petey_caption_source: claude
       premises_3_interest_tenant_ind:
         page: 2
         rect:
@@ -4455,16 +6078,41 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_C[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its tenant.'
-        x_petey_caption_source: tooltip
+        caption: TENANT
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_3_interest_owner_ind
       - premises_3_interest_tenant_ind
-  premises_3_interest_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_3_interest_owner_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its owner.'
+          premises_3_interest_tenant_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its tenant.'
+      to:
+        name: premises_3_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_3_interest_owner_ind:
+            caption: OWNER
+          premises_3_interest_tenant_ind:
+            caption: TENANT
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: caption
+      why: Captions are tooltip text; printed beside the boxes are OWNER and TENANT
+  premises_3_interest_other_ind:
     x_petey_id: '2_78'
     type: boolean
     semantic_type: indicator
@@ -4482,7 +6130,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_3_interest_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_interest_cd
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_3_interest_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: insured''s interest is other than those listed (path InsuredInterest_OtherIndicator);
+        a checkbox, not a code'
+  premises_3_interest_other_txt:
     x_petey_id: '2_79'
     type: string
     semantic_type: text
@@ -4500,6 +6165,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_interest_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: premises_3_interest_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the insured''s interest when other than those
+        listed (path InsuredInterest_OtherDescription)'
   premises_3_full_time_empl_nbr:
     x_petey_id: '2_68'
     type: integer
@@ -4556,7 +6238,7 @@ fields:
     - money
   premises_3_occupied_area_sq_ft:
     x_petey_id: '2_69'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -4571,9 +6253,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_occupied_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_3_occupied_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet occupied by the insured; a whole number like
+        the total building area field'
   premises_3_open_to_public_area_sq_ft:
     x_petey_id: '2_72'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -4587,6 +6286,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_3_open_to_public_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_3_open_to_public_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet open to the public; a whole number like the
+        total building area field'
   premises_3_total_building_area_sq_ft:
     x_petey_id: '2_81'
     type: integer
@@ -4788,7 +6504,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_4_interest:
+  premises_4_city_limits:
     x_petey_id: '2_88'
     type: category
     values:
@@ -4805,9 +6521,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_InsideCityLimitsIndicator_D[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is within
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: INSIDE
+        x_petey_caption_source: claude
       premises_4_interest_outside_ind:
         page: 2
         rect:
@@ -4818,16 +6533,43 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_RiskLocation_OutsideCityLimitsIndicator_D[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the building is outside
-          the city limits.'
-        x_petey_caption_source: tooltip
+        caption: OUTSIDE
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_4_interest_inside_ind
       - premises_4_interest_outside_ind
-  premises_4_city_limits_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_4_interest_inside_ind: 'Check the box (if applicable): Indicates
+            the building is within the city limits.'
+          premises_4_interest_outside_ind: 'Check the box (if applicable): Indicates
+            the building is outside the city limits.'
+      to:
+        name: premises_4_city_limits
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_4_interest_inside_ind:
+            caption: INSIDE
+          premises_4_interest_outside_ind:
+            caption: OUTSIDE
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Boxes are Inside / Outside city limits (paths RiskLocation_InsideCityLimitsIndicator
+        / OutsideCityLimitsIndicator, printed CITY LIMITS: INSIDE / OUTSIDE), not
+        the insured''s interest'
+  premises_4_city_limits_other_ind:
     x_petey_id: '2_98'
     type: boolean
     semantic_type: indicator
@@ -4845,10 +6587,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_4_city_limits_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_city_limits_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_4_city_limits_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: building is neither inside nor outside city limits (path RiskLocation_OtherIndicator);
+        it is the ''other'' box of the city-limits question'
+  premises_4_city_limits_other_txt:
     x_petey_id: '2_99'
     type: string
-    semantic_type: city
+    semantic_type: text
     widget:
       page: 2
       rect:
@@ -4863,7 +6622,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_4_interest_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_city_limits_txt
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: premises_4_city_limits_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the risk location if not inside nor outside city
+        limits (path RiskLocation_OtherDescription); free text, not a city'
+  premises_4_interest:
     x_petey_id: '2_89'
     type: category
     values:
@@ -4880,9 +6656,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_OwnerIndicator_D[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its owner.'
-        x_petey_caption_source: tooltip
+        caption: OWNER
+        x_petey_caption_source: claude
       premises_4_interest_tenant_ind:
         page: 2
         rect:
@@ -4893,16 +6668,42 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].CommercialStructure_InsuredInterest_TenantIndicator_D[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the named insured''s interest
-          in the building is as its tenant.'
-        x_petey_caption_source: tooltip
+        caption: TENANT
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
       from:
       - premises_4_interest_owner_ind
       - premises_4_interest_tenant_ind
-  premises_4_interest_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_interest_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_4_interest_owner_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its owner.'
+          premises_4_interest_tenant_ind: 'Check the box (if applicable): Indicates
+            the named insured''s interest in the building is as its tenant.'
+      to:
+        name: premises_4_interest
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          premises_4_interest_owner_ind:
+            caption: OWNER
+          premises_4_interest_tenant_ind:
+            caption: TENANT
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Owner / Tenant boxes are the INTEREST group (paths InsuredInterest_OwnerIndicator
+        / TenantIndicator); captions printed OWNER and TENANT
+  premises_4_interest_other_ind:
     x_petey_id: '2_100'
     type: boolean
     semantic_type: indicator
@@ -4920,7 +6721,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premises_4_interest_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_interest_cd
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: premises_4_interest_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: insured''s interest is other than those listed (path InsuredInterest_OtherIndicator);
+        a checkbox, not a code'
+  premises_4_interest_other_txt:
     x_petey_id: '2_101'
     type: string
     semantic_type: text
@@ -4938,6 +6756,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_interest_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: premises_4_interest_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: description of the insured''s interest when other than those
+        listed (path InsuredInterest_OtherDescription)'
   premises_4_full_time_empl_nbr:
     x_petey_id: '2_90'
     type: integer
@@ -4994,7 +6829,7 @@ fields:
     - money
   premises_4_occupied_area_sq_ft:
     x_petey_id: '2_91'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -5009,9 +6844,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_occupied_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_4_occupied_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet occupied by the insured; a whole number like
+        the total building area field'
   premises_4_open_to_public_area_sq_ft:
     x_petey_id: '2_94'
-    type: string
+    type: integer
     widget:
       page: 2
       rect:
@@ -5025,6 +6877,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premises_4_open_to_public_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premises_4_open_to_public_area_sq_ft
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: area in square feet open to the public; a whole number like the
+        total building area field'
   premises_4_total_building_area_sq_ft:
     x_petey_id: '2_103'
     type: integer
@@ -5144,7 +7013,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  retail_stores_or_service_operations_pct:
+  installation_service_repair_work_pct:
     x_petey_id: '2_110'
     type: number
     semantic_type: percent
@@ -5162,7 +7031,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  installation_service_repair_work_pct:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:23:32'
+      from:
+        name: retail_stores_or_service_operations_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: installation_service_repair_work_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  off_premises_installation_service_repair_work_pct:
     x_petey_id: '2_111'
     type: number
     semantic_type: percent
@@ -5180,6 +7062,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-14 13:23:32'
+      from:
+        name: installation_service_repair_work_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: off_premises_installation_service_repair_work_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
   description_of_operations_other_named_insureds_txt:
     x_petey_id: '2_112'
     type: string
@@ -5198,7 +7093,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_2:
+  additional_interest_1_interest_type:
     x_petey_id: '2_115'
     type: category
     values:
@@ -5225,9 +7120,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_AdditionalInsuredIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is an additional insured.'
-        x_petey_caption_source: tooltip
+        caption: ADDITIONAL INSURED
+        x_petey_caption_source: claude
       additional_interest_1_lienholder_ind:
         page: 2
         rect:
@@ -5238,9 +7132,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_LienholderIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a lien holder.'
-        x_petey_caption_source: tooltip
+        caption: LIENHOLDER
+        x_petey_caption_source: claude
       additional_interest_1_breach_of_warranty_ind:
         page: 2
         rect:
@@ -5251,9 +7144,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_BreachOfWarrantyIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a breach of warranty.'
-        x_petey_caption_source: tooltip
+        caption: BREACH OF WARRANTY
+        x_petey_caption_source: claude
       additional_interest_1_loss_payee_ind:
         page: 2
         rect:
@@ -5264,9 +7156,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_LossPayeeIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a loss payee.'
-        x_petey_caption_source: tooltip
+        caption: LOSS PAYEE
+        x_petey_caption_source: claude
       additional_interest_1_co_owner_ind:
         page: 2
         rect:
@@ -5277,9 +7168,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_CoOwnerIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a co-owner.'
-        x_petey_caption_source: tooltip
+        caption: CO-OWNER
+        x_petey_caption_source: claude
       additional_interest_1_mortgagee_ind:
         page: 2
         rect:
@@ -5290,9 +7180,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_MortgageeIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a mortgagee.'
-        x_petey_caption_source: tooltip
+        caption: MORTGAGEE
+        x_petey_caption_source: claude
       additional_interest_1_employee_ind:
         page: 2
         rect:
@@ -5303,9 +7192,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_EmployeeAsLessorIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is an employee as lessor.'
-        x_petey_caption_source: tooltip
+        caption: EMPLOYEE AS LESSOR
+        x_petey_caption_source: claude
       additional_interest_1_owner_ind:
         page: 2
         rect:
@@ -5316,9 +7204,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_OwnerIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is an owner.'
-        x_petey_caption_source: tooltip
+        caption: OWNER
+        x_petey_caption_source: claude
       additional_interest_1_as_lessor_leaseback_ind:
         page: 2
         rect:
@@ -5329,9 +7216,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_LeasebackOwnerIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a leaseback owner.'
-        x_petey_caption_source: tooltip
+        caption: LEASEBACK OWNER
+        x_petey_caption_source: claude
       additional_interest_1_registrant_ind:
         page: 2
         rect:
@@ -5342,9 +7228,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_RegistrantIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a registrant.'
-        x_petey_caption_source: tooltip
+        caption: REGISTRANT
+        x_petey_caption_source: claude
       additional_interest_1_lenders_loss_payable_ind:
         page: 2
         rect:
@@ -5355,9 +7240,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_LendersLossPayableIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a lender''s loss payable.'
-        x_petey_caption_source: tooltip
+        caption: LENDER'S LOSS PAYABLE
+        x_petey_caption_source: claude
       additional_interest_1_trustee_ind:
         page: 2
         rect:
@@ -5368,9 +7252,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_Interest_TrusteeIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          type is a trustee.'
-        x_petey_caption_source: tooltip
+        caption: TRUSTEE
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -5387,6 +7270,74 @@ fields:
       - additional_interest_1_registrant_ind
       - additional_interest_1_lenders_loss_payable_ind
       - additional_interest_1_trustee_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          additional_interest_1_additional_insured_ind: 'Check the box (if applicable):
+            Indicates the additional interest type is an additional insured.'
+          additional_interest_1_lienholder_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is a lien holder.'
+          additional_interest_1_breach_of_warranty_ind: 'Check the box (if applicable):
+            Indicates the additional interest type is a breach of warranty.'
+          additional_interest_1_loss_payee_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is a loss payee.'
+          additional_interest_1_co_owner_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is a co-owner.'
+          additional_interest_1_mortgagee_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is a mortgagee.'
+          additional_interest_1_employee_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is an employee as lessor.'
+          additional_interest_1_owner_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is an owner.'
+          additional_interest_1_as_lessor_leaseback_ind: 'Check the box (if applicable):
+            Indicates the additional interest type is a leaseback owner.'
+          additional_interest_1_registrant_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is a registrant.'
+          additional_interest_1_lenders_loss_payable_ind: 'Check the box (if applicable):
+            Indicates the additional interest type is a lender''s loss payable.'
+          additional_interest_1_trustee_ind: 'Check the box (if applicable): Indicates
+            the additional interest type is a trustee.'
+      to:
+        name: additional_interest_1_interest_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          additional_interest_1_additional_insured_ind:
+            caption: ADDITIONAL INSURED
+          additional_interest_1_lienholder_ind:
+            caption: LIENHOLDER
+          additional_interest_1_breach_of_warranty_ind:
+            caption: BREACH OF WARRANTY
+          additional_interest_1_loss_payee_ind:
+            caption: LOSS PAYEE
+          additional_interest_1_co_owner_ind:
+            caption: CO-OWNER
+          additional_interest_1_mortgagee_ind:
+            caption: MORTGAGEE
+          additional_interest_1_employee_ind:
+            caption: EMPLOYEE AS LESSOR
+          additional_interest_1_owner_ind:
+            caption: OWNER
+          additional_interest_1_as_lessor_leaseback_ind:
+            caption: LEASEBACK OWNER
+          additional_interest_1_registrant_ind:
+            caption: REGISTRANT
+          additional_interest_1_lenders_loss_payable_ind:
+            caption: LENDER'S LOSS PAYABLE
+          additional_interest_1_trustee_ind:
+            caption: TRUSTEE
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Boxes are the INTEREST types (additional insured, lienholder, loss payee,
+        mortgagee...; paths AdditionalInterest_Interest_*Indicator); captions are
+        tooltip text, replaced by the printed words
   additional_interest_1_other_ind:
     x_petey_id: '2_134'
     type: boolean
@@ -5457,9 +7408,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1:
+  additional_interest_1_evidence:
     x_petey_id: '2_114'
-    type: category
+    type: multi_category
     values:
     - additional_interest_1_evidence_of_insurance_ind
     - additional_interest_1_certificate_ind
@@ -5475,9 +7426,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_CertificateRequiredIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates if the additional interest
-          requires a Certificate of Insurance.'
-        x_petey_caption_source: tooltip
+        caption: CERTIFICATE
+        x_petey_caption_source: claude
       additional_interest_1_certificate_ind:
         page: 2
         rect:
@@ -5488,9 +7438,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_PolicyRequiredIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the additional interest
-          requires a copy of the policy.'
-        x_petey_caption_source: tooltip
+        caption: POLICY
+        x_petey_caption_source: claude
       additional_interest_1_send_bill_ind:
         page: 2
         rect:
@@ -5501,9 +7450,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].AdditionalInterest_SendBillIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the bill should be sent
-          to the additional interest.'
-        x_petey_caption_source: tooltip
+        caption: SEND BILL
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -5511,6 +7459,38 @@ fields:
       - additional_interest_1_evidence_of_insurance_ind
       - additional_interest_1_certificate_ind
       - additional_interest_1_send_bill_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          additional_interest_1_evidence_of_insurance_ind: 'Check the box (if applicable):
+            Indicates if the additional interest requires a Certificate of Insurance.'
+          additional_interest_1_certificate_ind: 'Check the box (if applicable): Indicates
+            the additional interest requires a copy of the policy.'
+          additional_interest_1_send_bill_ind: 'Check the box (if applicable): Indicates
+            the bill should be sent to the additional interest.'
+      to:
+        name: additional_interest_1_evidence
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          additional_interest_1_evidence_of_insurance_ind:
+            caption: CERTIFICATE
+          additional_interest_1_certificate_ind:
+            caption: POLICY
+          additional_interest_1_send_bill_ind:
+            caption: SEND BILL
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Boxes are EVIDENCE: CERTIFICATE / POLICY and SEND BILL (paths CertificateRequiredIndicator,
+        PolicyRequiredIndicator, SendBillIndicator); send bill can go with either,
+        so any-of; captions are tooltip text'
   additional_interest_1_name_and_address_line_1_txt:
     x_petey_id: '2_118'
     type: string
@@ -5615,10 +7595,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_zip_ext_cd:
+  additional_interest_1_country_cd:
     x_petey_id: '2_130'
     type: string
-    semantic_type: zip
+    semantic_type: country_code
     pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
@@ -5633,6 +7613,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_zip_ext_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: additional_interest_1_country_cd
+        type: string
+        semantic_type: country_code
+        pattern: ^\d{5}(-\d{4})?$
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (MailingAddress_CountryCode_A): the additional interest''s
+        country code, not a ZIP extension'
   additional_interest_1_reference_loan_nbr:
     x_petey_id: '2_131'
     type: string
@@ -5686,10 +7683,10 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  additional_interest_1_policy_number_txt:
+  additional_interest_1_phone_nbr:
     x_petey_id: '2_137'
     type: string
-    semantic_type: text
+    semantic_type: phone
     widget:
       page: 2
       rect:
@@ -5703,6 +7700,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: additional_interest_1_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: null
+      to:
+        name: additional_interest_1_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (phone)
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
   additional_interest_1_fax_nbr:
     x_petey_id: '2_138'
     type: string
@@ -5773,7 +7787,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_vehicle_txt:
+  additional_interest_1_vehicle_nbr:
     x_petey_id: '2_119'
     type: string
     semantic_type: text
@@ -5791,7 +7805,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_boat_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_vehicle_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: additional_interest_1_vehicle_nbr
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: producer-assigned number of the vehicle (path Item_VehicleProducerIdentifier);
+        Andrew: should be an item number'
+  additional_interest_1_boat_nbr:
     x_petey_id: '2_120'
     type: string
     semantic_type: text
@@ -5809,7 +7840,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_aircraft_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_boat_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: additional_interest_1_boat_nbr
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: producer-assigned number of the boat (path Item_BoatProducerIdentifier);
+        Andrew: should be an item ID number'
+  additional_interest_1_airport_cd:
     x_petey_id: '2_122'
     type: string
     semantic_type: text
@@ -5827,7 +7875,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_airport_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_aircraft_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: additional_interest_1_airport_cd
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Item_AirportIdentifier) and the label AIRPORT: printed
+        left of the box: the FAA airport designator (e.g. ORD), swapped with the aircraft
+        field'
+  additional_interest_1_aircraft_nbr:
     x_petey_id: '2_123'
     type: string
     semantic_type: text
@@ -5845,7 +7911,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_item_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_airport_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: additional_interest_1_aircraft_nbr
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Item_AircraftProducerIdentifier) and the label AIRCRAFT:
+        printed left of the box: the producer-assigned aircraft number, swapped with
+        the airport field'
+  additional_interest_1_item_class_cd:
     x_petey_id: '2_125'
     type: string
     widget:
@@ -5862,7 +7946,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_interest_1_item_class_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_interest_1_item_class_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Item_ScheduledItemClassCode) and the label ITEM CLASS:
+        printed left of the box: the scheduled item''s property class; swapped with
+        item number'
+  additional_interest_1_item_nbr:
     x_petey_id: '2_126'
     type: string
     widget:
@@ -5879,6 +7981,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: additional_interest_1_item_class_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_interest_1_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Item_ScheduledItemProducerIdentifier) and the label
+        ITEM: printed left of the box: the producer-assigned item number; swapped
+        with item class'
   additional_interest_1_item_description_txt:
     x_petey_id: '2_133'
     type: string
@@ -6077,9 +8197,9 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  safety:
+  formal_safety_program_components:
     x_petey_id: '3_11'
-    type: category
+    type: multi_category
     values:
     - safety_manual_ind
     - safety_position_ind
@@ -6097,9 +8217,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_SafetyManualIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates a safety manual is part
-          of the formal safety program.'
-        x_petey_caption_source: tooltip
+        caption: SAFETY MANUAL
+        x_petey_caption_source: claude
       safety_position_ind:
         page: 3
         rect:
@@ -6110,9 +8229,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_SafetyPositionIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates a safety position is part
-          of the formal safety program.'
-        x_petey_caption_source: tooltip
+        caption: SAFETY POSITION
+        x_petey_caption_source: claude
       monthly_meetings_ind:
         page: 3
         rect:
@@ -6123,9 +8241,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_MonthlyMeetingsIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates monthly meetings are part
-          of the formal safety program.'
-        x_petey_caption_source: tooltip
+        caption: MONTHLY MEETINGS
+        x_petey_caption_source: claude
       osha_ind:
         page: 3
         rect:
@@ -6136,9 +8253,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_OSHAIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the formal safety program
-          meets OSHA guidelines.'
-        x_petey_caption_source: tooltip
+        caption: OSHA
+        x_petey_caption_source: claude
       other_safety_ind:
         page: 3
         rect:
@@ -6149,9 +8265,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CommercialPolicy_FormalSafetyProgram_OtherIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates there is a formal safety
-          program other than those listed.'
-        x_petey_caption_source: tooltip
+        caption: OTHER
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -6161,6 +8276,46 @@ fields:
       - monthly_meetings_ind
       - osha_ind
       - other_safety_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: safety
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          safety_manual_ind: 'Check the box (if applicable): Indicates a safety manual
+            is part of the formal safety program.'
+          safety_position_ind: 'Check the box (if applicable): Indicates a safety
+            position is part of the formal safety program.'
+          monthly_meetings_ind: 'Check the box (if applicable): Indicates monthly
+            meetings are part of the formal safety program.'
+          osha_ind: 'Check the box (if applicable): Indicates the formal safety program
+            meets OSHA guidelines.'
+          other_safety_ind: 'Check the box (if applicable): Indicates there is a formal
+            safety program other than those listed.'
+      to:
+        name: formal_safety_program_components
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          safety_manual_ind:
+            caption: SAFETY MANUAL
+          safety_position_ind:
+            caption: SAFETY POSITION
+          monthly_meetings_ind:
+            caption: MONTHLY MEETINGS
+          osha_ind:
+            caption: OSHA
+          other_safety_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Boxes are the parts of the formal safety program (safety manual, safety
+        position, monthly meetings, OSHA, other); more than one can apply; captions
+        are tooltip text, replaced by printed words
   other_safety_description:
     x_petey_id: '3_12'
     type: string
@@ -6385,7 +8540,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  group_p3:
+  cancellation_nonrenewal_reason:
     x_petey_id: '3_25'
     type: category
     values:
@@ -6406,9 +8561,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CancelNonRenew_NonPaymentIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
-          due to non-payment of premium.'
-        x_petey_caption_source: tooltip
+        caption: NON-PAYMENT
+        x_petey_caption_source: claude
       agent_no_longer_represents_carrier_ind:
         page: 3
         rect:
@@ -6419,9 +8573,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CancelNonRenew_AgentNoLongerWritesForInsurerIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
-          because the agent is no longer writing business for the insurer.'
-        x_petey_caption_source: tooltip
+        caption: AGENT NO LONGER REPRESENTS CARRIER
+        x_petey_caption_source: claude
       other_cancellation_reason_ind:
         page: 3
         rect:
@@ -6432,9 +8585,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CancelNonRenew_OtherIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
-          due to reasons other than those listed.'
-        x_petey_caption_source: tooltip
+        caption: OTHER
+        x_petey_caption_source: claude
       nonrenewal_ind:
         page: 3
         rect:
@@ -6445,9 +8597,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CancelNonRenew_NonRenewalIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
-          due to non-renewal.'
-        x_petey_caption_source: tooltip
+        caption: NON-RENEWAL
+        x_petey_caption_source: claude
       underwriting_condition_ind:
         page: 3
         rect:
@@ -6458,9 +8609,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CancelNonRenew_UnderwritingIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is being cancelled
-          due to underwriting reasons.'
-        x_petey_caption_source: tooltip
+        caption: UNDERWRITING
+        x_petey_caption_source: claude
       condition_corrected_ind:
         page: 3
         rect:
@@ -6471,9 +8621,8 @@ fields:
         widget_type: checkbox
         path: F[0].P3[0].CancelNonRenew_UnderwritingConditionCorrectedIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the underwriting condition
-          that caused the policy to not be written has been corrected.'
-        x_petey_caption_source: tooltip
+        caption: CONDITION CORRECTED (Describe)
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:59'
@@ -6484,6 +8633,51 @@ fields:
       - nonrenewal_ind
       - underwriting_condition_ind
       - condition_corrected_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: group_p3
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          nonpayment_ind: 'Check the box (if applicable): Indicates the policy is
+            being cancelled due to non-payment of premium.'
+          agent_no_longer_represents_carrier_ind: 'Check the box (if applicable):
+            Indicates the policy is being cancelled because the agent is no longer
+            writing business for the insurer.'
+          other_cancellation_reason_ind: 'Check the box (if applicable): Indicates
+            the policy is being cancelled due to reasons other than those listed.'
+          nonrenewal_ind: 'Check the box (if applicable): Indicates the policy is
+            being cancelled due to non-renewal.'
+          underwriting_condition_ind: 'Check the box (if applicable): Indicates the
+            policy is being cancelled due to underwriting reasons.'
+          condition_corrected_ind: 'Check the box (if applicable): Indicates the underwriting
+            condition that caused the policy to not be written has been corrected.'
+      to:
+        name: cancellation_nonrenewal_reason
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          nonpayment_ind:
+            caption: NON-PAYMENT
+          agent_no_longer_represents_carrier_ind:
+            caption: AGENT NO LONGER REPRESENTS CARRIER
+          other_cancellation_reason_ind:
+            caption: OTHER
+          nonrenewal_ind:
+            caption: NON-RENEWAL
+          underwriting_condition_ind:
+            caption: UNDERWRITING
+          condition_corrected_ind:
+            caption: CONDITION CORRECTED (Describe)
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: clarity
+      why: Boxes give the reason for the declined / cancelled / non-renewed policy
+        in question 5 (paths CancelNonRenew_*Indicator); captions are tooltip text,
+        replaced by printed words (Other box has no printed word)
   condition_corrected_description:
     x_petey_id: '3_27'
     type: string
@@ -6614,7 +8808,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  violation_1_occur_dt:
+  fire_safety_code_violation_1_occur_dt:
     x_petey_id: '3_33'
     type: date
     semantic_type: iso_date
@@ -6632,7 +8826,20 @@ fields:
     - description_from_tooltip
     description: The occurrence date of any uncorrected fire code violations.
     x_petey_description_source: tooltip
-  violation_1_explanation:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:26:29'
+      from:
+        name: violation_1_occur_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: fire_safety_code_violation_1_occur_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  fire_safety_code_violation_1_explanation:
     x_petey_id: '3_34'
     type: string
     widget:
@@ -6649,7 +8856,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  violation_1_resolution:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:25:13'
+      from:
+        name: violation_1_explanation
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fire_safety_code_violation_1_explanation
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  fire_safety_code_violation_1_resolution:
     x_petey_id: '3_35'
     type: string
     widget:
@@ -6665,7 +8885,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  violation_1_resolve_dt:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:25:41'
+      from:
+        name: violation_1_resolution
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fire_safety_code_violation_1_resolution
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  fire_safety_code_violation_1_resolve_dt:
     x_petey_id: '3_36'
     type: date
     semantic_type: iso_date
@@ -6683,7 +8916,20 @@ fields:
     - description_from_tooltip
     description: The resolution date associated with the fire code violation.
     x_petey_description_source: tooltip
-  violation_2_occur_dt:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:25:54'
+      from:
+        name: violation_1_resolve_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: fire_safety_code_violation_1_resolve_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  fire_safety_code_violation_2_occur_dt:
     x_petey_id: '3_37'
     type: date
     semantic_type: iso_date
@@ -6701,7 +8947,20 @@ fields:
     - description_from_tooltip
     description: The occurrence date of any uncorrected fire code violations.
     x_petey_description_source: tooltip
-  violation_2_explanation:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:26:14'
+      from:
+        name: violation_2_occur_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: fire_safety_code_violation_2_occur_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  fire_safety_code_violation_2_explanation:
     x_petey_id: '3_38'
     type: string
     widget:
@@ -6718,7 +8977,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  violation_2_resolution:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:26:44'
+      from:
+        name: violation_2_explanation
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fire_safety_code_violation_2_explanation
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  fire_safety_code_violation_2_resolution:
     x_petey_id: '3_39'
     type: string
     widget:
@@ -6734,7 +9006,20 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  violation_2_resolve_dt:
+    x_petey_hand_edit:
+      when: '2026-10-14 13:26:54'
+      from:
+        name: violation_2_resolution
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fire_safety_code_violation_2_resolution
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
+  fire_safety_code_violation_2_resolve_dt:
     x_petey_id: '3_40'
     type: date
     semantic_type: iso_date
@@ -6752,6 +9037,19 @@ fields:
     - description_from_tooltip
     description: The resolution date associated with the fire code violation.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-14 13:27:08'
+      from:
+        name: violation_2_resolve_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: fire_safety_code_violation_2_resolve_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/hand_review/lib__acord125.json
   foreclosure_bankruptcy_yn_ind:
     x_petey_id: '3_41'
     type: string
@@ -7296,7 +9594,6 @@ fields:
   general_liability_carrier_nm:
     x_petey_id: '3_70'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -7310,6 +9607,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: general_liability_carrier_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: general_liability_carrier_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   general_liability_policy_number:
     x_petey_id: '3_74'
     type: string
@@ -7384,7 +9697,6 @@ fields:
   automobile_carrier_nm:
     x_petey_id: '3_71'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -7398,6 +9710,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: automobile_carrier_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: automobile_carrier_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   automobile_policy_number:
     x_petey_id: '3_75'
     type: string
@@ -7472,7 +9800,6 @@ fields:
   property_carrier_nm:
     x_petey_id: '3_72'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -7486,6 +9813,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: property_carrier_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: property_carrier_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   property_policy_number:
     x_petey_id: '3_76'
     type: string
@@ -7560,7 +9903,6 @@ fields:
   other_category_nm:
     x_petey_id: '3_69'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -7574,10 +9916,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: other_category_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_category_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_carrier_nm:
     x_petey_id: '3_73'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -7591,6 +9948,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: other_carrier_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_carrier_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_policy_number:
     x_petey_id: '3_77'
     type: string
@@ -8453,7 +10826,7 @@ fields:
     - description_from_tooltip
   loss_history_years:
     x_petey_id: '4_46'
-    type: number
+    type: integer
     widget:
       page: 4
       rect:
@@ -8468,6 +10841,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - years
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: loss_history_years
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: loss_history_years
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: 'Tooltip: number of years of loss information (FOR THE LAST __ YEARS);
+        a whole count'
   total_losses_amt:
     x_petey_id: '4_47'
     type: number
@@ -8976,7 +11367,6 @@ fields:
   producers_nm:
     x_petey_id: '4_75'
     type: string
-    semantic_type: person_name
     widget:
       page: 4
       rect:
@@ -8991,6 +11381,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: producers_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: producers_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   state_producer_license_no:
     x_petey_id: '4_76'
     type: string
@@ -9131,8 +11537,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Status_ChangeIndicator_A[0]
         on_state: '1'
-        caption: PROGRAM
-        x_petey_caption_source: page_text
+        caption: CHANGE
+        x_petey_caption_source: claude
       cancel_ind:
         page: 1
         rect:
@@ -9145,6 +11551,28 @@ fields:
         on_state: '1'
         caption: CANCEL
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: transaction_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          change_ind: PROGRAM
+      to:
+        name: transaction_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          change_ind:
+            caption: CHANGE
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: caption
+      why: Box path Policy_Status_ChangeIndicator_A; the text printed beside it is
+        'CHANGE' (PROGRAM is the neighbouring PROGRAM CODE label)
   first_named_insured_entity_type:
     x_petey_id: '1_131'
     type: category
@@ -9205,8 +11633,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].NamedInsured_LegalEntity_LimitedLiabilityCorporationIndicator_A[0]
         on_state: '1'
-        caption: NO. OF MEMBERS LLC AND MANAGERS
-        x_petey_caption_source: page_text
+        caption: LLC
+        x_petey_caption_source: claude
       not_for_profit_org_ind:
         page: 1
         rect:
@@ -9265,8 +11693,33 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].NamedInsured_LegalEntity_OtherIndicator_A[0]
         on_state: '1'
-        caption: NAICS
-        x_petey_caption_source: page_text
+        caption: OTHER
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: first_named_insured_entity_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          llc_ind: NO. OF MEMBERS LLC AND MANAGERS
+          other_ind: NAICS
+      to:
+        name: first_named_insured_entity_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          llc_ind:
+            caption: LLC
+          other_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: caption
+      why: Box path LimitedLiabilityCorporationIndicator is printed 'LLC'; the OtherIndicator
+        box has no printed word and had picked up the NAICS label
   other_named_insured_1_entity_type:
     x_petey_id: '1_146'
     type: category
@@ -9327,8 +11780,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].NamedInsured_LegalEntity_LimitedLiabilityCorporationIndicator_B[0]
         on_state: '1'
-        caption: NO. OF MEMBERS LLC AND MANAGERS
-        x_petey_caption_source: page_text
+        caption: LLC
+        x_petey_caption_source: claude
       not_for_profit_org_ind:
         page: 1
         rect:
@@ -9387,8 +11840,33 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].NamedInsured_LegalEntity_OtherIndicator_B[0]
         on_state: '1'
-        caption: NAICS
-        x_petey_caption_source: page_text
+        caption: OTHER
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: other_named_insured_1_entity_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          llc_ind: NO. OF MEMBERS LLC AND MANAGERS
+          other_ind: NAICS
+      to:
+        name: other_named_insured_1_entity_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          llc_ind:
+            caption: LLC
+          other_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: caption
+      why: Box path LimitedLiabilityCorporationIndicator is printed 'LLC'; the OtherIndicator
+        box has no printed word and had picked up the NAICS label
   other_named_insured_2_entity_type:
     x_petey_id: '1_161'
     type: category
@@ -9449,8 +11927,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].NamedInsured_LegalEntity_LimitedLiabilityCorporationIndicator_C[0]
         on_state: '1'
-        caption: NO. OF MEMBERS LLC AND MANAGERS
-        x_petey_caption_source: page_text
+        caption: LLC
+        x_petey_caption_source: claude
       not_for_profit_org_ind:
         page: 1
         rect:
@@ -9509,8 +11987,33 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].NamedInsured_LegalEntity_OtherIndicator_C[0]
         on_state: '1'
-        caption: NAICS
-        x_petey_caption_source: page_text
+        caption: OTHER
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: other_named_insured_2_entity_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          llc_ind: NO. OF MEMBERS LLC AND MANAGERS
+          other_ind: NAICS
+      to:
+        name: other_named_insured_2_entity_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          llc_ind:
+            caption: LLC
+          other_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: caption
+      why: Box path LimitedLiabilityCorporationIndicator is printed 'LLC'; the OtherIndicator
+        box has no printed word and had picked up the NAICS label
   nature_of_business:
     x_petey_id: '2_106'
     type: category
@@ -9633,6 +12136,8 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].BusinessInformation_BusinessType_ServiceIndicator_A[0]
         on_state: '1'
+        caption: SERVICE
+        x_petey_caption_source: claude
       wholesale_ind:
         page: 2
         rect:
@@ -9655,6 +12160,33 @@ fields:
         widget_type: checkbox
         path: F[0].P2[0].BusinessInformation_BusinessType_OtherIndicator_A[0]
         on_state: '1'
+        caption: OTHER
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: nature_of_business
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          service_ind: null
+          other_ind: null
+      to:
+        name: nature_of_business
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          service_ind:
+            caption: SERVICE
+          other_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord125.json
+      by: claude
+      kind: caption
+      why: Service box (path BusinessType_ServiceIndicator) is printed SERVICE; the
+        Other box has no printed word, tooltip says other
 x_petey_dedup_log:
   duplicate_labels_reassigned: 3
   collisions:

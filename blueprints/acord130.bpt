@@ -29,10 +29,10 @@ fields:
     - description_from_tooltip
     description: The date on which the form is completed.
     x_petey_description_source: tooltip
-  agency_name_address_line_1_txt:
+  agency_nm:
     x_petey_id: '1_3'
     type: string
-    semantic_type: street_address
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -46,7 +46,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  agency_name_address_line_2_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: agency_name_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: agency_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Producer_FullName_A): the producer / agency full name,
+        not an address line'
+  agency_address_line_1_txt:
     x_petey_id: '1_5'
     type: string
     semantic_type: street_address
@@ -63,7 +80,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  agency_name_address_line_3_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: agency_name_address_line_2_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: agency_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Producer_MailingAddress_LineOne_A): agency mailing address
+        line one (block shifted by one)'
+  agency_address_line_2_txt:
     x_petey_id: '1_7'
     type: string
     semantic_type: street_address
@@ -80,10 +114,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  agency_office_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: agency_name_address_line_3_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: agency_address_line_2_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Producer_MailingAddress_LineTwo_A): agency mailing address
+        line two (block shifted by one)'
+  agency_city_nm:
     x_petey_id: '1_10'
     type: string
-    semantic_type: phone
+    semantic_type: city
     pattern: ^\d{3}-\d{3}-\d{4}$
     widget:
       page: 1
@@ -98,10 +149,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  agency_office_phone_area_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: agency_office_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: agency_city_nm
+        type: string
+        semantic_type: city
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Producer_MailingAddress_CityName_A): the agency''s mailing
+        city, not a phone'
+  agency_state_abbreviation_cd:
     x_petey_id: '1_11'
     type: string
-    semantic_type: phone
+    semantic_type: state_abbr
     pattern: ^\d{3}-\d{3}-\d{4}$
     widget:
       page: 1
@@ -116,10 +184,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  agency_office_phone_ext_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: agency_office_phone_area_cd
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: agency_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Producer_MailingAddress_StateOrProvinceCode_A): the
+        agency''s mailing state, not a phone area code'
+  agency_zip_cd:
     x_petey_id: '1_12'
     type: string
-    semantic_type: phone
+    semantic_type: zip
     pattern: ^\d{3}-\d{3}-\d{4}$
     widget:
       page: 1
@@ -134,10 +219,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: agency_office_phone_ext_txt
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: agency_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Producer_MailingAddress_PostalCode_A): the agency''s
+        ZIP code, not a phone extension'
   producer_nm:
     x_petey_id: '1_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -152,10 +253,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: producer_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: producer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   cs_representative_nm:
     x_petey_id: '1_19'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -169,7 +285,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  office_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: cs_representative_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: cs_representative_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  producer_office_phone_nbr:
     x_petey_id: '1_24'
     type: string
     semantic_type: phone
@@ -188,7 +320,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  mobile_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: office_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: producer_office_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip and path (Producer_ContactPerson_PhoneNumber_A): the producer
+        contact''s office phone; bare name is easily confused with applicant_office_phone_nbr'
+  producer_mobile_phone_nbr:
     x_petey_id: '1_26'
     type: string
     semantic_type: phone
@@ -206,6 +355,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: producer_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip and path (Producer_ContactPerson_CellPhoneNumber_A): the producer
+        contact''s mobile phone; bare name is easily confused with applicant_mobile_phone_nbr'
   fax_nbr:
     x_petey_id: '1_28'
     type: string
@@ -318,7 +484,6 @@ fields:
   underwriter_nm:
     x_petey_id: '1_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -333,10 +498,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: underwriter_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: underwriter_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   applicant_nm:
     x_petey_id: '1_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -351,6 +531,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: applicant_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: applicant_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   applicant_office_phone_nbr:
     x_petey_id: '1_8'
     type: string
@@ -478,7 +674,7 @@ fields:
     - description_from_tooltip
   yrs_in_business_nbr:
     x_petey_id: '1_13'
-    type: number
+    type: integer
     widget:
       page: 1
       rect:
@@ -493,6 +689,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - years
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: yrs_in_business_nbr
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: yrs_in_business_nbr
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: number of years the insured has been in business (YRS IN BUS);
+        a whole count'
   sic_cd:
     x_petey_id: '1_15'
     type: string
@@ -586,7 +800,6 @@ fields:
   credit_bureau_nm:
     x_petey_id: '1_31'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -602,6 +815,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: credit_bureau_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: credit_bureau_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   applicant_id_number_txt:
     x_petey_id: '1_32'
     type: string
@@ -701,10 +930,9 @@ fields:
       This date normally coincides with the effective date of the policy or of an
       endorsement to the policy.
     x_petey_description_source: tooltip
-  payment_plan_down_pct:
+  payment_plan_other_cd:
     x_petey_id: '1_43'
-    type: number
-    semantic_type: percent
+    type: string
     widget:
       page: 1
       rect:
@@ -719,7 +947,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  payment_plan_quarterly_down_pct:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: payment_plan_down_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: payment_plan_other_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Policy_Payment_PaymentScheduleCode_A): the payment plan
+        code written beside the payment plan Other box, not a percent'
+  payment_plan_down_pct:
     x_petey_id: '1_46'
     type: number
     semantic_type: percent
@@ -737,6 +982,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: payment_plan_quarterly_down_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: payment_plan_down_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip and path (Policy_Payment_DownPaymentPercent_A), printed % DOWN:
+        the down payment percent for the policy, not only quarterly plans'
   audit:
     x_petey_id: '1_44'
     type: category
@@ -757,9 +1019,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Audit_AtExpirationIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates audits should be performed
-          for this policy at expiration.'
-        x_petey_caption_source: tooltip
+        caption: AT EXPIRATION
+        x_petey_caption_source: claude
       audit_monthly_ind:
         page: 1
         rect:
@@ -770,9 +1031,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Audit_MonthlyIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates audits should be performed
-          for this policy monthly.'
-        x_petey_caption_source: tooltip
+        caption: MONTHLY
+        x_petey_caption_source: claude
       audit_semi_annual_ind:
         page: 1
         rect:
@@ -783,9 +1043,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Audit_SemiAnnualIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates audits should be performed
-          for this policy semi-annually.'
-        x_petey_caption_source: tooltip
+        caption: SEMI-ANNUAL
+        x_petey_caption_source: claude
       audit_other_ind:
         page: 1
         rect:
@@ -796,9 +1055,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Audit_OtherIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates audits should be performed
-          for this policy at a frequency other than those listed.'
-        x_petey_caption_source: tooltip
+        caption: OTHER
+        x_petey_caption_source: claude
       audit_quarterly_ind:
         page: 1
         rect:
@@ -809,9 +1067,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Audit_QuarterlyIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates audits should be performed
-          for this policy quarterly.'
-        x_petey_caption_source: tooltip
+        caption: QUARTERLY
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:00'
@@ -821,6 +1078,45 @@ fields:
       - audit_semi_annual_ind
       - audit_other_ind
       - audit_quarterly_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: audit
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          audit_at_expiration_ind: 'Check the box (if applicable): Indicates audits
+            should be performed for this policy at expiration.'
+          audit_monthly_ind: 'Check the box (if applicable): Indicates audits should
+            be performed for this policy monthly.'
+          audit_semi_annual_ind: 'Check the box (if applicable): Indicates audits
+            should be performed for this policy semi-annually.'
+          audit_other_ind: 'Check the box (if applicable): Indicates audits should
+            be performed for this policy at a frequency other than those listed.'
+          audit_quarterly_ind: 'Check the box (if applicable): Indicates audits should
+            be performed for this policy quarterly.'
+      to:
+        name: audit
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          audit_at_expiration_ind:
+            caption: AT EXPIRATION
+          audit_monthly_ind:
+            caption: MONTHLY
+          audit_semi_annual_ind:
+            caption: SEMI-ANNUAL
+          audit_other_ind:
+            caption: OTHER
+          audit_quarterly_ind:
+            caption: QUARTERLY
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: caption
+      why: 'Captions are tooltip text; printed beside the boxes: AT EXPIRATION, MONTHLY,
+        SEMI-ANNUAL, QUARTERLY; the Other box has no printed word'
   audit_other_txt:
     x_petey_id: '1_45'
     type: string
@@ -908,7 +1204,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  loc_1_street_city_state_zip_txt:
+  loc_1_city_nm:
     x_petey_id: '1_51'
     type: string
     widget:
@@ -925,10 +1221,28 @@ fields:
     - description_from_tooltip
     description: The city of the physical location.
     x_petey_description_source: tooltip
-  loc_1_city_nm:
+    semantic_type: city
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: loc_1_street_city_state_zip_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: loc_1_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Location_PhysicalAddress_CityName): the city of location
+        1'
+  loc_1_county_txt:
     x_petey_id: '1_52'
     type: string
-    semantic_type: city
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -942,6 +1256,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: loc_1_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: loc_1_county_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Location_PhysicalAddress_CountyName): the county of
+        location 1, not the city'
   loc_1_state_abbreviation_cd:
     x_petey_id: '1_53'
     type: string
@@ -1046,7 +1377,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  loc_2_street_city_state_zip_txt:
+  loc_2_city_nm:
     x_petey_id: '1_59'
     type: string
     widget:
@@ -1063,10 +1394,28 @@ fields:
     - description_from_tooltip
     description: The city of the physical location.
     x_petey_description_source: tooltip
-  loc_2_city_nm:
+    semantic_type: city
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: loc_2_street_city_state_zip_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: loc_2_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Location_PhysicalAddress_CityName): the city of location
+        2'
+  loc_2_county_txt:
     x_petey_id: '1_60'
     type: string
-    semantic_type: city
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1080,6 +1429,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: loc_2_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: loc_2_county_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Location_PhysicalAddress_CountyName): the county of
+        location 2, not the city'
   loc_2_state_abbreviation_cd:
     x_petey_id: '1_61'
     type: string
@@ -1184,7 +1550,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  loc_3_street_city_state_zip_txt:
+  loc_3_city_nm:
     x_petey_id: '1_67'
     type: string
     widget:
@@ -1201,10 +1567,28 @@ fields:
     - description_from_tooltip
     description: The city of the physical location.
     x_petey_description_source: tooltip
-  loc_3_city_nm:
+    semantic_type: city
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: loc_3_street_city_state_zip_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: loc_3_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Location_PhysicalAddress_CityName): the city of location
+        3'
+  loc_3_county_txt:
     x_petey_id: '1_68'
     type: string
-    semantic_type: city
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1218,6 +1602,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: loc_3_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: loc_3_county_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Location_PhysicalAddress_CountyName): the county of
+        location 3, not the city'
   loc_3_state_abbreviation_cd:
     x_petey_id: '1_69'
     type: string
@@ -1326,7 +1727,7 @@ fields:
       to take advantage of rate and/or rule changes. For cancelled or short-termed
       polices, enter the original effective date.
     x_petey_description_source: tooltip
-  group_p1:
+  participating_status:
     x_petey_id: '1_71'
     type: category
     values:
@@ -1343,14 +1744,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_ParticipatingIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is a participating
-          policy. A Participating policy may result in reduced premiums through the
-          payment of policyholder dividends declared by the insurer. Some policyholder
-          dividends are based on actual experience of the applicant. If such a program
-          is available through the company in the covered state, indicate whether
-          the policy is to be on a Participating or Non-Participating basis. Check
-          with your company on the availability of plans.'
-        x_petey_caption_source: tooltip
+        caption: PARTICIPATING
+        x_petey_caption_source: claude
       non_participating_ind:
         page: 1
         rect:
@@ -1361,15 +1756,47 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_NonParticipatingIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the policy is a non-participating
-          policy.'
-        x_petey_caption_source: tooltip
+        caption: NON-PARTICIPATING
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:00'
       from:
       - participating_ind
       - non_participating_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: group_p1
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          participating_ind: 'Check the box (if applicable): Indicates the policy
+            is a participating policy. A Participating policy may result in reduced
+            premiums through the payment of policyholder dividends declared by the
+            insurer. Some policyholder dividends are based on actual experience of
+            the applicant. If such a program is available through the company in the
+            covered state, indicate whether the policy is to be on a Participating
+            or Non-Participating basis. Check with your company on the availability
+            of plans.'
+          non_participating_ind: 'Check the box (if applicable): Indicates the policy
+            is a non-participating policy.'
+      to:
+        name: participating_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          participating_ind:
+            caption: PARTICIPATING
+          non_participating_ind:
+            caption: NON-PARTICIPATING
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: clarity
+      why: Boxes are PARTICIPATING / NON-PARTICIPATING (paths Policy_ParticipatingIndicator
+        / NonParticipatingIndicator); captions are long tooltip text
   retro_plan_txt:
     x_petey_id: '1_75'
     type: string
@@ -1848,11 +2275,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_DeductibleType_MedicalIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the deductible type is
-          Medical in the state where coverage is being applied for. (In Pennsylvania,
-          the deductible is "per claim". The deductible choices are $1,000, $5,000
-          and $10,000.)'
-        x_petey_caption_source: tooltip
+        caption: MEDICAL
+        x_petey_caption_source: claude
       deductible_indemnity_ind:
         page: 1
         rect:
@@ -1863,11 +2287,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_DeductibleType_IndemnityIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the deductible type is
-          Indemnity in the state where coverage is being applied for. (In Pennsylvania,
-          the deductible is "per claim". The deductible choices are $1,000, $5,000
-          and $10,000.)'
-        x_petey_caption_source: tooltip
+        caption: INDEMNITY
+        x_petey_caption_source: claude
       deductible_other_ind:
         page: 1
         rect:
@@ -1878,9 +2299,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_DeductibleType_OtherIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates the deductible type is
-          other than those listed.'
-        x_petey_caption_source: tooltip
+        caption: OTHER
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:00'
@@ -1888,10 +2308,45 @@ fields:
       - deductible_medical_ind
       - deductible_indemnity_ind
       - deductible_other_ind
-  deductible_amount_pct_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: deductible
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          deductible_medical_ind: 'Check the box (if applicable): Indicates the deductible
+            type is Medical in the state where coverage is being applied for. (In
+            Pennsylvania, the deductible is "per claim". The deductible choices are
+            $1,000, $5,000 and $10,000.)'
+          deductible_indemnity_ind: 'Check the box (if applicable): Indicates the
+            deductible type is Indemnity in the state where coverage is being applied
+            for. (In Pennsylvania, the deductible is "per claim". The deductible choices
+            are $1,000, $5,000 and $10,000.)'
+          deductible_other_ind: 'Check the box (if applicable): Indicates the deductible
+            type is other than those listed.'
+      to:
+        name: deductible
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          deductible_medical_ind:
+            caption: MEDICAL
+          deductible_indemnity_ind:
+            caption: INDEMNITY
+          deductible_other_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: caption
+      why: Captions are tooltip text; printed beside the boxes are MEDICAL and INDEMNITY;
+        the Other box has no printed word
+  deductible_other_txt:
     x_petey_id: '1_103'
-    type: number
-    semantic_type: money
+    type: string
+    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1906,6 +2361,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: deductible_amount_pct_txt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: deductible_other_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (DeductibleType_OtherDescription_A): text describing
+        the other deductible type, written beside the deductible Other box; not money'
   deductible_amount_pct_wi_txt:
     x_petey_id: '1_90'
     type: number
@@ -1924,9 +2396,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  group_p1_2:
+  other_coverages:
     x_petey_id: '1_78'
-    type: category
+    type: multi_category
     values:
     - uslh_ind
     - managed_care_option_ind
@@ -1945,11 +2417,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_Coverage_USLHIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates United States Longshoremen''s
-          & Harbor Worker''s (USL&H) coverage is requested. Exposures for this optional
-          coverages as well as additional coverages should be described in the Specify
-          Additional Coverages/Endorsements section.'
-        x_petey_caption_source: tooltip
+        caption: U.S.L. & H.
+        x_petey_caption_source: claude
       managed_care_option_ind:
         page: 1
         rect:
@@ -1960,10 +2429,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_Coverage_ManagedCareOptionIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates Managed Care Option is
-          requested. Exposures for this optional coverages as well as additional coverages
-          should be described in the Specify Additional Coverages/Endorsements section.'
-        x_petey_caption_source: tooltip
+        caption: MANAGED CARE OPTION
+        x_petey_caption_source: claude
       voluntary_comp_ind:
         page: 1
         rect:
@@ -1974,11 +2441,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_Coverage_VoluntaryCompensationIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates Voluntary Compensation
-          coverage is requested. Exposures for this optional coverages as well as
-          additional coverages should be described in the Specify Additional Coverages/Endorsements
-          section.'
-        x_petey_caption_source: tooltip
+        caption: VOLUNTARY COMP
+        x_petey_caption_source: claude
       other_coverage_ind:
         page: 1
         rect:
@@ -1989,9 +2453,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_Coverage_OtherIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates other coverages than those
-          listed are being requested.'
-        x_petey_caption_source: tooltip
+        caption: OTHER
+        x_petey_caption_source: claude
       foreign_cov_ind:
         page: 1
         rect:
@@ -2002,10 +2465,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_Coverage_ForeignCoverageIndicator_A[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates Foreign coverage is requested.
-          Exposures for this optional coverages as well as additional coverages should
-          be described in the Specify Additional Coverages/Endorsements section.'
-        x_petey_caption_source: tooltip
+        caption: FOREIGN COV
+        x_petey_caption_source: claude
       other_coverage_2_ind:
         page: 1
         rect:
@@ -2016,9 +2477,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].WorkersCompensation_Coverage_OtherIndicator_B[0]
         on_state: '1'
-        caption: 'Check the box (if applicable): Indicates other coverages than those
-          listed are being requested.'
-        x_petey_caption_source: tooltip
+        caption: OTHER
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:00'
@@ -2029,6 +2489,58 @@ fields:
       - other_coverage_ind
       - foreign_cov_ind
       - other_coverage_2_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: group_p1_2
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          uslh_ind: 'Check the box (if applicable): Indicates United States Longshoremen''s
+            & Harbor Worker''s (USL&H) coverage is requested. Exposures for this optional
+            coverages as well as additional coverages should be described in the Specify
+            Additional Coverages/Endorsements section.'
+          managed_care_option_ind: 'Check the box (if applicable): Indicates Managed
+            Care Option is requested. Exposures for this optional coverages as well
+            as additional coverages should be described in the Specify Additional
+            Coverages/Endorsements section.'
+          voluntary_comp_ind: 'Check the box (if applicable): Indicates Voluntary
+            Compensation coverage is requested. Exposures for this optional coverages
+            as well as additional coverages should be described in the Specify Additional
+            Coverages/Endorsements section.'
+          other_coverage_ind: 'Check the box (if applicable): Indicates other coverages
+            than those listed are being requested.'
+          foreign_cov_ind: 'Check the box (if applicable): Indicates Foreign coverage
+            is requested. Exposures for this optional coverages as well as additional
+            coverages should be described in the Specify Additional Coverages/Endorsements
+            section.'
+          other_coverage_2_ind: 'Check the box (if applicable): Indicates other coverages
+            than those listed are being requested.'
+      to:
+        name: other_coverages
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          uslh_ind:
+            caption: U.S.L. & H.
+          managed_care_option_ind:
+            caption: MANAGED CARE OPTION
+          voluntary_comp_ind:
+            caption: VOLUNTARY COMP
+          other_coverage_ind:
+            caption: OTHER
+          foreign_cov_ind:
+            caption: FOREIGN COV
+          other_coverage_2_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: clarity
+      why: 'Boxes are the OTHER COVERAGES choices (paths WorkersCompensation_Coverage_*Indicator:
+        USL&H, voluntary comp, foreign, managed care, two others); several can be
+        requested; captions are tooltip text'
   other_coverage_txt:
     x_petey_id: '1_91'
     type: string
@@ -2174,10 +2686,9 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  contact_name_nm:
+  inspection_contact_nm:
     x_petey_id: '1_111'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2193,7 +2704,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_office_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_name_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: inspection_contact_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (InspectionContact_FullName): the name of the person
+        to contact for a premises inspection; contact rows are shifted by one (INSPECTION,
+        ACCTNG, CLAIMS INFO) (Andrew: should be inspection name)'
+  inspection_office_phone_nbr:
     x_petey_id: '1_112'
     type: string
     semantic_type: phone
@@ -2213,7 +2742,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_mobile_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_office_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: inspection_office_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (InspectionContact_PhoneNumber): the office phone of
+        the inspection contact; contact rows are shifted by one (INSPECTION, ACCTNG,
+        CLAIMS INFO)'
+  inspection_mobile_phone_nbr:
     x_petey_id: '1_113'
     type: string
     semantic_type: phone
@@ -2232,7 +2779,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  contact_email_address_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: inspection_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (InspectionContact_CellPhoneNumber): the cell phone of
+        the inspection contact; contact rows are shifted by one (INSPECTION, ACCTNG,
+        CLAIMS INFO)'
+  inspection_email_address_txt:
     x_petey_id: '1_114'
     type: string
     semantic_type: email
@@ -2252,10 +2817,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  inspection_contact_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: contact_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: inspection_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (InspectionContact_EmailAddress): the e-mail of the inspection
+        contact; contact rows are shifted by one (INSPECTION, ACCTNG, CLAIMS INFO)'
+  accounting_contact_nm:
     x_petey_id: '1_115'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2270,7 +2851,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  inspection_office_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: inspection_contact_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: accounting_contact_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (AccountingContact_FullName): the name of the accounting
+        contact (ACCTNG row); contact rows are shifted by one (INSPECTION, ACCTNG,
+        CLAIMS INFO)'
+  accounting_office_phone_nbr:
     x_petey_id: '1_116'
     type: string
     semantic_type: phone
@@ -2290,7 +2889,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  inspection_mobile_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: inspection_office_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: accounting_office_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (AccountingContact_PhoneNumber): the office phone of
+        the accounting contact; contact rows are shifted by one (INSPECTION, ACCTNG,
+        CLAIMS INFO)'
+  accounting_mobile_phone_nbr:
     x_petey_id: '1_117'
     type: string
     semantic_type: phone
@@ -2308,7 +2925,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  inspection_email_address_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: inspection_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      to:
+        name: accounting_mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}-\d{3}-\d{4}$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (AccountingContact_CellPhoneNumber): the cell phone of
+        the accounting contact; contact rows are shifted by one (INSPECTION, ACCTNG,
+        CLAIMS INFO)'
+  accounting_email_address_txt:
     x_petey_id: '1_118'
     type: string
     semantic_type: email
@@ -2328,10 +2963,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: inspection_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: accounting_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (AccountingContact_EmailAddress): the e-mail of the accounting
+        contact; contact rows are shifted by one (INSPECTION, ACCTNG, CLAIMS INFO)'
   claims_record_contact_nm:
     x_petey_id: '1_119'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2346,6 +2997,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: claims_record_contact_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: claims_record_contact_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   claims_record_office_phone_nbr:
     x_petey_id: '1_120'
     type: string
@@ -2441,7 +3108,6 @@ fields:
   individual_1_nm:
     x_petey_id: '1_123'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2456,6 +3122,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: individual_1_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: individual_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   individual_1_date_of_birth_dt:
     x_petey_id: '1_128'
     type: date
@@ -2620,7 +3302,6 @@ fields:
   individual_2_nm:
     x_petey_id: '1_133'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2635,6 +3316,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: individual_2_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: individual_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   individual_2_date_of_birth_dt:
     x_petey_id: '1_138'
     type: date
@@ -2799,7 +3496,6 @@ fields:
   individual_3_nm:
     x_petey_id: '1_143'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2814,6 +3510,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: individual_3_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: individual_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   individual_3_date_of_birth_dt:
     x_petey_id: '1_148'
     type: date
@@ -2978,7 +3690,6 @@ fields:
   individual_4_nm:
     x_petey_id: '1_153'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -2993,6 +3704,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: individual_4_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: individual_4_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   individual_4_date_of_birth_dt:
     x_petey_id: '1_158'
     type: date
@@ -3361,7 +4088,6 @@ fields:
   row1_rate:
     x_petey_id: '2_14'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -3376,6 +4102,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row1_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row1_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row1_estimated_annual_manual_premium_amt:
     x_petey_id: '2_15'
     type: number
@@ -3567,7 +4310,6 @@ fields:
   row2_rate:
     x_petey_id: '2_25'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -3582,6 +4324,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row2_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row2_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row2_estimated_annual_manual_premium_amt:
     x_petey_id: '2_26'
     type: number
@@ -3773,7 +4532,6 @@ fields:
   row3_rate:
     x_petey_id: '2_36'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -3788,6 +4546,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row3_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row3_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row3_estimated_annual_manual_premium_amt:
     x_petey_id: '2_37'
     type: number
@@ -3979,7 +4754,6 @@ fields:
   row4_rate:
     x_petey_id: '2_47'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -3994,6 +4768,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row4_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row4_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row4_estimated_annual_manual_premium_amt:
     x_petey_id: '2_48'
     type: number
@@ -4185,7 +4976,6 @@ fields:
   row5_rate:
     x_petey_id: '2_58'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -4200,6 +4990,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row5_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row5_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row5_estimated_annual_manual_premium_amt:
     x_petey_id: '2_59'
     type: number
@@ -4391,7 +5198,6 @@ fields:
   row6_rate:
     x_petey_id: '2_69'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -4406,6 +5212,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row6_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row6_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row6_estimated_annual_manual_premium_amt:
     x_petey_id: '2_70'
     type: number
@@ -4597,7 +5420,6 @@ fields:
   row7_rate:
     x_petey_id: '2_80'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -4612,6 +5434,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row7_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row7_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row7_estimated_annual_manual_premium_amt:
     x_petey_id: '2_81'
     type: number
@@ -4803,7 +5642,6 @@ fields:
   row8_rate:
     x_petey_id: '2_91'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -4818,6 +5656,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row8_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row8_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row8_estimated_annual_manual_premium_amt:
     x_petey_id: '2_92'
     type: number
@@ -5009,7 +5864,6 @@ fields:
   row9_rate:
     x_petey_id: '2_102'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -5024,6 +5878,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row9_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row9_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row9_estimated_annual_manual_premium_amt:
     x_petey_id: '2_103'
     type: number
@@ -5215,7 +6086,6 @@ fields:
   row10_rate:
     x_petey_id: '2_113'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -5230,6 +6100,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row10_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row10_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row10_estimated_annual_manual_premium_amt:
     x_petey_id: '2_114'
     type: number
@@ -5421,7 +6308,6 @@ fields:
   row11_rate:
     x_petey_id: '2_124'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -5436,6 +6322,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row11_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row11_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row11_estimated_annual_manual_premium_amt:
     x_petey_id: '2_125'
     type: number
@@ -5627,7 +6530,6 @@ fields:
   row12_rate:
     x_petey_id: '2_135'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -5642,6 +6544,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row12_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row12_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row12_estimated_annual_manual_premium_amt:
     x_petey_id: '2_136'
     type: number
@@ -5833,7 +6752,6 @@ fields:
   row13_rate:
     x_petey_id: '2_146'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -5848,6 +6766,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row13_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row13_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row13_estimated_annual_manual_premium_amt:
     x_petey_id: '2_147'
     type: number
@@ -6039,7 +6974,6 @@ fields:
   row14_rate:
     x_petey_id: '2_157'
     type: number
-    semantic_type: percent
     widget:
       page: 2
       rect:
@@ -6054,6 +6988,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: row14_rate
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row14_rate
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the manual rate for the class from the state manual (a rate per
+        $100 of payroll), not a percentage'
   row14_estimated_annual_manual_premium_amt:
     x_petey_id: '2_158'
     type: number
@@ -6143,7 +7094,7 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  increased_limits_factor:
+  deductible_factor:
     x_petey_id: '2_168'
     type: string
     widget:
@@ -6160,7 +7111,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  increased_limits_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: increased_limits_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: deductible_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (Deductible_ModificationFactor) give the DEDUCTIBLE factor
+        (Andrew: should be deductible factor); the premium-calculation names are shifted
+        by one line against the printed labels'
+  deductible_factored_premium_amt:
     x_petey_id: '2_169'
     type: number
     semantic_type: money
@@ -6178,10 +7147,28 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  deductible_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: increased_limits_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: deductible_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Deductible_FactoredPremiumAmount) give the DEDUCTIBLE
+        factored premium (Andrew flagged); the premium-calculation names are shifted
+        by one line against the printed labels
+  other_modifier_1_txt:
     x_petey_id: '2_172'
-    type: number
-    semantic_type: money
+    type: string
+    semantic_type: description
     widget:
       page: 2
       rect:
@@ -6197,7 +7184,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  deductible_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: deductible_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: other_modifier_1_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_CoverageDescription_A) give the description of
+        a blank, write-in rating line (left column, row 4); text, not money; the premium-calculation
+        names are shifted by one line against the printed labels
+  other_modifier_1_factor:
     x_petey_id: '2_173'
     type: string
     widget:
@@ -6214,7 +7219,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  deductible_factored_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: deductible_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_modifier_1_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_ModificationFactor_A) give the factor of write-in
+        rating line 1; the premium-calculation names are shifted by one line against
+        the printed labels
+  other_modifier_1_factored_premium_amt:
     x_petey_id: '2_174'
     type: number
     semantic_type: money
@@ -6232,6 +7255,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: deductible_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: other_modifier_1_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_FactoredPremiumAmount_A) give the factored premium
+        of write-in rating line 1; the premium-calculation names are shifted by one
+        line against the printed labels
   experience_merit_factor:
     x_petey_id: '2_177'
     type: string
@@ -6271,10 +7312,10 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  modification_premium_amt:
+  other_modifier_2_txt:
     x_petey_id: '2_181'
-    type: number
-    semantic_type: money
+    type: string
+    semantic_type: description
     widget:
       page: 2
       rect:
@@ -6290,7 +7331,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  modification_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: modification_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: other_modifier_2_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_CoverageDescription_B) give the description of
+        a blank, write-in rating line (left column, row 6); text, not money; the premium-calculation
+        names are shifted by one line against the printed labels
+  other_modifier_2_factor:
     x_petey_id: '2_182'
     type: string
     widget:
@@ -6307,7 +7366,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  modification_factored_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: modification_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_modifier_2_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_ModificationFactor_B) give the factor of write-in
+        rating line 2; the premium-calculation names are shifted by one line against
+        the printed labels
+  other_modifier_2_factored_premium_amt:
     x_petey_id: '2_183'
     type: number
     semantic_type: money
@@ -6325,6 +7402,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: modification_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: other_modifier_2_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_FactoredPremiumAmount_B) give the factored premium
+        of write-in rating line 2; the premium-calculation names are shifted by one
+        line against the printed labels
   assigned_risk_surcharge_factor:
     x_petey_id: '2_185'
     type: string
@@ -6396,7 +7491,7 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  schedule_rating_description:
+  other_modifier_3_txt:
     x_petey_id: '2_161'
     type: string
     semantic_type: description
@@ -6414,7 +7509,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  schedule_rating_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: schedule_rating_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: other_modifier_3_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_CoverageDescription_C) give the description of
+        the blank write-in line at the top of the right column; the premium-calculation
+        names are shifted by one line against the printed labels
+  other_modifier_3_factor:
     x_petey_id: '2_162'
     type: string
     widget:
@@ -6431,7 +7544,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  schedule_rating_factored_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: schedule_rating_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_modifier_3_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_ModificationFactor_C) give the factor of write-in
+        rating line 3; the premium-calculation names are shifted by one line against
+        the printed labels
+  other_modifier_3_factored_premium_amt:
     x_petey_id: '2_163'
     type: number
     semantic_type: money
@@ -6449,7 +7580,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  ccpap_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: schedule_rating_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: other_modifier_3_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_FactoredPremiumAmount_C) give the factored premium
+        of write-in rating line 3; the premium-calculation names are shifted by one
+        line against the printed labels
+  schedule_rating_factor:
     x_petey_id: '2_166'
     type: string
     widget:
@@ -6465,7 +7614,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  ccpap_factored_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: ccpap_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: schedule_rating_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip and path (ScheduleRating_ModificationFactor) give the SCHEDULE
+        RATING factor (Andrew: should be scheduled rating); the premium-calculation
+        names are shifted by one line against the printed labels'
+  schedule_rating_factored_premium_amt:
     x_petey_id: '2_167'
     type: number
     semantic_type: money
@@ -6483,7 +7650,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  standard_premium_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: ccpap_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: schedule_rating_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (ScheduleRating_FactoredPremiumAmount) give the SCHEDULE
+        RATING factored premium (Andrew flagged); the premium-calculation names are
+        shifted by one line against the printed labels
+  ccpap_factor:
     x_petey_id: '2_170'
     type: string
     widget:
@@ -6500,7 +7685,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  standard_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: standard_premium_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ccpap_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (ContractingClassPremiumAdjustmentProgram_ModificationFactor)
+        give the CCPAP factor; the premium-calculation names are shifted by one line
+        against the printed labels
+  ccpap_factored_premium_amt:
     x_petey_id: '2_171'
     type: number
     semantic_type: money
@@ -6518,7 +7721,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  premium_discount_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: standard_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ccpap_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (ContractingClassPremiumAdjustmentProgram_FactoredPremiumAmount)
+        give the CCPAP factored premium; the premium-calculation names are shifted
+        by one line against the printed labels
+  standard_premium_factor:
     x_petey_id: '2_175'
     type: string
     widget:
@@ -6535,7 +7756,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  premium_discount_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premium_discount_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: standard_premium_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (StandardPremium_ModificationFactor) give the STANDARD
+        PREMIUM factor; the premium-calculation names are shifted by one line against
+        the printed labels
+  standard_premium_amt:
     x_petey_id: '2_176'
     type: number
     semantic_type: money
@@ -6553,7 +7792,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  expense_constant_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: premium_discount_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: standard_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (StandardPremium_FactoredPremiumAmount) give the STANDARD
+        PREMIUM amount; the premium-calculation names are shifted by one line against
+        the printed labels
+  premium_discount_factor:
     x_petey_id: '2_179'
     type: string
     widget:
@@ -6570,7 +7827,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  expense_constant_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: expense_constant_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: premium_discount_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (PremiumDiscount_ModificationFactor) give the PREMIUM
+        DISCOUNT factor (Andrew flagged); the premium-calculation names are shifted
+        by one line against the printed labels
+  premium_discount_amt:
     x_petey_id: '2_180'
     type: number
     semantic_type: money
@@ -6588,7 +7863,25 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  taxes_assessments_n_a_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: expense_constant_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: premium_discount_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (PremiumDiscount_FactoredPremiumAmount) give the PREMIUM
+        DISCOUNT factored premium (Andrew flagged); the premium-calculation names
+        are shifted by one line against the printed labels
+  expense_constant_amt:
     x_petey_id: '2_184'
     type: number
     semantic_type: money
@@ -6607,6 +7900,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: taxes_assessments_n_a_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: expense_constant_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (ExpenseConstant_PremiumAmount) give the EXPENSE CONSTANT
+        amount; the premium-calculation names are shifted by one line against the
+        printed labels
   taxes_assessments_amt:
     x_petey_id: '2_187'
     type: number
@@ -6626,7 +7937,7 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  taxes_assessments_description:
+  other_modifier_4_txt:
     x_petey_id: '2_190'
     type: string
     semantic_type: description
@@ -6644,7 +7955,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  taxes_assessments_factor:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: taxes_assessments_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: other_modifier_4_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_CoverageDescription_D) give the description of
+        the blank write-in line at the bottom of the right column; the premium-calculation
+        names are shifted by one line against the printed labels
+  other_modifier_4_factor:
     x_petey_id: '2_191'
     type: string
     widget:
@@ -6661,7 +7990,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  taxes_assessments_factored_premium_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: taxes_assessments_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_modifier_4_factor
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_ModificationFactor_D) give the factor of write-in
+        rating line 4; the premium-calculation names are shifted by one line against
+        the printed labels
+  other_modifier_4_factored_premium_amt:
     x_petey_id: '2_192'
     type: number
     semantic_type: money
@@ -6679,6 +8026,24 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: taxes_assessments_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: other_modifier_4_factored_premium_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: wrong
+      why: Tooltip and path (Other_FactoredPremiumAmount_D) give the factored premium
+        of write-in rating line 4; the premium-calculation names are shifted by one
+        line against the printed labels
   total_estimated_annual_premium_amt:
     x_petey_id: '2_193'
     type: number
@@ -6841,7 +8206,7 @@ fields:
     - description_from_tooltip
   prior_carrier_annual_premium_1:
     x_petey_id: '3_5'
-    type: string
+    type: number
     widget:
       page: 3
       rect:
@@ -6856,6 +8221,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: prior_carrier_annual_premium_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: prior_carrier_annual_premium_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the annual modified premium charged; money'
   prior_carrier_mod_1:
     x_petey_id: '3_6'
     type: string
@@ -6981,7 +8363,7 @@ fields:
     - description_from_tooltip
   prior_carrier_annual_premium_2:
     x_petey_id: '3_13'
-    type: string
+    type: number
     widget:
       page: 3
       rect:
@@ -6996,6 +8378,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: prior_carrier_annual_premium_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: prior_carrier_annual_premium_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the annual modified premium charged; money'
   prior_carrier_mod_2:
     x_petey_id: '3_14'
     type: string
@@ -7121,7 +8520,7 @@ fields:
     - description_from_tooltip
   prior_carrier_annual_premium_3:
     x_petey_id: '3_21'
-    type: string
+    type: number
     widget:
       page: 3
       rect:
@@ -7136,6 +8535,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: prior_carrier_annual_premium_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: prior_carrier_annual_premium_3
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the annual modified premium charged; money'
   prior_carrier_mod_3:
     x_petey_id: '3_22'
     type: string
@@ -7261,7 +8677,7 @@ fields:
     - description_from_tooltip
   prior_carrier_annual_premium_4:
     x_petey_id: '3_29'
-    type: string
+    type: number
     widget:
       page: 3
       rect:
@@ -7276,6 +8692,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: prior_carrier_annual_premium_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: prior_carrier_annual_premium_4
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the annual modified premium charged; money'
   prior_carrier_mod_4:
     x_petey_id: '3_30'
     type: string
@@ -7401,7 +8834,7 @@ fields:
     - description_from_tooltip
   prior_carrier_annual_premium_5:
     x_petey_id: '3_37'
-    type: string
+    type: number
     widget:
       page: 3
       rect:
@@ -7416,6 +8849,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: prior_carrier_annual_premium_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: prior_carrier_annual_premium_5
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: type
+      why: 'Tooltip: the annual modified premium charged; money'
   prior_carrier_mod_5:
     x_petey_id: '3_38'
     type: string
@@ -7533,7 +8983,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q1_explanation_txt:
+  q1_aircraft_watercraft_explanation_txt:
     x_petey_id: '3_45'
     type: string
     semantic_type: text
@@ -7551,6 +9001,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: q1_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q1_aircraft_watercraft_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip and path (ApplicantOwnLeaseAircraftOrWatercraftExplanation): explanation
+        for question 1 about aircraft / watercraft (Andrew: need better detail in
+        name)'
   q2_hazardous_material_operations_ind:
     x_petey_id: '3_46'
     type: string
@@ -7571,7 +9039,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q2_explanation_txt:
+  q2_hazardous_material_explanation_txt:
     x_petey_id: '3_47'
     type: string
     semantic_type: text
@@ -7590,6 +9058,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:38:10'
+      from:
+        name: q2_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q2_hazardous_material_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q3_work_underground_or_above_15ft_ind:
     x_petey_id: '3_48'
     type: string
@@ -7609,7 +9090,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q3_explanation_txt:
+  q3_work_underground_or_above_15ft_explanation_txt:
     x_petey_id: '3_49'
     type: string
     semantic_type: text
@@ -7626,6 +9107,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:38:34'
+      from:
+        name: q3_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q3_work_underground_or_above_15ft_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q4_work_on_barges_vessels_docks_bridge_over_water_ind:
     x_petey_id: '3_50'
     type: string
@@ -7645,7 +9139,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q4_explanation_txt:
+  q4_work_on_barges_vessels_docks_bridges_explanation_txt:
     x_petey_id: '3_51'
     type: string
     semantic_type: text
@@ -7663,6 +9157,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:40:31'
+      from:
+        name: q4_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q4_work_on_barges_vessels_docks_bridges_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q5_applicant_other_business_type_ind:
     x_petey_id: '3_52'
     type: string
@@ -7682,7 +9189,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q5_explanation_txt:
+  q5_other_business_type_explanation_txt:
     x_petey_id: '3_53'
     type: string
     semantic_type: text
@@ -7700,6 +9207,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:42:15'
+      from:
+        name: q5_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q5_other_business_type_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q6_sub_contractors_used_ind:
     x_petey_id: '3_54'
     type: string
@@ -7719,7 +9239,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q6_explanation_txt:
+  q6_sub_contractors_explanation_txt:
     x_petey_id: '3_55'
     type: string
     semantic_type: text
@@ -7736,6 +9256,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:42:22'
+      from:
+        name: q6_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q6_sub_contractors_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q7_work_sublet_without_cert_of_insurance_ind:
     x_petey_id: '3_56'
     type: string
@@ -7791,7 +9324,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q8_explanation_txt:
+  q8_written_safety_program_explanation_txt:
     x_petey_id: '3_59'
     type: string
     semantic_type: text
@@ -7808,6 +9341,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:40:36'
+      from:
+        name: q8_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q8_written_safety_program_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q9_group_transportation_provided_ind:
     x_petey_id: '3_60'
     type: string
@@ -7827,7 +9373,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q9_explanation_txt:
+  q9_group_transportation_explanation_txt:
     x_petey_id: '3_61'
     type: string
     semantic_type: text
@@ -7844,6 +9390,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:38:39'
+      from:
+        name: q9_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q9_group_transportation_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q10_employees_under_16_or_over_60_ind:
     x_petey_id: '3_62'
     type: string
@@ -7863,7 +9422,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q10_explanation_txt:
+  q10_employees_under_16_or_over_60_explanation_txt:
     x_petey_id: '3_63'
     type: string
     semantic_type: text
@@ -7880,6 +9439,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:38:49'
+      from:
+        name: q10_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q10_employees_under_16_or_over_60_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q11_seasonal_employees_ind:
     x_petey_id: '3_64'
     type: string
@@ -7899,7 +9471,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q11_explanation_txt:
+  q11_seasonal_employees_explanation_txt:
     x_petey_id: '3_65'
     type: string
     semantic_type: text
@@ -7916,6 +9488,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:38:54'
+      from:
+        name: q11_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q11_seasonal_employees_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q12_volunteer_or_donated_labor_ind:
     x_petey_id: '3_66'
     type: string
@@ -7935,7 +9520,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q12_explanation_txt:
+  q12_volunteer_or_donated_labor_explanation_txt:
     x_petey_id: '3_67'
     type: string
     semantic_type: text
@@ -7952,6 +9537,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:40:45'
+      from:
+        name: q12_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q12_volunteer_or_donated_labor_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q13_employees_with_physical_handicaps_ind:
     x_petey_id: '3_68'
     type: string
@@ -7971,7 +9569,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q13_explanation_txt:
+  q13_employees_with_physical_handicaps_explanation_txt:
     x_petey_id: '3_69'
     type: string
     semantic_type: text
@@ -7988,6 +9586,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:38:59'
+      from:
+        name: q13_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q13_employees_with_physical_handicaps_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q14_employees_travel_out_of_state_ind:
     x_petey_id: '3_70'
     type: string
@@ -8007,7 +9618,7 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - yn
-  q14_explanation_txt:
+  q14_employees_travel_out_of_state_explanation_txt:
     x_petey_id: '3_71'
     type: string
     semantic_type: text
@@ -8024,6 +9635,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:40:00'
+      from:
+        name: q14_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q14_employees_travel_out_of_state_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   q15_athletic_teams_sponsored_ind:
     x_petey_id: '3_72'
     type: string
@@ -8043,7 +9667,7 @@ fields:
     - description_from_tooltip
     - yn
     pattern: ^[YN]$
-  q15_explanation_txt:
+  q15_athletic_teams_sponsored_explanation_txt:
     x_petey_id: '3_73'
     type: string
     semantic_type: text
@@ -8060,6 +9684,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:39:08'
+      from:
+        name: q15_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: q15_athletic_teams_sponsored_explanation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__acord130.json
   agency_customer_id_3:
     x_petey_id: '4_1'
     type: string
@@ -8714,8 +10351,30 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Status_IssueIndicator_A[0]
         on_state: '1'
-        caption: SUBMISSION
-        x_petey_caption_source: page_text
+        caption: ISSUE POLICY
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: submission_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          issue_policy_ind: SUBMISSION
+      to:
+        name: submission_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          issue_policy_ind:
+            caption: ISSUE POLICY
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: caption
+      why: Box path Policy_Status_IssueIndicator_A; printed beside it is ISSUE POLICY
+        (SUBMISSION is the section heading)
   billing_plan:
     x_petey_id: '1_41'
     type: category
@@ -8766,6 +10425,8 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Payment_AnnualIndicator_A[0]
         on_state: '1'
+        caption: ANNUAL
+        x_petey_caption_source: claude
       semi_annual_ind:
         page: 1
         rect:
@@ -8800,6 +10461,33 @@ fields:
         widget_type: checkbox
         path: F[0].P1[0].Policy_Payment_OtherIndicator_A[0]
         on_state: '1'
+        caption: OTHER
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:51'
+      from:
+        name: payment_plan
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          annual_ind: null
+          other_ind: null
+      to:
+        name: payment_plan
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          annual_ind:
+            caption: ANNUAL
+          other_ind:
+            caption: OTHER
+      record: runs/claude_pass/proposals/lib__acord130.json
+      by: claude
+      kind: caption
+      why: Annual box (path Policy_Payment_AnnualIndicator) is printed ANNUAL; the
+        Other box has no printed word, tooltip says other frequency
 x_petey_dedup_log:
   duplicate_labels_reassigned: 2
   collisions:

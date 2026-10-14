@@ -9,10 +9,10 @@ source_pages:
 description: ''
 instructions: ''
 fields:
-  fiscal_year_end_month:
+  fiscal_year_end_year:
     x_petey_id: '1_2'
     type: string
-    semantic_type: id_part
+    semantic_type: date_year
     pattern: ^\d{1,2}$
     widget:
       page: 1
@@ -28,10 +28,27 @@ fields:
     - description_from_tooltip
     description: Fiscal year ending year.
     x_petey_description_source: tooltip
-  fiscal_year_end_day:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: fiscal_year_end_month
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      to:
+        name: fiscal_year_end_year
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: wrong
+      why: Tooltip 'Fiscal year ending year.'; it is the second box, after the slash
+        (names shifted by one).
+  fiscal_year_end_month:
     x_petey_id: '1_1'
     type: string
-    semantic_type: id_part
+    semantic_type: date_month
     pattern: ^\d{1,2}$
     widget:
       page: 1
@@ -47,6 +64,23 @@ fields:
     - description_from_tooltip
     description: Fiscal year ending month.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: fiscal_year_end_day
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      to:
+        name: fiscal_year_end_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: wrong
+      why: Tooltip 'Fiscal year ending month.' and it is the first box of 'fiscal
+        year ending __/__'; it is not a day.
   your_first_name_and_middle_initial:
     x_petey_id: '1_3'
     type: string
@@ -286,7 +320,6 @@ fields:
   county_nm:
     x_petey_id: '1_17'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -300,6 +333,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: county_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   email_address_txt:
     x_petey_id: '1_18'
     type: string
@@ -318,33 +367,44 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  claimed_as_dependent_you_ind:
-    x_petey_id: '1_20'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 418.44000244140625
-      - 230.52001953125
-      - 429.4800109863281
-      - 241.55999755859375
-      widget_type: checkbox
-      path: dependent_you
-  claimed_as_dependent_spouse_ind:
-    x_petey_id: '1_21'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 454.44000244140625
-      - 230.52001953125
-      - 465.4800109863281
-      - 241.55999755859375
-      widget_type: checkbox
-      path: dependent_status
-  nonresident_or_part_year_resident_ind:
+  claimed_as_dependent:
+    x_petey_id: '1_54'
+    type: category
+    values:
+    - claimed_as_dependent_you_ind
+    - claimed_as_dependent_spouse_ind
+    widgets:
+      claimed_as_dependent_you_ind:
+        page: 1
+        rect:
+        - 418.44000244140625
+        - 230.52001953125
+        - 429.4800109863281
+        - 241.55999755859375
+        widget_type: checkbox
+        path: dependent_you
+        on_state: you
+        caption: You
+        x_petey_caption_source: page_text
+      claimed_as_dependent_spouse_ind:
+        page: 1
+        rect:
+        - 454.44000244140625
+        - 230.52001953125
+        - 465.4800109863281
+        - 241.55999755859375
+        widget_type: checkbox
+        path: dependent_status
+        on_state: spouse
+        caption: Spouse
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 14:22:39'
+      from:
+      - claimed_as_dependent_you_ind
+      - claimed_as_dependent_spouse_ind
+  residency_status:
     x_petey_id: '1_22'
     type: category
     values:
@@ -375,6 +435,23 @@ fields:
         caption: part year resident
     x_petey_retype:
     - option_group:boolean->category[2]
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: nonresident_or_part_year_resident_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: residency_status
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: clarity
+      why: Step 1 D is a choose-one group (Nonresident / Part-year resident, attach
+        Sch. NR); '_ind' is the single-checkbox suffix.
   federal_agi_amt:
     x_petey_id: '1_23'
     type: number
@@ -550,40 +627,43 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  age_65_or_older_you_ind:
-    x_petey_id: '1_34'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 163.0800018310547
-      - 441.3599853515625
-      - 172.0800018310547
-      - 450.3599853515625
-      widget_type: checkbox
-      path: over_65_you
-    description: check if you are 65 or older
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  age_65_or_older_spouse_ind:
-    x_petey_id: '1_35'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 210.72000122070312
-      - 441.3599853515625
-      - 219.72000122070312
-      - 450.3599853515625
-      widget_type: checkbox
-      path: over_65_spouse
-    description: check if your spouse is 65 or older
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  age_65_or_older:
+    x_petey_id: '1_55'
+    type: multi_category
+    values:
+    - age_65_or_older_you_ind
+    - age_65_or_older_spouse_ind
+    widgets:
+      age_65_or_older_you_ind:
+        page: 1
+        rect:
+        - 163.0800018310547
+        - 441.3599853515625
+        - 172.0800018310547
+        - 450.3599853515625
+        widget_type: checkbox
+        path: over_65_you
+        on_state: you
+        caption: You
+        x_petey_caption_source: page_choice
+      age_65_or_older_spouse_ind:
+        page: 1
+        rect:
+        - 210.72000122070312
+        - 441.3599853515625
+        - 219.72000122070312
+        - 450.3599853515625
+        widget_type: checkbox
+        path: over_65_spouse
+        on_state: spouse
+        caption: Spouse
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 14:45:09'
+      from:
+      - age_65_or_older_you_ind
+      - age_65_or_older_spouse_ind
   exemption_age_65_amt:
     x_petey_id: '1_33'
     type: number
@@ -601,40 +681,43 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  legally_blind_you_ind:
-    x_petey_id: '1_37'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 163.0800018310547
-      - 453.3599853515625
-      - 172.0800018310547
-      - 462.3599853515625
-      widget_type: checkbox
-      path: blind_you
-    description: check if you are legally blind
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  legally_blind_spouse_ind:
-    x_petey_id: '1_38'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 210.72000122070312
-      - 453.3599853515625
-      - 219.72000122070312
-      - 462.3599853515625
-      widget_type: checkbox
-      path: blind
-    description: check if your spouse is legally blinde
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  legally_blind:
+    x_petey_id: '1_56'
+    type: multi_category
+    values:
+    - legally_blind_you_ind
+    - legally_blind_spouse_ind
+    widgets:
+      legally_blind_you_ind:
+        page: 1
+        rect:
+        - 163.0800018310547
+        - 453.3599853515625
+        - 172.0800018310547
+        - 462.3599853515625
+        widget_type: checkbox
+        path: blind_you
+        on_state: you
+        caption: You
+        x_petey_caption_source: page_choice
+      legally_blind_spouse_ind:
+        page: 1
+        rect:
+        - 210.72000122070312
+        - 453.3599853515625
+        - 219.72000122070312
+        - 462.3599853515625
+        widget_type: checkbox
+        path: blind
+        on_state: spouse
+        caption: Spouse
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 14:45:09'
+      from:
+      - legally_blind_you_ind
+      - legally_blind_spouse_ind
   exemption_legally_blind_amt:
     x_petey_id: '1_36'
     type: number
@@ -919,10 +1002,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  total_tax_amt_2:
+  total_tax_from_page1_amt:
     x_petey_id: '2_1'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -937,10 +1020,28 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: total_tax_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_tax_from_page1_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: clarity
+      why: 'Line 24 ''Total tax from Page 1, Line 23''; the ''_2'' suffix hides what
+        it is. Also money_whole_dollar: page 2 boxes have preprinted .00 like page
+        1 (whole dollars only).'
   illinois_income_tax_withheld_amt:
     x_petey_id: '2_2'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -955,10 +1056,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: illinois_income_tax_withheld_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: illinois_income_tax_withheld_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   estimated_payments_amt:
     x_petey_id: '2_3'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -974,10 +1092,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: estimated_payments_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: estimated_payments_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   pass_through_withholding_amt:
     x_petey_id: '2_4'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -992,10 +1127,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: pass_through_withholding_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: pass_through_withholding_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   pass_through_entity_tax_credit_amt:
     x_petey_id: '2_5'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1011,10 +1163,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: pass_through_entity_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: pass_through_entity_tax_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   earned_income_tax_credit_amt:
     x_petey_id: '2_6'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1030,10 +1199,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: earned_income_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: earned_income_tax_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   child_tax_credit_amt:
     x_petey_id: '2_7'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1049,10 +1235,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: child_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: child_tax_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   total_payments_and_refundable_credit_amt:
     x_petey_id: '2_8'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1068,10 +1271,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: total_payments_and_refundable_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_payments_and_refundable_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   overpayment_amt:
     x_petey_id: '2_9'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1087,10 +1307,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: overpayment_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: overpayment_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   tax_owed_amt:
     x_petey_id: '2_10'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1106,10 +1343,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: tax_owed_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: tax_owed_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   underpayment_penalty_amt:
     x_petey_id: '2_11'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1124,85 +1378,101 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  farming_income_ind:
-    x_petey_id: '2_12'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.720001220703125
-      - 248.280029296875
-      - 72.5999984741211
-      - 257.280029296875
-      widget_type: checkbox
-      path: Check if at least twothirds of your federal gross income is from farming
-    description: Check if at least two-thirds of your federal gross income is from
-      farming
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  age_65_nursing_home_ind:
-    x_petey_id: '2_13'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.720001220703125
-      - 260.760009765625
-      - 72.5999984741211
-      - 269.760009765625
-      widget_type: checkbox
-      path: Check if you or your spouse are 65 or older and permanently living in
-        a nursing home
-    description: Check if you or your spouse are 65 or older and permanently living
-      in a nursing home
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  annualized_income_ind:
-    x_petey_id: '2_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.720001220703125
-      - 273.239990234375
-      - 72.5999984741211
-      - 282.239990234375
-      widget_type: checkbox
-      path: Check if your income was not received evenly during the year and you annualized
-        your income on Form IL2210
-    description: Check if your income was not received evenly during the year and
-      you annualized your income on Form IL-2210
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  not_required_prior_year_ind:
-    x_petey_id: '2_15'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.720001220703125
-      - 298.32000732421875
-      - 72.5999984741211
-      - 307.20001220703125
-      widget_type: checkbox
-      path: Check if you were not required to file an Illinois Individual Income Tax
-        return in the previous tax year
-    description: Check if you were not required to file an Illinois Individual Income
-      Tax return in the previous tax year
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: underpayment_penalty_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: underpayment_penalty_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
+  underpayment_penalty_exception:
+    x_petey_id: '2_48'
+    type: multi_category
+    values:
+    - farming_income_ind
+    - age_65_nursing_home_ind
+    - annualized_income_ind
+    - not_required_prior_year_ind
+    widgets:
+      farming_income_ind:
+        page: 2
+        rect:
+        - 63.720001220703125
+        - 248.280029296875
+        - 72.5999984741211
+        - 257.280029296875
+        widget_type: checkbox
+        path: Check if at least twothirds of your federal gross income is from farming
+        on_state: 'On'
+        caption: Check if at least two-thirds of your federal gross income is from
+          farming.
+        x_petey_caption_source: page_choice
+      age_65_nursing_home_ind:
+        page: 2
+        rect:
+        - 63.720001220703125
+        - 260.760009765625
+        - 72.5999984741211
+        - 269.760009765625
+        widget_type: checkbox
+        path: Check if you or your spouse are 65 or older and permanently living in
+          a nursing home
+        on_state: 'On'
+        caption: Check if you or your spouse are 65 or older and permanently living
+          in a nursing home.
+        x_petey_caption_source: page_choice
+      annualized_income_ind:
+        page: 2
+        rect:
+        - 63.720001220703125
+        - 273.239990234375
+        - 72.5999984741211
+        - 282.239990234375
+        widget_type: checkbox
+        path: Check if your income was not received evenly during the year and you
+          annualized your income on Form IL2210
+        on_state: 'On'
+        caption: Check if your income was not received evenly during the year and
+          you annualized your income on Form IL-2210.
+        x_petey_caption_source: page_choice
+      not_required_prior_year_ind:
+        page: 2
+        rect:
+        - 63.720001220703125
+        - 298.32000732421875
+        - 72.5999984741211
+        - 307.20001220703125
+        widget_type: checkbox
+        path: Check if you were not required to file an Illinois Individual Income
+          Tax return in the previous tax year
+        on_state: 'On'
+        caption: Check if you were not required to file an Illinois Individual Income
+          Tax return in the previous tax year.
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 14:43:15'
+      from:
+      - farming_income_ind
+      - age_65_nursing_home_ind
+      - annualized_income_ind
+      - not_required_prior_year_ind
+      name_from: labeler
   voluntary_charitable_donations_amt:
     x_petey_id: '2_16'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1217,10 +1487,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: voluntary_charitable_donations_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: voluntary_charitable_donations_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   total_penalty_and_donations_amt:
     x_petey_id: '2_17'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1235,10 +1522,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  refund_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: total_penalty_and_donations_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_penalty_and_donations_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
+  net_overpayment_amt:
     x_petey_id: '2_18'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1255,10 +1559,28 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  refund_direct_deposit_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: refund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: net_overpayment_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: wrong
+      why: 'Line 37 is the overpayment after the Line 36 penalty and donations (''This
+        is your overpayment''); the refund is Line 38. Also money_whole_dollar: page
+        2 boxes have preprinted .00 like page 1 (whole dollars only).'
+  refund_amt:
     x_petey_id: '2_19'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1274,7 +1596,26 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  direct_deposit_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: refund_direct_deposit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: refund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: wrong
+      why: 'Line 38 ''Amount from Line 37 you want refunded to you'' applies to direct
+        deposit or paper check (Line 39), so it is the refund amount, not a direct-deposit
+        amount. Also money_whole_dollar: page 2 boxes have preprinted .00 like page
+        1 (whole dollars only).'
+  refund_method:
     x_petey_id: '2_20'
     type: category
     description: choose refund method
@@ -1308,6 +1649,23 @@ fields:
         path: refund
         on_state: paper check
         caption: paper check
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: direct_deposit_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: refund_method
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: clarity
+      why: Line 39 'I choose to receive my refund by' a direct deposit / b paper check
+        is a choose-one group, not a single indicator.
   routing_number:
     x_petey_id: '2_21'
     type: string
@@ -1326,7 +1684,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  checking_or_savings_ind:
+  account_type:
     x_petey_id: '2_22'
     type: category
     values:
@@ -1357,6 +1715,23 @@ fields:
         caption: savings
     x_petey_retype:
     - option_group:boolean->category[2]
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: checking_or_savings_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: account_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: clarity
+      why: Line 39a Checking or Savings is a choose-one group for the direct-deposit
+        account type, not a single indicator.
   account_number:
     x_petey_id: '2_23'
     type: string
@@ -1378,7 +1753,7 @@ fields:
   credited_forward_amt:
     x_petey_id: '2_24'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1394,10 +1769,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: credited_forward_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: credited_forward_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   amount_owed_amt:
     x_petey_id: '2_25'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1415,6 +1807,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: amount_owed_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: amount_owed_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: IL-1040 amounts are whole dollars (box has preprinted .00), matching the
+        page 1 lines which are already money_whole_dollar.
   health_insurance_consent_ind:
     x_petey_id: '2_26'
     type: boolean
@@ -1434,46 +1843,60 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  health_insurance_self_ind:
-    x_petey_id: '2_27'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 36.720001220703125
-      - 578.760009765625
-      - 45.599998474121094
-      - 587.760009765625
-      widget_type: checkbox
-      path: Self
-  health_insurance_spouse_ind:
-    x_petey_id: '2_28'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 74.63999938964844
-      - 578.760009765625
-      - 83.63999938964844
-      - 587.760009765625
-      widget_type: checkbox
-      path: Spouse_3
-  health_insurance_dependents_ind:
-    x_petey_id: '2_29'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 128.63999938964844
-      - 578.760009765625
-      - 137.63999938964844
-      - 587.760009765625
-      widget_type: checkbox
-      path: Dependents
-  signature_dt:
+  health_insurance_coverage_person:
+    x_petey_id: '2_49'
+    type: category
+    values:
+    - health_insurance_self_ind
+    - health_insurance_spouse_ind
+    - health_insurance_dependents_ind
+    widgets:
+      health_insurance_self_ind:
+        page: 2
+        rect:
+        - 36.720001220703125
+        - 578.760009765625
+        - 45.599998474121094
+        - 587.760009765625
+        widget_type: checkbox
+        path: Self
+        on_state: 'On'
+        caption: Self
+        x_petey_caption_source: page_text
+      health_insurance_spouse_ind:
+        page: 2
+        rect:
+        - 74.63999938964844
+        - 578.760009765625
+        - 83.63999938964844
+        - 587.760009765625
+        widget_type: checkbox
+        path: Spouse_3
+        on_state: 'On'
+        caption: Spouse
+        x_petey_caption_source: page_text
+      health_insurance_dependents_ind:
+        page: 2
+        rect:
+        - 128.63999938964844
+        - 578.760009765625
+        - 137.63999938964844
+        - 587.760009765625
+        widget_type: checkbox
+        path: Dependents
+        on_state: 'On'
+        caption: Dependent(s)
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 14:43:40'
+      from:
+      - health_insurance_self_ind
+      - health_insurance_spouse_ind
+      - health_insurance_dependents_ind
+      name_from: labeler
+  spouse_signature_dt:
     x_petey_id: '2_31'
     type: date
     semantic_type: iso_date
@@ -1491,6 +1914,23 @@ fields:
     - description_from_tooltip
     description: Date (mm/dd/yyyy)_Row_1
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: signature_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: spouse_signature_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: wrong
+      why: This box (x=386) is under the Date label that follows 'Spouse's signature'
+        (swap with the taxpayer's date).
   daytime_phone_area_cd:
     x_petey_id: '2_32'
     type: string
@@ -1531,7 +1971,6 @@ fields:
   paid_preparer_nm:
     x_petey_id: '2_35'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1545,6 +1984,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: paid_preparer_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: paid_preparer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   paid_preparer_signature:
     x_petey_id: '2_36'
     type: string
@@ -1579,7 +2034,7 @@ fields:
     - description_from_tooltip
     description: Date (mm/dd/yyyy)_Paid Preparer Use Only
     x_petey_description_source: tooltip
-  self_employed_ind:
+  paid_preparer_self_employed_ind:
     x_petey_id: '2_34'
     type: boolean
     semantic_type: indicator
@@ -1592,6 +2047,23 @@ fields:
       - 665.4000244140625
       widget_type: checkbox
       path: Check if
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: self_employed_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: paid_preparer_self_employed_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: clarity
+      why: The 'Check if self-employed' box is in the Paid Preparer Use Only row beside
+        the PTIN; it is about the preparer, not the taxpayer.
   paid_preparer_ptin:
     x_petey_id: '2_38'
     type: string
@@ -1611,7 +2083,7 @@ fields:
   firm_name:
     x_petey_id: '2_39'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 2
       rect:
@@ -1621,6 +2093,22 @@ fields:
       - 693.3599853515625
       widget_type: text
       path: Firms name
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: firm_name
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: firm_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: Paid preparer's Firm's name is a business.
   firm_ein:
     x_petey_id: '2_40'
     type: string
@@ -1740,7 +2228,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse_signature_dt:
+  signature_dt:
     x_petey_id: '2_30'
     type: date
     semantic_type: iso_date
@@ -1758,10 +2246,26 @@ fields:
     - description_from_tooltip
     description: Date (mm/dd/yyyy)
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: spouse_signature_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: signature_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: wrong
+      why: This box (x=191) is under the Date label right after 'Your signature';
+        the spouse's date is the box after 'Spouse's signature' (swap).
   designee_nm:
     x_petey_id: '2_45'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1775,7 +2279,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  filing_status_single_ind:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: designee_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: designee_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  filing_status:
     x_petey_id: '1_19'
     type: category
     values:
@@ -1842,6 +2362,23 @@ fields:
         caption: head of household
     x_petey_retype:
     - option_group:boolean->category[5]
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:59'
+      from:
+        name: filing_status_single_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: filing_status
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__il1040.json
+      by: claude
+      kind: clarity
+      why: Step 1 B is the five-way filing status group (Single ... Head of household),
+        not a single 'single' checkbox.
 x_petey_dedup_log:
   duplicate_labels_reassigned: 1
   collisions:

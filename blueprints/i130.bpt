@@ -19,10 +19,10 @@ source_pages:
 description: ''
 instructions: ''
 fields:
-  parents_marriage_dt:
+  petitioner_ssn:
     x_petey_id: '1_8'
-    type: date
-    semantic_type: iso_date
+    type: string
+    semantic_type: ssn
     widget:
       page: 1
       rect:
@@ -38,6 +38,23 @@ fields:
     description: Part 2. Information About You (Petitioner). 3. Enter U.S. Social
       Security Number, if any.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: petitioner_ssn
+        type: string
+        semantic_type: ssn
+        pattern: null
+      to:
+        name: petitioner_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}-\d{2}-\d{4}$
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (ssn)
+    pattern: ^\d{3}-\d{2}-\d{4}$
   g28_attached_ind:
     x_petey_id: '1_1'
     type: boolean
@@ -76,8 +93,6 @@ fields:
   attorney_state_bar_number:
     x_petey_id: '1_3'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -92,6 +107,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: An attorney's state bar number is an identifier, not a two-letter state
+        code; the state_abbr type and ^[A-Z]{2}$ pattern would reject real bar numbers.
   attorney_uscis_online_account_number:
     x_petey_id: '1_4'
     type: string
@@ -112,168 +144,172 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  child_born_in_wedlock_ind:
-    x_petey_id: '1_9'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 60.000999450683594
-      - 566.0009765625
-      - 70.0009994506836
-      - 576.0009765625
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line2_InWedlock[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 2. If you are filing this petition for your child or parent, select
-      the box that describes your relationship (Select only one box). Select Child
-      was born to parents who were married to each other at the time of the child's
-      birth.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  child_adopted_ind:
-    x_petey_id: '1_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 60.000999450683594
-      - 643.9990234375
-      - 70.0009994506836
-      - 653.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line2_AdoptedChild[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 2. If you are filing this petition for your child or parent, select
-      the box that describes your relationship (Select only one box). Select Child
-      was adopted (not an Orphan or Hague Convention adoptee).
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  stepchild_stepparent_ind:
-    x_petey_id: '1_10'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 60.000999450683594
-      - 596.0
-      - 70.0009994506836
-      - 606.0
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line2_Stepchild[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 2. If you are filing this petition for your child or parent, select
-      the box that describes your relationship (Select only one box). Select Stepchild
-      / Stepparent.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  child_born_out_of_wedlock_ind:
-    x_petey_id: '1_11'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 60.000999450683594
-      - 614.0
-      - 70.0009994506836
-      - 624.0
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line2_OutOfWedlock[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 2. If you are filing this petition for your child or parent, select
-      the box that describes your relationship (Select only one box). Select Child
-      was born to parents who were not married to each other at the time of the child's
-      birth.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  sibling_related_by_adoption_yes_ind:
-    x_petey_id: '1_16'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 216.0
-      - 684.9990234375
-      - 226.0
-      - 694.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line3_Yes[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 3. If the beneficiary is your brother / sister, are you related
-      by adoption? Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  gained_status_through_adoption_no_ind:
-    x_petey_id: '1_19'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 257.99798583984375
-      - 714.9979858398438
-      - 267.99798583984375
-      - 724.9979858398438
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line4_No[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 4. Did you gain lawful permanent resident status or citizenship
-      through adoption? Select No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  gained_status_through_adoption_yes_ind:
-    x_petey_id: '1_18'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 216.0
-      - 714.9979858398438
-      - 226.0
-      - 724.9979858398438
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line4_Yes[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 4. Did you gain lawful permanent resident status or citizenship
-      through adoption? Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  sibling_related_by_adoption_no_ind:
-    x_petey_id: '1_17'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 257.99798583984375
-      - 684.9990234375
-      - 267.99798583984375
-      - 694.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[0].Pt1Line3_No[0]
-    description: Part 1. Relationship (You are the Petitioner. Your relative is the
-      Beneficiary). 3. If the beneficiary is your brother / sister, are you related
-      by adoption? Select No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  group_p1:
+    x_petey_id: '1_20'
+    type: category
+    values:
+    - child_born_in_wedlock_ind
+    - stepchild_stepparent_ind
+    - child_born_out_of_wedlock_ind
+    - child_adopted_ind
+    widgets:
+      child_born_in_wedlock_ind:
+        page: 1
+        rect:
+        - 60.000999450683594
+        - 566.0009765625
+        - 70.0009994506836
+        - 576.0009765625
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line2_InWedlock[0]
+        on_state: Y
+        caption: Child Born in Wedlock
+        x_petey_caption_source: hand
+      stepchild_stepparent_ind:
+        page: 1
+        rect:
+        - 60.000999450683594
+        - 596.0
+        - 70.0009994506836
+        - 606.0
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line2_Stepchild[0]
+        on_state: Y
+        caption: Stepchild/Stepparent
+        x_petey_caption_source: page_text
+      child_born_out_of_wedlock_ind:
+        page: 1
+        rect:
+        - 60.000999450683594
+        - 614.0
+        - 70.0009994506836
+        - 624.0
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line2_OutOfWedlock[0]
+        on_state: Y
+        caption: Child Born Out of Wedlock
+        x_petey_caption_source: hand
+      child_adopted_ind:
+        page: 1
+        rect:
+        - 60.000999450683594
+        - 643.9990234375
+        - 70.0009994506836
+        - 653.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line2_AdoptedChild[0]
+        on_state: Y
+        caption: Child Adopted
+        x_petey_caption_source: hand
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 13:16:04'
+      from:
+      - child_born_in_wedlock_ind
+      - stepchild_stepparent_ind
+      - child_born_out_of_wedlock_ind
+      - child_adopted_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 13:16:32'
+      from:
+        name: group_p1
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          child_born_in_wedlock_ind: null
+          child_born_out_of_wedlock_ind: null
+          child_adopted_ind: null
+      to:
+        name: group_p1
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          child_born_in_wedlock_ind:
+            caption: Child Born in Wedlock
+          child_born_out_of_wedlock_ind:
+            caption: Child Born Out of Wedlock
+          child_adopted_ind:
+            caption: Child Adopted
+      record: runs/hand_review/lib__i130.json
+  sibling_related_by_adoption:
+    x_petey_id: '1_21'
+    type: category
+    values:
+    - sibling_related_by_adoption_yes_ind
+    - sibling_related_by_adoption_no_ind
+    widgets:
+      sibling_related_by_adoption_yes_ind:
+        page: 1
+        rect:
+        - 216.0
+        - 684.9990234375
+        - 226.0
+        - 694.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line3_Yes[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      sibling_related_by_adoption_no_ind:
+        page: 1
+        rect:
+        - 257.99798583984375
+        - 684.9990234375
+        - 267.99798583984375
+        - 694.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line3_No[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 13:17:25'
+      from:
+      - sibling_related_by_adoption_yes_ind
+      - sibling_related_by_adoption_no_ind
+  gained_status_through_adoption:
+    x_petey_id: '1_22'
+    type: category
+    values:
+    - gained_status_through_adoption_yes_ind
+    - gained_status_through_adoption_no_ind
+    widgets:
+      gained_status_through_adoption_yes_ind:
+        page: 1
+        rect:
+        - 216.0
+        - 714.9979858398438
+        - 226.0
+        - 724.9979858398438
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line4_Yes[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      gained_status_through_adoption_no_ind:
+        page: 1
+        rect:
+        - 257.99798583984375
+        - 714.9979858398438
+        - 267.99798583984375
+        - 724.9979858398438
+        widget_type: checkbox
+        path: form1[0].#subform[0].Pt1Line4_No[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 13:17:25'
+      from:
+      - gained_status_through_adoption_yes_ind
+      - gained_status_through_adoption_no_ind
   petitioner_family_nm:
     x_petey_id: '1_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -288,10 +324,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: petitioner_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   petitioner_given_nm:
     x_petey_id: '1_13'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -306,10 +357,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: petitioner_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   petitioner_middle_nm:
     x_petey_id: '1_15'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -324,6 +390,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: petitioner_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   petitioner_a_number:
     x_petey_id: '1_5'
     type: string
@@ -341,11 +423,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  petitioner_ssn:
+  petitioner_uscis:
     x_petey_id: '1_7'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
     widget:
       page: 1
       rect:
@@ -360,6 +440,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: petitioner_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}-\d{2}-\d{4}$
+      to:
+        name: petitioner_uscis
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__i130.json
   date_of_birth_dt:
     x_petey_id: '2_15'
     type: date
@@ -472,8 +565,6 @@ fields:
   mailing_postal_code_txt:
     x_petey_id: '2_34'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
       rect:
@@ -488,6 +579,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: mailing_postal_code_txt
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: mailing_postal_code_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Item 10.H is a foreign Postal Code (the US ZIP is the box beside it); the
+        US ZIP semantic type and ^\d{5}(-\d{4})?$ pattern would reject foreign codes.
   mailing_zip_cd:
     x_petey_id: '2_31'
     type: string
@@ -606,7 +714,6 @@ fields:
   mailing_in_care_of_nm:
     x_petey_id: '2_19'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -621,7 +728,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_1_street_number_and_name_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: mailing_in_care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: mailing_in_care_of_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  physical_address_2_street_number_and_name_txt:
     x_petey_id: '2_18'
     type: string
     semantic_type: street_address
@@ -639,7 +762,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_1_unit_number_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_street_number_and_name_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: physical_address_2_street_number_and_name_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.A street (widget
+        Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
+        physical_address_2_date_from_dt / _to_dt).
+  physical_address_2_unit_number_txt:
     x_petey_id: '2_20'
     type: string
     semantic_type: text
@@ -657,7 +798,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_1_city_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: physical_address_2_unit_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.B apt/ste/flr
+        number (widget Pt2Line14_*); the name says address 1, which is item 12 (its
+        dates are already physical_address_2_date_from_dt / _to_dt).
+  physical_address_2_city_nm:
     x_petey_id: '2_23'
     type: string
     semantic_type: city
@@ -675,7 +834,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_1_state_abbreviation_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: physical_address_2_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.C city (widget
+        Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
+        physical_address_2_date_from_dt / _to_dt).
+  physical_address_2_state_abbreviation_cd:
     x_petey_id: '2_26'
     type: category
     semantic_type: state_abbr
@@ -753,7 +930,25 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  physical_address_1_zip_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: physical_address_2_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.D state (widget
+        Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
+        physical_address_2_date_from_dt / _to_dt).
+  physical_address_2_zip_cd:
     x_petey_id: '2_27'
     type: string
     semantic_type: zip
@@ -772,7 +967,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_1_province_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: physical_address_2_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.E ZIP (widget
+        Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
+        physical_address_2_date_from_dt / _to_dt).
+  physical_address_2_province_txt:
     x_petey_id: '2_29'
     type: string
     semantic_type: text
@@ -790,7 +1003,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_1_country_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: physical_address_2_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.F province (widget
+        Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
+        physical_address_2_date_from_dt / _to_dt).
+  physical_address_2_country_txt:
     x_petey_id: '2_35'
     type: string
     semantic_type: country
@@ -808,11 +1039,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_1_postal_code_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_country_txt
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: physical_address_2_country_txt
+        type: string
+        semantic_type: country
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.H country (widget
+        Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
+        physical_address_2_date_from_dt / _to_dt).
+  physical_address_2_postal_code_txt:
     x_petey_id: '2_32'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
       rect:
@@ -827,6 +1074,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_postal_code_txt
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: physical_address_2_postal_code_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.G postal code
+        (widget Pt2Line14_*); the name says address 1, which is item 12 (its dates
+        are already physical_address_2_date_from_dt / _to_dt).
   physical_address_1_date_from_dt:
     x_petey_id: '2_16'
     type: date
@@ -1080,8 +1345,6 @@ fields:
   physical_address_1_12g_postal_code_txt:
     x_petey_id: '2_12'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 2
       rect:
@@ -1096,6 +1359,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_12g_postal_code_txt
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: physical_address_1_12g_postal_code_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Item 12.G is a foreign Postal Code (the US ZIP is the box beside it); the
+        US ZIP semantic type and ^\d{5}(-\d{4})?$ pattern would reject foreign codes.
   city_town_village_of_birth_nm:
     x_petey_id: '2_11'
     type: string
@@ -1117,7 +1397,6 @@ fields:
   other_name_family_nm:
     x_petey_id: '2_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1133,10 +1412,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: other_name_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_name_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_name_given_nm:
     x_petey_id: '2_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1151,10 +1445,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: other_name_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_name_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_name_middle_nm:
     x_petey_id: '2_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1169,6 +1478,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: other_name_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_name_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   times_married_cnt:
     x_petey_id: '2_40'
     type: integer
@@ -1190,7 +1515,6 @@ fields:
   spouse_1_family_nm:
     x_petey_id: '3_15'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1207,10 +1531,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_1_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_1_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   spouse_1_given_nm:
     x_petey_id: '3_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1225,10 +1564,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_1_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_1_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   spouse_1_middle_nm:
     x_petey_id: '3_18'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1243,7 +1597,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse_1_marriage_ended_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_1_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_1_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  spouse_2_marriage_ended_dt:
     x_petey_id: '3_25'
     type: date
     semantic_type: iso_date
@@ -1263,10 +1633,26 @@ fields:
       if any. Spouse 2. 23. Enter Date Marriage Ended. Enter as 2 digit month, 2 digit
       day and 4 digit year.
     x_petey_description_source: tooltip
-  spouse_1_middle_nm_22c:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_1_marriage_ended_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: spouse_2_marriage_ended_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Names of All Your Spouses, Spouse 2, item 23 Date Marriage Ended
+        (widget Pt2Line23_DateMarriageEnded).'
+  spouse_2_middle_nm:
     x_petey_id: '3_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1281,10 +1667,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_1_middle_nm_22c
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_2_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Spouse 2, item 22.C Middle Name (widget Pt2Line22c_MiddleName);
+        its neighbours are spouse_2_family_nm / spouse_2_given_nm.'
   spouse_2_given_nm:
     x_petey_id: '3_23'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1299,10 +1701,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_2_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_2_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   spouse_2_family_nm:
     x_petey_id: '3_21'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1317,7 +1734,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse_1_marriage_ended_dt_21:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_2_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_2_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  spouse_1_marriage_ended_dt:
     x_petey_id: '3_20'
     type: date
     semantic_type: iso_date
@@ -1337,6 +1770,23 @@ fields:
       if any. Spouse 1. 21. Enter Date Marriage Ended. Enter as 2 digit month, 2 digit
       day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse_1_marriage_ended_dt_21
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: spouse_1_marriage_ended_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Spouse 1, item 21 Date Marriage Ended; the ''_21'' suffix only
+        exists because spouse 2''s date took the clean name.'
   current_marriage_dt:
     x_petey_id: '3_2'
     type: date
@@ -1360,7 +1810,6 @@ fields:
   parent_1_family_nm:
     x_petey_id: '3_29'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1376,10 +1825,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_1_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: parent_1_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   parent_1_given_nm:
     x_petey_id: '3_30'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1395,10 +1859,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_1_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: parent_1_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   parent_1_middle_nm:
     x_petey_id: '3_31'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1414,6 +1893,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_1_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: parent_1_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   parent_1_birth_dt:
     x_petey_id: '3_33'
     type: date
@@ -1434,7 +1929,7 @@ fields:
       Parents. Parent One's Information. 25. Enter Date of Birth. Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
-  petitioner_city_of_residence:
+  parent_1_city_of_residence:
     x_petey_id: '3_3'
     type: string
     semantic_type: city
@@ -1452,7 +1947,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  petitioner_country_of_residence:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_city_of_residence
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: parent_1_city_of_residence
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Information About Your Parents, Parent One''s Information, item
+        28 City/Town/Village of Residence; it is parent 1''s, not the petitioner''s
+        (the petitioner''s own country of birth is item 7, country_of_birth_txt).'
+  parent_1_country_of_residence:
     x_petey_id: '3_4'
     type: string
     semantic_type: country
@@ -1470,7 +1983,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  petitioner_country_of_birth:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_country_of_residence
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: parent_1_country_of_residence
+        type: string
+        semantic_type: country
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Information About Your Parents, Parent One''s Information, item
+        29 Country of Residence; it is parent 1''s, not the petitioner''s (the petitioner''s
+        own country of birth is item 7, country_of_birth_txt).'
+  parent_1_country_of_birth:
     x_petey_id: '3_1'
     type: string
     semantic_type: country
@@ -1488,10 +2019,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_country_of_birth
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: parent_1_country_of_birth
+        type: string
+        semantic_type: country
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Information About Your Parents, Parent One''s Information, item
+        27 Country of Birth; it is parent 1''s, not the petitioner''s (the petitioner''s
+        own country of birth is item 7, country_of_birth_txt).'
   parent_2_given_nm:
     x_petey_id: '3_9'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1507,10 +2055,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_2_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: parent_2_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   parent_2_middle_nm:
     x_petey_id: '3_11'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1526,10 +2089,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_2_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: parent_2_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   parent_2_family_nm:
     x_petey_id: '3_8'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -1545,6 +2123,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_2_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: parent_2_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   parent_2_birth_dt:
     x_petey_id: '3_12'
     type: date
@@ -1638,44 +2232,43 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  obtained_certificate_yes_ind:
-    x_petey_id: '3_27'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 497.9989929199219
-      - 612.9990234375
-      - 507.9989929199219
-      - 622.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[2].Pt2Line36_Yes[0]
-    description: Part 2. Information About You (Petitioner). Additional Information
-      About You (Petitioner). 38. Have you obtained a Certificate of Naturalization
-      or a Certificate of Citizenship? Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  obtained_certificate_no_ind:
-    x_petey_id: '3_28'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 540.0
-      - 612.9990234375
-      - 550.0
-      - 622.9990234375
-      widget_type: checkbox
-      path: form1[0].#subform[2].Pt2Line36_No[0]
-    description: Part 2. Information About You (Petitioner). Additional Information
-      About You (Petitioner). 38. Have you obtained a Certificate of Naturalization
-      or a Certificate of Citizenship? Select No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  obtained_certificate:
+    x_petey_id: '3_37'
+    type: category
+    values:
+    - obtained_certificate_yes_ind
+    - obtained_certificate_no_ind
+    widgets:
+      obtained_certificate_yes_ind:
+        page: 3
+        rect:
+        - 497.9989929199219
+        - 612.9990234375
+        - 507.9989929199219
+        - 622.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[2].Pt2Line36_Yes[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      obtained_certificate_no_ind:
+        page: 3
+        rect:
+        - 540.0
+        - 612.9990234375
+        - 550.0
+        - 622.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[2].Pt2Line36_No[0]
+        on_state: N
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 13:17:43'
+      from:
+      - obtained_certificate_yes_ind
+      - obtained_certificate_no_ind
   certificate_issuance_dt:
     x_petey_id: '3_36'
     type: date
@@ -1906,10 +2499,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer1_city_nm:
+  employer1_street_address_line_1_txt:
     x_petey_id: '4_22'
     type: string
-    semantic_type: city
     widget:
       page: 4
       rect:
@@ -1924,6 +2516,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:15:34'
+      from:
+        name: employer1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: employer1_street_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'repair: an old correction filed under this field''s previous name was
+        applied to it after Claude''s pass renamed fields (the tooltip says 43.A Street
+        Number and Name)'
+    semantic_type: street_address
   employer1_apt_ind:
     x_petey_id: '4_25'
     type: boolean
@@ -1996,7 +2607,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer1_city_nm_2:
+  employer1_city_nm:
     x_petey_id: '4_28'
     type: string
     semantic_type: city
@@ -2014,6 +2625,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:15:34'
+      from:
+        name: employer1_street_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: employer1_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'repair: an old correction filed under this field''s previous name was
+        applied to it after Claude''s pass renamed fields (the tooltip says 43.C City
+        or Town)'
   employer1_province_txt:
     x_petey_id: '4_32'
     type: string
@@ -2035,8 +2664,6 @@ fields:
   employer1_postal_cd:
     x_petey_id: '4_33'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 4
       rect:
@@ -2051,6 +2678,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer1_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: employer1_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Items 43.G / 47.G are foreign Postal Codes (the US ZIP is a separate box);
+        the US ZIP semantic type and pattern would reject foreign codes.
   employer1_zip_cd:
     x_petey_id: '4_30'
     type: string
@@ -2151,8 +2795,7 @@ fields:
   employer1_country_cd:
     x_petey_id: '4_36'
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
+    semantic_type: country
     widget:
       page: 4
       rect:
@@ -2167,10 +2810,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer1_street_address_line_1_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer1_country_cd
+        type: string
+        semantic_type: country_code
+        pattern: ^[A-Z]{2}$
+      to:
+        name: employer1_country_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Item 43.H 'Country' is a country name written in full, not a two-letter
+        code; the ^[A-Z]{2}$ pattern would reject it.
+  employer1_business_name:
     x_petey_id: '4_21'
     type: string
-    semantic_type: street_address
+    semantic_type: business_name
     widget:
       page: 4
       rect:
@@ -2188,6 +2848,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer1_street_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: employer1_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Widget Pt2Line40_EmployerOrCompName, printed 'Name of Employer/Company',
+        tooltip is the Employment History intro ending at Employer 1's name; the employer
+        1 block is shifted by one (street is the next box).
   employer2_street_address_line_1_txt:
     x_petey_id: '4_2'
     type: string
@@ -2317,8 +2995,6 @@ fields:
   employer2_postal_cd:
     x_petey_id: '4_14'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 4
       rect:
@@ -2333,6 +3009,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer2_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: employer2_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Items 43.G / 47.G are foreign Postal Codes (the US ZIP is a separate box);
+        the US ZIP semantic type and pattern would reject foreign codes.
   employer2_zip_cd:
     x_petey_id: '4_11'
     type: string
@@ -2430,7 +3123,7 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  petitioner_occupation_txt:
+  employer2_country:
     x_petey_id: '4_16'
     type: string
     semantic_type: text
@@ -2448,10 +3141,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer2_name_business_name:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: petitioner_occupation_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: employer2_country
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__i130.json
+  employer2_occupation_txt:
     x_petey_id: '4_18'
     type: string
-    semantic_type: business_name
     widget:
       page: 4
       rect:
@@ -2466,6 +3171,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer2_name_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: employer2_occupation_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Widget Pt2Line46_Occupation, tooltip Employer 2 item 48 Enter Your Occupation;
+        employer 2's company name is item 46 (employer2_business_name).
   employer2_date_from_dt:
     x_petey_id: '4_19'
     type: date
@@ -2779,7 +3501,6 @@ fields:
   beneficiary_family_nm:
     x_petey_id: '5_14'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -2794,10 +3515,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   beneficiary_given_nm:
     x_petey_id: '5_15'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -2812,10 +3548,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   beneficiary_middle_nm:
     x_petey_id: '5_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -2830,10 +3581,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_name_family_nm_2:
     x_petey_id: '5_21'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -2849,10 +3615,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: other_name_family_nm_2
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_name_family_nm_2
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_name_given_nm_2:
     x_petey_id: '5_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -2867,10 +3648,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: other_name_given_nm_2
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_name_given_nm_2
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   other_name_middle_nm_2:
     x_petey_id: '5_25'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -2885,6 +3681,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: other_name_middle_nm_2
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_name_middle_nm_2
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   beneficiary_birth_city_nm:
     x_petey_id: '5_29'
     type: string
@@ -2921,7 +3733,7 @@ fields:
     description: Part 4. Information About Beneficiary. Other Information About Beneficiary.
       7. Enter Country of Birth.
     x_petey_description_source: tooltip
-  physical_address_province:
+  beneficiary_physical_address_province:
     x_petey_id: '5_9'
     type: string
     widget:
@@ -2938,11 +3750,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_postal_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_province
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_physical_address_province
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Beneficiary''s Physical Address item 11.F Province; the rest
+        of the item 11 block is named beneficiary_physical_address_*, while plain
+        physical_address_* is also used for the item 12 address.'
+  beneficiary_physical_address_postal_cd:
     x_petey_id: '5_11'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 5
       rect:
@@ -2957,11 +3785,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_country_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: beneficiary_physical_address_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Beneficiary''s Physical Address item 11.G Postal Code (foreign),
+        named like the rest of the item 11 block; US ZIP type/pattern dropped since
+        this is the non-US postal code.'
+  beneficiary_physical_address_country:
     x_petey_id: '5_13'
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
+    semantic_type: country
     widget:
       page: 5
       rect:
@@ -2976,7 +3821,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_street_number_and_name:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_country_cd
+        type: string
+        semantic_type: country_code
+        pattern: ^[A-Z]{2}$
+      to:
+        name: beneficiary_physical_address_country
+        type: string
+        semantic_type: country
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Beneficiary''s Physical Address item 11.H Country, a country
+        name in full (the ^[A-Z]{2}$ code pattern would reject it); named like the
+        rest of the item 11 block.'
+  beneficiary_us_address_street_number_and_name:
     x_petey_id: '5_17'
     type: string
     semantic_type: street_address
@@ -2997,7 +3860,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_unit_number:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_street_number_and_name
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: beneficiary_us_address_street_number_and_name
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: item 12.A street of ''the address in the United States where
+        the beneficiary intends to live'' (Other Address and Contact Information);
+        it is not the beneficiary''s physical address (item 11).'
+  beneficiary_us_address_unit_number:
     x_petey_id: '5_18'
     type: string
     widget:
@@ -3014,7 +3895,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_city_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_unit_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_us_address_unit_number
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: item 12.B apt/ste/flr number of ''the address in the United States
+        where the beneficiary intends to live'' (Other Address and Contact Information);
+        it is not the beneficiary''s physical address (item 11).'
+  beneficiary_us_address_city_nm:
     x_petey_id: '5_20'
     type: string
     semantic_type: city
@@ -3032,7 +3931,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_zip_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: beneficiary_us_address_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: item 12.C city of ''the address in the United States where the
+        beneficiary intends to live'' (Other Address and Contact Information); it
+        is not the beneficiary''s physical address (item 11).'
+  beneficiary_us_address_zip_cd:
     x_petey_id: '5_23'
     type: string
     semantic_type: zip
@@ -3051,7 +3968,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  physical_address_state_abbreviation_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: beneficiary_us_address_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: item 12.E ZIP of ''the address in the United States where the
+        beneficiary intends to live'' (Other Address and Contact Information); it
+        is not the beneficiary''s physical address (item 11).'
+  beneficiary_us_address_state_abbreviation_cd:
     x_petey_id: '5_22'
     type: category
     semantic_type: state_abbr
@@ -3129,11 +4064,27 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: beneficiary_us_address_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: item 12.D state of ''the address in the United States where the
+        beneficiary intends to live'' (Other Address and Contact Information); it
+        is not the beneficiary''s physical address (item 11).'
   foreign_address_postal_cd:
     x_petey_id: '5_33'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 5
       rect:
@@ -3148,6 +4099,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: foreign_address_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: foreign_address_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Item 13.E is the beneficiary's address outside the US; a US ZIP semantic
+        type and pattern would reject foreign postal codes.
   foreign_address_unit_number:
     x_petey_id: '5_27'
     type: string
@@ -3448,10 +4416,9 @@ fields:
     description: Part 4. Information About Beneficiary. 3. Enter U.S. Social Security
       Number, if any.
     x_petey_description_source: tooltip
-  current_marriage_place_country:
+  beneficiary_marriage_place_province:
     x_petey_id: '6_17'
     type: string
-    semantic_type: country
     widget:
       page: 6
       rect:
@@ -3466,9 +4433,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:16:32'
+      from:
+        name: beneficiary_marriage_place_province
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_marriage_place_province
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__i130.json
   beneficiary_times_married:
     x_petey_id: '6_6'
-    type: string
+    type: integer
     widget:
       page: 6
       rect:
@@ -3483,6 +4463,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: count
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_times_married
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_times_married
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Part 4 item 17 'How many times has the beneficiary been married? Enter
+        Number of Times Married' is a count (the petitioner's twin times_married_cnt
+        is integer/count).
   beneficiary_mobile_telephone_number:
     x_petey_id: '6_2'
     type: string
@@ -3521,7 +4520,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  current_marriage_date_dt:
+  beneficiary_current_marriage_dt:
     x_petey_id: '6_11'
     type: date
     semantic_type: iso_date
@@ -3541,10 +4540,26 @@ fields:
       19. Enter Date of Current Marriage (if currently married). Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
-  spouse2_family_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: current_marriage_date_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: beneficiary_current_marriage_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 19, the beneficiary''s Date of Current Marriage;
+        the petitioner''s own is current_marriage_dt, so the bare name invites a mix-up.'
+  beneficiary_spouse2_family_nm:
     x_petey_id: '6_32'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3559,10 +4574,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse2_given_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse2_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_spouse2_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 23.A; ''spouse1_''
+        vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
+        so the beneficiary''s spouses need the prefix.'
+  beneficiary_spouse2_given_nm:
     x_petey_id: '6_33'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3577,10 +4609,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse2_middle_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse2_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_spouse2_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 23.B; ''spouse1_''
+        vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
+        so the beneficiary''s spouses need the prefix.'
+  beneficiary_spouse2_middle_nm:
     x_petey_id: '6_34'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3595,10 +4644,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse1_family_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse2_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_spouse2_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 23.C; ''spouse1_''
+        vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
+        so the beneficiary''s spouses need the prefix.'
+  beneficiary_spouse1_family_nm:
     x_petey_id: '6_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3615,10 +4681,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse1_given_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse1_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_spouse1_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 21.A; ''spouse1_''
+        vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
+        so the beneficiary''s spouses need the prefix.'
+  beneficiary_spouse1_given_nm:
     x_petey_id: '6_26'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3633,10 +4716,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse1_middle_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse1_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_spouse1_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 21.B; ''spouse1_''
+        vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
+        so the beneficiary''s spouses need the prefix.'
+  beneficiary_spouse1_middle_nm:
     x_petey_id: '6_28'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3651,7 +4751,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse1_marriage_ended_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse1_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_spouse1_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 21.C; ''spouse1_''
+        vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
+        so the beneficiary''s spouses need the prefix.'
+  beneficiary_spouse1_marriage_ended_dt:
     x_petey_id: '6_30'
     type: date
     semantic_type: iso_date
@@ -3671,7 +4789,25 @@ fields:
       if any. Spouse 1. 22. Enter Date Marriage Ended. Enter as 2 digit month, 2 digit
       day and 4 digit year.
     x_petey_description_source: tooltip
-  person0_marriage_ended_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: spouse1_marriage_ended_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: beneficiary_spouse1_marriage_ended_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 22; ''spouse1_''
+        vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
+        so the beneficiary''s spouses need the prefix.'
+  beneficiary_spouse2_marriage_ended_dt:
     x_petey_id: '6_1'
     type: date
     semantic_type: iso_date
@@ -3691,6 +4827,24 @@ fields:
       if any. Spouse 2. 24. Enter Date Marriage Ended. Enter as 2 digit month, 2 digit
       day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person0_marriage_ended_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: beneficiary_spouse2_marriage_ended_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Names of Beneficiary''s Spouses, Spouse 2, item 24 Date Marriage
+        Ended; ''person0'' is meaningless (persons 1-5 are the beneficiary''s family,
+        items 25-44).'
   person1_relationship:
     x_petey_id: '6_8'
     type: string
@@ -3708,10 +4862,102 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+  beneficiary_marital_status:
+    x_petey_id: '6_35'
+    type: category
+    values:
+    - beneficiary_marital_status_single_never_married_ind
+    - beneficiary_marital_status_married_ind
+    - beneficiary_marital_status_divorced_ind
+    - beneficiary_marital_status_widowed_ind
+    - beneficiary_marital_status_separated_ind
+    - beneficiary_marital_status_annulled_ind
+    widgets:
+      beneficiary_marital_status_single_never_married_ind:
+        page: 6
+        rect:
+        - 60.000999450683594
+        - 246.99798583984375
+        - 70.0009994506836
+        - 256.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt4Line18_MaritalStatus[3]
+        on_state: SNM
+        caption: Single, Never Married
+        x_petey_caption_source: page_text
+      beneficiary_marital_status_married_ind:
+        page: 6
+        rect:
+        - 180.0
+        - 246.99798583984375
+        - 190.0
+        - 256.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt4Line18_MaritalStatus[4]
+        on_state: M
+        caption: Married
+        x_petey_caption_source: page_text
+      beneficiary_marital_status_divorced_ind:
+        page: 6
+        rect:
+        - 240.00100708007812
+        - 246.99798583984375
+        - 250.00100708007812
+        - 256.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt4Line18_MaritalStatus[5]
+        on_state: D
+        caption: Divorced
+        x_petey_caption_source: page_text
+      beneficiary_marital_status_widowed_ind:
+        page: 6
+        rect:
+        - 60.000999450683594
+        - 264.99798583984375
+        - 70.0009994506836
+        - 274.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt4Line18_MaritalStatus[0]
+        on_state: W
+        caption: Widowed
+        x_petey_caption_source: page_text
+      beneficiary_marital_status_separated_ind:
+        page: 6
+        rect:
+        - 126.0
+        - 264.99798583984375
+        - 136.0
+        - 274.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt4Line18_MaritalStatus[2]
+        on_state: S
+        caption: Separated
+        x_petey_caption_source: page_text
+      beneficiary_marital_status_annulled_ind:
+        page: 6
+        rect:
+        - 198.0
+        - 264.99798583984375
+        - 208.0
+        - 274.99798583984375
+        widget_type: checkbox
+        path: form1[0].#subform[5].Pt4Line18_MaritalStatus[1]
+        on_state: A
+        caption: Annulled
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 12:19:05'
+      from:
+      - beneficiary_marital_status_single_never_married_ind
+      - beneficiary_marital_status_married_ind
+      - beneficiary_marital_status_divorced_ind
+      - beneficiary_marital_status_widowed_ind
+      - beneficiary_marital_status_separated_ind
+      - beneficiary_marital_status_annulled_ind
   person1_family_nm:
     x_petey_id: '6_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3727,10 +4973,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person1_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person1_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person1_given_nm:
     x_petey_id: '6_5'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3745,10 +5006,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person1_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person1_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person1_middle_nm:
     x_petey_id: '6_7'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3763,6 +5039,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person1_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person1_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person1_birth_dt:
     x_petey_id: '6_9'
     type: date
@@ -3859,7 +5151,6 @@ fields:
   person2_family_nm:
     x_petey_id: '6_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3874,10 +5165,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person2_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person2_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person2_given_nm:
     x_petey_id: '6_14'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3892,10 +5198,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person2_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person2_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person2_middle_nm:
     x_petey_id: '6_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3910,10 +5231,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person2_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person2_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person3_given_nm:
     x_petey_id: '6_23'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3928,10 +5264,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person3_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person3_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person3_middle_nm:
     x_petey_id: '6_25'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3946,10 +5297,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person3_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person3_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person3_family_nm:
     x_petey_id: '6_22'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3964,6 +5330,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person3_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person3_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person3_country_of_birth:
     x_petey_id: '6_31'
     type: string
@@ -4019,7 +5401,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  current_marriage_place_city_nm:
+  beneficiary_marriage_place_city_nm:
     x_petey_id: '6_13'
     type: string
     semantic_type: city
@@ -4037,7 +5419,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  current_marriage_place_state:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: current_marriage_place_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: beneficiary_marriage_place_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 20.A, Place of Beneficiary''s Current Marriage; the
+        petitioner''s is marriage_place_city_nm.'
+  beneficiary_marriage_place_state:
     x_petey_id: '6_15'
     type: category
     semantic_type: state_abbr
@@ -4115,7 +5514,23 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  current_marriage_place_province:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: current_marriage_place_state
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: beneficiary_marriage_place_state
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 20.B, Place of Beneficiary''s Current Marriage, state.'
+  beneficiary_marriage_place_country:
     x_petey_id: '6_20'
     type: string
     widget:
@@ -4132,10 +5547,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: country
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: current_marriage_place_province
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_marriage_place_country
+        type: string
+        semantic_type: country
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Widget Pt4Line20d_Country, tooltip item 20.D Enter Country; swapped with
+        the province box above it.
   person4_middle_nm:
     x_petey_id: '7_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 7
       rect:
@@ -4150,10 +5582,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person4_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person4_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person4_given_nm:
     x_petey_id: '7_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 7
       rect:
@@ -4168,10 +5615,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person4_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person4_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person4_family_nm:
     x_petey_id: '7_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 7
       rect:
@@ -4186,6 +5648,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person4_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person4_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person4_country_of_birth:
     x_petey_id: '7_9'
     type: string
@@ -4244,7 +5722,6 @@ fields:
   person5_family_nm:
     x_petey_id: '7_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 7
       rect:
@@ -4259,10 +5736,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person5_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person5_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person5_given_nm:
     x_petey_id: '7_17'
     type: string
-    semantic_type: person_name
     widget:
       page: 7
       rect:
@@ -4277,10 +5769,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person5_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person5_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person5_middle_nm:
     x_petey_id: '7_19'
     type: string
-    semantic_type: person_name
     widget:
       page: 7
       rect:
@@ -4295,6 +5802,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: person5_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: person5_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   person5_relationship:
     x_petey_id: '7_22'
     type: string
@@ -4350,42 +5873,45 @@ fields:
       Family. Person 5. 43. Enter Date of Birth. Enter as 2 digit month, 2 digit day
       and 4 digit year.
     x_petey_description_source: tooltip
-  beneficiary_ever_in_us_yes_ind:
-    x_petey_id: '7_29'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 216.0
-      - 496.0010070800781
-      - 226.0
-      - 506.0010070800781
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line20_Yes[0]
-    description: Part 4. Information About Beneficiary. Beneficiary's Entry Information.
-      45. Was the beneficiary EVER in the United States? Select Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  beneficiary_ever_in_us_no_ind:
-    x_petey_id: '7_30'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 258.0010070800781
-      - 496.0010070800781
-      - 268.0010070800781
-      - 506.0010070800781
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line20_No[0]
-    description: Part 4. Information About Beneficiary. Beneficiary's Entry Information.
-      45. Was the beneficiary EVER in the United States? Select No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  beneficiary_ever_in_us_ind:
+    x_petey_id: '7_46'
+    type: category
+    values:
+    - beneficiary_ever_in_us_yes_ind
+    - beneficiary_ever_in_us_no_ind
+    widgets:
+      beneficiary_ever_in_us_yes_ind:
+        page: 7
+        rect:
+        - 216.0
+        - 496.0010070800781
+        - 226.0
+        - 506.0010070800781
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line20_Yes[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      beneficiary_ever_in_us_no_ind:
+        page: 7
+        rect:
+        - 258.0010070800781
+        - 496.0010070800781
+        - 268.0010070800781
+        - 506.0010070800781
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line20_No[0]
+        on_state: Y
+        caption: 'No'
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 12:19:05'
+      from:
+      - beneficiary_ever_in_us_yes_ind
+      - beneficiary_ever_in_us_no_ind
+      name_from: labeler
   authorized_stay_expiration_dt:
     x_petey_id: '7_42'
     type: date
@@ -4408,7 +5934,7 @@ fields:
       as shown on Form I - 94 or Form I - 95 or type or print "D / S" for Duration
       of Status. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
-  class_of_admission:
+  beneficiary_class_of_admission_cd:
     x_petey_id: '7_33'
     type: category
     widget:
@@ -4724,6 +6250,24 @@ fields:
       X: X - EOIR
     x_petey_retype:
     - dropdown
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: class_of_admission
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_class_of_admission_cd
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Entry Information item 46.A ''He or she
+        arrived as a (Class of Admission)''; the petitioner''s own class of admission
+        (Part 2 item 40.a) is class_of_admission_cd.'
   date_of_arrival_dt:
     x_petey_id: '7_37'
     type: date
@@ -4817,7 +6361,7 @@ fields:
       50. Enter Expiration Date for Passport or Travel Document. Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
-  employer_nm:
+  beneficiary_employer_nm:
     x_petey_id: '7_10'
     type: string
     semantic_type: business_name
@@ -4838,7 +6382,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_address_line_1_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: beneficiary_employer_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.A Name
+        of Current Employer; the petitioner has employer1_/employer2_ blocks, so the
+        beneficiary''s employer needs the prefix (bare apt_ind/ste_ind/flr_ind say
+        nothing).'
+  beneficiary_employer_address_line_1_txt:
     x_petey_id: '7_11'
     type: string
     semantic_type: street_address
@@ -4856,61 +6419,78 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  apt_ind:
-    x_petey_id: '7_14'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 342.0
-      - 310.0
-      - 352.0
-      - 320.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line26_Unit[0]
-    description: Part 4. Information About Beneficiary. Beneficiary's Employment Information.
-      51. C. Select Apartment.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  ste_ind:
-    x_petey_id: '7_15'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 384.0010070800781
-      - 310.0
-      - 394.0010070800781
-      - 320.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line26_Unit[1]
-    description: Part 4. Information About Beneficiary. Beneficiary's Employment Information.
-      51. C. Select Suite.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  flr_ind:
-    x_petey_id: '7_16'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 426.00201416015625
-      - 310.0
-      - 436.00201416015625
-      - 320.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line26_Unit[2]
-    description: Part 4. Information About Beneficiary. Beneficiary's Employment Information.
-      51. C. Select Floor.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  apt_ste_flr_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: beneficiary_employer_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.B street;
+        the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
+        needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+  beneficiary_employer_unit_type:
+    x_petey_id: '7_45'
+    type: category
+    values:
+    - beneficiary_employer_apt_ind
+    - beneficiary_employer_ste_ind
+    - beneficiary_employer_flr_ind
+    widgets:
+      beneficiary_employer_apt_ind:
+        page: 7
+        rect:
+        - 342.0
+        - 310.0
+        - 352.0
+        - 320.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line26_Unit[0]
+        on_state: '#20APT#20'
+        caption: Apt.
+        x_petey_caption_source: page_choice
+      beneficiary_employer_ste_ind:
+        page: 7
+        rect:
+        - 384.0010070800781
+        - 310.0
+        - 394.0010070800781
+        - 320.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line26_Unit[1]
+        on_state: '#20STE#20'
+        caption: Ste.
+        x_petey_caption_source: page_choice
+      beneficiary_employer_flr_ind:
+        page: 7
+        rect:
+        - 426.00201416015625
+        - 310.0
+        - 436.00201416015625
+        - 320.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line26_Unit[2]
+        on_state: '#20FLR#20'
+        caption: Flr.
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 12:19:05'
+      from:
+      - beneficiary_employer_apt_ind
+      - beneficiary_employer_ste_ind
+      - beneficiary_employer_flr_ind
+      name_from: labeler
+  beneficiary_employer_unit_nbr:
     x_petey_id: '7_13'
     type: string
     widget:
@@ -4927,7 +6507,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_city_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: apt_ste_flr_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_employer_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.C apt/ste/flr
+        number; the petitioner has employer1_/employer2_ blocks, so the beneficiary''s
+        employer needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+  beneficiary_employer_city_nm:
     x_petey_id: '7_18'
     type: string
     semantic_type: city
@@ -4945,7 +6543,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_state_abbreviation_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: beneficiary_employer_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.D city;
+        the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
+        needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+  beneficiary_employer_state_abbreviation_cd:
     x_petey_id: '7_20'
     type: category
     semantic_type: state_abbr
@@ -5023,7 +6639,25 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  employer_zip_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: beneficiary_employer_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.E state;
+        the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
+        needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+  beneficiary_employer_zip_cd:
     x_petey_id: '7_21'
     type: string
     semantic_type: zip
@@ -5042,7 +6676,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_province:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: beneficiary_employer_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.F ZIP;
+        the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
+        needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+  beneficiary_employer_province:
     x_petey_id: '7_23'
     type: string
     widget:
@@ -5059,7 +6711,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employment_began_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_province
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_employer_province
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.G province;
+        the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
+        needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+  beneficiary_employment_began_dt:
     x_petey_id: '7_28'
     type: date
     semantic_type: iso_date
@@ -5079,120 +6749,130 @@ fields:
       52. Enter Date Employment Began. Enter as 2 digit month, 2 digit day and 4 digit
       year.
     x_petey_description_source: tooltip
-  beneficiary_in_immigration_proceedings_no_ind:
-    x_petey_id: '7_32'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 540.0
-      - 547.0
-      - 550.0
-      - 557.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line28_No[0]
-    description: Part 4. Information About Beneficiary. Additional Information About
-      Beneficiary. 53. Was the beneficiary EVER in immigration proceedings? Select
-      No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  beneficiary_in_immigration_proceedings_yes_ind:
-    x_petey_id: '7_31'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 497.9989929199219
-      - 547.0
-      - 507.9989929199219
-      - 557.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line28_Yes[0]
-    description: Part 4. Information About Beneficiary. Additional Information About
-      Beneficiary. 53. Was the beneficiary EVER in immigration proceedings? Select
-      Yes.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  proceedings_removal_ind:
-    x_petey_id: '7_35'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 342.0
-      - 598.0
-      - 352.0
-      - 608.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line54_Removal[0]
-    description: Part 4. Information About Beneficiary. Additional Information About
-      Beneficiary. 54. If you answered "Yes," select the type of proceedings and provide
-      the location and date of the proceedings. Select Removal.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  proceedings_exclusion_deportation_ind:
-    x_petey_id: '7_36'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 414.0
-      - 598.0
-      - 424.0
-      - 608.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line54_Exclusion[0]
-    description: Part 4. Information About Beneficiary. Additional Information About
-      Beneficiary. 54. If you answered "Yes," select the type of proceedings and provide
-      the location and date of the proceedings. Select Exclusion / Deportation.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  proceedings_rescission_ind:
-    x_petey_id: '7_38'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 342.0
-      - 616.0
-      - 352.0
-      - 626.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line54_Rescission[0]
-    description: Part 4. Information About Beneficiary. Additional Information About
-      Beneficiary. 54. If you answered "Yes," select the type of proceedings and provide
-      the location and date of the proceedings. Select Rescission.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  proceedings_other_judicial_ind:
-    x_petey_id: '7_39'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 7
-      rect:
-      - 414.0
-      - 616.0
-      - 424.0
-      - 626.0
-      widget_type: checkbox
-      path: form1[0].#subform[6].Pt4Line54_JudicialProceedings[0]
-    description: Part 4. Information About Beneficiary. Additional Information About
-      Beneficiary. 54. If you answered "Yes," select the type of proceedings and provide
-      the location and date of the proceedings. Select Other Judicial Proceedings.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employment_began_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: beneficiary_employment_began_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 52 Date Employment
+        Began; the petitioner has employer1_/employer2_ blocks, so the beneficiary''s
+        employer needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+  beneficiary_ever_in_immigration_proceedings_ind:
+    x_petey_id: '7_47'
+    type: category
+    values:
+    - beneficiary_in_immigration_proceedings_yes_ind
+    - beneficiary_in_immigration_proceedings_no_ind
+    widgets:
+      beneficiary_in_immigration_proceedings_yes_ind:
+        page: 7
+        rect:
+        - 497.9989929199219
+        - 547.0
+        - 507.9989929199219
+        - 557.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line28_Yes[0]
+        on_state: Y
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      beneficiary_in_immigration_proceedings_no_ind:
+        page: 7
+        rect:
+        - 540.0
+        - 547.0
+        - 550.0
+        - 557.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line28_No[0]
+        on_state: Y
+        caption: 'No'
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 12:19:05'
+      from:
+      - beneficiary_in_immigration_proceedings_yes_ind
+      - beneficiary_in_immigration_proceedings_no_ind
+      name_from: labeler
+  immigration_proceedings_type:
+    x_petey_id: '7_48'
+    type: category
+    values:
+    - proceedings_removal_ind
+    - proceedings_exclusion_deportation_ind
+    - proceedings_rescission_ind
+    - proceedings_other_judicial_ind
+    widgets:
+      proceedings_removal_ind:
+        page: 7
+        rect:
+        - 342.0
+        - 598.0
+        - 352.0
+        - 608.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line54_Removal[0]
+        on_state: Y
+        caption: Removal
+        x_petey_caption_source: page_text
+      proceedings_exclusion_deportation_ind:
+        page: 7
+        rect:
+        - 414.0
+        - 598.0
+        - 424.0
+        - 608.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line54_Exclusion[0]
+        on_state: Y
+        caption: Exclusion/Deportation
+        x_petey_caption_source: page_text
+      proceedings_rescission_ind:
+        page: 7
+        rect:
+        - 342.0
+        - 616.0
+        - 352.0
+        - 626.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line54_Rescission[0]
+        on_state: Y
+        caption: Rescission
+        x_petey_caption_source: page_text
+      proceedings_other_judicial_ind:
+        page: 7
+        rect:
+        - 414.0
+        - 616.0
+        - 424.0
+        - 626.0
+        widget_type: checkbox
+        path: form1[0].#subform[6].Pt4Line54_JudicialProceedings[0]
+        on_state: Y
+        caption: Other Judicial Proceedings
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 12:19:05'
+      from:
+      - proceedings_removal_ind
+      - proceedings_exclusion_deportation_ind
+      - proceedings_rescission_ind
+      - proceedings_other_judicial_ind
+      name_from: labeler
   proceedings_city_nm:
     x_petey_id: '7_40'
     type: string
@@ -5211,11 +6891,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_postal_cd:
+  beneficiary_employer_postal_cd:
     x_petey_id: '7_25'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 7
       rect:
@@ -5230,7 +6908,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer_country:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: beneficiary_employer_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information item 51.H Postal
+        Code (foreign; the ZIP is 51.F), so the US ZIP type/pattern is dropped; prefixed
+        like the rest of the beneficiary''s employer block.'
+  beneficiary_employer_country:
     x_petey_id: '7_27'
     type: string
     semantic_type: country
@@ -5248,6 +6944,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: employer_country
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: beneficiary_employer_country
+        type: string
+        semantic_type: country
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.I country;
+        the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
+        needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
   proceedings_state_abbreviation_cd:
     x_petey_id: '7_41'
     type: category
@@ -5367,7 +7081,6 @@ fields:
   beneficiary_native_middle_nm:
     x_petey_id: '8_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -5382,10 +7095,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_native_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_native_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   beneficiary_native_family_nm:
     x_petey_id: '8_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -5402,10 +7130,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_native_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_native_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   beneficiary_native_given_nm:
     x_petey_id: '8_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -5420,7 +7163,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  foreign_address_unit_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_native_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficiary_native_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  beneficiary_native_address_unit_nbr:
     x_petey_id: '8_8'
     type: string
     widget:
@@ -5437,7 +7196,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  foreign_address_city_nm_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: foreign_address_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_native_address_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 58.B apt/ste/flr number of the name and foreign address
+        written in the beneficiary''s native script (after 57, beneficiary_native_*_nm);
+        the ''_2'' names collide in meaning with the item 13 foreign address.'
+  beneficiary_native_address_city_nm:
     x_petey_id: '8_9'
     type: string
     semantic_type: city
@@ -5455,7 +7232,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  foreign_address_province_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: foreign_address_city_nm_2
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: beneficiary_native_address_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 58.C city of the name and foreign address written
+        in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
+        ''_2'' names collide in meaning with the item 13 foreign address.'
+  beneficiary_native_address_province_txt:
     x_petey_id: '8_10'
     type: string
     semantic_type: text
@@ -5473,7 +7268,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  foreign_address_country_cd_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: foreign_address_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: beneficiary_native_address_province_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 58.D province of the name and foreign address written
+        in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
+        ''_2'' names collide in meaning with the item 13 foreign address.'
+  beneficiary_native_address_country_txt:
     x_petey_id: '8_13'
     type: string
     widget:
@@ -5491,11 +7304,27 @@ fields:
     description: Part 4. Information About Beneficiary. Additional Information About
       Beneficiary. 58. F. Enter Country.
     x_petey_description_source: tooltip
-  foreign_address_postal_cd_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: foreign_address_country_cd_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_native_address_country_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 58.F country of the name and foreign address written
+        in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
+        ''_2'' names collide in meaning with the item 13 foreign address.'
+  beneficiary_native_address_postal_cd:
     x_petey_id: '8_11'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 8
       rect:
@@ -5510,7 +7339,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  foreign_address_street_number_and_name_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: foreign_address_postal_cd_2
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: beneficiary_native_address_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 58.E postal code of the name and foreign address
+        written in the beneficiary''s native script (after 57, beneficiary_native_*_nm);
+        the ''_2'' names collide in meaning with the item 13 foreign address.'
+  beneficiary_native_address_street_number_and_name_txt:
     x_petey_id: '8_7'
     type: string
     semantic_type: street_address
@@ -5528,6 +7375,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: foreign_address_street_number_and_name_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: beneficiary_native_address_street_number_and_name_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 4 item 58.A street of the name and foreign address written
+        in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
+        ''_2'' names collide in meaning with the item 13 foreign address.'
   last_lived_together_unit_nbr:
     x_petey_id: '8_18'
     type: string
@@ -5759,8 +7624,6 @@ fields:
   last_lived_together_postal_cd:
     x_petey_id: '8_28'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 8
       rect:
@@ -5775,6 +7638,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: last_lived_together_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: last_lived_together_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Item 59.G Postal Code is the non-US code (59.E is the ZIP); the US ZIP
+        semantic type and pattern would reject foreign codes.
   consulate_city_nm:
     x_petey_id: '8_1'
     type: string
@@ -5842,7 +7722,6 @@ fields:
   prior_petition_beneficiary_family_nm:
     x_petey_id: '8_14'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -5857,10 +7736,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: prior_petition_beneficiary_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: prior_petition_beneficiary_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   prior_petition_beneficiary_given_nm:
     x_petey_id: '8_15'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -5874,10 +7768,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: prior_petition_beneficiary_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: prior_petition_beneficiary_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   prior_petition_beneficiary_middle_nm:
     x_petey_id: '8_17'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -5891,6 +7800,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: prior_petition_beneficiary_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: prior_petition_beneficiary_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   prior_petition_result_txt:
     x_petey_id: '8_27'
     type: string
@@ -6141,7 +8066,6 @@ fields:
   relative1_family_nm:
     x_petey_id: '8_31'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -6157,10 +8081,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: relative1_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: relative1_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   relative1_given_nm:
     x_petey_id: '8_33'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -6175,10 +8114,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: relative1_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: relative1_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   relative1_middle_nm:
     x_petey_id: '8_34'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -6192,6 +8146,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: relative1_middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: relative1_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   petitioner_daytime_phone_num:
     x_petey_id: '9_1'
     type: string
@@ -6254,10 +8224,9 @@ fields:
       and Signature. Petitioner's Contact Information. 4. Enter Petitioner's Mobile
       Telephone Number, if any.
     x_petey_description_source: tooltip
-  petitioner_middle_nm_2:
+  relative2_middle_nm:
     x_petey_id: '9_5'
     type: string
-    semantic_type: person_name
     widget:
       page: 9
       rect:
@@ -6271,7 +8240,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  petitioner_first_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_middle_nm_2
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: relative2_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Part 5 Other Information, Relative 2, item 8.C Middle Name (widget
+        Pt4Line8*/9); it is the second relative you are filing separate petitions
+        for (relative1_* is items 6-7), not the petitioner.'
+  relative2_given_nm:
     x_petey_id: '9_3'
     type: string
     semantic_type: first_name
@@ -6289,7 +8276,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  petitioner_last_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: relative2_given_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Part 5 Other Information, Relative 2, item 8.B Given Name (widget
+        Pt4Line8*/9); it is the second relative you are filing separate petitions
+        for (relative1_* is items 6-7), not the petitioner.'
+  relative2_family_nm:
     x_petey_id: '9_2'
     type: string
     semantic_type: last_name
@@ -6307,7 +8312,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  relationship_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: petitioner_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: relative2_family_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Part 5 Other Information, Relative 2, item 8.A Family Name (widget
+        Pt4Line8*/9); it is the second relative you are filing separate petitions
+        for (relative1_* is items 6-7), not the petitioner.'
+  relative2_relationship_txt:
     x_petey_id: '9_7'
     type: string
     semantic_type: text
@@ -6324,6 +8347,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: relationship_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: relative2_relationship_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: Part 5 Other Information, Relative 2, item 9 Relationship (widget
+        Pt4Line8*/9); it is the second relative you are filing separate petitions
+        for (relative1_* is items 6-7), not the petitioner.'
   reads_english_ind:
     x_petey_id: '9_8'
     type: boolean
@@ -6410,7 +8451,6 @@ fields:
   preparer_nm:
     x_petey_id: '9_13'
     type: string
-    semantic_type: person_name
     widget:
       page: 9
       rect:
@@ -6425,6 +8465,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: preparer_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: preparer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   petitioner_signature_dt:
     x_petey_id: '9_14'
     type: date
@@ -6469,7 +8525,6 @@ fields:
   interpreter_given_nm:
     x_petey_id: '10_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 10
       rect:
@@ -6484,10 +8539,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: interpreter_given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: interpreter_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   interpreter_family_nm:
     x_petey_id: '10_2'
     type: string
-    semantic_type: person_name
     widget:
       page: 10
       rect:
@@ -6503,6 +8573,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: interpreter_family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: interpreter_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   interpreter_business_name:
     x_petey_id: '10_4'
     type: string
@@ -6579,8 +8665,6 @@ fields:
   interpreter_postal_cd:
     x_petey_id: '10_14'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 10
       rect:
@@ -6595,6 +8679,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: interpreter_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: interpreter_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Item 3.G Postal Code is the non-US code (3.E is the ZIP); US ZIP type/pattern
+        would reject foreign codes.
   interpreter_zip_cd:
     x_petey_id: '10_12'
     type: string
@@ -6728,7 +8829,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  interpreter_language_txt_2:
+  interpreter_certification_language_txt:
     x_petey_id: '10_1'
     type: string
     semantic_type: text
@@ -6753,6 +8854,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: interpreter_language_txt_2
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: interpreter_certification_language_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 7 Interpreter''s Certification, ''I am fluent in English
+        and (language)'' (widget Pt7_NameofLanguage); the ''_2'' hides that it is
+        the interpreter''s certification, not Part 6 item 1.b.'
   interpreter_signature_dt:
     x_petey_id: '10_6'
     type: date
@@ -6792,7 +8911,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  preparer_business_name:
+  preparer_given_name:
     x_petey_id: '10_17'
     type: string
     semantic_type: business_name
@@ -6811,10 +8930,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  preparer_address_line_1_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: preparer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: preparer_given_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/hand_review/lib__i130.json
+  preparer_business_name:
     x_petey_id: '10_18'
     type: string
-    semantic_type: street_address
     widget:
       page: 10
       rect:
@@ -6830,10 +8961,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  preparer_given_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: preparer_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: preparer_business_name
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__i130.json
+  preparer_family_nm:
     x_petey_id: '10_15'
     type: string
-    semantic_type: person_name
     widget:
       page: 10
       rect:
@@ -6850,6 +8993,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: preparer_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: preparer_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__i130.json
   interpreter_daytime_phone_txt:
     x_petey_id: '10_19'
     type: string
@@ -6912,11 +9068,9 @@ fields:
       Interpreter's Contact Information. 5. Enter Interpreter's Mobile Telephone Number,
       if any.
     x_petey_description_source: tooltip
-  preparer_zip_cd:
+  preparer_city_nm:
     x_petey_id: '10_25'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 10
       rect:
@@ -6932,10 +9086,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  preparer_city_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: preparer_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: preparer_city_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__i130.json
+  preparer_street_address:
     x_petey_id: '10_20'
     type: string
-    semantic_type: city
+    semantic_type: street_address
     widget:
       page: 10
       rect:
@@ -6951,6 +9118,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: preparer_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: preparer_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/hand_review/lib__i130.json
   preparer_unit_txt:
     x_petey_id: '10_22'
     type: string
@@ -6973,8 +9153,6 @@ fields:
   preparer_postal_cd:
     x_petey_id: '10_29'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 10
       rect:
@@ -6990,6 +9168,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: preparer_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: preparer_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: type
+      why: Item 3.G Postal Code is the non-US code (3.E is the ZIP); US ZIP type/pattern
+        would reject foreign codes.
   preparer_zip_cd_2:
     x_petey_id: '10_27'
     type: string
@@ -7315,7 +9510,7 @@ fields:
       8. B. Enter Date of Signature. Enter as 2 digit month, 2 digit day and 4 digit
       year.
     x_petey_description_source: tooltip
-  a_number:
+  part9_petitioner_a_number:
     x_petey_id: '12_8'
     type: string
     widget:
@@ -7333,6 +9528,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: a_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: part9_petitioner_a_number
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 9 Additional Information item 2 A-Number, read-only, pre-populated
+        from the petitioner''s Part 2 entry; a bare ''a_number'' does not say whose.'
   item_3a_page_number:
     x_petey_id: '12_9'
     type: string
@@ -7559,10 +9771,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  family_nm:
+  part9_petitioner_family_nm:
     x_petey_id: '12_5'
     type: string
-    semantic_type: person_name
     widget:
       page: 12
       rect:
@@ -7583,10 +9794,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  given_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: family_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: part9_petitioner_family_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 9 Additional Information item 1.A Family Name, read-only,
+        pre-populated from the petitioner''s Part 2 entry; a bare ''family_nm'' does
+        not say whose.'
+  part9_petitioner_given_nm:
     x_petey_id: '12_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 12
       rect:
@@ -7601,10 +9829,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  middle_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: given_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: part9_petitioner_given_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 9 Additional Information item 1.B Given Name, read-only,
+        pre-populated from the petitioner''s Part 2 entry; a bare ''given_nm'' does
+        not say whose.'
+  part9_petitioner_middle_nm:
     x_petey_id: '12_7'
     type: string
-    semantic_type: person_name
     widget:
       page: 12
       rect:
@@ -7619,6 +9864,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: middle_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: part9_petitioner_middle_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip: Part 9 Additional Information item 1.C Middle Name, read-only,
+        pre-populated from the petitioner''s Part 2 entry; a bare ''middle_nm'' does
+        not say whose.'
   item_6d_additional_info_txt:
     x_petey_id: '12_16'
     type: string
@@ -7737,7 +10000,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[0].Pt1Line1_Spouse[0]
         on_state: Y
-        caption: Y
+        caption: Spouse
+        x_petey_caption_source: claude
       brother_sister:
         page: 1
         rect:
@@ -7748,7 +10012,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[0].Pt1Line1_Siblings[0]
         on_state: Y
-        caption: Y
+        caption: Brother/Sister
+        x_petey_caption_source: claude
       parent:
         page: 1
         rect:
@@ -7759,7 +10024,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[0].Pt1Line1_Parent[0]
         on_state: Y
-        caption: Y
+        caption: Parent
+        x_petey_caption_source: claude
       child:
         page: 1
         rect:
@@ -7770,7 +10036,39 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[0].Pt1Line1_Child[0]
         on_state: Y
-        caption: Y
+        caption: Child
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: relationship_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          spouse: Y
+          parent: Y
+          brother_sister: Y
+          child: Y
+      to:
+        name: relationship_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          spouse:
+            caption: Spouse
+          parent:
+            caption: Parent
+          brother_sister:
+            caption: Brother/Sister
+          child:
+            caption: Child
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are the export value 'Y'; Part 1 item 1 boxes are printed Spouse,
+        Parent, Brother/Sister, Child (tooltips 'Select Spouse' etc.).
   sex:
     x_petey_id: '2_17'
     type: category
@@ -7788,7 +10086,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line9_Male[0]
         on_state: Y
-        caption: Y
+        caption: Male
+        x_petey_caption_source: claude
       female_ind:
         page: 2
         rect:
@@ -7799,7 +10098,33 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line9_Female[0]
         on_state: Y
-        caption: Y
+        caption: Female
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male_ind: Y
+          female_ind: Y
+      to:
+        name: sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male_ind:
+            caption: Male
+          female_ind:
+            caption: Female
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are the export value 'Y'; Part 2 item 9 boxes are printed Male
+        and Female.
   mailing_same_as_physical:
     x_petey_id: '2_39'
     type: category
@@ -7817,7 +10142,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line11_Yes[0]
         on_state: Y
-        caption: Y
+        caption: 'Yes'
+        x_petey_caption_source: claude
       no_ind:
         page: 2
         rect:
@@ -7828,7 +10154,32 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line11_No[0]
         on_state: N
-        caption: N
+        caption: 'No'
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: mailing_same_as_physical
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          yes_ind: Y
+          no_ind: N
+      to:
+        name: mailing_same_as_physical
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          yes_ind:
+            caption: 'Yes'
+          no_ind:
+            caption: 'No'
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values Y/N; item 11 boxes are printed Yes and No.
   mailing_unit_type:
     x_petey_id: '2_25'
     type: category
@@ -7847,7 +10198,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line10_Unit[0]
         on_state: 'APT '
-        caption: 'APT '
+        caption: Apt.
+        x_petey_caption_source: claude
       ste_ind:
         page: 2
         rect:
@@ -7858,7 +10210,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line10_Unit[1]
         on_state: STE
-        caption: STE
+        caption: Ste.
+        x_petey_caption_source: claude
       flr_ind:
         page: 2
         rect:
@@ -7869,8 +10222,37 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line10_Unit[2]
         on_state: FLR
-        caption: FLR
-  physical_address_1_unit_type:
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: mailing_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind: 'APT '
+          ste_ind: STE
+          flr_ind: FLR
+      to:
+        name: mailing_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind:
+            caption: Apt.
+          ste_ind:
+            caption: Ste.
+          flr_ind:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values (APT/STE/FLR with stray spaces); item 10.C boxes
+        are printed Apt., Ste., Flr.
+  physical_address_2_unit_type:
     x_petey_id: '2_21'
     type: category
     values:
@@ -7888,7 +10270,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line14_Unit[0]
         on_state: ' APT '
-        caption: ' APT '
+        caption: Apt.
+        x_petey_caption_source: claude
       ste_ind:
         page: 2
         rect:
@@ -7899,7 +10282,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line14_Unit[1]
         on_state: ' STE '
-        caption: ' STE '
+        caption: Ste.
+        x_petey_caption_source: claude
       flr_ind:
         page: 2
         rect:
@@ -7910,7 +10294,39 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line14_Unit[2]
         on_state: ' FLR '
-        caption: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind: ' APT '
+          ste_ind: ' STE '
+          flr_ind: ' FLR '
+      to:
+        name: physical_address_2_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind:
+            caption: Apt.
+          ste_ind:
+            caption: Ste.
+          flr_ind:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: Tooltip says Address History Physical Address 2, item 14.B Apt./Ste./Flr.
+        boxes (widget Pt2Line14_*); the name says address 1, which is item 12 (its
+        dates are already physical_address_2_date_from_dt / _to_dt). Captions are
+        export values (APT/STE/FLR with stray spaces); item 14.B boxes are printed
+        Apt., Ste., Flr.
   physical_address_1_12b_unit_type:
     x_petey_id: '2_5'
     type: category
@@ -7929,7 +10345,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line12_Unit[0]
         on_state: ' APT '
-        caption: ' APT '
+        caption: Apt.
+        x_petey_caption_source: claude
       ste_ind:
         page: 2
         rect:
@@ -7940,7 +10357,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line12_Unit[1]
         on_state: ' STE '
-        caption: ' STE '
+        caption: Ste.
+        x_petey_caption_source: claude
       flr_ind:
         page: 2
         rect:
@@ -7951,7 +10369,36 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line12_Unit[2]
         on_state: ' FLR '
-        caption: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_1_12b_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind: ' APT '
+          ste_ind: ' STE '
+          flr_ind: ' FLR '
+      to:
+        name: physical_address_1_12b_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind:
+            caption: Apt.
+          ste_ind:
+            caption: Ste.
+          flr_ind:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values (APT/STE/FLR with stray spaces); item 12.B boxes
+        are printed Apt., Ste., Flr.
   marital_status:
     x_petey_id: '2_41'
     type: category
@@ -7973,7 +10420,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line17_Widowed[0]
         on_state: Y
-        caption: Y
+        caption: Widowed
+        x_petey_caption_source: hand
       annulled_ind:
         page: 2
         rect:
@@ -7984,7 +10432,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line17_Annulled[0]
         on_state: Y
-        caption: Y
+        caption: Annulled
+        x_petey_caption_source: hand
       separated_ind:
         page: 2
         rect:
@@ -7995,7 +10444,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line17_Separated[0]
         on_state: Y
-        caption: Y
+        caption: Separated
+        x_petey_caption_source: hand
       single_never_married_ind:
         page: 2
         rect:
@@ -8006,7 +10456,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line17_Single[0]
         on_state: Y
-        caption: Y
+        caption: Single, Never Married
+        x_petey_caption_source: hand
       married_ind:
         page: 2
         rect:
@@ -8017,7 +10468,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line17_Married[0]
         on_state: Y
-        caption: Y
+        caption: Married
+        x_petey_caption_source: hand
       divorced_ind:
         page: 2
         rect:
@@ -8028,7 +10480,41 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[1].Pt2Line17_Divorced[0]
         on_state: Y
-        caption: Y
+        caption: Divorced
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: marital_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          widowed_ind: Y
+          annulled_ind: Y
+          separated_ind: Y
+          single_never_married_ind: Y
+          married_ind: Y
+          divorced_ind: Y
+      to:
+        name: marital_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          widowed_ind:
+            caption: Widowed
+          annulled_ind:
+            caption: Annulled
+          separated_ind:
+            caption: Separated
+          single_never_married_ind:
+            caption: Single, Never Married
+          married_ind:
+            caption: Married
+          divorced_ind:
+            caption: Divorced
+      record: runs/hand_review/lib__i130.json
   petitioner_status:
     x_petey_id: '3_22'
     type: category
@@ -8046,7 +10532,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line36_USCitizen[0]
         on_state: Y
-        caption: Y
+        caption: US Citizen
+        x_petey_caption_source: hand
       lawful_permanent_resident_ind:
         page: 3
         rect:
@@ -8057,7 +10544,29 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line36_LPR[0]
         on_state: N
-        caption: N
+        caption: Lawful Permanent Resident
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: petitioner_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          us_citizen_ind: Y
+          lawful_permanent_resident_ind: N
+      to:
+        name: petitioner_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          us_citizen_ind:
+            caption: US Citizen
+          lawful_permanent_resident_ind:
+            caption: Lawful Permanent Resident
+      record: runs/hand_review/lib__i130.json
   citizenship_acquired:
     x_petey_id: '3_26'
     type: category
@@ -8076,7 +10585,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line23a_checkbox[0]
         on_state: Y
-        caption: Y
+        caption: Birth in the United States
+        x_petey_caption_source: claude
       naturalization_ind:
         page: 3
         rect:
@@ -8087,7 +10597,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line23b_checkbox[0]
         on_state: Y
-        caption: Y
+        caption: Naturalization
+        x_petey_caption_source: claude
       parents_ind:
         page: 3
         rect:
@@ -8098,7 +10609,36 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line23c_checkbox[0]
         on_state: Y
-        caption: Y
+        caption: Parents
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: citizenship_acquired
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          birth_in_us_ind: Y
+          naturalization_ind: Y
+          parents_ind: Y
+      to:
+        name: citizenship_acquired
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          birth_in_us_ind:
+            caption: Birth in the United States
+          naturalization_ind:
+            caption: Naturalization
+          parents_ind:
+            caption: Parents
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are the export value 'Y'; item 37 boxes are printed Birth in the
+        United States, Naturalization, Parents.
   parent_1_sex:
     x_petey_id: '3_35'
     type: category
@@ -8116,7 +10656,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line26_Male[0]
         on_state: Y
-        caption: Y
+        caption: Male
+        x_petey_caption_source: claude
       female_ind:
         page: 3
         rect:
@@ -8127,7 +10668,32 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line26_Female[0]
         on_state: Y
-        caption: Y
+        caption: Female
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_1_sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male_ind: Y
+          female_ind: Y
+      to:
+        name: parent_1_sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male_ind:
+            caption: Male
+          female_ind:
+            caption: Female
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are the export value 'Y'; item 26 boxes are printed Male and Female.
   parent_2_sex:
     x_petey_id: '3_13'
     type: category
@@ -8145,7 +10711,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line32_Male[0]
         on_state: Y
-        caption: Y
+        caption: Male
+        x_petey_caption_source: claude
       female_ind:
         page: 3
         rect:
@@ -8156,7 +10723,32 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[2].Pt2Line32_Female[0]
         on_state: Y
-        caption: Y
+        caption: Female
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: parent_2_sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male_ind: Y
+          female_ind: Y
+      to:
+        name: parent_2_sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male_ind:
+            caption: Male
+          female_ind:
+            caption: Female
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are the export value 'Y'; item 32 boxes are printed Male and Female.
   gained_lpr_through_marriage:
     x_petey_id: '4_17'
     type: category
@@ -8174,7 +10766,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt2Line41_No[0]
         on_state: N
-        caption: N
+        caption: 'No'
+        x_petey_caption_source: claude
       yes_ind:
         page: 4
         rect:
@@ -8185,7 +10778,32 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt2Line41_Yes[0]
         on_state: Y
-        caption: Y
+        caption: 'Yes'
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: gained_lpr_through_marriage
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          yes_ind: Y
+          no_ind: N
+      to:
+        name: gained_lpr_through_marriage
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          yes_ind:
+            caption: 'Yes'
+          no_ind:
+            caption: 'No'
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values Y/N; item 41 boxes are printed Yes and No.
   ethnicity:
     x_petey_id: '4_24'
     type: category
@@ -8203,7 +10821,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line1_Ethnicity[0]
         on_state: NH
-        caption: NH
+        caption: Not Hispanic Or Latino
+        x_petey_caption_source: hand
       hispanic_or_latino_ind:
         page: 4
         rect:
@@ -8214,7 +10833,29 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line1_Ethnicity[1]
         on_state: H
-        caption: H
+        caption: Hispanic Or Latino
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 13:11:42'
+      from:
+        name: ethnicity
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          not_hispanic_or_latino_ind: NH
+          hispanic_or_latino_ind: H
+      to:
+        name: ethnicity
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          not_hispanic_or_latino_ind:
+            caption: Not Hispanic Or Latino
+          hispanic_or_latino_ind:
+            caption: Hispanic Or Latino
+      record: runs/hand_review/lib__i130.json
   race:
     x_petey_id: '4_31'
     type: category
@@ -8235,7 +10876,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line2_Race_Black[0]
         on_state: B
-        caption: B
+        caption: Black or African American
+        x_petey_caption_source: claude
       american_indian_or_alaska_native_ind:
         page: 4
         rect:
@@ -8246,7 +10888,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line2_Race_AmericanIndianAlaskaNative[0]
         on_state: AA
-        caption: AA
+        caption: American Indian or Alaska Native
+        x_petey_caption_source: claude
       white_ind:
         page: 4
         rect:
@@ -8257,7 +10900,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line2_Race_White[0]
         on_state: W
-        caption: W
+        caption: White
+        x_petey_caption_source: claude
       asian_ind:
         page: 4
         rect:
@@ -8268,7 +10912,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line2_Race_Asian[0]
         on_state: A
-        caption: A
+        caption: Asian
+        x_petey_caption_source: claude
       native_hawaiian_or_other_pacific_islander_ind:
         page: 4
         rect:
@@ -8279,13 +10924,48 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line2_Race_NativeHawaiianOtherPacificIslander[0]
         on_state: N
-        caption: N
+        caption: Native Hawaiian or Other Pacific Islander
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-14 13:19:07'
+      from:
+        name: race
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          black_or_african_american_ind: B
+          american_indian_or_alaska_native_ind: AA
+          white_ind: W
+          asian_ind: A
+          native_hawaiian_or_other_pacific_islander_ind: N
+      to:
+        name: race
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          black_or_african_american_ind:
+            caption: Black or African American
+          american_indian_or_alaska_native_ind:
+            caption: American Indian or Alaska Native
+          white_ind:
+            caption: White
+          asian_ind:
+            caption: Asian
+          native_hawaiian_or_other_pacific_islander_ind:
+            caption: Native Hawaiian or Other Pacific Islander
+      record: lint pass 2026-10-14
+      by: claude
+      kind: caption
+      why: captions were export codes (BLK, AA); now as printed at each box
   eye_color:
     x_petey_id: '4_41'
     type: category
     values:
     - black_ind
     - blue_ind
+    - brown_ind
     - gray_ind
     - green_ind
     - hazel_ind
@@ -8293,72 +10973,6 @@ fields:
     - pink_ind
     - unknown_other_ind
     widgets:
-      blue_ind:
-        page: 4
-        rect:
-        - 409.99798583984375
-        - 648.9990234375
-        - 419.99798583984375
-        - 658.9990234375
-        widget_type: checkbox
-        path: form1[0].#subform[3].Pt3Line5_EyeColor[0]
-        on_state: BLU
-        caption: BLU
-      hazel_ind:
-        page: 4
-        rect:
-        - 469.9989929199219
-        - 648.9990234375
-        - 479.9989929199219
-        - 658.9990234375
-        widget_type: checkbox
-        path: form1[0].#subform[3].Pt3Line5_EyeColor[1]
-        on_state: BRN
-        caption: BRN
-      green_ind:
-        page: 4
-        rect:
-        - 469.9989929199219
-        - 663.9990234375
-        - 479.9989929199219
-        - 673.9990234375
-        widget_type: checkbox
-        path: form1[0].#subform[3].Pt3Line5_EyeColor[2]
-        on_state: HZL
-        caption: HZL
-      pink_ind:
-        page: 4
-        rect:
-        - 409.99798583984375
-        - 678.9979858398438
-        - 419.99798583984375
-        - 688.9979858398438
-        widget_type: checkbox
-        path: form1[0].#subform[3].Pt3Line5_EyeColor[3]
-        on_state: PNK
-        caption: PNK
-      maroon_ind:
-        page: 4
-        rect:
-        - 343.9989929199219
-        - 678.9979858398438
-        - 353.9989929199219
-        - 688.9979858398438
-        widget_type: checkbox
-        path: form1[0].#subform[3].Pt3Line5_EyeColor[4]
-        on_state: MRN
-        caption: MRN
-      gray_ind:
-        page: 4
-        rect:
-        - 409.99798583984375
-        - 663.9990234375
-        - 419.99798583984375
-        - 673.9990234375
-        widget_type: checkbox
-        path: form1[0].#subform[3].Pt3Line5_EyeColor[5]
-        on_state: GRN
-        caption: GRN
       black_ind:
         page: 4
         rect:
@@ -8369,7 +10983,92 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line5_EyeColor[7]
         on_state: BLK
-        caption: BLK
+        caption: Black
+        x_petey_caption_source: claude
+      blue_ind:
+        page: 4
+        rect:
+        - 409.99798583984375
+        - 648.9990234375
+        - 419.99798583984375
+        - 658.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt3Line5_EyeColor[0]
+        on_state: BLU
+        caption: Blue
+        x_petey_caption_source: claude
+      brown_ind:
+        page: 4
+        rect:
+        - 469.9989929199219
+        - 648.9990234375
+        - 479.9989929199219
+        - 658.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt3Line5_EyeColor[1]
+        on_state: BRN
+        caption: Brown
+        x_petey_caption_source: claude
+      gray_ind:
+        page: 4
+        rect:
+        - 343.9989929199219
+        - 663.9990234375
+        - 353.9989929199219
+        - 673.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt3Line5_EyeColor[6]
+        on_state: GRAY
+        caption: GRY
+        x_petey_caption_source: hand
+      green_ind:
+        page: 4
+        rect:
+        - 409.99798583984375
+        - 663.9990234375
+        - 419.99798583984375
+        - 673.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt3Line5_EyeColor[5]
+        on_state: GRN
+        caption: Green
+        x_petey_caption_source: claude
+      hazel_ind:
+        page: 4
+        rect:
+        - 469.9989929199219
+        - 663.9990234375
+        - 479.9989929199219
+        - 673.9990234375
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt3Line5_EyeColor[2]
+        on_state: HZL
+        caption: Hazel
+        x_petey_caption_source: claude
+      maroon_ind:
+        page: 4
+        rect:
+        - 343.9989929199219
+        - 678.9979858398438
+        - 353.9989929199219
+        - 688.9979858398438
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt3Line5_EyeColor[4]
+        on_state: MRN
+        caption: Maroon
+        x_petey_caption_source: claude
+      pink_ind:
+        page: 4
+        rect:
+        - 409.99798583984375
+        - 678.9979858398438
+        - 419.99798583984375
+        - 688.9979858398438
+        widget_type: checkbox
+        path: form1[0].#subform[3].Pt3Line5_EyeColor[3]
+        on_state: PNK
+        caption: Pink
+        x_petey_caption_source: claude
       unknown_other_ind:
         page: 4
         rect:
@@ -8380,8 +11079,64 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[3].Pt3Line5_EyeColor[8]
         on_state: OTH
-        caption: OTH
-  physical_address_unit_type:
+        caption: Unknown/Other
+        x_petey_caption_source: claude
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 13:14:44'
+      from:
+      - eye_color::black_ind
+      - eye_color::blue_ind
+      - eye_color::hazel_ind
+      - eye_color_gray_ind
+      - eye_color::gray_ind
+      - eye_color::green_ind
+      - eye_color::maroon_ind
+      - eye_color::pink_ind
+      - eye_color::unknown_other_ind
+    x_petey_hand_edit:
+      when: '2026-10-14 13:19:07'
+      from:
+        name: eye_color
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          black_ind: BLK
+          blue_ind: BLU
+          brown_ind: BRN
+          green_ind: GRN
+          hazel_ind: HZL
+          maroon_ind: MRN
+          pink_ind: PNK
+          unknown_other_ind: OTH
+      to:
+        name: eye_color
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          black_ind:
+            caption: Black
+          blue_ind:
+            caption: Blue
+          brown_ind:
+            caption: Brown
+          green_ind:
+            caption: Green
+          hazel_ind:
+            caption: Hazel
+          maroon_ind:
+            caption: Maroon
+          pink_ind:
+            caption: Pink
+          unknown_other_ind:
+            caption: Unknown/Other
+      record: lint pass 2026-10-14
+      by: claude
+      kind: caption
+      why: captions were export codes (BLK, AA); now as printed at each box
+  beneficiary_us_address_unit_type:
     x_petey_id: '5_19'
     type: category
     values:
@@ -8399,7 +11154,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line12b_Unit[0]
         on_state: ' APT '
-        caption: ' APT '
+        caption: Apt.
+        x_petey_caption_source: claude
       ste:
         page: 5
         rect:
@@ -8410,7 +11166,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line12b_Unit[1]
         on_state: ' STE '
-        caption: ' STE '
+        caption: Ste.
+        x_petey_caption_source: claude
       flr:
         page: 5
         rect:
@@ -8421,17 +11178,45 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line12b_Unit[2]
         on_state: ' FLR '
-        caption: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: physical_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt: ' APT '
+          ste: ' STE '
+          flr: ' FLR '
+      to:
+        name: beneficiary_us_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt:
+            caption: Apt.
+          ste:
+            caption: Ste.
+          flr:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip: item 12.B Apt./Ste./Flr. of ''the address in the United States
+        where the beneficiary intends to live'' (Other Address and Contact Information);
+        it is not the beneficiary''s physical address (item 11). Captions are export
+        values with stray spaces; item 12.B boxes are printed Apt., Ste., Flr.'
   foreign_address_unit_type:
     x_petey_id: '5_28'
     type: category
     values:
     - apt
-    - apt_ind
-    - flr
-    - flr_ind
     - ste
-    - ste_ind
+    - flr
     widgets:
       apt:
         page: 5
@@ -8443,7 +11228,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line13_Unit[0]
         on_state: ' APT '
-        caption: ' APT '
+        caption: Apt.
+        x_petey_caption_source: claude
       ste:
         page: 5
         rect:
@@ -8454,7 +11240,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line13_Unit[1]
         on_state: ' STE '
-        caption: ' STE '
+        caption: Ste.
+        x_petey_caption_source: claude
       flr:
         page: 5
         rect:
@@ -8465,7 +11252,50 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line13_Unit[2]
         on_state: ' FLR '
-        caption: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 13:19:07'
+      from:
+      - foreign_address_unit_type::apt
+      - foreign_address_unit_type::ste
+      - foreign_address_unit_type::flr
+    x_petey_hand_edit:
+      when: '2026-10-14 13:19:46'
+      from:
+        name: foreign_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt: ' APT '
+          ste: ' STE '
+          flr: ' FLR '
+      to:
+        name: foreign_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt:
+            caption: Apt.
+          ste:
+            caption: Ste.
+          flr:
+            caption: Flr.
+      record: lint pass 2026-10-14
+      by: claude
+      kind: caption
+      why: captions were export codes; now as printed at each box
+  beneficiary_native_address_unit_type:
+    x_petey_id: '8_38'
+    type: category
+    values:
+    - apt_ind
+    - ste_ind
+    - flr_ind
+    widgets:
       apt_ind:
         page: 8
         rect:
@@ -8476,7 +11306,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Pt4Line56_Unit[0]
         on_state: ' APT '
-        caption: ' APT '
+        caption: Apt.
+        x_petey_caption_source: claude
       ste_ind:
         page: 8
         rect:
@@ -8487,7 +11318,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Pt4Line56_Unit[1]
         on_state: ' STE '
-        caption: ' STE '
+        caption: Ste.
+        x_petey_caption_source: claude
       flr_ind:
         page: 8
         rect:
@@ -8498,7 +11330,42 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Pt4Line56_Unit[2]
         on_state: ' FLR '
-        caption: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 13:19:07'
+      from:
+      - foreign_address_unit_type::apt_ind
+      - foreign_address_unit_type::ste_ind
+      - foreign_address_unit_type::flr_ind
+    x_petey_hand_edit:
+      when: '2026-10-14 13:19:46'
+      from:
+        name: beneficiary_native_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind: ' APT '
+          ste_ind: ' STE '
+          flr_ind: ' FLR '
+      to:
+        name: beneficiary_native_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind:
+            caption: Apt.
+          ste_ind:
+            caption: Ste.
+          flr_ind:
+            caption: Flr.
+      record: lint pass 2026-10-14
+      by: claude
+      kind: caption
+      why: captions were export codes; now as printed at each box
   beneficiary_physical_address_unit_type:
     x_petey_id: '5_4'
     type: category
@@ -8517,7 +11384,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line11_Unit[0]
         on_state: APT
-        caption: APT
+        caption: Apt.
+        x_petey_caption_source: claude
       ste:
         page: 5
         rect:
@@ -8528,7 +11396,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line11_Unit[1]
         on_state: STE
-        caption: STE
+        caption: Ste.
+        x_petey_caption_source: claude
       flr:
         page: 5
         rect:
@@ -8539,7 +11408,36 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line11_Unit[2]
         on_state: FLR
-        caption: FLR
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_physical_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt: APT
+          ste: STE
+          flr: FLR
+      to:
+        name: beneficiary_physical_address_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt:
+            caption: Apt.
+          ste:
+            caption: Ste.
+          flr:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values; Part 4 item 11.B boxes are printed Apt., Ste.,
+        Flr.
   beneficiary_sex:
     x_petey_id: '5_35'
     type: category
@@ -8557,7 +11455,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line9_Male[0]
         on_state: Y
-        caption: Y
+        caption: Male
+        x_petey_caption_source: claude
       female:
         page: 5
         rect:
@@ -8568,7 +11467,33 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line9_Female[0]
         on_state: Y
-        caption: Y
+        caption: Female
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: beneficiary_sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male: Y
+          female: Y
+      to:
+        name: beneficiary_sex
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          male:
+            caption: Male
+          female:
+            caption: Female
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are the export value 'Y'; Part 4 item 9 boxes are printed Male
+        and Female.
   hair_color:
     x_petey_id: '5_1'
     type: category
@@ -8593,7 +11518,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[0]
         on_state: BLD
-        caption: BLD
+        caption: Bald (No hair)
+        x_petey_caption_source: claude
       black:
         page: 5
         rect:
@@ -8604,7 +11530,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[1]
         on_state: BLK
-        caption: BLK
+        caption: Black
+        x_petey_caption_source: claude
       blond:
         page: 5
         rect:
@@ -8615,7 +11542,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[2]
         on_state: BND
-        caption: BND
+        caption: Blond
+        x_petey_caption_source: claude
       brown:
         page: 5
         rect:
@@ -8626,7 +11554,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[3]
         on_state: BRN
-        caption: BRN
+        caption: Brown
+        x_petey_caption_source: claude
       gray:
         page: 5
         rect:
@@ -8637,7 +11566,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[4]
         on_state: GRY
-        caption: GRY
+        caption: Gray
+        x_petey_caption_source: claude
       red:
         page: 5
         rect:
@@ -8648,7 +11578,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[5]
         on_state: RED
-        caption: RED
+        caption: Red
+        x_petey_caption_source: claude
       sandy:
         page: 5
         rect:
@@ -8659,7 +11590,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[6]
         on_state: SDY
-        caption: SDY
+        caption: Sandy
+        x_petey_caption_source: claude
       white:
         page: 5
         rect:
@@ -8670,7 +11602,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[7]
         on_state: WHT
-        caption: WHT
+        caption: White
+        x_petey_caption_source: claude
       unknown_other:
         page: 5
         rect:
@@ -8681,7 +11614,54 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt3Line6_HairColor[8]
         on_state: OTH
-        caption: OTH
+        caption: Unknown/Other
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: hair_color
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          bald: BLD
+          black: BLK
+          blond: BND
+          brown: BRN
+          gray: GRY
+          red: RED
+          sandy: SDY
+          white: WHT
+          unknown_other: OTH
+      to:
+        name: hair_color
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          bald:
+            caption: Bald (No hair)
+          black:
+            caption: Black
+          blond:
+            caption: Blond
+          brown:
+            caption: Brown
+          gray:
+            caption: Gray
+          red:
+            caption: Red
+          sandy:
+            caption: Sandy
+          white:
+            caption: White
+          unknown_other:
+            caption: Unknown/Other
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export codes (BLD, BLK, BND...); Part 3 item 6 boxes are printed
+        Bald (No hair), Black, Blond, Brown, Gray, Red, Sandy, White, Unknown/Other.
   prior_petition_filed:
     x_petey_id: '5_37'
     type: category
@@ -8700,7 +11680,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line10_Yes[0]
         on_state: Y
-        caption: Y
+        caption: 'Yes'
+        x_petey_caption_source: claude
       'no':
         page: 5
         rect:
@@ -8711,7 +11692,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line10_No[0]
         on_state: N
-        caption: N
+        caption: 'No'
+        x_petey_caption_source: claude
       unknown:
         page: 5
         rect:
@@ -8722,7 +11704,36 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[4].Pt4Line10_Unknown[0]
         on_state: U
-        caption: U
+        caption: Unknown
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: prior_petition_filed
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          'yes': Y
+          'no': N
+          unknown: U
+      to:
+        name: prior_petition_filed
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          'yes':
+            caption: 'Yes'
+          'no':
+            caption: 'No'
+          unknown:
+            caption: Unknown
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values Y/N/U; Part 4 item 10 boxes are printed Yes,
+        No, Unknown.
   last_lived_together_unit_type:
     x_petey_id: '8_20'
     type: category
@@ -8741,7 +11752,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Pt4Line57_Unit[0]
         on_state: ' APT '
-        caption: ' APT '
+        caption: Apt.
+        x_petey_caption_source: claude
       ste_ind:
         page: 8
         rect:
@@ -8752,7 +11764,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Pt4Line57_Unit[1]
         on_state: ' STE '
-        caption: ' STE '
+        caption: Ste.
+        x_petey_caption_source: claude
       flr_ind:
         page: 8
         rect:
@@ -8763,7 +11776,36 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Pt4Line57_Unit[2]
         on_state: ' FLR '
-        caption: ' FLR '
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: last_lived_together_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind: ' APT '
+          ste_ind: ' STE '
+          flr_ind: ' FLR '
+      to:
+        name: last_lived_together_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt_ind:
+            caption: Apt.
+          ste_ind:
+            caption: Ste.
+          flr_ind:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values with stray spaces; item 59.B boxes are printed
+        Apt., Ste., Flr.
   previously_filed_petition_ind:
     x_petey_id: '8_12'
     type: category
@@ -8781,7 +11823,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Part4Line1_Yes[0]
         on_state: Y
-        caption: Y
+        caption: 'Yes'
+        x_petey_caption_source: claude
       'no':
         page: 8
         rect:
@@ -8792,7 +11835,33 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[7].Part4Line1_No[0]
         on_state: N
-        caption: N
+        caption: 'No'
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: previously_filed_petition_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          'yes': Y
+          'no': N
+      to:
+        name: previously_filed_petition_ind
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          'yes':
+            caption: 'Yes'
+          'no':
+            caption: 'No'
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values Y/N; Part 5 item 1 boxes are printed Yes and
+        No.
   interpreter_unit_type:
     x_petey_id: '10_9'
     type: category
@@ -8811,7 +11880,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[9].Pt7Line3_Unit[0]
         on_state: APT
-        caption: APT
+        caption: Apt.
+        x_petey_caption_source: claude
       ste:
         page: 10
         rect:
@@ -8822,7 +11892,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[9].Pt7Line3_Unit[1]
         on_state: STE
-        caption: STE
+        caption: Ste.
+        x_petey_caption_source: claude
       flr:
         page: 10
         rect:
@@ -8833,7 +11904,36 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[9].Pt7Line3_Unit[2]
         on_state: FLR
-        caption: FLR
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: interpreter_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt: APT
+          ste: STE
+          flr: FLR
+      to:
+        name: interpreter_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt:
+            caption: Apt.
+          ste:
+            caption: Ste.
+          flr:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values; Part 7 item 3.B boxes are printed Apt., Ste.,
+        Flr.
   preparer_unit_type:
     x_petey_id: '10_23'
     type: category
@@ -8852,7 +11952,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[9].Pt8Line3_Unit[0]
         on_state: APT
-        caption: APT
+        caption: Apt.
+        x_petey_caption_source: claude
       ste:
         page: 10
         rect:
@@ -8863,7 +11964,8 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[9].Pt8Line3_Unit[1]
         on_state: STE
-        caption: STE
+        caption: Ste.
+        x_petey_caption_source: claude
       flr:
         page: 10
         rect:
@@ -8874,7 +11976,36 @@ fields:
         widget_type: checkbox
         path: form1[0].#subform[9].Pt8Line3_Unit[2]
         on_state: 'FLR '
-        caption: 'FLR '
+        caption: Flr.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:57'
+      from:
+        name: preparer_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt: APT
+          ste: STE
+          flr: 'FLR '
+      to:
+        name: preparer_unit_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          apt:
+            caption: Apt.
+          ste:
+            caption: Ste.
+          flr:
+            caption: Flr.
+      record: runs/claude_pass/proposals/lib__i130.json
+      by: claude
+      kind: caption
+      why: Captions are export values; Part 8 item 3.B boxes are printed Apt., Ste.,
+        Flr.
 x_petey_dedup_log:
   duplicate_labels_reassigned: 13
   collisions:
