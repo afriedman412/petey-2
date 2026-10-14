@@ -509,6 +509,9 @@ function onKey(e) {
 // ======================================================================= Review: accept / flag / note per field
 MODE.review = (() => {
   let selOpt = null;           // the option box clicked on the page, within a group (its key): highlighted in the card
+  // p / ←: back through the fields actually visited, like a browser's back button (Andrew, 2026-10-14: stepping back
+  // through the list landed elsewhere once accepting a field reordered or filtered it)
+  let visited = [], goingBack = false, visitedFor = null;
   let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [], clashOn = false;
   const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
   const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
@@ -521,7 +524,7 @@ MODE.review = (() => {
     updateEntry(out.entry);
     return out;
   }
-  async function load() { const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; }
+  async function load() { if (visitedFor !== bid) { visited = []; visitedFor = bid; } const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; }
   // the page reads the working copy again after a change went into it (a correction, a removal)
   async function reload() { await load(); await syncSha(); renderPages(); placeAll(); panel(); progress(); }
   async function removeField() {
@@ -557,12 +560,20 @@ MODE.review = (() => {
     return list;
   }
   function select(name, scroll = true, opt = null) {
+    if (selected && selected !== name && !goingBack) { visited.push(selected); if (visited.length > 500) visited.shift(); }
     selected = name; selOpt = opt;
     const f = BP.fields.find(x => x.name === name);
     if (f && f.page !== page) { page = f.page; renderPages(); showPage().then(() => { panel(); if (scroll) scrollSel(); }); return; }
     placeAll(); panel(); if (scroll) scrollSel();
   }
   function scrollSel() { const el = document.querySelector('.rv.sel'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'}); }
+  function back() {
+    while (visited.length) {
+      const n = visited.pop();
+      if (n !== selected && BP.fields.some(f => f.name === n)) { goingBack = true; try { select(n); } finally { goingBack = false; } return; }
+    }
+    next(-1);                                  // nothing visited yet on this form: the previous field in the list
+  }
   function next(step = 1) {
     const list = ordered(); if (!list.length) return;
     let i = list.findIndex(f => f.name === selected);
@@ -680,7 +691,9 @@ MODE.review = (() => {
     try { out = await putV({[selected]: same ? {verdict: v.verdict || 'accept', note} : {verdict: 'accept', note, edit}}); }
     catch (e) { alert('Could not save the correction: ' + e.message); return; }
     if (same) { toast('Correction withdrawn: the field is back to what the blueprint has.'); placeAll(); panel(); return; }
-    if (out.applied && out.applied.length && edit.name !== f.name && BP.fields.some(x => x.name === edit.name)) selected = edit.name;
+    if (out.applied && out.applied.length && edit.name !== f.name && BP.fields.some(x => x.name === edit.name)) {
+      selected = edit.name; visited = visited.map(n => n === f.name ? edit.name : n);
+    }
     next();
   }
   async function bulkAccept() {
@@ -959,7 +972,7 @@ MODE.review = (() => {
     bar: () => `<span class="progress" id="progress"></span>
       <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>`,
     help: {keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
-                  ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'previous field'],
+                  ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'back to the field you were on before'],
                   ['u', 'unreviewed only on / off']],
            tips: ['Edit the field\'s name, type, semantic type, pattern or option captions in place: Enter, "save correction" or accept saves the changes; Esc undoes them. Empty a semantic type or pattern box to clear it.',
                   'Saving a correction accepts the field and puts it into the working copy; "save blueprint" in the header writes the working copy into the blueprint.',
@@ -1000,7 +1013,7 @@ MODE.review = (() => {
       else if (e.key === 'c') setVerdict(null);
       else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
       else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
-      else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
+      else if (e.key === 'p' || e.key === 'ArrowLeft') back();
       else if (e.key === 'u') { unrevOnly = !unrevOnly; $('#unrev').checked = unrevOnly; renderList(); }
       else return false;
       return true;
