@@ -1253,6 +1253,17 @@ MODE.groups = (() => {
       afterEdit();
     } catch (e) { note('captions failed: ' + e.message); el.disabled = false; el.textContent = 're-read captions'; }
   }
+  // merge a group into another on any page (Andrew, 2026-10-14: I-485 item 56 runs from page 18 onto page 19); the
+  // boxes keep their order, the other group's name and type stand
+  function mergeInto(u, uid) {
+    const t = unitByUid(uid); if (!t || t === u) return;
+    snapshot();
+    t.items.push(...u.items); t.confirmed = false;
+    if (u.captions) t.captions = {...(t.captions || {}), ...u.captions};
+    units = units.filter(x => x !== u); selected = t.uid;
+    note(`${u.name} merged into ${t.name} (${t.items.length} boxes)`);
+    afterEdit();
+  }
   function setDesc(uid, d) { const u = unitByUid(uid); if (!u || (u.description || '') === d) return; snapshot(); u.description = d; afterEdit(); }
   function setType(uid, type) { const u = unitByUid(uid); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(); }
   function separate(u) { snapshot(); units = units.filter(x => x !== u); selected = optUnits().length ? optUnits()[0].uid : null; afterEdit(); }
@@ -1351,6 +1362,7 @@ MODE.groups = (() => {
       <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${u.locked ? '' : ' <button class="btn" id="gLabel" title="one call to the labeler with the words on this page">ask the labeler</button>'}${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}${was}
       ${bad ? `<div class="warn">${bad}</div>` : ''}
       ${what}${group ? `<ol>${items}</ol>` : ''}
+      ${group && !u.locked ? `<div class="row"><select id="gMergeTo" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"><option value="">merge into another group…</option>${optUnits().filter(x => x !== u && isGroup(x) && !x.locked).map(x => `<option value="${x.uid}">${esc(x.name)} (${x.items.length}, p${[...new Set(x.items.map(i => item(i).page))].join(',')})</option>`).join('')}</select></div>` : ''}
       ${group && !u.locked ? '<div class="row"><button class="btn" id="gCaps" title="read each box\'s printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF\'s form data or set by hand stay">re-read captions</button></div>' : ''}
       <div class="row">
         <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right' : 'stands alone')}</button>
@@ -1394,6 +1406,7 @@ MODE.groups = (() => {
       const rv = $('#gRevert'); if (rv) rv.onclick = () => revert(u);
       const sp = $('#gSplit'); if (sp) sp.onclick = () => separate(u);
       const gc = $('#gCaps'); if (gc) gc.onclick = () => rereadCaptions(u, gc);
+      const gm = $('#gMergeTo'); if (gm) { gm.addEventListener('keydown', e => e.stopPropagation()); gm.onchange = () => mergeInto(u, Number(gm.value)); }
     }
     document.querySelectorAll('.gcard').forEach(card => {
       const uid = Number(card.dataset.unit);
