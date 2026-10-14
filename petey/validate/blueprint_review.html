@@ -112,7 +112,13 @@
   .rlist div.removed { text-decoration:line-through; color:var(--text-dim); }
   .rbanner { background:rgba(195,47,39,.14); border:1px solid rgba(195,47,39,.45); color:var(--red); padding:7px 10px; border-radius:var(--r); margin:8px 0; }
   .rv.clash { outline:3px solid var(--cc); outline-offset:1px; z-index:6; }
-  .rv.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
+  /* the selected field, loud (Andrew, 2026-10-14: hard to find on a dense page): a thick border, a white ring that
+     shows on any background, a wide glow, and one pulse when it is selected */
+  .rv.sel { border:3px solid var(--sel); box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 22px 8px rgba(26,115,232,.55);
+            z-index:2; animation:selpulse .9s ease-out 1; }
+  @keyframes selpulse { 0% { box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 0 0 rgba(26,115,232,.9); }
+                        60% { box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 0 26px rgba(26,115,232,0); }
+                        100% { box-shadow:0 0 0 2px #fff, 0 0 0 6px var(--sel), 0 0 22px 8px rgba(26,115,232,.55); } }
   .rv.optsel { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent); z-index:3; }
   .orow.osel input { outline:2px solid var(--accent); outline-offset:-1px; }
   dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } dt { color:var(--text-dim); } dd { margin:0; word-break:break-word; }
@@ -163,7 +169,7 @@
   .gi { position:absolute; border:2px solid var(--c); background:color-mix(in srgb, var(--c) 18%, transparent); z-index:3; cursor:grab; }
   .gi::after { content:''; position:absolute; inset:-3px; }
   .gi.orphan { border-style:dashed; background:transparent; }
-  .gi.sel { box-shadow:0 0 0 2px var(--sel); z-index:4; }
+  .gi.sel { box-shadow:0 0 0 2px #fff, 0 0 0 5px var(--sel), 0 0 16px 5px rgba(26,115,232,.5); z-index:4; }
   .gi.locked { cursor:not-allowed; } .gi.dragging { opacity:.35; }
   .gi.picked { outline:2.5px solid var(--sel); outline-offset:2px; z-index:5; }
   .over { outline:3px solid var(--accent) !important; background:var(--accent-dim) !important; }
