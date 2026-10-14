@@ -514,6 +514,7 @@ MODE.review = (() => {
   let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [], clashOn = false;
   // Claude's changes only: a filter beside 'unreviewed only' (Andrew, 2026-10-14), not an order
   let claudeOnly = store('hr_claude') === '1';
+  let flagOnly = false;        // flagged only (2026-10-14); excludes 'unreviewed only', a flag being a verdict
   if (order === 'claude') { order = 'risk'; claudeOnly = true; }
   const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
   const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
@@ -555,7 +556,8 @@ MODE.review = (() => {
   const CLAUDE_RANK = {wrong: 0, add: 1, caption: 3, type: 4, clarity: 5, suffix: 6};
   const claudeRank = f => f.claude ? (CLAUDE_RANK[f.claude.kind] ?? 5) : (f.why || []).some(w => /^Claude:/.test(w.text)) ? 2 : 9;
   function ordered() {
-    const list = BP.fields.filter(f => (!unrevOnly || !verdictOf(f.name)) && (!claudeOnly || claudeRank(f) < 9));
+    const list = BP.fields.filter(f => (!unrevOnly || !verdictOf(f.name)) && (!flagOnly || verdictOf(f.name) === 'flag')
+                                       && (!claudeOnly || claudeRank(f) < 9));
     if (claudeOnly && order === 'risk') return list.sort((a, b) => (claudeRank(a) - claudeRank(b)) || (a.idx - b.idx));
     if (order === 'risk') list.sort((a, b) => ((TIER_RANK[a.tier] ?? 1) - (TIER_RANK[b.tier] ?? 1)) || (a.idx - b.idx));
     else if (order === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
@@ -819,14 +821,17 @@ MODE.review = (() => {
   const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}<span class="fid">${esc(f.id || 'p' + f.page)}</span> · ${esc(f.name)}${(BP.verdicts[f.name] || {}).edit ? ` <b>→ ${esc(BP.verdicts[f.name].edit.name || f.name)}${BP.verdicts[f.name].edit.type ? ' : ' + esc(BP.verdicts[f.name].edit.type) : ''}${BP.verdicts[f.name].edit.semantic_type ? ' / ' + esc(BP.verdicts[f.name].edit.semantic_type) : ''}</b>` : ''}</div>`).join('')}</div>`;
   // the list's order, just above the list (Andrew, 2026-10-07; it was in the bar)
   const orderHtml = () => `<div class="listorder"><label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only</label>
+    <label class="help"><input type="checkbox" id="flagOnly" ${flagOnly ? 'checked' : ''}> flagged only</label>
     <label class="help" title="only the fields Claude's pass changed (wrong names first when the order is risk first)"><input type="checkbox" id="claudeOnly" ${claudeOnly ? 'checked' : ''}> Claude's changes only</label>
     <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option><option value="name" ${order === 'name' ? 'selected' : ''}>by name</option></select></label></div>`;
   function bindList() {
     document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n));
     const o = $('#order'); if (o) o.onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
-    const u = $('#unrev'); if (u) u.onchange = e => { unrevOnly = e.target.checked; renderList(); };
+    const u = $('#unrev'); if (u) u.onchange = e => { unrevOnly = e.target.checked; if (unrevOnly) flagOnly = false; syncFilters(); renderList(); };
+    const fo = $('#flagOnly'); if (fo) fo.onchange = e => { flagOnly = e.target.checked; if (flagOnly) unrevOnly = false; syncFilters(); renderList(); };
     const co = $('#claudeOnly'); if (co) co.onchange = e => { claudeOnly = e.target.checked; store('hr_claude', claudeOnly ? '1' : '0'); renderList(); };
   }
+  function syncFilters() { const u = $('#unrev'), fo = $('#flagOnly'); if (u) u.checked = unrevOnly; if (fo) fo.checked = flagOnly; }
   function renderList() { const old = document.querySelector('.rlist'); if (!old) return; old.outerHTML = listHtml(); bindList(); }
   function panel() {
     const a = $('#panel'), f = BP.fields.find(x => x.name === selected);
@@ -1028,7 +1033,7 @@ MODE.review = (() => {
       else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
       else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
       else if (e.key === 'p' || e.key === 'ArrowLeft') back();
-      else if (e.key === 'u') { unrevOnly = !unrevOnly; $('#unrev').checked = unrevOnly; renderList(); }
+      else if (e.key === 'u') { unrevOnly = !unrevOnly; if (unrevOnly) flagOnly = false; syncFilters(); renderList(); }
       else return false;
       return true;
     },
