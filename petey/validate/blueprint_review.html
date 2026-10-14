@@ -772,6 +772,22 @@ MODE.review = (() => {
   }
   // "fix captions" (Andrew, 2026-10-07: the loop notices wrong option captions but does not fix them): one agent call
   // for this field, the page check's reason included; its captions fill the option boxes, nothing is saved
+  // "improve name" (Andrew, 2026-10-14): one call to the review agent with the box outlined on the page, its tooltip
+  // and the naming conventions; the name it proposes goes into the name box, and the person saves
+  const NAME_NOTE = 'Propose a better field name: snake_case, saying what the box holds (not an item or line number, '
+    + 'not a bare section label), taken from the tooltip and the text printed at the box. Follow the naming conventions: '
+    + '_nm names, _dt dates, _amt any number, _ind a single checkbox, _cd codes, _txt free text, _num identifiers; an '
+    + 'option group (one of / any of) is named for its question, with no suffix. Change nothing but the name.';
+  async function improveName(f, btn) {
+    btn.disabled = true; btn.textContent = 'asking…';
+    try {
+      const out = await send('POST', mapi('review', '/agent_field'), {name: f.name, note: NAME_NOTE});
+      if (selected !== f.name) return;
+      if (out.name && out.name !== f.name) { $('#eName').value = out.name; markDirty(); toast(`Proposed: ${out.name}. Check it and save. ${out.reason || ''}`); }
+      else toast(`No better name proposed. ${out.reason || ''}`);
+    } catch (e) { alert('The agent failed: ' + e.message); }
+    btn.disabled = false; btn.textContent = 'improve name';
+  }
   async function fixCaptions(f, btn) {
     btn.disabled = true; btn.textContent = 'asking…';
     try {
@@ -869,7 +885,8 @@ MODE.review = (() => {
         </div>
         <datalist id="semList">${[...(BP.semantic_types || [])].sort().map(t => `<option>${esc(t)}</option>`).join('')}</datalist>
         <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction: it goes into the working copy and the field is accepted">save correction</button>
-          <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>${saved}</div>
+          <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>
+          <button class="btn" id="vImprove" title="ask the review agent for a name that says what the box holds (one call, a few seconds); it fills the name box, and you save">improve name</button>${saved}</div>
       </div>
       ${f.claude ? `<div class="loop"><b>Claude's pass</b> (${esc(f.claude.kind)})${f.claude.from && f.claude.from !== f.name ? ` was <code>${esc(f.claude.from)}</code>` : ''}: ${esc(f.claude.why || '')}</div>` : ''}
       ${whyHtml(f)}${agentHtml(v)}${loop}${adj}
@@ -887,6 +904,7 @@ MODE.review = (() => {
     $('#vFix').onclick = saveFix; $('#vUndo').onclick = resetBoxes;
     $('#fref').onclick = () => copyRef(f);
     bindFixes(f); bindAgent(v);
+    const imp = $('#vImprove'); if (imp) imp.onclick = () => improveName(f, imp);
     // the option row of the box clicked on the page, and the other way round: a row focused or hovered lights its box
     for (const r of optRows()) {
       if (r.dataset.k === selOpt) { r.classList.add('osel'); r.scrollIntoView({block: 'nearest'}); }

@@ -43,12 +43,36 @@ def text_maxlens(blank: Optional[Path]) -> dict[str, int]:
     return out
 
 
+# words that say where a field is, not what it holds: a name made of these and numbers is only an item number
+_PLACE_WORDS = {"item", "items", "line", "lines", "question", "q", "part", "pt", "box", "field", "text", "txt", "check",
+                "checkbox", "cb", "number", "num", "nbr", "no", "page", "pg", "p", "row", "col", "column", "section",
+                "sec", "ind", "amt", "cd", "dt", "nm", "yes", "y", "n", "form", "entry", "blank", "group", "option"}
+_ITEM_ID = re.compile(r"^(\d+[a-z]{0,2}|[a-z]\d+[a-z]?|[ivx]+)$")
+
+
+def bare_number(name: str) -> bool:
+    """The name says only where the field is, not what it holds: `item_43f`, `line_12_amt`, `q5`, `field_3`
+    (Andrew, 2026-10-14: I-485 `item_43f`)."""
+    # a field that holds a page / part / item number (continuation boxes, DD 1155's Item No.) says what it holds
+    if re.search(r"(^|_)(page|part|item|line|row|question|section|box)_(number|nbr|no|num)(_|$)", name.lower()):
+        return False
+    toks = [t for t in name.lower().split("_") if t]
+    rest = [t for t in toks if t not in _PLACE_WORDS]
+    return bool(toks) and all(_ITEM_ID.match(t) for t in rest) and any(re.search(r"\d", t) for t in toks)
+
+
 def check(name: str, spec: dict, maxlen: Optional[int] = None) -> list[dict]:
-    """[{rule, grade, text, fix}] for one field; option groups are skipped (their type is the group's)."""
-    if not isinstance(spec, dict) or spec.get("widgets"):
+    """[{rule, grade, text, fix}] for one field. Option groups get only the item-number rule (their type is the
+    group's)."""
+    if not isinstance(spec, dict):
         return []
+    bare = [{"rule": "bare_number", "grade": "error",
+             "text": f"The name `{name}` is only an item number: it should say what the field holds "
+                     f"(\"improve name\" asks for one)."}] if bare_number(name) else []
+    if spec.get("widgets"):
+        return bare
     out = _desc_conflict(name, spec)
-    return out + [r for r in _check(name, spec, maxlen) if not out or r["rule"] != "suffix_type"]
+    return bare + out + [r for r in _check(name, spec, maxlen) if not out or r["rule"] != "suffix_type"]
 
 
 def _desc_conflict(name: str, spec: dict) -> list[dict]:
