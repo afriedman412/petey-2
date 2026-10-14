@@ -565,7 +565,7 @@ MODE.review = (() => {
     if (selected && selected !== name && !goingBack) { visited.push(selected); if (visited.length > 500) visited.shift(); }
     selected = name; selOpt = opt;
     const f = BP.fields.find(x => x.name === name);
-    if (f && f.page !== page) { page = f.page; renderPages(); showPage().then(() => { panel(); if (scroll) scrollSel(); }); return; }
+    if (f && !f.rects.some(r => r.page === page)) { page = f.page; renderPages(); showPage().then(() => { panel(); if (scroll) scrollSel(); }); return; }
     placeAll(); panel(); if (scroll) scrollSel();
   }
   function scrollSel() { const el = document.querySelector('.rv.sel'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'}); }
@@ -979,7 +979,8 @@ MODE.review = (() => {
     load,
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
-    pageLabel(p) { const n = BP.fields.filter(f => f.page === p).length; return n ? `p${p} (${n})` : null; },
+    // a field counts on every page it has a box on (a group merged across pages: CMS-855A pp. 8-9, 2026-10-14)
+    pageLabel(p) { const n = BP.fields.filter(f => f.rects.some(r => r.page === p)).length; return n ? `p${p} (${n})` : null; },
     bar: () => `<span class="progress" id="progress"></span>
       <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>`,
     help: {keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
