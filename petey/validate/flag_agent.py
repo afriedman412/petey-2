@@ -186,7 +186,7 @@ def propose(client, blank: Path, name: str, spec: dict, note: str, tooltip: str,
 
 def process(bid: str, log=print) -> int:
     """Propose a correction for each flagged-with-a-note field of one reviewed blueprint; returns how many."""
-    p = hand_review.blueprint_paths().get(bid)
+    p = hand_review.working_path(bid)
     if p is None:
         return 0
     rec = hand_review.load_verdicts(bid)
@@ -237,7 +237,7 @@ def propose_field(bid: str, name: str, note: str) -> dict:
     """One field, now, for the review page's "fix captions" button (Andrew, 2026-10-07: the loop notices wrong option
     captions and does not fix them; offer the fix in one click). The page check's full reason for the field joins
     the note. The proposal is returned, not stored: the page puts it in the field's boxes and the person saves."""
-    p = hand_review.blueprint_paths().get(bid)
+    p = hand_review.working_path(bid)
     bp = hand_review._load(p) if p else {}
     spec = (bp.get("fields") or {}).get(name)
     blank = resolve_blank(bp) if bp else None

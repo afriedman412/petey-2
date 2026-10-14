@@ -24,7 +24,7 @@ from petey.validate.field_chain import candidate_captions
 _SURE = 0.6            # 0.5 let column headers through ('SECONDARY' for a home-phone box at 0.52)
 _BETTER = 0.2
 _MAX_WORDS = 8          # a caption is a label; a sentence is a tooltip or the question
-_TRUSTED = ("hand", "xfa")
+_TRUSTED = ("hand", "xfa", "claude")      # claude: eval/claude_pass_apply.py, checked by Andrew on the review page
 
 
 def _norm(s: Optional[str]) -> str:

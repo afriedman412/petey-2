@@ -45,7 +45,7 @@ fields:
     - description_from_tooltip
     description: calendar plan year 2025 or fiscal plan year ending
     x_petey_description_source: tooltip
-  group_p1:
+  extension_type:
     x_petey_id: '1_4'
     type: category
     values:
@@ -63,8 +63,8 @@ fields:
         widget_type: checkbox
         path: Check P1-B1
         on_state: 'Yes'
-        caption: Mark if filing under Form 5558
-        x_petey_caption_source: tooltip
+        caption: Form 5558
+        x_petey_caption_source: claude
       automatic_extension_ind:
         page: 1
         rect:
@@ -75,8 +75,8 @@ fields:
         widget_type: checkbox
         path: Check P1-B2
         on_state: 'Yes'
-        caption: Mark if filing under automatic extension
-        x_petey_caption_source: tooltip
+        caption: automatic extension
+        x_petey_caption_source: claude
       special_extension_ind:
         page: 1
         rect:
@@ -87,8 +87,8 @@ fields:
         widget_type: checkbox
         path: Check P1-B3
         on_state: 'Yes'
-        caption: Mark if filing under special extension
-        x_petey_caption_source: tooltip
+        caption: special extension (enter description)
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:10:58'
@@ -96,6 +96,35 @@ fields:
       - form_5558_extension_ind
       - automatic_extension_ind
       - special_extension_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: group_p1
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          form_5558_extension_ind: Mark if filing under Form 5558
+          automatic_extension_ind: Mark if filing under automatic extension
+          special_extension_ind: Mark if filing under special extension
+      to:
+        name: extension_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          form_5558_extension_ind:
+            caption: Form 5558
+          automatic_extension_ind:
+            caption: automatic extension
+          special_extension_ind:
+            caption: special extension (enter description)
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: clarity
+      why: Line B 'Check box if filing under' Form 5558 / automatic extension / special
+        extension; 'group_p1' says nothing, and the captions were the tooltips rather
+        than the printed words beside each box.
   special_extension_description_txt:
     x_petey_id: '1_5'
     type: string
@@ -168,7 +197,6 @@ fields:
   plan_nm:
     x_petey_id: '1_10'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -182,6 +210,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: plan_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: plan_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   plan_number_cd:
     x_petey_id: '1_9'
     type: string
@@ -236,7 +280,6 @@ fields:
   trade_nm:
     x_petey_id: '1_14'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -250,10 +293,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: trade_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: trade_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   care_of_nm:
     x_petey_id: '1_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -267,6 +325,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: care_of_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   employer_mailing_address_line_1_txt:
     x_petey_id: '1_18'
     type: string
@@ -357,7 +431,6 @@ fields:
   plan_administrator_nm:
     x_petey_id: '1_20'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -371,10 +444,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: plan_administrator_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: plan_administrator_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   administrator_care_of_nm:
     x_petey_id: '1_22'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -388,6 +476,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: administrator_care_of_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: administrator_care_of_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   administrator_mailing_address_line_1_txt:
     x_petey_id: '1_24'
     type: string
@@ -493,7 +597,6 @@ fields:
   prior_plan_nm:
     x_petey_id: '1_28'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -503,6 +606,22 @@ fields:
       - 623.3330078125
       widget_type: text
       path: lastRptPlanName
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: prior_plan_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: prior_plan_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   prior_plan_number_cd:
     x_petey_id: '1_29'
     type: string
@@ -1495,7 +1614,6 @@ fields:
   signer_nm:
     x_petey_id: '2_43'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1509,6 +1627,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:50'
+      from:
+        name: signer_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: signer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__2025-form-5500-ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   return_type:
     x_petey_id: '1_3'
     type: category
@@ -1528,8 +1662,8 @@ fields:
         widget_type: checkbox
         path: Check P1-A1
         on_state: 'Yes'
-        caption: (1)
-        x_petey_caption_source: page_text
+        caption: first return
+        x_petey_caption_source: hand
       amended_return_ind:
         page: 1
         rect:
@@ -1552,8 +1686,8 @@ fields:
         widget_type: checkbox
         path: Check P1-A3
         on_state: 'Yes'
-        caption: (3)
-        x_petey_caption_source: page_text
+        caption: final return
+        x_petey_caption_source: hand
       short_plan_year_ind:
         page: 1
         rect:
@@ -1564,5 +1698,29 @@ fields:
         widget_type: checkbox
         path: Check P1-A4
         on_state: 'Yes'
-        caption: (4)
-        x_petey_caption_source: page_text
+        caption: short plan year return
+        x_petey_caption_source: hand
+    x_petey_hand_edit:
+      when: '2026-10-13 14:24:14'
+      from:
+        name: return_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          first_return_ind: (1)
+          final_return_ind: (3)
+          short_plan_year_ind: (4)
+      to:
+        name: return_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          first_return_ind:
+            caption: first return
+          final_return_ind:
+            caption: final return
+          short_plan_year_ind:
+            caption: short plan year return
+      record: runs/hand_review/lib__2025-form-5500-ez.json

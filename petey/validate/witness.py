@@ -108,6 +108,30 @@ def _key(spec: dict) -> str:
 
 # ------------------------------------------------------------------- publisher and page (blueprint + blank only)
 
+def _by_file(fn):
+    """Memo for a function of files that do not change while a page is open (the blank PDF, a run directory): keyed
+    by each path and its modification time, so an edited file is read again. Callers treat the result as read-only.
+    (2026-10-14: a change in Groups re-ran every witness on CMS-855A, 3.5 s, half of it re-reading the blank.)"""
+    memo: dict = {}
+
+    def stamp(a):
+        if isinstance(a, (str, Path)):
+            try:
+                return (str(a), Path(a).stat().st_mtime)
+            except OSError:
+                return (str(a), None)
+        return a
+
+    @functools.wraps(fn)
+    def wrapper(*args):
+        key = tuple(stamp(a) for a in args)
+        if key not in memo:
+            memo[key] = fn(*args)
+        return memo[key]
+    return wrapper
+
+
+@_by_file
 def publisher_words(blank: Path) -> dict[str, list[str]]:
     """`{path: [tooltip, xfa caption, xfa tooltip]}`: what the publisher says each widget is."""
     out: dict[str, list[str]] = collections.defaultdict(list)
@@ -146,6 +170,18 @@ def _toks(s: str) -> set[str]:
         if t and t not in _STOP and len(t) > 1:
             out.add(_stem(t))
     return out
+
+
+_NUM_WORDS = {w: str(i) for i, ws in enumerate((("zero",), ("one", "first"), ("two", "second"), ("three", "third"),
+                                                  ("four", "fourth"), ("five", "fifth"), ("six", "sixth"),
+                                                  ("seven", "seventh"), ("eight", "eighth"), ("nine", "ninth"),
+                                                  ("ten", "tenth"))) for w in ws}
+
+
+def _nums(s: str) -> set[str]:
+    """The numbers in a name or text, digits or words ('address line one' ~ `address_line_1`)."""
+    return set(re.findall(r"\d+", s or "")) | {_NUM_WORDS[w] for w in re.findall(r"[a-z]+", (s or "").lower())
+                                               if w in _NUM_WORDS}
 
 
 _MORE_ABBR = {"nbr": "number"}     # slugs the labeler writes that `name_caption._ABBR` lacks
@@ -248,6 +284,19 @@ class Names:
             out.append(other)
         return out
 
+    def tells(self, name: str, other: str, text: str) -> bool:
+        """Whether the text can say the other field is meant: it holds a word or number the other name has and this
+        one lacks, or the other name has nothing this one lacks (this one then claims words the text does not say:
+        ACORD 25 `gl_addl_insd_subr_wvd_cd` on 'SUBR WVD'). A row label ('17.6. Other financial account') names
+        neither the institution box nor the amount box beside it, so it cannot say which one it belongs to
+        (2026-10-13, Andrew: Schedule A/B's ten institution / amount flags). PETEY_TELLS=0 turns the rule off."""
+        if os.environ.get("PETEY_TELLS", "1") == "0":
+            return True
+        mine = self.toks.get(name, set()) | _nums(name)
+        theirs = self.toks.get(other, set()) | _nums(other)
+        only = theirs - mine
+        return not only or bool(only & (_toks(text) | _nums(text)))
+
     def judge(self, name: str, texts: list[str]) -> tuple[Optional[bool], str]:
         """True: the text explains the name; False: the text has words and the name shares none of them, or the
         text belongs to a nearby field more than to this one and more than that field's own text does (a swap, a
@@ -283,7 +332,7 @@ class Names:
         best, who = mine + _MARGIN, None
         for other in self.rivals(name):
             s = self.fit(other, tt)
-            if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN:
+            if s > best and s > self.own_fit.get(other, 0.0) + _MARGIN and self.tells(name, other, " ".join(texts)):
                 best, who = s, other
         return (False, f"belongs to: {who}") if who else (True, "")
 
@@ -307,7 +356,7 @@ class Names:
         mine, theirs = got[0], dict(zip(rivals, got[1:]))
         best, who = mine + _MARGIN_M, None
         for other, s in theirs.items():
-            if s > best and s > self._own_score(other) + 0.05:
+            if s > best and s > self._own_score(other) + 0.05 and self.tells(name, other, text):
                 best, who = s, other
         if who:
             return False, f"belongs to: {who}"
@@ -407,6 +456,7 @@ def _xfa_parent(path: str) -> str:
     return path.rsplit(".", 1)[0] if "[" in path and "." in path else ""
 
 
+@_by_file
 def section_rules(blank: Path) -> dict[int, list[float]]:
     """`{page: [y]}`: the lines a form draws between sections: horizontal, across a good part of the page, and
     heavier than the page's usual line (ACORD 140: 0.96 / 0.72 section, 0.48 row, 0.24 cell; docs/TODO.md,
@@ -593,6 +643,7 @@ def grouping_witnesses(fields: dict, by_page: dict[int, list[dict]]) -> dict[str
     return out
 
 
+@_by_file
 def class_map_boxes(blank: Optional[Path], run_dir: Optional[Path]) -> dict[int, list[dict]]:
     """The classifier's boxes by page: the run's class map, else the cached one for the blank (never a new call)."""
     boxes = None
@@ -691,6 +742,7 @@ def _judge_rows(case_dir: Path) -> dict[str, dict]:
     return {}
 
 
+@_by_file
 def run_witnesses(run_dir: Path, blank: Optional[Path]) -> dict[str, dict]:
     """`{field key: {judge, classifier, structure, verified, run_name}}` from one run, keyed by widget path."""
     rbp = _load(run_dir / "blueprint.bpt") if (run_dir / "blueprint.bpt").exists() else {}
@@ -860,8 +912,11 @@ def explain(name: str, spec: dict, ws: dict[str, tuple], pc: Optional[dict]) -> 
             said = cap.group(1) if k == "classifier" and cap else said
             said = re.sub(r"\s+", " ", said.split(" | ")[0]).strip(" ;")
             said = said if len(said) <= 70 else said[:69] + "…"     # the text's start, not its first "sentence"
+            # "use" takes that name (Andrew, 2026-10-13); the other field still has it, so the page holds the rename
+            # back as a clash until that one is renamed too (usually a swap in a shifted block)
             out.append({"kind": "error", "text": f"{_WITNESS_TEXT[k]} ({said!r}) fits "
-                                                 f"`{m.group(2)}` better than this field."})
+                                                 f"`{m.group(2)}` better than this field.",
+                        "fix": {"name": m.group(2)}})
         elif k == "classifier" and "nothing goes here" in (detail or ""):
             out.append({"kind": "error", "text": "The page classifier read this box as one where nothing is written."})
         elif k == "judge":

@@ -30,10 +30,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  current_mailing_address_line_1_txt:
+  email_address_line_1_txt:
     x_petey_id: '9_29'
     type: string
-    semantic_type: email
     widget:
       page: 9
       rect:
@@ -59,10 +58,27 @@ fields:
         semantic_type: street_address
         description: 11. EMAIL ADDRESS (Optional). Line 1.
       judged: 'kept: 1 -> 0'
-  veteran_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:38'
+      from:
+        name: email_address_line_1_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: email_address_line_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: 'holds one line of a split email address, not a whole address: no email
+        type or pattern'
+  veteran_first_nm:
     x_petey_id: '9_2'
     type: string
-    semantic_type: person_name
+    semantic_type: first_name
     widget:
       page: 9
       rect:
@@ -80,7 +96,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  va_file_number_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: veteran_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: Item 2 is split First / M.I. / Last; this is the first box (XFA path Veteran_Service_Member_First_Name);
+        its tooltip is the Section I heading.
+  veteran_last_nm:
     x_petey_id: '9_4'
     type: string
     widget:
@@ -96,10 +129,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: last_name
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: va_file_number_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: veteran_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: Tooltip '2. Veteran / Service Member Name. Enter Last Name.' and path Veteran_Service_Member_Last_Name;
+        the real VA file number (item 5) is va_file_number.
   veteran_nm_middle_initial:
     x_petey_id: '9_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 9
       rect:
@@ -113,6 +163,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_nm_middle_initial
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: veteran_nm_middle_initial
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   ssn_part1:
     x_petey_id: '9_5'
     type: string
@@ -230,7 +296,7 @@ fields:
     - description_from_tooltip
     description: 6. Date of Birth. Enter 4 digit year.
     x_petey_description_source: tooltip
-  current_mailing_address_line_1_txt_2:
+  current_mailing_address_line_1_txt:
     x_petey_id: '9_21'
     type: string
     semantic_type: street_address
@@ -247,6 +313,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: current_mailing_address_line_1_txt_2
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: current_mailing_address_line_1_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Item 10 'No. & Street' box (path CurrentMailingAddress_NumberAndStreet);
+        takes the plain name once the email box that holds it is renamed.
   current_mailing_apt_unit_number_txt:
     x_petey_id: '9_22'
     type: string
@@ -335,7 +418,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  current_mailing_postal_cd:
+  current_mailing_zip_last4_cd:
     x_petey_id: '9_27'
     type: string
     semantic_type: id_part
@@ -355,6 +438,23 @@ fields:
     description: 10. Current Mailing Address. Enter ZIP or Postal Code. Enter last
       4 digits.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: current_mailing_postal_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: current_mailing_zip_last4_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip ''Enter ZIP or Postal Code. Enter last 4 digits.'': the ZIP+4
+        extension beside current_mailing_zip_cd, not a separate postal code.'
   new_address_line_1_txt:
     x_petey_id: '9_33'
     type: string
@@ -460,7 +560,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  new_address_postal_cd:
+  new_address_zip_last4_cd:
     x_petey_id: '9_39'
     type: string
     semantic_type: id_part
@@ -479,6 +579,23 @@ fields:
     - description_from_tooltip
     description: 13. B. New Address. Enter ZIP or Postal Code. Enter last 4 digits.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: new_address_postal_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: new_address_zip_last4_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: 'Tooltip ''13. B. New Address. Enter ZIP or Postal Code. Enter last 4 digits.'':
+        the ZIP+4 extension beside new_address_zip_cd.'
   service_number_dod_id:
     x_petey_id: '9_13'
     type: string
@@ -599,6 +716,24 @@ fields:
     - description_from_tooltip
     description: 13. C. Beginning Date. Enter 4 digit year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: address_begin_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: address_begin_dt_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: Item 13C split date, 'Enter 4 digit year' box (siblings carry date_month
+        / date_day).
   address_end_dt_mm:
     x_petey_id: '9_43'
     type: string
@@ -658,6 +793,24 @@ fields:
     - description_from_tooltip
     description: 13. C. Ending Date. Enter 4 digit year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: address_end_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: address_end_dt_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: Item 13C split date, 'Enter 4 digit year' box (siblings carry date_month
+        / date_day).
   va_employee_ind:
     x_petey_id: '9_31'
     type: boolean
@@ -697,7 +850,7 @@ fields:
     description: 9. TELEPHONE NUMBER(S) (Optional) (Include Area Code). Enter Area
       Code.
     x_petey_description_source: tooltip
-  telephone_number:
+  telephone_middle_three_num:
     x_petey_id: '9_15'
     type: string
     semantic_type: id_part
@@ -716,7 +869,25 @@ fields:
     - description_from_tooltip
     description: 9. TELEPHONE NUMBER(S). Enter middle three numbers.
     x_petey_description_source: tooltip
-  telephone_extension:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: telephone_number
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: telephone_middle_three_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Item 9 is split area code / middle three / last four; tooltip 'Enter middle
+        three numbers' (path Telephone_Middle_Three_Numbers); 'telephone_number' reads
+        as the whole number.
+  telephone_last_four_num:
     x_petey_id: '9_16'
     type: string
     semantic_type: id_part
@@ -735,6 +906,23 @@ fields:
     - description_from_tooltip
     description: 9. TELEPHONE NUMBER(S). Enter last four numbers.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: telephone_extension
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: telephone_last_four_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''9. TELEPHONE NUMBER(S). Enter last four numbers.'' (path Telephone_Last_Four_Numbers):
+        the last four digits, not an extension.'
   bdd_release_dt_dd:
     x_petey_id: '9_18'
     type: string
@@ -760,7 +948,6 @@ fields:
     x_petey_id: '9_20'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
     widget:
       page: 9
       rect:
@@ -774,6 +961,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: international_phone_number
+        type: string
+        semantic_type: phone
+        pattern: null
+      to:
+        name: international_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (phone)
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
   electronic_correspondence_consent_ind:
     x_petey_id: '9_28'
     type: boolean
@@ -868,11 +1072,9 @@ fields:
         caption: PERMANENT
     description: 'One of: 0 = TEMPORARY; 1 = PERMANENT'
     x_petey_description_source: xfa_choices
-  email_address_txt:
+  email_address_line_2_txt:
     x_petey_id: '9_30'
     type: string
-    semantic_type: email
-    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
     widget:
       page: 9
       rect:
@@ -886,7 +1088,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  veteran_ssn:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:38'
+      from:
+        name: email_address_line_2_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: email_address_line_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: 'holds one line of a split email address, not a whole address: no email
+        type or pattern'
+  veteran_ssn_part1_p10:
     x_petey_id: '10_1'
     type: string
     semantic_type: id_part
@@ -905,6 +1124,71 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter first three numbers.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_ssn
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: veteran_ssn_part1_p10
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 10 header 'VETERAN'S SOCIAL SECURITY NO.', part 1 of 3; named like
+        the other page headers (veteran_ssn_partN on page 11). The bare 'veteran_ssn'
+        is only the first three digits.
+  veteran_ssn_part2_p10:
+    x_petey_id: '10_32'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,2}$
+    widget:
+      page: 10
+      rect:
+      - 214.5800018310547
+      - 14.04901123046875
+      - 250.5800018310547
+      - 29.04998779296875
+      widget_type: text
+      path: F[0].#subform[9].SocialSecurityNumber_SecondTwoNumbers[0]
+    description: Veteran's Social Security Number. Enter middle two numbers.
+    label_source: llm
+    x_petey_added:
+      source: field_add
+      when: '2026-10-13 12:35:00'
+      geometry: widget
+      name_from: claude
+      why: Missing widget SocialSecurityNumber_SecondTwoNumbers on the page 10 header
+        (tooltip 'Veteran's Social Security Number. Enter middle two numbers.'); page
+        10 has only the first-three box.
+  veteran_ssn_part3_p10:
+    x_petey_id: '10_33'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
+    widget:
+      page: 10
+      rect:
+      - 268.1090087890625
+      - 13.72802734375
+      - 340.1090087890625
+      - 28.72900390625
+      widget_type: text
+      path: F[0].#subform[9].SocialSecurityNumber_LastFourNumbers[0]
+    description: Veteran's Social Security Number. Enter last four numbers.
+    label_source: llm
+    x_petey_added:
+      source: field_add
+      when: '2026-10-13 12:35:00'
+      geometry: widget
+      name_from: claude
+      why: Missing widget SocialSecurityNumber_LastFourNumbers on the page 10 header
+        (tooltip 'Veteran's Social Security Number. Enter last four numbers.').
   currently_homeless_ind:
     x_petey_id: '10_3'
     type: category
@@ -998,7 +1282,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  point_of_contact_phone_nbr:
+  point_of_contact_telephone_middle_three_num:
     x_petey_id: '10_10'
     type: string
     semantic_type: id_part
@@ -1017,7 +1301,23 @@ fields:
     - description_from_tooltip
     description: 14. F. TELEPHONE NUMBER. Enter middle three numbers.
     x_petey_description_source: tooltip
-  point_of_contact_intl_phone_nbr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: point_of_contact_phone_nbr
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: point_of_contact_telephone_middle_three_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Item 14F tooltip 'Enter middle three numbers' (path Telephone_Middle_Three_Numbers).
+  point_of_contact_telephone_last_four_num:
     x_petey_id: '10_11'
     type: string
     semantic_type: id_part
@@ -1036,6 +1336,24 @@ fields:
     - description_from_tooltip
     description: 14. F. TELEPHONE NUMBER. Enter last four numbers.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: point_of_contact_intl_phone_nbr
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: point_of_contact_telephone_last_four_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Item 14F tooltip ''TELEPHONE NUMBER. Enter last four numbers.'' (path
+        Telephone_Last_Four_Numbers): the US number''s last four digits; the international
+        number is point_of_contact_intl_phone_full_nbr.'
   point_of_contact_intl_phone_full_nbr:
     x_petey_id: '10_12'
     type: string
@@ -1131,7 +1449,7 @@ fields:
         caption: 'NO'
     description: 'One of: 0 = YES; 1 = NO'
     x_petey_description_source: xfa_choices
-  gulf_war_service_from_dt:
+  gulf_war_service_from_dt_mm:
     x_petey_id: '10_15'
     type: string
     widget:
@@ -1150,7 +1468,27 @@ fields:
     - description_from_tooltip
     description: 15. B. From Date - Enter 2 digit month.
     x_petey_description_source: tooltip
-  gulf_war_service_to_dt:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: gulf_war_service_from_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: gulf_war_service_from_dt_mm
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. B. From Date - 2 digit month'' (path From_Date_Month[0]):
+        a month/year box of the item 15B Gulf War hazard locations service dates (MM-YYYY);
+        the old name gives the wrong item or From/To, and each row''s From month,
+        From year, To month, To year were named as four different dates.'
+  gulf_war_service_from_dt_yyyy:
     x_petey_id: '10_16'
     type: string
     widget:
@@ -1169,6 +1507,26 @@ fields:
     - description_from_tooltip
     description: 15. B. From Date - Enter 4 digit year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: gulf_war_service_to_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: gulf_war_service_from_dt_yyyy
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. B. From Date - 4 digit year'' (path From_Date_Year[0]):
+        a month/year box of the item 15B Gulf War hazard locations service dates (MM-YYYY);
+        the old name gives the wrong item or From/To, and each row''s From month,
+        From year, To month, To year were named as four different dates.'
   herbicide_locations_served_ind:
     x_petey_id: '10_19'
     type: category
@@ -1246,7 +1604,6 @@ fields:
   point_of_contact_nm:
     x_petey_id: '10_8'
     type: string
-    semantic_type: person_name
     widget:
       page: 10
       rect:
@@ -1261,7 +1618,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  herbicide_service_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: point_of_contact_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: point_of_contact_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  gulf_war_service_to_dt_yyyy:
     x_petey_id: '10_18'
     type: string
     widget:
@@ -1280,7 +1653,27 @@ fields:
     - description_from_tooltip
     description: 15. B. To Date - Enter 4 digit year.
     x_petey_description_source: tooltip
-  herbicide_service_from_dt:
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: herbicide_service_to_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: gulf_war_service_to_dt_yyyy
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. B. To Date - 4 digit year'' (path To_Date_Year[0]): a month/year
+        box of the item 15B Gulf War hazard locations service dates (MM-YYYY); the
+        old name gives the wrong item or From/To, and each row''s From month, From
+        year, To month, To year were named as four different dates.'
+  gulf_war_service_to_dt_mm:
     x_petey_id: '10_17'
     type: string
     widget:
@@ -1299,7 +1692,27 @@ fields:
     - description_from_tooltip
     description: 15. B. To Date - Enter 2 digit month.
     x_petey_description_source: tooltip
-  exposure_service_from_dt:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: herbicide_service_from_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: gulf_war_service_to_dt_mm
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. B. To Date - 2 digit month'' (path To_Date_Month[0]): a
+        month/year box of the item 15B Gulf War hazard locations service dates (MM-YYYY);
+        the old name gives the wrong item or From/To, and each row''s From month,
+        From year, To month, To year were named as four different dates.'
+  herbicide_service_from_dt_mm:
     x_petey_id: '10_21'
     type: string
     widget:
@@ -1317,12 +1730,31 @@ fields:
     - month_year_by_tooltip
     - part_by_maxlen:2
     - description_from_tooltip
-    semantic_type: id_part
+    semantic_type: date_month
     description: '15. C. WHEN DID YOU SERVE IN THESE LOCATIONS? (MM-YYYY) Note: Please
       provide an approximate time-frame (month and year). Enter From Date 2 digit
       month.'
     x_petey_description_source: tooltip
-  exposure_service_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_service_from_dt
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      to:
+        name: herbicide_service_from_dt_mm
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. C. ... From Date 2 digit month'' (path From_Date_Month[1]):
+        a month/year box of the item 15C herbicide locations service dates (MM-YYYY);
+        the old name gives the wrong item or From/To, and each row''s From month,
+        From year, To month, To year were named as four different dates.'
+  herbicide_service_from_dt_yyyy:
     x_petey_id: '10_22'
     type: string
     widget:
@@ -1341,7 +1773,27 @@ fields:
     - description_from_tooltip
     description: 15. C. From Date. Enter 4 digit year.
     x_petey_description_source: tooltip
-  exposure_service_to_dt_2:
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_service_to_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: herbicide_service_from_dt_yyyy
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. C. From Date. 4 digit year'' (path From_Date_Year[1]): a
+        month/year box of the item 15C herbicide locations service dates (MM-YYYY);
+        the old name gives the wrong item or From/To, and each row''s From month,
+        From year, To month, To year were named as four different dates.'
+  herbicide_service_to_dt_yyyy:
     x_petey_id: '10_24'
     type: string
     widget:
@@ -1360,7 +1812,27 @@ fields:
     - description_from_tooltip
     description: 15. C. Enter To Date - 4 digit year
     x_petey_description_source: tooltip
-  exposure_service_from_dt_2:
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_service_to_dt_2
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: herbicide_service_to_dt_yyyy
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. C. To Date - 4 digit year'' (path To_Date_Year[1]): a month/year
+        box of the item 15C herbicide locations service dates (MM-YYYY); the old name
+        gives the wrong item or From/To, and each row''s From month, From year, To
+        month, To year were named as four different dates.'
+  herbicide_service_to_dt_mm:
     x_petey_id: '10_23'
     type: string
     widget:
@@ -1379,7 +1851,27 @@ fields:
     - description_from_tooltip
     description: 15. C. Enter To Date - 2 digit month
     x_petey_description_source: tooltip
-  exposure_from_dt:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_service_from_dt_2
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: herbicide_service_to_dt_mm
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. C. To Date - 2 digit month'' (path To_Date_Month[1]): a
+        month/year box of the item 15C herbicide locations service dates (MM-YYYY);
+        the old name gives the wrong item or From/To, and each row''s From month,
+        From year, To month, To year were named as four different dates.'
+  exposure_from_dt_mm:
     x_petey_id: '10_27'
     type: string
     widget:
@@ -1398,7 +1890,27 @@ fields:
     - description_from_tooltip
     description: 15. D. Enter From Date 2 digit Month.
     x_petey_description_source: tooltip
-  exposure_to_dt:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_from_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: exposure_from_dt_mm
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. D. From Date 2 digit Month'' (path From_Date_Month[2]):
+        a month/year box of the item 15D exposures service dates (MM-YYYY); the old
+        name gives the wrong item or From/To, and each row''s From month, From year,
+        To month, To year were named as four different dates.'
+  exposure_from_dt_yyyy:
     x_petey_id: '10_28'
     type: string
     widget:
@@ -1417,7 +1929,27 @@ fields:
     - description_from_tooltip
     description: 15. D. Enter From Date 4 digit year.
     x_petey_description_source: tooltip
-  exposure_to_dt_2:
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_to_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: exposure_from_dt_yyyy
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. D. From Date 4 digit year'' (path From_Date_Year[2]): a
+        month/year box of the item 15D exposures service dates (MM-YYYY); the old
+        name gives the wrong item or From/To, and each row''s From month, From year,
+        To month, To year were named as four different dates.'
+  exposure_to_dt_yyyy:
     x_petey_id: '10_30'
     type: string
     widget:
@@ -1436,7 +1968,27 @@ fields:
     - description_from_tooltip
     description: 15. D. Enter To Date 4 digit year.
     x_petey_description_source: tooltip
-  exposure_from_dt_2:
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_to_dt_2
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: exposure_to_dt_yyyy
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. D. To Date 4 digit year'' (path To_Date_Year[2]): a month/year
+        box of the item 15D exposures service dates (MM-YYYY); the old name gives
+        the wrong item or From/To, and each row''s From month, From year, To month,
+        To year were named as four different dates.'
+  exposure_to_dt_mm:
     x_petey_id: '10_29'
     type: string
     widget:
@@ -1455,6 +2007,26 @@ fields:
     - description_from_tooltip
     description: 15. D. Enter To Date 2 digit Month.
     x_petey_description_source: tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_from_dt_2
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: exposure_to_dt_mm
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. D. To Date 2 digit Month'' (path To_Date_Month[2]): a month/year
+        box of the item 15D exposures service dates (MM-YYYY); the old name gives
+        the wrong item or From/To, and each row''s From month, From year, To month,
+        To year were named as four different dates.'
   living_situation_14b_other_specify_txt:
     x_petey_id: '10_4'
     type: string
@@ -1489,7 +2061,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  exposure_14d_other_specify_txt:
+  exposure_15d_other_specify_txt:
     x_petey_id: '10_26'
     type: string
     semantic_type: text
@@ -1506,6 +2078,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_14d_other_specify_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: exposure_15d_other_specify_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''15. D. OTHER (Specify)'': item 15D, not 14D.'
   veteran_ssn_part1:
     x_petey_id: '11_1'
     type: string
@@ -1566,7 +2154,6 @@ fields:
   disability_1_current_nm:
     x_petey_id: '11_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -1581,6 +2168,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_1_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_1_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_1_exposure_event_injury_txt:
     x_petey_id: '11_5'
     type: string
@@ -1905,7 +2508,6 @@ fields:
   disability_2_current_nm:
     x_petey_id: '11_8'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -1919,10 +2521,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_2_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_2_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_3_current_nm:
     x_petey_id: '11_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -1936,10 +2553,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_3_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_3_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_4_current_nm:
     x_petey_id: '11_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -1953,10 +2585,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_4_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_4_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_5_current_nm:
     x_petey_id: '11_20'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -1970,10 +2617,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_5_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_5_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_6_current_nm:
     x_petey_id: '11_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -1987,10 +2649,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_6_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_6_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_7_current_nm:
     x_petey_id: '11_28'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2004,10 +2681,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_7_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_7_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_8_current_nm:
     x_petey_id: '11_32'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2021,10 +2713,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_8_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_8_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_9_current_nm:
     x_petey_id: '11_36'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2038,10 +2745,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_9_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_9_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_10_current_nm:
     x_petey_id: '11_40'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2055,10 +2777,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_10_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_10_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_11_current_nm:
     x_petey_id: '11_44'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2072,10 +2809,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_11_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_11_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_12_current_nm:
     x_petey_id: '11_48'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2089,10 +2841,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_12_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_12_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_13_current_nm:
     x_petey_id: '11_52'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2106,10 +2873,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_13_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_13_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_14_current_nm:
     x_petey_id: '11_56'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2123,10 +2905,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_14_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_14_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_15_current_nm:
     x_petey_id: '11_60'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2140,6 +2937,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_15_current_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: disability_15_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   disability_2_exposure_event_injury_txt:
     x_petey_id: '11_9'
     type: string
@@ -2684,7 +3497,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  treatment_facility_1_treatment_dt:
+  treatment_facility_1_treatment_dt_year:
     x_petey_id: '11_66'
     type: string
     widget:
@@ -2703,6 +3516,24 @@ fields:
     - description_from_tooltip
     description: 17. B. DATE OF TREATMENT. Enter 4 digit year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_1_treatment_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: treatment_facility_1_treatment_dt_year
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: suffix
+      why: 'Tooltip ''17. B. DATE OF TREATMENT. Enter 4 digit year.'' (path Date_Of_Treatment_Year):
+        the year half of the MM-YYYY date beside treatment_facility_N_treatment_dt_month.'
   treatment_facility_1_treatment_dt_month:
     x_petey_id: '11_65'
     type: string
@@ -2722,7 +3553,24 @@ fields:
     - description_from_tooltip
     description: 17. B. DATE OF TREATMENT. Enter 2 digit Month.
     x_petey_description_source: tooltip
-  treatment_facility_2_treatment_dt:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_1_treatment_dt_month
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: treatment_facility_1_treatment_dt_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: Tooltip '17. B. DATE OF TREATMENT. Enter 2 digit Month.'
+  treatment_facility_2_treatment_dt_year:
     x_petey_id: '11_70'
     type: string
     widget:
@@ -2741,6 +3589,24 @@ fields:
     - description_from_tooltip
     description: 17. B. DATE OF TREATMENT. Enter 4 digit year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_2_treatment_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: treatment_facility_2_treatment_dt_year
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: suffix
+      why: 'Tooltip ''17. B. DATE OF TREATMENT. Enter 4 digit year.'' (path Date_Of_Treatment_Year):
+        the year half of the MM-YYYY date beside treatment_facility_N_treatment_dt_month.'
   treatment_facility_3_treatment_dt_month:
     x_petey_id: '11_73'
     type: string
@@ -2760,7 +3626,24 @@ fields:
     - description_from_tooltip
     description: 17. B. DATE OF TREATMENT. Enter 2 digit Month.
     x_petey_description_source: tooltip
-  treatment_facility_3_treatment_dt:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_3_treatment_dt_month
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: treatment_facility_3_treatment_dt_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: Tooltip '17. B. DATE OF TREATMENT. Enter 2 digit Month.'
+  treatment_facility_3_treatment_dt_year:
     x_petey_id: '11_74'
     type: string
     widget:
@@ -2779,6 +3662,24 @@ fields:
     - description_from_tooltip
     description: 17. B. DATE OF TREATMENT. Enter 4 digit year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_3_treatment_dt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: treatment_facility_3_treatment_dt_year
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: suffix
+      why: 'Tooltip ''17. B. DATE OF TREATMENT. Enter 4 digit year.'' (path Date_Of_Treatment_Year):
+        the year half of the MM-YYYY date beside treatment_facility_N_treatment_dt_month.'
   treatment_facility_2_treatment_dt_month:
     x_petey_id: '11_69'
     type: string
@@ -2798,10 +3699,26 @@ fields:
     - description_from_tooltip
     description: 17. B. DATE OF TREATMENT. Enter 2 digit Month.
     x_petey_description_source: tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_2_treatment_dt_month
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: treatment_facility_2_treatment_dt_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: Tooltip '17. B. DATE OF TREATMENT. Enter 2 digit Month.'
   treatment_facility_3_disability_and_facility_nm:
     x_petey_id: '11_72'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2821,10 +3738,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_3_disability_and_facility_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: treatment_facility_3_disability_and_facility_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   treatment_facility_2_disability_and_facility_nm:
     x_petey_id: '11_68'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2844,10 +3776,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_2_disability_and_facility_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: treatment_facility_2_disability_and_facility_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   treatment_facility_1_disability_and_facility_nm:
     x_petey_id: '11_64'
     type: string
-    semantic_type: person_name
     widget:
       page: 11
       rect:
@@ -2867,6 +3814,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: treatment_facility_1_disability_and_facility_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: treatment_facility_1_disability_and_facility_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   veteran_ssn_part1_service_info:
     x_petey_id: '12_1'
     type: string
@@ -2966,7 +3929,6 @@ fields:
   other_name_served_under_txt:
     x_petey_id: '12_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 12
       rect:
@@ -2980,6 +3942,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: other_name_served_under_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: other_name_served_under_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   most_recent_active_service_entry_month:
     x_petey_id: '12_8'
     type: string
@@ -2996,6 +3974,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: most_recent_active_service_entry_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: most_recent_active_service_entry_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   most_recent_active_service_entry_day:
     x_petey_id: '12_9'
     type: string
@@ -3012,10 +4008,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: most_recent_active_service_entry_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: most_recent_active_service_entry_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   most_recent_active_service_entry_yr:
     x_petey_id: '12_10'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3030,6 +4044,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: most_recent_active_service_entry_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: most_recent_active_service_entry_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   reserves_national_guard_obligation_from_month:
     x_petey_id: '12_25'
     type: string
@@ -3046,6 +4076,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: reserves_national_guard_obligation_from_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: reserves_national_guard_obligation_from_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   reserves_national_guard_obligation_from_day:
     x_petey_id: '12_26'
     type: string
@@ -3062,10 +4110,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: reserves_national_guard_obligation_from_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: reserves_national_guard_obligation_from_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   reserves_national_guard_obligation_from_yr:
     x_petey_id: '12_27'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3080,6 +4146,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: reserves_national_guard_obligation_from_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: reserves_national_guard_obligation_from_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   reserves_national_guard_obligation_to_month:
     x_petey_id: '12_28'
     type: string
@@ -3096,6 +4178,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: reserves_national_guard_obligation_to_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: reserves_national_guard_obligation_to_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   reserves_national_guard_obligation_to_day:
     x_petey_id: '12_29'
     type: string
@@ -3112,10 +4212,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: reserves_national_guard_obligation_to_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: reserves_national_guard_obligation_to_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   reserves_national_guard_obligation_to_yr:
     x_petey_id: '12_30'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3130,6 +4248,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: reserves_national_guard_obligation_to_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: reserves_national_guard_obligation_to_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   activation_dt_month:
     x_petey_id: '12_35'
     type: string
@@ -3149,6 +4283,23 @@ fields:
     - description_from_tooltip
     description: 22. B. Date of Activation. Enter 2 digit month.
     x_petey_description_source: tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: activation_dt_month
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: activation_dt_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 2 digit month').
   activation_dt_day:
     x_petey_id: '12_36'
     type: string
@@ -3168,6 +4319,23 @@ fields:
     - description_from_tooltip
     description: 22. B. Date of Activation. Enter 2 digit day.
     x_petey_description_source: tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: activation_dt_day
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: activation_dt_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 2 digit day').
   activation_dt_yr:
     x_petey_id: '12_37'
     type: string
@@ -3187,6 +4355,23 @@ fields:
     - description_from_tooltip
     description: 22. B. Date of Activation. Enter 4 digit Year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: activation_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: activation_dt_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   anticipated_separation_dt_month:
     x_petey_id: '12_38'
     type: string
@@ -3206,6 +4391,23 @@ fields:
     - description_from_tooltip
     description: 22. C. Anticipated separation date. Enter 2 digit month.
     x_petey_description_source: tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: anticipated_separation_dt_month
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: anticipated_separation_dt_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 2 digit month').
   anticipated_separation_dt_day:
     x_petey_id: '12_39'
     type: string
@@ -3225,6 +4427,23 @@ fields:
     - description_from_tooltip
     description: 22. C. Anticipated separation date. Enter 2 digit day.
     x_petey_description_source: tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: anticipated_separation_dt_day
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,2}$
+      to:
+        name: anticipated_separation_dt_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 2 digit day').
   anticipated_separation_dt_yr:
     x_petey_id: '12_40'
     type: string
@@ -3244,6 +4463,23 @@ fields:
     - description_from_tooltip
     description: 22. C. Anticipated separation date. Enter 4 digit Year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: anticipated_separation_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: anticipated_separation_dt_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   pow_confinement_from_month:
     x_petey_id: '12_42'
     type: string
@@ -3260,6 +4496,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_from_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: pow_confinement_from_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   pow_confinement_from_day:
     x_petey_id: '12_43'
     type: string
@@ -3276,10 +4530,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_from_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: pow_confinement_from_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   pow_confinement_from_yr:
     x_petey_id: '12_44'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3294,6 +4566,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: pow_confinement_from_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: pow_confinement_from_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   pow_confinement_to_month:
     x_petey_id: '12_45'
     type: string
@@ -3310,6 +4598,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_to_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: pow_confinement_to_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   pow_confinement_to_day:
     x_petey_id: '12_46'
     type: string
@@ -3326,10 +4632,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_to_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: pow_confinement_to_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   pow_confinement_to_yr:
     x_petey_id: '12_47'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3344,7 +4668,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_service_from_month:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: pow_confinement_to_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: pow_confinement_to_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
+  pow_confinement_2_from_month:
     x_petey_id: '12_48'
     type: string
     widget:
@@ -3360,7 +4700,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_service_from_day:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_2_from_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: pow_confinement_2_from_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
+  pow_confinement_2_from_day:
     x_petey_id: '12_49'
     type: string
     widget:
@@ -3376,10 +4734,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_service_from_yr:
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_2_from_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: pow_confinement_2_from_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
+  pow_confinement_2_from_yr:
     x_petey_id: '12_50'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3394,7 +4770,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_service_to_month:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: additional_service_from_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: pow_confinement_2_from_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''23. B. Dates of confinement. From Date'' (path DatesOfConfinement_*[2]/[3]):
+        the second row of POW confinement dates under item 23B, not additional service.'
+  pow_confinement_2_to_month:
     x_petey_id: '12_51'
     type: string
     widget:
@@ -3410,7 +4803,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_service_to_day:
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_2_to_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: pow_confinement_2_to_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
+  pow_confinement_2_to_day:
     x_petey_id: '12_52'
     type: string
     widget:
@@ -3426,10 +4837,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  additional_service_to_yr:
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: pow_confinement_2_to_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: pow_confinement_2_to_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
+  pow_confinement_2_to_yr:
     x_petey_id: '12_53'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3444,6 +4873,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: additional_service_to_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: pow_confinement_2_to_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: 'Tooltip ''23. B. Dates of confinement. To Date'' (path DatesOfConfinement_*[2]/[3]):
+        the second row of POW confinement dates under item 23B, not additional service.'
   place_of_last_separation_txt:
     x_petey_id: '12_11'
     type: string
@@ -3494,6 +4940,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: most_recent_active_service_exit_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: most_recent_active_service_exit_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   most_recent_active_service_exit_day:
     x_petey_id: '12_13'
     type: string
@@ -3510,10 +4974,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: most_recent_active_service_exit_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: most_recent_active_service_exit_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   most_recent_active_service_exit_yr:
     x_petey_id: '12_14'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3528,6 +5010,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: most_recent_active_service_exit_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: most_recent_active_service_exit_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   additional_periods_from_month:
     x_petey_id: '12_16'
     type: string
@@ -3544,6 +5042,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: additional_periods_from_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: additional_periods_from_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   additional_periods_from_day:
     x_petey_id: '12_17'
     type: string
@@ -3560,10 +5076,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: additional_periods_from_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: additional_periods_from_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   additional_periods_from_yr:
     x_petey_id: '12_18'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3578,6 +5112,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: additional_periods_from_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: additional_periods_from_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   additional_periods_to_month:
     x_petey_id: '12_19'
     type: string
@@ -3594,6 +5144,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_month
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: additional_periods_to_month
+        type: string
+        semantic_type: date_month
+        pattern: null
+      to:
+        name: additional_periods_to_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_month)
+    pattern: ^\d{1,2}$
   additional_periods_to_day:
     x_petey_id: '12_20'
     type: string
@@ -3610,10 +5178,28 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: date_day
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: additional_periods_to_day
+        type: string
+        semantic_type: date_day
+        pattern: null
+      to:
+        name: additional_periods_to_day
+        type: string
+        semantic_type: date_day
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (date_day)
+    pattern: ^\d{1,2}$
   additional_periods_to_yr:
     x_petey_id: '12_21'
     type: string
-    semantic_type: year
+    semantic_type: date_year
     pattern: ^\d{4}$
     widget:
       page: 12
@@ -3628,6 +5214,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: additional_periods_to_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: additional_periods_to_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   served_under_another_name_ind:
     x_petey_id: '12_5'
     type: category
@@ -3926,10 +5528,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  military_retired_pay_monthly_amt_dollars:
+  military_retired_pay_monthly_amt_first3:
     x_petey_id: '12_58'
-    type: number
-    semantic_type: money
+    type: string
+    semantic_type: id_part
     widget:
       page: 12
       rect:
@@ -3944,10 +5546,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  military_retired_pay_monthly_amt_cents:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: military_retired_pay_monthly_amt_first3
+        type: string
+        semantic_type: id_part
+        pattern: null
+      to:
+        name: military_retired_pay_monthly_amt_first3
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,5}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (id_part)
+    pattern: ^\d{1,5}$
+  military_retired_pay_monthly_amt_last3:
     x_petey_id: '12_59'
-    type: number
-    semantic_type: money
+    type: string
+    semantic_type: id_part
     widget:
       page: 12
       rect:
@@ -3962,6 +5581,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: military_retired_pay_monthly_amt_last3
+        type: string
+        semantic_type: id_part
+        pattern: null
+      to:
+        name: military_retired_pay_monthly_amt_last3
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,5}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (id_part)
+    pattern: ^\d{1,5}$
   receiving_military_retired_pay_ind:
     x_petey_id: '12_55'
     type: category
@@ -4093,7 +5729,7 @@ fields:
   current_last_unit_name_address_txt:
     x_petey_id: '12_31'
     type: string
-    semantic_type: person_name
+    semantic_type: text
     widget:
       page: 12
       rect:
@@ -4107,6 +5743,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: current_last_unit_name_address_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: current_last_unit_name_address_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: Item 21D unit name and address, not a person's name.
   current_unit_phone_number_txt:
     x_petey_id: '12_32'
     type: string
@@ -4458,6 +6110,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    semantic_type: routing_number
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: routing_transit_number
+        type: string
+        semantic_type: routing_number
+        pattern: null
+      to:
+        name: routing_transit_number
+        type: string
+        semantic_type: routing_number
+        pattern: ^\d{9}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (routing_number)
+    pattern: ^\d{9}$
   account_no:
     x_petey_id: '13_13'
     type: string
@@ -4477,7 +6147,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  do_not_pay_va_compensation_ind_2:
+  do_not_pay_va_compensation_training_pay_ind:
     x_petey_id: '13_11'
     type: boolean
     semantic_type: indicator
@@ -4507,6 +6177,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: do_not_pay_va_compensation_ind_2
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: do_not_pay_va_compensation_training_pay_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: 'Item 28 under ''IMPORTANT INFORMATION ON INACTIVE DUTY TRAINING PAY'':
+        the training-pay election, distinct from the item 26 retired-pay one.'
   no_financial_institution_account_ind:
     x_petey_id: '13_12'
     type: boolean
@@ -4595,10 +6282,10 @@ fields:
     - description_from_tooltip
     description: 27. B. Date payment received. Enter 4 digit Year.
     x_petey_description_source: tooltip
-  separation_pay_amount_dollars:
+  separation_pay_amount_last3:
     x_petey_id: '13_10'
-    type: number
-    semantic_type: money
+    type: string
+    semantic_type: id_part
     widget:
       page: 13
       rect:
@@ -4613,10 +6300,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  separation_pay_amount_cents:
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: separation_pay_amount_last3
+        type: string
+        semantic_type: id_part
+        pattern: null
+      to:
+        name: separation_pay_amount_last3
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,5}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (id_part)
+    pattern: ^\d{1,5}$
+  separation_pay_amount_first3:
     x_petey_id: '13_9'
-    type: number
-    semantic_type: money
+    type: string
+    semantic_type: id_part
     widget:
       page: 13
       rect:
@@ -4631,6 +6335,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-13 13:17:03'
+      from:
+        name: separation_pay_amount_first3
+        type: string
+        semantic_type: id_part
+        pattern: null
+      to:
+        name: separation_pay_amount_first3
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,5}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: the pattern of its semantic type (id_part)
+    pattern: ^\d{1,5}$
   veteran_ssn_1:
     x_petey_id: '13_1'
     type: string
@@ -4837,7 +6558,7 @@ fields:
   witness_1_printed_nm_address_txt:
     x_petey_id: '13_21'
     type: string
-    semantic_type: person_name
+    semantic_type: text
     widget:
       page: 13
       rect:
@@ -4851,10 +6572,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: witness_1_printed_nm_address_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: witness_1_printed_nm_address_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: 'Item 34B printed name AND address of witness: free text.'
   witness_2_printed_nm_address_txt:
     x_petey_id: '13_22'
     type: string
-    semantic_type: person_name
+    semantic_type: text
     widget:
       page: 13
       rect:
@@ -4868,10 +6605,26 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: witness_2_printed_nm_address_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: witness_2_printed_nm_address_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: 'Item 35B printed name AND address of witness: free text.'
   financial_institution_nm:
     x_petey_id: '13_15'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 13
       rect:
@@ -4886,7 +6639,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  branch_of_service_cd:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: financial_institution_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: financial_institution_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: 'Item 31 name of financial institution: a bank, not a person.'
+  branch_of_service_27c:
     x_petey_id: '13_8'
     type: category
     values:
@@ -4983,6 +6752,8 @@ fields:
         widget_type: radiobutton
         path: F[0].#subform[12].RadioButtonList[15]
         on_state: '4'
+        caption: COAST GUARD
+        x_petey_caption_source: claude
       '5':
         page: 13
         rect:
@@ -4993,6 +6764,8 @@ fields:
         widget_type: radiobutton
         path: F[0].#subform[12].RadioButtonList[15]
         on_state: '5'
+        caption: SPACE FORCE
+        x_petey_caption_source: claude
       '6':
         page: 13
         rect:
@@ -5017,6 +6790,32 @@ fields:
         on_state: '7'
         x_petey_caption_source: page_text
         caption: USPHS
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: branch_of_service_cd
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          '4': null
+          '5': null
+      to:
+        name: branch_of_service_27c
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          '4':
+            caption: COAST GUARD
+          '5':
+            caption: SPACE FORCE
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Item 27C branch of separation pay (siblings are branch_of_service_19a and
+        _24c); boxes 4 and 5 have no caption, and the description lists 4 = COAST
+        GUARD, 5 = SPACE FORCE (printed in the same order as 24C).
   poa_signature_dt_yr:
     x_petey_id: '14_11'
     type: string
@@ -5036,6 +6835,23 @@ fields:
     - description_from_tooltip
     description: 37. B. DATE SIGNED. Enter 4 digit Year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: poa_signature_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: poa_signature_dt_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   poa_signature_dt_dd:
     x_petey_id: '14_10'
     type: string
@@ -5135,6 +6951,23 @@ fields:
     - description_from_tooltip
     description: 36. B. DATE SIGNED. Enter 4 digit Year.
     x_petey_description_source: tooltip
+    semantic_type: date_year
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: alternate_signer_signature_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: alternate_signer_signature_dt_yr
+        type: string
+        semantic_type: date_year
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: type
+      why: One box of a split MM-DD-YYYY date (tooltip 'Enter 4 digit Year').
   alternate_signer_signature:
     x_petey_id: '14_4'
     type: string
@@ -5159,7 +6992,7 @@ fields:
       - 374.7229919433594
       widget_type: text
       path: F[0].#subform[13].Digital_Signature[2]
-  veteran_ssn_first3_alternate_signer:
+  veteran_ssn_part1_p14:
     x_petey_id: '14_1'
     type: string
     semantic_type: id_part
@@ -5192,7 +7025,25 @@ fields:
         description: Veteran's Social Security Number. Enter first three numbers.
       old_name: veteran_ssn_4
       judged: 'kept: 3 -> 0'
-  veteran_ssn_middle2_alternate_signer:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_ssn_first3_alternate_signer
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: veteran_ssn_part1_p14
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 14 header 'VETERAN'S SOCIAL SECURITY NO.', part 1 of 3; named like
+        the other page headers (veteran_ssn_partN on page 11). 'alternate_signer'
+        suggests the alternate signer's SSN; it is the veteran's.
+  veteran_ssn_part2_p14:
     x_petey_id: '14_2'
     type: string
     semantic_type: id_part
@@ -5224,7 +7075,25 @@ fields:
         description: Veteran's Social Security Number. Enter middle two numbers.
       old_name: veteran_ssn_2_2
       judged: 'kept: 3 -> 0'
-  veteran_ssn_last4_alternate_signer:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_ssn_middle2_alternate_signer
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      to:
+        name: veteran_ssn_part2_p14
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 14 header 'VETERAN'S SOCIAL SECURITY NO.', part 2 of 3; named like
+        the other page headers (veteran_ssn_partN on page 11). 'alternate_signer'
+        suggests the alternate signer's SSN; it is the veteran's.
+  veteran_ssn_part3_p14:
     x_petey_id: '14_3'
     type: string
     semantic_type: id_part
@@ -5256,7 +7125,25 @@ fields:
         description: Veteran's Social Security Number. Enter last four numbers.
       old_name: veteran_ssn_3_2
       judged: 'kept: 3 -> 0'
-  veteran_ssn_part1_3:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_ssn_last4_alternate_signer
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: veteran_ssn_part3_p14
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 14 header 'VETERAN'S SOCIAL SECURITY NO.', part 3 of 3; named like
+        the other page headers (veteran_ssn_partN on page 11). 'alternate_signer'
+        suggests the alternate signer's SSN; it is the veteran's.
+  veteran_ssn_part1_p15:
     x_petey_id: '15_1'
     type: string
     semantic_type: id_part
@@ -5275,7 +7162,25 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter first three numbers.
     x_petey_description_source: tooltip
-  veteran_ssn_part2_3:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_ssn_part1_3
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: veteran_ssn_part1_p15
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 header 'VETERAN'S SOCIAL SECURITY NO.', part 1 of 3; named like
+        the other page headers (veteran_ssn_partN on page 11). The '_3' suffix reads
+        like 'part 1 of 3'.
+  veteran_ssn_part2_p15:
     x_petey_id: '15_2'
     type: string
     semantic_type: id_part
@@ -5294,7 +7199,25 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter middle two numbers.
     x_petey_description_source: tooltip
-  veteran_ssn_part3_3:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_ssn_part2_3
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      to:
+        name: veteran_ssn_part2_p15
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 header 'VETERAN'S SOCIAL SECURITY NO.', part 2 of 3; named like
+        the other page headers (veteran_ssn_partN on page 11). The '_3' suffix reads
+        like 'part 1 of 3'.
+  veteran_ssn_part3_p15:
     x_petey_id: '15_3'
     type: string
     semantic_type: id_part
@@ -5313,10 +7236,27 @@ fields:
     - description_from_tooltip
     description: Veteran's Social Security Number. Enter last four numbers.
     x_petey_description_source: tooltip
-  disability_1_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: veteran_ssn_part3_3
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: veteran_ssn_part3_p15
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 header 'VETERAN'S SOCIAL SECURITY NO.', part 3 of 3; named like
+        the other page headers (veteran_ssn_partN on page 11). The '_3' suffix reads
+        like 'part 1 of 3'.
+  addendum_disability_1_current_nm:
     x_petey_id: '15_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5331,7 +7271,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_1_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_1_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_1_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 1 of 20; 'disability_1_*'
+        collides in meaning with item 16 line 1 on page 11 (disability_1_*), and the
+        names now mirror item 16's.
+  addendum_disability_1_exposure_event_injury_txt:
     x_petey_id: '15_5'
     type: string
     semantic_type: text
@@ -5349,7 +7307,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_1_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_1_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_1_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 1 of 20; 'disability_1_*'
+        collides in meaning with item 16 line 1 on page 11 (disability_1_*), and the
+        names now mirror item 16's.
+  addendum_disability_1_relation_to_service_txt:
     x_petey_id: '15_6'
     type: string
     semantic_type: text
@@ -5367,7 +7343,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_1_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_1_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_1_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 1 of 20; 'disability_1_*'
+        collides in meaning with item 16 line 1 on page 11 (disability_1_*), and the
+        names now mirror item 16's.
+  addendum_disability_1_approximate_onset_dt:
     x_petey_id: '15_7'
     type: date
     semantic_type: iso_date
@@ -5386,7 +7380,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 1 of 20.
     x_petey_description_source: tooltip
-  disability_2_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_1_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_1_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 1 of 20; 'disability_1_*'
+        collides in meaning with item 16 line 1 on page 11 (disability_1_*), and the
+        names now mirror item 16's.
+  addendum_disability_2_approximate_onset_dt:
     x_petey_id: '15_11'
     type: date
     semantic_type: iso_date
@@ -5405,7 +7417,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 2 of 20.
     x_petey_description_source: tooltip
-  disability_3_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_2_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_2_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 2 of 20; 'disability_2_*'
+        collides in meaning with item 16 line 2 on page 11 (disability_2_*), and the
+        names now mirror item 16's.
+  addendum_disability_3_approximate_onset_dt:
     x_petey_id: '15_15'
     type: date
     semantic_type: iso_date
@@ -5424,7 +7454,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 3 of 20.
     x_petey_description_source: tooltip
-  disability_4_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_3_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_3_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 3 of 20; 'disability_3_*'
+        collides in meaning with item 16 line 3 on page 11 (disability_3_*), and the
+        names now mirror item 16's.
+  addendum_disability_4_approximate_onset_dt:
     x_petey_id: '15_19'
     type: date
     semantic_type: iso_date
@@ -5443,7 +7491,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 4 of 20.
     x_petey_description_source: tooltip
-  disability_5_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_4_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_4_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 4 of 20; 'disability_4_*'
+        collides in meaning with item 16 line 4 on page 11 (disability_4_*), and the
+        names now mirror item 16's.
+  addendum_disability_5_approximate_onset_dt:
     x_petey_id: '15_23'
     type: date
     semantic_type: iso_date
@@ -5462,7 +7528,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 5 of 20.
     x_petey_description_source: tooltip
-  disability_6_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_5_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_5_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 5 of 20; 'disability_5_*'
+        collides in meaning with item 16 line 5 on page 11 (disability_5_*), and the
+        names now mirror item 16's.
+  addendum_disability_6_approximate_onset_dt:
     x_petey_id: '15_27'
     type: date
     semantic_type: iso_date
@@ -5481,7 +7565,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 6 of 20.
     x_petey_description_source: tooltip
-  disability_7_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_6_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_6_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 6 of 20; 'disability_6_*'
+        collides in meaning with item 16 line 6 on page 11 (disability_6_*), and the
+        names now mirror item 16's.
+  addendum_disability_7_approximate_onset_dt:
     x_petey_id: '15_31'
     type: date
     semantic_type: iso_date
@@ -5500,7 +7602,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 7 of 20.
     x_petey_description_source: tooltip
-  disability_8_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_7_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_7_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 7 of 20; 'disability_7_*'
+        collides in meaning with item 16 line 7 on page 11 (disability_7_*), and the
+        names now mirror item 16's.
+  addendum_disability_8_approximate_onset_dt:
     x_petey_id: '15_35'
     type: date
     semantic_type: iso_date
@@ -5519,7 +7639,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 8 of 20.
     x_petey_description_source: tooltip
-  disability_9_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_8_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_8_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 8 of 20; 'disability_8_*'
+        collides in meaning with item 16 line 8 on page 11 (disability_8_*), and the
+        names now mirror item 16's.
+  addendum_disability_9_approximate_onset_dt:
     x_petey_id: '15_39'
     type: date
     semantic_type: iso_date
@@ -5538,7 +7676,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 9 of 20.
     x_petey_description_source: tooltip
-  disability_10_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_9_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_9_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 9 of 20; 'disability_9_*'
+        collides in meaning with item 16 line 9 on page 11 (disability_9_*), and the
+        names now mirror item 16's.
+  addendum_disability_10_approximate_onset_dt:
     x_petey_id: '15_43'
     type: date
     semantic_type: iso_date
@@ -5557,7 +7713,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 10 of 20.
     x_petey_description_source: tooltip
-  disability_11_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_10_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_10_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 10 of 20; 'disability_10_*'
+        collides in meaning with item 16 line 10 on page 11 (disability_10_*), and
+        the names now mirror item 16's.
+  addendum_disability_11_approximate_onset_dt:
     x_petey_id: '15_47'
     type: date
     semantic_type: iso_date
@@ -5576,7 +7750,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 11 of 20.
     x_petey_description_source: tooltip
-  disability_12_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_11_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_11_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 11 of 20; 'disability_11_*'
+        collides in meaning with item 16 line 11 on page 11 (disability_11_*), and
+        the names now mirror item 16's.
+  addendum_disability_12_approximate_onset_dt:
     x_petey_id: '15_51'
     type: date
     semantic_type: iso_date
@@ -5595,7 +7787,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 12 of 20.
     x_petey_description_source: tooltip
-  disability_13_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_12_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_12_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 12 of 20; 'disability_12_*'
+        collides in meaning with item 16 line 12 on page 11 (disability_12_*), and
+        the names now mirror item 16's.
+  addendum_disability_13_approximate_onset_dt:
     x_petey_id: '15_55'
     type: date
     semantic_type: iso_date
@@ -5614,7 +7824,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 13 of 20.
     x_petey_description_source: tooltip
-  disability_14_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_13_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_13_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 13 of 20; 'disability_13_*'
+        collides in meaning with item 16 line 13 on page 11 (disability_13_*), and
+        the names now mirror item 16's.
+  addendum_disability_14_approximate_onset_dt:
     x_petey_id: '15_59'
     type: date
     semantic_type: iso_date
@@ -5633,7 +7861,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 14 of 20.
     x_petey_description_source: tooltip
-  disability_15_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_14_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_14_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 14 of 20; 'disability_14_*'
+        collides in meaning with item 16 line 14 on page 11 (disability_14_*), and
+        the names now mirror item 16's.
+  addendum_disability_15_approximate_onset_dt:
     x_petey_id: '15_63'
     type: date
     semantic_type: iso_date
@@ -5652,10 +7898,27 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 15 of 20.
     x_petey_description_source: tooltip
-  disability_2_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_15_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_15_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 15 of 20; 'disability_15_*'
+        collides in meaning with item 16 line 15 on page 11 (disability_15_*), and
+        the names now mirror item 16's.
+  addendum_disability_2_current_nm:
     x_petey_id: '15_8'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5669,10 +7932,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_3_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_2_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_2_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 2 of 20; 'disability_2_*'
+        collides in meaning with item 16 line 2 on page 11 (disability_2_*), and the
+        names now mirror item 16's.
+  addendum_disability_3_current_nm:
     x_petey_id: '15_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5686,10 +7966,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_4_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_3_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_3_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 3 of 20; 'disability_3_*'
+        collides in meaning with item 16 line 3 on page 11 (disability_3_*), and the
+        names now mirror item 16's.
+  addendum_disability_4_current_nm:
     x_petey_id: '15_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5703,10 +8000,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_5_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_4_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_4_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 4 of 20; 'disability_4_*'
+        collides in meaning with item 16 line 4 on page 11 (disability_4_*), and the
+        names now mirror item 16's.
+  addendum_disability_5_current_nm:
     x_petey_id: '15_20'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5720,10 +8034,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_6_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_5_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_5_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 5 of 20; 'disability_5_*'
+        collides in meaning with item 16 line 5 on page 11 (disability_5_*), and the
+        names now mirror item 16's.
+  addendum_disability_6_current_nm:
     x_petey_id: '15_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5737,10 +8068,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_7_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_6_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_6_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 6 of 20; 'disability_6_*'
+        collides in meaning with item 16 line 6 on page 11 (disability_6_*), and the
+        names now mirror item 16's.
+  addendum_disability_7_current_nm:
     x_petey_id: '15_28'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5754,10 +8102,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_8_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_7_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_7_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 7 of 20; 'disability_7_*'
+        collides in meaning with item 16 line 7 on page 11 (disability_7_*), and the
+        names now mirror item 16's.
+  addendum_disability_8_current_nm:
     x_petey_id: '15_32'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5771,10 +8136,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_9_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_8_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_8_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 8 of 20; 'disability_8_*'
+        collides in meaning with item 16 line 8 on page 11 (disability_8_*), and the
+        names now mirror item 16's.
+  addendum_disability_9_current_nm:
     x_petey_id: '15_36'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5788,10 +8170,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_10_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_9_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_9_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 9 of 20; 'disability_9_*'
+        collides in meaning with item 16 line 9 on page 11 (disability_9_*), and the
+        names now mirror item 16's.
+  addendum_disability_10_current_nm:
     x_petey_id: '15_40'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5805,10 +8204,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_11_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_10_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_10_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 10 of 20; 'disability_10_*'
+        collides in meaning with item 16 line 10 on page 11 (disability_10_*), and
+        the names now mirror item 16's.
+  addendum_disability_11_current_nm:
     x_petey_id: '15_44'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5822,10 +8238,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_12_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_11_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_11_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 11 of 20; 'disability_11_*'
+        collides in meaning with item 16 line 11 on page 11 (disability_11_*), and
+        the names now mirror item 16's.
+  addendum_disability_12_current_nm:
     x_petey_id: '15_48'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5839,10 +8272,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_13_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_12_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_12_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 12 of 20; 'disability_12_*'
+        collides in meaning with item 16 line 12 on page 11 (disability_12_*), and
+        the names now mirror item 16's.
+  addendum_disability_13_current_nm:
     x_petey_id: '15_52'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5856,10 +8306,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_14_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_13_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_13_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 13 of 20; 'disability_13_*'
+        collides in meaning with item 16 line 13 on page 11 (disability_13_*), and
+        the names now mirror item 16's.
+  addendum_disability_14_current_nm:
     x_petey_id: '15_56'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5873,10 +8340,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_15_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_14_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_14_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 14 of 20; 'disability_14_*'
+        collides in meaning with item 16 line 14 on page 11 (disability_14_*), and
+        the names now mirror item 16's.
+  addendum_disability_15_current_nm:
     x_petey_id: '15_60'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -5890,7 +8374,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_2_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_15_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_15_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 15 of 20; 'disability_15_*'
+        collides in meaning with item 16 line 15 on page 11 (disability_15_*), and
+        the names now mirror item 16's.
+  addendum_disability_2_exposure_event_injury_txt:
     x_petey_id: '15_9'
     type: string
     semantic_type: text
@@ -5908,7 +8410,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_3_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_2_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_2_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 2 of 20; 'disability_2_*'
+        collides in meaning with item 16 line 2 on page 11 (disability_2_*), and the
+        names now mirror item 16's.
+  addendum_disability_3_exposure_event_injury_txt:
     x_petey_id: '15_13'
     type: string
     semantic_type: text
@@ -5926,7 +8446,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_4_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_3_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_3_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 3 of 20; 'disability_3_*'
+        collides in meaning with item 16 line 3 on page 11 (disability_3_*), and the
+        names now mirror item 16's.
+  addendum_disability_4_exposure_event_injury_txt:
     x_petey_id: '15_17'
     type: string
     semantic_type: text
@@ -5944,7 +8482,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_5_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_4_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_4_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 4 of 20; 'disability_4_*'
+        collides in meaning with item 16 line 4 on page 11 (disability_4_*), and the
+        names now mirror item 16's.
+  addendum_disability_5_exposure_event_injury_txt:
     x_petey_id: '15_21'
     type: string
     semantic_type: text
@@ -5962,7 +8518,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_6_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_5_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_5_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 5 of 20; 'disability_5_*'
+        collides in meaning with item 16 line 5 on page 11 (disability_5_*), and the
+        names now mirror item 16's.
+  addendum_disability_6_exposure_event_injury_txt:
     x_petey_id: '15_25'
     type: string
     semantic_type: text
@@ -5980,7 +8554,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_7_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_6_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_6_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 6 of 20; 'disability_6_*'
+        collides in meaning with item 16 line 6 on page 11 (disability_6_*), and the
+        names now mirror item 16's.
+  addendum_disability_7_exposure_event_injury_txt:
     x_petey_id: '15_29'
     type: string
     semantic_type: text
@@ -5998,7 +8590,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_8_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_7_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_7_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 7 of 20; 'disability_7_*'
+        collides in meaning with item 16 line 7 on page 11 (disability_7_*), and the
+        names now mirror item 16's.
+  addendum_disability_8_exposure_event_injury_txt:
     x_petey_id: '15_33'
     type: string
     semantic_type: text
@@ -6016,7 +8626,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_9_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_8_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_8_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 8 of 20; 'disability_8_*'
+        collides in meaning with item 16 line 8 on page 11 (disability_8_*), and the
+        names now mirror item 16's.
+  addendum_disability_9_exposure_event_injury_txt:
     x_petey_id: '15_37'
     type: string
     semantic_type: text
@@ -6034,7 +8662,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_10_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_9_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_9_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 9 of 20; 'disability_9_*'
+        collides in meaning with item 16 line 9 on page 11 (disability_9_*), and the
+        names now mirror item 16's.
+  addendum_disability_10_exposure_event_injury_txt:
     x_petey_id: '15_41'
     type: string
     semantic_type: text
@@ -6052,7 +8698,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_11_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_10_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_10_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 10 of 20; 'disability_10_*'
+        collides in meaning with item 16 line 10 on page 11 (disability_10_*), and
+        the names now mirror item 16's.
+  addendum_disability_11_exposure_event_injury_txt:
     x_petey_id: '15_45'
     type: string
     semantic_type: text
@@ -6071,7 +8735,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_12_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_11_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_11_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 11 of 20; 'disability_11_*'
+        collides in meaning with item 16 line 11 on page 11 (disability_11_*), and
+        the names now mirror item 16's.
+  addendum_disability_12_exposure_event_injury_txt:
     x_petey_id: '15_49'
     type: string
     semantic_type: text
@@ -6089,7 +8771,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_13_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_12_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_12_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 12 of 20; 'disability_12_*'
+        collides in meaning with item 16 line 12 on page 11 (disability_12_*), and
+        the names now mirror item 16's.
+  addendum_disability_13_exposure_event_injury_txt:
     x_petey_id: '15_53'
     type: string
     semantic_type: text
@@ -6107,7 +8807,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_14_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_13_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_13_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 13 of 20; 'disability_13_*'
+        collides in meaning with item 16 line 13 on page 11 (disability_13_*), and
+        the names now mirror item 16's.
+  addendum_disability_14_exposure_event_injury_txt:
     x_petey_id: '15_57'
     type: string
     semantic_type: text
@@ -6125,7 +8843,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_15_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_14_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_14_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 14 of 20; 'disability_14_*'
+        collides in meaning with item 16 line 14 on page 11 (disability_14_*), and
+        the names now mirror item 16's.
+  addendum_disability_15_exposure_event_injury_txt:
     x_petey_id: '15_61'
     type: string
     semantic_type: text
@@ -6143,7 +8879,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_2_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_15_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_15_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 15 of 20; 'disability_15_*'
+        collides in meaning with item 16 line 15 on page 11 (disability_15_*), and
+        the names now mirror item 16's.
+  addendum_disability_2_relation_to_service_txt:
     x_petey_id: '15_10'
     type: string
     semantic_type: text
@@ -6161,7 +8915,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_3_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_2_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_2_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 2 of 20; 'disability_2_*'
+        collides in meaning with item 16 line 2 on page 11 (disability_2_*), and the
+        names now mirror item 16's.
+  addendum_disability_3_relation_to_service_txt:
     x_petey_id: '15_14'
     type: string
     semantic_type: text
@@ -6179,7 +8951,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_4_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_3_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_3_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 3 of 20; 'disability_3_*'
+        collides in meaning with item 16 line 3 on page 11 (disability_3_*), and the
+        names now mirror item 16's.
+  addendum_disability_4_relation_to_service_txt:
     x_petey_id: '15_18'
     type: string
     semantic_type: text
@@ -6197,7 +8987,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_5_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_4_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_4_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 4 of 20; 'disability_4_*'
+        collides in meaning with item 16 line 4 on page 11 (disability_4_*), and the
+        names now mirror item 16's.
+  addendum_disability_5_relation_to_service_txt:
     x_petey_id: '15_22'
     type: string
     semantic_type: text
@@ -6215,7 +9023,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_6_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_5_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_5_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 5 of 20; 'disability_5_*'
+        collides in meaning with item 16 line 5 on page 11 (disability_5_*), and the
+        names now mirror item 16's.
+  addendum_disability_6_relation_to_service_txt:
     x_petey_id: '15_26'
     type: string
     semantic_type: text
@@ -6233,7 +9059,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_7_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_6_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_6_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 6 of 20; 'disability_6_*'
+        collides in meaning with item 16 line 6 on page 11 (disability_6_*), and the
+        names now mirror item 16's.
+  addendum_disability_7_relation_to_service_txt:
     x_petey_id: '15_30'
     type: string
     semantic_type: text
@@ -6251,7 +9095,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_8_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_7_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_7_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 7 of 20; 'disability_7_*'
+        collides in meaning with item 16 line 7 on page 11 (disability_7_*), and the
+        names now mirror item 16's.
+  addendum_disability_8_relation_to_service_txt:
     x_petey_id: '15_34'
     type: string
     semantic_type: text
@@ -6269,7 +9131,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_9_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_8_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_8_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 8 of 20; 'disability_8_*'
+        collides in meaning with item 16 line 8 on page 11 (disability_8_*), and the
+        names now mirror item 16's.
+  addendum_disability_9_relation_to_service_txt:
     x_petey_id: '15_38'
     type: string
     semantic_type: text
@@ -6287,7 +9167,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_10_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_9_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_9_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 9 of 20; 'disability_9_*'
+        collides in meaning with item 16 line 9 on page 11 (disability_9_*), and the
+        names now mirror item 16's.
+  addendum_disability_10_relation_to_service_txt:
     x_petey_id: '15_42'
     type: string
     semantic_type: text
@@ -6305,7 +9203,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_11_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_10_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_10_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 10 of 20; 'disability_10_*'
+        collides in meaning with item 16 line 10 on page 11 (disability_10_*), and
+        the names now mirror item 16's.
+  addendum_disability_11_relation_to_service_txt:
     x_petey_id: '15_46'
     type: string
     semantic_type: text
@@ -6323,7 +9239,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_12_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_11_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_11_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 11 of 20; 'disability_11_*'
+        collides in meaning with item 16 line 11 on page 11 (disability_11_*), and
+        the names now mirror item 16's.
+  addendum_disability_12_relation_to_service_txt:
     x_petey_id: '15_50'
     type: string
     semantic_type: text
@@ -6341,7 +9275,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_13_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_12_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_12_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 12 of 20; 'disability_12_*'
+        collides in meaning with item 16 line 12 on page 11 (disability_12_*), and
+        the names now mirror item 16's.
+  addendum_disability_13_relation_to_service_txt:
     x_petey_id: '15_54'
     type: string
     semantic_type: text
@@ -6359,7 +9311,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_14_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_13_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_13_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 13 of 20; 'disability_13_*'
+        collides in meaning with item 16 line 13 on page 11 (disability_13_*), and
+        the names now mirror item 16's.
+  addendum_disability_14_relation_to_service_txt:
     x_petey_id: '15_58'
     type: string
     semantic_type: text
@@ -6377,7 +9347,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_15_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_14_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_14_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 14 of 20; 'disability_14_*'
+        collides in meaning with item 16 line 14 on page 11 (disability_14_*), and
+        the names now mirror item 16's.
+  addendum_disability_15_relation_to_service_txt:
     x_petey_id: '15_62'
     type: string
     semantic_type: text
@@ -6395,7 +9383,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_16_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_15_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_15_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 15 of 20; 'disability_15_*'
+        collides in meaning with item 16 line 15 on page 11 (disability_15_*), and
+        the names now mirror item 16's.
+  addendum_disability_16_approximate_onset_dt:
     x_petey_id: '15_67'
     type: date
     semantic_type: iso_date
@@ -6414,7 +9420,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 16 of 20.
     x_petey_description_source: tooltip
-  disability_17_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_16_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_16_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 16 of 20; 'disability_16_*'
+        collides in meaning with item 16 line 16 on page 11 (disability_16_*), and
+        the names now mirror item 16's.
+  addendum_disability_17_approximate_onset_dt:
     x_petey_id: '15_71'
     type: date
     semantic_type: iso_date
@@ -6433,7 +9457,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 17 of 20.
     x_petey_description_source: tooltip
-  disability_18_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_17_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_17_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 17 of 20; 'disability_17_*'
+        collides in meaning with item 16 line 17 on page 11 (disability_17_*), and
+        the names now mirror item 16's.
+  addendum_disability_18_approximate_onset_dt:
     x_petey_id: '15_75'
     type: date
     semantic_type: iso_date
@@ -6452,7 +9494,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 18 of 20.
     x_petey_description_source: tooltip
-  disability_19_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_18_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_18_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 18 of 20; 'disability_18_*'
+        collides in meaning with item 16 line 18 on page 11 (disability_18_*), and
+        the names now mirror item 16's.
+  addendum_disability_19_approximate_onset_dt:
     x_petey_id: '15_79'
     type: date
     semantic_type: iso_date
@@ -6471,7 +9531,25 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 19 of 20.
     x_petey_description_source: tooltip
-  disability_20_approximate_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_19_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_19_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 19 of 20; 'disability_19_*'
+        collides in meaning with item 16 line 19 on page 11 (disability_19_*), and
+        the names now mirror item 16's.
+  addendum_disability_20_approximate_onset_dt:
     x_petey_id: '15_83'
     type: date
     semantic_type: iso_date
@@ -6490,10 +9568,27 @@ fields:
     description: APPROXIMATE DATE DISABILITY BEGAN OR WORSENED. Enter 2 digit month,
       2 digit day and 4 digit year. Line 20 of 20.
     x_petey_description_source: tooltip
-  disability_16_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_20_approximate_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: addendum_disability_20_approximate_onset_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 20 of 20; 'disability_20_*'
+        collides in meaning with item 16 line 20 on page 11 (disability_20_*), and
+        the names now mirror item 16's.
+  addendum_disability_16_current_nm:
     x_petey_id: '15_64'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -6507,10 +9602,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_17_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_16_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_16_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 16 of 20; 'disability_16_*'
+        collides in meaning with item 16 line 16 on page 11 (disability_16_*), and
+        the names now mirror item 16's.
+  addendum_disability_17_current_nm:
     x_petey_id: '15_68'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -6524,10 +9636,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_18_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_17_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_17_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 17 of 20; 'disability_17_*'
+        collides in meaning with item 16 line 17 on page 11 (disability_17_*), and
+        the names now mirror item 16's.
+  addendum_disability_18_current_nm:
     x_petey_id: '15_72'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -6541,10 +9670,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_19_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_18_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_18_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 18 of 20; 'disability_18_*'
+        collides in meaning with item 16 line 18 on page 11 (disability_18_*), and
+        the names now mirror item 16's.
+  addendum_disability_19_current_nm:
     x_petey_id: '15_76'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -6558,10 +9704,27 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_20_nm:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_19_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_19_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 19 of 20; 'disability_19_*'
+        collides in meaning with item 16 line 19 on page 11 (disability_19_*), and
+        the names now mirror item 16's.
+  addendum_disability_20_current_nm:
     x_petey_id: '15_80'
     type: string
-    semantic_type: person_name
     widget:
       page: 15
       rect:
@@ -6575,7 +9738,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_16_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_20_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: addendum_disability_20_current_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 20 of 20; 'disability_20_*'
+        collides in meaning with item 16 line 20 on page 11 (disability_20_*), and
+        the names now mirror item 16's.
+  addendum_disability_16_exposure_event_injury_txt:
     x_petey_id: '15_65'
     type: string
     semantic_type: text
@@ -6593,7 +9774,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_17_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_16_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_16_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 16 of 20; 'disability_16_*'
+        collides in meaning with item 16 line 16 on page 11 (disability_16_*), and
+        the names now mirror item 16's.
+  addendum_disability_17_exposure_event_injury_txt:
     x_petey_id: '15_69'
     type: string
     semantic_type: text
@@ -6611,7 +9810,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_18_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_17_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_17_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 17 of 20; 'disability_17_*'
+        collides in meaning with item 16 line 17 on page 11 (disability_17_*), and
+        the names now mirror item 16's.
+  addendum_disability_18_exposure_event_injury_txt:
     x_petey_id: '15_73'
     type: string
     semantic_type: text
@@ -6629,7 +9846,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_19_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_18_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_18_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 18 of 20; 'disability_18_*'
+        collides in meaning with item 16 line 18 on page 11 (disability_18_*), and
+        the names now mirror item 16's.
+  addendum_disability_19_exposure_event_injury_txt:
     x_petey_id: '15_77'
     type: string
     semantic_type: text
@@ -6647,7 +9882,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_20_exposure_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_19_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_19_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 19 of 20; 'disability_19_*'
+        collides in meaning with item 16 line 19 on page 11 (disability_19_*), and
+        the names now mirror item 16's.
+  addendum_disability_20_exposure_event_injury_txt:
     x_petey_id: '15_81'
     type: string
     semantic_type: text
@@ -6665,7 +9918,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_16_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_20_exposure_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_20_exposure_event_injury_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 20 of 20; 'disability_20_*'
+        collides in meaning with item 16 line 20 on page 11 (disability_20_*), and
+        the names now mirror item 16's.
+  addendum_disability_16_relation_to_service_txt:
     x_petey_id: '15_66'
     type: string
     semantic_type: text
@@ -6683,7 +9954,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_17_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_16_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_16_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 16 of 20; 'disability_16_*'
+        collides in meaning with item 16 line 16 on page 11 (disability_16_*), and
+        the names now mirror item 16's.
+  addendum_disability_17_relation_to_service_txt:
     x_petey_id: '15_70'
     type: string
     semantic_type: text
@@ -6701,7 +9990,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_18_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_17_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_17_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 17 of 20; 'disability_17_*'
+        collides in meaning with item 16 line 17 on page 11 (disability_17_*), and
+        the names now mirror item 16's.
+  addendum_disability_18_relation_to_service_txt:
     x_petey_id: '15_74'
     type: string
     semantic_type: text
@@ -6719,7 +10026,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_19_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_18_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_18_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 18 of 20; 'disability_18_*'
+        collides in meaning with item 16 line 18 on page 11 (disability_18_*), and
+        the names now mirror item 16's.
+  addendum_disability_19_relation_to_service_txt:
     x_petey_id: '15_78'
     type: string
     semantic_type: text
@@ -6737,7 +10062,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  disability_20_relates_to_service_txt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_19_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_19_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 19 of 20; 'disability_19_*'
+        collides in meaning with item 16 line 19 on page 11 (disability_19_*), and
+        the names now mirror item 16's.
+  addendum_disability_20_relation_to_service_txt:
     x_petey_id: '15_82'
     type: string
     semantic_type: text
@@ -6755,6 +10098,24 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: disability_20_relates_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: addendum_disability_20_relation_to_service_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: clarity
+      why: Page 15 Section XIII Claim Information (Addendum), line 20 of 20; 'disability_20_*'
+        collides in meaning with item 16 line 20 on page 11 (disability_20_*), and
+        the names now mirror item 16's.
   claim_program:
     x_petey_id: '9_1'
     type: category
@@ -6786,6 +10147,8 @@ fields:
         widget_type: checkbox
         path: F[0].Page_10[0].IDES[0]
         on_state: '1'
+        caption: IDES
+        x_petey_caption_source: claude
       bdd:
         page: 9
         rect:
@@ -6796,6 +10159,8 @@ fields:
         widget_type: checkbox
         path: F[0].Page_10[0].BDD_Program_Claim[0]
         on_state: '1'
+        caption: BDD Program Claim
+        x_petey_caption_source: claude
       standard:
         page: 9
         rect:
@@ -6816,6 +10181,32 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: claim_program
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          ides: null
+          bdd: null
+      to:
+        name: claim_program
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          ides:
+            caption: IDES
+          bdd:
+            caption: BDD Program Claim
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: caption
+      why: 'Item 1 boxes 2 and 3 have no caption; printed beside them: ''IDES (Select
+        this option only if you have been referred...)'' and ''BDD Program Claim (Select
+        this option only if...)''.'
   living_situation_14b:
     x_petey_id: '10_2'
     type: category
@@ -6848,6 +10239,9 @@ fields:
         widget_type: checkbox
         path: F[0].#subform[9].Not_Currently_In_A_Sheltered_Environment_e\.g\._Living_In_A_Car_Or_Tent[0]
         on_state: '1'
+        caption: NOT CURRENTLY IN A SHELTERED ENVIRONMENT (e.g., living in a car or
+          tent)
+        x_petey_caption_source: claude
       staying_with_another_ind:
         page: 10
         rect:
@@ -6889,6 +10283,29 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: living_situation_14b
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          not_sheltered_ind: null
+      to:
+        name: living_situation_14b
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          not_sheltered_ind:
+            caption: NOT CURRENTLY IN A SHELTERED ENVIRONMENT (e.g., living in a car
+              or tent)
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: caption
+      why: Second 14B box has no caption; printed beside it 'NOT CURRENTLY IN A SHELTERED
+        ENVIRONMENT (e.g., living in a car or tent)'.
   living_situation_14d:
     x_petey_id: '10_5'
     type: category
@@ -6907,6 +10324,8 @@ fields:
         widget_type: checkbox
         path: F[0].#subform[9].Housing_Will_Be_Lost_In_30_Days[0]
         on_state: '1'
+        caption: HOUSING WILL BE LOST IN 30 DAYS
+        x_petey_caption_source: claude
       leaving_publicly_funded_system_ind:
         page: 10
         rect:
@@ -6917,6 +10336,8 @@ fields:
         widget_type: checkbox
         path: F[0].#subform[9].Leaving_Publicly_Funded_System_Of_Care_e\.g\._Homeless_Shelter[0]
         on_state: '1'
+        caption: LEAVING PUBLICLY FUNDED SYSTEM OF CARE (e.g., homeless shelter)
+        x_petey_caption_source: claude
       other_ind:
         page: 10
         rect:
@@ -6934,9 +10355,33 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  exposure_14d:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: living_situation_14d
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          housing_lost_in_30_days_ind: null
+          leaving_publicly_funded_system_ind: null
+      to:
+        name: living_situation_14d
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          housing_lost_in_30_days_ind:
+            caption: HOUSING WILL BE LOST IN 30 DAYS
+          leaving_publicly_funded_system_ind:
+            caption: LEAVING PUBLICLY FUNDED SYSTEM OF CARE (e.g., homeless shelter)
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: caption
+      why: First two 14D boxes have no caption; printed text beside them.
+  exposure_15d:
     x_petey_id: '10_25'
-    type: category
+    type: multi_category
     values:
     - asbestos_ind
     - contaminated_water_camp_lejeune_ind
@@ -7035,6 +10480,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:35:00'
+      from:
+        name: exposure_14d
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: exposure_15d
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__vba21526ez.json
+      by: claude
+      kind: wrong
+      why: This is item 15D 'HAVE YOU BEEN EXPOSED TO ANY OF THE FOLLOWING? (Check
+        all that apply)', not 14D; check-all-that-apply makes it multi_category.
 x_petey_dedup_log:
   duplicate_labels_reassigned: 12
   collisions:

@@ -23,7 +23,8 @@ member's place in reading order; what each member was (name, path, box, type) is
 The page only records: `runs/group_review/<id>.json` holds the grouping as the person left it (units, their names,
 one-of or any-of, confirmed or not) with the blueprint's sha. `--apply` rewrites the blueprint from that record and
 then re-derives the record from the new file, keeping the confirmations. Blueprints offered are the hand review's
-(library, judge-eval and relabel side copies, flat forms).
+(library, judge-eval and relabel side copies, flat forms). Since 2026-10-13 the review page applies the record to its
+working copy of the blueprint when you leave Groups (`draft.py`), and `--apply` writes that copy while it is open.
 
 What --apply writes, in the shape `expand_options` gave the library (2026-09-29): a group is one `category` (or
 `multi_category`) field whose `widgets` are keyed by option; an orphan that joins a group is keyed by its former
@@ -47,7 +48,7 @@ import yaml
 from petey.paths import RUNS
 from petey.label.captions import text_rects
 from petey.validate import field_ids
-from petey.validate.hand_review import _load, _sha, blueprint_paths
+from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "group_review"
@@ -134,7 +135,59 @@ def _order_key(items: dict, u: dict) -> tuple:
 
 
 def _signature(u: dict) -> tuple:
-    return u["name"], u["type"], tuple(sorted(u["items"]))
+    return u["name"], u["type"], tuple(sorted(u["items"])), tuple(sorted((u.get("captions") or {}).items()))
+
+
+def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[str], model: bool = True) -> dict[str, dict]:
+    """The caption printed at each option of a group (Andrew, 2026-10-13: a group made in Groups keeps its members'
+    old captions; re-read them for the group's name and keys), keyed by item id: {"caption", "current", "locked",
+    "source"}. By default one call to the review page's agent (`flag_agent.propose`: the page image with the boxes
+    numbered; reads sentence-long captions, which the chooser cuts short: CMS-855A's reasons for applying came back
+    'Check' and 'You'); without it, or when the call fails, the caption chooser (`caption_choice.choose`, the
+    text-match model over the words around each box, no API call). A caption from the XFA template or set by hand
+    is locked and kept."""
+    from petey.label.caption_choice import choose, page_context
+    from petey.validate.witness import publisher_words
+    items = {**option_items(bp)[0], **text_items(bp)}
+    fields = bp.get("fields") or {}
+    if blank is None or not item_ids:
+        return {}
+    ws, key_of = {}, {}
+    for iid in item_ids:
+        it = items.get(iid)
+        if it is None:
+            continue
+        src = fields[it["field"]]
+        block = dict(src["widgets"][it["key"]]) if it["key"] is not None else dict(src.get("widget") or {})
+        if it["key"] is None and not block.get("caption") and _is_orphan(src):
+            block["caption"] = src.get("description")
+        k, n = str(it["key"] if it["key"] is not None else it["field"]), 2
+        while k in ws:
+            k, n = f"{k}_{n}", n + 1
+        ws[k], key_of[k] = block, iid
+    best, source = {}, "chooser"
+    if model:
+        try:
+            from petey.synth.generate import make_client
+            from petey.validate import flag_agent
+            got = flag_agent.propose(make_client(flag_agent.MODEL), blank, name, {"type": "category", "widgets": ws},
+                                     "Give every numbered option box its caption exactly as printed beside it "
+                                     "(the whole label, not an abbreviation). Change nothing else.", "", {})
+            best = {k: o.get("caption") for k, o in (got.get("options") or {}).items() if o.get("caption")}
+            source = flag_agent.MODEL
+        except Exception:                               # no key, no network: the local chooser
+            best = {}
+    if not best:
+        words, lines = page_context(blank)
+        best = {k: r.get("best") for k, r in choose(name, {"widgets": ws}, words, lines, publisher_words(blank)).items()}
+        source = "chooser"
+    out = {}
+    for k, iid in key_of.items():
+        w = ws[k]
+        locked = w.get("x_petey_caption_source") in ("xfa", "hand")
+        out[iid] = {"caption": w.get("caption") if locked else (best.get(k) or w.get("caption")),
+                    "current": w.get("caption"), "locked": locked, "source": source}
+    return out
 
 
 def _box(it: dict) -> str:
@@ -156,10 +209,15 @@ def _rebase(rec: dict, bp: dict, items: dict[str, dict]) -> dict[str, str]:
     if rec.get("boxes"):
         now = {_box(it): i for i, it in items.items()}
         return {i: now[b] for i, b in rec["boxes"].items() if b in now and now[b] != i}
+    # only renames made after the record was written: an earlier one is already in the record's names, and following
+    # it again moves each item one field along a renamed run (2026-10-13, FAA 8710 page 6: Andrew's 11:00 renames
+    # re-applied to his 11:56 record shifted change_of_name / sic_type_rating / reissue by one)
+    since = rec.get("updated") or ""
     renamed = {}
     for name, spec in (bp.get("fields") or {}).items():
-        was = (((spec or {}).get("x_petey_hand_edit") or {}).get("from") or {}).get("name") if isinstance(spec, dict) else None
-        if was and was != name:
+        he = ((spec or {}).get("x_petey_hand_edit") or {}) if isinstance(spec, dict) else {}
+        was = (he.get("from") or {}).get("name")
+        if was and was != name and (he.get("when") or "") > since:
             renamed[was] = name
     out = {}
     for u in rec.get("units") or []:
@@ -186,13 +244,33 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
         units, seen = [], set()
         moved = _rebase(rec, bp, items) if info["stale"] else {}
         info["rebased"] = len(moved)
+        fmoved = {a.partition("::")[0]: b.partition("::")[0] for a, b in moved.items()
+                  if a.partition("::")[0] != b.partition("::")[0]}
         for u in rec["units"]:
             ids = [moved.get(i, i) for i in u.get("items") or []]
             ids = [i for i in ids if i in items and i not in seen]
             if not ids or (u.get("kind") == "text" and len(ids) < 2):
                 continue
             seen.update(ids)
-            units.append({k: v for k, v in u.items() if k != "items"} | {"items": ids})
+            unit = {k: v for k, v in u.items() if k != "items"} | {"items": ids}
+            # a unit that is a field as it was, which has since been renamed (in Review), takes the new name: kept,
+            # its old name would rename the field back on apply (2026-10-13: FAA 8710 asi -> asi_result)
+            was = {i.partition("::")[0] for i in u.get("items") or []}
+            now = {i.partition("::")[0] for i in ids}
+            if moved and was == {u.get("name")} and len(now) == 1 and now != was:
+                unit["name"] = next(iter(now))
+            if u.get("origin") in fmoved:                # the field it came from, by its name now
+                unit["origin"] = fmoved[u["origin"]]
+            # a later edit of that field (Review, Claude's pass) wins over what the record says about its name and
+            # type: the record predates it (2026-10-13: category -> multi_category set after the record, reverted)
+            spec = (bp.get("fields") or {}).get(unit.get("origin"))
+            he = (spec or {}).get("x_petey_hand_edit") if isinstance(spec, dict) else None
+            if info["stale"] and he and (he.get("when") or "") > (rec.get("updated") or "") and \
+                    {i.partition("::")[0] for i in ids} == {unit["origin"]}:
+                unit["name"] = unit["origin"]
+                if (he.get("to") or {}).get("type") != (he.get("from") or {}).get("type"):
+                    unit["type"] = spec.get("type")
+            units.append(unit)
         for u in base:                                   # items the record never saw
             ids = [i for i in u["items"] if i not in seen]
             if ids:
@@ -342,6 +420,13 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                 blocks[k] = block
             for k, cap in (_page_captions(blank, blocks, items, text_rects(fields)) if page_captions else {}).items():
                 blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_text"
+            # captions re-read in Groups ("re-read captions": suggest_captions), where the person kept them
+            for iid, cap in (u.get("captions") or {}).items():
+                k = dict(zip(u["items"], blocks)).get(iid)
+                if k and cap and blocks[k].get("caption") != cap:
+                    blocks[k]["caption"], blocks[k]["x_petey_caption_source"] = cap, "page_choice"
+                    if b is not None:
+                        changes.append(f"group {u['name']}: {k} caption {cap!r}")
             spec["values"] = list(blocks)
             spec["widgets"] = blocks
             def shown(ks):          # the key and the caption the reader will show for it
@@ -453,8 +538,9 @@ def _combine_text(bp: dict, out: dict, text_units: list[dict], now: str, changes
 
 def apply(bid: str, page_captions: bool = True) -> dict:
     """Write the record into the blueprint, then re-derive the record from the new file (confirmations kept by unit
-    name and membership)."""
-    p = blueprint_paths()[bid]
+    name and membership). Writes the working copy while one is open (`draft.py`)."""
+    real = blueprint_paths()[bid]
+    p = working_path(bid)
     bp = _load(p)
     sha = _sha(p)
     items, units, info = current_units(bid, bp, sha)
@@ -473,7 +559,7 @@ def apply(bid: str, page_captions: bool = True) -> dict:
     new_sha = _sha(p)
     confirmed = {(u["name"], len(u["items"])) for u in units if u.get("confirmed")}
     _, fresh = option_items(bp)
-    rec = {"blueprint": str(p), "form": p.stem, "blueprint_sha": new_sha,
+    rec = {"blueprint": str(real), "form": real.stem, "blueprint_sha": new_sha,
            "updated": time.strftime("%Y-%m-%d %H:%M:%S"),
            "applied": {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "sha_before": sha, "sha_after": new_sha,
                        "changes": pl["changes"]},
@@ -495,8 +581,11 @@ class State:
         self.png: dict[tuple[str, int], bytes] = {}
         self._index: dict[str, dict] = {}
 
+    def path(self, bid: str) -> Optional[Path]:
+        return working_path(bid, self.paths)
+
     def _entry(self, bid: str) -> Optional[dict]:
-        p = self.paths[bid]
+        p = self.path(bid)
         bp = _load(p)
         items, units, info = current_units(bid, bp, _sha(p))
         combos = sum(1 for u in units if u.get("kind") == "text")
@@ -522,7 +611,7 @@ class State:
         return list(self._index.values())
 
     def detail(self, bid: str) -> Optional[dict]:
-        p = self.paths.get(bid)
+        p = self.path(bid)
         if p is None:
             return None
         bp = _load(p)
@@ -539,7 +628,7 @@ class State:
         items, units, info = current_units(bid, bp, sha)
         opt_items, base = option_items(bp)
         option_fields = {it["field"] for it in opt_items.values()}
-        return {"id": bid, "path": str(p), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
+        return {"id": bid, "path": str(self.paths[bid]), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
                 "info": info}
@@ -547,7 +636,7 @@ class State:
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)
         if key not in self.png:
-            p = self.paths.get(bid)
+            p = self.path(bid)
             blank = resolve_blank(_load(p)) if p else None
             if not blank or not blank.exists():
                 return None
@@ -562,18 +651,19 @@ class State:
         return self.png[key]
 
     def put_units(self, bid: str, incoming: dict) -> dict:
-        p = self.paths.get(bid)
+        p = self.path(bid)
         if p is None:
             raise KeyError(bid)
         bp = _load(p)
         items, _ = option_items(bp)
         items = {**items, **text_items(bp)}
-        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when", "name_from")
+        keep = ("name", "type", "items", "origin", "confirmed", "description", "locked", "kind", "when", "name_from",
+                "captions")
         units = [{k: u.get(k) for k in keep if u.get(k) is not None} for u in incoming.get("units") or []]
         for u in units:
             u["items"] = [i for i in u.get("items") or [] if i in items]
         units = [u for u in units if u["items"]]
-        rec = {"blueprint": str(p), "form": p.stem, "blueprint_sha": _sha(p),
+        rec = {"blueprint": str(self.paths[bid]), "form": p.stem, "blueprint_sha": _sha(p),
                "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "applied": load_record(bid).get("applied"),
                "units": units, "boxes": item_boxes(items, units)}
         OUT.mkdir(parents=True, exist_ok=True)
@@ -583,8 +673,14 @@ class State:
             self._index[bid] = e
         return {"saved": rec["updated"], "entry": e}
 
+    def captions_for(self, bid: str, body: dict) -> dict:
+        p = self.path(bid)
+        bp = _load(p)
+        return {"captions": suggest_captions(bp, resolve_blank(bp), body.get("name") or "", body.get("items") or [],
+                                             model=body.get("model", True))}
+
     def plan_for(self, bid: str, incoming: Optional[dict] = None) -> dict:
-        p = self.paths[bid]
+        p = self.path(bid)
         bp = _load(p)
         units = (incoming or {}).get("units") or current_units(bid, bp, _sha(p))[1]
         pl = plan(bp, units, resolve_blank(bp))
@@ -597,7 +693,7 @@ def summary() -> None:
     n = 0
     for rp in sorted(OUT.glob("*.json")):
         rec = json.loads(rp.read_text(encoding="utf-8"))
-        p = paths.get(rp.stem)
+        p = working_path(rp.stem, paths)
         if p is None:
             continue
         bp = _load(p)
@@ -630,7 +726,7 @@ def main() -> int:
         if args.apply:
             apply(bid, page_captions=not args.no_page_captions)
             return 0
-        p = blueprint_paths()[bid]
+        p = working_path(bid)
         bp = _load(p)
         _, units, info = current_units(bid, bp, _sha(p))
         pl = plan(bp, units, resolve_blank(bp))

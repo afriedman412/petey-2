@@ -470,7 +470,7 @@ def _description_from_tooltip(tooltip: Optional[str]) -> Optional[str]:
 LABEL_BATCH = 150
 
 
-def label_page_via_llm(widgets_on_page, words, model: str = MODEL):
+def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True):
     """Label one page's widgets, in batches if the page is dense.
 
     The labeler already makes one call per page. That is not enough
@@ -492,14 +492,14 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL):
     (14 of 229 unlabeled forms average over 200 widgets per page).
     """
     if len(widgets_on_page) <= LABEL_BATCH:
-        return _label_batch_via_llm(widgets_on_page, words, model=model)
+        return _label_batch_via_llm(widgets_on_page, words, model=model, think=think)
 
     merged: dict[int, str] = {}
     n = len(widgets_on_page)
     for i in range(0, n, LABEL_BATCH):
         batch = widgets_on_page[i:i + LABEL_BATCH]
         print(f"    [batch] widgets {i + 1}-{i + len(batch)} of {n}")
-        merged.update(_label_batch_via_llm(batch, words, model=model))
+        merged.update(_label_batch_via_llm(batch, words, model=model, think=think))
     return merged
 
 
@@ -524,7 +524,7 @@ def dropdown_spec(spec: dict, w: dict) -> dict:
     return spec
 
 
-def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
+def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True):
     widget_lines = []
     for w in widgets_on_page:
         x0, y0, x1, y1 = w["rect"]
@@ -580,6 +580,10 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL):
             # Gemini counts its hidden thinking against max_tokens: at 32,768 a 48-126 widget page spent most of it
             # thinking and the labels were cut at ~3,300 chars (GCP runner, 2026-10-06); 65,536 is its output cap
             kwargs["max_tokens"] = 65536 if model.startswith("gemini-") else MAX_TOKENS
+            if not think and model.startswith("gemini-"):
+                # the review page's Groups button names one group from its captions (2026-10-13: 8 s -> 2 s with
+                # thinking off; on single boxes it got 9 of 12 right against 12, so only Groups asks for this)
+                kwargs["reasoning_effort"] = "none"
             kwargs["temperature"] = 0
             if model.startswith("local-"):
                 # labels run to ~4k tokens at most; the context is shared with a prompt of up to ~32k. No hidden

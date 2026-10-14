@@ -325,6 +325,12 @@ def enrich_field(label: str, widget_type: str) -> dict:
     return spec
 
 
+def pattern_for(name: Optional[str]) -> Optional[str]:
+    """The registry's pattern for a semantic type, where it applies (a string field; spec §5.6), else None."""
+    st = next((t for t in ALL_TYPES if t.name == name), None) if name else None
+    return st.pattern if st is not None and st.pattern and st.bpt_type == "string" else None
+
+
 def registered_names() -> list[str]:
     """Every `semantic_type` name registered by spec §5.8.1 (32 of them)."""
     return [st.name for st in ALL_TYPES]

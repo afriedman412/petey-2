@@ -87,7 +87,6 @@ fields:
   borrower_nm:
     x_petey_id: '1_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -98,10 +97,25 @@ fields:
       widget_type: text
       path: Borrower
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: borrower_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: borrower_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   owner_of_public_record_nm:
     x_petey_id: '1_7'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -114,10 +128,25 @@ fields:
     description: 'Owner of Public Record:'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: owner_of_public_record_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: owner_of_public_record_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   county_nm:
     x_petey_id: '1_8'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -128,6 +157,22 @@ fields:
       widget_type: text
       path: County
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: county_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   legal_description_txt:
     x_petey_id: '1_9'
     type: string
@@ -195,7 +240,6 @@ fields:
   neighborhood_nm:
     x_petey_id: '1_13'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -208,6 +252,22 @@ fields:
     description: Neighborhood Name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: neighborhood_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: neighborhood_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   map_reference:
     x_petey_id: '1_14'
     type: string
@@ -471,7 +531,6 @@ fields:
   lender_client_nm:
     x_petey_id: '1_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -484,6 +543,22 @@ fields:
     description: Lender/Client
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: lender_client_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: lender_client_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   lender_client_address_line_1_txt:
     x_petey_id: '1_25'
     type: string
@@ -1043,7 +1118,7 @@ fields:
     description: Neighborhood Boundaries
     x_petey_description_source: tooltip
     label_source: llm
-  two_four_unit_housing_price_low_amt:
+  one_unit_housing_price_low_amt:
     x_petey_id: '1_43'
     type: number
     semantic_type: money
@@ -1061,11 +1136,27 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  two_four_unit_housing_age_low_yr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: two_four_unit_housing_price_low_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: one_unit_housing_price_low_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: wrong
+      why: The Form 1004 Neighborhood section has only a One-Unit Housing PRICE $(000)
+        / AGE (yrs) column (rows Low, High, Pred.); 2-4 Unit appears only as a Present
+        Land Use %. The publisher's tooltip saying '2-4 Unit Housing' is its own error.
+  one_unit_housing_age_low_amt:
     x_petey_id: '1_44'
-    type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    type: integer
     widget:
       page: 1
       rect:
@@ -1078,7 +1169,25 @@ fields:
     description: Age in years for low 2-4 Unit Housing
     x_petey_description_source: tooltip
     label_source: llm
-  two_four_unit_housing_price_high_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: two_four_unit_housing_age_low_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: one_unit_housing_age_low_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: wrong
+      why: 'One-Unit Housing AGE (yrs), Low row: the 1004 has no 2-4 unit housing
+        column (tooltip error), and an age in years is a whole number, not a calendar
+        year (the ^\d{4}$ year pattern rejects ''15'').'
+  one_unit_housing_price_high_amt:
     x_petey_id: '1_50'
     type: number
     semantic_type: money
@@ -1096,11 +1205,27 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  two_four_unit_housing_age_high_yr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: two_four_unit_housing_price_high_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: one_unit_housing_price_high_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: wrong
+      why: The Form 1004 Neighborhood section has only a One-Unit Housing PRICE $(000)
+        / AGE (yrs) column (rows Low, High, Pred.); 2-4 Unit appears only as a Present
+        Land Use %. The publisher's tooltip saying '2-4 Unit Housing' is its own error.
+  one_unit_housing_age_high_amt:
     x_petey_id: '1_48'
-    type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    type: integer
     widget:
       page: 1
       rect:
@@ -1113,7 +1238,25 @@ fields:
     description: Age in years for High 2-4 Unit Housing
     x_petey_description_source: tooltip
     label_source: llm
-  two_four_unit_housing_price_pred_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: two_four_unit_housing_age_high_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: one_unit_housing_age_high_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: wrong
+      why: 'One-Unit Housing AGE (yrs), High row: the 1004 has no 2-4 unit housing
+        column (tooltip error), and an age in years is a whole number, not a calendar
+        year (the ^\d{4}$ year pattern rejects ''15'').'
+  one_unit_housing_price_pred_amt:
     x_petey_id: '1_54'
     type: number
     semantic_type: money
@@ -1131,11 +1274,27 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  two_four_unit_housing_age_pred_yr:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: two_four_unit_housing_price_pred_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: one_unit_housing_price_pred_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: wrong
+      why: The Form 1004 Neighborhood section has only a One-Unit Housing PRICE $(000)
+        / AGE (yrs) column (rows Low, High, Pred.); 2-4 Unit appears only as a Present
+        Land Use %. The publisher's tooltip saying '2-4 Unit Housing' is its own error.
+  one_unit_housing_age_pred_amt:
     x_petey_id: '1_52'
-    type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    type: integer
     widget:
       page: 1
       rect:
@@ -1148,6 +1307,24 @@ fields:
     description: Age in years for Pred. 2-4 Unit Housing
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: two_four_unit_housing_age_pred_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: one_unit_housing_age_pred_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: wrong
+      why: 'One-Unit Housing AGE (yrs), Pred. row: the 1004 has no 2-4 unit housing
+        column (tooltip error), and an age in years is a whole number, not a calendar
+        year (the ^\d{4}$ year pattern rejects ''15'').'
   present_land_use_one_unit_pct:
     x_petey_id: '1_39'
     type: number
@@ -2141,11 +2318,9 @@ fields:
       widget_type: text
       path: Year Built
     label_source: llm
-  effective_age_yr:
+  effective_age_amt:
     x_petey_id: '1_112'
-    type: string
-    semantic_type: year
-    pattern: ^\d{4}$
+    type: integer
     widget:
       page: 1
       rect:
@@ -2158,6 +2333,23 @@ fields:
     description: Effective Age (Years)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: effective_age_yr
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: effective_age_amt
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: '''Effective Age (Yrs)'' is an age in years (e.g. 12), not a calendar year;
+        the year type and ^\d{4}$ pattern would reject it.'
   attic_none_ind:
     x_petey_id: '1_117'
     type: boolean
@@ -2326,7 +2518,7 @@ fields:
         caption: Partial Basement
   basement_area_sq_ft:
     x_petey_id: '1_96'
-    type: string
+    type: number
     widget:
       page: 1
       rect:
@@ -2339,6 +2531,23 @@ fields:
     description: Basement Area square feet
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: basement_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: basement_area_sq_ft
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: '''Basement Area ___ sq. ft.'' is a square-foot measure (a number), typed
+        as free string.'
   basement_finish_pct:
     x_petey_id: '1_100'
     type: number
@@ -2385,54 +2594,57 @@ fields:
       widget_type: checkbox
       path: Check Box8
     label_source: llm
-  basement_evidence_of_infestation_ind:
-    x_petey_id: '1_109'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 215.39999389648438
-      - 704.6710205078125
-      - 224.9720001220703
-      - 714.1619873046875
-      widget_type: checkbox
-      path: Check Box9
-    description: Evidence of Infestation
-    x_petey_description_source: tooltip
-    label_source: llm
-  basement_evidence_of_dampness_ind:
-    x_petey_id: '1_113'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 170.8090057373047
-      - 716.6170043945312
-      - 180.38099670410156
-      - 726.1080322265625
-      widget_type: checkbox
-      path: Check Box10
-    description: Evidence of Dampness
-    x_petey_description_source: tooltip
-    label_source: llm
-  basement_evidence_of_settlement_ind:
-    x_petey_id: '1_114'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 224.8090057373047
-      - 716.698974609375
-      - 234.38099670410156
-      - 726.18896484375
-      widget_type: checkbox
-      path: Check Box11
-    description: Evidence of Settlement
-    x_petey_description_source: tooltip
-    label_source: llm
+  basement_evidence_of:
+    x_petey_id: '1_156'
+    type: multi_category
+    values:
+    - basement_evidence_of_infestation_ind
+    - basement_evidence_of_dampness_ind
+    - basement_evidence_of_settlement_ind
+    widgets:
+      basement_evidence_of_infestation_ind:
+        page: 1
+        rect:
+        - 215.39999389648438
+        - 704.6710205078125
+        - 224.9720001220703
+        - 714.1619873046875
+        widget_type: checkbox
+        path: Check Box9
+        on_state: 'Yes'
+        caption: Infestation
+        x_petey_caption_source: page_choice
+      basement_evidence_of_dampness_ind:
+        page: 1
+        rect:
+        - 170.8090057373047
+        - 716.6170043945312
+        - 180.38099670410156
+        - 726.1080322265625
+        widget_type: checkbox
+        path: Check Box10
+        on_state: 'Yes'
+        caption: Dampness
+        x_petey_caption_source: page_choice
+      basement_evidence_of_settlement_ind:
+        page: 1
+        rect:
+        - 224.8090057373047
+        - 716.698974609375
+        - 234.38099670410156
+        - 726.18896484375
+        widget_type: checkbox
+        path: Check Box11
+        on_state: 'Yes'
+        caption: Settlement
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 19:31:08'
+      from:
+      - basement_evidence_of_infestation_ind
+      - basement_evidence_of_dampness_ind
+      - basement_evidence_of_settlement_ind
   heating_type:
     x_petey_id: '1_118'
     type: category
@@ -3044,7 +3256,7 @@ fields:
     - type_from_description
   finished_area_number_of_baths:
     x_petey_id: '1_142'
-    type: integer
+    type: number
     widget:
       page: 1
       rect:
@@ -3057,9 +3269,25 @@ fields:
     description: Number of Bath(s)
     x_petey_description_source: tooltip
     label_source: llm
-    semantic_type: count
     x_petey_retype:
     - type_from_description
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: finished_area_number_of_baths
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: finished_area_number_of_baths
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: Baths on the 1004 are reported as full.half (e.g. 2.1) or 2.5, not whole
+        numbers; an integer type would drop the half bath.
   gross_living_area_above_grade_sq_ft:
     x_petey_id: '1_143'
     type: integer
@@ -5011,8 +5239,7 @@ fields:
     label_source: llm
   subject_total_bathrooms_cnt:
     x_petey_id: '2_98'
-    type: integer
-    semantic_type: count
+    type: number
     widget:
       page: 2
       rect:
@@ -5025,6 +5252,23 @@ fields:
     description: Total BathRooms Count for subject
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: subject_total_bathrooms_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: subject_total_bathrooms_cnt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: The Room Count 'Baths' cell takes full.half values (e.g. 2.1); an integer
+        type would drop the half bath.
   comp_sale_1_total_room_cnt:
     x_petey_id: '2_99'
     type: integer
@@ -5059,8 +5303,7 @@ fields:
     label_source: llm
   comp_sale_1_total_bathrooms_cnt:
     x_petey_id: '2_101'
-    type: integer
-    semantic_type: count
+    type: number
     widget:
       page: 2
       rect:
@@ -5073,6 +5316,23 @@ fields:
     description: Total BathRooms Count for comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: comp_sale_1_total_bathrooms_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: comp_sale_1_total_bathrooms_cnt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: The Room Count 'Baths' cell takes full.half values (e.g. 2.1); an integer
+        type would drop the half bath.
   comp_sale_2_total_room_cnt:
     x_petey_id: '2_102'
     type: integer
@@ -5107,8 +5367,7 @@ fields:
     label_source: llm
   comp_sale_2_total_bathrooms_cnt:
     x_petey_id: '2_104'
-    type: integer
-    semantic_type: count
+    type: number
     widget:
       page: 2
       rect:
@@ -5121,6 +5380,23 @@ fields:
     description: Total BathRooms Count for comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: comp_sale_2_total_bathrooms_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: comp_sale_2_total_bathrooms_cnt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: The Room Count 'Baths' cell takes full.half values (e.g. 2.1); an integer
+        type would drop the half bath.
   comp_sale_3_total_room_cnt:
     x_petey_id: '2_105'
     type: integer
@@ -5155,8 +5431,7 @@ fields:
     label_source: llm
   comp_sale_3_total_bathrooms_cnt:
     x_petey_id: '2_107'
-    type: integer
-    semantic_type: count
+    type: number
     widget:
       page: 2
       rect:
@@ -5169,9 +5444,26 @@ fields:
     description: Total BathRooms Count for comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: comp_sale_3_total_bathrooms_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: comp_sale_3_total_bathrooms_cnt
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: The Room Count 'Baths' cell takes full.half values (e.g. 2.1); an integer
+        type would drop the half bath.
   subject_gross_living_area_sq_ft:
     x_petey_id: '2_108'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -5184,9 +5476,25 @@ fields:
     description: Gross Living Area in square feet for subject
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: subject_gross_living_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: subject_gross_living_area_sq_ft
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: Gross Living Area is a square-foot measure (a number), typed as free string.
   comp_sale_1_gross_living_area_sq_ft:
     x_petey_id: '2_109'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -5199,9 +5507,25 @@ fields:
     description: Gross Living Area in square feet for comparable sale number 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: comp_sale_1_gross_living_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: comp_sale_1_gross_living_area_sq_ft
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: Gross Living Area is a square-foot measure (a number), typed as free string.
   comp_sale_2_gross_living_area_sq_ft:
     x_petey_id: '2_110'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -5214,9 +5538,25 @@ fields:
     description: Gross Living Area in square feet for comparable sale number 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: comp_sale_2_gross_living_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: comp_sale_2_gross_living_area_sq_ft
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: Gross Living Area is a square-foot measure (a number), typed as free string.
   comp_sale_3_gross_living_area_sq_ft:
     x_petey_id: '2_111'
-    type: string
+    type: number
     widget:
       page: 2
       rect:
@@ -5229,6 +5569,22 @@ fields:
     description: Gross Living Area in square feet for comparable sale number 3
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: comp_sale_3_gross_living_area_sq_ft
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: comp_sale_3_gross_living_area_sq_ft
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: Gross Living Area is a square-foot measure (a number), typed as free string.
   subject_basement_finished_rooms_below_grade:
     x_petey_id: '2_112'
     type: string
@@ -7067,7 +7423,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
-  uniform_residential_appraisal_report_line_1:
+  additional_comments_line_1:
     x_petey_id: '3_1'
     type: string
     widget:
@@ -7082,7 +7438,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 1
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_2:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_1
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 1 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_2:
     x_petey_id: '3_2'
     type: string
     widget:
@@ -7097,7 +7472,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 2
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_3:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_2
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 2 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_3:
     x_petey_id: '3_3'
     type: string
     widget:
@@ -7112,7 +7506,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 3
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_4:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_3
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 3 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_4:
     x_petey_id: '3_4'
     type: string
     widget:
@@ -7127,7 +7540,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 4
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_5:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_4
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 4 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_5:
     x_petey_id: '3_5'
     type: string
     widget:
@@ -7142,7 +7574,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 5
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_6:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_5
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 5 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_6:
     x_petey_id: '3_6'
     type: string
     widget:
@@ -7157,7 +7608,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 6
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_7:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_6
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_6
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 6 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_7:
     x_petey_id: '3_7'
     type: string
     widget:
@@ -7172,7 +7642,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 7
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_8:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_7
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_7
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 7 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_8:
     x_petey_id: '3_8'
     type: string
     widget:
@@ -7187,7 +7676,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 8
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_9:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_8
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_8
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 8 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_9:
     x_petey_id: '3_9'
     type: string
     widget:
@@ -7202,7 +7710,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 9
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_10:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_9
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_9
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 9 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_10:
     x_petey_id: '3_10'
     type: string
     widget:
@@ -7217,7 +7744,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 10
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_11:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_10
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_10
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 10 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_11:
     x_petey_id: '3_11'
     type: string
     widget:
@@ -7232,7 +7778,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 11
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_12:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_11
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_11
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 11 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_12:
     x_petey_id: '3_12'
     type: string
     widget:
@@ -7247,7 +7812,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 12
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_13:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_12
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_12
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 12 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_13:
     x_petey_id: '3_13'
     type: string
     widget:
@@ -7262,7 +7846,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 13
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_14:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_13
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_13
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 13 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_14:
     x_petey_id: '3_14'
     type: string
     widget:
@@ -7277,7 +7880,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 14
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_15:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_14
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_14
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 14 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_15:
     x_petey_id: '3_15'
     type: string
     widget:
@@ -7292,7 +7914,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 15
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_23:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_15
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_15
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 15 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_16:
     x_petey_id: '3_16'
     type: string
     widget:
@@ -7307,7 +7948,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 23
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_34:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_23
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_16
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 16 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_17:
     x_petey_id: '3_17'
     type: string
     widget:
@@ -7322,7 +7982,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 34
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_18:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_34
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_17
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 17 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_18:
     x_petey_id: '3_18'
     type: string
     widget:
@@ -7337,7 +8016,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 18
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_19:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_18
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_18
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 18 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_19:
     x_petey_id: '3_19'
     type: string
     widget:
@@ -7352,7 +8050,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 19
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_20:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_19
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_19
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 19 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_20:
     x_petey_id: '3_20'
     type: string
     widget:
@@ -7367,7 +8084,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 20
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_24:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_20
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_20
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 20 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_21:
     x_petey_id: '3_21'
     type: string
     widget:
@@ -7382,7 +8118,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 24
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_22:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_24
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_21
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 21 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_22:
     x_petey_id: '3_22'
     type: string
     widget:
@@ -7397,7 +8152,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 22
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_23b:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_22
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_22
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 22 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_23:
     x_petey_id: '3_23'
     type: string
     widget:
@@ -7412,7 +8186,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 23
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_24b:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_23b
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_23
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 23 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_24:
     x_petey_id: '3_24'
     type: string
     widget:
@@ -7427,7 +8220,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 24
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_25:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_24b
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_24
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 24 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_25:
     x_petey_id: '3_25'
     type: string
     widget:
@@ -7442,7 +8254,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 25
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_26:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_25
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_25
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 25 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_26:
     x_petey_id: '3_26'
     type: string
     widget:
@@ -7457,7 +8288,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 26
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_27:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_26
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_26
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 26 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_27:
     x_petey_id: '3_27'
     type: string
     widget:
@@ -7472,7 +8322,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 27
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_28:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_27
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_27
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 27 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_28:
     x_petey_id: '3_28'
     type: string
     widget:
@@ -7487,7 +8356,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 28
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_29:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_28
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_28
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 28 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_29:
     x_petey_id: '3_29'
     type: string
     widget:
@@ -7502,7 +8390,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 29
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_30:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_29
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_29
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 29 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_30:
     x_petey_id: '3_30'
     type: string
     widget:
@@ -7517,7 +8424,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 30
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_31:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_30
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_30
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 30 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_31:
     x_petey_id: '3_31'
     type: string
     widget:
@@ -7532,7 +8458,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 31
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_32:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_31
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_31
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 31 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_32:
     x_petey_id: '3_32'
     type: string
     widget:
@@ -7547,7 +8492,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 32
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_33:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_32
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_32
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 32 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_33:
     x_petey_id: '3_33'
     type: string
     widget:
@@ -7562,7 +8526,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 33
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_34b:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_33
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_33
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 33 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_34:
     x_petey_id: '3_34'
     type: string
     widget:
@@ -7577,7 +8560,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 34
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_35:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_34b
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_34
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 34 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_35:
     x_petey_id: '3_35'
     type: string
     widget:
@@ -7592,7 +8594,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 35
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_36:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_35
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_35
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 35 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_36:
     x_petey_id: '3_36'
     type: string
     widget:
@@ -7607,7 +8628,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 36
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_37:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_36
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_36
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 36 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_37:
     x_petey_id: '3_37'
     type: string
     widget:
@@ -7622,7 +8662,26 @@ fields:
     description: Uniform Residential Appraisal Report Line 37
     x_petey_description_source: tooltip
     label_source: llm
-  uniform_residential_appraisal_report_line_38:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_37
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_37
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 37 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
+  additional_comments_line_38:
     x_petey_id: '3_38'
     type: string
     widget:
@@ -7637,6 +8696,25 @@ fields:
     description: Uniform Residential Appraisal Report Line 38
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: uniform_residential_appraisal_report_line_38
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_comments_line_38
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: clarity
+      why: Page 3's free-text comment area under the 'Uniform Residential Appraisal
+        Report' header (above the Cost Approach); this is line 38 from the top. The
+        tooltip numbering skips 16/17/21 and repeats 23, 24 and 34, so the current
+        names neither say what the box is nor give its order.
   support_opinion_site_value_line_1:
     x_petey_id: '3_39'
     type: string
@@ -7895,7 +8973,7 @@ fields:
     label_source: llm
   estimated_remaining_economic_life_yrs:
     x_petey_id: '3_67'
-    type: string
+    type: integer
     widget:
       page: 3
       rect:
@@ -7908,6 +8986,23 @@ fields:
     description: Estimated Remaining Economic Life (HUD and VA only)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: estimated_remaining_economic_life_yrs
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: estimated_remaining_economic_life_yrs
+        type: integer
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: '''Estimated Remaining Economic Life (HUD and VA only) ___ Years'' is a
+        whole number of years.'
   opinion_of_site_value_amt:
     x_petey_id: '3_43'
     type: number
@@ -8180,7 +9275,7 @@ fields:
     - money
   gross_rent_multiplier:
     x_petey_id: '3_70'
-    type: string
+    type: number
     widget:
       page: 3
       rect:
@@ -8193,6 +9288,22 @@ fields:
     description: Gross Rent Multiplier
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: gross_rent_multiplier
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: gross_rent_multiplier
+        type: number
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: '''x Gross Rent Multiplier ___'' is a numeric multiplier (e.g. 150).'
   income_approach_value_amt:
     x_petey_id: '3_71'
     type: number
@@ -8315,7 +9426,6 @@ fields:
   legal_project_nm:
     x_petey_id: '3_76'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -8328,6 +9438,22 @@ fields:
     description: Legal name of project
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: legal_project_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: legal_project_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   total_number_of_phases:
     x_petey_id: '3_77'
     type: integer
@@ -8681,7 +9807,6 @@ fields:
   appraiser_nm:
     x_petey_id: '6_3'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -8694,6 +9819,22 @@ fields:
     description: Appraiser Name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: appraiser_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: appraiser_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   appraiser_company_name:
     x_petey_id: '6_5'
     type: string
@@ -8865,8 +10006,6 @@ fields:
   appraiser_other_credential_state_number:
     x_petey_id: '6_24'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -8879,6 +10018,24 @@ fields:
     description: State number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: appraiser_other_credential_state_number
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: appraiser_other_credential_state_number
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: 'Printed ''Other (describe) ___ State #'': this is the credential number,
+        not a two-letter state; the state_abbr type and ^[A-Z]{2}$ pattern would reject
+        it (the State box is appraiser_state_abbreviation_cd).'
   appraiser_state_abbreviation_cd:
     x_petey_id: '6_26'
     type: string
@@ -8965,7 +10122,6 @@ fields:
   lender_client_nm_2:
     x_petey_id: '6_36'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -8978,6 +10134,22 @@ fields:
     description: Lender Client Name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: lender_client_nm_2
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: lender_client_nm_2
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   lender_client_company_name:
     x_petey_id: '6_37'
     type: string
@@ -9061,7 +10233,6 @@ fields:
   supervisory_appraiser_nm:
     x_petey_id: '6_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -9074,6 +10245,22 @@ fields:
     description: Supervisory Appraiser Name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:56'
+      from:
+        name: supervisory_appraiser_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: supervisory_appraiser_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__form_1004.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   supervisory_appraiser_company_name:
     x_petey_id: '6_6'
     type: string
@@ -9243,38 +10430,70 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
-  supervisory_appraiser_did_not_inspect_subject_property_ind:
-    x_petey_id: '6_28'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 319.6629943847656
-      - 818.0590209960938
-      - 328.4590148925781
-      - 826.85400390625
-      widget_type: checkbox
-      path: Check Box2
-    description: Subject property Did not inspect subject property
-    x_petey_description_source: tooltip
-    label_source: llm
-  supervisory_appraiser_inspected_exterior_from_street_ind:
-    x_petey_id: '6_30'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 319.656005859375
-      - 831.2369995117188
-      - 328.45098876953125
-      - 840.031982421875
-      widget_type: checkbox
-      path: Check Box3
-    description: Subject property Did inspect exterior of subject property from street
-    x_petey_description_source: tooltip
-    label_source: llm
+  supervisory_appraiser_inspection:
+    x_petey_id: '6_45'
+    type: category
+    values:
+    - supervisory_appraiser_did_not_inspect_subject_property_ind
+    - supervisory_appraiser_inspected_exterior_from_street_ind
+    - supervisory_appraiser_inspected_interior_and_exterior_ind
+    widgets:
+      supervisory_appraiser_did_not_inspect_subject_property_ind:
+        page: 6
+        rect:
+        - 319.6629943847656
+        - 818.0590209960938
+        - 328.4590148925781
+        - 826.85400390625
+        widget_type: checkbox
+        path: Check Box2
+        on_state: 'Yes'
+        caption: Did not inspect subject property
+        x_petey_caption_source: page_choice
+      supervisory_appraiser_inspected_exterior_from_street_ind:
+        page: 6
+        rect:
+        - 319.656005859375
+        - 831.2369995117188
+        - 328.45098876953125
+        - 840.031982421875
+        widget_type: checkbox
+        path: Check Box3
+        on_state: 'Yes'
+        caption: Did inspect exterior of subject property from street
+        x_petey_caption_source: page_choice
+      supervisory_appraiser_inspected_interior_and_exterior_ind:
+        page: 6
+        rect:
+        - 319.89300537109375
+        - 858.3380126953125
+        - 328.68798828125
+        - 867.134033203125
+        widget_type: checkbox
+        path: Check Box4
+        on_state: 'Yes'
+        caption: Did inspect interior and exterior of subject property
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 19:36:51'
+      from:
+      - supervisory_appraiser_did_not_inspect_subject_property_ind
+      - supervisory_appraiser_inspected_exterior_from_street_ind
+      - supervisory_appraiser_inspected_interior_and_exterior_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 19:37:13'
+      from:
+        name: supervisory_appraiser
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: supervisory_appraiser_inspection
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__form_1004.json
   supervisory_appraiser_exterior_inspection_dt:
     x_petey_id: '6_32'
     type: date
@@ -9293,23 +10512,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
-  supervisory_appraiser_inspected_interior_and_exterior_ind:
-    x_petey_id: '6_34'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 319.89300537109375
-      - 858.3380126953125
-      - 328.68798828125
-      - 867.134033203125
-      widget_type: checkbox
-      path: Check Box4
-    description: Subject Property Did inspect interior and exterior of subject property
-    x_petey_description_source: tooltip
-    label_source: llm
-  supervisory_appraiser_interior_exterior_inspection_dt:
+  interior_exterior_inspection_dt:
     x_petey_id: '6_35'
     type: date
     semantic_type: iso_date
@@ -9327,40 +10530,57 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
-  supervisory_appraiser_did_not_inspect_comparable_sales_exterior_ind:
-    x_petey_id: '6_39'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 319.52899169921875
-      - 910.5018310546875
-      - 328.32501220703125
-      - 919.2971801757812
-      widget_type: checkbox
-      path: Check Box5
-    description: Comparable Sales Did not inspect Exterior of comparable sales from
-      street
-    x_petey_description_source: tooltip
-    label_source: llm
-  supervisory_appraiser_inspected_comparable_sales_exterior_from_street_ind:
-    x_petey_id: '6_41'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 6
-      rect:
-      - 319.6570129394531
-      - 924.2108764648438
-      - 328.4519958496094
-      - 933.0062866210938
-      widget_type: checkbox
-      path: Check Box6
-    description: Did not inspect subject property
-    x_petey_description_source: tooltip
-    label_source: llm
-  supervisory_appraiser_comparable_sales_inspection_dt:
+    x_petey_hand_edit:
+      when: '2026-10-13 19:24:17'
+      from:
+        name: supervisory_appraiser_interior_exterior_inspection_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: interior_exterior_inspection_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/hand_review/lib__form_1004.json
+  supervisory_appraiser_did_not_inspect_comparable_sales_exterior:
+    x_petey_id: '6_44'
+    type: category
+    values:
+    - supervisory_appraiser_did_not_inspect_comparable_sales_exterior_ind
+    - supervisory_appraiser_did_not_inspect_comparable_sales_exterior_from_street_ind
+    widgets:
+      supervisory_appraiser_did_not_inspect_comparable_sales_exterior_ind:
+        page: 6
+        rect:
+        - 319.52899169921875
+        - 910.5018310546875
+        - 328.32501220703125
+        - 919.2971801757812
+        widget_type: checkbox
+        path: Check Box5
+        on_state: 'Yes'
+        caption: Did not inspect exterior of comparable sales from street
+        x_petey_caption_source: page_choice
+      supervisory_appraiser_did_not_inspect_comparable_sales_exterior_from_street_ind:
+        page: 6
+        rect:
+        - 319.6570129394531
+        - 924.2108764648438
+        - 328.4519958496094
+        - 933.0062866210938
+        widget_type: checkbox
+        path: Check Box6
+        on_state: 'Yes'
+        caption: Did inspect exterior of comparable sales from street
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-13 19:26:36'
+      from:
+      - supervisory_appraiser_did_not_inspect_comparable_sales_exterior_ind
+      - supervisory_appraiser_did_not_inspect_comparable_sales_exterior_from_street_ind
+  comparable_sales_inspection_dt:
     x_petey_id: '6_42'
     type: date
     semantic_type: iso_date
@@ -9378,6 +10598,19 @@ fields:
     label_source: llm
     x_petey_retype:
     - pattern_dropped
+    x_petey_hand_edit:
+      when: '2026-10-13 19:23:35'
+      from:
+        name: supervisory_appraiser_comparable_sales_inspection_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: comparable_sales_inspection_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: runs/hand_review/lib__form_1004.json
 x_petey_dedup_log:
   duplicate_labels_reassigned: 1
   collisions:

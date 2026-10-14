@@ -33,7 +33,7 @@ fields:
   fiscal_yr_end_month:
     x_petey_id: '1_2'
     type: string
-    semantic_type: id_part
+    semantic_type: date_month
     pattern: ^\d{1,2}$
     widget:
       page: 1
@@ -50,6 +50,23 @@ fields:
     description: Fiscal year filers only. Enter month of year end. Enter month as
       two digits for year 2026.
     x_petey_description_source: tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: fiscal_yr_end_month
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,2}$
+      to:
+        name: fiscal_yr_end_month
+        type: string
+        semantic_type: date_month
+        pattern: ^\d{1,2}$
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: 'Tooltip: ''Fiscal year filers only. Enter month of year end'' (two-digit
+        month; year 2026 is printed); id_part is wrong'
   taxpayer_first_nm:
     x_petey_id: '1_3'
     type: string
@@ -262,7 +279,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  apt_no_txt:
+  apt_ste_num:
     x_petey_id: '1_16'
     type: string
     semantic_type: text
@@ -279,6 +296,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-14 14:47:30'
+      from:
+        name: apt_no_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: apt_ste_num
+        type: string
+        semantic_type: text
+        pattern: null
+      record: runs/hand_review/lib__ca540.json
   pmb_private_mailbox_txt:
     x_petey_id: '1_17'
     type: string
@@ -382,8 +412,6 @@ fields:
   foreign_postal_cd:
     x_petey_id: '1_23'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 1
       rect:
@@ -397,6 +425,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: foreign_postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: foreign_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: Tooltip 'Foreign postal code'; the US ZIP semantic type and pattern would
+        reject foreign postal codes
   taxpayer_dob_dt:
     x_petey_id: '1_24'
     type: date
@@ -438,7 +483,6 @@ fields:
   taxpayer_prior_nm:
     x_petey_id: '1_26'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -452,10 +496,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: taxpayer_prior_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: taxpayer_prior_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   spouse_prior_nm:
     x_petey_id: '1_27'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -469,6 +528,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: spouse_prior_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_prior_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   county_at_filing_txt:
     x_petey_id: '1_28'
     type: string
@@ -628,7 +703,8 @@ fields:
         widget_type: radiobutton
         path: 540_form_1036 RB
         on_state: 1 . Single.
-        caption: 1 . Single.
+        caption: Single
+        x_petey_caption_source: claude
       2 . Married/R D P filing jointly (even if only one spouse / R D P had income). See instructions.:
         page: 1
         rect:
@@ -640,8 +716,8 @@ fields:
         path: 540_form_1036 RB
         on_state: 2 . Married/R D P filing jointly (even if only one spouse / R D
           P had income). See instructions.
-        caption: 2 . Married/R D P filing jointly (even if only one spouse / R D P
-          had income). See instructions.
+        caption: Married/RDP filing jointly
+        x_petey_caption_source: claude
       3 . Married or R D P filing separately.:
         page: 1
         rect:
@@ -652,7 +728,8 @@ fields:
         widget_type: radiobutton
         path: 540_form_1036 RB
         on_state: 3 . Married or R D P filing separately.
-        caption: 3 . Married or R D P filing separately.
+        caption: Married/RDP filing separately
+        x_petey_caption_source: claude
       4 . Head of household (with qualifying person). See instructions.:
         page: 1
         rect:
@@ -663,7 +740,8 @@ fields:
         widget_type: radiobutton
         path: 540_form_1036 RB
         on_state: 4 . Head of household (with qualifying person). See instructions.
-        caption: 4 . Head of household (with qualifying person). See instructions.
+        caption: Head of household (with qualifying person)
+        x_petey_caption_source: claude
       5 . Qualifying surviving spouse or R D P .:
         page: 1
         rect:
@@ -674,11 +752,49 @@ fields:
         widget_type: radiobutton
         path: 540_form_1036 RB
         on_state: 5 . Qualifying surviving spouse or R D P .
-        caption: 5 . Qualifying surviving spouse or R D P .
+        caption: Qualifying surviving spouse/RDP
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: filing_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          1 . Single.: 1 . Single.
+          2 . Married/R D P filing jointly (even if only one spouse / R D P had income). See instructions.: 2
+            . Married/R D P filing jointly (even if only one spouse / R D P had income).
+            See instructions.
+          3 . Married or R D P filing separately.: 3 . Married or R D P filing separately.
+          4 . Head of household (with qualifying person). See instructions.: 4 . Head
+            of household (with qualifying person). See instructions.
+          5 . Qualifying surviving spouse or R D P .: 5 . Qualifying surviving spouse
+            or R D P .
+      to:
+        name: filing_status
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          1 . Single.:
+            caption: Single
+          2 . Married/R D P filing jointly (even if only one spouse / R D P had income). See instructions.:
+            caption: Married/RDP filing jointly
+          3 . Married or R D P filing separately.:
+            caption: Married/RDP filing separately
+          4 . Head of household (with qualifying person). See instructions.:
+            caption: Head of household (with qualifying person)
+          5 . Qualifying surviving spouse or R D P .:
+            caption: Qualifying surviving spouse/RDP
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: caption
+      why: Captions as printed beside boxes 1-5 (the current ones are the screen-reader
+        tooltip text with numbers and spaced 'R D P')
   spouse_full_nm:
     x_petey_id: '1_39'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -693,6 +809,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: spouse_full_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: spouse_full_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   qualifying_surviving_spouse_yr_died:
     x_petey_id: '1_37'
     type: string
@@ -711,11 +843,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  spouse_ssn_or_itin_mfs:
+  qualifying_surviving_spouse_rdp_info_txt:
     x_petey_id: '1_38'
     type: string
-    semantic_type: ssn
-    pattern: ^\d{3}-\d{2}-\d{4}$
     widget:
       page: 1
       rect:
@@ -729,6 +859,19 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-14 14:46:42'
+      from:
+        name: line_5_qss_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: qualifying_surviving_spouse_rdp_info_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__ca540.json
   claimed_as_dependent_ind:
     x_petey_id: '1_40'
     type: boolean
@@ -861,7 +1004,6 @@ fields:
   taxpayer_nm:
     x_petey_id: '2_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -871,6 +1013,22 @@ fields:
       - 63.0
       widget_type: text
       path: 540_form_2001
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: taxpayer_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: taxpayer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   taxpayer_ssn_2:
     x_petey_id: '2_2'
     type: string
@@ -1153,7 +1311,7 @@ fields:
   line_12_state_wages_amt:
     x_petey_id: '2_18'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1169,10 +1327,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_12_state_wages_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_12_state_wages_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_13_federal_agi_amt:
     x_petey_id: '2_19'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1188,10 +1363,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_13_federal_agi_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_13_federal_agi_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_14_ca_adjustments_subtractions_amt:
     x_petey_id: '2_20'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1207,10 +1399,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_14_ca_adjustments_subtractions_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_14_ca_adjustments_subtractions_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_15_agi_after_subtractions_amt:
     x_petey_id: '2_21'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1226,10 +1435,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_15_agi_after_subtractions_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_15_agi_after_subtractions_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_16_ca_adjustments_additions_amt:
     x_petey_id: '2_22'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1245,10 +1471,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_16_ca_adjustments_additions_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_16_ca_adjustments_additions_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_17_ca_agi_amt:
     x_petey_id: '2_23'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1264,10 +1507,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_17_ca_agi_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_17_ca_agi_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_18_deduction_amt:
     x_petey_id: '2_24'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1288,10 +1548,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_18_deduction_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_18_deduction_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_19_taxable_income_amt:
     x_petey_id: '2_25'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1307,9 +1584,26 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_31_tax:
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_19_taxable_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_19_taxable_income_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
+  line_31_tax_source:
     x_petey_id: '2_26'
-    type: category
+    type: multi_category
     values:
     - line_31_tax_table_ind
     - line_31_tax_rate_schedule_ind
@@ -1326,8 +1620,8 @@ fields:
         widget_type: checkbox
         path: 540_form_2026 CB
         on_state: 'Yes'
-        caption: Tax. Line 31. Tax. Check the box if tax is from tax table.
-        x_petey_caption_source: tooltip
+        caption: Tax Table
+        x_petey_caption_source: claude
       line_31_tax_rate_schedule_ind:
         page: 2
         rect:
@@ -1338,8 +1632,8 @@ fields:
         widget_type: checkbox
         path: 540_form_2027 CB
         on_state: 'Yes'
-        caption: Line 31. Tax. Check the box if tax is from Tax Rate Schedule.
-        x_petey_caption_source: tooltip
+        caption: Tax Rate Schedule
+        x_petey_caption_source: claude
       line_31_ftb_3800_ind:
         page: 2
         rect:
@@ -1350,8 +1644,8 @@ fields:
         widget_type: checkbox
         path: 540_form_2028 CB
         on_state: 'Yes'
-        caption: Line 31. Tax. Check the box if tax is from FTB 3800.
-        x_petey_caption_source: tooltip
+        caption: FTB 3800
+        x_petey_caption_source: claude
       line_31_ftb_3803_ind:
         page: 2
         rect:
@@ -1362,8 +1656,8 @@ fields:
         widget_type: checkbox
         path: 540_form_2029 CB
         on_state: 'Yes'
-        caption: Line 31. Tax. Check the box if tax is from FTB 3803.
-        x_petey_caption_source: tooltip
+        caption: FTB 3803
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:01'
@@ -1372,10 +1666,45 @@ fields:
       - line_31_tax_rate_schedule_ind
       - line_31_ftb_3800_ind
       - line_31_ftb_3803_ind
-  line_31_tax_amt:
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: line_31_tax
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          line_31_tax_table_ind: Tax. Line 31. Tax. Check the box if tax is from tax
+            table.
+          line_31_tax_rate_schedule_ind: Line 31. Tax. Check the box if tax is from
+            Tax Rate Schedule.
+          line_31_ftb_3800_ind: Line 31. Tax. Check the box if tax is from FTB 3800.
+          line_31_ftb_3803_ind: Line 31. Tax. Check the box if tax is from FTB 3803.
+      to:
+        name: line_31_tax_source
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          line_31_tax_table_ind:
+            caption: Tax Table
+          line_31_tax_rate_schedule_ind:
+            caption: Tax Rate Schedule
+          line_31_ftb_3800_ind:
+            caption: FTB 3800
+          line_31_ftb_3803_ind:
+            caption: FTB 3803
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: clarity
+      why: 'Line 31 ''Tax. Check the box if from: Tax Table / Tax Rate Schedule /
+        FTB 3800 / FTB 3803'' (captions as printed); four separate checkboxes, and
+        FTB 3800/3803 tax is added to the table or schedule tax so more than one can
+        be checked; ''line_31_tax'' reads like the amount'
+  tax_amt:
     x_petey_id: '2_27'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1390,10 +1719,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_32_exemption_credits_amt:
     x_petey_id: '2_28'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1409,10 +1755,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_32_exemption_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_32_exemption_credits_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_33_tax_after_exemption_credits_amt:
     x_petey_id: '2_29'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1428,9 +1791,26 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
-  line_34:
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_33_tax_after_exemption_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_33_tax_after_exemption_credits_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
+  line_34_tax_source:
     x_petey_id: '2_30'
-    type: category
+    type: multi_category
     values:
     - line_34_schedule_g1_ind
     - line_34_ftb_5870a_ind
@@ -1445,9 +1825,8 @@ fields:
         widget_type: checkbox
         path: 540_form_2033 CB
         on_state: 'Yes'
-        caption: Line 34. Tax. See instructions. Check the box if tax is from Schedule
-          G-1.
-        x_petey_caption_source: tooltip
+        caption: Schedule G-1
+        x_petey_caption_source: claude
       line_34_ftb_5870a_ind:
         page: 2
         rect:
@@ -1458,18 +1837,45 @@ fields:
         widget_type: checkbox
         path: 540_form_2034 CB
         on_state: 'Yes'
-        caption: Line 34. Check the box if tax is from FTB 5870A.
-        x_petey_caption_source: tooltip
+        caption: FTB 5870A
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:01'
       from:
       - line_34_schedule_g1_ind
       - line_34_ftb_5870a_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: line_34
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          line_34_schedule_g1_ind: Line 34. Tax. See instructions. Check the box if
+            tax is from Schedule G-1.
+          line_34_ftb_5870a_ind: Line 34. Check the box if tax is from FTB 5870A.
+      to:
+        name: line_34_tax_source
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          line_34_schedule_g1_ind:
+            caption: Schedule G-1
+          line_34_ftb_5870a_ind:
+            caption: FTB 5870A
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: clarity
+      why: 'Line 34 ''Tax. Check the box if from: Schedule G-1 / FTB 5870A'' (captions
+        as printed); two separate checkboxes whose taxes add together, and ''line_34''
+        says nothing about the question'
   line_34_tax_amt:
     x_petey_id: '2_31'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1484,10 +1890,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_34_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_34_tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_35_total_tax_amt:
     x_petey_id: '2_32'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1502,10 +1925,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_35_total_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_35_total_tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_40_nonrefundable_child_dependent_care_credit_amt:
     x_petey_id: '2_33'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1521,10 +1961,26 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_40_nonrefundable_child_dependent_care_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_40_nonrefundable_child_dependent_care_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_43_credit_nm:
     x_petey_id: '2_34'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1538,6 +1994,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: line_43_credit_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: line_43_credit_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   line_43_credit_cd:
     x_petey_id: '2_35'
     type: string
@@ -1557,7 +2029,7 @@ fields:
   line_43_credit_amt:
     x_petey_id: '2_36'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1572,10 +2044,26 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_43_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_43_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_44_credit_nm:
     x_petey_id: '2_37'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -1589,6 +2077,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: line_44_credit_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: line_44_credit_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   line_44_credit_cd:
     x_petey_id: '2_38'
     type: string
@@ -1608,7 +2112,7 @@ fields:
   line_44_credit_amt:
     x_petey_id: '2_39'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 2
       rect:
@@ -1623,10 +2127,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_44_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_44_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_45_credits_amt:
     x_petey_id: '3_1'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1642,10 +2163,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_45_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_45_credits_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_46_nonrefundable_renters_credit_amt:
     x_petey_id: '3_2'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1660,10 +2198,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_46_nonrefundable_renters_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_46_nonrefundable_renters_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_47_total_credits_amt:
     x_petey_id: '3_3'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1678,10 +2233,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_47_total_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_47_total_credits_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_48_tax_after_credits_amt:
     x_petey_id: '3_4'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1697,10 +2269,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_48_tax_after_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_48_tax_after_credits_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_61_alternative_minimum_tax_amt:
     x_petey_id: '3_5'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1716,10 +2305,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_61_alternative_minimum_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_61_alternative_minimum_tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_62_behavioral_health_services_tax_amt:
     x_petey_id: '3_6'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1734,10 +2340,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_62_behavioral_health_services_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_62_behavioral_health_services_tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_63_other_taxes_credit_recapture_amt:
     x_petey_id: '3_7'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1752,10 +2375,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_63_other_taxes_credit_recapture_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_63_other_taxes_credit_recapture_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_64_total_tax_amt:
     x_petey_id: '3_8'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1771,10 +2411,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_64_total_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_64_total_tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_71_ca_income_tax_withheld_amt:
     x_petey_id: '3_9'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1789,10 +2446,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_71_ca_income_tax_withheld_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_71_ca_income_tax_withheld_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_72_ca_estimated_tax_payments_amt:
     x_petey_id: '3_10'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1807,10 +2481,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_72_ca_estimated_tax_payments_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_72_ca_estimated_tax_payments_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_73_withholding_592b_593_amt:
     x_petey_id: '3_11'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1825,10 +2516,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_73_withholding_592b_593_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_73_withholding_592b_593_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_74_refundable_motion_picture_credit_amt:
     x_petey_id: '3_12'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1844,10 +2552,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_74_refundable_motion_picture_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_74_refundable_motion_picture_credit_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_75_eitc_amt:
     x_petey_id: '3_13'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1862,10 +2587,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_75_eitc_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_75_eitc_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_76_yctc_amt:
     x_petey_id: '3_14'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1880,10 +2622,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_76_yctc_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_76_yctc_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_77_fytc_amt:
     x_petey_id: '3_15'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1898,10 +2657,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_77_fytc_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_77_fytc_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_78_total_payments_amt:
     x_petey_id: '3_16'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1917,10 +2693,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_78_total_payments_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_78_total_payments_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_91_use_tax_amt:
     x_petey_id: '3_17'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -1935,6 +2728,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_91_use_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_91_use_tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_91_use_tax_zero_reason:
     x_petey_id: '3_18'
     type: category
@@ -1969,6 +2779,30 @@ fields:
         widget_type: radiobutton
         path: 540_form_3020 RB
         on_state: '1'
+        caption: You paid your use tax obligation directly to CDTFA.
+        x_petey_caption_source: claude
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: line_91_use_tax_zero_reason
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          '1': null
+      to:
+        name: line_91_use_tax_zero_reason
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          '1':
+            caption: You paid your use tax obligation directly to CDTFA.
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: caption
+      why: 'Line 91 ''If line 91 is zero, check if: No use tax is owed. / You paid
+        your use tax obligation directly to CDTFA.''; the second box has no caption'
   line_92_full_year_health_care_coverage_ind:
     x_petey_id: '3_19'
     type: boolean
@@ -1992,7 +2826,7 @@ fields:
   line_92_isr_penalty_amt:
     x_petey_id: '3_20'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -2007,10 +2841,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_92_isr_penalty_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_92_isr_penalty_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_93_payments_balance_amt:
     x_petey_id: '3_21'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -2026,10 +2877,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_93_payments_balance_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_93_payments_balance_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_94_use_tax_balance_amt:
     x_petey_id: '3_22'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -2045,10 +2913,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_94_use_tax_balance_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_94_use_tax_balance_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_95_payments_after_isr_penalty_amt:
     x_petey_id: '3_23'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -2064,10 +2949,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_95_payments_after_isr_penalty_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_95_payments_after_isr_penalty_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_96_isr_penalty_balance_amt:
     x_petey_id: '3_24'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -2083,10 +2985,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_96_isr_penalty_balance_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_96_isr_penalty_balance_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_97_overpaid_tax_amt:
     x_petey_id: '3_25'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 3
       rect:
@@ -2102,10 +3021,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_97_overpaid_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_97_overpaid_tax_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_98_estimated_tax_applied_amt:
     x_petey_id: '4_1'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2121,10 +3057,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_98_estimated_tax_applied_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_98_estimated_tax_applied_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_99_overpaid_tax_available_amt:
     x_petey_id: '4_2'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2140,10 +3093,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_99_overpaid_tax_available_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_99_overpaid_tax_available_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_100_tax_due_amt:
     x_petey_id: '4_3'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2159,10 +3129,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_100_tax_due_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_100_tax_due_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_400_ca_seniors_special_fund_amt:
     x_petey_id: '4_4'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2177,10 +3164,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_400_ca_seniors_special_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_400_ca_seniors_special_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_401_alzheimers_disease_voluntary_contribution_amt:
     x_petey_id: '4_5'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2196,10 +3200,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_401_alzheimers_disease_voluntary_contribution_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_401_alzheimers_disease_voluntary_contribution_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_403_rare_endangered_species_preservation_amt:
     x_petey_id: '4_6'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2215,10 +3236,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_403_rare_endangered_species_preservation_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_403_rare_endangered_species_preservation_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_405_ca_breast_cancer_research_fund_amt:
     x_petey_id: '4_7'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2234,10 +3272,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_405_ca_breast_cancer_research_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_405_ca_breast_cancer_research_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_406_ca_firefighters_memorial_fund_amt:
     x_petey_id: '4_8'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2253,10 +3308,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_406_ca_firefighters_memorial_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_406_ca_firefighters_memorial_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_407_emergency_food_for_families_fund_amt:
     x_petey_id: '4_9'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2272,10 +3344,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_407_emergency_food_for_families_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_407_emergency_food_for_families_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_408_ca_peace_officer_memorial_foundation_fund_amt:
     x_petey_id: '4_10'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2291,10 +3380,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_408_ca_peace_officer_memorial_foundation_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_408_ca_peace_officer_memorial_foundation_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_413_ca_cancer_research_fund_amt:
     x_petey_id: '4_11'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2309,10 +3415,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_413_ca_cancer_research_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_413_ca_cancer_research_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_422_school_supplies_homeless_children_fund_amt:
     x_petey_id: '4_12'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2328,10 +3451,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_422_school_supplies_homeless_children_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_422_school_supplies_homeless_children_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_423_state_parks_protection_fund_amt:
     x_petey_id: '4_13'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2346,10 +3486,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_423_state_parks_protection_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_423_state_parks_protection_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_424_protect_our_coast_oceans_fund_amt:
     x_petey_id: '4_14'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2365,10 +3522,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_424_protect_our_coast_oceans_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_424_protect_our_coast_oceans_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_431_prevention_animal_homelessness_cruelty_fund_amt:
     x_petey_id: '4_15'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2384,10 +3558,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_431_prevention_animal_homelessness_cruelty_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_431_prevention_animal_homelessness_cruelty_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_438_ca_senior_citizen_advocacy_fund_amt:
     x_petey_id: '4_16'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2403,10 +3594,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_438_ca_senior_citizen_advocacy_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_438_ca_senior_citizen_advocacy_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_439_native_ca_wildlife_rehabilitation_fund_amt:
     x_petey_id: '4_17'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2422,10 +3630,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_439_native_ca_wildlife_rehabilitation_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_439_native_ca_wildlife_rehabilitation_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_445_mental_health_crisis_prevention_fund_amt:
     x_petey_id: '4_18'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2441,10 +3666,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_445_mental_health_crisis_prevention_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_445_mental_health_crisis_prevention_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_447_ca_als_research_network_fund_amt:
     x_petey_id: '4_19'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2460,10 +3702,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_447_ca_als_research_network_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_447_ca_als_research_network_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_448_ca_pediatric_cancer_research_fund_amt:
     x_petey_id: '4_20'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2479,10 +3738,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_448_ca_pediatric_cancer_research_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_448_ca_pediatric_cancer_research_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   code_449_parkinsons_disease_research_fund_amt:
     x_petey_id: '4_21'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2498,10 +3774,27 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: code_449_parkinsons_disease_research_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: code_449_parkinsons_disease_research_fund_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_110_total_contribution_amt:
     x_petey_id: '4_22'
     type: number
-    semantic_type: money
+    semantic_type: money_whole_dollar
     widget:
       page: 4
       rect:
@@ -2517,6 +3810,23 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_hand_edit:
+      when: '2026-10-14 14:50:04'
+      from:
+        name: line_110_total_contribution_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_110_total_contribution_amt
+        type: number
+        semantic_type: money_whole_dollar
+        pattern: null
+      record: 'Andrew 2026-10-14: CA 540 whole-dollar boxes'
+      by: claude
+      kind: type
+      why: 'a printed .00 follows the box: whole dollars'
+      asked_by: andrew
   line_111_amt:
     x_petey_id: '5_1'
     type: number
@@ -2556,7 +3866,7 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  ftb:
+  line_113_form_attached:
     x_petey_id: '5_3'
     type: category
     values:
@@ -2573,9 +3883,8 @@ fields:
         widget_type: checkbox
         path: 540_form_5004A CB
         on_state: 'Yes'
-        caption: Line 113. Underpayment of estimated tax. Check the box if FTB 5805
-          attached.
-        x_petey_caption_source: tooltip
+        caption: FTB 5805 attached
+        x_petey_caption_source: claude
       ftb_5805f_attached_ind:
         page: 5
         rect:
@@ -2586,15 +3895,42 @@ fields:
         widget_type: checkbox
         path: 540_form_5004B CB
         on_state: 'Yes'
-        caption: Line 113. Underpayment of estimated tax. Check the box if FTB 5805
-          F attached.
-        x_petey_caption_source: tooltip
+        caption: FTB 5805F attached
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:01'
       from:
       - ftb_5805_attached_ind
       - ftb_5805f_attached_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: ftb
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          ftb_5805_attached_ind: Line 113. Underpayment of estimated tax. Check the
+            box if FTB 5805 attached.
+          ftb_5805f_attached_ind: Line 113. Underpayment of estimated tax. Check the
+            box if FTB 5805 F attached.
+      to:
+        name: line_113_form_attached
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          ftb_5805_attached_ind:
+            caption: FTB 5805 attached
+          ftb_5805f_attached_ind:
+            caption: FTB 5805F attached
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: clarity
+      why: 'Line 113 Underpayment of estimated tax ''Check the box: FTB 5805 attached
+        / FTB 5805F attached'' (captions as printed); ''ftb'' does not say what the
+        group asks'
   line_114_amt:
     x_petey_id: '5_5'
     type: number
@@ -2820,7 +4156,7 @@ fields:
         caption: 'No'
   organ_donor:
     x_petey_id: '5_17'
-    type: category
+    type: multi_category
     values:
     - organ_donor_primary_taxpayer_ind
     - organ_donor_spouse_rdp_ind
@@ -2835,18 +4171,8 @@ fields:
         widget_type: checkbox
         path: 540_form_5018 CB
         on_state: Primary#20taxpayer
-        caption: Organ Donor Election. By checking the applicable box you authorize
-          written consent for Donate Life California to enroll you in the Donate Life
-          California Organ and Tissue Donor Registry, and for the Franchise Tax Board
-          to share limited information from your tax return with Donate Life California.
-          If your individual information has changed since the last time you filed
-          a tax return, and are already registered with Donate Life California, re-checking
-          the box will send your most updated individual information to Donate Life
-          California. If you do not check the box, Donate Life California will not
-          enroll you in the registry at this time. To remove your name from the registry
-          contact Donate Life California directly. For more information, see the Consent
-          Language in the instructions. Primary taxpayer.
-        x_petey_caption_source: tooltip
+        caption: Primary taxpayer
+        x_petey_caption_source: claude
       organ_donor_spouse_rdp_ind:
         page: 5
         rect:
@@ -2857,14 +4183,75 @@ fields:
         widget_type: checkbox
         path: 540_form_5019 CB
         on_state: '#20Spouse#2FR#20D#20P#20#28if#20joint#20tax#20return#29'
-        caption: Spouse / R D P (if joint tax return).
-        x_petey_caption_source: tooltip
+        caption: Spouse/RDP (if joint tax return)
+        x_petey_caption_source: claude
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:01'
       from:
       - organ_donor_primary_taxpayer_ind
       - organ_donor_spouse_rdp_ind
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: organ_donor
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          organ_donor_primary_taxpayer_ind: Organ Donor Election. By checking the
+            applicable box you authorize written consent for Donate Life California
+            to enroll you in the Donate Life California Organ and Tissue Donor Registry,
+            and for the Franchise Tax Board to share limited information from your
+            tax return with Donate Life California. If your individual information
+            has changed since the last time you filed a tax return, and are already
+            registered with Donate Life California, re-checking the box will send
+            your most updated individual information to Donate Life California. If
+            you do not check the box, Donate Life California will not enroll you in
+            the registry at this time. To remove your name from the registry contact
+            Donate Life California directly. For more information, see the Consent
+            Language in the instructions. Primary taxpayer.
+          organ_donor_spouse_rdp_ind: Spouse / R D P (if joint tax return).
+      to:
+        name: organ_donor
+        type: multi_category
+        semantic_type: null
+        pattern: null
+        options:
+          organ_donor_primary_taxpayer_ind:
+            caption: Primary taxpayer
+          organ_donor_spouse_rdp_ind:
+            caption: Spouse/RDP (if joint tax return)
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: Organ Donor Election has two separate checkboxes printed 'Primary taxpayer'
+        and 'Spouse/RDP (if joint tax return)'; each spouse opts in on their own,
+        so both can be checked
+  taxpayer_signature:
+    x_petey_id: '6_13'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 36.96
+      - 143.04
+      - 250.56
+      - 158.88
+      widget_type: text
+      path: null
+    label_source: llm
+    x_petey_added:
+      source: field_add
+      when: '2026-10-13 12:34:52'
+      geometry: finder
+      name_from: claude
+      caption: Your signature
+      page_class: signature
+      entity: applicant
+      finder: step2flat-3
+      why: Side 6 'Your signature' line, left of the Date box; no field covers it
+        (other blueprints such as the I-765 keep signature fields)
   signature_dt:
     x_petey_id: '6_1'
     type: date
@@ -2883,6 +4270,30 @@ fields:
     - description_from_tooltip
     description: Date. Enter date signed. Enter date as m m / d d/ y y y y .
     x_petey_description_source: tooltip
+  spouse_signature:
+    x_petey_id: '6_14'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 365.28
+      - 143.04
+      - 570.72
+      - 158.4
+      widget_type: text
+      path: null
+    label_source: llm
+    x_petey_added:
+      source: field_add
+      when: '2026-10-13 12:34:52'
+      geometry: finder
+      name_from: claude
+      caption: Spouse's/RDP's signature (if a joint tax return, both must sign)
+      page_class: signature
+      entity: spouse
+      finder: step2flat-3
+      why: Side 6 'Spouse's/RDP's signature (if a joint tax return, both must sign)'
+        line; no field covers it
   taxpayer_email_address_txt:
     x_petey_id: '6_2'
     type: string
@@ -2923,7 +4334,6 @@ fields:
   paid_preparer_nm:
     x_petey_id: '6_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -2937,6 +4347,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: paid_preparer_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: paid_preparer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   paid_preparer_phone_num:
     x_petey_id: '6_5'
     type: string
@@ -2956,6 +4382,30 @@ fields:
     - description_from_tooltip
     description: Paid preparer’s phone number.
     x_petey_description_source: tooltip
+  paid_preparer_signature:
+    x_petey_id: '6_15'
+    type: string
+    widget:
+      page: 6
+      rect:
+      - 98.88
+      - 251.04
+      - 570.72
+      - 266.4
+      widget_type: text
+      path: null
+    label_source: llm
+    x_petey_added:
+      source: field_add
+      when: '2026-10-13 12:34:52'
+      geometry: finder
+      name_from: claude
+      caption: Paid preparer's signature
+      page_class: signature
+      entity: preparer
+      finder: step2flat-3
+      why: Side 6 'Paid preparer's signature (declaration of preparer ...)' line between
+        the preparer name/phone and firm rows; no field covers it
   firm_business_name:
     x_petey_id: '6_6'
     type: string
@@ -3065,7 +4515,6 @@ fields:
   third_party_designee_nm:
     x_petey_id: '6_11'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -3079,6 +4528,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: third_party_designee_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: third_party_designee_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
   third_party_designee_phone_num:
     x_petey_id: '6_12'
     type: string
@@ -3115,8 +4580,8 @@ fields:
         widget_type: checkbox
         path: 540_form_5009A CB
         on_state: 'Yes'
-        caption: • Routing number
-        x_petey_caption_source: page_text
+        caption: Checking
+        x_petey_caption_source: claude
       savings_ind:
         page: 5
         rect:
@@ -3129,6 +4594,28 @@ fields:
         on_state: 'Yes'
         caption: Savings
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: account_1_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          checking_ind: • Routing number
+      to:
+        name: account_1_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          checking_ind:
+            caption: Checking
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: caption
+      why: Line 116 account Type boxes are printed 'Checking' and 'Savings'; the Checking
+        caption picked up the neighbouring 'Routing number' label
   account_2_type:
     x_petey_id: '5_11'
     type: category
@@ -3146,8 +4633,8 @@ fields:
         widget_type: checkbox
         path: 540_form_5013A CB
         on_state: 'Yes'
-        caption: • Routing number
-        x_petey_caption_source: page_text
+        caption: Checking
+        x_petey_caption_source: claude
       savings_ind:
         page: 5
         rect:
@@ -3160,6 +4647,28 @@ fields:
         on_state: 'Yes'
         caption: Savings
         x_petey_caption_source: page_text
+    x_petey_hand_edit:
+      when: '2026-10-13 12:34:52'
+      from:
+        name: account_2_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          checking_ind: • Routing number
+      to:
+        name: account_2_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          checking_ind:
+            caption: Checking
+      record: runs/claude_pass/proposals/lib__ca540.json
+      by: claude
+      kind: caption
+      why: Line 117 account Type boxes are printed 'Checking' and 'Savings'; the Checking
+        caption picked up the neighbouring 'Routing number' label
 x_petey_dedup_log:
   duplicate_labels_reassigned: 1
   collisions:

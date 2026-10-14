@@ -47,6 +47,11 @@
   input[type=checkbox] { accent-color:var(--accent); vertical-align:-2px; }
   textarea::placeholder, input::placeholder { color:var(--text-dim); }
   header select { max-width:520px; }
+  /* one line (2026-10-13): the form menu gives way first, then the subtitle */
+  header { flex-wrap:nowrap; gap:8px; } header > * { flex-shrink:0; }
+  header #listorder { width:112px; }
+  header #pick { flex:0 1 380px; min-width:140px; width:380px; }
+  @media (max-width:1500px) { .brand .sub { display:none; } }
   header .ctl select { text-transform:none; letter-spacing:0; font-weight:400; font-size:.8rem; }
 
   /* toggle group, as petey-web's mode toggle */
@@ -107,7 +112,14 @@
   .rlist div.removed { text-decoration:line-through; color:var(--text-dim); }
   .rbanner { background:rgba(195,47,39,.14); border:1px solid rgba(195,47,39,.45); color:var(--red); padding:7px 10px; border-radius:var(--r); margin:8px 0; }
   .rv.clash { outline:3px solid var(--cc); outline-offset:1px; z-index:6; }
-  .rv.sel { border-width:2.5px; border-color:var(--sel); box-shadow:0 0 0 2px rgba(26,115,232,.35); z-index:2; }
+  /* the selected field, loud (Andrew, 2026-10-14: hard to find on a dense page): a thick border, a white ring that
+     shows on any background, a wide glow, and one pulse when it is selected */
+  .rv.sel { border:3px solid var(--sel); box-shadow:0 0 18px 6px rgba(26,115,232,.55); z-index:2; }
+  .rv.sel.pulse { animation:selpulse .9s ease-out 1; }     /* only when a different field is selected */
+  @keyframes selpulse { 0% { box-shadow:0 0 0 0 rgba(26,115,232,.9); } 60% { box-shadow:0 0 0 24px rgba(26,115,232,0); }
+                        100% { box-shadow:0 0 18px 6px rgba(26,115,232,.55); } }
+  .rv.optsel { border-color:var(--accent); box-shadow:0 0 14px 5px color-mix(in srgb, var(--accent) 60%, transparent); z-index:3; }
+  .orow.osel input { outline:2px solid var(--accent); outline-offset:-1px; }
   dl { display:grid; grid-template-columns:96px 1fr; gap:3px 8px; margin:8px 0; } dt { color:var(--text-dim); } dd { margin:0; word-break:break-word; }
   .rpanel h2 { font-size:15px; margin:0 0 6px; word-break:break-all; }
   .verdict { display:flex; gap:8px; margin:12px 0 6px; }
@@ -152,10 +164,11 @@
   .gh { position:absolute; border:1.5px dashed var(--c); background:color-mix(in srgb, var(--c) 7%, transparent); border-radius:3px; z-index:1; cursor:pointer; }
   .gh.sel { border-style:solid; border-width:2px; background:color-mix(in srgb, var(--c) 14%, transparent); z-index:2; }
   .gh.ok { border-style:solid; }
+  .gh.rvg, .gh.rvg.sel { z-index:0; }      /* Review's group hulls sit under the field boxes, which stay clickable */
   .gi { position:absolute; border:2px solid var(--c); background:color-mix(in srgb, var(--c) 18%, transparent); z-index:3; cursor:grab; }
   .gi::after { content:''; position:absolute; inset:-3px; }
   .gi.orphan { border-style:dashed; background:transparent; }
-  .gi.sel { box-shadow:0 0 0 2px var(--sel); z-index:4; }
+  .gi.sel { box-shadow:0 0 0 2px #fff, 0 0 0 5px var(--sel), 0 0 16px 5px rgba(26,115,232,.5); z-index:4; }
   .gi.locked { cursor:not-allowed; } .gi.dragging { opacity:.35; }
   .gi.picked { outline:2.5px solid var(--sel); outline-offset:2px; z-index:5; }
   .over { outline:3px solid var(--accent) !important; background:var(--accent-dim) !important; }
@@ -173,6 +186,7 @@
   .gcur ol { margin:6px 0; padding-left:20px; }
   .btn.ok { border-color:rgba(134,239,172,.4); color:var(--green); } .btn.ok:hover:not(:disabled) { border-color:var(--green); color:var(--green); }
   .btn.ok.on { background:var(--green); border-color:var(--green); color:#000; font-weight:700; }
+  #draftBar { display:flex; gap:6px; align-items:center; font-size:.8rem; } #draftBar[hidden] { display:none; }
   .badge.edit { background:var(--amber-dim); color:var(--amber); } .badge.new { background:var(--accent-dim); color:var(--text-muted); } .badge.ok { background:rgba(134,239,172,.12); color:var(--green); }
   .warn { color:var(--red); font-size:12px; }
   .changes { font-size:12px; } .changes li { margin:2px 0; } .changes .err { color:var(--red); }
@@ -216,13 +230,14 @@
 <header>
   <div class="brand"><h1>Petey<span class="dot">.</span></h1><span class="sub">Blueprint review</span></div>
   <select id="pick"></select>
-  <label class="ctl">List <select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most errors first</option></select></label>
+  <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most errors first</option></select></label>
   <span class="tabs" id="tabs">
     <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button>
   </span>
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
+  <span id="draftBar" hidden></span>
   <span class="spacer"></span>
-  <span class="ctl">Zoom <button class="btn" id="zout">-</button> <button class="btn" id="zin">+</button></span>
+  <span class="ctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
@@ -317,24 +332,12 @@ function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mod
 function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); }
 
 function pickerText(b) {
-  const bits = [`${b.fields} fields`];
+  // short (Andrew, 2026-10-13: the long rows widened the menu and pushed the header buttons onto a second line):
+  // fields, reviewed, VALIDATED; a * marks an unsaved working copy
   const done = b.accepted + b.flagged;
-  if (b.checked && b.checked.validated) bits.unshift('VALIDATED');
-  else if (b.checked) bits.push(b.checked.stale ? 'checked, file changed since'
-    : `checked${b.checked.flagged ? `, ${b.checked.flagged} flagged` : ''}${b.checked.pending ? `, ${b.checked.pending} correction${b.checked.pending === 1 ? '' : 's'} to apply` : ''}`);
-  else if (done) bits.push(`${done} reviewed`);
-  if (b.stale) bits.push('verdicts stale');
-  // (the groups confirmed count was dropped 2026-10-07: Groups is for fixing, not validation)
-  if (b.groups && b.groups.combos) bits.push(`${b.groups.combos} text combined`);
-  if (b.add && b.add.added) bits.push(`${b.add.added} to add`);
-  if (b.add && b.add.removed) bits.push(`${b.add.removed} to remove`);
-  if (b.focus) bits.unshift(`${b.focus} name flags to confirm`);
-  if (b.rerun || b.launch) {
-    if (b.check_errors != null) bits.push(`${b.check_errors} errors, ${b.check_suggestions} suggestions`);
-    else if (b.page_check_flags != null) bits.push(`${b.page_check_flags} page-check flags`);
-    if (b.run) bits.push(b.run.stable ? 'stable' : `NOT stable: ${b.run.stop}`);
-  }
-  return `${b.form}  (${bits.join(', ')})`;     // who made it and when: Blueprint details (2026-10-07)
+  const bits = [`${b.fields} fields`, `${done} reviewed`];
+  if (b.checked && b.checked.validated) bits.push('VALIDATED');
+  return `${b.form}${b.draft ? ' *' : ''}  (${bits.join(', ')})`;
 }
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || bid;
@@ -360,11 +363,46 @@ function renderPicker() {
   }
   if (keep && LIST.some(b => b.id === keep)) pick.value = keep;
 }
-function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); }
+function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); if (e.id === bid) renderDraft(); }
+
+// the working copy (2026-10-13, Andrew: "everything should be reading from the same source"): every change goes into
+// one copy of the blueprint that all three modes read; this bar saves it over the blueprint or throws it away
+function renderDraft() {
+  const el = $('#draftBar'), d = bid && (LIST.find(b => b.id === bid) || {}).draft;
+  if (!d) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = `${d.real_changed ? '<span class="stale" title="a loop run or an edit by hand changed the blueprint after the working copy was made">file changed on disk</span>' : ''}
+    <button class="btn ok" id="dSave" title="${esc('save the working copy into the blueprint\n\n' + (d.log.length ? d.log.join('\n') : 'no changes to the blueprint yet (verdicts only)'))}">save (${d.changes})</button>
+    <button class="btn" id="dDiscard" title="throw the working copy away (made ${esc(d.made)}); verdicts and notes since then go with it">discard</button>`;
+  $('#dSave').onclick = saveDraft; $('#dDiscard').onclick = discardDraft;
+}
+async function saveDraft() {
+  if (mode === 'groups') await MODE.groups.leave();
+  const d = (LIST.find(b => b.id === bid) || {}).draft; if (!d) return;
+  if (!confirm(`Write ${d.changes} change(s) into the blueprint?\n\n${d.log.slice(0, 40).join('\n')}${d.log.length > 40 ? `\n… ${d.log.length - 40} more` : ''}`)) return;
+  let out;
+  try { out = await send('POST', mapi('draft', '/save')); }
+  catch (e) {
+    if (!/changed on disk/.test(e.message) || !confirm(e.message + '\n\nOverwrite it with the working copy anyway?')) { alert('Not saved: ' + e.message); return; }
+    try { out = await send('POST', mapi('draft', '/save'), {force: true}); } catch (e2) { alert('Not saved: ' + e2.message); return; }
+  }
+  updateEntry(out.entry); await loadMode();
+  toast(`Saved ${out.changes} change(s) to ${out.saved.split('/').pop()}.`);
+}
+async function discardDraft() {
+  const d = (LIST.find(b => b.id === bid) || {}).draft; if (!d) return;
+  if (!confirm(`Throw away the working copy (${d.changes} change(s) since ${d.made})?\n\nVerdicts and notes made since then go with it.`)) return;
+  let out;
+  try { out = await send('POST', mapi('draft', '/discard')); } catch (e) { alert('Discard failed: ' + e.message); return; }
+  updateEntry(out.entry); await loadMode();
+  toast(`Discarded ${out.discarded} change(s); the blueprint is as it was.`);
+}
+async function syncSha() { try { shaSeen = (await j(`/api/blueprints/${encodeURIComponent(bid)}/sha`)).sha; } catch (e) {} }
 
 async function openBlueprint(id) {
   if (!id) return;
-  bid = id; setHash();
+  if (bid && mode === 'groups') await MODE.groups.leave();
+  bid = id; setHash(); renderDraft();
   $('#panel').innerHTML = '<p class="help">loading…</p>';
   await loadMode();
 }
@@ -385,13 +423,14 @@ async function checkFresh() {
 async function loadMode() {
   try { await M().load(); }
   catch (e) { $('#panel').innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
-  try { shaSeen = (await j(`/api/blueprints/${encodeURIComponent(bid)}/sha`)).sha; } catch (e) {}
+  await syncSha(); renderDraft();
   const pages = M().pages();
   if (!pages.some(p => p.page === page) || !M().pageLabel(page)) page = M().startPage() || (pages[0] || {}).page || 1;
   renderModebar(); renderPages(); await showPage(); M().panel(); M().progress();
 }
 async function setMode(m) {
   if (!MODE[m] || m === mode) return;
+  if (bid && mode === 'groups') await MODE.groups.leave();
   mode = m; store('br_mode', m); renderTabs(); setHash();
   if (!$('#helpmenu').hidden) toggleHelp(true);
   document.querySelectorAll('#canvas > div').forEach(e => e.remove());
@@ -468,7 +507,15 @@ function onKey(e) {
 
 // ======================================================================= Review: accept / flag / note per field
 MODE.review = (() => {
+  let selOpt = null;           // the option box clicked on the page, within a group (its key): highlighted in the card
+  // p / ←: back through the fields actually visited, like a browser's back button (Andrew, 2026-10-14: stepping back
+  // through the list landed elsewhere once accepting a field reordered or filtered it)
+  let visited = [], goingBack = false, visitedFor = null, pulsed = null;
   let BP = null, selected = null, unrevOnly = false, order = store('hr_order') || 'risk', removed = [], clashOn = false;
+  // Claude's changes only: a filter beside 'unreviewed only' (Andrew, 2026-10-14), not an order
+  let claudeOnly = store('hr_claude') === '1';
+  let flagOnly = false;        // flagged only (2026-10-14); excludes 'unreviewed only', a flag being a verdict
+  if (order === 'claude') { order = 'risk'; claudeOnly = true; }
   const TIER_RANK = {contested: 0, unknown: 1, single: 2, settled: 3};
   const TIER_LETTER = {contested: '!', unknown: '?', single: '1', settled: '2+'};
   const verdictOf = n => { const v = BP.verdicts[n]; return v ? v.verdict : ''; };
@@ -478,11 +525,21 @@ MODE.review = (() => {
   async function putRemovals() {
     const out = await send('PUT', mapi('review', '/removals'), {removed});
     updateEntry(out.entry);
+    return out;
   }
+  async function load() { if (visitedFor !== bid) { visited = []; visitedFor = bid; } const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; }
+  // the page reads the working copy again after a change went into it (a correction, a removal)
+  async function reload() { await load(); await syncSha(); renderPages(); placeAll(); panel(); progress(); }
   async function removeField() {
     const f = BP.fields.find(x => x.name === selected); if (!f || isRemoved(f.name)) return;
+    const list = ordered(), after = list[(list.indexOf(f) + 1) % list.length];
     removed.push({name: f.name, page: f.page, rect: f.rects[0].rect, when: localNow(), from: 'review'});
-    await putRemovals();
+    const out = await putRemovals();
+    if (out.applied && out.applied.length) {             // gone from the working copy
+      await reload(); if (after && after !== f && BP.fields.some(x => x.name === after.name)) select(after.name);
+      toast(`Removed ${f.name} from the working copy.`); return;
+    }
+    if (out.apply_error || (out.errors && out.errors.length)) toast('Recorded, not removed yet: ' + (out.apply_error || out.errors.join('; ')));
     if (!verdictOf(f.name)) await putV({[f.name]: {verdict: 'accept', note: 'removed'}});   // removing it is the fix
     next();
   }
@@ -494,31 +551,53 @@ MODE.review = (() => {
     if (v && v.note === 'removed') await putV({[f.name]: null});
     placeAll(); panel();
   }
+  // Claude's changes, the riskiest first (Andrew, 2026-10-13: the saved blueprint is the ground truth, so the review
+  // time goes to the changes most likely to be wrong): wrong names, added boxes, suggestions, then the rest
+  const CLAUDE_RANK = {wrong: 0, add: 1, caption: 3, type: 4, clarity: 5, suffix: 6};
+  const claudeRank = f => f.claude ? (CLAUDE_RANK[f.claude.kind] ?? 5) : (f.why || []).some(w => /^Claude:/.test(w.text)) ? 2 : 9;
   function ordered() {
-    const list = BP.fields.filter(f => !unrevOnly || !verdictOf(f.name));
+    const list = BP.fields.filter(f => (!unrevOnly || !verdictOf(f.name)) && (!flagOnly || verdictOf(f.name) === 'flag')
+                                       && (!claudeOnly || claudeRank(f) < 9));
+    if (claudeOnly && order === 'risk') return list.sort((a, b) => (claudeRank(a) - claudeRank(b)) || (a.idx - b.idx));
     if (order === 'risk') list.sort((a, b) => ((TIER_RANK[a.tier] ?? 1) - (TIER_RANK[b.tier] ?? 1)) || (a.idx - b.idx));
+    else if (order === 'name') list.sort((a, b) => a.name.localeCompare(b.name));
     return list;
   }
-  function select(name, scroll = true) {
-    selected = name;
+  function select(name, scroll = true, opt = null) {
+    if (selected && selected !== name && !goingBack) { visited.push(selected); if (visited.length > 500) visited.shift(); }
+    selected = name; selOpt = opt;
     const f = BP.fields.find(x => x.name === name);
-    if (f && f.page !== page) { page = f.page; renderPages(); showPage().then(() => { panel(); if (scroll) scrollSel(); }); return; }
+    if (f && !f.rects.some(r => r.page === page)) { page = f.page; renderPages(); showPage().then(() => { panel(); if (scroll) scrollSel(); }); return; }
     placeAll(); panel(); if (scroll) scrollSel();
   }
   function scrollSel() { const el = document.querySelector('.rv.sel'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'}); }
+  function back() {
+    while (visited.length) {
+      const n = visited.pop();
+      if (n !== selected && BP.fields.some(f => f.name === n)) { goingBack = true; try { select(n); } finally { goingBack = false; } return; }
+    }
+    next(-1);                                  // nothing visited yet on this form: the previous field in the list
+  }
   function next(step = 1) {
-    const list = ordered(); if (!list.length) return;
+    const list = ordered();
+    // the last one in the list (unreviewed only, Claude's changes only): stay, but show the verdict that was just saved
+    if (!list.length || (list.length === 1 && list[0].name === selected)) { placeAll(); panel(); progress(); toast('No more fields in this list.'); return; }
     let i = list.findIndex(f => f.name === selected);
     if (i < 0) { const all = BP.fields; const j0 = all.findIndex(f => f.name === selected); i = list.findIndex(f => all.indexOf(f) > j0) - 1; }
     i = (i + step + list.length) % list.length;
     select(list[i].name);
   }
+  // a correction goes into the working copy as it is saved; one that would take a name another field still has is
+  // held back (apply_error) until that field is renamed
   async function putV(verdicts) {
     const out = await send('PUT', mapi('review', '/verdicts'), {verdicts});
     BP.verdicts = out.verdicts; BP.stale = false;
     const was = !!BP.checked; BP.checked = out.entry ? out.entry.checked : null;
-    updateEntry(out.entry); progress();
+    updateEntry(out.entry);
+    if (out.applied && out.applied.length) await reload(); else progress();
+    if (out.apply_error) alert('Saved, but held back from the working copy: ' + out.apply_error + '\n\nRename the other field first (the clashes button shows both); then both go in.');
     if (!was && BP.checked) { const el = $('#progress'); el.classList.add('justchecked'); setTimeout(() => el.classList.remove('justchecked'), 2500); }
+    return out;
   }
   async function setVerdict(verdict) {
     if (!selected) return;
@@ -548,16 +627,14 @@ MODE.review = (() => {
     };
     setTimeout(poll, 3000);
   }
-  async function applyCorrections() {
-    const pending = Object.entries(BP.verdicts).filter(([, v]) => v.edit && !v.applied);
-    const lines = pending.map(([n, v]) => `${n}${v.edit.name ? ' → ' + v.edit.name : ''}${v.edit.type ? ' : ' + v.edit.type : ''}${v.edit.semantic_type ? ' / semantic ' + v.edit.semantic_type : ''}${v.edit.pattern ? ' / pattern ' + v.edit.pattern : ''}${v.edit.options ? ' / options ' + Object.entries(v.edit.options).map(([k, d]) => k + (d.key ? ' → ' + d.key : '') + ('caption' in d ? ' "' + d.caption + '"' : '')).join(', ') : ''}`);
-    if (!confirm(`Write ${pending.length} correction(s) into ${BP.path}?\n\n${lines.join('\n')}`)) return;
+  async function applyCorrections() {                      // a retry for corrections held back by a clash
     let out;
     try { out = await send('POST', mapi('review', '/apply')); }
     catch (e) { alert('Apply failed: ' + e.message); return; }
-    LIST = await j('/api/blueprints'); renderPicker();
-    await loadMode();
-    toast(`Applied ${pending.length} correction(s) to the blueprint.`);
+    updateEntry(out.entry);
+    if (out.apply_error) { alert('Still held back: ' + out.apply_error); return; }
+    await reload();
+    toast(`${(out.applied || []).length} correction(s) went into the working copy.`);
   }
   // a correction (2026-10-07): the field's name, type, semantic type and pattern are edited in place in the field
   // card; saved as a flag with a structured edit, written into the blueprint by the apply button (or
@@ -593,7 +670,13 @@ MODE.review = (() => {
     for (const r of optRows()) { r.querySelector('.okey').value = was.options[r.dataset.k].key; r.querySelector('.ocap').value = was.options[r.dataset.k].caption; }
     markDirty();
   }
+  let fixing = false;          // one save at a time: a second one while the first reloads re-sends the old name
   async function saveFix() {
+    if (fixing) return;
+    fixing = true;
+    try { await saveFixOnce(); } finally { fixing = false; }
+  }
+  async function saveFixOnce() {
     if (!selected || !$('#eName')) return;
     const f = BP.fields.find(x => x.name === selected), v = BP.verdicts[f.name] || {}, o = orig(f), now = boxes();
     const cleared = k => now[k] === o[k] ? '' : (now[k] || 'none');
@@ -610,10 +693,14 @@ MODE.review = (() => {
     if (same && !v.edit) { toast('Nothing changed.'); return; }
     // the verdicts (Andrew, 2026-10-07): accept = the field is good to go, a saved correction included (apply writes
     // it); flag = "I can't or don't want to fix this myself", the note says what is wrong and "review edits" sends it on
-    try { await putV({[selected]: same ? {verdict: v.verdict || 'accept', note} : {verdict: 'accept', note, edit}}); }
+    let out;
+    try { out = await putV({[selected]: same ? {verdict: v.verdict || 'accept', note} : {verdict: 'accept', note, edit}}); }
     catch (e) { alert('Could not save the correction: ' + e.message); return; }
-    if (same) { toast('Correction withdrawn: the field is back to what the blueprint has.'); placeAll(); panel(); }
-    else next();
+    if (same) { toast('Correction withdrawn: the field is back to what the blueprint has.'); placeAll(); panel(); return; }
+    if (out.applied && out.applied.length && edit.name !== f.name && BP.fields.some(x => x.name === edit.name)) {
+      selected = edit.name; visited = visited.map(n => n === f.name ? edit.name : n);
+    }
+    next();
   }
   async function bulkAccept() {
     const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
@@ -657,7 +744,7 @@ MODE.review = (() => {
   function whyHtml(f) {
     // one plain sentence per reason (witness.explain): errors first, then suggestions (2026-10-07)
     if (!f.why || !f.why.length) return '';
-    return `<div class="sect"><h4>Why it is questioned</h4><div class="why">${f.why.map((w, i) => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${fieldRefs(w.text)}${w.fix ? ` <button class="btn usefix" data-i="${i}" title="put this into the field above; save to keep it">use</button>` : ''}${/^Option captions/.test(w.text) && f.options.length && !w.fix ? ` <button class="btn usefix" data-caps="1" title="ask the agent for the captions printed at each box (one call, a few seconds); they fill the option boxes, and you save">fix captions</button>` : ''}</div>`).join('')}</div></div>`;
+    return `<div class="sect"><h4>Why it is questioned</h4><div class="why">${f.why.map((w, i) => `<div class="${w.kind}">${w.kind === 'suggestion' ? 'Suggestion: ' : ''}${fieldRefs(w.text)}${w.fix ? ` <button class="btn usefix" data-i="${i}" title="${w.fix.name && BP.fields.some(x => x.name === w.fix.name) ? `take the name ${esc(w.fix.name)}; that field keeps it until you rename it too, so the rename waits as a clash (the clashes button shows both)` : 'put this into the field above; save to keep it'}">use</button>` : ''}${/^Option captions/.test(w.text) && f.options.length && !w.fix ? ` <button class="btn usefix" data-caps="1" title="ask the agent for the captions printed at each box (one call, a few seconds); they fill the option boxes, and you save">fix captions</button>` : ''}</div>`).join('')}</div></div>`;
   }
   // the post-review agent's proposal for a flag with a note (flag_agent.py): shown with a "use" button that fills the
   // correction boxes, or marks a removal; nothing is written until the person saves and applies (2026-10-07)
@@ -685,6 +772,22 @@ MODE.review = (() => {
   }
   // "fix captions" (Andrew, 2026-10-07: the loop notices wrong option captions but does not fix them): one agent call
   // for this field, the page check's reason included; its captions fill the option boxes, nothing is saved
+  // "improve name" (Andrew, 2026-10-14): one call to the review agent with the box outlined on the page, its tooltip
+  // and the naming conventions; the name it proposes goes into the name box, and the person saves
+  const NAME_NOTE = 'Propose a better field name: snake_case, saying what the box holds (not an item or line number, '
+    + 'not a bare section label), taken from the tooltip and the text printed at the box. Follow the naming conventions: '
+    + '_nm names, _dt dates, _amt any number, _ind a single checkbox, _cd codes, _txt free text, _num identifiers; an '
+    + 'option group (one of / any of) is named for its question, with no suffix. Change nothing but the name.';
+  async function improveName(f, btn) {
+    btn.disabled = true; btn.textContent = 'asking…';
+    try {
+      const out = await send('POST', mapi('review', '/agent_field'), {name: f.name, note: NAME_NOTE});
+      if (selected !== f.name) return;
+      if (out.name && out.name !== f.name) { $('#eName').value = out.name; markDirty(); toast(`Proposed: ${out.name}. Check it and save. ${out.reason || ''}`); }
+      else toast(`No better name proposed. ${out.reason || ''}`);
+    } catch (e) { alert('The agent failed: ' + e.message); }
+    btn.disabled = false; btn.textContent = 'improve name';
+  }
   async function fixCaptions(f, btn) {
     btn.disabled = true; btn.textContent = 'asking…';
     try {
@@ -734,12 +837,17 @@ MODE.review = (() => {
   const listHtml = () => `<div class="rlist">${ordered().map(f => `<div data-n="${esc(f.name)}" class="${verdictOf(f.name)} ${f.name === selected ? 'sel' : ''} ${isRemoved(f.name) ? 'removed' : ''}">${tierChip(f)}<span class="fid">${esc(f.id || 'p' + f.page)}</span> · ${esc(f.name)}${(BP.verdicts[f.name] || {}).edit ? ` <b>→ ${esc(BP.verdicts[f.name].edit.name || f.name)}${BP.verdicts[f.name].edit.type ? ' : ' + esc(BP.verdicts[f.name].edit.type) : ''}${BP.verdicts[f.name].edit.semantic_type ? ' / ' + esc(BP.verdicts[f.name].edit.semantic_type) : ''}</b>` : ''}</div>`).join('')}</div>`;
   // the list's order, just above the list (Andrew, 2026-10-07; it was in the bar)
   const orderHtml = () => `<div class="listorder"><label class="help"><input type="checkbox" id="unrev" ${unrevOnly ? 'checked' : ''}> unreviewed only</label>
-    <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option></select></label></div>`;
+    <label class="help"><input type="checkbox" id="flagOnly" ${flagOnly ? 'checked' : ''}> flagged only</label>
+    <label class="help" title="only the fields Claude's pass changed (wrong names first when the order is risk first)"><input type="checkbox" id="claudeOnly" ${claudeOnly ? 'checked' : ''}> Claude's changes only</label>
+    <label class="help">order <select id="order"><option value="risk" ${order === 'risk' ? 'selected' : ''}>risk first</option><option value="reading" ${order === 'reading' ? 'selected' : ''}>reading</option><option value="name" ${order === 'name' ? 'selected' : ''}>by name</option></select></label></div>`;
   function bindList() {
     document.querySelectorAll('.rlist div').forEach(d => d.onclick = () => select(d.dataset.n));
     const o = $('#order'); if (o) o.onchange = e => { order = e.target.value; store('hr_order', order); renderList(); };
-    const u = $('#unrev'); if (u) u.onchange = e => { unrevOnly = e.target.checked; renderList(); };
+    const u = $('#unrev'); if (u) u.onchange = e => { unrevOnly = e.target.checked; if (unrevOnly) flagOnly = false; syncFilters(); renderList(); };
+    const fo = $('#flagOnly'); if (fo) fo.onchange = e => { flagOnly = e.target.checked; if (flagOnly) unrevOnly = false; syncFilters(); renderList(); };
+    const co = $('#claudeOnly'); if (co) co.onchange = e => { claudeOnly = e.target.checked; store('hr_claude', claudeOnly ? '1' : '0'); renderList(); };
   }
+  function syncFilters() { const u = $('#unrev'), fo = $('#flagOnly'); if (u) u.checked = unrevOnly; if (fo) fo.checked = flagOnly; }
   function renderList() { const old = document.querySelector('.rlist'); if (!old) return; old.outerHTML = listHtml(); bindList(); }
   function panel() {
     const a = $('#panel'), f = BP.fields.find(x => x.name === selected);
@@ -761,7 +869,7 @@ MODE.review = (() => {
        <input class="ocap" value="${esc(s.options[o.on_state].caption)}" placeholder="no caption" title="the text printed at this box; empty clears it"></span>`).join('')}</span>` : '';
     const loop = f.loop ? `<div class="loop"><b>Loop changed</b> ${esc((f.loop.changed || []).join(', '))}${f.loop.old_name ? ` (was <code>${esc(f.loop.old_name)}</code>)` : ''}<br>${esc(f.loop.reason || '')}</div>` : '';
     const adj = f.adjudication ? `<div class="adj"><b>Adjudicator</b> ${esc(f.adjudication.verdict)} for <code>${esc(f.adjudication.proposed)}</code>: ${esc(f.adjudication.reason || '')}</div>` : '';
-    const saved = v.edit ? `<span class="help">Correction saved${v.applied ? ' and applied' : ', not applied yet (apply button in the bar)'}; the blueprint has
+    const saved = v.edit && !v.applied ? `<span class="help">Correction saved, held back from the working copy (a name another field has; the apply button in the bar retries); the working copy has
         <code>${esc(f.name)}</code> : ${esc(f.type || '')}${f.semantic_type ? ' / ' + esc(f.semantic_type) : ''}${f.pattern ? ` / <code>${esc(f.pattern)}</code>` : ''}${v.edit.options ? `; ${Object.keys(v.edit.options).length} option(s) changed` : ''}</span>` : '';
     a.innerHTML = `<div class="rpanel">${head}
       <div class="fcard sect">
@@ -776,11 +884,13 @@ MODE.review = (() => {
           ${opts}
         </div>
         <datalist id="semList">${[...(BP.semantic_types || [])].sort().map(t => `<option>${esc(t)}</option>`).join('')}</datalist>
-        <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction; the field is then accepted, and apply writes it into the blueprint">save correction</button>
-          <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>${saved}</div>
+        <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction: it goes into the working copy and the field is accepted">save correction</button>
+          <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>
+          <button class="btn" id="vImprove" title="ask the review agent for a name that says what the box holds (one call, a few seconds); it fills the name box, and you save">improve name</button>${saved}</div>
       </div>
+      ${f.claude ? `<div class="loop"><b>Claude's pass</b> (${esc(f.claude.kind)})${f.claude.from && f.claude.from !== f.name ? ` was <code>${esc(f.claude.from)}</code>` : ''}: ${esc(f.claude.why || '')}</div>` : ''}
       ${whyHtml(f)}${agentHtml(v)}${loop}${adj}
-      ${isRemoved(f.name) ? `<div class="rbanner">To be removed from the blueprint (<code>field_add --apply</code>). <button class="btn" id="vKeep">keep it</button></div>` : ''}
+      ${isRemoved(f.name) ? `<div class="rbanner">Recorded for removal, not removed yet (see Add / remove's change list). <button class="btn" id="vKeep">keep it</button></div>` : ''}
       <div class="sect"><h4>Verdict</h4><div class="verdict" style="margin-top:0">
         <button class="btn accept ${v.verdict === 'accept' ? 'on' : ''}" id="vAccept" title="the field is right; go to the next">accept</button>
         <button class="btn flag ${v.verdict === 'flag' ? 'on' : ''}" id="vFlag" title="I can't or don't want to fix this myself: say what is wrong in the note (review edits sends it to the agent)">flag</button>
@@ -794,6 +904,18 @@ MODE.review = (() => {
     $('#vFix').onclick = saveFix; $('#vUndo').onclick = resetBoxes;
     $('#fref').onclick = () => copyRef(f);
     bindFixes(f); bindAgent(v);
+    const imp = $('#vImprove'); if (imp) imp.onclick = () => improveName(f, imp);
+    // the option row of the box clicked on the page, and the other way round: a row focused or hovered lights its box
+    for (const r of optRows()) {
+      if (r.dataset.k === selOpt) { r.classList.add('osel'); r.scrollIntoView({block: 'nearest'}); }
+      // only that box changes: redrawing the page would replay the selection pulse on the whole group
+      const pick = () => {
+        if (selOpt === r.dataset.k) return; selOpt = r.dataset.k; optRows().forEach(x => x.classList.toggle('osel', x === r));
+        document.querySelectorAll('.rv.optsel').forEach(e => e.classList.remove('optsel'));
+        document.querySelectorAll(`.rv[data-f="${CSS.escape(selected)}"][data-o="${CSS.escape(selOpt)}"]`).forEach(e => e.classList.add('optsel'));
+      };
+      r.addEventListener('focusin', pick); r.addEventListener('mouseenter', pick);
+    }
     document.querySelectorAll('.fref').forEach(r => r.onclick = e => { e.preventDefault(); select(r.dataset.n); });
     [...FIX_BOXES.map(([sel]) => $(sel)), ...document.querySelectorAll('.okey, .ocap')].forEach(el => {
       el.addEventListener('input', markDirty); el.addEventListener('change', markDirty);
@@ -831,15 +953,17 @@ MODE.review = (() => {
         $('#rAgent').onclick = reviewEdits;
       }
     }
-    // corrections saved but not yet written into the blueprint: an apply button (2026-10-07)
-    const pending = Object.values(BP.verdicts).filter(v => v.edit && !v.applied).length;
+    // corrections held back from the working copy (a rename onto a name another field still has): a retry button
+    const names = new Set(BP.fields.map(f => f.name));
+    const pending = Object.entries(BP.verdicts).filter(([n, v]) => v.edit && !v.applied && names.has(n)).length;
     if (pending) {
-      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="rApply" title="write the saved field-name and type corrections into the blueprint (hand_review --apply)">apply ${pending} correction${pending === 1 ? '' : 's'} to blueprint</button>`);
+      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="rApply" title="corrections held back by a name clash: try them again once the other field is renamed">apply ${pending} held-back correction${pending === 1 ? '' : 's'}</button>`);
       $('#rApply').onclick = applyCorrections;
     }
   }
   // names two or more fields would have once saved corrections are applied (Andrew, 2026-10-13: a rename onto a name
   // another field has, or is getting, makes apply fail); each set gets its own color while the clashes button is on
+  const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd', '#dce775'];
   const CLASH_COLORS = ['#e37400', '#9334e6', '#1a73e8', '#188038', '#d93025', '#00838f', '#b06000', '#c2185b'];
   function clashGroups() {
     const by = {}, out = {};
@@ -875,17 +999,18 @@ MODE.review = (() => {
       const here = names.find(n => (BP.fields.find(f => f.name === n) || {}).page === page);
       select(here || names[0]);
     },
-    async load() { const keep = selected; BP = await j(mapi('review')); removed = (await j(mapi('review', '/removals'))).removed; BP.fields.forEach((f, i) => f.idx = i); BP.checked = (LIST.find(b => b.id === bid) || {}).checked || BP.checked; selected = BP.fields.some(f => f.name === keep) ? keep : null; },
+    load,
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
-    pageLabel(p) { const n = BP.fields.filter(f => f.page === p).length; return n ? `p${p} (${n})` : null; },
+    // a field counts on every page it has a box on (a group merged across pages: CMS-855A pp. 8-9, 2026-10-14)
+    pageLabel(p) { const n = BP.fields.filter(f => f.rects.some(r => r.page === p)).length; return n ? `p${p} (${n})` : null; },
     bar: () => `<span class="progress" id="progress"></span>
       <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>`,
     help: {keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
-                  ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'previous field'],
+                  ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'back to the field you were on before'],
                   ['u', 'unreviewed only on / off']],
            tips: ['Edit the field\'s name, type, semantic type, pattern or option captions in place: Enter, "save correction" or accept saves the changes; Esc undoes them. Empty a semantic type or pattern box to clear it.',
-                  'Saving a correction accepts the field; the apply button in the bar writes saved corrections into the blueprint.',
+                  'Saving a correction accepts the field and puts it into the working copy; "save blueprint" in the header writes the working copy into the blueprint.',
                   'Flag a field you cannot or do not want to fix yourself, with a note saying what is wrong: "review edits" sends flags with notes to the agent.',
                   'The note saves when you leave the box or press Enter; Shift+Enter for a new line.']},
     bindBar() {
@@ -893,13 +1018,27 @@ MODE.review = (() => {
     },
     place() {
       const cl = clashOn ? clashGroups() : {};
+      // option groups drawn as in Groups (2026-10-13, Andrew): a dashed hull in the group's color around its boxes on
+      // this page, solid when the field is selected; the boxes keep their verdict colors
+      let gi = 0;
+      for (const f of BP.fields) {
+        if (f.options.length < 2) continue;
+        const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = f.rects.filter(r => r.page === page).map(r => r.rect);
+        if (!rs.length) continue;
+        const hull = [Math.min(...rs.map(r => r[0])) - 4, Math.min(...rs.map(r => r[1])) - 4, Math.max(...rs.map(r => r[2])) + 4, Math.max(...rs.map(r => r[3])) + 4];
+        const h = put('gh rvg' + (selected === f.name ? ' sel' : ''), hull, `${f.id ? f.id + ' · ' : ''}${f.name} (${f.options.length} options)`);
+        h.style.setProperty('--c', c); h.onclick = () => select(f.name, false);
+      }
+      const pulse = selected && selected !== pulsed; pulsed = selected;
       for (const f of BP.fields) {
         f.rects.forEach((r, i) => {
           if (r.page !== page) return;
-          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' : '') + (cl[f.name] ? ' clash' : ''), r.rect,
+          const opt = f.options.length && f.options[i] ? f.options[i].on_state : null;
+          const d = put('rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '') + (selected === f.name ? ' sel' + (pulse ? ' pulse' : '') : '') + (selected === f.name && opt && opt === selOpt ? ' optsel' : '') + (cl[f.name] ? ' clash' : ''), r.rect,
                         `${f.id ? f.id + ' · ' : ''}${f.name}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}`);
           if (cl[f.name]) { d.style.setProperty('--cc', cl[f.name].color); d.title += ` · clashes on ${cl[f.name].to}`; }
-          d.onclick = () => select(f.name, false);
+          d.dataset.f = f.name; d.dataset.o = opt || '';
+          d.onclick = () => select(f.name, false, opt);   // a box of a group: its key / caption row lights up
         });
       }
     },
@@ -911,8 +1050,8 @@ MODE.review = (() => {
       else if (e.key === 'c') setVerdict(null);
       else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
       else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
-      else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
-      else if (e.key === 'u') { unrevOnly = !unrevOnly; $('#unrev').checked = unrevOnly; renderList(); }
+      else if (e.key === 'p' || e.key === 'ArrowLeft') back();
+      else if (e.key === 'u') { unrevOnly = !unrevOnly; if (unrevOnly) flagOnly = false; syncFilters(); renderList(); }
       else return false;
       return true;
     },
@@ -939,7 +1078,8 @@ MODE.groups = (() => {
     units.sort((a, b) => cmpKey(orderKey(firstItem(a)), orderKey(firstItem(b))));
   }
   const onPage = (u, p = page) => u.items.some(id => item(id).page === p);
-  const label = id => { const it = item(id); return it.kind === 'text' ? it.field : (it.caption || (it.key ?? it.field)); };
+  const label = id => { const it = item(id), u = unitOf(id), c = u && u.captions && u.captions[id];
+    return it.kind === 'text' ? it.field : (c || it.caption || (it.key ?? it.field)); };
   const looseText = (p = page) => Object.values(BP.items).filter(it => it.kind === 'text' && it.page === p && !unitOf(it.id));
   function colorOf(u) {
     if (isText(u)) return 'var(--txt)';
@@ -1111,18 +1251,50 @@ MODE.groups = (() => {
   function rename(uid, name, from = null) { const u = unitByUid(uid); name = name.trim(); if (!u || name === u.name) return; snapshot(); u.name = name; if (from) u.name_from = from; else delete u.name_from; afterEdit(); }
   // the labeler names a group or combined field the way it names a field in Add (`field_add.labeler_name`): one call
   // with the page's words, the box (the hull of the unit's boxes on its first page) and, for a group, the captions
+  // requests in flight per unit (2026-10-14: a redraw, e.g. picking 'any of', reset the button while the call ran)
+  const busy = {};
+  const busyOn = (u, k) => !!(busy[u.uid] || {})[k];
+  function setBusy(u, k, on) { busy[u.uid] = {...(busy[u.uid] || {}), [k]: on}; }
   async function askLabeler(u, el) {
     const first = firstItem(u), its = u.items.map(item).filter(it => it.page === first.page);
     const rect = [Math.min(...its.map(i => i.rect[0])), Math.min(...its.map(i => i.rect[1])), Math.max(...its.map(i => i.rect[2])), Math.max(...its.map(i => i.rect[3]))];
     const proposal = isText(u) ? {kind: 'text', page: first.page, rect}
       : isGroup(u) ? {kind: 'group', page: first.page, rect, options: u.items.map(id => ({key: String(item(id).key ?? item(id).field), caption: item(id).caption || null}))}
       : {kind: 'option', page: first.page, rect, widget: {path: first.path}};
-    el.disabled = true; el.textContent = 'asking…';
+    el.disabled = true; el.textContent = 'asking…'; setBusy(u, 'label', true);
     try {
-      const r = await send('POST', mapi('add', '/labeler'), {proposal});
+      const r = await send('POST', mapi('add', '/labeler'), {proposal, from: 'groups'});
+      setBusy(u, 'label', false);
       if (r.name) { rename(u.uid, uniqueName(r.name, u), 'labeler'); note(`${r.model}: ${r.name}`); }
-      else { note('the labeler returned no name'); el.disabled = false; el.textContent = 'ask the labeler'; }
-    } catch (e) { note('labeler failed: ' + e.message); el.disabled = false; el.textContent = 'ask the labeler'; }
+      else note('the labeler returned no name');
+    } catch (e) { setBusy(u, 'label', false); note('labeler failed: ' + e.message); }
+  }
+  // "re-read captions" (Andrew, 2026-10-13): the page's best caption per box for this group's name and keys; kept
+  // with the unit and written when the grouping is applied
+  async function rereadCaptions(u, el) {
+    el.disabled = true; el.textContent = 'reading…'; setBusy(u, 'caps', true);
+    try {
+      const r = await send('POST', mapi('groups', '/captions'), {name: u.name, items: u.items});
+      setBusy(u, 'caps', false);
+      const caps = Object.fromEntries(Object.entries(r.captions).filter(([, c]) => c.caption && !c.locked && c.caption !== c.current).map(([id, c]) => [id, c.caption]));
+      const kept = Object.values(r.captions).filter(c => c.locked).length;
+      if (!Object.keys(caps).length) { note(`captions: nothing better on the page${kept ? ` (${kept} locked)` : ''}`); return; }
+      snapshot(); u.captions = {...(u.captions || {}), ...caps};
+      const src = (Object.values(r.captions)[0] || {}).source;
+      note(`captions: ${Object.keys(caps).length} re-read${src ? ' by ' + src : ''}${kept ? `, ${kept} locked kept` : ''}`);
+      afterEdit();
+    } catch (e) { setBusy(u, 'caps', false); note('captions failed: ' + e.message); }
+  }
+  // merge a group into another on any page (Andrew, 2026-10-14: I-485 item 56 runs from page 18 onto page 19); the
+  // boxes keep their order, the other group's name and type stand
+  function mergeInto(u, uid) {
+    const t = unitByUid(uid); if (!t || t === u) return;
+    snapshot();
+    t.items.push(...u.items); t.confirmed = false;
+    if (u.captions) t.captions = {...(t.captions || {}), ...u.captions};
+    units = units.filter(x => x !== u); selected = t.uid;
+    note(`${u.name} merged into ${t.name} (${t.items.length} boxes)`);
+    afterEdit();
   }
   function setDesc(uid, d) { const u = unitByUid(uid); if (!u || (u.description || '') === d) return; snapshot(); u.description = d; afterEdit(); }
   function setType(uid, type) { const u = unitByUid(uid); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(); }
@@ -1219,9 +1391,11 @@ MODE.groups = (() => {
             : `<div class="help">A loose box: a ${esc(item(u.items[0]).widget_type)} field of its own${item(u.items[0]).appearances ? `, drawn in ${item(u.items[0]).appearances} places` : ''}. Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</div>`;
     return `<div class="gcur">
       <h2>${group ? `Group of ${u.items.length}` : 'Loose box'} ${badge(u)}</h2>
-      <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${u.locked ? '' : ' <button class="btn" id="gLabel" title="one call to the labeler with the words on this page">ask the labeler</button>'}${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}${was}
+      <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${u.locked ? '' : ` <button class="btn" id="gLabel" title="one call to the labeler with the words on this page" ${busyOn(u, 'label') ? 'disabled' : ''}>${busyOn(u, 'label') ? 'asking…' : 'ask the labeler'}</button>`}${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}${was}
       ${bad ? `<div class="warn">${bad}</div>` : ''}
       ${what}${group ? `<ol>${items}</ol>` : ''}
+      ${group && !u.locked ? `<div class="row"><select id="gMergeTo" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"><option value="">merge into another group…</option>${optUnits().filter(x => x !== u && isGroup(x) && !x.locked).map(x => `<option value="${x.uid}">${esc(x.name)} (${x.items.length}, p${[...new Set(x.items.map(i => item(i).page))].join(',')})</option>`).join('')}</select></div>` : ''}
+      ${group && !u.locked ? `<div class="row"><button class="btn" id="gCaps" title="read each box's printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF's form data or set by hand stay" ${busyOn(u, 'caps') ? 'disabled' : ''}>${busyOn(u, 'caps') ? 'reading…' : 're-read captions'}</button></div>` : ''}
       <div class="row">
         <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right' : 'stands alone')}</button>
         ${b && status(u) !== 'as blueprint' ? '<button class="btn" id="gRevert" title="put this unit back as the blueprint has it">back to blueprint</button>' : ''}
@@ -1263,6 +1437,8 @@ MODE.groups = (() => {
       const c = $('#gConfirm'); if (c) c.onclick = () => confirmUnit(u.uid);
       const rv = $('#gRevert'); if (rv) rv.onclick = () => revert(u);
       const sp = $('#gSplit'); if (sp) sp.onclick = () => separate(u);
+      const gc = $('#gCaps'); if (gc) gc.onclick = () => rereadCaptions(u, gc);
+      const gm = $('#gMergeTo'); if (gm) { gm.addEventListener('keydown', e => e.stopPropagation()); gm.onchange = () => mergeInto(u, Number(gm.value)); }
     }
     document.querySelectorAll('.gcard').forEach(card => {
       const uid = Number(card.dataset.unit);
@@ -1283,23 +1459,35 @@ MODE.groups = (() => {
   function renderChanges() {
     const el = $('#gChanges'); if (!el || !PLAN) return;
     const errs = PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join(''), ch = PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('');
-    el.innerHTML = `<h4>What applying would change in the blueprint (${PLAN.changes.length})</h4>
-      ${errs || ch ? `<ul>${errs}${ch}</ul>` : '<p class="help">nothing: the grouping is the blueprint\'s</p>'}
-      ${PLAN.changes.length ? `<button class="btn ok" id="gApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to blueprint</button>` : ''}
-      <div class="help">Edits are saved as a record; Review shows them once they are applied (the button, or
-        <code>PYTHONPATH=. venv/bin/python -m petey.validate.group_review --apply ${esc(bid)}</code>).</div>`;
+    el.innerHTML = `<h4>What applying would change in the working copy (${PLAN.changes.length})</h4>
+      ${errs || ch ? `<ul>${errs}${ch}</ul>` : '<p class="help">nothing: the grouping is the working copy\'s</p>'}
+      ${PLAN.changes.length ? `<button class="btn ok" id="gApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to working copy</button>` : ''}
+      <div class="help">The regrouping goes into the working copy when you leave Groups (another mode or form, or
+        "save blueprint"), or now with the button; "save blueprint" in the header writes the blueprint.</div>`;
     const b = $('#gApply'); if (b) b.onclick = applyPlan;
   }
   async function applyPlan() {
-    if (!confirm(`Write ${PLAN.changes.length} change(s) into ${BP.path}?`)) return;
     clearTimeout(planTimer);
     await save();                          // apply reads the saved record, so it must hold the last edit
     let out;
     try { out = await send('POST', mapi('groups', '/apply')); }
     catch (e) { alert('Apply failed: ' + e.message); return; }
-    LIST = await j('/api/blueprints'); renderPicker();
+    updateEntry(out.entry);
     await loadMode();
-    toast(`Applied ${out.changes.length} change(s) to the blueprint; Review now shows them.`);
+    toast(`${out.changes.length} change(s) went into the working copy.`);
+  }
+  // leaving Groups (another mode, another form, the header's save): the regrouping goes into the working copy when it
+  // plans cleanly, so the other modes read it; with errors it stays recorded, and save refuses until they are fixed
+  async function leave() {
+    if (!BP || !undoStack.length && !(PLAN && PLAN.changes.length)) return;
+    clearTimeout(planTimer);
+    await save();
+    let pl;
+    try { pl = await send('POST', mapi('groups', '/plan'), {units: units.map(({uid, ...u}) => u)}); } catch (e) { return; }
+    if (!pl.changes.length) return;
+    if (pl.errors.length) { toast(`Groups not applied: ${pl.errors.length} error(s) to fix first.`); return; }
+    try { const out = await send('POST', mapi('groups', '/apply')); updateEntry(out.entry); toast(`Groups: ${out.changes.length} change(s) went into the working copy.`); }
+    catch (e) { toast('Groups not applied: ' + e.message); }
   }
   function progress() {
     const el = $('#progress'); if (!el || !BP) return;
@@ -1309,7 +1497,7 @@ MODE.groups = (() => {
     // the apply button in the bar as well as under the change list (2026-10-13: saved groups that never reached the
     // blueprint, because the only button sat at the bottom of the sidebar)
     if (PLAN && PLAN.changes.length) {
-      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="gApplyBar" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : 'title="write the saved grouping into the blueprint; Review shows it after"'}>apply ${PLAN.changes.length} change${PLAN.changes.length === 1 ? '' : 's'} to blueprint</button>`);
+      el.insertAdjacentHTML('beforeend', ` <button class="btn ok" id="gApplyBar" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : 'title="put the regrouping into the working copy now (leaving Groups does it too)"'}>apply ${PLAN.changes.length} change${PLAN.changes.length === 1 ? '' : 's'} to working copy</button>`);
       $('#gApplyBar').onclick = applyPlan;
     }
   }
@@ -1387,7 +1575,7 @@ MODE.groups = (() => {
       for (const u of units.filter(x => isText(x) && onPage(x))) placeUnit(u);
       for (const it of looseText()) placeItem(it, null, 'var(--txt)', false);
     },
-    panel, progress,
+    panel, progress, leave,
     mousedown(e) {
       if (e.button !== 0 || !(e.shiftKey || e.target === $('#canvas'))) return;
       e.preventDefault(); areaStart = gpt(e); areaAdd = e.shiftKey;
@@ -1453,7 +1641,7 @@ MODE.add = (() => {
     const f = (BP.field_specs || {})[picked] || {}, gone = isRemoved(picked);
     return `<div class="acard"><h3>${f.x_petey_id ? `<code class="fid">${esc(f.x_petey_id)}</code> ` : ''}${esc(picked)} <span class="help">· a field of the blueprint</span></h3>
       <div class="help">${esc(f.type || '')}${f.semantic_type ? '/' + esc(f.semantic_type) : ''}${f.description ? ' · ' + esc(f.description) : ''}</div>
-      ${gone ? `<div class="rbanner">to be removed from the blueprint</div>` : ''}
+      ${gone ? `<div class="rbanner">recorded for removal, not removed yet (see the list below)</div>` : ''}
       <div class="arow">${gone ? '<button class="btn" id="aKeep">keep it</button>' : '<button class="btn warn" id="aRemove">remove this field</button>'}
         <button class="btn" id="cancel">close</button></div></div>`;
   }
@@ -1584,8 +1772,19 @@ MODE.add = (() => {
     props = []; notes = []; save().then(() => gotoSuggestion(1));
   }
   function cancel() { props = []; notes = []; picked = null; placeAll(); panel(); }
+  // a save goes into the working copy when it plans cleanly: added fields become fields, removed ones go, and the
+  // page reads the copy again (the suggestions follow)
   async function save() {
-    try { PLAN = await send('PUT', mapi('add', '/record'), {added, dismissed, removed}); BP.stale = false; updateEntry(PLAN.entry); }
+    try {
+      PLAN = await send('PUT', mapi('add', '/record'), {added, dismissed, removed}); BP.stale = false; updateEntry(PLAN.entry);
+      if (PLAN.applied && PLAN.applied.length) {
+        const d = await j(mapi('add')); BP = d; added = d.added; dismissed = d.dismissed; removed = d.removed || [];
+        if (picked && !(BP.field_specs || {})[picked]) picked = null;
+        await syncSha(); renderPages();
+        toast(PLAN.applied.length === 1 ? `Working copy: ${PLAN.applied[0]}` : `${PLAN.applied.length} changes went into the working copy.`);
+      }
+      if (PLAN.apply_error) notes = ['not applied: ' + PLAN.apply_error];
+    }
     catch (e) { alert('Save failed: ' + e.message); }
     placeAll(); panel();
   }
@@ -1598,22 +1797,13 @@ MODE.add = (() => {
   function renderChanges() {
     const el = $('#aChanges'); if (!el) return;
     if (!PLAN || (!added.length && !removed.length)) { el.innerHTML = ''; return; }
-    el.innerHTML = `<h4>What applying would change in the blueprint</h4><ul>
-      ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${PLAN.skipped.map(e => `<li class="help">skip ${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
-      ${PLAN.changes.length ? `<button class="btn ok" id="aApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to blueprint</button>` : ''}
-      <div class="help">Saved as a record; the button writes it into the blueprint (the same as
-        <code>PYTHONPATH=. venv/bin/python -m petey.validate.field_add --apply ${esc(bid)}</code>).</div>`;
+    el.innerHTML = `<h4>Not in the working copy yet</h4><ul>
+      ${PLAN.errors.map(e => `<li class="err">${esc(e)}</li>`).join('')}${(PLAN.skipped || []).map(e => `<li class="help">skip ${esc(e)}</li>`).join('')}${PLAN.changes.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+      ${PLAN.changes.length ? `<button class="btn ok" id="aApply" ${PLAN.errors.length ? 'disabled title="fix the errors first"' : ''}>apply to working copy</button>` : ''}
+      <div class="help">Additions and removals go into the working copy as they are saved, unless something above stops them.</div>`;
     const b = $('#aApply'); if (b) b.onclick = applyAdds;
   }
-  async function applyAdds() {
-    if (!confirm(`Write ${PLAN.changes.length} change(s) into ${BP.path}?`)) return;
-    let out;
-    try { out = await send('POST', mapi('add', '/apply')); }
-    catch (e) { alert('Apply failed: ' + e.message); return; }
-    LIST = await j('/api/blueprints'); renderPicker();
-    await loadMode();
-    toast(`Applied ${out.changes.length} change(s) to the blueprint.`);
-  }
+  async function applyAdds() { await save(); }
   function progress() { const el = $('#progress'); if (el && BP) el.innerHTML = `<b>${added.length}</b> to add · <b>${removed.length}</b> to remove · <b>${dismissed.length}</b> not fields · <b>${remaining().length}</b> suggestions left`; }
   const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
   return {

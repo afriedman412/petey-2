@@ -31,7 +31,8 @@ The page only records (`runs/field_add/<id>.json`: fields added, suggestions dis
 the hand review and the group review. `--apply` inserts the added fields in reading order (after the field that
 precedes each on the page), each marked `x_petey_added` (where its geometry, caption and name came from) with
 `label_source` as the flat labeler writes it, and `needs_review` on placeholder names. Blueprints offered are the
-hand review's.
+hand review's. Since 2026-10-13 the review page applies each save to its working copy of the blueprint at once
+(`draft.py`), and `--apply` writes that copy while it is open.
 """
 from __future__ import annotations
 
@@ -54,7 +55,7 @@ from petey.semantic_types import enrich_field, registered_names
 from petey.synth.boxes import CACHE_DIR as BOX_CACHE, FINDER_VERSION, find_boxes, overlap
 from petey.synth.classify import classify_form
 from petey.validate import field_ids
-from petey.validate.hand_review import _load, _sha, blueprint_paths
+from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "field_add"
@@ -568,8 +569,9 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
     return {"proposals": out, "notes": notes}
 
 
-def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL) -> Optional[str]:
-    """One call to the AcroForm labeler for this proposal, with the page's printed words."""
+def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL, think: bool = True) -> Optional[str]:
+    """One call to the AcroForm labeler for this proposal, with the page's printed words. `think=False`: Groups'
+    button, without the model's hidden thinking (a few seconds instead of eight)."""
     entry = {"id": 1, "page": p["page"], "rect": p["rect"],
              "widget_type": {"text": "text", "option": "checkbox", "group": "radiobutton"}[p["kind"]]}
     if p["kind"] == "group":
@@ -583,7 +585,7 @@ def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL) -> Optional[st
     finally:
         doc.close()
     auto_label.CALL_TAG = f"field_add/{ctx.path.stem}"
-    got = auto_label.label_page_via_llm([entry], words, model=model)
+    got = auto_label.label_page_via_llm([entry], words, model=model, think=think)
     n = _slug((got.get(1) or "").replace(".", "_"))
     return n or None
 
@@ -697,7 +699,8 @@ def plan(bp: dict, added: list[dict], removed: list[dict] = ()) -> dict:
 
 
 def apply(bid: str) -> dict:
-    p = blueprint_paths()[bid]
+    """Write the record's additions and removals into the blueprint (its working copy while one is open, `draft.py`)."""
+    p = working_path(bid)
     bp = _load(p)
     rec = load_record(bid)
     added, removed = rec.get("added") or [], rec.get("removed") or []
@@ -734,7 +737,7 @@ class State:
         self._ctx: dict[str, Context] = {}
 
     def ctx(self, bid: str) -> Context:
-        p = self.paths[bid]
+        p = working_path(bid, self.paths)
         c = self._ctx.get(bid)
         if c is None or c.sha != _sha(p):
             c = self._ctx[bid] = Context(bid, p)
@@ -756,7 +759,7 @@ class State:
         gone = [r for r in (rec.get("removed") or []) + (rec.get("removed_applied") or []) if r.get("rect")]
         sugg = [x for x in c.suggestions()                  # a removed field's box is not a missing field
                 if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in gone)]
-        return {"id": bid, "path": str(c.path), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
+        return {"id": bid, "path": str(self.paths[bid]), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
                 "pages": c.pages, "fields": c.fields, "suggestions": sugg,
                 "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description", "x_petey_id") if v.get(x)}
                                 for k, v in (c.bp.get("fields") or {}).items() if isinstance(v, dict)},
@@ -787,7 +790,7 @@ class State:
     def save(self, bid: str, body: dict) -> dict:
         c = self.ctx(bid)
         rec = load_record(bid)
-        rec.update({"blueprint": str(c.path), "form": c.path.stem, "blueprint_sha": c.sha,
+        rec.update({"blueprint": str(self.paths[bid]), "form": c.path.stem, "blueprint_sha": c.sha,
                     "updated": time.strftime("%Y-%m-%d %H:%M:%S")})
         for k in ("added", "dismissed", "removed"):          # only what the caller sent: Review sends removals only
             if k in body:
@@ -804,7 +807,7 @@ def summary() -> None:
     n = 0
     for rp in sorted(OUT.glob("*.json")):
         rec = json.loads(rp.read_text(encoding="utf-8"))
-        p = paths.get(rp.stem)
+        p = working_path(rp.stem, paths)
         if p is None:
             continue
         stale = rec.get("blueprint_sha") != _sha(p)
@@ -835,7 +838,7 @@ def main() -> int:
             apply(bid)
             return 0
         rec = load_record(bid)
-        pl = plan(_load(blueprint_paths()[bid]), rec.get("added") or [], rec.get("removed") or [])
+        pl = plan(_load(working_path(bid)), rec.get("added") or [], rec.get("removed") or [])
         for c in pl["changes"] or ["nothing to add"]:
             print(f"  {c}")
         for s in pl["skipped"]:
