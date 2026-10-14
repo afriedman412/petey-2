@@ -108,6 +108,30 @@ def _key(spec: dict) -> str:
 
 # ------------------------------------------------------------------- publisher and page (blueprint + blank only)
 
+def _by_file(fn):
+    """Memo for a function of files that do not change while a page is open (the blank PDF, a run directory): keyed
+    by each path and its modification time, so an edited file is read again. Callers treat the result as read-only.
+    (2026-10-14: a change in Groups re-ran every witness on CMS-855A, 3.5 s, half of it re-reading the blank.)"""
+    memo: dict = {}
+
+    def stamp(a):
+        if isinstance(a, (str, Path)):
+            try:
+                return (str(a), Path(a).stat().st_mtime)
+            except OSError:
+                return (str(a), None)
+        return a
+
+    @functools.wraps(fn)
+    def wrapper(*args):
+        key = tuple(stamp(a) for a in args)
+        if key not in memo:
+            memo[key] = fn(*args)
+        return memo[key]
+    return wrapper
+
+
+@_by_file
 def publisher_words(blank: Path) -> dict[str, list[str]]:
     """`{path: [tooltip, xfa caption, xfa tooltip]}`: what the publisher says each widget is."""
     out: dict[str, list[str]] = collections.defaultdict(list)
@@ -432,6 +456,7 @@ def _xfa_parent(path: str) -> str:
     return path.rsplit(".", 1)[0] if "[" in path and "." in path else ""
 
 
+@_by_file
 def section_rules(blank: Path) -> dict[int, list[float]]:
     """`{page: [y]}`: the lines a form draws between sections: horizontal, across a good part of the page, and
     heavier than the page's usual line (ACORD 140: 0.96 / 0.72 section, 0.48 row, 0.24 cell; docs/TODO.md,
@@ -618,6 +643,7 @@ def grouping_witnesses(fields: dict, by_page: dict[int, list[dict]]) -> dict[str
     return out
 
 
+@_by_file
 def class_map_boxes(blank: Optional[Path], run_dir: Optional[Path]) -> dict[int, list[dict]]:
     """The classifier's boxes by page: the run's class map, else the cached one for the blank (never a new call)."""
     boxes = None
@@ -716,6 +742,7 @@ def _judge_rows(case_dir: Path) -> dict[str, dict]:
     return {}
 
 
+@_by_file
 def run_witnesses(run_dir: Path, blank: Optional[Path]) -> dict[str, dict]:
     """`{field key: {judge, classifier, structure, verified, run_name}}` from one run, keyed by widget path."""
     rbp = _load(run_dir / "blueprint.bpt") if (run_dir / "blueprint.bpt").exists() else {}

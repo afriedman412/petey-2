@@ -25,6 +25,10 @@ SUFFIX = [(r"_ind$", ("boolean",), "an indicator (yes/no)"), (r"_dt$", ("date",)
           (r"_amt$", ("number", "integer"), "an amount"), (r"_(cnt|count)$", ("integer", "number"), "a count")]
 
 
+from petey.validate.witness import _by_file  # noqa: E402  (memo per blank)
+
+
+@_by_file
 def text_maxlens(blank: Optional[Path]) -> dict[str, int]:
     """{path: MaxLen} for the blank's text widgets (0 when unset)."""
     if not blank or not Path(blank).exists():
