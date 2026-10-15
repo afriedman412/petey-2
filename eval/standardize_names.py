@@ -26,6 +26,11 @@ What it does, in order, per field (option groups keep their names: a group is na
 A rename that would collide with another field is skipped and listed.
 
     PYTHONPATH=. venv/bin/python eval/standardize_names.py lib__i130 lib__acord125 ...   [--all-validated]
+
+`--apply` (2026-10-15, the next tranche: Andrew reviews the standardized names, so they go in before the page check)
+writes the renames into the review page's working copy instead (`draft`), each a correction by Claude
+(`x_petey_hand_edit` {by: claude, kind: name, why}), still skipping clashes; the copy under runs/standardized/ is
+written too.
 """
 from __future__ import annotations
 
@@ -299,7 +304,36 @@ def zero_based(names: list[str]) -> dict[str, str]:
     return out
 
 
-def run(bid: str) -> dict:
+def apply(bid: str, ren: dict, why: dict) -> int:
+    """The renames into the working copy as Claude's corrections; returns how many were written."""
+    import time
+    from petey.validate import draft
+    if not ren:
+        return 0
+    p = draft.ensure(bid, h.blueprint_paths()[bid])
+    bp = h._load(p)
+    fields = bp["fields"]
+    clean = {n: e for n, e in ((n, h.clean_edit(n, fields[n], {"name": new})) for n, new in ren.items() if n in fields) if e}
+    before = h._sha(p)
+    extra = {n: {"kind": "name", "why": "naming standard: " + "; ".join(why.get(n) or [])} for n in clean}
+    bp["fields"] = h.edit_fields(fields, clean, {n: ren[n] for n in clean}, time.strftime("%Y-%m-%d %H:%M:%S"),
+                                 "eval/standardize_names.py", by="claude", extra=extra)
+    p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
+    draft.follow(bid, before, h._sha(p))
+    vp = h.verdict_path(bid)                     # the person's verdicts follow the rename
+    if vp.exists():
+        rec = json.loads(vp.read_text())
+        vs = rec.get("verdicts") or {}
+        for n in clean:
+            if n in vs:
+                vs[ren[n]] = vs.pop(n)
+        rec["verdicts"] = vs
+        vp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+    draft.log(bid, "claude", [f"{n} -> {ren[n]}: {extra[n]['why']}" for n in clean])
+    return len(clean)
+
+
+def run(bid: str, write: bool = False) -> dict:
     p = h.working_path(bid)
     bp = h._load(p)
     fields = bp.get("fields") or {}
@@ -324,6 +358,7 @@ def run(bid: str) -> dict:
     clash = {n for n in ren if target[ren[n]] > 1}
     for n in clash:
         ren.pop(n)
+    applied = apply(bid, ren, why) if write else 0
     out_fields = {ren.get(n, n): s for n, s in fields.items()}
     bp["fields"] = out_fields
     bp["x_petey_standardized"] = ren
@@ -333,7 +368,7 @@ def run(bid: str) -> dict:
     plain = [n for n, s in out_fields.items() if isinstance(s, dict) and not _is_group(s)]
     unplaced = [n for n in plain if not has_suffix(n)]
     before = [n for n, s in fields.items() if isinstance(s, dict) and not _is_group(s)]
-    return {"bid": bid, "fields": len(fields), "renamed": len(ren), "clashes": sorted(clash), "unplaced": unplaced,
+    return {"bid": bid, "fields": len(fields), "renamed": len(ren), "applied": applied, "clashes": sorted(clash), "unplaced": unplaced,
             "suffix_ok_before": sum(1 for n in before if has_suffix(n)), "plain": len(before),
             "suffix_ok_after": len(plain) - len(unplaced), "renames": {k: [v, why.get(k)] for k, v in ren.items()}}
 
@@ -342,10 +377,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("ids", nargs="*")
     ap.add_argument("--all-validated", action="store_true", help="the 19 forms validated on 2026-10-13/14")
+    ap.add_argument("--apply", action="store_true", help="write the renames into the review page's working copy")
     args = ap.parse_args()
     ids = args.ids + (list(json.loads((RUNS / "belongs_to" / "validated_forms_2026-10-14.json").read_text())["forms"])
                       if args.all_validated else [])
-    rows = [run(b) for b in ids]
+    rows = [run(b, args.apply) for b in ids]
     tot = collections.Counter()
     for r in rows:
         tot.update({k: r[k] for k in ("fields", "renamed", "plain", "suffix_ok_before", "suffix_ok_after")})
@@ -355,7 +391,7 @@ def main() -> int:
     print(f"total: {tot['renamed']} renamed of {tot['fields']} fields; non-group fields with a standard suffix "
           f"{tot['suffix_ok_before']}/{tot['plain']} ({tot['suffix_ok_before'] / max(1, tot['plain']):.0%}) -> "
           f"{tot['suffix_ok_after']}/{tot['plain']} ({tot['suffix_ok_after'] / max(1, tot['plain']):.0%}); {tot['clashes']} clashes")
-    (OUT / "report.json").write_text(json.dumps(rows, indent=1))
+    (OUT / ("applied_" + __import__("time").strftime("%Y-%m-%d") + ".json" if args.apply else "report.json")).write_text(json.dumps(rows, indent=1))
     return 0
 
 
