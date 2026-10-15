@@ -130,8 +130,12 @@ def field_rows(bp: dict) -> list[dict]:
         if not rects:
             continue
         rv = spec.get("x_petey_review") or {}
+        # a dropdown's entries, shown and corrected like a group's options (no boxes of their own)
+        choices = ([{"key": k, "caption": (o or {}).get("caption"), "stored": (o or {}).get("stored")}
+                    for k, o in spec["options"].items()] if isinstance(spec.get("options"), dict) and not spec.get("widgets") else [])
         rows.append({
             "name": name, "id": spec.get("x_petey_id"), "page": rects[0]["page"], "rects": rects, "options": options,
+            "choices": choices,
             "type": spec.get("type"), "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern"),
             "values": spec.get("values"), "description": spec.get("description"),
             "path": (spec.get("widget") or {}).get("path") or next(iter(spec.get("widgets", {}).values()), {}).get("path"),
@@ -515,7 +519,8 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
             out["pattern"] = pt
     # an option group's keys (what extraction returns) and captions (2026-10-07: captions the page reading got wrong
     # are fixed by hand): {key: {"key": new key, "caption": new caption, "" clears it}}, only what differs
-    ws = spec.get("widgets") if isinstance(spec.get("widgets"), dict) else {}
+    ws = spec.get("widgets") if isinstance(spec.get("widgets"), dict) else \
+        (spec.get("options") if isinstance(spec.get("options"), dict) else {})     # a dropdown's options (2026-10-14)
     if isinstance(edit.get("options"), dict) and ws:
         got = {}
         for k, o in edit["options"].items():
@@ -597,8 +602,9 @@ def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str,
                 if spec.get("type", "string") == "string" and pattern_for(spec.get("semantic_type")):
                     spec["pattern"] = pattern_for(spec.get("semantic_type"))
             if e.get("options"):
+                where = "widgets" if spec.get("widgets") else "options"          # a group's boxes, or a dropdown's entries
                 ws, renamed = {}, {}
-                for k, w in (spec.get("widgets") or {}).items():
+                for k, w in (spec.get(where) or {}).items():
                     o, w = e["options"].get(k) or {}, dict(w)
                     if "caption" in o:
                         if o["caption"]:
@@ -606,12 +612,14 @@ def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str,
                         else:
                             w.pop("caption", None)
                             w.pop("x_petey_caption_source", None)
+                    if where == "options" and o.get("key", k) != k and "stored" not in w:
+                        w["stored"] = k                 # a dropdown entry renamed: the PDF still stores the old value
                     ws[o.get("key", k)] = w
                     renamed[k] = o.get("key", k)
-                spec["widgets"] = ws
+                spec[where] = ws
                 if spec.get("values"):
                     spec["values"] = [renamed.get(x, x) for x in spec["values"]]
-                before["options"] = {k: (fields[n]["widgets"][k].get("caption")) for k in e["options"]}
+                before["options"] = {k: ((fields[n][where].get(k) or {}).get("caption")) for k in e["options"]}
             spec["x_petey_hand_edit"] = {"when": now, "from": before,
                                          "to": {"name": renames[n], "type": spec.get("type"),
                                                 "semantic_type": spec.get("semantic_type"), "pattern": spec.get("pattern"),

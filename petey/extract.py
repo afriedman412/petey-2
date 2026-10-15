@@ -566,6 +566,19 @@ def _ink_marked(doc, blank_doc, widget: dict) -> Optional[bool]:
         return None
 
 
+def _choice_key(field: dict, raw):
+    """A dropdown's stored value as its option key (2026-10-14): some lists store an index (CBP 7501: 0 = Afghanistan)
+    or a code shifted by a blank first entry (CRA NR4 box 11: code 1 stored as 2); the blueprint's `options` give each
+    key the value the PDF stores (`stored`, when it differs). A list box with several picks maps each."""
+    opts = field.get("options")
+    if not isinstance(opts, dict) or field.get("widgets") or raw is None:
+        return raw
+    back = {str(o.get("stored", k)): k for k, o in opts.items() if isinstance(o, dict)}
+    if isinstance(raw, (list, tuple)):
+        return [back.get(str(r).strip(), r) for r in raw]
+    return back.get(str(raw).strip(), raw)
+
+
 def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -> dict:
     """Extract every field from the input PDF using the blueprint.
 
@@ -671,6 +684,7 @@ def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -
             )
             path_counts[path] += 1
             dispatch_per_field[field_name] = path
+            raw = _choice_key(field, raw)
             values[field_name] = _coerce_typed(
                 raw, field.get("type", "string"),
                 allowed_values=field.get("values"),

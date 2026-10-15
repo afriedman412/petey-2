@@ -68,13 +68,14 @@ MULTISELECT_FLAG = 1 << 21
 def choices(w) -> tuple[list[str], dict[str, str]]:
     """A dropdown's choices as the values it stores (export strings), and the
     shown text where it differs: pymupdf returns (export, display) pairs on
-    some forms (I-765 state lists). Blank entries (a leading " ") dropped."""
+    some forms (I-765 state lists). Blank entries (a leading " ") and prompt entries ("Select one") dropped."""
     out: list[str] = []
     shown: dict[str, str] = {}
     for c in w.choice_values or []:
         exp, disp = (c[0], c[1]) if isinstance(c, (list, tuple)) and len(c) > 1 else (c, c)
         exp, disp = str(exp).strip(), str(disp).strip()
-        if exp and exp not in out:
+        from petey.label.xfa import is_blank_choice
+        if exp and exp not in out and not is_blank_choice(disp):    # a prompt entry ("Select one") is no choice
             out.append(exp)
             if disp and disp != exp:
                 shown[exp] = disp
