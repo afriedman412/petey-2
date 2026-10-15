@@ -66,9 +66,17 @@ def load_record(bid: str) -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def _is_xbox(spec: dict) -> bool:
+    """A yes / no box the publisher made a text field, to type an X in (2026-10-15, boat application: DAY / EVENING
+    beside the phone numbers): an option like a checkbox, read by its text (`extract`: an X is a selection)."""
+    w = spec.get("widget") or {}
+    return spec.get("type") == "boolean" and w.get("widget_type") == "text"
+
+
 def _is_orphan(spec: dict) -> bool:
     w = spec.get("widget") or {}
-    return (not spec.get("widgets") and spec.get("type") == "boolean" and w.get("widget_type") in OPTION_TYPES
+    return (not spec.get("widgets") and spec.get("type") == "boolean"
+            and (w.get("widget_type") in OPTION_TYPES or _is_xbox(spec))
             and bool(w.get("rect")) and w.get("page") is not None)
 
 
@@ -121,7 +129,7 @@ def text_items(bp: dict) -> dict[str, dict]:
     """Every field with one text widget, as an item that can be combined (`kind: text`, id = field name)."""
     out = {}
     for name, spec in (bp.get("fields") or {}).items():
-        if not isinstance(spec, dict) or spec.get("widgets"):
+        if not isinstance(spec, dict) or spec.get("widgets") or _is_xbox(spec):
             continue
         w = spec.get("widget") or {}
         if w.get("widget_type") == "text" and w.get("rect") and w.get("page"):
