@@ -8,6 +8,8 @@ records `x_petey_hand_edit` {by: claude, kind: type, why}:
     person_name   the leftover `person_name` semantic type is cleared (it is no longer assigned; it changed nothing)
     pattern       a string field whose semantic type has a registry pattern gets it (`semantic_types.pattern_for`)
     yes_no        loose Yes / No checkbox pairs become one group each (`yes_no_groups`)
+    row_groups    loose checkboxes on one row with no ruling line or item number between them become one group
+                  (`cell_groups.proposals`; tables of separate items are left alone), one-of (`category`)
 
 Checks, reported only:
 
@@ -34,6 +36,7 @@ from pathlib import Path
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cell_groups as cg  # noqa: E402
 import yes_no_groups as yn  # noqa: E402
 
 from petey.semantic_types import pattern_for, registered_names  # noqa: E402
@@ -41,7 +44,7 @@ from petey.validate import draft, field_add, group_review as g, hand_review as h
 from petey.validate.retype import resolve_blank  # noqa: E402
 
 CODEISH = re.compile(r"^(Y|N|YES|NO|[A-Z]{2,4}|\d+[a-zA-Z]?|[a-z]\d*|#20.*|\s*)$")
-FIXES = ("person_name", "pattern", "yes_no")
+FIXES = ("person_name", "pattern", "yes_no", "row_groups")
 CHECKS = ("unclaimed", "keys_inverted", "code_caption", "far_pages", "bad_semtype", "name_errors", "name_hints")
 
 
@@ -115,8 +118,10 @@ def run(bid: str, dry: bool) -> dict:
     blank = resolve_blank(bp)
     edits, extra = type_edits(bp.get("fields") or {})
     pairs = yn.pairs(bp, blank) if blank else []
+    rows = cg.proposals(bp, blank, {i for _, y, n in pairs for i in (y, n)}) if blank else []
     fixed = collections.Counter({"person_name": sum("semantic_type" in e for e in edits.values()),
-                                 "pattern": sum("pattern" in e for e in edits.values()), "yes_no": len(pairs)})
+                                 "pattern": sum("pattern" in e for e in edits.values()), "yes_no": len(pairs),
+                                 "row_groups": len(rows)})
     if not dry and edits:
         p = draft.ensure(bid, real)
         bp = h._load(p)
@@ -127,8 +132,8 @@ def run(bid: str, dry: bool) -> dict:
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
         draft.follow(bid, before, h._sha(p))
         draft.log(bid, "claude", [f"{n}: {extra[n]['why']}" for n in clean])
-    if not dry and pairs:
-        yn.run(bid, False, [])
+    if not dry and (pairs or rows):
+        yn.run(bid, False, rows)
     p = h.working_path(bid)
     c, lines = checks(bid, p, h._load(p), blank) if blank else (collections.Counter(), ["no blank"])
     return {"bid": bid, "fixed": dict(fixed), "checks": dict(c), "lines": lines}
