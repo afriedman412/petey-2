@@ -108,6 +108,23 @@
   aside > * { flex-shrink:0; }
   #sidegrip { width:6px; margin-left:-3px; cursor:col-resize; flex-shrink:0; z-index:7; }
   #sidegrip:hover, #sidegrip.drag { background:var(--accent-dim); }
+  /* the chat (form_chat.py): requests for batch edits to the open form; proposals ticked, then applied */
+  #chat { position:fixed; right:16px; bottom:16px; width:460px; height:62vh; display:flex; flex-direction:column; z-index:60;
+          background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:0 8px 30px rgba(0,0,0,.5); }
+  #chat[hidden] { display:none; }
+  #chat .chead { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); }
+  #chat .chead .help { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #chatLog { flex:1; overflow:auto; padding:10px; display:flex; flex-direction:column; gap:8px; font-size:13px; }
+  #chatLog .cq { align-self:flex-end; background:var(--accent-dim); border:1px solid var(--accent); border-radius:var(--r); padding:6px 9px; max-width:85%; white-space:pre-wrap; }
+  #chatLog .ca { background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r); padding:7px 9px; }
+  #chatLog .cprop { margin:6px 0 0; padding:0; list-style:none; }
+  #chatLog .cprop li { display:flex; gap:6px; align-items:flex-start; padding:3px 0; border-top:1px solid var(--border); }
+  #chatLog .cprop code { color:var(--text); }
+  #chatLog .cwhy { color:var(--text-dim); font-size:12px; }
+  #chatLog .cerr { color:var(--red); font-size:12px; margin-top:4px; }
+  #chatLog .cfoot { display:flex; gap:8px; align-items:center; margin-top:6px; color:var(--text-dim); font-size:12px; }
+  #chat .cin { display:flex; gap:6px; padding:8px; border-top:1px solid var(--border); }
+  #chat .cin textarea { flex:1; min-height:54px; resize:vertical; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:var(--r); padding:6px; font:inherit; }
   #toast { position:fixed; left:16px; bottom:16px; background:var(--surface-2); color:var(--text); border:1px solid var(--border); padding:7px 14px;
     border-radius:var(--r); font-size:12px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:10; }
   #toast.on { opacity:.97; }
@@ -253,6 +270,7 @@
   <span class="spacer"></span>
   <span class="ctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
+  <button class="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)">chat</button>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
 </header>
@@ -267,6 +285,11 @@
   <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
 </main>
 <div id="toast"></div>
+<div id="chat" hidden>
+  <div class="chead"><b>Chat</b><span class="help" id="chatForm"></span><button class="btn" id="chatClear" title="start a new conversation for this form">new</button><button class="btn" id="chatClose">close</button></div>
+  <div id="chatLog"></div>
+  <div class="cin"><textarea id="chatIn" placeholder="e.g. rename every _txt box in Part 3 to end in _nbr; group 12–15 as one question (Enter sends, Shift+Enter a new line)"></textarea><button class="btn primary" id="chatSend">send</button></div>
+</div>
 <script>
 // ======================================================================= shared: picker, modes, page, zoom, keys
 let LIST = [], bid = null, page = 1, zoom = 1.6, scale = 1, mode = 'review', shaSeen = null;
@@ -316,6 +339,10 @@ async function init() {
   $('#clashBtn').onclick = async () => { if (mode !== 'review') await setMode('review'); MODE.review.toggleClashes(); };
   $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
   $('#reboot').onclick = reboot;
+  $('#chatBtn').onclick = () => toggleChat(); $('#chatClose').onclick = () => toggleChat(false);
+  $('#chatClear').onclick = () => { if (bid) { delete CHAT[bid]; renderChat(); } };
+  $('#chatSend').onclick = sendChat;
+  $('#chatIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
   $('#helpBtn').onclick = e => { e.stopPropagation(); toggleHelp(); };
   document.addEventListener('click', e => { if (!$('#helpmenu').hidden && !$('#helpmenu').contains(e.target)) toggleHelp(false); });
   window.addEventListener('keydown', onKey);
@@ -419,6 +446,81 @@ async function openBlueprint(id) {
   bid = id; setHash(); renderDraft();
   $('#panel').innerHTML = '<p class="help">loading…</p>';
   await loadMode();
+  if (!$('#chat').hidden) renderChat();
+}
+
+// ---------------------------------------------------------------- chat (form_chat.py)
+// one conversation per form, kept in the page; each request is one Opus call that PROPOSES edits, the person ticks
+// and applies them (Andrew, 2026-10-15: "a chatbot so I can request bespoke batch edits for the current form")
+const CHAT = {};
+const chatState = () => CHAT[bid] || (CHAT[bid] = {history: [], turns: []});
+function toggleChat(on) {
+  const el = $('#chat'); el.hidden = on === undefined ? !el.hidden : !on;
+  if (!el.hidden) { renderChat(); $('#chatIn').focus(); }
+}
+function describeEdit(field, e) {
+  const parts = [];
+  if (e.name) parts.push(`→ <code>${esc(e.name)}</code>`);
+  if (e.type) parts.push(`type ${esc(e.type)}`);
+  if (e.semantic_type) parts.push(`semantic ${esc(e.semantic_type)}`);
+  if (e.pattern) parts.push(`pattern <code>${esc(e.pattern)}</code>`);
+  for (const [k, o] of Object.entries(e.options || {}))
+    parts.push(`option <code>${esc(k)}</code>${o.key ? ` → <code>${esc(o.key)}</code>` : ''}${'caption' in o ? ` "${esc(o.caption)}"` : ''}`);
+  return `<code>${esc(field)}</code> ${parts.join(', ')}`;
+}
+function chatItems(out) {
+  return [...out.edits.map((e, i) => ({k: 'e' + i, html: describeEdit(e.field, e.edit), why: e.why})),
+          ...out.groups.map((g, i) => ({k: 'g' + i, html: `group <code>${esc(g.name)}</code> (${g.type === 'multi_category' ? 'any of' : 'one of'}): ${g.fields.map(f => `<code>${esc(f)}</code>`).join(', ')}`, why: g.why})),
+          ...out.remove.map((r, i) => ({k: 'r' + i, html: `remove <code>${esc(r.field)}</code>`, why: r.why}))];
+}
+function renderChat() {
+  $('#chatForm').textContent = bid || 'no form open';
+  if (!bid) { $('#chatLog').innerHTML = '<p class="help">Open a form first.</p>'; return; }
+  const st = chatState();
+  $('#chatLog').innerHTML = st.turns.length ? st.turns.map((t, ti) => {
+    let a;
+    if (t.err) a = `<div class="ca"><div class="cerr">${esc(t.err)}</div></div>`;
+    else if (!t.out) a = '<div class="ca help">thinking…</div>';
+    else {
+      const items = chatItems(t.out);
+      const list = items.length ? `<ul class="cprop">${items.map(it => `<li><input type="checkbox" data-t="${ti}" data-k="${it.k}" ${t.picked.has(it.k) ? 'checked' : ''} ${t.applied ? 'disabled' : ''}><span>${it.html}${it.why ? `<div class="cwhy">${esc(it.why)}</div>` : ''}</span></li>`).join('')}</ul>` : '';
+      const errs = t.out.errors.length ? `<div class="cerr">left out: ${esc(t.out.errors.join('; '))}</div>` : '';
+      const res = t.result ? `<div class="cfoot">applied: ${t.result.changes.length} change(s)${t.result.errors.length ? ` · <span class="cerr">${esc(t.result.errors.join('; '))}</span>` : ''}</div>` : '';
+      const foot = items.length && !t.applied ? `<div class="cfoot"><button class="btn primary" data-apply="${ti}">apply ticked</button><span>$${t.out.cost_usd}</span></div>` : `<div class="cfoot"><span>$${t.out.cost_usd}</span></div>`;
+      a = `<div class="ca">${esc(t.out.reply)}${list}${errs}${res || foot}</div>`;
+    }
+    return `<div class="cq">${esc(t.req)}</div>${a}`;
+  }).join('') : '<p class="help">Ask for edits to this form in plain words. Each request is one call to Opus 5 with the pages and the field list; it proposes, nothing changes until you apply.</p>';
+  document.querySelectorAll('#chatLog input[data-k]').forEach(c => c.onchange = () => {
+    const t = st.turns[+c.dataset.t]; c.checked ? t.picked.add(c.dataset.k) : t.picked.delete(c.dataset.k);
+  });
+  document.querySelectorAll('#chatLog [data-apply]').forEach(b => b.onclick = () => applyChat(+b.dataset.apply, b));
+  $('#chatLog').scrollTop = $('#chatLog').scrollHeight;
+}
+async function sendChat() {
+  const text = $('#chatIn').value.trim(); if (!text || !bid) return;
+  const form = bid, st = chatState(), turn = {req: text};
+  st.history.push({role: 'user', content: text}); st.turns.push(turn); $('#chatIn').value = ''; renderChat();
+  try {
+    const out = await send('POST', mapi('review', '/chat'), {history: st.history});
+    turn.out = out; turn.picked = new Set(chatItems(out).map(it => it.k));
+    st.history.push({role: 'assistant', content: out.raw});
+  } catch (e) { turn.err = 'The request failed: ' + e.message; st.history.pop(); }
+  if (bid === form) renderChat();
+}
+async function applyChat(ti, btn) {
+  const t = chatState().turns[ti]; if (!t || t.applied) return;
+  const pick = (arr, p) => arr.filter((_, i) => t.picked.has(p + i));
+  const body = {edits: pick(t.out.edits, 'e'), groups: pick(t.out.groups, 'g'), remove: pick(t.out.remove, 'r')};
+  if (!body.edits.length && !body.groups.length && !body.remove.length) { toast('Nothing ticked.'); return; }
+  btn.disabled = true; btn.textContent = 'applying…';
+  try {
+    const out = await send('POST', mapi('review', '/chat_apply'), body);
+    t.applied = true; t.result = out; updateEntry(out.entry);
+    await loadMode();
+    toast(`Chat: ${out.changes.length} change(s) went into the working copy${out.errors.length ? `; ${out.errors.length} not applied` : ''}. Save as usual.`);
+  } catch (e) { btn.disabled = false; btn.textContent = 'apply ticked'; alert('Apply failed: ' + e.message); return; }
+  renderChat();
 }
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 4000); }
 // the blueprint file can change under the page (an --apply, a loop run): reload the mode in place when it does

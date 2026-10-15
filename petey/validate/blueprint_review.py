@@ -169,6 +169,34 @@ class App:
             out = hand_review.load_verdicts(bid)
         return {**out, **ap, "entry": self.entry(bid)}
 
+    def chat_apply(self, bid: str, body: dict) -> dict:
+        """The chat's ticked proposal (`form_chat`): edits and groups into the working copy, removals recorded in Add /
+        remove and applied as Review's remove button does."""
+        from petey.validate import form_chat
+        self.open_draft(bid)
+        out = form_chat.apply(bid, body.get("edits") or [], body.get("groups") or [])
+        ren = out.get("renamed") or {}
+        rem = [ren.get(r.get("field"), r.get("field")) for r in body.get("remove") or []]
+        if rem:
+            bp = hand_review._load(self.working(bid))
+            have = field_add.load_record(bid).get("removed") or []
+            new = []
+            for n in rem:
+                spec = (bp.get("fields") or {}).get(n)
+                if not isinstance(spec, dict) or any(r.get("name") == n for r in have):
+                    continue
+                w = spec.get("widget") or next(iter((spec.get("widgets") or {}).values()), {})
+                new.append({"name": n, "page": w.get("page"), "rect": w.get("rect"),
+                            "when": time.strftime("%Y-%m-%d %H:%M:%S"), "from": "chat"})
+            if new:
+                ad = self.save_add(bid, {"removed": have + new})
+                out["changes"] += [f"removed {r['name']}" for r in new] if ad.get("applied") else []
+                if ad.get("apply_error") or ad.get("errors"):
+                    out["errors"].append("removals recorded, not applied yet: "
+                                         + (ad.get("apply_error") or "; ".join(ad.get("errors") or [])))
+        self.refresh()
+        return {**out, "entry": self.entry(bid)}
+
     def save_add(self, bid: str, body: dict) -> dict:
         if body.get("added") or body.get("removed"):
             self.open_draft(bid)
@@ -366,6 +394,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("review", "agent"):          # "review edits": the flags with notes go to the agent
             from petey.validate import flag_agent
             return self._route(lambda: {"started": flag_agent.start(bid)}, bid)
+        if (mode, what) == ("review", "chat"):           # the chat's request: a proposal, nothing written (form_chat)
+            from petey.validate import form_chat
+            return self._route(lambda: form_chat.ask(bid, body.get("history") or []), bid)
+        if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
+            return self._route(lambda: APP.chat_apply(bid, body), bid)
         if (mode, what) == ("review", "captions"):       # "re-read captions" on a group, from Review (2026-10-15)
             return self._route(lambda: group_review.field_captions(hand_review.working_path(bid), body["name"]), bid)
         if (mode, what) == ("review", "agent_field"):    # "fix captions": one field, answered now, not stored
