@@ -48,7 +48,7 @@ from petey.validate import hand_review as h
 
 OUT = RUNS / "standardized"
 SUFFIXES = {"nm", "nbr", "ssn", "ein", "tin", "npi", "cd", "dt", "month", "day", "yr", "time", "amt", "cnt", "qty", "pct",
-            "ft", "miles", "hours", "bbl", "mcf", "ind", "txt", "signature", "initial", "itin", "ptin",
+            "ft", "miles", "hours", "days", "months", "years", "bbl", "mcf", "ind", "txt", "signature", "initial", "itin", "ptin",
             "rate", "factor"}             # rate / factor: provisional (2026-10-14, to confirm with Andrew)
 UNIT = [("apt", "ste", "flr", "number", "txt"), ("apt", "ste", "flr", "number"), ("apt", "suite", "no"), ("apt", "suite", "nbr"),
         ("apt", "no", "txt"), ("apt", "no"), ("apt", "nbr"), ("apt", "num"), ("unit", "number", "txt"), ("unit", "number"),
