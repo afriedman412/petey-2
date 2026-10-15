@@ -366,6 +366,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("review", "agent"):          # "review edits": the flags with notes go to the agent
             from petey.validate import flag_agent
             return self._route(lambda: {"started": flag_agent.start(bid)}, bid)
+        if (mode, what) == ("review", "captions"):       # "re-read captions" on a group, from Review (2026-10-15)
+            return self._route(lambda: group_review.field_captions(hand_review.working_path(bid), body["name"]), bid)
         if (mode, what) == ("review", "agent_field"):    # "fix captions": one field, answered now, not stored
             from petey.validate import flag_agent
             return self._route(lambda: flag_agent.propose_field(bid, body["name"], body.get("note") or ""), bid)

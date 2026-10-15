@@ -5,9 +5,13 @@ check), so those see a blueprint the rules have already cleaned.
 Fixes, written into the review page's working copy (`draft`), so Andrew checks and saves them as usual; each field
 records `x_petey_hand_edit` {by: claude, kind: type, why}:
 
+    group_type    a field holding several option boxes but typed boolean (or anything but category /
+                  multi_category) becomes category (2026-10-15: SSA-827, VA 21-0966)
     person_name   the leftover `person_name` semantic type is cleared (it is no longer assigned; it changed nothing)
     pattern       a string field whose semantic type has a registry pattern gets it (`semantic_types.pattern_for`)
     yes_no        loose Yes / No checkbox pairs become one group each (`yes_no_groups`)
+    dropdowns     dropdown entries as options {key: {caption, stored}}, the empty / prompt entry dropped
+                  (`dropdowns.options_into_working`; 2026-10-15: the passes after generation had not done it)
     row_groups    loose checkboxes on one row with no ruling line or item number between them become one group
                   (`cell_groups.proposals`; tables of separate items are left alone), one-of (`category`)
 
@@ -41,18 +45,24 @@ import yes_no_groups as yn  # noqa: E402
 
 from petey.semantic_types import pattern_for, registered_names  # noqa: E402
 from petey.validate import draft, field_add, group_review as g, hand_review as h, witness  # noqa: E402
+from petey.validate import dropdowns as dd  # noqa: E402
 from petey.validate.retype import resolve_blank  # noqa: E402
 
 CODEISH = re.compile(r"^(Y|N|YES|NO|[A-Z]{2,4}|\d+[a-zA-Z]?|[a-z]\d*|#20.*|\s*)$")
-FIXES = ("person_name", "pattern", "yes_no", "row_groups")
+FIXES = ("group_type", "person_name", "pattern", "yes_no", "row_groups", "dropdowns")
 CHECKS = ("unclaimed", "keys_inverted", "code_caption", "far_pages", "bad_semtype", "name_errors", "name_hints")
 
 
 def type_edits(fields: dict) -> tuple[dict, dict]:
-    """({field: edit}, {field: {kind, why}}) for the person_name and pattern fixes."""
+    """({field: edit}, {field: {kind, why}}) for the group type, person_name and pattern fixes."""
     edits, extra = {}, {}
     for n, s in fields.items():
         if not isinstance(s, dict):
+            continue
+        if len(s.get("widgets") or {}) > 1 and s.get("type") not in ("category", "multi_category"):
+            edits[n] = {"type": "category"}
+            extra[n] = {"kind": "type", "why": f"a group of {len(s['widgets'])} options is one of (category), not "
+                                               f"{s.get('type')}"}
             continue
         st = s.get("semantic_type")
         if st == "person_name":
@@ -119,9 +129,13 @@ def run(bid: str, dry: bool) -> dict:
     edits, extra = type_edits(bp.get("fields") or {})
     pairs = yn.pairs(bp, blank) if blank else []
     rows = cg.proposals(bp, blank, {i for _, y, n in pairs for i in (y, n)}) if blank else []
-    fixed = collections.Counter({"person_name": sum("semantic_type" in e for e in edits.values()),
+    fixed = collections.Counter({"group_type": sum("type" in e for e in edits.values()),
+                                 "person_name": sum("semantic_type" in e for e in edits.values()),
                                  "pattern": sum("pattern" in e for e in edits.values()), "yes_no": len(pairs),
-                                 "row_groups": len(rows)})
+                                 "row_groups": len(rows),
+                                 "dropdowns": sum(1 for sp in (bp.get("fields") or {}).values() if isinstance(sp, dict)
+                                                  and not sp.get("widgets") and sp.get("values") and not sp.get("options")
+                                                  and (sp.get("widget") or {}).get("widget_type") in dd.KINDS)})
     if not dry and edits:
         p = draft.ensure(bid, real)
         bp = h._load(p)
@@ -134,6 +148,8 @@ def run(bid: str, dry: bool) -> dict:
         draft.log(bid, "claude", [f"{n}: {extra[n]['why']}" for n in clean])
     if not dry and (pairs or rows):
         yn.run(bid, False, rows)
+    if not dry and fixed["dropdowns"]:
+        dd.options_into_working(bid)
     p = h.working_path(bid)
     c, lines = checks(bid, p, h._load(p), blank) if blank else (collections.Counter(), ["no blank"])
     return {"bid": bid, "fixed": dict(fixed), "checks": dict(c), "lines": lines}

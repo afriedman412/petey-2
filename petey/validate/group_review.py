@@ -99,7 +99,10 @@ def option_items(bp: dict) -> tuple[dict, list[dict]]:
                               "widget_type": w.get("widget_type")}
                 ids.append(iid)
             if ids:
-                units.append({"name": name, "type": spec.get("type") or "category", "items": ids, "origin": name,
+                t = spec.get("type")
+                if len(ids) > 1 and t not in ("category", "multi_category"):
+                    t = "category"               # a group is one of / any of (2026-10-15: SSA-827 had a boolean one)
+                units.append({"name": name, "type": t or "category", "items": ids, "origin": name,
                               "description": spec.get("description")})
         elif _is_orphan(spec) or _is_union(spec):
             w = spec["widget"]
@@ -165,7 +168,7 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
         while k in ws:
             k, n = f"{k}_{n}", n + 1
         ws[k], key_of[k] = block, iid
-    best, source = {}, "chooser"
+    best, source, answered = {}, "chooser", False
     if model:
         try:
             from petey.synth.generate import make_client
@@ -174,10 +177,10 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
                                      "Give every numbered option box its caption exactly as printed beside it "
                                      "(the whole label, not an abbreviation). Change nothing else.", "", {})
             best = {k: o.get("caption") for k, o in (got.get("options") or {}).items() if o.get("caption")}
-            source = flag_agent.MODEL
+            source, answered = flag_agent.MODEL, True    # no options back = the agent keeps the captions as they are
         except Exception:                               # no key, no network: the local chooser
             best = {}
-    if not best:
+    if not best and not answered:     # 2026-10-15: falling back after an answer let the chooser undo good captions
         words, lines = page_context(blank)
         best = {k: r.get("best") for k, r in choose(name, {"widgets": ws}, words, lines, publisher_words(blank)).items()}
         source = "chooser"
@@ -188,6 +191,22 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
         out[iid] = {"caption": w.get("caption") if locked else (best.get(k) or w.get("caption")),
                     "current": w.get("caption"), "locked": locked, "source": source}
     return out
+
+
+def field_captions(p: Path, name: str) -> dict:
+    """'re-read captions' for one group from the Review page (Andrew, 2026-10-15: available there as well as in
+    Groups): `suggest_captions` on the field's boxes; {"options": {key: {"caption"}}} for the captions that would
+    change (locked ones kept), filled into the option boxes for the person to save."""
+    from petey.validate.retype import resolve_blank
+    bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    spec = (bp.get("fields") or {}).get(name)
+    if not isinstance(spec, dict) or not spec.get("widgets"):
+        raise KeyError(name)
+    caps = suggest_captions(bp, resolve_blank(bp), name, [f"{name}::{k}" for k in spec["widgets"]])
+    opts = {iid.partition("::")[2]: {"caption": c["caption"]} for iid, c in caps.items()
+            if c.get("caption") and not c.get("locked") and c["caption"] != c.get("current")}
+    return {"options": opts, "locked": sum(1 for c in caps.values() if c.get("locked")),
+            "source": next((c.get("source") for c in caps.values()), None)}
 
 
 def _box(it: dict) -> str:
@@ -279,6 +298,8 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
     for u in units:
         if u.get("origin") in locked:
             u["locked"] = locked[u["origin"]]
+        if u.get("kind") != "text" and len(u["items"]) > 1 and u.get("type") not in ("category", "multi_category"):
+            u["type"] = "category"               # several options make a group: one of, unless set to any of
     units.sort(key=lambda u: _order_key(items, u))
     return items, units, info
 
@@ -361,7 +382,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
         elif u["name"] in fields and u["name"] not in option_fields:
             errors.append(f"{u['name']!r} is already the name of another field")
         if len(u["items"]) > 1 and u["type"] not in ("category", "multi_category"):
-            errors.append(f"{u['name']!r} groups {len(u['items'])} options but its type is {u['type']!r}")
+            u["type"] = "category"               # Andrew, 2026-10-15: groups are category or multi_category, always
         b = base_by_origin.get(u.get("origin"))
         if u.get("locked") and (b is None or _signature(u) != _signature(b)):
             errors.append(f"{u['name']!r} is a union box (old shape); run expand_options before regrouping it")

@@ -792,9 +792,12 @@ MODE.review = (() => {
   // "improve name" (Andrew, 2026-10-14): one call to the review agent with the box outlined on the page, its tooltip
   // and the naming conventions; the name it proposes goes into the name box, and the person saves
   const NAME_NOTE = 'Propose a better field name: snake_case, saying what the box holds (not an item or line number, '
-    + 'not a bare section label), taken from the tooltip and the text printed at the box. Follow the naming conventions: '
-    + '_nm names, _dt dates, _amt any number, _ind a single checkbox, _cd codes, _txt free text, _num identifiers; an '
-    + 'option group (one of / any of) is named for its question, with no suffix. Change nothing but the name.';
+    + 'not a bare section label), taken from the tooltip and the text printed at the box. Shape: description, then a '
+    + 'number when there are several (parent_1_nm, parent_2_nm), then the suffix: _nm any name, _nbr identifiers and '
+    + 'numbers, _dt dates, _amt money, _cnt or _qty counts, _pct percentages, _cd codes (state_cd), _ind a single '
+    + 'checkbox, _txt free text, _signature; parts of one value go after the suffix (birth_dt_month, phone_nbr_area). '
+    + 'Keep the form\'s own words for the description. An option group (one of / any of) is named for its question, with '
+    + 'no suffix. Change nothing but the name.';
   async function improveName(f, btn) {
     btn.disabled = true; btn.textContent = 'asking…';
     try {
@@ -804,6 +807,18 @@ MODE.review = (() => {
       else toast(`No better name proposed. ${out.reason || ''}`);
     } catch (e) { alert('The agent failed: ' + e.message); }
     btn.disabled = false; btn.textContent = 'improve name';
+  }
+  // "re-read captions" on a group, as in Groups (Andrew, 2026-10-15): the review agent reads each box's printed caption;
+  // the captions that would change fill the option boxes, and the person saves
+  async function rereadFieldCaptions(f, btn) {
+    btn.disabled = true; btn.textContent = 'reading…';
+    try {
+      const out = await send('POST', mapi('review', '/captions'), {name: f.name});
+      if (selected !== f.name) return;
+      const n = fillOptions(out.options);
+      toast(n ? `${n} caption(s) re-read${out.source ? ' by ' + out.source : ''}; check them and save.` : `Nothing better on the page${out.locked ? ` (${out.locked} locked)` : ''}.`);
+    } catch (e) { alert('Re-reading failed: ' + e.message); }
+    btn.disabled = false; btn.textContent = 're-read captions';
   }
   async function fixCaptions(f, btn) {
     btn.disabled = true; btn.textContent = 'asking…';
@@ -904,7 +919,7 @@ MODE.review = (() => {
         <datalist id="semList">${[...(BP.semantic_types || [])].sort().map(t => `<option>${esc(t)}</option>`).join('')}</datalist>
         <div class="frow"><button class="btn flag" id="vFix" disabled title="save the changed boxes as a correction: it goes into the working copy and the field is accepted">save correction</button>
           <button class="btn" id="vUndo" disabled title="put the boxes back as they were">undo changes</button>
-          <button class="btn" id="vImprove" title="ask the review agent for a name that says what the box holds (one call, a few seconds); it fills the name box, and you save">improve name</button>${saved}</div>
+          <button class="btn" id="vImprove" title="ask the review agent for a name that says what the box holds (one call, a few seconds); it fills the name box, and you save">improve name</button>${(f.options || []).length > 1 ? '<button class="btn" id="vCaps" title="read each box\'s printed caption again (one call to the review agent with the page image); captions from the PDF\'s form data or set by hand stay; it fills the option boxes, and you save">re-read captions</button>' : ''}${saved}</div>
       </div>
       ${f.claude ? `<div class="loop"><b>Claude's pass</b> (${esc(f.claude.kind)})${f.claude.from && f.claude.from !== f.name ? ` was <code>${esc(f.claude.from)}</code>` : ''}: ${esc(f.claude.why || '')}</div>` : ''}
       ${whyHtml(f)}${agentHtml(v)}${loop}${adj}
@@ -923,6 +938,7 @@ MODE.review = (() => {
     $('#fref').onclick = () => copyRef(f);
     bindFixes(f); bindAgent(v);
     const imp = $('#vImprove'); if (imp) imp.onclick = () => improveName(f, imp);
+    const vc = $('#vCaps'); if (vc) vc.onclick = () => rereadFieldCaptions(f, vc);
     // the option row of the box clicked on the page, and the other way round: a row focused or hovered lights its box
     for (const r of optRows()) {
       if (r.dataset.k === selOpt) { r.classList.add('osel'); r.scrollIntoView({block: 'nearest'}); }
