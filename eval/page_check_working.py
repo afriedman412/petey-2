@@ -14,12 +14,32 @@ import argparse
 import concurrent.futures as cf
 import json
 import sys
+import time
 import traceback
 
 import yaml
 
-from petey.paths import RUNS
 from petey.validate import draft, hand_review as h, page_check as pc
+
+
+def earlier_verdicts(p, bp: dict) -> dict[str, dict]:
+    """{field: verdict} still valid for the fields as they are (same name and definition), from every page-check
+    record of this file, the newest first: the stamped one, the pipeline's per-round ones, earlier versions
+    (2026-10-15: a merge that read only the stamped record's `fields` dropped f8825's page 1)."""
+    stem = pc.record_path(p, bp).name.rsplit("__", 1)[0]
+    recs = sorted(pc.OUT.glob(f"{stem}__*.json"), key=lambda q: q.stat().st_mtime)
+    table: dict = {}
+    for q in recs:                                   # oldest first, so a newer record's verdict wins
+        try:
+            table.update(pc.verdict_table(json.loads(q.read_text(encoding="utf-8"))))
+        except (OSError, ValueError):
+            continue
+    out = {}
+    for n, sp in (bp.get("fields") or {}).items():
+        v = table.get((n, pc.spec_hash(sp))) if isinstance(sp, dict) else None
+        if v:
+            out[n] = v
+    return out
 
 
 def one(bid: str, changed_only: bool) -> str:
@@ -29,20 +49,15 @@ def one(bid: str, changed_only: bool) -> str:
         res = pc.check(p)
     else:
         bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
-        st = bp.get("x_petey_page_check") or {}
-        rp = RUNS.parent / st["record"] if st.get("record") else None
-        if rp is None or not rp.exists():
-            res = pc.check(p)
-        else:
-            held = pc.verdicts(bp)
-            todo = {n for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict) and n not in held}
-            if not todo:
-                return f"{bid}: nothing changed since the check"
-            new = pc.check(p, only_names=todo)
-            old = json.loads(rp.read_text(encoding="utf-8"))
-            res = dict(new, fields={**{n: v for n, v in (old.get("fields") or {}).items() if n in held}, **new["fields"]},
-                       cost_usd=round((old.get("cost_usd") or 0) + (new.get("cost_usd") or 0), 4),
-                       pages=sorted(set(old.get("pages") or []) | set(new.get("pages") or [])))
+        held = earlier_verdicts(p, bp)
+        todo = {n for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict) and n not in held}
+        if not todo and (bp.get("x_petey_page_check") or {}).get("fields") == len(held):
+            return f"{bid}: nothing changed since the check"
+        new = pc.check(p, only_names=todo) if todo else {"fields": {}, "cost_usd": 0.0, "pages": [], "model": pc.MODEL,
+                                                          "prompt": pc.PROMPT_VERSION, "blueprint": str(p),
+                                                          "when": time.strftime("%Y-%m-%d %H:%M:%S"), "usage": {}}
+        res = dict(new, fields={**held, **new["fields"]},
+                   pages=sorted({b["page"] for r in pc.numbered(bp) for b in r["boxes"]}))
     pc.save(res, p, stamp=True)
     draft.follow(bid, before, h._sha(p))
     fl = sum(1 for v in (res.get("fields") or {}).values() if v.get("verdict") == "flag")
