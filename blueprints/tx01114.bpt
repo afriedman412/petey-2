@@ -1,29 +1,28 @@
 bpt_version: '1.1'
 name: tx01114
-form_version: unknown
+form_version: null
 source_pdf: 01-114.pdf
 source_pdf_hash: d1ec3b5403811707d8eb955a2b5fc8ad4e91f71a
 source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:09:37'
 fields:
-  instructions_language_txt:
-    x_petey_id: '1_2'
-    type: string
-    semantic_type: text
-    widget:
-      page: 1
-      rect:
-      - 426.42999267578125
-      - 26.5980224609375
-      - 581.9910278320312
-      - 41.0159912109375
-      widget_type: text
-      path: Text1
-  instructions_language_txt_2:
+  instruction_language:
     x_petey_id: '1_1'
     type: category
+    values:
+    - instructions_in_english
+    - instrucciones_en_espanol
+    x_petey_choice_labels:
+      '0': Instructions in English
+      '1': Instrucciones en Español
     widget:
       page: 1
       rect:
@@ -33,18 +32,22 @@ fields:
       - 41.58197021484375
       widget_type: combobox
       path: Language
-    values:
-    - '0'
-    - '1'
-    x_petey_choice_labels:
-      '0': Instructions in English
-      '1': Instrucciones en Español
+    description: Language preference for pop-up instructions
+    x_petey_description_source: tooltip
+    label_source: llm
+    options:
+      instructions_in_english:
+        caption: Instructions in English
+        stored: '0'
+      instrucciones_en_espanol:
+        caption: Instrucciones en Español
+        stored: '1'
     x_petey_retype:
-    - dropdown
-  page_of_total_txt:
-    x_petey_id: '1_3'
-    type: string
-    semantic_type: text
+    - dropdown_options
+  total_pages_cnt:
+    x_petey_id: '1_2'
+    type: integer
+    semantic_type: count
     widget:
       page: 1
       rect:
@@ -56,12 +59,10 @@ fields:
       path: NoPages
     description: Total number of pages
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  taxpayer_number_txt:
-    x_petey_id: '1_4'
+    label_source: llm
+  taxpayer_number:
+    x_petey_id: '1_3'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -73,12 +74,10 @@ fields:
       path: TxprNo
     description: c. Taxpayer number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  filing_period_txt:
-    x_petey_id: '1_5'
+    label_source: llm
+  filing_period:
+    x_petey_id: '1_4'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -90,10 +89,9 @@ fields:
       path: Filing period
     description: d. Filing period
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
   due_dt:
-    x_petey_id: '1_6'
+    x_petey_id: '1_5'
     type: date
     semantic_type: iso_date
     widget:
@@ -105,12 +103,10 @@ fields:
       - 108.0
       widget_type: text
       path: Due date
-    x_petey_retype:
-    - pattern_dropped
-  taxpayer_name_mailing_address_txt:
-    x_petey_id: '1_8'
+    label_source: llm
+  taxpayer_name_and_mailing_address:
+    x_petey_id: '1_7'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -122,10 +118,9 @@ fields:
       path: Mail
     description: Taxpayer name and mailing address
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
   mailing_address_changed_ind:
-    x_petey_id: '1_7'
+    x_petey_id: '1_6'
     type: boolean
     semantic_type: indicator
     widget:
@@ -140,10 +135,9 @@ fields:
     description: Blacken this box if your mailing address has changed. Show changes
       by the preprinted information.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
   out_of_business_dt:
-    x_petey_id: '1_10'
+    x_petey_id: '1_9'
     type: date
     semantic_type: iso_date
     widget:
@@ -155,13 +149,11 @@ fields:
       - 164.0
       widget_type: text
       path: OOB date
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Out of business date
     x_petey_description_source: tooltip
-  no_longer_in_business_ind:
-    x_petey_id: '1_9'
+    label_source: llm
+  out_of_business_ind:
+    x_petey_id: '1_8'
     type: boolean
     semantic_type: indicator
     widget:
@@ -176,10 +168,9 @@ fields:
     description: Blacken this box if you are no longer in business. Write in the date
       you went out of business.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
   location_out_of_business_or_address_changed_ind:
-    x_petey_id: '1_11'
+    x_petey_id: '1_10'
     type: boolean
     semantic_type: indicator
     widget:
@@ -194,17 +185,44 @@ fields:
     description: Blacken this box if one of your locations is out of business or has
       changed its address.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  taking_credit_reduce_taxes_yes_ind:
-    x_petey_id: '1_12'
+    label_source: llm
+  taking_credit_bad_debt_ind:
+    x_petey_id: '1_11'
     type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 222.24600219726562
+        - 220.91998291015625
+        - 234.1320037841797
+        - 243.59698486328125
+        widget_type: checkbox
+        path: Item j
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 264.22601318359375
+        - 220.91998291015625
+        - 276.11199951171875
+        - 243.59698486328125
+        widget_type: checkbox
+        path: Item j
+        on_state: 'No'
+        caption: 'No'
     description: j. Are you taking credit to reduce taxes due on this return? If you
       are claiming bad debt credit to reduce your tax due, you must file electronically.
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
+  customs_broker_export_certificate_refund_ind:
+    x_petey_id: '1_13'
+    type: category
     values:
     - 'Yes'
     - 'No'
@@ -213,33 +231,32 @@ fields:
         page: 1
         rect:
         - 222.24600219726562
-        - 220.91998291015625
+        - 245.71002197265625
         - 234.1320037841797
-        - 243.59698486328125
+        - 268.38702392578125
         widget_type: checkbox
-        path: Item j
+        path: Item k
         on_state: 'Yes'
         caption: 'Yes'
       'No':
         page: 1
         rect:
         - 264.22601318359375
-        - 220.91998291015625
+        - 245.71002197265625
         - 276.11199951171875
-        - 243.59698486328125
+        - 268.38702392578125
         widget_type: checkbox
-        path: Item j
+        path: Item k
         on_state: 'No'
         caption: 'No'
-  refund_sales_tax_exported_yes_ind:
-    x_petey_id: '1_14'
-    type: category
     description: k. Did you refund sales tax for items exported outside the U.S. based
       on a Texas Licensed Customs Broker Export Certificate?
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
+  farm_raised_oysters_credit_ind:
+    x_petey_id: '1_14'
+    type: category
     values:
     - 'Yes'
     - 'No'
@@ -248,33 +265,32 @@ fields:
         page: 1
         rect:
         - 222.24600219726562
-        - 245.71002197265625
+        - 269.9520263671875
         - 234.1320037841797
-        - 268.38702392578125
+        - 292.6289978027344
         widget_type: checkbox
-        path: Item k
+        path: Item l
         on_state: 'Yes'
         caption: 'Yes'
       'No':
         page: 1
         rect:
         - 264.22601318359375
-        - 245.71002197265625
+        - 269.9520263671875
         - 276.11199951171875
-        - 268.38702392578125
+        - 292.6289978027344
         widget_type: checkbox
-        path: Item k
+        path: Item l
         on_state: 'No'
         caption: 'No'
-  taking_credit_reduce_taxable_sales_oysters_yes_ind:
-    x_petey_id: '1_15'
-    type: category
     description: l. Are you taking credit to reduce taxable sales on this return for
       the purchase of Texas farm-raised oysters?
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
+  oyster_shell_recycling_credit_ind:
+    x_petey_id: '1_16'
+    type: category
     values:
     - 'Yes'
     - 'No'
@@ -283,61 +299,31 @@ fields:
         page: 1
         rect:
         - 222.24600219726562
-        - 269.9520263671875
+        - 294.1789855957031
         - 234.1320037841797
-        - 292.6289978027344
+        - 316.8559875488281
         widget_type: checkbox
-        path: Item l
+        path: Item m
         on_state: 'Yes'
         caption: 'Yes'
       'No':
         page: 1
         rect:
         - 264.22601318359375
-        - 269.9520263671875
+        - 294.1789855957031
         - 276.11199951171875
-        - 292.6289978027344
+        - 316.8559875488281
         widget_type: checkbox
-        path: Item l
+        path: Item m
         on_state: 'No'
         caption: 'No'
-  taking_credit_oyster_shell_recycling_yes_ind:
-    x_petey_id: '1_17'
-    type: category
     description: m. Are you taking credit to reduce taxable sales on this return for
       participation in a qualified oyster shell recycling program?
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
-    values:
-    - 'Yes'
-    - 'No'
-    widgets:
-      'Yes':
-        page: 1
-        rect:
-        - 222.24600219726562
-        - 294.1789855957031
-        - 234.1320037841797
-        - 316.8559875488281
-        widget_type: checkbox
-        path: Item m
-        on_state: 'Yes'
-        caption: 'Yes'
-      'No':
-        page: 1
-        rect:
-        - 264.22601318359375
-        - 294.1789855957031
-        - 276.11199951171875
-        - 316.8559875488281
-        widget_type: checkbox
-        path: Item m
-        on_state: 'No'
-        caption: 'No'
-  total_texas_sales_amt:
-    x_petey_id: '1_19'
+  total_sales_amt:
+    x_petey_id: '1_18'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -351,10 +337,11 @@ fields:
       path: Itm001
     description: 1. TOTAL SALES (Whole dollars only)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   taxable_sales_amt:
-    x_petey_id: '1_20'
+    x_petey_id: '1_19'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -368,10 +355,11 @@ fields:
       path: Itm002
     description: 2. TAXABLE SALES (Whole dollars only)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   taxable_purchases_amt:
-    x_petey_id: '1_21'
+    x_petey_id: '1_20'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -385,10 +373,11 @@ fields:
       path: Itm003
     description: 3. TAXABLE PURCHASES (Whole dollars only)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   amount_subject_to_state_tax_amt:
-    x_petey_id: '1_23'
+    x_petey_id: '1_22'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -402,10 +391,11 @@ fields:
       path: Itm004
     description: 4. Amount subject to state tax (Item 2 plus Item 3)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   amount_subject_to_local_tax_amt:
-    x_petey_id: '1_26'
+    x_petey_id: '1_25'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -420,10 +410,11 @@ fields:
     description: 5. Amount subject to local tax (Amount for city, transit, county
       and SPD must be equal.)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   no_sales_ind:
-    x_petey_id: '1_13'
+    x_petey_id: '1_12'
     type: boolean
     semantic_type: indicator
     widget:
@@ -439,12 +430,10 @@ fields:
       locations for this filing period, blacken this box, sign and date this return
       and mail it to the Comptroller's office.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  outlet_no_txt:
-    x_petey_id: '1_16'
+    label_source: llm
+  outlet_number:
+    x_petey_id: '1_15'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -456,12 +445,10 @@ fields:
       path: Outlet number
     description: Outlet number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  outlet_name_address_txt:
-    x_petey_id: '1_18'
+    label_source: llm
+  outlet_physical_location_address:
+    x_petey_id: '1_17'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -474,12 +461,11 @@ fields:
     description: 6. Physical location (outlet) name and address (Do not use a P.O.
       box address.)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  amount_subject_to_state_tax_outlet_amt:
-    x_petey_id: '1_24'
+    label_source: llm
+  state_tax_rate:
+    x_petey_id: '1_23'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: percent
     widget:
       page: 1
       rect:
@@ -491,10 +477,9 @@ fields:
       path: Srate
     description: State tax rate
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  state_tax_7a_amt:
-    x_petey_id: '1_22'
+    label_source: llm
+  outlet_state_tax_due_amt:
+    x_petey_id: '1_21'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -510,12 +495,13 @@ fields:
       "Amount subject to tax" by "TAX RATE" for state and local tax due) 7a. State
       tax (include in Item 8a)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  amount_subject_to_local_tax_outlet_amt:
-    x_petey_id: '1_27'
+    - whole_dollar
+  local_tax_rate:
+    x_petey_id: '1_26'
     type: number
-    semantic_type: money_whole_dollar
+    semantic_type: percent
     widget:
       page: 1
       rect:
@@ -527,10 +513,9 @@ fields:
       path: Lrate
     description: Local tax rate
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  local_tax_7b_amt:
-    x_petey_id: '1_25'
+    label_source: llm
+  outlet_local_tax_due_amt:
+    x_petey_id: '1_24'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -546,10 +531,11 @@ fields:
       "Amount subject to tax" by "TAX RATE" for state and local tax due) 7b. Local
       tax (include in Item 8b)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  total_tax_due_state_amt:
-    x_petey_id: '1_28'
+    - whole_dollar
+  total_state_tax_due_amt:
+    x_petey_id: '1_27'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -563,10 +549,11 @@ fields:
       path: Itma08
     description: 8a. Total state tax due (from all outlets or list supplements)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  total_tax_due_local_amt:
-    x_petey_id: '1_29'
+    - whole_dollar
+  total_local_tax_due_amt:
+    x_petey_id: '1_28'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -580,10 +567,11 @@ fields:
       path: Itmb08
     description: 8b. Total local tax due (from all outlets or list supplements)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   prepayment_credit_state_amt:
-    x_petey_id: '1_30'
+    x_petey_id: '1_29'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -597,10 +585,11 @@ fields:
       path: Itma09
     description: 9a. Prepayment credit (state)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   prepayment_credit_local_amt:
-    x_petey_id: '1_31'
+    x_petey_id: '1_30'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -614,10 +603,11 @@ fields:
       path: Itmb09
     description: 9b. Prepayment credit (local)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  adjusted_tax_due_state_amt:
-    x_petey_id: '1_32'
+    - whole_dollar
+  adjusted_state_tax_due_amt:
+    x_petey_id: '1_31'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -631,10 +621,11 @@ fields:
       path: Itma10
     description: 10a. Adjusted state tax due (Item 8 minus Item 9)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  adjusted_tax_due_local_amt:
-    x_petey_id: '1_33'
+    - whole_dollar
+  adjusted_local_tax_due_amt:
+    x_petey_id: '1_32'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -648,10 +639,11 @@ fields:
       path: Itmb10
     description: 10b. Adjusted local tax due (Item 8 minus Item 9)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   timely_filing_discount_state_amt:
-    x_petey_id: '1_34'
+    x_petey_id: '1_33'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -665,10 +657,11 @@ fields:
       path: Itma11
     description: 11a. Timely filing discount (0.005) (State amount)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   timely_filing_discount_local_amt:
-    x_petey_id: '1_35'
+    x_petey_id: '1_34'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -682,10 +675,11 @@ fields:
       path: Itmb11
     description: 11b. Timely filing discount (0.005) (Local amount)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   prior_payments_state_amt:
-    x_petey_id: '1_36'
+    x_petey_id: '1_35'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -699,10 +693,11 @@ fields:
       path: Itma12
     description: 12a. Prior payments (State amount)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   prior_payments_local_amt:
-    x_petey_id: '1_37'
+    x_petey_id: '1_36'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -716,10 +711,11 @@ fields:
       path: Itmb12
     description: 12b. Prior payments (Local amount)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  net_tax_due_state_amt:
-    x_petey_id: '1_38'
+    - whole_dollar
+  net_state_tax_due_amt:
+    x_petey_id: '1_37'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -733,10 +729,11 @@ fields:
       path: Itma13
     description: 13a. Net state tax due (Item 10 minus Items 11 and 12)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  net_tax_due_local_amt:
-    x_petey_id: '1_39'
+    - whole_dollar
+  net_local_tax_due_amt:
+    x_petey_id: '1_38'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -750,10 +747,11 @@ fields:
       path: Itmb13
     description: 13b. Net local tax due (Item 10 minus Items 11 and 12)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   penalty_and_interest_state_amt:
-    x_petey_id: '1_40'
+    x_petey_id: '1_39'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -767,10 +765,11 @@ fields:
       path: Itma14
     description: 14a. Penalty and interest (See instructions)(State amount)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   penalty_and_interest_local_amt:
-    x_petey_id: '1_41'
+    x_petey_id: '1_40'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -784,10 +783,11 @@ fields:
       path: Itmb14
     description: 14b. Penalty and interest (See instructions)(Local amount)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   total_state_amount_due_amt:
-    x_petey_id: '1_42'
+    x_petey_id: '1_41'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -801,10 +801,11 @@ fields:
       path: Itma15
     description: 15a. TOTAL STATE AMOUNT DUE (Item 13 plus Item 14)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
+    - whole_dollar
   total_local_amount_due_amt:
-    x_petey_id: '1_43'
+    x_petey_id: '1_42'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -818,12 +819,12 @@ fields:
       path: Itmb15
     description: 15b. TOTAL LOCAL AMOUNT DUE (Item 13 plus Item 14)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  total_amount_paid_amt:
-    x_petey_id: '1_45'
-    type: number
-    semantic_type: money_whole_dollar
+    - whole_dollar
+  taxpayer_number_2:
+    x_petey_id: '1_44'
+    type: string
     widget:
       page: 1
       rect:
@@ -835,10 +836,9 @@ fields:
       path: TPN
     description: c. Taxpayer number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  total_amount_paid_combined_amt:
-    x_petey_id: '1_44'
+    label_source: llm
+  total_amount_paid_amt:
+    x_petey_id: '1_43'
     type: number
     semantic_type: money_whole_dollar
     widget:
@@ -852,12 +852,12 @@ fields:
       path: Itm016
     description: 16. TOTAL AMOUNT PAID (Total of Items 15a and 15b.)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
-  taxpayer_signature_nm:
-    x_petey_id: '1_46'
+    - whole_dollar
+  taxpayer_name:
+    x_petey_id: '1_45'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -869,13 +869,12 @@ fields:
       path: NAME
     description: Taxpayer name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  daytime_phone_txt:
-    x_petey_id: '1_47'
+    label_source: llm
+  daytime_phone_number:
+    x_petey_id: '1_46'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -887,24 +886,206 @@ fields:
       path: Daytime phone
     description: Daytime phone (Area code and number)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
 x_petey_dedup_log:
-  duplicate_labels_reassigned: 2
+  duplicate_labels_reassigned: 1
   collisions:
-  - original_label: instructions_language_txt
-    assigned_label: instructions_language_txt_2
+  - original_label: taxpayer_number
+    assigned_label: taxpayer_number_2
     page: 1
     rect:
-    - 425.7099914550781
-    - 25.94097900390625
-    - 583.031005859375
-    - 41.58197021484375
-  - original_label: taxpayer_nm
-    assigned_label: taxpayer_nm_2
+    - 79.5
+    - 694.9307861328125
+    - 239.5
+    - 713.9307861328125
+x_petey_dropped_widgets:
+  count: 31
+  widgets:
+  - path: Button2
     page: 1
-    rect:
-    - 102.03399658203125
-    - 17.885986328125
-    - 230.08399963378906
-    - 36.99200439453125
+    reason: pushbutton
+    field_type: Button
+    tooltip: Click here to file electronically via Webfile.
+  - path: PRINT
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Click to print form.
+  - path: CLEAR
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Click to clear form fields.
+  - path: InstIcon
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Instructions in English / Instrucciones en Español
+  - path: Button1
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Link to Form 01-922 instructions.
+  - path: in0c
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in0d
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in0j
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in0k
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in0l
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in0m
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: Form 01-148
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Link to Form 01-148
+  - path: in01
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in02
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in03
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in04
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in05
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in0n
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in06
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in07
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: TAX RATES
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Link to tax rates
+  - path: in08
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in09
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in10
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in11
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in12
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in13
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in14
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in15
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: in16
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Form Instruction
+  - path: NET
+    page: 1
+    reason: caption
+    field_type: Text
+    tooltip: Internet stamp
+    caption: '*** INTERNET ***'
+x_petey_emit_fixes:
+  description_from_tooltip: 4
+  whole_dollar: 24
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/tx01114.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:11:30'
+  fields: 46
+  checked: 46
+  flagged: 2
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: tx01114_20261014_191012
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/tx01114.bpt
+  when: '2026-10-14 19:11:23'
+x_petey_run:
+  record: runs/judge_eval/form_runs/tx01114.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 2
+  review_rounds: 1
+  when: '2026-10-14 19:11:30'

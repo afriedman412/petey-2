@@ -9,44 +9,82 @@ description: ''
 instructions: ''
 authoring:
   method: auto_label
-  model: claude-opus-5
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:14:48'
 fields:
-  expedited_review_ind:
-    x_petey_id: '1_2'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.720001220703125
-      - 126.3599853515625
-      - 47.279998779296875
-      - 136.91998291015625
-      widget_type: checkbox
-      path: Expedited Review Check box if employee faces an imminent and serious threat
-        to his or her health
-    description: Expedited Review Check box if employee faces an imminent and serious
-      threat to his or her health
-    x_petey_description_source: tooltip
+  request_type:
+    x_petey_id: '1_69'
+    type: category
+    values:
+    - new_request_ind
+    - resubmission_change_in_material_facts_ind
+    - expedited_review_ind
+    - written_confirmation_prior_oral_request_ind
+    widgets:
+      new_request_ind:
+        page: 1
+        rect:
+        - 36.720001220703125
+        - 114.239990234375
+        - 47.279998779296875
+        - 124.79998779296875
+        widget_type: checkbox
+        path: New Request
+        on_state: 'On'
+        caption: New Request
+        x_petey_caption_source: page_text
+      resubmission_change_in_material_facts_ind:
+        page: 1
+        rect:
+        - 360.7200012207031
+        - 114.239990234375
+        - 371.2799987792969
+        - 124.79998779296875
+        widget_type: checkbox
+        path: Resubmission – Change in Material Facts
+        on_state: 'On'
+        caption: Resubmission – Change in Material Facts
+        x_petey_caption_source: tooltip
+      expedited_review_ind:
+        page: 1
+        rect:
+        - 36.720001220703125
+        - 126.3599853515625
+        - 47.279998779296875
+        - 136.91998291015625
+        widget_type: checkbox
+        path: Expedited Review Check box if employee faces an imminent and serious
+          threat to his or her health
+        on_state: 'On'
+        caption: 'Expedited Review: Check box if employee faces an imminent and serious
+          threat to his or her health'
+        x_petey_caption_source: page_choice
+      written_confirmation_prior_oral_request_ind:
+        page: 1
+        rect:
+        - 36.720001220703125
+        - 138.84002685546875
+        - 46.68000030517578
+        - 148.91998291015625
+        widget_type: checkbox
+        path: Check box if request is a written confirmation of a prior oral request
+        on_state: 'On'
+        caption: Check box if request is a written confirmation of a prior oral request.
+        x_petey_caption_source: page_choice
     label_source: llm
-  written_confirmation_of_prior_oral_request_ind:
-    x_petey_id: '1_3'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 36.720001220703125
-      - 138.84002685546875
-      - 46.68000030517578
-      - 148.91998291015625
-      widget_type: checkbox
-      path: Check box if request is a written confirmation of a prior oral request
-    description: Check box if request is a written confirmation of a prior oral request
-    x_petey_description_source: tooltip
-    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-14 21:05:05'
+      from:
+      - new_request_ind
+      - resubmission_change_in_material_facts_ind
+      - expedited_review_ind
+      - written_confirmation_prior_oral_request_ind
+      name_from: labeler
   employee_last_nm:
-    x_petey_id: '1_4'
+    x_petey_id: '1_5'
     type: string
     semantic_type: last_name
     widget:
@@ -62,7 +100,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_first_nm:
-    x_petey_id: '1_5'
+    x_petey_id: '1_6'
     type: string
     semantic_type: first_name
     widget:
@@ -78,9 +116,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employee_middle_nm:
-    x_petey_id: '1_6'
+    x_petey_id: '1_7'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -93,8 +130,8 @@ fields:
     description: Employee Middle Name
     x_petey_description_source: tooltip
     label_source: llm
-  date_of_injury_dt:
-    x_petey_id: '1_7'
+  injury_dt:
+    x_petey_id: '1_8'
     type: date
     semantic_type: iso_date
     widget:
@@ -109,10 +146,8 @@ fields:
     description: Date of Injury (MM/DD/YYYY)
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
   employee_birth_dt:
-    x_petey_id: '1_8'
+    x_petey_id: '1_9'
     type: date
     semantic_type: birth_date
     widget:
@@ -127,10 +162,8 @@ fields:
     description: Date of Birth (MM/DD/YYYY)
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  claim_number:
-    x_petey_id: '1_9'
+  claim_num:
+    x_petey_id: '1_10'
     type: string
     widget:
       page: 1
@@ -145,7 +178,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   employer_business_name:
-    x_petey_id: '1_10'
+    x_petey_id: '1_11'
     type: string
     semantic_type: business_name
     widget:
@@ -159,9 +192,8 @@ fields:
       path: Employer
     label_source: llm
   requesting_physician_nm:
-    x_petey_id: '1_11'
+    x_petey_id: '1_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -174,10 +206,9 @@ fields:
     description: Requesting Physician Name
     x_petey_description_source: tooltip
     label_source: llm
-  requesting_physician_practice_business_name:
-    x_petey_id: '1_12'
+  requesting_physician_practice_name:
+    x_petey_id: '1_13'
     type: string
-    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -191,9 +222,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_contact_nm:
-    x_petey_id: '1_13'
+    x_petey_id: '1_14'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -207,7 +237,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_address_line_1_txt:
-    x_petey_id: '1_14'
+    x_petey_id: '1_15'
     type: string
     semantic_type: street_address
     widget:
@@ -223,7 +253,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_city_nm:
-    x_petey_id: '1_15'
+    x_petey_id: '1_16'
     type: string
     semantic_type: city
     widget:
@@ -239,7 +269,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_state_abbreviation_cd:
-    x_petey_id: '1_16'
+    x_petey_id: '1_17'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -256,7 +286,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_zip_cd:
-    x_petey_id: '1_17'
+    x_petey_id: '1_18'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -273,10 +303,10 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_phone_num:
-    x_petey_id: '1_18'
+    x_petey_id: '1_19'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -290,10 +320,10 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_fax_num:
-    x_petey_id: '1_19'
+    x_petey_id: '1_20'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -306,10 +336,9 @@ fields:
     description: Requesting Physician Fax Number
     x_petey_description_source: tooltip
     label_source: llm
-  requesting_physician_specialty_txt:
-    x_petey_id: '1_20'
+  requesting_physician_specialty:
+    x_petey_id: '1_21'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -321,7 +350,7 @@ fields:
       path: Specialty
     label_source: llm
   requesting_physician_npi_num:
-    x_petey_id: '1_21'
+    x_petey_id: '1_22'
     type: string
     semantic_type: npi
     pattern: ^\d{10}$
@@ -335,8 +364,8 @@ fields:
       widget_type: text
       path: NPI Number
     label_source: llm
-  requesting_physician_email_address_txt:
-    x_petey_id: '1_22'
+  requesting_physician_email_address:
+    x_petey_id: '1_23'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -352,8 +381,8 @@ fields:
     description: Requesting Physician E-mail Address
     x_petey_description_source: tooltip
     label_source: llm
-  claims_administrator_company_business_name:
-    x_petey_id: '1_23'
+  claims_administrator_company_name:
+    x_petey_id: '1_24'
     type: string
     semantic_type: business_name
     widget:
@@ -369,9 +398,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   claims_administrator_contact_nm:
-    x_petey_id: '1_24'
+    x_petey_id: '1_25'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -385,7 +413,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   claims_administrator_address_line_1_txt:
-    x_petey_id: '1_25'
+    x_petey_id: '1_26'
     type: string
     semantic_type: street_address
     widget:
@@ -401,7 +429,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   claims_administrator_city_nm:
-    x_petey_id: '1_26'
+    x_petey_id: '1_27'
     type: string
     semantic_type: city
     widget:
@@ -417,7 +445,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   claims_administrator_state_abbreviation_cd:
-    x_petey_id: '1_27'
+    x_petey_id: '1_28'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -434,7 +462,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   claims_administrator_zip_cd:
-    x_petey_id: '1_28'
+    x_petey_id: '1_29'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -451,10 +479,10 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   claims_administrator_phone_num:
-    x_petey_id: '1_29'
+    x_petey_id: '1_30'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -468,10 +496,10 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   claims_administrator_fax_num:
-    x_petey_id: '1_30'
+    x_petey_id: '1_31'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -484,8 +512,8 @@ fields:
     description: Claims Administrator Fax Number
     x_petey_description_source: tooltip
     label_source: llm
-  claims_administrator_email_address_txt:
-    x_petey_id: '1_31'
+  claims_administrator_email_address:
+    x_petey_id: '1_32'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -501,10 +529,9 @@ fields:
     description: Claims Administrator E-mail Address
     x_petey_description_source: tooltip
     label_source: llm
-  diagnosis_txt:
-    x_petey_id: '1_32'
+  row1_diagnosis:
+    x_petey_id: '1_33'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -517,8 +544,8 @@ fields:
     description: Diagnosis (Required) Row 1
     x_petey_description_source: tooltip
     label_source: llm
-  icd_cd:
-    x_petey_id: '1_33'
+  row1_icd_cd:
+    x_petey_id: '1_34'
     type: string
     widget:
       page: 1
@@ -532,10 +559,9 @@ fields:
     description: ICD-Code (Required) Row 1
     x_petey_description_source: tooltip
     label_source: llm
-  service_or_good_requested_txt:
-    x_petey_id: '1_34'
+  row1_service_or_good_requested:
+    x_petey_id: '1_35'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -548,8 +574,8 @@ fields:
     description: Service or Good Requested (Required) Row 1
     x_petey_description_source: tooltip
     label_source: llm
-  cpt_hcpcs_cd:
-    x_petey_id: '1_35'
+  row1_cpt_or_hcpcs_cd:
+    x_petey_id: '1_36'
     type: string
     widget:
       page: 1
@@ -563,10 +589,9 @@ fields:
     description: CPT or HCPCS Code (If known) Row 1
     x_petey_description_source: tooltip
     label_source: llm
-  other_information_txt:
-    x_petey_id: '1_36'
+  row1_other_information:
+    x_petey_id: '1_37'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -579,10 +604,9 @@ fields:
     description: 'Other Information: (Frequency, Duration Quantity, etc.) Row 1'
     x_petey_description_source: tooltip
     label_source: llm
-  diagnosis_txt_2:
-    x_petey_id: '1_37'
+  row2_diagnosis:
+    x_petey_id: '1_38'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -595,8 +619,8 @@ fields:
     description: Diagnosis (Required) Row 2
     x_petey_description_source: tooltip
     label_source: llm
-  icd_cd_2:
-    x_petey_id: '1_38'
+  row2_icd_cd:
+    x_petey_id: '1_39'
     type: string
     widget:
       page: 1
@@ -610,10 +634,9 @@ fields:
     description: ICD-Code (Required) Row 2
     x_petey_description_source: tooltip
     label_source: llm
-  service_or_good_requested_txt_2:
-    x_petey_id: '1_39'
+  row2_service_or_good_requested:
+    x_petey_id: '1_40'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -626,8 +649,8 @@ fields:
     description: Service or Good Requested (Required) Row 2
     x_petey_description_source: tooltip
     label_source: llm
-  cpt_hcpcs_cd_2:
-    x_petey_id: '1_40'
+  row2_cpt_or_hcpcs_cd:
+    x_petey_id: '1_41'
     type: string
     widget:
       page: 1
@@ -641,10 +664,9 @@ fields:
     description: CPT or HCPCS Code (If known) Row 2
     x_petey_description_source: tooltip
     label_source: llm
-  other_information_txt_2:
-    x_petey_id: '1_41'
+  row2_other_information:
+    x_petey_id: '1_42'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -657,10 +679,9 @@ fields:
     description: 'Other Information: (Frequency, Duration Quantity, etc.) Row 2'
     x_petey_description_source: tooltip
     label_source: llm
-  diagnosis_txt_3:
-    x_petey_id: '1_42'
+  row3_diagnosis:
+    x_petey_id: '1_43'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -673,8 +694,8 @@ fields:
     description: Diagnosis (Required) Row 3
     x_petey_description_source: tooltip
     label_source: llm
-  icd_cd_3:
-    x_petey_id: '1_43'
+  row3_icd_cd:
+    x_petey_id: '1_44'
     type: string
     widget:
       page: 1
@@ -688,10 +709,9 @@ fields:
     description: ICD-Code (Required) Row 3
     x_petey_description_source: tooltip
     label_source: llm
-  service_or_good_requested_txt_3:
-    x_petey_id: '1_44'
+  row3_service_or_good_requested:
+    x_petey_id: '1_45'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -704,8 +724,8 @@ fields:
     description: Service or Good Requested (Required) Row 3
     x_petey_description_source: tooltip
     label_source: llm
-  cpt_hcpcs_cd_3:
-    x_petey_id: '1_45'
+  row3_cpt_or_hcpcs_cd:
+    x_petey_id: '1_46'
     type: string
     widget:
       page: 1
@@ -719,10 +739,9 @@ fields:
     description: CPT or HCPCS Code (If known) Row 3
     x_petey_description_source: tooltip
     label_source: llm
-  other_information_txt_3:
-    x_petey_id: '1_46'
+  row3_other_information:
+    x_petey_id: '1_47'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -735,10 +754,9 @@ fields:
     description: 'Other Information: (Frequency, Duration Quantity, etc.) Row 3'
     x_petey_description_source: tooltip
     label_source: llm
-  diagnosis_txt_4:
-    x_petey_id: '1_47'
+  row4_diagnosis:
+    x_petey_id: '1_48'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -751,8 +769,8 @@ fields:
     description: Diagnosis (Required) Row 4
     x_petey_description_source: tooltip
     label_source: llm
-  icd_cd_4:
-    x_petey_id: '1_48'
+  row4_icd_cd:
+    x_petey_id: '1_49'
     type: string
     widget:
       page: 1
@@ -766,10 +784,9 @@ fields:
     description: ICD-Code (Required) Row 4
     x_petey_description_source: tooltip
     label_source: llm
-  service_or_good_requested_txt_4:
-    x_petey_id: '1_49'
+  row4_service_or_good_requested:
+    x_petey_id: '1_50'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -782,8 +799,8 @@ fields:
     description: Service or Good Requested (Required) Row 4
     x_petey_description_source: tooltip
     label_source: llm
-  cpt_hcpcs_cd_4:
-    x_petey_id: '1_50'
+  row4_cpt_or_hcpcs_cd:
+    x_petey_id: '1_51'
     type: string
     widget:
       page: 1
@@ -797,10 +814,9 @@ fields:
     description: CPT or HCPCS Code (If known) Row 4
     x_petey_description_source: tooltip
     label_source: llm
-  other_information_txt_4:
-    x_petey_id: '1_51'
+  row4_other_information:
+    x_petey_id: '1_52'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -813,10 +829,9 @@ fields:
     description: 'Other Information: (Frequency, Duration Quantity, etc.) Row 4'
     x_petey_description_source: tooltip
     label_source: llm
-  diagnosis_txt_5:
-    x_petey_id: '1_52'
+  row5_diagnosis:
+    x_petey_id: '1_53'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -829,8 +844,8 @@ fields:
     description: Diagnosis (Required) Row 5
     x_petey_description_source: tooltip
     label_source: llm
-  icd_cd_5:
-    x_petey_id: '1_53'
+  row5_icd_cd:
+    x_petey_id: '1_54'
     type: string
     widget:
       page: 1
@@ -844,10 +859,9 @@ fields:
     description: ICD-Code (Required) Row 5
     x_petey_description_source: tooltip
     label_source: llm
-  service_or_good_requested_txt_5:
-    x_petey_id: '1_54'
+  row5_service_or_good_requested:
+    x_petey_id: '1_55'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -860,8 +874,8 @@ fields:
     description: Service or Good Requested (Required) Row 5
     x_petey_description_source: tooltip
     label_source: llm
-  cpt_hcpcs_cd_5:
-    x_petey_id: '1_55'
+  row5_cpt_or_hcpcs_cd:
+    x_petey_id: '1_56'
     type: string
     widget:
       page: 1
@@ -875,10 +889,9 @@ fields:
     description: CPT or HCPCS Code (If known) Row 5
     x_petey_description_source: tooltip
     label_source: llm
-  other_information_txt_5:
-    x_petey_id: '1_56'
+  row5_other_information:
+    x_petey_id: '1_57'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -892,7 +905,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_signature:
-    x_petey_id: '1_57'
+    x_petey_id: '1_58'
     type: string
     widget:
       page: 1
@@ -907,7 +920,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   requesting_physician_signature_dt:
-    x_petey_id: '1_58'
+    x_petey_id: '1_59'
     type: date
     semantic_type: iso_date
     widget:
@@ -922,10 +935,8 @@ fields:
     description: Date (MM/DD/YYYY)
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  claims_administrator_uro_response_cd:
-    x_petey_id: '1_59'
+  claims_administrator_uro_response:
+    x_petey_id: '1_60'
     type: category
     values:
     - Approved
@@ -933,11 +944,6 @@ fields:
     - Delay (See separate notification of delay)
     - Requested treatment has been previously denied
     - Liability for treatment is disputed (See separate letter)
-    description: Claims Administrator/Utilization Review Organization (URO) Response
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[5]
     widgets:
       Approved:
         page: 1
@@ -994,8 +1000,12 @@ fields:
         path: Claims Administrator/Utilization Review Organization (URO) Response
         on_state: Liability for treatment is disputed (See separate letter)
         caption: Liability for treatment is disputed (See separate letter)
+    description: Claims Administrator/Utilization Review Organization (URO) Response
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   authorization_num:
-    x_petey_id: '1_60'
+    x_petey_id: '1_61'
     type: string
     widget:
       page: 1
@@ -1010,9 +1020,8 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_agent_nm:
-    x_petey_id: '1_62'
+    x_petey_id: '1_63'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -1026,7 +1035,7 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_agent_signature_dt:
-    x_petey_id: '1_61'
+    x_petey_id: '1_62'
     type: date
     semantic_type: iso_date
     widget:
@@ -1041,10 +1050,8 @@ fields:
     description: Date (MM/DD/YYYY)
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
   authorized_agent_signature:
-    x_petey_id: '1_63'
+    x_petey_id: '1_64'
     type: string
     widget:
       page: 1
@@ -1057,10 +1064,10 @@ fields:
       path: Signature
     label_source: llm
   authorized_agent_phone_num:
-    x_petey_id: '1_64'
+    x_petey_id: '1_65'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -1074,10 +1081,10 @@ fields:
     x_petey_description_source: tooltip
     label_source: llm
   authorized_agent_fax_num:
-    x_petey_id: '1_65'
+    x_petey_id: '1_66'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -1090,8 +1097,8 @@ fields:
     description: Authorized Agent Fax Number
     x_petey_description_source: tooltip
     label_source: llm
-  authorized_agent_email_address_txt:
-    x_petey_id: '1_66'
+  authorized_agent_email_address:
+    x_petey_id: '1_67'
     type: string
     semantic_type: email
     pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
@@ -1107,8 +1114,8 @@ fields:
     description: Authorized Agent E-mail Address
     x_petey_description_source: tooltip
     label_source: llm
-  claims_administrator_comments_txt:
-    x_petey_id: '1_67'
+  comments:
+    x_petey_id: '1_68'
     type: string
     semantic_type: text
     widget:
@@ -1121,197 +1128,34 @@ fields:
       widget_type: text
       path: Comments
     label_source: llm
-  request_type:
-    x_petey_id: '1_1'
-    type: category
-    values:
-    - new_request_ind
-    - resubmission_change_in_material_facts_ind
-    widgets:
-      new_request_ind:
-        page: 1
-        rect:
-        - 36.720001220703125
-        - 114.239990234375
-        - 47.279998779296875
-        - 124.79998779296875
-        widget_type: checkbox
-        path: New Request
-        on_state: 'On'
-        caption: New Request
-        x_petey_caption_source: page_text
-      resubmission_change_in_material_facts_ind:
-        page: 1
-        rect:
-        - 360.7200012207031
-        - 114.239990234375
-        - 371.2799987792969
-        - 124.79998779296875
-        widget_type: checkbox
-        path: Resubmission – Change in Material Facts
-        on_state: 'On'
-        caption: Resubmission – Change in Material Facts
-        x_petey_caption_source: page_text
-x_petey_dedup_log:
-  duplicate_labels_reassigned: 20
-  collisions:
-  - original_label: diagnosis_txt
-    assigned_label: diagnosis_txt_2
-    page: 1
-    rect:
-    - 31.31999969482422
-    - 503.2799987792969
-    - 134.39999389648438
-    - 517.0799560546875
-  - original_label: icd_cd
-    assigned_label: icd_cd_2
-    page: 1
-    rect:
-    - 135.83999633789062
-    - 503.2799987792969
-    - 215.39999389648438
-    - 517.0799560546875
-  - original_label: service_or_good_requested_txt
-    assigned_label: service_or_good_requested_txt_2
-    page: 1
-    rect:
-    - 216.83999633789062
-    - 503.2799987792969
-    - 354.8399963378906
-    - 517.0799560546875
-  - original_label: cpt_hcpcs_cd
-    assigned_label: cpt_hcpcs_cd_2
-    page: 1
-    rect:
-    - 356.2799987792969
-    - 503.2799987792969
-    - 440.3999938964844
-    - 517.0799560546875
-  - original_label: other_information_txt
-    assigned_label: other_information_txt_2
-    page: 1
-    rect:
-    - 441.8399963378906
-    - 503.2799987792969
-    - 584.4000244140625
-    - 517.0799560546875
-  - original_label: diagnosis_txt
-    assigned_label: diagnosis_txt_3
-    page: 1
-    rect:
-    - 31.31999969482422
-    - 518.1600341796875
-    - 134.39999389648438
-    - 531.9599609375
-  - original_label: icd_cd
-    assigned_label: icd_cd_3
-    page: 1
-    rect:
-    - 135.83999633789062
-    - 518.1600341796875
-    - 215.39999389648438
-    - 531.9599609375
-  - original_label: service_or_good_requested_txt
-    assigned_label: service_or_good_requested_txt_3
-    page: 1
-    rect:
-    - 216.83999633789062
-    - 518.1600341796875
-    - 354.8399963378906
-    - 531.9599609375
-  - original_label: cpt_hcpcs_cd
-    assigned_label: cpt_hcpcs_cd_3
-    page: 1
-    rect:
-    - 356.2799987792969
-    - 518.1600341796875
-    - 440.3999938964844
-    - 531.9599609375
-  - original_label: other_information_txt
-    assigned_label: other_information_txt_3
-    page: 1
-    rect:
-    - 441.8399963378906
-    - 518.1600341796875
-    - 584.4000244140625
-    - 531.9599609375
-  - original_label: diagnosis_txt
-    assigned_label: diagnosis_txt_4
-    page: 1
-    rect:
-    - 31.78190040588379
-    - 533.0400390625
-    - 134.86199951171875
-    - 546.8399658203125
-  - original_label: icd_cd
-    assigned_label: icd_cd_4
-    page: 1
-    rect:
-    - 135.83999633789062
-    - 533.0400390625
-    - 215.39999389648438
-    - 546.8399658203125
-  - original_label: service_or_good_requested_txt
-    assigned_label: service_or_good_requested_txt_4
-    page: 1
-    rect:
-    - 216.83999633789062
-    - 533.0400390625
-    - 354.8399963378906
-    - 546.8399658203125
-  - original_label: cpt_hcpcs_cd
-    assigned_label: cpt_hcpcs_cd_4
-    page: 1
-    rect:
-    - 356.2799987792969
-    - 533.0400390625
-    - 440.3999938964844
-    - 546.8399658203125
-  - original_label: other_information_txt
-    assigned_label: other_information_txt_4
-    page: 1
-    rect:
-    - 441.8399963378906
-    - 533.0400390625
-    - 584.4000244140625
-    - 546.8399658203125
-  - original_label: diagnosis_txt
-    assigned_label: diagnosis_txt_5
-    page: 1
-    rect:
-    - 31.31999969482422
-    - 547.9199829101562
-    - 134.39999389648438
-    - 561.719970703125
-  - original_label: icd_cd
-    assigned_label: icd_cd_5
-    page: 1
-    rect:
-    - 135.83999633789062
-    - 547.9199829101562
-    - 215.39999389648438
-    - 561.719970703125
-  - original_label: service_or_good_requested_txt
-    assigned_label: service_or_good_requested_txt_5
-    page: 1
-    rect:
-    - 216.83999633789062
-    - 547.9199829101562
-    - 354.8399963378906
-    - 561.719970703125
-  - original_label: cpt_hcpcs_cd
-    assigned_label: cpt_hcpcs_cd_5
-    page: 1
-    rect:
-    - 356.2799987792969
-    - 547.9199829101562
-    - 440.3999938964844
-    - 561.719970703125
-  - original_label: other_information_txt
-    assigned_label: other_information_txt_5
-    page: 1
-    rect:
-    - 441.8399963378906
-    - 547.9199829101562
-    - 584.4000244140625
-    - 561.719970703125
+x_petey_emit_fixes:
+  description_from_tooltip: 1
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/imr_formrfaclean.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:16:11'
+  fields: 68
+  checked: 68
+  flagged: 0
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: imr_formrfaclean_20261014_191505
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/imr_formrfaclean.bpt
+  when: '2026-10-14 19:16:01'
+x_petey_run:
+  record: runs/judge_eval/form_runs/imr_formrfaclean.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 2
+  review_rounds: 1
+  when: '2026-10-14 19:16:11'

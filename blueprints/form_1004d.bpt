@@ -7,6 +7,12 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:05:51'
 fields:
   file_number:
     x_petey_id: '1_1'
@@ -94,7 +100,7 @@ fields:
       widget_type: text
       path: Text14
     label_source: llm
-  legal_description_txt:
+  legal_description:
     x_petey_id: '1_7'
     type: string
     semantic_type: description
@@ -113,7 +119,6 @@ fields:
   county_nm:
     x_petey_id: '1_8'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -124,10 +129,9 @@ fields:
       widget_type: text
       path: Text15
     label_source: llm
-  borrower_nm:
+  borrower_name:
     x_petey_id: '1_9'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -154,8 +158,6 @@ fields:
     description: Contract Price $
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - money
   contract_dt:
     x_petey_id: '1_11'
     type: date
@@ -172,9 +174,7 @@ fields:
     description: Date of Contract
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  effective_dt_original_appraisal:
+  original_appraisal_effective_dt:
     x_petey_id: '1_12'
     type: date
     semantic_type: iso_date
@@ -190,8 +190,6 @@ fields:
     description: Effective Date of Original Appraisal
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
   property_rights_appraised:
     x_petey_id: '1_14'
     type: category
@@ -199,11 +197,6 @@ fields:
     - Fee Simple
     - Leasehold
     - Other
-    description: Property Rights Appraised
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[3]
     widgets:
       Fee Simple:
         page: 1
@@ -238,7 +231,11 @@ fields:
         path: Group2
         on_state: Other
         caption: Other
-  property_rights_other_describe_txt:
+    description: Property Rights Appraised
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  property_rights_other_txt:
     x_petey_id: '1_13'
     type: string
     semantic_type: text
@@ -270,12 +267,9 @@ fields:
     description: Original Appraised Value $
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - money
-  original_appraiser_nm:
+  original_appraiser_name:
     x_petey_id: '1_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -288,7 +282,7 @@ fields:
     description: Original Appraiser
     x_petey_description_source: tooltip
     label_source: llm
-  original_appraiser_company_nm:
+  original_appraiser_company_name:
     x_petey_id: '1_17'
     type: string
     semantic_type: business_name
@@ -304,10 +298,9 @@ fields:
     description: Company Name
     x_petey_description_source: tooltip
     label_source: llm
-  original_lender_client_nm:
+  original_lender_client_name:
     x_petey_id: '1_18'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -320,10 +313,9 @@ fields:
     description: Original Lender/Client
     x_petey_description_source: tooltip
     label_source: llm
-  original_lender_client_address_line_1_txt:
+  original_lender_client_address:
     x_petey_id: '1_19'
     type: string
-    semantic_type: street_address
     widget:
       page: 1
       rect:
@@ -356,12 +348,6 @@ fields:
     values:
     - 'Yes'
     - 'No'
-    description: HAS THE MARKET VALUE OF THE SUBJECT PROPERTY DECLINED SINCE THE EFFECTIVE
-      DATE OF THE ORIGINAL APPRAISAL?
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 1
@@ -385,6 +371,11 @@ fields:
         path: Group 3
         on_state: 'No'
         caption: 'No'
+    description: HAS THE MARKET VALUE OF THE SUBJECT PROPERTY DECLINED SINCE THE EFFECTIVE
+      DATE OF THE ORIGINAL APPRAISAL?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
   certification_of_completion_ind:
     x_petey_id: '1_22'
     type: boolean
@@ -407,12 +398,6 @@ fields:
     values:
     - 'Yes'
     - 'No'
-    description: HAVE THE IMPROVEMENTS BEEN COMPLETED IN ACCORDANCE WITH THE REQUIREMENTS
-      AND CONDITIONS STATED IN THE ORIGINAL APPRAISAL REPORT?
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 1
@@ -436,10 +421,15 @@ fields:
         path: Group1
         on_state: 'No'
         caption: 'No'
-  no_impact_on_market_value_line_1_txt:
+    description: HAVE THE IMPROVEMENTS BEEN COMPLETED IN ACCORDANCE WITH THE REQUIREMENTS
+      AND CONDITIONS STATED IN THE ORIGINAL APPRAISAL REPORT?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  impact_on_market_value_description_line_1:
     x_petey_id: '1_24'
     type: string
-    semantic_type: text
+    semantic_type: description
     widget:
       page: 1
       rect:
@@ -452,10 +442,10 @@ fields:
     description: If No, describe any impact on the opinion of market value. Line 1
     x_petey_description_source: tooltip
     label_source: llm
-  no_impact_on_market_value_line_2_txt:
+  impact_on_market_value_description_line_2:
     x_petey_id: '1_25'
     type: string
-    semantic_type: text
+    semantic_type: description
     widget:
       page: 1
       rect:
@@ -468,10 +458,10 @@ fields:
     description: If No, describe any impact on the opinion of market value. Line 2
     x_petey_description_source: tooltip
     label_source: llm
-  no_impact_on_market_value_line_3_txt:
+  impact_on_market_value_description_line_3:
     x_petey_id: '1_26'
     type: string
-    semantic_type: text
+    semantic_type: description
     widget:
       page: 1
       rect:
@@ -499,10 +489,9 @@ fields:
     description: Appraiser Signature
     x_petey_description_source: tooltip
     label_source: llm
-  appraiser_nm:
+  appraiser_name:
     x_petey_id: '1_29'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -515,7 +504,7 @@ fields:
     description: Appraiser Name
     x_petey_description_source: tooltip
     label_source: llm
-  appraiser_company_nm:
+  appraiser_company_name:
     x_petey_id: '1_31'
     type: string
     semantic_type: business_name
@@ -531,10 +520,10 @@ fields:
     description: Appraiser Company Name
     x_petey_description_source: tooltip
     label_source: llm
-  appraiser_company_address_line_1_txt:
+  appraiser_company_address:
     x_petey_id: '1_33'
     type: string
-    semantic_type: street_address
+    semantic_type: address_block
     widget:
       page: 1
       rect:
@@ -547,11 +536,23 @@ fields:
     description: Appraiser Company Address
     x_petey_description_source: tooltip
     label_source: llm
-  appraiser_telephone_number:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption and tooltip both say 'Company Address'; the box holds an address,
+        not a business name, so the semantic_type is corrected while the name already
+        describes the box.
+      before:
+        type: string
+        semantic_type: business_name
+        description: Appraiser Company Address
+      judged: 'kept: 3 -> 2'
+  appraiser_phone_number:
     x_petey_id: '1_35'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -580,9 +581,7 @@ fields:
     description: Date of Signature and Report of Appraiser
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  effective_dt_appraisal_update:
+  appraisal_update_effective_dt:
     x_petey_id: '1_39'
     type: date
     semantic_type: iso_date
@@ -598,8 +597,6 @@ fields:
     description: Effective Date of Appraisal Update
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
   appraiser_inspection_dt:
     x_petey_id: '1_41'
     type: date
@@ -616,8 +613,6 @@ fields:
     description: Date of Inspection
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
   appraiser_state_certification_number:
     x_petey_id: '1_43'
     type: string
@@ -652,10 +647,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=214
-  appraiser_other_credential_describe_txt:
+  appraiser_other_license_description:
     x_petey_id: '1_46'
     type: string
-    semantic_type: text
+    semantic_type: description
     widget:
       page: 1
       rect:
@@ -668,11 +663,9 @@ fields:
     description: Other (describe)
     x_petey_description_source: tooltip
     label_source: llm
-  appraiser_other_credential_state_number:
+  appraiser_other_license_state_number:
     x_petey_id: '1_47'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
     widget:
       page: 1
       rect:
@@ -682,10 +675,25 @@ fields:
       - 872.280029296875
       widget_type: text
       path: State_2
-    description: State number
+    description: 'State # for the appraiser''s other (describe) license or certification'
     x_petey_description_source: tooltip
     label_source: llm
-  appraiser_state_abbreviation_cd:
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: 'Caption ''State #'' on the ''Other (describe)'' line is a license/certification
+        number, not a two-letter state code; drop the state_abbr semantic_type and
+        the ^[A-Z]{2}$ pattern. The name already says license state number.'
+      before:
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+        description: State number
+      judged: 'kept: 3 -> 2'
+  appraiser_license_state_cd:
     x_petey_id: '1_49'
     type: string
     widget:
@@ -700,7 +708,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=263
-  appraiser_certification_license_expiration_dt:
+  appraiser_license_expiration_dt:
     x_petey_id: '1_50'
     type: date
     semantic_type: iso_date
@@ -716,12 +724,9 @@ fields:
     description: Expiration Date of Certification or License
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  current_lender_client_nm:
-    x_petey_id: '1_53'
+  current_lender_client_name:
+    x_petey_id: '1_52'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -734,8 +739,8 @@ fields:
     description: Current lender or client Name
     x_petey_description_source: tooltip
     label_source: llm
-  current_lender_client_company_nm:
-    x_petey_id: '1_55'
+  current_lender_client_company_name:
+    x_petey_id: '1_54'
     type: string
     semantic_type: business_name
     widget:
@@ -750,10 +755,10 @@ fields:
     description: Current lender or client Company Name
     x_petey_description_source: tooltip
     label_source: llm
-  current_lender_client_company_address_line_1_txt:
-    x_petey_id: '1_57'
+  current_lender_client_company_address:
+    x_petey_id: '1_55'
     type: string
-    semantic_type: street_address
+    semantic_type: address_block
     widget:
       page: 1
       rect:
@@ -766,6 +771,17 @@ fields:
     description: Current lender or client Company Address
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: 'Caption ''Company Address'' under CURRENT LENDER/CLIENT: the box holds
+        an address block, not a business name; name is accurate.'
+      before:
+        type: string
+        semantic_type: business_name
+        description: Current lender or client Company Address
+      judged: 'kept: 3 -> 2'
   supervisory_appraiser_signature:
     x_petey_id: '1_28'
     type: string
@@ -781,10 +797,9 @@ fields:
     description: Supervisory Appraiser Signature
     x_petey_description_source: tooltip
     label_source: llm
-  supervisory_appraiser_nm:
+  supervisory_appraiser_name:
     x_petey_id: '1_30'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -797,7 +812,7 @@ fields:
     description: Supervisory Appraiser Name
     x_petey_description_source: tooltip
     label_source: llm
-  supervisory_appraiser_company_nm:
+  supervisory_appraiser_company_name:
     x_petey_id: '1_32'
     type: string
     semantic_type: business_name
@@ -813,10 +828,10 @@ fields:
     description: Supervisory Appraiser Company Name
     x_petey_description_source: tooltip
     label_source: llm
-  supervisory_appraiser_company_address_line_1_txt:
+  supervisory_appraiser_company_address:
     x_petey_id: '1_34'
     type: string
-    semantic_type: street_address
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -829,11 +844,11 @@ fields:
     description: Supervisory Appraiser Company Address
     x_petey_description_source: tooltip
     label_source: llm
-  supervisory_appraiser_telephone_number:
+  supervisory_appraiser_phone_number:
     x_petey_id: '1_36'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -862,8 +877,6 @@ fields:
     description: Date of Signature of Supervisory Appraiser
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
   supervisory_appraiser_state_certification_number:
     x_petey_id: '1_40'
     type: string
@@ -898,7 +911,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=196
-  supervisory_appraiser_state_abbreviation_cd:
+  supervisory_appraiser_license_state_cd:
     x_petey_id: '1_45'
     type: string
     widget:
@@ -913,7 +926,7 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=242
-  supervisory_appraiser_certification_license_expiration_dt:
+  supervisory_appraiser_license_expiration_dt:
     x_petey_id: '1_48'
     type: date
     semantic_type: iso_date
@@ -929,42 +942,8 @@ fields:
     description: Expiration Date of Certification or License
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  supervisory_appraiser_did_not_inspect_ind:
-    x_petey_id: '1_51'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 319.9200134277344
-      - 895.0800170898438
-      - 329.8800048828125
-      - 905.0399780273438
-      widget_type: checkbox
-      path: Did not inspect subject property
-    description: Did not inspect subject property
-    x_petey_description_source: tooltip
-    label_source: llm
-  supervisory_appraiser_inspected_exterior_ind:
-    x_petey_id: '1_52'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 319.9200134277344
-      - 907.5599975585938
-      - 329.8800048828125
-      - 917.52001953125
-      widget_type: checkbox
-      path: Did inspect exterior of subject property from street
-    description: Did inspect exterior of subject property from street
-    x_petey_description_source: tooltip
-    label_source: llm
   supervisory_appraiser_exterior_inspection_dt:
-    x_petey_id: '1_54'
+    x_petey_id: '1_53'
     type: date
     semantic_type: iso_date
     widget:
@@ -979,26 +958,8 @@ fields:
     description: Date of Inspection
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  supervisory_appraiser_inspected_interior_exterior_ind:
+  supervisory_appraiser_interior_and_exterior_inspection_dt:
     x_petey_id: '1_56'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 319.9200134277344
-      - 932.52001953125
-      - 329.8800048828125
-      - 942.47998046875
-      widget_type: checkbox
-      path: Did inspect inter
-    description: Did inspect interior and exterior of subject property
-    x_petey_description_source: tooltip
-    label_source: llm
-  supervisory_appraiser_interior_exterior_inspection_dt:
-    x_petey_id: '1_58'
     type: date
     semantic_type: iso_date
     widget:
@@ -1013,5 +974,106 @@ fields:
     description: Date of Inspection
     x_petey_description_source: tooltip
     label_source: llm
+  supervisory_appraiser_inspection:
+    x_petey_id: '1_51'
+    type: category
+    values:
+    - did_not_inspect
+    - did_inspect_exterior_from_street
+    - did_inspect_interior_and_exterior
+    widgets:
+      did_not_inspect:
+        page: 1
+        rect:
+        - 319.9200134277344
+        - 895.0800170898438
+        - 329.8800048828125
+        - 905.0399780273438
+        widget_type: checkbox
+        path: Did not inspect subject property
+        on_state: 'Yes'
+        caption: Did not inspect subject property
+        x_petey_caption_source: page_text
+      did_inspect_exterior_from_street:
+        page: 1
+        rect:
+        - 319.9200134277344
+        - 907.5599975585938
+        - 329.8800048828125
+        - 917.52001953125
+        widget_type: checkbox
+        path: Did inspect exterior of subject property from street
+        on_state: 'Yes'
+        caption: Did inspect exterior of subject property from street
+        x_petey_caption_source: hand
+      did_inspect_interior_and_exterior:
+        page: 1
+        rect:
+        - 319.9200134277344
+        - 932.52001953125
+        - 329.8800048828125
+        - 942.47998046875
+        widget_type: checkbox
+        path: Did inspect inter
+        on_state: 'Yes'
+        caption: Did inspect interior and exterior of subject property
+        x_petey_caption_source: hand
+    description: Did not inspect subject property
+    x_petey_description_source: tooltip
     x_petey_retype:
-    - pattern_dropped
+    - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-14 20:53:29'
+      from:
+        name: supervisory_appraiser_inspection
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          exterior_from_street: SUPERVISORY
+          interior_and_exterior: Name_________________________________________________
+      to:
+        name: supervisory_appraiser_inspection
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          exterior_from_street:
+            key: did_inspect_exterior_from_street
+            caption: Did inspect exterior of subject property from street
+          interior_and_exterior:
+            key: did_inspect_interior_and_exterior
+            caption: Did inspect interior and exterior of subject property
+      record: runs/hand_review/je__form_1004d.json
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 6
+  description_from_tooltip: 4
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/form_1004d.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:07:52'
+  fields: 56
+  checked: 56
+  flagged: 3
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: form_1004d_20261014_190733
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/form_1004d.bpt
+  when: '2026-10-14 19:07:51'
+x_petey_run:
+  record: runs/judge_eval/form_runs/form_1004d.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-14 19:07:52'
