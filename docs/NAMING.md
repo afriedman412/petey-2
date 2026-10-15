@@ -41,4 +41,16 @@ shape is predictable, so associated fields (entities, compound values) can be re
 Apartment, suite and unit boxes are `unit_nbr`. A state is `state_cd` (not `state_abbreviation_cd`, `state_abbr`,
 `state`): the suffix already says it is a code.
 
+## Grids
+
+A table is named on one pattern (2026-10-15): each column (or row) is one kind of value with one wording, and each row
+(or column) carries one iteration number, the same in every cell of it. AO 40B's expense table runs by row:
+
+- `expense_type_5_txt`, `expense_official_5_amt`, `expense_private_5_amt`, `expense_total_5_amt` (row 5)
+
+Form 8825's income grid runs by column, the property: `gross_rents_2_amt`, `advertising_2_amt`, ... (property 2).
+When a table's own labels are letters that change from page to page (8825's properties A-D), number the iterations
+1, 2, 3 instead. `eval/grid_naming.py` finds tables by layout and lists the cells that break the pattern (in the
+mechanical pass); the page check flags them too.
+
 `eval/standardize_names.py` applies the rules that are mechanical and lists the names it cannot place.

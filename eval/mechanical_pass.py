@@ -17,6 +17,8 @@ records `x_petey_hand_edit` {by: claude, kind: type, why}:
 
 Checks, reported only:
 
+    grid_naming   cells of a table whose name breaks the table's pattern: another number than their row's (or
+                  column's), or another wording than their column's (`grid_naming.py`)
     unclaimed     AcroForm widgets no field covers (missing boxes; I-130 had two)
     keys_inverted a Yes / No option whose key says yes and whose export value says no, or the reverse
     code_caption  option captions that are export codes ('BLK', 'N') rather than the printed words
@@ -41,6 +43,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cell_groups as cg  # noqa: E402
+import grid_naming  # noqa: E402
 import yes_no_groups as yn  # noqa: E402
 
 from petey.semantic_types import pattern_for, registered_names  # noqa: E402
@@ -50,7 +53,7 @@ from petey.validate.retype import resolve_blank  # noqa: E402
 
 CODEISH = re.compile(r"^(Y|N|YES|NO|[A-Z]{2,4}|\d+[a-zA-Z]?|[a-z]\d*|#20.*|\s*)$")
 FIXES = ("group_type", "person_name", "pattern", "yes_no", "row_groups", "dropdowns")
-CHECKS = ("unclaimed", "keys_inverted", "code_caption", "far_pages", "bad_semtype", "name_errors", "name_hints")
+CHECKS = ("grid_naming", "unclaimed", "keys_inverted", "code_caption", "far_pages", "bad_semtype", "name_errors", "name_hints")
 
 
 def type_edits(fields: dict) -> tuple[dict, dict]:
@@ -77,6 +80,9 @@ def type_edits(fields: dict) -> tuple[dict, dict]:
 def checks(bid: str, p: Path, bp: dict, blank: Path) -> tuple[collections.Counter, list[str]]:
     """The report-only checks: counts, and one line per finding."""
     c, lines = collections.Counter(), []
+    for ln in grid_naming.check(bp):             # a grid named on one pattern (Andrew, 2026-10-15)
+        c["grid_naming"] += 1
+        lines.append(f"grid_naming   {ln}")
     valid = set(registered_names())
     try:
         ctx = field_add.Context(bid, p)

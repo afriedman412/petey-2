@@ -83,6 +83,9 @@ Flag a field when you can point to the problem on the page:
 swapped with another field). Do not flag style: abbreviations, suffixes (_nm name, _dt date, _amt money, _cd code, \
 _ind checkbox, _txt text, _nbr number), word order, copy numbers, or a name that is correct but could be more \
 detailed.
+- wrong_name also covers a table: every cell is named on one pattern, each column (or row) one wording and each \
+row (or column) one number, so flag a cell whose name breaks it (another number than its row's, a different wording \
+than the rest of its column); here a copy number does matter.
 - wrong_type: the type or semantic type does not fit the value (a date typed as plain text, a count typed as a \
 year, a box that takes one of a printed list of choices typed as free text).
 - not_a_field: nothing is written here by a filer (the box sits on printed text, a heading, an instruction, or it \
