@@ -241,7 +241,8 @@ def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
     if groups:
         bp = h._load(p)
         blank = resolve_blank(bp)
-        items, units, _ = g.current_units(bid, bp, h._sha(p))
+        _, units, _ = g.current_units(bid, bp, h._sha(p))
+        items = g.option_items(bp)[0]          # option boxes only: a text box is combined, not grouped
         new_units = []
         for gr in groups:
             ids = []
@@ -250,7 +251,8 @@ def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
                 spec = (bp.get("fields") or {}).get(f) or {}
                 got = [i for i in items if i == f or i.startswith(f + "::")] if spec else []
                 if not got:
-                    errors.append(f"group {gr.get('name')!r}: {f!r} is not a box Groups can group")
+                    errors.append(f"group {gr.get('name')!r}: {f!r} is not a checkbox or yes / no box (retype it "
+                                  "boolean first)")
                 ids += got
             if len(ids) >= 2:
                 new_units.append({"name": gr["name"], "type": gr.get("type") or "category", "items": ids,
