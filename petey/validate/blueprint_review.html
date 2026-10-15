@@ -261,7 +261,7 @@
 <header>
   <div class="brand"><h1>Petey<span class="dot">.</span></h1><span class="sub">Blueprint review</span></div>
   <select id="pick"></select>
-  <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most errors first</option></select></label>
+  <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most to look at first</option></select></label>
   <span class="tabs" id="tabs">
     <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="audit" title="Shift+4">Audit</button>
   </span>
@@ -396,7 +396,9 @@ function renderPicker() {
   const groupOf = x => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
   for (const src of Object.keys(groups)) {
     const items = LIST.filter(x => groupOf(x) === src); if (!items.length) continue;
-    items.sort(src === 'focus' ? (a, b) => (b.focus - a.focus) || a.form.localeCompare(b.form) : order);
+    // the top section follows the menu too (2026-10-15: it was always most-to-look-at first, so the menu seemed dead
+    // there); "most errors first" means the most fields to look at, its own count
+    items.sort(src === 'focus' && how === 'errors' ? (a, b) => (b.focus - a.focus) || a.form.localeCompare(b.form) : order);
     const nv = items.filter(x => x.checked && x.checked.validated).length;
     const og = document.createElement('optgroup'); og.label = `${groups[src]} (${nv} of ${items.length} validated)`;
     for (const b of items) { const o = document.createElement('option'); o.value = b.id; o.textContent = pickerText(b); og.appendChild(o); }
