@@ -188,13 +188,39 @@ def ask(client: httpx.Client, key: str, body: dict, imgs: dict[str, bytes]) -> d
     return out
 
 
+NEAR = 40                      # a lone question still over the limit: the field list cut to the nearest boxes
+
+
+def _centre_px(item: dict):
+    b = item.get("pixel_box") or ((item.get("options") or [{}])[0].get("pixel_box"))
+    return ((b[0] + b[2]) / 2, (b[1] + b[3]) / 2) if b else (0.0, 0.0)
+
+
+def _near_only(body: dict) -> dict:
+    """The body with `state.fields` cut to the NEAR boxes closest to the one asked field (ACORD 81: 646 fields, the
+    whole list in every question went over Jev's 32k per-question limit)."""
+    fid = next(iter(body["questions"]))[1:]
+    items = body["state"]["fields"]
+    me = next((it for it in items if it["id"] == fid), None)
+    if me is None:
+        return body
+    cx, cy = _centre_px(me)
+    near = sorted(items, key=lambda it: math.hypot(_centre_px(it)[0] - cx, _centre_px(it)[1] - cy))[:NEAR]
+    return dict(body, state=dict(body["state"], fields=near, fields_note=f"the {NEAR} boxes nearest this one"))
+
+
 def ask_split(client: httpx.Client, key: str, body: dict, imgs: dict[str, bytes]) -> dict:
-    """`ask`, halving the questions while the request is over Jev's token limit; answers and usage merged."""
+    """`ask`, halving the questions while the request is over Jev's token limit; answers and usage merged. A single
+    question still over it is asked with the nearby boxes only, and left unanswered if that is too long as well."""
     try:
         return ask(client, key, body, imgs)
     except RuntimeError as e:
-        if "max_tokens_exceeded" not in str(e) or len(body["questions"]) < 2:
+        if "max_tokens_exceeded" not in str(e):
             raise
+        if len(body["questions"]) < 2:
+            if body["state"].get("fields_note"):
+                return {"answers": {}, "usage": {"input_tokens": 0}}
+            return ask_split(client, key, _near_only(body), imgs)
     qs = list(body["questions"].items())
     out = {"answers": {}, "usage": {"input_tokens": 0}}
     for half in (qs[:len(qs) // 2], qs[len(qs) // 2:]):
