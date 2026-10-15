@@ -176,17 +176,19 @@ def _letters(j: int) -> str:
 
 # ---------------------------------------------------------------- render
 
-def page_dpi(page) -> int:
+def page_dpi(page, max_edge: int = MAX_EDGE, max_px: int = MAX_PX) -> int:
     w_in, h_in = page.rect.width / 72, page.rect.height / 72
-    return int(min(MAX_EDGE / max(w_in, h_in), math.sqrt(MAX_PX / (w_in * h_in))))
+    return int(min(max_edge / max(w_in, h_in), math.sqrt(max_px / (w_in * h_in))))
 
 
-def render(blank: Path, page_no: int, rows: list[dict]) -> tuple[bytes, float, dict[str, list[float]]]:
-    """The page with every box on it outlined and labelled. Returns (png, dpi, {label: pixel box})."""
+def render(blank: Path, page_no: int, rows: list[dict], *, limits: Optional[tuple[int, int]] = None,
+           dpi: Optional[int] = None) -> tuple[bytes, float, dict[str, list[float]]]:
+    """The page with every box on it outlined and labelled. Returns (png, dpi, {label: pixel box}). `limits`
+    (long edge px, total px): another model's image limits (Jev's, `jev_page.py`); `dpi`: a fixed resolution."""
     doc = pymupdf.open(str(blank))
     try:
         page = doc[page_no - 1]
-        dpi = page_dpi(page)
+        dpi = dpi or page_dpi(page, *(limits or (MAX_EDGE, MAX_PX)))
         k = dpi / 72
         px: dict[str, list[float]] = {}
         on_page = [b for r in rows for b in r["boxes"] if b["page"] == page_no]
