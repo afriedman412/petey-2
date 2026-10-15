@@ -77,6 +77,20 @@
   .progress.justchecked { color:var(--green); }
 
   main { flex:1; display:flex; min-height:0; }
+  /* Audit mode (run_audit): read-only tables, so the page image gives way and the panel takes the width */
+  body.audit #left, body.audit #sidegrip { display:none; }
+  body.audit #panel { flex:1; width:auto !important; max-width:none; }
+  .aud table { border-collapse:collapse; font-size:12px; margin:6px 0 14px; }
+  .aud th, .aud td { border-bottom:1px solid var(--border); padding:3px 8px; text-align:left; vertical-align:top; }
+  .aud th { color:var(--text-dim); font-weight:500; }
+  .aud td.n, .aud th.n { text-align:right; font-variant-numeric:tabular-nums; }
+  .aud tr.click { cursor:pointer; } .aud tr.click:hover td { background:var(--surface-2); }
+  .aud tr.cur td { background:var(--accent-dim); }
+  .aud .kind { display:inline-block; padding:0 6px; border-radius:4px; background:var(--surface-2); border:1px solid var(--border); font-size:11px; white-space:nowrap; }
+  .aud .bad { color:var(--red); } .aud .good { color:var(--green); } .aud .warnc { color:var(--amber); }
+  .aud details { margin:0; } .aud details summary { cursor:pointer; }
+  .aud pre { white-space:pre-wrap; font-size:11px; margin:2px 0 0; color:var(--text-dim); }
+  .aud h3 { margin:4px 0 2px; } .aud h4 { margin:12px 0 2px; }
   #left { flex:1; display:flex; flex-direction:column; min-width:0; }
   #pages { display:flex; gap:4px; padding:6px 16px; border-bottom:1px solid var(--border); background:var(--surface); overflow-x:auto; white-space:nowrap; flex-shrink:0; }
   #pages:empty { display:none; }
@@ -232,7 +246,7 @@
   <select id="pick"></select>
   <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most errors first</option></select></label>
   <span class="tabs" id="tabs">
-    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button>
+    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="audit" title="Shift+4">Audit</button>
   </span>
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span id="draftBar" hidden></span>
@@ -329,7 +343,7 @@ async function reboot() {
   alert('The server did not come back within 5 minutes; check the terminal it was started from.');
 }
 function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mode) + (bid ? '/' + encodeURIComponent(bid) : '')); }
-function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); }
+function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); document.body.classList.toggle('audit', mode === 'audit'); }
 
 function pickerText(b) {
   // short (Andrew, 2026-10-13: the long rows widened the menu and pushed the header buttons onto a second line):
@@ -352,7 +366,7 @@ function renderPicker() {
   const order = how === 'oldest' ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
               : how === 'errors' ? (a, b) => (errs(b) - errs(a)) || (sugs(b) - sugs(a)) || a.form.localeCompare(b.form)
               : (a, b) => a.form.localeCompare(b.form);
-  const groupOf = x => x.focus ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
+  const groupOf = x => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
   for (const src of Object.keys(groups)) {
     const items = LIST.filter(x => groupOf(x) === src); if (!items.length) continue;
     items.sort(src === 'focus' ? (a, b) => (b.focus - a.focus) || a.form.localeCompare(b.form) : order);
@@ -476,8 +490,8 @@ function bindCanvas() {
 }
 
 // the help menu (2026-10-07): every key hint lives here, not in the bars and buttons; the current mode first
-const GLOBAL_KEYS = [['Shift+1 / 2 / 3', 'Review / Groups / Add / remove'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['?', 'this help']];
-const MODE_NAME = {review: 'Review', groups: 'Groups', add: 'Add / remove'};
+const GLOBAL_KEYS = [['Shift+1 / 2 / 3 / 4', 'Review / Groups / Add / remove / Audit'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['?', 'this help']];
+const MODE_NAME = {review: 'Review', groups: 'Groups', add: 'Add / remove', audit: 'Audit'};
 function helpHtml() {
   const keys = rows => `<table>${rows.map(([k, d]) => `<tr><td>${k.split(' / ').map(x => `<kbd>${esc(x)}</kbd>`).join(' / ')}</td><td>${esc(d)}</td></tr>`).join('')}</table>`;
   const h = M().help || {keys: [], tips: []};
@@ -496,7 +510,7 @@ function onKey(e) {
   if (t && ['TEXTAREA', 'INPUT', 'SELECT'].includes(t.tagName) && t.type !== 'checkbox' && t.type !== 'radio') return;
   if (e.key === '?') { toggleHelp(); e.preventDefault(); return; }
   if (e.key === 'Escape' && !$('#helpmenu').hidden) { toggleHelp(false); e.preventDefault(); return; }
-  if (e.shiftKey && /^Digit[123]$/.test(e.code)) { setMode(['review', 'groups', 'add'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
+  if (e.shiftKey && /^Digit[1234]$/.test(e.code)) { setMode(['review', 'groups', 'add', 'audit'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
   if (!bid) return;
   if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);
   else if (e.key === '-') setZoom(zoom / 1.25);
@@ -646,9 +660,12 @@ MODE.review = (() => {
     const eo = e.options || {};
     return {name: e.name || o.name, type: e.type || o.type,
             semantic_type: e.semantic_type ? un(e.semantic_type) : o.semantic_type, pattern: e.pattern ? un(e.pattern) : o.pattern,
-            options: Object.fromEntries(f.options.map(x => { const d = eo[x.on_state] || {};
-              return [x.on_state, {key: d.key || x.on_state, caption: 'caption' in d ? d.caption : (x.caption || '')}]; }))};
+            options: Object.fromEntries(optList(f).map(x => { const d = eo[x.k] || {};
+              return [x.k, {key: d.key || x.k, caption: 'caption' in d ? d.caption : (x.caption || '')}]; }))};
   }
+  // a group's boxes, or a dropdown's entries (2026-10-14: dropdown options look and are corrected like group options)
+  const optList = f => f.options.length ? f.options.map(x => ({k: x.on_state, caption: x.caption}))
+                                        : (f.choices || []).map(c => ({k: c.key, caption: c.caption, stored: c.stored}));
   // an option group's keys (what extraction returns) and captions, edited in the field card (2026-10-07)
   const optRows = () => [...document.querySelectorAll('.orow')];
   const boxes = () => ({...Object.fromEntries(FIX_BOXES.map(([s, k]) => [k, $(s).value.trim()])),
@@ -682,10 +699,10 @@ MODE.review = (() => {
     const cleared = k => now[k] === o[k] ? '' : (now[k] || 'none');
     const edit = {name: now.name, type: now.type, semantic_type: cleared('semantic_type'), pattern: cleared('pattern')};
     const opts = {};
-    for (const x of f.options) {
-      const b = now.options[x.on_state]; if (!b) continue;
-      const d = {}; if (b.key && b.key !== x.on_state) d.key = b.key; if (b.caption !== (x.caption || '')) d.caption = b.caption;
-      if (Object.keys(d).length) opts[x.on_state] = d;
+    for (const x of optList(f)) {
+      const b = now.options[x.k]; if (!b) continue;
+      const d = {}; if (b.key && b.key !== x.k) d.key = b.key; if (b.caption !== (x.caption || '')) d.caption = b.caption;
+      if (Object.keys(d).length) opts[x.k] = d;
     }
     if (Object.keys(opts).length) edit.options = opts;
     const note = $('#note') ? $('#note').value : (v.note || '');
@@ -864,9 +881,10 @@ MODE.review = (() => {
     const types = f.options.length > 1 ? ['category', 'multi_category'] : ['string', 'number', 'integer', 'date', 'boolean', 'category', 'multi_category'];
     const typeOpts = (types.includes(s.type) ? '' : `<option value="${esc(s.type)}" disabled selected>${esc(s.type)} (not allowed for a group)</option>`)
       + types.map(t => `<option ${s.type === t ? 'selected' : ''}>${t}</option>`).join('');
-    const opts = f.options.length ? `<span class="lbl">Options<br><span class="help">key · caption</span></span><span class="otable">${f.options.map(o =>
-      `<span class="orow" data-k="${esc(o.on_state)}"><input class="okey" value="${esc(s.options[o.on_state].key)}" spellcheck="false" title="the value extraction returns for this box">
-       <input class="ocap" value="${esc(s.options[o.on_state].caption)}" placeholder="no caption" title="the text printed at this box; empty clears it"></span>`).join('')}</span>` : '';
+    const dd = !f.options.length && (f.choices || []).length;
+    const opts = optList(f).length ? `<span class="lbl">${dd ? 'Dropdown' : 'Options'}<br><span class="help">key · caption</span></span><span class="otable">${optList(f).map(o =>
+      `<span class="orow" data-k="${esc(o.k)}"><input class="okey" value="${esc(s.options[o.k].key)}" spellcheck="false" title="${dd ? `the value extraction returns for this entry${o.stored !== undefined && o.stored !== null ? `; the PDF stores ${esc(o.stored)}` : ''}` : 'the value extraction returns for this box'}">
+       <input class="ocap" value="${esc(s.options[o.k].caption)}" placeholder="no caption" title="${dd ? 'the text shown for this entry in the list' : 'the text printed at this box'}; empty clears it"></span>`).join('')}</span>` : '';
     const loop = f.loop ? `<div class="loop"><b>Loop changed</b> ${esc((f.loop.changed || []).join(', '))}${f.loop.old_name ? ` (was <code>${esc(f.loop.old_name)}</code>)` : ''}<br>${esc(f.loop.reason || '')}</div>` : '';
     const adj = f.adjudication ? `<div class="adj"><b>Adjudicator</b> ${esc(f.adjudication.verdict)} for <code>${esc(f.adjudication.proposed)}</code>: ${esc(f.adjudication.reason || '')}</div>` : '';
     const saved = v.edit && !v.applied ? `<span class="help">Correction saved, held back from the working copy (a name another field has; the apply button in the bar retries); the working copy has
@@ -879,7 +897,7 @@ MODE.review = (() => {
           <label for="eType">Type</label><select id="eType">${typeOpts}</select>
           <label for="eSem">Semantic type</label><input id="eSem" list="semList" placeholder="none" value="${esc(s.semantic_type)}" spellcheck="false">
           <label for="ePat">Pattern</label><input id="ePat" placeholder="none" value="${esc(s.pattern)}" spellcheck="false">
-          ${f.values ? `<span class="lbl">Values</span><span>${esc(f.values.join(', '))}</span>` : ''}
+          ${f.values && !(f.choices || []).length ? `<span class="lbl">Values</span><span>${esc(f.values.join(', '))}</span>` : ''}
           <span class="lbl">Description</span><span>${f.description ? esc(f.description) : '<i>none</i>'}</span>
           ${opts}
         </div>
@@ -1866,6 +1884,102 @@ MODE.add = (() => {
       else if (e.key === 's') { showSug = !showSug; $('#aSug').checked = showSug; placeAll(); }
       else return false;
       return true;
+    },
+  };
+})();
+
+// ======================================================================= Audit: versions and run history (run_audit)
+// Andrew, 2026-10-14: "build a 'run audit' into the review interface, so you can see the run history and all the data
+// for each form". Read only. Numbers are per page as well: forms differ too much in size for per-form numbers.
+MODE.audit = (() => {
+  let A = null, B = null, view = store('br_audit_view') || 'form';
+  const n = (x, d = 0) => x === null || x === undefined ? '' : (typeof x === 'number' ? x.toFixed(d) : esc(x));
+  const pp = (x, pages) => x === null || x === undefined ? '' : `${x} <span class="help">(${(x / Math.max(1, pages)).toFixed(2)}/p)</span>`;
+  const money = x => x === null || x === undefined ? '' : '$' + x.toFixed(x < 1 ? 3 : 2);
+  function verRows(vs) {
+    const row = (label, f) => `<tr><th>${label}</th>${vs.map(v => `<td>${f(v)}</td>`).join('')}</tr>`;
+    const pc = v => v.page_check || {}, jv = v => v.jev || {}, rv = v => v.review || {};
+    return `<table><tr><th></th>${vs.map(v => `<th>${esc(v.kind)}<br><code>${esc(v.id)}</code><br><button class="btn" data-open="${esc(v.id)}">open in Review</button></th>`).join('')}</tr>
+      ${row('file', v => `<span class="help">${esc(v.path)}</span>`)}
+      ${row('built', v => v.build ? `${esc(v.build.when || '')} <span class="help">${esc(v.build.classifier_model || v.build.basis || '')}</span>${v.stable === false ? ' <span class="warnc">not stable</span>' : ''}` : '<span class="help">no build stamp (petey-master)</span>')}
+      ${row('pages with fields', v => n(v.pages))}
+      ${row('fields', v => `${v.fields} <span class="help">(${(v.per_page || {}).fields ?? ''}/p)</span>`)}
+      ${row('no text layer', v => v.no_text_pages && v.no_text_pages.length ? `<span class="bad">pages ${v.no_text_pages.join(', ')}</span>` : '<span class="help">none</span>')}
+      ${row('page check: name flags', v => v.page_check ? pp(pc(v).name_flags, v.pages) : '<span class="help">not run</span>')}
+      ${row('page check: all flags', v => v.page_check ? pp(pc(v).flags, v.pages) + ` <span class="help">${esc(Object.entries(pc(v).problems || {}).map(([k, c]) => k + ' ' + c).join(', '))}</span>` : '')}
+      ${row('page check: run', v => v.page_check ? `<span class="help">${esc(pc(v).model || '')} · ${esc(pc(v).when || '')} · judged ${pc(v).judged}/${v.fields}</span>` : '')}
+      ${row('Jev below 0.3', v => v.jev ? pp(jv(v).below_03, v.pages) : '<span class="help">not run</span>')}
+      ${row('Jev below 0.5', v => v.jev ? pp(jv(v).below_05, v.pages) + ` <span class="help">${esc(jv(v).when)}</span>` : '')}
+      ${row('name-check errors', v => v.name_errors !== undefined ? pp(v.name_errors, v.pages) + (v.name_errors_from ? ` <span class="help">as of ${esc(v.name_errors_from)}</span>` : '') : '')}
+      ${row('boxes no field covers', v => v.unclaimed !== undefined ? n(v.unclaimed) : (v.unclaimed_error ? `<span class="help">${esc(v.unclaimed_error)}</span>` : '<span class="help">(open this version)</span>'))}
+      ${row('mechanical pass', v => v.mechanical ? `<span class="help">${esc(v.mechanical.when)} · fixed ${esc(JSON.stringify(v.mechanical.fixed))}</span>` : '<span class="help">not run</span>')}
+      ${row('hand review', v => `${rv(v).verdicts} verdicts, ${rv(v).looked_at} looked at, ${rv(v).flags} flagged${rv(v).checked && rv(v).checked.validated ? ' · <span class="good">VALIDATED</span>' : ''}`)}
+      ${row('corrections on fields', v => esc(Object.entries(v.corrections || {}).map(([k, c]) => k + ' ' + c).join(', ')) || '<span class="help">none</span>')}
+    </table>`;
+  }
+  function histRows(ev) {
+    return `<table><tr><th>when</th><th>what</th><th></th><th class="n">cost</th><th class="n">per page</th><th class="n">min/page</th></tr>${ev.map(e => `<tr>
+      <td><span class="help">${esc(e.when)}</span></td><td><span class="kind">${esc(e.kind)}</span></td>
+      <td><details><summary>${esc(e.title)}</summary><pre>${esc(JSON.stringify(e.detail || {}, null, 1))}</pre></details></td>
+      <td class="n">${money(e.cost)}</td><td class="n">${money(e.cost_per_page)}</td><td class="n">${n(e.minutes_per_page, 1)}</td></tr>`).join('')}</table>`;
+  }
+  function formHtml() {
+    if (!A) return '<p class="help">Pick a form.</p>';
+    return `<h3>${esc(A.form)}</h3><div class="help">${A.versions.length} version${A.versions.length === 1 ? '' : 's'}; the one picked is checked in full (name checks, uncovered boxes)</div>
+      <h4>Versions</h4>${verRows(A.versions)}<h4>History (${A.history.length})</h4>${histRows(A.history)}`;
+  }
+  function batchHtml() {
+    if (!B) return '<p class="help">loading the batch…</p>';
+    const rows = B.rows, tot = {};
+    for (const r of rows) {
+      const t = tot[r.kind] = tot[r.kind] || {pages: 0, fields: 0, nf: 0, af: 0, j3: 0, ne: 0, pcp: 0, jp: 0, nep: 0};
+      t.pages += r.pages || 0; t.fields += r.fields || 0;
+      if (r.page_check) { t.nf += r.page_check.name_flags; t.af += r.page_check.flags; t.pcp += r.pages; }
+      if (r.jev) { t.j3 += r.jev.below_03; t.jp += r.pages; }
+      if (r.name_errors !== undefined) { t.ne += r.name_errors; t.nep += r.pages; }
+    }
+    const per = (x, p) => p ? (x / p).toFixed(2) : '';
+    return `<h3>Batch: the forms at the top of the menu</h3><div class="help">${esc(B.why || '')}</div>
+      <h4>Totals, per page (pooled over pages)</h4><table><tr><th>version</th><th class="n">pages</th><th class="n">fields/p</th><th class="n">page-check name flags/p</th><th class="n">all flags/p</th><th class="n">Jev &lt;0.3/p</th><th class="n">name-check errors/p</th></tr>
+      ${Object.entries(tot).map(([k, t]) => `<tr><td>${esc(k)}</td><td class="n">${t.pages}</td><td class="n">${per(t.fields, t.pages)}</td><td class="n">${per(t.nf, t.pcp)}</td><td class="n">${per(t.af, t.pcp)}</td><td class="n">${per(t.j3, t.jp)}</td><td class="n">${per(t.ne, t.nep)}</td></tr>`).join('')}</table>
+      <h4>Every version (click a row for its audit)</h4><table><tr><th>form</th><th>version</th><th class="n">pages</th><th class="n">fields</th><th class="n">page-check name flags</th><th class="n">all flags</th><th class="n">Jev &lt;0.3</th><th class="n">name-check errors</th><th>text layer</th><th>review</th></tr>
+      ${rows.map(r => r.error ? `<tr><td>${esc(r.form)}</td><td><code>${esc(r.id)}</code></td><td colspan="8" class="bad">${esc(r.error)}</td></tr>` : `<tr class="click ${r.id === bid ? 'cur' : ''}" data-aud="${esc(r.id)}">
+        <td>${esc(r.form)}</td><td><span class="kind">${esc(r.kind)}</span></td><td class="n">${r.pages}</td><td class="n">${r.fields}</td>
+        <td class="n">${r.page_check ? pp(r.page_check.name_flags, r.pages) : '<span class="help">not run</span>'}</td>
+        <td class="n">${r.page_check ? pp(r.page_check.flags, r.pages) : ''}</td>
+        <td class="n">${r.jev ? pp(r.jev.below_03, r.pages) : '<span class="help">not run</span>'}</td>
+        <td class="n">${r.name_errors !== undefined ? pp(r.name_errors, r.pages) : ''}</td>
+        <td>${r.no_text_pages && r.no_text_pages.length ? '<span class="bad">none on p' + r.no_text_pages.join(', ') + '</span>' : 'yes'}</td>
+        <td>${(r.review || {}).checked && r.review.checked.validated ? '<span class="good">VALIDATED</span>' : `${(r.review || {}).verdicts || 0} verdicts`}</td></tr>`).join('')}</table>`;
+  }
+  function panel() {
+    const a = $('#panel');
+    a.innerHTML = `<div class="aud">${view === 'batch' ? batchHtml() : formHtml()}</div>`;
+    a.querySelectorAll('[data-open]').forEach(b => b.onclick = async () => { $('#pick').value = b.dataset.open; await openBlueprint(b.dataset.open); await setMode('review'); });
+    a.querySelectorAll('[data-aud]').forEach(r => r.onclick = async () => { view = 'form'; store('br_audit_view', view); renderModebar(); $('#pick').value = r.dataset.aud; await openBlueprint(r.dataset.aud); });
+  }
+  async function loadBatch() { B = null; panel(); try { B = await j('/api/audit-batch'); } catch (e) { B = {rows: [], why: 'could not load: ' + e.message}; } if (view === 'batch') panel(); }
+  return {
+    async load() { A = await j(mapi('audit')); },
+    pages: () => [], startPage: () => 1, pageLabel: () => '',
+    bar: () => `<span class="progress" id="progress"></span>
+      <label class="help"><input type="radio" name="audv" value="form" ${view === 'form' ? 'checked' : ''}> this form</label>
+      <label class="help"><input type="radio" name="audv" value="batch" ${view === 'batch' ? 'checked' : ''}> batch (the forms at the top)</label>`,
+    bindBar() {
+      document.querySelectorAll('input[name=audv]').forEach(r => r.onchange = async e => {
+        view = e.target.value; store('br_audit_view', view);
+        if (view === 'batch' && !B) await loadBatch(); else panel();
+      });
+      if (view === 'batch' && !B) loadBatch(); else if (A || view === 'batch') panel();
+    },
+    help: {keys: [['b', 'batch table / this form']],
+           tips: ['Read only. Each version of the form: the library copy and any fresh run of the current pipeline, with page-check flags, Jev, name checks and review, per page.',
+                  'History: generation (petey-master or a fresh run, with cost and minutes per page), validate runs, page checks, Jev, the mechanical pass, hand review, Claude, library commits. Click a line for its details.']},
+    place() {}, panel,
+    progress() { const el = $('#progress'); if (el) el.innerHTML = A && view === 'form' ? `<b>${esc(A.form)}</b> · ${A.versions.length} versions · ${A.history.length} events` : ''; },
+    key(e) {
+      if (e.key === 'b') { view = view === 'batch' ? 'form' : 'batch'; store('br_audit_view', view); renderModebar(); if (view === 'batch' && !B) loadBatch(); else panel(); return true; }
+      return false;
     },
   };
 })();

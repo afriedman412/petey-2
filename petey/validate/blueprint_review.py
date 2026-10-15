@@ -1,11 +1,13 @@
 """Blueprint review: one web page for checking a blueprint against its blank, in three modes over the same picker,
-page and zoom:
+page and zoom (and a read-only audit):
 
     Review       accept / flag / note per field, risk-first by witness tier   (`hand_review`, runs/hand_review/)
     Groups       confirm option groups, drag boxes to regroup, drag text boxes together to combine them
                                                                                 (`group_review`, runs/group_review/)
     Add / remove suggestions and drawn areas -> proposed fields; not-a-field; remove a field
                                                                                 (`field_add`, runs/field_add/)
+    Audit        read only: each version of the form (library copy, fresh run) with its numbers per page, and the
+                 run history (generation, runs, checks, review); a batch table of the forms at the top   (`run_audit`)
 
     PYTHONPATH=. venv/bin/python -m petey.validate.blueprint_review [--port 5005] [--mode review|groups|add]
 
@@ -38,12 +40,26 @@ from urllib.parse import unquote, urlparse
 import pymupdf
 
 from petey import web
-from petey.validate import draft, field_add, group_review, hand_review
+from petey.validate import draft, field_add, group_review, hand_review, run_audit
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 144                      # option boxes are 8-10 pt; at 110 dpi (the old hand review) they are 12 px targets
-MODES = ("review", "groups", "add")
+MODES = ("review", "groups", "add", "audit")
+
+
+class Audit:
+    """Audit mode (`run_audit`): one form's versions and history; the batch table for the forms at the top."""
+
+    def __init__(self, app: "App") -> None:
+        self.app = app
+
+    def detail(self, bid: str) -> dict:
+        return run_audit.audit(bid, self.app.paths, self.app.review._index)
+
+    def batch(self) -> dict:
+        forms = list((hand_review._focus().get("forms") or {}))
+        return {"why": hand_review._focus().get("why"), "rows": run_audit.batch(forms, self.app.paths, self.app.review._index)}
 
 
 class App:
@@ -51,6 +67,7 @@ class App:
         self.review = hand_review.State()
         self.groups = group_review.State()
         self.add = field_add.State()
+        self.audit = Audit(self)
         self.paths = self.review.paths
         self.png: dict[tuple[str, int], bytes] = {}
         self.mtimes: dict[str, float] = {}
@@ -194,7 +211,10 @@ class App:
         if not self.review._index:
             self.index()
         self.refresh()
-        return [self.entry(bid) for bid in self.paths]
+        # the top section's list is read fresh: a row is re-read only when its blueprint changes, and focus.json
+        # changes on its own (2026-10-14: a new batch put at the top did not show)
+        focus = hand_review._focus().get("forms") or {}
+        return [dict(self.entry(bid), focus=focus.get(bid)) for bid in self.paths]
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
         key = (bid, page)
@@ -269,6 +289,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(HTML_PATH.read_bytes(), "text/html; charset=utf-8")
         if path == "/api/blueprints":
             return self._json(APP.listing())
+        if path == "/api/audit-batch":
+            return self._route(APP.audit.batch)
         if len(parts) == 4 and parts[:2] == ["api", "blueprints"] and parts[3] == "sha":
             return self._route(lambda: {"sha": hand_review._sha(APP.working(parts[2]))}, parts[2])
         if len(parts) == 3 and parts[:2] == ["api", "draft"]:
