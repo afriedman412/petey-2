@@ -32,7 +32,7 @@ shape is predictable, so associated fields (entities, compound values) can be re
 | `_time` | a clock time, in whatever format (the pattern carries "12:00" vs "1430") |
 | `_amt` | money only |
 | `_cnt`, `_qty` | a count or quantity; equivalent, whichever reads better |
-| `_pct` | a percentage |
+| `_pct` | a percentage of something (a rate in percent, a share); not `_qty` (2026-10-15) |
 | measure units | `_ft`, `_sq_ft`, `_miles`, `_hours`, `_bbl`, `_mcf`: a quantity named for its unit |
 | `_ind` | a single checkbox |
 | `_txt` | free text, including address lines and email addresses (`_address_line_1_txt`, `_email_address_txt`) |

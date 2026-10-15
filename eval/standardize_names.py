@@ -76,6 +76,9 @@ TAIL = [(u, ("unit", "nbr"), None) for u in UNIT] + [
     *[((w,), (w, "txt"), ("string",)) for w in ("classifications", "sources", "resolution", "relationship", "province",
                                                "info", "comments", "remarks", "notes", "reason", "purpose")],
 ]
+# a percentage of something is _pct, not _qty (Andrew, 2026-10-15)
+TAIL += [((w, x), ("pct",), None) for w in ("percent", "percentage") for x in ("qty", "cnt", "txt", "nbr")] + \
+        [(("percent",), ("pct",), None), (("percentage",), ("pct",), None), (("pct", "qty"), ("pct",), None)]
 TAIL.sort(key=lambda t: -len(t[0]))
 
 # parts of one value (a compound value) come AFTER the suffix: [description]_[iteration]_[suffix]_[part] (Andrew,
@@ -236,14 +239,18 @@ def standard(name: str, spec: dict, part: tuple | None = None) -> tuple[str, lis
             toks = toks[:-n] + list(rep)
             did.append(f"{'_'.join(tail)} -> {'_'.join(rep)}")
             break
+    st = spec.get("semantic_type")
+    if st == "percent" and toks[-1] in ("qty", "cnt"):        # a percentage named as a count or quantity
+        toks = toks[:-1] + ["pct"]
+        did.append(f"_{name.split('_')[-1] if name.split('_')[-1] in ('qty', 'cnt') else 'qty'} -> _pct (a percentage)")
     if toks[-1] not in SUFFIXES:                              # step 4: from the type, when unambiguous
-        st = spec.get("semantic_type")
         # the type's default suffix: a date _dt, a count _cnt, money _amt, another number _qty, free text _txt (a
         # country / city / state named in it: _cd / _nm / _cd); a leftover phone part word is left for a person
         add = ("ind" if typ == "boolean" else
                "dt" if typ == "date" else
                "cnt" if typ == "integer" else
                "amt" if typ == "number" and (st or "").startswith("money") else
+               "pct" if typ == "number" and st == "percent" else
                "qty" if typ == "number" else
                None if toks[-1] in ("area", "prefix", "line", "local") else
                "cd" if typ in ("string", None) and ("country" in toks or "state" in toks) else
@@ -333,7 +340,7 @@ def apply(bid: str, ren: dict, why: dict) -> int:
     return len(clean)
 
 
-def run(bid: str, write: bool = False) -> dict:
+def run(bid: str, write: bool = False, only: str | None = None) -> dict:
     p = h.working_path(bid)
     bp = h._load(p)
     fields = bp.get("fields") or {}
@@ -358,6 +365,8 @@ def run(bid: str, write: bool = False) -> dict:
     clash = {n for n in ren if target[ren[n]] > 1}
     for n in clash:
         ren.pop(n)
+    if only:                             # one rule's renames only (2026-10-15: _pct on forms already in review)
+        ren = {o: n for o, n in ren.items() if re.search(only, n)}
     applied = apply(bid, ren, why) if write else 0
     out_fields = {ren.get(n, n): s for n, s in fields.items()}
     bp["fields"] = out_fields
@@ -378,10 +387,11 @@ def main() -> int:
     ap.add_argument("ids", nargs="*")
     ap.add_argument("--all-validated", action="store_true", help="the 19 forms validated on 2026-10-13/14")
     ap.add_argument("--apply", action="store_true", help="write the renames into the review page's working copy")
+    ap.add_argument("--only", help="keep only renames whose new name matches this regex (e.g. '_pct$')")
     args = ap.parse_args()
     ids = args.ids + (list(json.loads((RUNS / "belongs_to" / "validated_forms_2026-10-14.json").read_text())["forms"])
                       if args.all_validated else [])
-    rows = [run(b, args.apply) for b in ids]
+    rows = [run(b, args.apply, args.only) for b in ids]
     tot = collections.Counter()
     for r in rows:
         tot.update({k: r[k] for k in ("fields", "renamed", "plain", "suffix_ok_before", "suffix_ok_after")})
