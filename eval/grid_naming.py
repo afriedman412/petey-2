@@ -9,7 +9,17 @@ shape and the column decides the number (Form 8825's income grid: gross_rents_N_
 picks the reading most cells agree with and lists the cells that break it: another shape than their column's (or
 row's), or another number than their row's (or column's). Found by layout only, no names or forms listed.
 
-    PYTHONPATH=. venv/bin/python eval/grid_naming.py je__ao040b je__f8825 ...
+    PYTHONPATH=. venv/bin/python eval/grid_naming.py je__ao040b je__f8825 ...            # list what breaks
+    PYTHONPATH=. venv/bin/python eval/grid_naming.py je__ao040b --fix                    # the renames it would make
+    PYTHONPATH=. venv/bin/python eval/grid_naming.py je__ao040b --fix --apply            # make them
+
+`--fix` (2026-10-15, Andrew: "let's just systematize this"): each cell that breaks the pattern is renamed to its
+column's (or row's) wording with the number its row (or column) should carry, worked out from the table itself (the
+offset most numbered cells agree on between position and number), so a swap, a stray number and an unnumbered first
+row are all fixed. A cell whose wording has more than one number in it, or a table numbered by letters, is listed and
+left. `--apply` writes the renames into the review page's working copy as Claude's corrections (`form_chat.apply`:
+clashes refused, the person's verdicts follow). Separate tables stacked in one set of columns, or a column that
+should be worded differently, still need a person (the chat, or by hand).
 """
 from __future__ import annotations
 
@@ -168,6 +178,71 @@ def iterated(grid: list[dict]) -> bool:
     return sum(_number(c["name"]) is not None for c in grid) >= 0.5 * len(grid)
 
 
+def _standard(name: str, spec: dict) -> str:
+    """The naming standard's shape for a fixed name (iteration before the suffix): standardize_names.standard."""
+    try:
+        from standardize_names import standard
+    except ImportError:
+        sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
+        from standardize_names import standard
+    return standard(name, spec)[0]
+
+
+def fixes(bp: dict) -> tuple[dict[str, str], list[str]]:
+    """({cell: new name}, [cells it cannot fix]) for every iterated grid."""
+    ren, left = {}, []
+    for g in grids(bp):
+        if not iterated(g):
+            continue
+        reading, probs = breaks(g)
+        if not probs:
+            continue
+        shape_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
+        last = max(c["row"] for c in g)
+        cells = [c for c in g if not (c["row"] == last and all(x["name"].startswith("total") for x in g if x["row"] == last))]
+        shapes = collections.defaultdict(collections.Counter)
+        for c in cells:
+            shapes[c[shape_axis]][_shape(c["name"])] += 1
+        offs = collections.Counter(int(_number(c["name"])) - c[num_axis] for c in cells
+                                   if (_number(c["name"]) or "").isdigit())
+        k, kn = offs.most_common(1)[0] if offs else (None, 0)
+        regular = bool(offs) and kn >= 0.6 * sum(offs.values())
+        line_nums = collections.defaultdict(collections.Counter)      # the number the rest of the line carries
+        for c in cells:
+            if (_number(c["name"]) or "").isdigit():
+                line_nums[c[num_axis]][int(_number(c["name"]))] += 1
+        bad = {p.split(":")[0] for p in probs}
+        here: dict[str, str] = {}
+        for c in cells:
+            if c["name"] not in bad:
+                continue
+            want = shapes[c[shape_axis]].most_common(1)[0][0]
+            nn = want.split("_").count("N")
+            if nn != 1:
+                left.append(f"{c['name']}: its column's pattern {want} has " + ("no number" if not nn else "more than one number"))
+                continue
+            got = line_nums[c[num_axis]].most_common(2)
+            if got and (len(got) == 1 or got[0][1] > got[1][1]) and got[0][1] >= 2:
+                num = got[0][0]                  # most of its row (or column) agrees
+            elif regular:
+                num = c[num_axis] + k            # the table's own numbering, by position
+            else:
+                left.append(f"{c['name']}: no clear number for its row")
+                continue
+            if num < 1:
+                left.append(f"{c['name']}: would be numbered {num}")
+                continue
+            new = "_".join(str(num) if t == "N" else t for t in want.split("_"))
+            new = _standard(new, (bp.get("fields") or {}).get(c["name"]) or {})   # the number before the suffix
+            if new != c["name"]:
+                here[c["name"]] = new
+        if len(here) > 0.4 * len(cells):         # most of the table would change: its pattern is not clear
+            left.append(f"grid p{g[0]['page']} ({len(cells)} cells): {len(here)} would change, left for a person")
+            continue
+        ren.update(here)
+    return ren, left
+
+
 def check(bp: dict) -> list[str]:
     out = []
     for g in grids(bp):
@@ -181,14 +256,31 @@ def check(bp: dict) -> list[str]:
 
 
 def main() -> int:
+    import argparse
     from petey.validate import hand_review as h
-    for bid in sys.argv[1:]:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("ids", nargs="+")
+    ap.add_argument("--fix", action="store_true", help="list the renames that would put each grid on its pattern")
+    ap.add_argument("--apply", action="store_true", help="with --fix: write them into the working copy")
+    args = ap.parse_args()
+    for bid in args.ids:
         bp = h._load(h.working_path(bid))
-        gs = grids(bp)
         lines = check(bp)
-        print(f"{bid}: {len(gs)} grid(s), {len(lines)} cell(s) breaking the pattern")
-        for ln in lines[:25]:
-            print("  " + ln)
+        print(f"{bid}: {len(grids(bp))} grid(s), {len(lines)} cell(s) breaking the pattern")
+        if not args.fix:
+            for ln in lines[:25]:
+                print("  " + ln)
+            continue
+        ren, left = fixes(bp)
+        for o, n in ren.items():
+            print(f"  {o} -> {n}")
+        for ln in left:
+            print(f"  left: {ln}")
+        if args.apply and ren:
+            from petey.validate import form_chat
+            out = form_chat.apply(bid, [{"field": o, "edit": {"name": n}, "why": "grid named on one pattern "
+                                         "(eval/grid_naming.py --fix)"} for o, n in ren.items()], [])
+            print(f"  applied {len(out['changes'])}" + (f"; not applied: {'; '.join(out['errors'])}" if out["errors"] else ""))
     return 0
 
 
