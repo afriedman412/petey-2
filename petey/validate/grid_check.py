@@ -44,9 +44,48 @@ def _rect(bp: dict, name: str):
     return w.get("rect")
 
 
+_HEADS: dict[str, dict] = {}
+
+
+def _title(bbox, page_lines, heads=None, captions=()) -> Optional[str]:
+    """The heading printed above a table: the nearest section heading (bold, capitals, larger type, Section / Part;
+    `cheap_names.headings`) above it that overlaps it across, within 250 pt (ACORD 126: SCHEDULE OF HAZARDS, not
+    its column header PREM/OPS); else the nearest line within 60 pt above."""
+    from cheap_names import JUNK
+    width = bbox[2] - bbox[0]
+
+    caps = {" ".join(str(c).split()).lower() for c in captions if c}
+
+    def titleish(bb, t):                 # a title starts at the table's left edge or spans much of it; not a column
+        if " ".join(t.split()).lower() in caps:                                  # header (the table's own captions),
+            return False                                                         # an instruction or a caption
+        if __import__("re").match(r"^\(?\s*(rev\.?|revised|form\b|page\b|omb\b)", t.strip(), __import__("re").I):
+            return False                                                         # a revision or form stamp
+        return ((bb[0] <= bbox[0] + 12 or bb[2] - bb[0] >= 0.3 * width)
+                and not JUNK.search(t) and not t.rstrip().endswith(":") and any(ch.isalpha() for ch in t))
+    hs = [(bbox[1] - bb[3], " ".join(t.split())) for bb, t in heads or []
+          if 0 <= bbox[1] - bb[3] <= 250 and min(bbox[2], bb[2]) - max(bbox[0], bb[0]) > 0 and titleish(bb, t)]
+    if hs:
+        return min(hs)[1]
+    best = None
+    for bb, t in page_lines or []:
+        gap = bbox[1] - bb[3]
+        if 0 <= gap <= 60 and min(bbox[2], bb[2]) - max(bbox[0], bb[0]) > 0 and len(t.split()) <= 12 and titleish(bb, t):
+            if best is None or gap < best[0]:
+                best = (gap, " ".join(t.split()))
+    return best[1] if best else None
+
+
 def tables(bp: dict) -> list[dict]:
-    """[{id, page, kind, rows, cols, bbox, cells: [{name, rect, row, col}], on_pattern, why}] for every numbered
-    table and block, in page order."""
+    """[{id, page, kind, rows, cols, lines, positions, title, bbox, cells: [{name, rect, row, col}], on_pattern, why}]
+    for every numbered table and block, in page order. `lines` is how many rows (or blocks) it numbers, `positions`
+    each column (or a block's field) with its wording and the caption printed for it."""
+    blank = resolve_blank(bp)
+    page_text = _lines(blank) if blank and blank.exists() else {}
+    if blank and blank.exists() and str(blank) not in _HEADS:
+        from cheap_names import headings
+        _HEADS[str(blank)] = headings(blank)
+    heads = _HEADS.get(str(blank), {}) if blank else {}
     out, n = [], {}
     for g in G.grids(bp):
         if not G.iterated(g):
@@ -58,9 +97,21 @@ def tables(bp: dict) -> list[dict]:
         if not rs:
             continue
         ok, why = G.on_pattern(g)
+        reading, _ = G.breaks(g)
+        pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
+        how = "block" if g[0].get("block") else reading
+        body = G.body(g)
+        positions = []
+        for k in sorted({c[pos_axis] for c in body}):
+            pcs = [c for c in body if c[pos_axis] == k]
+            wordings = sorted({(G._pattern(c["name"]) or c["name"]).replace("_N", "_#") for c in pcs})
+            positions.append({"pos": k + 1, "wordings": wordings, "caption": G.position_caption(bp, pcs, how, page_text)})
+        bbox = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
         out.append({"id": f"p{page}t{n[page]}", "page": page, "kind": "block" if g[0].get("block") else "grid",
+                    "lines": len({c[num_axis] for c in body}), "positions": positions, "reading": reading,
+                    "title": _title(bbox, page_text.get(page), heads.get(page), [p["caption"] for p in positions]),
                     "rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1,
-                    "bbox": [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)],
+                    "bbox": bbox,
                     "cells": [{k: c[k] for k in ("name", "rect", "row", "col")} for c in cells],
                     "on_pattern": ok, "why": why})
     out.sort(key=lambda t: (t["page"], t["bbox"][1], t["bbox"][0]))

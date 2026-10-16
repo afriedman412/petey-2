@@ -90,6 +90,9 @@
   .gtcard.sel { border-color:var(--accent); }
   .gtcard .btn { margin-top:6px; }
   .gtsteps { margin:6px 0 0 16px; padding:0; font-size:12px; color:var(--text-dim); }
+  .gttitle { font-weight:600; margin-bottom:3px; }
+  .gtpos ol { margin:4px 0 0 18px; padding:0; font-size:12px; }
+  .gtpos li { margin:2px 0; }
 
   /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
   .brand { cursor:pointer; }
@@ -2271,10 +2274,15 @@ MODE.grids = (() => {
   }
   function card(t) {
     const res = results[t.id], b = busy.has(t.id);
+    const blk = t.kind === 'block', across = (t.positions || []).length;
+    const size = blk ? `${t.lines} block${t.lines === 1 ? '' : 's'} × ${across} field${across === 1 ? '' : 's'}`
+                     : `${t.lines} row${t.lines === 1 ? '' : 's'} × ${across} column${across === 1 ? '' : 's'}`;
     return `<div class="gtcard ${selected === t.id ? 'sel' : ''}" data-t="${esc(t.id)}">
-      <div><span class="pill ${t.kind === 'block' ? 'copy' : 'passed'}">${t.kind}</span> <b>${t.rows} × ${t.cols}</b>
-        <span class="help">${t.kind === 'block' ? 'repeats' : 'rows'} × ${t.kind === 'block' ? 'fields' : 'columns'} · ${t.accepted}/${t.cells.length} accepted · ${esc(status(t))}</span></div>
-      <div class="help">${esc(t.cells.slice(0, 3).map(c => c.name).join(', '))}${t.cells.length > 3 ? ', …' : ''}</div>
+      <div class="gttitle">${esc(t.title || (blk ? 'repeated block' : 'table'))}</div>
+      <div><span class="pill ${blk ? 'copy' : 'passed'}">${t.kind}</span> <b>${size}</b>
+        <span class="help">· ${t.accepted}/${t.cells.length} cells accepted · ${esc(status(t))}</span></div>
+      <details class="gtpos"><summary class="help">${blk ? 'fields of each block' : 'columns'}</summary><ol>${(t.positions || []).map(p =>
+        `<li><code>${esc(p.wordings.join(' / '))}</code>${p.caption ? ` <span class="help">· printed: ${esc(p.caption)}</span>` : ''}</li>`).join('')}</ol></details>
       ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
       <button class="btn primary" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : 'check & validate'}</button>
       ${res ? `<ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
@@ -2288,7 +2296,8 @@ MODE.grids = (() => {
       ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
         `<p class="help">No numbered table or block on this page${GD.tables.length ? ` (${GD.tables.length} on other pages)` : ''}.</p>`}`;
     a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
-    a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { selected = c.dataset.t; placeAll(); panel(); });
+    a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected === c.dataset.t) return; selected = c.dataset.t; placeAll(); panel(); });
+    a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
     if ($('#gtAll')) $('#gtAll').onclick = async () => { for (const t of onPage(page)) await run(t.id); };
   }
   async function run(tid) {
