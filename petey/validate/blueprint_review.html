@@ -530,14 +530,16 @@ try { Object.assign(HOME, JSON.parse(store('br_home') || '{}'), {on: false}); } 
 const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, domain: HOME.domain, status: HOME.status, hideVal: HOME.hideVal}));
 // one status per form, the worst first: a working copy not saved, flags, a check gone stale, under way, done, untouched
 // the pipeline (Andrew, 2026-10-16): generated -> passed validation (the passes after generation,
-// eval/passes_record.py) -> manual review (in review, needs work, changed since check, validated). Review counts as
-// started only with verdicts after the passes ran (a bulk accept from before them is not a review).
+// eval/passes_record.py) -> manual review (in review, needs work, changed since check, validated). The pipeline runs
+// forward: a form is in review only once it passed validation and has verdicts made after that (the 10-07 bulk accepts
+// predate the passes, which came on 2026-10-15); without the passes it is generated, unless it was fully checked before
+// they existed (validated, needs work, changed since check: a finished hand review stands).
 function statusOf(b) {
   const c = b.checked;
   if (c && c.validated) return {k: 'validated', t: 'validated'};
   if (c && (c.flagged || c.pending)) return {k: 'work', t: 'needs work'};
   if (c && c.stale) return {k: 'recheck', t: 'changed since check'};
-  const reviewed = (b.accepted + b.flagged) > 0 && (!b.passes || (b.touched || '') > (b.passes.when || ''));
+  const reviewed = !!b.passes && (b.accepted + b.flagged) > 0 && (b.touched || '') > (b.passes.when || '');
   if (reviewed) return {k: 'progress', t: 'in review'};
   if (b.passes) return {k: 'passed', t: 'passed validation'};
   return {k: 'generated', t: 'generated'};
