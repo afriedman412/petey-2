@@ -149,6 +149,53 @@ def _signature(u: dict) -> tuple:
     return u["name"], u["type"], tuple(sorted(u["items"])), tuple(sorted((u.get("captions") or {}).items()))
 
 
+_PAGE_WORDS: dict[tuple, list] = {}
+
+
+def page_confirms(blank: Path, ws: dict[str, dict]) -> bool:
+    """Every option's current caption is printed right beside its box: the words on its line just right of it (up to
+    the next option on the line), just left of it, or the short header above it (`captions`). Then the captions stand
+    as they are, no model call (Andrew, 2026-10-16: "a lot of them would just be checks for adjacent text"; 57% of
+    the tier-1/2 groups). Only a confirmation: the code never changes a caption, because the text beside a box can be
+    the next option's label (ACORD 75 prints labels before the box) or a fragment of a sentence (MCS-90)."""
+    import re
+    import pymupdf
+    from petey.label import captions as C
+    norm = lambda t: re.sub(r"[^a-z0-9]+", " ", (t or "").lower()).strip()       # noqa: E731
+    rects = {k: w["rect"] for k, w in ws.items() if w.get("rect")}
+    if len(rects) < 2:
+        return False
+    doc = None
+    try:
+        for k, w in ws.items():
+            cur = norm(w.get("caption"))
+            if not w.get("rect") or not cur:
+                return False
+            pg = w.get("page")
+            if (str(blank), pg) not in _PAGE_WORDS:
+                doc = doc or pymupdf.open(str(blank))
+                _PAGE_WORDS[(str(blank), pg)] = C._words_on(doc[pg - 1])
+            words = _PAGE_WORDS[(str(blank), pg)]
+            others = [r for kk, r in rects.items() if kk != k and ws[kk].get("page") == pg]
+            cy = (w["rect"][1] + w["rect"][3]) / 2
+            right = [r[0] for r in others if abs((r[1] + r[3]) / 2 - cy) < 4 and r[0] > w["rect"][2]]
+            seen = set()
+            for find in (lambda: C._right_of(words, w["rect"], min(right) if right else None),
+                         lambda: C._left_of(words, w["rect"], others), lambda: C._header_above(words, w["rect"], others)):
+                try:
+                    c = find()
+                except Exception:
+                    c = None
+                if c:
+                    seen.add(norm(C._END_PUNCT.sub("", C._LEADERS.sub("", c.strip())).strip()))
+            if cur not in seen:
+                return False
+        return True
+    finally:
+        if doc is not None:
+            doc.close()
+
+
 def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[str], model: bool = True) -> dict[str, dict]:
     """The caption printed at each option of a group (Andrew, 2026-10-13: a group made in Groups keeps its members'
     old captions; re-read them for the group's name and keys), keyed by item id: {"caption", "current", "locked",
@@ -177,6 +224,10 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
             k, n = f"{k}_{n}", n + 1
         ws[k], key_of[k] = block, iid
     best, source, answered = {}, "chooser", False
+    if page_confirms(blank, ws):                        # every caption is printed beside its box: stands, no call
+        return {iid: {"caption": ws[k].get("caption"), "current": ws[k].get("caption"),
+                      "locked": ws[k].get("x_petey_caption_source") in ("xfa", "hand"), "source": "page text"}
+                for k, iid in key_of.items()}
     if model:
         try:
             from petey.synth.generate import make_client
