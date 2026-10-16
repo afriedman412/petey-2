@@ -169,6 +169,24 @@ class App:
             out = hand_review.load_verdicts(bid)
         return {**out, **ap, "entry": self.entry(bid)}
 
+    def accept_grid(self, bid: str, page: int) -> list[str]:
+        """Accept every cell of the tables on `page` that are on one pattern (Andrew, 2026-10-15: "automatically
+        accept any grid fields checked by the grid validator"): tables numbered along one side (eval/grid_naming.py),
+        none of their cells off the pattern; a field with a verdict already keeps it. Note: "grid check"."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+        import grid_naming
+        bp = hand_review._load(self.working(bid))
+        have = hand_review.load_verdicts(bid).get("verdicts") or {}
+        names = []
+        for g in grid_naming.grids(bp):
+            if g[0]["page"] != page or not grid_naming.iterated(g) or grid_naming.breaks(g)[1]:
+                continue
+            names += [c["name"] for c in g if not (have.get(c["name"]) or {}).get("verdict")]
+        if names:
+            self.put_verdicts(bid, {"verdicts": {n: {"verdict": "accept", "note": "grid check"} for n in names}})
+        return names
+
     def chat_apply(self, bid: str, body: dict) -> dict:
         """The chat's ticked proposal (`form_chat`): edits and groups into the working copy, removals recorded in Add /
         remove and applied as Review's remove button does."""
@@ -194,6 +212,8 @@ class App:
                 if ad.get("apply_error") or ad.get("errors"):
                     out["errors"].append("removals recorded, not applied yet: "
                                          + (ad.get("apply_error") or "; ".join(ad.get("errors") or [])))
+        if body.get("grid_page"):                # a "check grid" turn: the tables now on pattern are accepted
+            out["accepted"] = self.accept_grid(bid, int(body["grid_page"]))
         self.refresh()
         return {**out, "entry": self.entry(bid)}
 
@@ -400,8 +420,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("review", "grid"):           # "check grid": the grid skill's request for this page, asked
             from petey.validate import form_chat
             def grid():
-                req = form_chat.grid_request(bid, int(body.get("page") or 1))
-                return {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}])}
+                pg = int(body.get("page") or 1)
+                req = form_chat.grid_request(bid, pg)
+                out = {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}])}
+                if not (out["edits"] or out["groups"] or out["remove"]):     # nothing to change: accept the tables
+                    out["accepted"] = APP.accept_grid(bid, pg)
+                return out
             return self._route(grid, bid)
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
             return self._route(lambda: APP.chat_apply(bid, body), bid)

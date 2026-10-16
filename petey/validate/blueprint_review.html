@@ -491,7 +491,8 @@ function renderChat() {
       const errs = t.out.errors.length ? `<div class="cerr">left out: ${esc(t.out.errors.join('; '))}</div>` : '';
       const res = t.result ? `<div class="cfoot">applied: ${t.result.changes.length} change(s)${t.result.errors.length ? ` · <span class="cerr">${esc(t.result.errors.join('; '))}</span>` : ''}</div>` : '';
       const foot = items.length && !t.applied ? `<div class="cfoot"><button class="btn primary" data-apply="${ti}">apply ticked</button><span>$${t.out.cost_usd}</span></div>` : `<div class="cfoot"><span>$${t.out.cost_usd}</span></div>`;
-      a = `<div class="ca">${esc(t.out.reply)}${list}${errs}${res || foot}</div>`;
+      const acc = (t.accepted || []).length ? `<div class="cfoot">accepted ${t.accepted.length} table cell(s) on pattern (note: grid check)</div>` : '';
+      a = `<div class="ca">${esc(t.out.reply)}${list}${errs}${res || foot}${acc}</div>`;
     }
     return `<div class="cq">${esc(t.req)}</div>${a}`;
   }).join('') : '<p class="help">Ask for edits to this form in plain words. Each request is one call to Opus 5 with the pages and the field list; it proposes, nothing changes until you apply.</p>';
@@ -516,24 +517,27 @@ async function sendChat() {
 async function checkGrid() {
   if (!bid) return;
   toggleChat(true);
-  const form = bid, st = chatState(), turn = {req: `check the grids on page ${page}`};
+  const form = bid, st = chatState(), turn = {req: `check the grids on page ${page}`, gridPage: page};
   st.turns.push(turn); renderChat();
   try {
     const out = await send('POST', mapi('review', '/grid'), {page, history: st.history});
     turn.out = out; turn.picked = new Set(chatItems(out).map(it => it.k));
     st.history.push({role: 'user', content: out.request}, {role: 'assistant', content: out.raw});
+    if ((out.accepted || []).length) { turn.accepted = out.accepted; if (bid === form) await loadMode(); }
   } catch (e) { turn.err = 'The grid check failed: ' + e.message; }
   if (bid === form) renderChat();
 }
 async function applyChat(ti, btn) {
   const t = chatState().turns[ti]; if (!t || t.applied) return;
   const pick = (arr, p) => arr.filter((_, i) => t.picked.has(p + i));
-  const body = {edits: pick(t.out.edits, 'e'), groups: pick(t.out.groups, 'g'), remove: pick(t.out.remove, 'r')};
+  const body = {edits: pick(t.out.edits, 'e'), groups: pick(t.out.groups, 'g'), remove: pick(t.out.remove, 'r'),
+                ...(t.gridPage ? {grid_page: t.gridPage} : {})};
   if (!body.edits.length && !body.groups.length && !body.remove.length) { toast('Nothing ticked.'); return; }
   btn.disabled = true; btn.textContent = 'applying…';
   try {
     const out = await send('POST', mapi('review', '/chat_apply'), body);
     t.applied = true; t.result = out; updateEntry(out.entry);
+    if ((out.accepted || []).length) t.accepted = out.accepted;
     await loadMode();
     toast(`Chat: ${out.changes.length} change(s) went into the working copy${out.errors.length ? `; ${out.errors.length} not applied` : ''}. Save as usual.`);
   } catch (e) { btn.disabled = false; btn.textContent = 'apply ticked'; alert('Apply failed: ' + e.message); return; }
