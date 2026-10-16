@@ -402,3 +402,284 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+# ------------------------------------------------------------------ the resolver (Andrew, 2026-10-16)
+# One table or block at a time, the lightest method first: (0) which way it runs; (1) each position's wording: one
+# wording, or variants that the name-check model (petey.label.text_match, the small model trained on the name checks)
+# scores as describing the position's shared caption, the naming standard breaking ties; (2) the numbers: one per
+# line, 1..N, unless the table continues a series from another page; (3) the result checked by the code check and for
+# name clashes. Positions the model cannot settle come back "unsure" with their candidates (for Jev, with the page);
+# a table whose structure does not come right is "confused" (for Opus).
+
+SAME = 0.5               # text-match score from which a wording describes the position's caption
+CLOSE = 0.05             # wordings scoring within this of the best are equally good: the naming standard decides
+
+
+def _rect(bp: dict, name: str):
+    w = ((bp.get("fields") or {}).get(name) or {}).get("widget") or {}
+    return w.get("rect"), w.get("page")
+
+
+def position_caption(bp: dict, cells: list[dict], how: str, lines: dict) -> str | None:
+    """The caption a position's cells share: the column header (a table read by columns), the row label (read by
+    rows), or the caption printed beside each repeat (a block: FAA 8050-1's 'TYPED/PRINTED NAME OF SIGNER' nine
+    times). The commonest over the cells; None when the page text gives none."""
+    from petey.validate.field_chain import candidate_captions, column_header, row_header
+    got = collections.Counter()
+    for c in cells:
+        r, page = _rect(bp, c["name"])
+        pl = lines.get(page) or []
+        if not r or not pl:
+            continue
+        t = (candidate_captions(r, pl) or [None])[0] if how == "block" else \
+            column_header(r, pl) if how == "columns" else row_header(r, pl)
+        if t and re.search(r"[A-Za-z]{2}", t):
+            got[" ".join(t.split())] += 1
+    return got.most_common(1)[0][0] if got else None
+
+
+def _desc(pattern: str) -> str:
+    return "_".join(t for t in pattern.split("_") if t != "N")
+
+
+def choose_wording(cells: list[dict], caption: str | None, score, pat=None) -> tuple[str | None, str]:
+    """(the position's pattern, how it was chosen) or (None, why it is unsure). `score(caption, [names])`. Two
+    wordings that both fit the caption and are not variants of each other (ACORD 125: building_nbr / location_nbr)
+    are a real disagreement: unsure, for Jev, not a vote."""
+    pat = pat or (lambda c: _pattern(c["name"]) or c["name"])
+    pats = collections.Counter(pat(c) for c in cells)
+    numbered = {p for p in pats if "N" in p.split("_")}
+    # an unnumbered first row is the column's own wording without its number (class_cd beside class_cd_N)
+    for p in list(pats):
+        if p not in numbered:
+            twin = next((q for q in numbered if _desc(q) == p), None)
+            if twin:
+                pats[twin] += pats.pop(p)
+    if len(pats) == 1:
+        return next(iter(pats)), "one wording"
+    if caption and score:
+        cand = list(pats)
+        s = dict(zip(cand, score(caption, [_desc(p) for p in cand])))
+        best = max(s.values())
+        if best < SAME:
+            return None, f"no wording fits the caption {caption!r} ({', '.join(f'{p} {v:.2f}' for p, v in s.items())})"
+        good = [p for p in cand if s[p] >= best - CLOSE]
+        pick = max(good, key=lambda p: (pats[p], p in numbered, -len(p)))
+        rivals = [p for p in cand if p != pick and s[p] >= SAME and not _variant(p, pick)]
+        if rivals:
+            return None, f"{pick} and {', '.join(rivals)} both fit the caption {caption!r} and say different things"
+        return pick, f"fits the caption {caption!r} ({s[pick]:.2f})"
+    p, n = pats.most_common(1)[0]
+    if n >= 0.6 * sum(pats.values()) and all(_close(p, q) for q in pats):
+        return p, "most cells, no caption to check against"
+    return None, "several wordings and no caption to check them against"
+
+
+def _printed(bp: dict, cells: list[dict], lines: dict) -> bool:
+    """The table's numbers are printed on the page beside its lines (CA 540 line 43, 44; tax line numbers): most
+    numbered cells' number appears in the text of their row label or nearest captions. Then they are the form's own
+    numbers, kept as they are."""
+    from petey.validate.field_chain import candidate_captions, row_header
+    hits = tried = 0
+    for c in cells:
+        num = _core(_number(c["name"]))
+        if not (num or "").isdigit():
+            continue
+        r, page = _rect(bp, c["name"])
+        pl = lines.get(page) or []
+        if not r or not pl:
+            continue
+        tried += 1
+        cy = (r[1] + r[3]) / 2                 # the whole printed band level with the cell: CA 540 prints its line
+        band = [t for bb, t in pl if bb[1] - 2 <= cy <= bb[3] + 2]     # numbers at the far left margin
+        text = " ".join(filter(None, [row_header(r, pl)] + candidate_captions(r, pl)[:2] + band))
+        hits += bool(re.search(rf"(?<!\d){num}(?![\d])", text))       # item 3.4 counts for 4
+    return tried > 0 and hits >= 0.6 * tried
+
+
+def _variant(a: str, b: str) -> bool:
+    """Two wordings for one thing: the same words once both are in the naming standard's shape (signer_name /
+    signer_nm), or most words shared (gross_rents_amt / gross_rents)."""
+    da, db = _desc(a) or a, _desc(b) or b
+    sa, sb = _standard(da, {"type": "string"}), _standard(db, {"type": "string"})
+    strip = lambda n: [t for t in n.split("_") if t not in ("txt", "nm", "nbr", "cd", "amt", "dt", "name")]   # noqa: E731
+    return da == db or sa == sb or strip(sa) == strip(sb) or _close(da, db)
+
+
+def _continues(bp: dict, grid_names: set, pats: list[str], start: int) -> bool:
+    """A series begun elsewhere: a field outside the table on the same pattern numbered start - 1 (FAA 8050-1's
+    page 2 signer block before page 3's 2-10)."""
+    fields = bp.get("fields") or {}
+    want = set()
+    for p in pats:
+        if "N" not in p.split("_"):
+            continue
+        prev = p.replace("N", str(start - 1))
+        want |= {prev, _standard(prev, {"type": "string"})}
+        if start == 2:                   # an unnumbered twin before a series from 2 is its first (FAA's old page 2)
+            want |= {_desc(p), _standard(_desc(p), {"type": "string"})}
+    return any(n in want or (_pattern(n) in pats and _number(n) == str(start - 1))
+               for n in fields if n not in grid_names)
+
+
+def _varying(names: list[str]):
+    """The token position of the number that changes from line to line in a position's names (CMS-855A
+    final_adverse_legal_action_1_txt_3: the 1 changes, the 3 does not); None to take the last as usual."""
+    toks = [n.split("_") for n in names]
+    if len({len(t) for t in toks}) != 1:
+        return None
+    for i in reversed(range(len(toks[0]))):
+        vals = {t[i] for t in toks}
+        if len(vals) > 1 and all(LINE.match(v) for v in vals):
+            return i
+    return None
+
+
+def _pattern_at(name: str, i):
+    toks = name.split("_")
+    if i is None or i >= len(toks) or not LINE.match(toks[i]):
+        return _pattern(name)
+    toks[i] = "N"
+    return "_".join(toks)
+
+
+def _verify(cells: list[dict], pos_axis: str, num_axis: str, vary: dict) -> tuple[bool, str]:
+    """The code check, reading each position's varying number: one pattern per position, one number per line, the
+    lines numbered by steps of 1 (letters too)."""
+    pats, nums = collections.defaultdict(set), collections.defaultdict(set)
+    for c in cells:
+        i = vary.get(c[pos_axis])
+        pats[c[pos_axis]].add(_pattern_at(c["name"], i) or c["name"])
+        toks = c["name"].split("_")
+        nums[c[num_axis]].add(toks[i] if i is not None and i < len(toks) else _number(c["name"]))
+    bad = next((f"position {k + 1} has {len(v)} wordings" for k, v in sorted(pats.items()) if len(v) > 1), None) or \
+        next((f"line {k + 1} has {len(v)} numbers" for k, v in sorted(nums.items()) if len(v) > 1), None)
+    if bad:
+        return False, bad
+    seq = [next(iter(nums[k])) for k in sorted(nums)]
+    if None in seq:
+        return False, "a line without a number"
+    seq = [_core(x) for x in seq]
+    if not all(_next(a, b) for a, b in zip(seq, seq[1:])):
+        return False, f"lines numbered {', '.join(seq)}, not by steps of 1"
+    return True, "on pattern"
+
+
+def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | None = None) -> dict:
+    """{status: ok | fixed | unsure | confused, renames, unsure: [{pos, caption, candidates, cells}], why}."""
+    forced = forced or {}
+    cells = body(g)
+    reading, _ = breaks(g)
+    pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
+    how = "block" if g[0].get("block") else reading
+    names = {c["name"] for c in g}
+    fields = bp.get("fields") or {}
+    # which number varies, per position (two-number names: CMS-855A final_adverse_legal_action_1_txt_3)
+    vary = {k: _varying([c["name"] for c in cells if c[pos_axis] == k]) for k in {c[pos_axis] for c in cells}}
+    pat_of = lambda c: _pattern_at(c["name"], vary[c[pos_axis]]) or c["name"]                      # noqa: E731
+
+    # line-number names keep their numbers (Andrew's exception: line_116_direct_deposit_amt, line_3_3_make on tax and
+    # court forms): a position whose varying number follows "line" is the form's own numbering, not an iteration
+    def _line_numbered(k):
+        names_k = [c["name"] for c in cells if c[pos_axis] == k]
+        pk = _pattern_at(names_k[0], vary[k]) if names_k else None
+        toks_k = (pk or "").split("_")
+        return "N" in toks_k and toks_k.index("N") > 0 and toks_k[toks_k.index("N") - 1] in ("line", "ln") or \
+            bool(re.match(r"line_\d", names_k[0] if names_k else ""))
+    locked = {k for k in vary if _line_numbered(k)}
+
+    def num_of(c):
+        i = vary[c[pos_axis]]
+        toks = c["name"].split("_")
+        return toks[i] if i is not None and i < len(toks) else _number(c["name"])
+    # (1) wording per position
+    chosen, unsure, whys = {}, [], []
+    for k in sorted({c[pos_axis] for c in cells}):
+        pc_ = [c for c in cells if c[pos_axis] == k]
+        if k in forced:
+            chosen[k] = forced[k]
+            continue
+        cap = position_caption(bp, pc_, how, lines)
+        p, why = choose_wording(pc_, cap, score, pat_of)
+        if p is None:
+            unsure.append({"pos": k, "caption": cap, "cells": [c["name"] for c in pc_],
+                           "candidates": sorted({pat_of(c) for c in pc_})})
+            whys.append(f"position {k + 1}: {why}")
+        else:
+            chosen[k] = p
+    if unsure:
+        return {"status": "unsure", "renames": {}, "unsure": unsure, "why": "; ".join(whys)}
+    # (2) numbers: one per line, by position; letters and lettered line numbers (5a) keep theirs
+    free = [c for c in cells if c[pos_axis] not in locked]
+    toks = [num_of(c) for c in free]
+    if any(t and not t.isdigit() for t in toks):
+        lettered = True
+    else:
+        lettered = False
+    lines_idx = sorted({c[num_axis] for c in cells})
+    if lettered:
+        number = {i: None for i in lines_idx}
+    else:
+        offs = collections.Counter(int(num_of(c)) - lines_idx.index(c[num_axis])
+                                   for c in free if (num_of(c) or "").isdigit())
+        top = offs.most_common()
+        tied = [o for o, n in top if n == top[0][1]] if top else [1]
+        start = 1 if 1 in tied else min(tied)              # a tie (one column shifted in a two-column table): from 1
+        if start != 1 and not (start > 1 and (_continues(bp, names, list(chosen.values()), start)
+                                              or _printed(bp, cells, lines))):
+            start = 1                                      # the first line is 1, unless the series began elsewhere
+        number = {i: start + n for n, i in enumerate(lines_idx)}   # or the numbers are printed on the page
+    # (3) the new names, checked
+    ren = {}
+    for c in cells:
+        if c[pos_axis] in locked:
+            continue                           # line numbers stay
+        pat = chosen[c[pos_axis]]
+        num = number[c[num_axis]]
+        if num is None or "N" not in pat.split("_"):
+            base = pat if "N" not in pat.split("_") else c["name"]
+            new = base if not lettered else c["name"]
+            if lettered and pat_of(c) != pat:
+                new = pat.replace("N", num_of(c) or "N")
+        else:
+            toks_ = pat.split("_")
+            toks_[max(i for i, t in enumerate(toks_) if t == "N")] = str(num)
+            # in the column's own wording: reshaping to the naming standard is that pass's job, and reshaping only the
+            # cells that change left a column in two shapes (ACORD 126: location_1_nbr beside location_number_2)
+            new = "_".join(toks_)
+        if new != c["name"]:
+            ren[c["name"]] = new
+    # a rename that changes what a cell says (different words, not a variant) is a judgment: Jev, not code
+    reworded = [o for o, n in ren.items() if not _variant(_pattern(o) or o, _pattern(n) or n)]
+    swaps = [o for o, n in ren.items() if ren.get(n) == o]
+    if swaps:                                  # two cells exchanging names: the rows' order is a judgment (FL-100)
+        return {"status": "unsure", "renames": {}, "unsure": [{"pos": None, "caption": None, "cells": swaps,
+                "candidates": sorted(swaps)}], "why": f"would swap {swaps[0]} and {ren[swaps[0]]}"}
+    if reworded:
+        return {"status": "unsure", "renames": {}, "unsure": [{"pos": None, "caption": None, "cells": reworded,
+                "candidates": sorted({_pattern(o) or o for o in reworded} | {_pattern(ren[o]) or ren[o] for o in reworded})}],
+                "why": f"would change what {len(reworded)} cell(s) say ({reworded[0]} -> {ren[reworded[0]]})"}
+    after = [dict(c, name=ren.get(c["name"], c["name"])) for c in g]
+    outside = {_standard(n, sp if isinstance(sp, dict) else {}): n for n, sp in fields.items() if n not in names}
+    clash = [n for n in ren.values() if (n in fields and n not in ren) or n in outside]   # also in the standard's shape
+    dup = len(set(c["name"] for c in after)) < len(after)
+    ok, why = _verify([dict(c, name=ren.get(c["name"], c["name"])) for c in cells if c[pos_axis] not in locked],
+                      pos_axis, num_axis, vary) if len(locked) < len(vary) else (True, "line numbers")
+    if clash or dup or not ok:
+        return {"status": "confused", "renames": ren, "unsure": [],
+                "why": "; ".join(filter(None, [f"would take names other fields keep: {', '.join(clash[:4])}" if clash else "",
+                                               "two cells would share a name" if dup else "",
+                                               "" if ok else f"still off the code check: {why}"]))}
+    return {"status": "fixed" if ren else "ok", "renames": ren, "unsure": [], "why": "; ".join(whys) or reading}
+
+
+def text_match_score():
+    """The name-check model as `score(caption, [descriptions])`, or None when it is not installed."""
+    try:
+        from petey.label import text_match as tm
+        if not tm.available():
+            return None
+    except Exception:
+        return None
+    return lambda caption, descs: tm.score_pairs([(caption, tm.name_words(d, text=caption)) for d in descs])

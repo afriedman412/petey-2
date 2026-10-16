@@ -77,6 +77,19 @@
   .progress.justchecked { color:var(--green); }
 
   main { flex:1; display:flex; min-height:0; }
+  /* grids & blocks: tables outlined in round dots (groups are dashed) */
+  .gtab { position:absolute; z-index:1; cursor:pointer; --c:#1a73e8; }
+  .gtab.block { --c:#8e24aa; }
+  .gtsvg { position:absolute; left:0; top:0; overflow:visible; }
+  .gtsvg rect { fill:color-mix(in srgb, var(--c) 6%, transparent); stroke:var(--c); stroke-width:3; stroke-linecap:round; stroke-dasharray:0.1 7; }
+  .gtab.ok .gtsvg rect { stroke-dasharray:none; stroke-width:1.5; }
+  .gtab.sel .gtsvg rect { stroke-width:4; fill:color-mix(in srgb, var(--c) 12%, transparent); }
+  .gcell { position:absolute; border:1px solid rgba(26,115,232,.45); z-index:2; pointer-events:none; }
+  .gcell.acc { border-color:var(--accept); background:rgba(30,142,62,.12); }
+  .gtcard { border:1px solid var(--border); border-radius:var(--r); padding:8px 10px; margin:8px 0; cursor:pointer; }
+  .gtcard.sel { border-color:var(--accent); }
+  .gtcard .btn { margin-top:6px; }
+  .gtsteps { margin:6px 0 0 16px; padding:0; font-size:12px; color:var(--text-dim); }
 
   /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
   .brand { cursor:pointer; }
@@ -313,7 +326,7 @@
   <select id="pick"></select>
   <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most to look at first</option></select></label>
   <span class="tabs" id="tabs">
-    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="audit" title="Shift+4">Audit</button>
+    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="grids" title="Shift+4">Grids &amp; blocks</button><button data-mode="audit" title="Shift+5">Audit</button>
   </span>
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span id="draftBar" hidden></span>
@@ -322,7 +335,6 @@
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
   <button class="btn" id="notesBtn" title="your notes on this form (saved as you type, shown on the home page)">notes</button>
   <button class="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)">chat</button>
-  <button class="btn" id="gridBtn" title="check the tables on this page against the grid rule (the grid-validation skill): proposals in the chat, you tick and apply">check grid</button>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
 </header>
@@ -400,7 +412,6 @@ async function init() {
   $('#chatBtn').onclick = () => toggleChat(); $('#chatClose').onclick = () => toggleChat(false);
   $('#chatClear').onclick = () => { if (bid) { delete CHAT[bid]; renderChat(); } };
   $('#chatSend').onclick = sendChat;
-  $('#gridBtn').onclick = checkGrid;
   $('#notesBtn').onclick = () => toggleNotes(); $('#notesClose').onclick = () => toggleNotes(false);
   $('#notesIn').addEventListener('input', noteTyped);
   $('#notesIn').addEventListener('blur', () => flushNote());
@@ -839,7 +850,7 @@ function onKey(e) {
   if (e.key === '?') { toggleHelp(); e.preventDefault(); return; }
   if (e.key === 'Escape' && !$('#helpmenu').hidden) { toggleHelp(false); e.preventDefault(); return; }
   if (HOME.on) { if (e.key === '/') { $('#hq').focus(); e.preventDefault(); } return; }
-  if (e.shiftKey && /^Digit[1234]$/.test(e.code)) { setMode(['review', 'groups', 'add', 'audit'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
+  if (e.shiftKey && /^Digit[12345]$/.test(e.code)) { setMode(['review', 'groups', 'add', 'grids', 'audit'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
   if (!bid) return;
   if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);
   else if (e.key === '-') setZoom(zoom / 1.25);
@@ -2238,6 +2249,92 @@ MODE.add = (() => {
 // ======================================================================= Audit: versions and run history (run_audit)
 // Andrew, 2026-10-14: "build a 'run audit' into the review interface, so you can see the run history and all the data
 // for each form". Read only. Numbers are per page as well: forms differ too much in size for per-form numbers.
+// ======================================================================= grids & blocks (grid_check.py, 2026-10-16)
+// every numbered table and repeated block, outlined in dots (groups are dashed); one click checks and validates one:
+// the code check, then the resolver (the name-check model against the shared caption), then Jev for a column it cannot
+// settle, then Opus (its proposals land in the chat to tick)
+MODE.grids = (() => {
+  let GD = null, selected = null, results = {}, busy = new Set();
+  const onPage = p => GD ? GD.tables.filter(t => t.page === p) : [];
+  const status = t => t.accepted === t.cells.length ? 'validated' : t.on_pattern ? 'on pattern' : 'needs a check';
+  function dots(el, w, h, cls) {
+    el.innerHTML = `<svg width="${w}" height="${h}" class="gtsvg"><rect x="2" y="2" width="${Math.max(0, w - 4)}" height="${Math.max(0, h - 4)}" rx="4"/></svg>`;
+  }
+  function place() {
+    for (const t of onPage(page)) {
+      const pad = 6, r = [t.bbox[0] - pad, t.bbox[1] - pad, t.bbox[2] + pad, t.bbox[3] + pad];
+      const d = put('gtab ' + t.kind + (t.on_pattern ? ' ok' : '') + (selected === t.id ? ' sel' : ''), r, `${t.kind} ${t.rows} x ${t.cols} · ${status(t)}`);
+      dots(d, (r[2] - r[0]) * scale, (r[3] - r[1]) * scale);
+      d.onclick = () => { selected = t.id; placeAll(); panel(); };
+      for (const c of t.cells) if (c.rect) put('gcell' + (c.accepted ? ' acc' : ''), c.rect, c.name + (c.accepted ? ' · accepted' : ''));
+    }
+  }
+  function card(t) {
+    const res = results[t.id], b = busy.has(t.id);
+    return `<div class="gtcard ${selected === t.id ? 'sel' : ''}" data-t="${esc(t.id)}">
+      <div><span class="pill ${t.kind === 'block' ? 'copy' : 'passed'}">${t.kind}</span> <b>${t.rows} × ${t.cols}</b>
+        <span class="help">${t.kind === 'block' ? 'repeats' : 'rows'} × ${t.kind === 'block' ? 'fields' : 'columns'} · ${t.accepted}/${t.cells.length} accepted · ${esc(status(t))}</span></div>
+      <div class="help">${esc(t.cells.slice(0, 3).map(c => c.name).join(', '))}${t.cells.length > 3 ? ', …' : ''}</div>
+      ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
+      <button class="btn primary" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : 'check & validate'}</button>
+      ${res ? `<ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+    </div>`;
+  }
+  function panel() {
+    const a = $('#panel'), ts = onPage(page);
+    if (!GD) { a.innerHTML = '<p class="help">loading…</p>'; return; }
+    a.innerHTML = `<div class="help">Tables and repeated blocks the layout code finds, outlined in dots on the page. One click runs
+      the lightest check that settles a table: the code, then the name-check model, then Jev, and Opus only when it is still unclear.</div>
+      ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
+        `<p class="help">No numbered table or block on this page${GD.tables.length ? ` (${GD.tables.length} on other pages)` : ''}.</p>`}`;
+    a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
+    a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { selected = c.dataset.t; placeAll(); panel(); });
+    if ($('#gtAll')) $('#gtAll').onclick = async () => { for (const t of onPage(page)) await run(t.id); };
+  }
+  async function run(tid) {
+    const form = bid; busy.add(tid); panel();
+    let out;
+    try { out = await send('POST', mapi('grids', '/check'), {table: tid}); }
+    catch (e) { out = {status: 'error', steps: ['the check failed: ' + e.message]}; }
+    busy.delete(tid); if (bid !== form) return;
+    results[tid] = out; if (out.entry) updateEntry(out.entry);
+    if (out.proposals) {                       // Opus: its proposals go to the chat, ticked, nothing applied
+      const st = chatState(), p = out.proposals;
+      st.history.push({role: 'user', content: p.request}, {role: 'assistant', content: p.raw});
+      st.turns.push({req: `grids & blocks: table ${tid} (Opus)`, gridPage: page, out: p, picked: new Set(chatItems(p).map(it => it.k))});
+      toggleChat(true); renderChat();
+    }
+    const keep = results; await loadMode(); results = keep;
+    toast(`Table ${tid}: ${out.status}.`);
+  }
+  return {
+    async load() { GD = await j(mapi('grids')); if (selected && !GD.tables.some(t => t.id === selected)) selected = null; },
+    pages: () => GD ? GD.pages : [],
+    startPage: () => (GD && GD.tables[0] || {}).page || 1,
+    pageLabel(p) { const n = onPage(p).length; return `p${p}${n ? ` (${n})` : ''}`; },
+    bar: () => `<span class="progress" id="progress"></span>`,
+    bindBar() { if (GD) this.progress(); },
+    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table']],
+           tips: ['Dotted outlines are tables and repeated blocks; dashed ones (in Review and Groups) are option groups.',
+                  'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.']},
+    place, panel,
+    progress() {
+      const el = $('#progress'); if (!el || !GD) return;
+      const v = GD.tables.filter(t => t.accepted === t.cells.length).length, ok = GD.tables.filter(t => t.on_pattern).length;
+      el.innerHTML = `<b>${GD.tables.length}</b> tables and blocks · ${ok} on pattern · ${v} validated`;
+    },
+    key(e) {
+      const ts = GD ? GD.tables : [], i = ts.findIndex(t => t.id === selected);
+      if (e.key === 'n' || e.key === 'p') {
+        const t = ts[(i + (e.key === 'n' ? 1 : -1) + ts.length) % ts.length]; if (!t) return true;
+        selected = t.id; if (t.page !== page) gotoPage(t.page); else { placeAll(); panel(); } return true;
+      }
+      if (e.key === 'Enter' && selected) { run(selected); return true; }
+      return false;
+    },
+  };
+})();
+
 MODE.audit = (() => {
   let A = null, B = null, view = store('br_audit_view') || 'form';
   const n = (x, d = 0) => x === null || x === undefined ? '' : (typeof x === 'number' ? x.toFixed(d) : esc(x));

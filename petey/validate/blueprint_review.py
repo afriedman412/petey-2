@@ -45,7 +45,7 @@ from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 144                      # option boxes are 8-10 pt; at 110 dpi (the old hand review) they are 12 px targets
-MODES = ("review", "groups", "add", "audit")
+MODES = ("review", "groups", "add", "grids", "audit")
 
 
 class Audit:
@@ -62,12 +62,60 @@ class Audit:
         return {"why": hand_review._focus().get("why"), "rows": run_audit.batch(forms, self.app.paths, self.app.review._index)}
 
 
+class Grids:
+    """Grids and blocks (`grid_check`): every numbered table and repeated block of the form, and one click to check
+    and validate one."""
+
+    def __init__(self, app: "App") -> None:
+        self.app = app
+
+    def detail(self, bid: str) -> dict:
+        from petey.validate import grid_check
+        p = self.app.working(bid)
+        bp = hand_review._load(p)
+        blank = resolve_blank(bp)
+        pages = []
+        if blank and blank.exists():
+            doc = pymupdf.open(str(blank))
+            try:
+                pages = [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, start=1)]
+            finally:
+                doc.close()
+        vs = hand_review.load_verdicts(bid).get("verdicts") or {}
+        tabs = grid_check.tables(bp)
+        for t in tabs:
+            for c in t["cells"]:
+                c["accepted"] = (vs.get(c["name"]) or {}).get("verdict") == "accept"
+            t["accepted"] = sum(c["accepted"] for c in t["cells"])
+        return {"id": bid, "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
+
+    def check(self, bid: str, tid: str) -> dict:
+        from petey.validate import form_chat, grid_check
+
+        def apply(edits):
+            self.app.open_draft(bid)
+            before = hand_review._sha(self.app.working(bid))
+            out = form_chat.apply(bid, edits, [])
+            self.app.follow(bid, before)
+            draft.log(bid, "claude", out.get("changes") or [])
+            return out
+
+        def ask_opus(page):
+            req = form_chat.grid_request(bid, page)
+            return {"request": req, **form_chat.ask(bid, [{"role": "user", "content": req}], only_pages=[page])}
+        out = grid_check.check(bid, tid, accept=lambda page, names: self.app.accept_grid(bid, page, set(names)),
+                               apply=apply, ask_opus=ask_opus)
+        self.app.refresh()
+        return {**out, "entry": self.app.entry(bid)}
+
+
 class App:
     def __init__(self) -> None:
         self.review = hand_review.State()
         self.groups = group_review.State()
         self.add = field_add.State()
         self.audit = Audit(self)
+        self.grids = Grids(self)
         self.paths = self.review.paths
         self.png: dict[tuple[str, int], bytes] = {}
         self.mtimes: dict[str, float] = {}
@@ -507,6 +555,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
+        if (mode, what) == ("grids", "check"):           # grids and blocks: check and validate one table
+            return self._route(lambda: APP.grids.check(bid, body["table"]), bid)
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
             return self._route(lambda: APP.chat_apply(bid, body), bid)
         if (mode, what) == ("review", "captions"):       # "re-read captions" on a group, from Review (2026-10-15)
