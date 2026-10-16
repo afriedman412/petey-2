@@ -243,7 +243,9 @@ class Context:
         out = []
         for b in boxes:
             c = cm.get(b["key"]) or {}
-            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class"), "label": c.get("label"),
+            # a box the finder's minor version added (finder_addons: radio circles) has no class map entry: an option
+            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class") or ("option" if b.get("addon") else None),
+                        "label": c.get("label"),
                         "group": c.get("group"), "entity": c.get("entity"),
                         "claimed_by": self._claimed(b["page"], b["rect"])})
         self.boxes = out
