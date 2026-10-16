@@ -83,7 +83,7 @@
   #home { display:none; flex:1; overflow:auto; padding:14px 20px 40px; }
   body.home #home { display:block; }
   body.home main, body.home #modebar, body.home #chatBtn, body.home #gridBtn, body.home #clashBtn, body.home #zoomctl,
-  body.home #draftBar { display:none !important; }
+  body.home #draftBar, body.home #notesBtn { display:none !important; }
   .hstats { display:flex; gap:22px; flex-wrap:wrap; margin:2px 0 14px; }
   .hstat { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:8px 14px; cursor:pointer; min-width:110px; }
   .hstat.on { border-color:var(--accent); background:var(--accent-dim); }
@@ -148,6 +148,16 @@
   #chat { position:fixed; right:16px; bottom:16px; width:460px; height:62vh; display:flex; flex-direction:column; z-index:60;
           background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:0 8px 30px rgba(0,0,0,.5); }
   #chat[hidden] { display:none; }
+  /* per-form notes (2026-10-15) */
+  #notes { position:fixed; right:16px; top:96px; width:380px; display:flex; flex-direction:column; z-index:61; background:var(--surface);
+           border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:0 8px 30px rgba(0,0,0,.45); }
+  #notes[hidden] { display:none; }
+  #notes .chead { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); }
+  #notes .chead .help { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #notesIn { margin:10px; height:180px; resize:vertical; font-size:13px; }
+  #notesState { padding:0 10px 8px; }
+  #notesBtn.has { border-color:var(--accent); color:var(--text); }
+  table.home td.notes { max-width:220px; overflow:hidden; text-overflow:ellipsis; color:var(--text-dim); }
   #chat .chead { display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); }
   #chat .chead .help { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   #chatLog { flex:1; overflow:auto; padding:10px; display:flex; flex-direction:column; gap:8px; font-size:13px; }
@@ -306,6 +316,7 @@
   <span class="spacer"></span>
   <span class="ctl" id="zoomctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
+  <button class="btn" id="notesBtn" title="your notes on this form (saved as you type, shown on the home page)">notes</button>
   <button class="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)">chat</button>
   <button class="btn" id="gridBtn" title="check the tables on this page against the grid rule (the grid-validation skill): proposals in the chat, you tick and apply">check grid</button>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
@@ -323,6 +334,11 @@
   <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
 </main>
 <div id="toast"></div>
+<div id="notes" hidden>
+  <div class="chead"><b>Notes</b><span class="help" id="notesForm"></span><button class="btn" id="notesClose">close</button></div>
+  <textarea id="notesIn" placeholder="anything about this form: what's left, what to ask, what you decided"></textarea>
+  <div class="help" id="notesState"></div>
+</div>
 <div id="chat" hidden>
   <div class="chead"><b>Chat</b><span class="help" id="chatForm"></span><button class="btn" id="chatClear" title="start a new conversation for this form">new</button><button class="btn" id="chatClose">close</button></div>
   <div id="chatLog"></div>
@@ -381,6 +397,9 @@ async function init() {
   $('#chatClear').onclick = () => { if (bid) { delete CHAT[bid]; renderChat(); } };
   $('#chatSend').onclick = sendChat;
   $('#gridBtn').onclick = checkGrid;
+  $('#notesBtn').onclick = () => toggleNotes(); $('#notesClose').onclick = () => toggleNotes(false);
+  $('#notesIn').addEventListener('input', noteTyped);
+  $('#notesIn').addEventListener('blur', () => flushNote());
   $('#chatIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
   $('#helpBtn').onclick = e => { e.stopPropagation(); toggleHelp(); };
   document.addEventListener('click', e => { if (!$('#helpmenu').hidden && !$('#helpmenu').contains(e.target)) toggleHelp(false); });
@@ -450,7 +469,7 @@ function renderPicker() {
   }
   if (keep && LIST.some(b => b.id === keep)) pick.value = keep;
 }
-function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); if (e.id === bid) renderDraft(); if (HOME.on) renderHome(); }
+function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); if (e.id === bid) { renderDraft(); renderNotesBtn(); } if (HOME.on) renderHome(); }
 
 // the working copy (2026-10-13, Andrew: "everything should be reading from the same source"): every change goes into
 // one copy of the blueprint that all three modes read; this bar saves it over the blueprint or throws it away
@@ -491,7 +510,9 @@ async function openBlueprint(id) {
   const wasHome = HOME.on; showHome(false);
   if (wasHome && id === bid) { $('#pick').value = id; setHash(); await loadMode(); return; }
   if (bid && mode === 'groups') await MODE.groups.leave();
-  bid = id; setHash(); renderDraft();
+  await flushNote();
+  bid = id; setHash(); renderDraft(); renderNotesBtn();
+  if (!$('#notes').hidden) renderNotes();
   $('#panel').innerHTML = '<p class="help">loading…</p>';
   await loadMode();
   if (!$('#chat').hidden) renderChat();
@@ -535,6 +556,7 @@ const HCOLS = [
   ['copy', 'unsaved', b => b.draft ? b.draft.changes : -1, b => b.draft ? `<span class="pill copy" title="${esc('working copy made ' + b.draft.made)}">${b.draft.changes} change${b.draft.changes === 1 ? '' : 's'}</span>` : '', false,
     'a working copy with changes not saved into the blueprint yet'],
   ['made', 'made', b => (b.age || {}).when || '', b => `<span title="${esc((b.age || {}).by || '')}">${esc((b.age || {}).when || '—')}</span>`, false, 'when and by what the blueprint was made'],
+  ['notes', 'notes', b => (b.note || {}).text || '~', b => b.note ? `<span title="${esc(b.note.text + '\n\n' + b.note.updated)}">${esc(b.note.text.split('\n')[0])}</span>` : '', false, 'your note on the form'],
   ['touched', 'last review', b => b.touched || '', b => b.touched ? esc(b.touched.slice(0, 16)) : '<span class="dim">—</span>', false, 'the last verdict or note'],
 ];
 const HSTATS = [['', 'blueprints'], ['validated', 'validated'], ['work', 'needs work'], ['recheck', 'changed since check'],
@@ -546,6 +568,7 @@ async function showHome(on) {
   HOME.on = on; document.body.classList.toggle('home', on); setHash();
   if (!on) return;
   if (!$('#chat').hidden) toggleChat(false);
+  await flushNote(); toggleNotes(false);
   renderHome();
   try { LIST = await j('/api/blueprints'); renderPicker(); renderHome(); } catch (e) {}
 }
@@ -555,7 +578,7 @@ function renderHome() {
   const inSection = LIST.filter(b => (!HOME.section || sectionOf(b) === HOME.section) && (HOME.domain == null || (b.collection ?? '') === HOME.domain));
   const q = HOME.q.trim().toLowerCase();
   // hide validated (Andrew, 2026-10-15); the validated tile still shows them
-  const rows = inSection.filter(b => homeMatch(b, HOME.status) && !(HOME.hideVal && HOME.status !== 'validated' && statusOf(b).k === 'validated') && (!q || [b.form, b.id, b.collection].some(s => String(s ?? '').toLowerCase().includes(q))));
+  const rows = inSection.filter(b => homeMatch(b, HOME.status) && !(HOME.hideVal && HOME.status !== 'validated' && statusOf(b).k === 'validated') && (!q || [b.form, b.id, b.collection, (b.note || {}).text].some(s => String(s ?? '').toLowerCase().includes(q))));
   const col = HCOLS.find(c => c[0] === HOME.sort) || HCOLS[1], dir = HOME.asc ? 1 : -1;
   const cmp = (x, y) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
   rows.sort((a, b) => dir * cmp(col[2](a), col[2](b)) || a.form.localeCompare(b.form));
@@ -565,7 +588,7 @@ function renderHome() {
   el.innerHTML = `
     <div class="hstats">${HSTATS.map(([k, t]) => `<div class="hstat ${HOME.status === k ? 'on' : ''}" data-st="${k}"><b>${inSection.filter(b => homeMatch(b, k)).length}</b><span>${t}</span></div>`).join('')}</div>
     <div class="hctl">
-      <input id="hq" type="text" placeholder="search form, id, domain (/)" value="${esc(HOME.q)}">
+      <input id="hq" type="text" placeholder="search form, id, domain, notes (/)" value="${esc(HOME.q)}">
       <select id="hsec"><option value="">all sections</option>${secs.map(k => `<option value="${k}" ${HOME.section === k ? 'selected' : ''}>${esc(SECTIONS[k])} (${LIST.filter(b => sectionOf(b) === k).length})</option>`).join('')}</select>
       <select id="hdom"><option value="*">all domains</option>${doms.map(([d, n]) => `<option value="${esc(d)}" ${HOME.domain === d ? 'selected' : ''}>${d === '' ? '(top of source_pdfs)' : esc(d)} (${n})</option>`).join('')}</select>
       <label class="ctl"><input type="checkbox" id="hhide" ${HOME.hideVal ? 'checked' : ''}> hide validated</label>
@@ -589,6 +612,33 @@ function renderHome() {
   $('#hdom').onchange = e => { HOME.domain = e.target.value === '*' ? null : e.target.value; keepHome(); renderHome(); };
   if ($('#hclear')) $('#hclear').onclick = () => { HOME.q = HOME.section = HOME.status = ''; HOME.domain = null; keepHome(); renderHome(); };
   if ($('#hback')) $('#hback').onclick = e => { e.preventDefault(); openBlueprint(bid); };
+}
+
+// ---------------------------------------------------------------- notes (2026-10-15)
+// one note per form, saved as you type (runs/hand_review/form_notes.json; a discard does not touch it)
+const NOTE = {bid: null, timer: null, dirty: false};
+function renderNotesBtn() { const n = bid && (LIST.find(b => b.id === bid) || {}).note; $('#notesBtn').classList.toggle('has', !!n); $('#notesBtn').textContent = n ? 'notes •' : 'notes'; }
+function toggleNotes(on) {
+  const el = $('#notes'); el.hidden = on === undefined ? !el.hidden : !on;
+  if (!el.hidden) { renderNotes(); $('#notesIn').focus(); }
+}
+function renderNotes() {
+  const n = bid && (LIST.find(b => b.id === bid) || {}).note;
+  NOTE.bid = bid; NOTE.dirty = false;
+  $('#notesForm').textContent = bid ? (LIST.find(b => b.id === bid) || {}).form || bid : '';
+  $('#notesIn').value = n ? n.text : ''; $('#notesIn').disabled = !bid;
+  $('#notesState').textContent = n ? `saved ${n.updated}` : bid ? 'no note yet' : 'open a form first';
+}
+function noteTyped() { NOTE.dirty = true; $('#notesState').textContent = 'typing…'; clearTimeout(NOTE.timer); NOTE.timer = setTimeout(flushNote, 700); }
+async function flushNote() {
+  clearTimeout(NOTE.timer);
+  if (!NOTE.dirty || !NOTE.bid) return;
+  const form = NOTE.bid, text = $('#notesIn').value; NOTE.dirty = false;
+  try {
+    const out = await send('PUT', `/api/form/${encodeURIComponent(form)}/note`, {text});
+    updateEntry(out.entry);
+    if (NOTE.bid === form) $('#notesState').textContent = out.note.text ? `saved ${out.note.updated}` : 'note cleared';
+  } catch (e) { NOTE.dirty = true; $('#notesState').textContent = 'not saved: ' + e.message; }
 }
 
 // ---------------------------------------------------------------- chat (form_chat.py)

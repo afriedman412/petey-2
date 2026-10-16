@@ -310,7 +310,7 @@ class State:
     def path(self, bid: str) -> Optional[Path]:
         return working_path(bid, self.paths)
 
-    def _entry(self, bid: str) -> dict:
+    def _entry(self, bid: str, notes: Optional[dict] = None) -> dict:
         from petey.validate import draft
         real, p = self.paths[bid], self.path(bid)
         focus = (_focus().get("forms") or {}).get(bid)
@@ -336,7 +336,7 @@ class State:
                 "focus": focus,
                 # the home page's table (2026-10-15)
                 "collection": collection(bp), "pages": len(bp.get("source_pages") or []) or None,
-                "touched": v.get("updated"),
+                "touched": v.get("updated"), "note": (notes if notes is not None else form_notes()).get(bid),
                 "draft": draft.status(bid, real)}
 
     def index(self) -> None:
@@ -345,7 +345,8 @@ class State:
         t0 = time.time()
         self._git_here = git_dates(BLUEPRINTS.parent, "blueprints")
         self._git_origin = git_dates(ORIGIN_BLUEPRINTS.parent, "blueprints") if ORIGIN_BLUEPRINTS.exists() else {}
-        self._index = {bid: self._entry(bid) for bid in self.paths}
+        notes = form_notes()
+        self._index = {bid: self._entry(bid, notes) for bid in self.paths}
         print(f"  indexed {len(self._index)} blueprints in {time.time() - t0:.1f}s")
 
     def listing(self) -> list[dict]:
@@ -558,6 +559,29 @@ def claude_suggestions(bid: str) -> dict:
 
 
 _PDF_DIRS: dict[str, str] = {}
+FORM_NOTES = OUT / "form_notes.json"
+
+
+def form_notes() -> dict[str, dict]:
+    """{bid: {text, updated}}: Andrew's notes on a whole form (2026-10-15), one file for every form, kept apart from
+    the per-form records so a working copy's discard (which puts those back) leaves them."""
+    try:
+        return json.loads(FORM_NOTES.read_text(encoding="utf-8")) if FORM_NOTES.exists() else {}
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def set_form_note(bid: str, text: str) -> dict:
+    notes = form_notes()
+    text = (text or "").rstrip()
+    if text:
+        notes[bid] = {"text": text, "updated": time.strftime("%Y-%m-%d %H:%M:%S")}
+    else:
+        notes.pop(bid, None)
+    tmp = FORM_NOTES.with_suffix(".tmp")
+    tmp.write_text(json.dumps(notes, indent=1, ensure_ascii=False, sort_keys=True), encoding="utf-8")
+    tmp.replace(FORM_NOTES)
+    return notes.get(bid) or {"text": "", "updated": None}
 
 
 def collection(bp: dict) -> Optional[str]:

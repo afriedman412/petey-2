@@ -389,6 +389,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
         body = self._body()
         if (mode, what) == ("review", "verdicts"):
             return self._route(lambda: APP.put_verdicts(bid, body), bid)
+        if (mode, what) == ("form", "note"):                 # the notes panel: one note per form
+            def note():
+                n = hand_review.set_form_note(bid, body.get("text") or "")
+                if bid in APP.review._index:
+                    APP.review._index[bid]["note"] = n if n.get("text") else None
+                return {"note": n, "entry": APP.entry(bid)}
+            return self._route(note, bid)
         if (mode, what) == ("groups", "units"):
             def units():
                 APP.open_draft(bid)
