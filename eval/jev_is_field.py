@@ -121,11 +121,12 @@ def main() -> int:
     ap.add_argument("--max-pages", type=int, default=4)
     ap.add_argument("--list", default="", help="the review page's listing (/api/blueprints) saved as JSON")
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--forms-list", nargs="*", help="these review ids (those with a cached finder run) instead of a sample")
     ap.add_argument("--save", required=True)
     args = ap.parse_args()
     listing = json.loads(Path(args.list).read_text()) if args.list else httpx.get("http://127.0.0.1:5005/api/blueprints", timeout=120).json()
     cands = []
-    for e in listing:
+    for e in ([{"id": i, "checked": {"validated": True}, "pages": 1} for i in args.forms_list] if args.forms_list else listing):
         if not (e.get("checked") or {}).get("validated") or (e.get("pages") or 99) > args.max_pages:
             continue
         bp = h._load(h.working_path(e["id"]))
@@ -133,7 +134,7 @@ def main() -> int:
         if blank and cached_boxes(blank) is not None:
             cands.append(e["id"])
     random.Random(7).shuffle(cands)
-    forms = cands[:args.forms]
+    forms = cands if args.forms_list else cands[:args.forms]
     jobs, truth = [], []
     for bid in forms:
         j, t = form_jobs(bid)
