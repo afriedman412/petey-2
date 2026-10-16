@@ -57,7 +57,9 @@ that change page to page (A-D) become 1, 2, 3; two separate tables of the same c
 long_term_); a totals row has no number.
 
 When the request is unclear or would touch fields you cannot identify, say so in the reply and propose nothing for \
-them. The reply is one or two plain sentences: what you propose, and anything left out. Return JSON only."""
+them. `confirmed` is for a request that asks you to check fields (a grid check): the fields you checked against the \
+page and found right as they are (the name says what goes in the box under its own headers, and fits its table); \
+leave it empty otherwise, and never list a field you propose to change. The reply is one or two plain sentences: what you propose, and anything left out. Return JSON only."""
 
 _EDIT = {"type": "object", "additionalProperties": False,
          "required": ["field", "name", "type", "semantic_type", "pattern", "options", "why"],
@@ -68,9 +70,10 @@ _EDIT = {"type": "object", "additionalProperties": False,
                             "properties": {"key": {"type": "string"}, "new_key": {"type": "string"},
                                            "caption": {"type": "string"}}}},
                         "why": {"type": "string"}}}
-SCHEMA = {"type": "object", "additionalProperties": False, "required": ["reply", "edits", "groups", "remove"],
+SCHEMA = {"type": "object", "additionalProperties": False, "required": ["reply", "edits", "groups", "remove", "confirmed"],
           "properties": {
               "reply": {"type": "string"},
+              "confirmed": {"type": "array", "items": {"type": "string"}},
               "edits": {"type": "array", "items": _EDIT},
               "groups": {"type": "array", "items": {
                   "type": "object", "additionalProperties": False, "required": ["name", "type", "fields", "why"],
@@ -123,7 +126,8 @@ def _clean(bp: dict, ans: dict, num: dict[str, str]) -> dict:
     def resolve(f: str) -> Optional[str]:
         f = (f or "").strip()
         return f if f in fields else num.get(f.lstrip("#"))
-    out = {"reply": ans.get("reply") or "", "edits": [], "groups": [], "remove": [], "errors": []}
+    out = {"reply": ans.get("reply") or "", "edits": [], "groups": [], "remove": [], "errors": [],
+           "confirmed": [n for n in (resolve(f) for f in ans.get("confirmed") or []) if n]}
     for e in ans.get("edits") or []:
         n = resolve(e.get("field"))
         if n is None:
@@ -188,7 +192,9 @@ def grid_request(bid: str, page: int) -> str:
     return (f"Check every table (grid) on page {page} against the grid rule below and propose the renames, and the "
             f"^[YN]$ pattern for a column printed Y / N, that put each table on one pattern. Look at the page image "
             f"too: a table the layout test missed counts, and a block that only lines up (signature, address) is not "
-            f"a table. Propose nothing for a table that is already right; say so in the reply.\n\n"
+            f"a table. Propose nothing for a table that is already right; say so in the reply. In `confirmed`, list every cell "
+            f"of the tables you checked whose name is right as it stands (checked against its column and row headers on "
+            f"the page), and none you propose to change: those are accepted for the person.\n\n"
             f"The rule: each column one kind of value with one wording, each row one iteration number (or the "
             f"transpose), names in the naming standard's shape.\n{rules}\n\n"
             f"What the layout test found on page {page}:\n" + ("\n\n".join(found) if found else "no table") +

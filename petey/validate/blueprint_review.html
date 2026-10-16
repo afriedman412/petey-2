@@ -491,7 +491,7 @@ function renderChat() {
       const errs = t.out.errors.length ? `<div class="cerr">left out: ${esc(t.out.errors.join('; '))}</div>` : '';
       const res = t.result ? `<div class="cfoot">applied: ${t.result.changes.length} change(s)${t.result.errors.length ? ` · <span class="cerr">${esc(t.result.errors.join('; '))}</span>` : ''}</div>` : '';
       const foot = items.length && !t.applied ? `<div class="cfoot"><button class="btn primary" data-apply="${ti}">apply ticked</button><span>$${t.out.cost_usd}</span></div>` : `<div class="cfoot"><span>$${t.out.cost_usd}</span></div>`;
-      const acc = (t.accepted || []).length ? `<div class="cfoot">accepted ${t.accepted.length} table cell(s) on pattern (note: grid check)</div>` : '';
+      const acc = (t.accepted || []).length ? `<div class="cfoot">accepted ${t.accepted.length} table cell(s) the check confirmed (note: grid check)</div>` : '';
       a = `<div class="ca">${esc(t.out.reply)}${list}${errs}${res || foot}${acc}</div>`;
     }
     return `<div class="cq">${esc(t.req)}</div>${a}`;
@@ -531,7 +531,7 @@ async function applyChat(ti, btn) {
   const t = chatState().turns[ti]; if (!t || t.applied) return;
   const pick = (arr, p) => arr.filter((_, i) => t.picked.has(p + i));
   const body = {edits: pick(t.out.edits, 'e'), groups: pick(t.out.groups, 'g'), remove: pick(t.out.remove, 'r'),
-                ...(t.gridPage ? {grid_page: t.gridPage} : {})};
+                ...(t.gridPage ? {grid_page: t.gridPage, confirmed: t.out.confirmed || []} : {})};
   if (!body.edits.length && !body.groups.length && !body.remove.length) { toast('Nothing ticked.'); return; }
   btn.disabled = true; btn.textContent = 'applying…';
   try {

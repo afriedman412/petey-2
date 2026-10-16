@@ -169,10 +169,12 @@ class App:
             out = hand_review.load_verdicts(bid)
         return {**out, **ap, "entry": self.entry(bid)}
 
-    def accept_grid(self, bid: str, page: int) -> list[str]:
-        """Accept every cell of the tables on `page` that are on one pattern (Andrew, 2026-10-15: "automatically
-        accept any grid fields checked by the grid validator"): tables numbered along one side (eval/grid_naming.py),
-        none of their cells off the pattern; a field with a verdict already keeps it. Note: "grid check"."""
+    def accept_grid(self, bid: str, page: int, ok: set) -> list[str]:
+        """Accept the cells the grid check vouched for (Andrew, 2026-10-15: "automatically accept any grid fields
+        checked by the grid validator"; and: "if it's checking for it why doesn't it consider it when accepting?"): a
+        cell is accepted when it is in `ok` (the model checked it against the page and confirmed it, or proposed the
+        fix the person applied) and its table (numbered along one side, eval/grid_naming.py) has nothing off its
+        pattern; a field with a verdict already keeps it. Note: "grid check"."""
         import sys
         sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
         import grid_naming
@@ -182,7 +184,7 @@ class App:
         for g in grid_naming.grids(bp):
             if g[0]["page"] != page or not grid_naming.iterated(g) or grid_naming.breaks(g)[1]:
                 continue
-            names += [c["name"] for c in g if not (have.get(c["name"]) or {}).get("verdict")]
+            names += [c["name"] for c in g if c["name"] in ok and not (have.get(c["name"]) or {}).get("verdict")]
         if names:
             self.put_verdicts(bid, {"verdicts": {n: {"verdict": "accept", "note": "grid check"} for n in names}})
         return names
@@ -212,8 +214,11 @@ class App:
                 if ad.get("apply_error") or ad.get("errors"):
                     out["errors"].append("removals recorded, not applied yet: "
                                          + (ad.get("apply_error") or "; ".join(ad.get("errors") or [])))
-        if body.get("grid_page"):                # a "check grid" turn: the tables now on pattern are accepted
-            out["accepted"] = self.accept_grid(bid, int(body["grid_page"]))
+        if body.get("grid_page"):                # a "check grid" turn: the cells it vouched for, tables now on pattern
+            ren = out.get("renamed") or {}
+            ok = {ren.get(n, n) for n in body.get("confirmed") or []} | \
+                 {ren.get(e.get("field"), e.get("field")) for e in body.get("edits") or []}
+            out["accepted"] = self.accept_grid(bid, int(body["grid_page"]), ok)
         self.refresh()
         return {**out, "entry": self.entry(bid)}
 
@@ -423,8 +428,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 pg = int(body.get("page") or 1)
                 req = form_chat.grid_request(bid, pg)
                 out = {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}])}
-                if not (out["edits"] or out["groups"] or out["remove"]):     # nothing to change: accept the tables
-                    out["accepted"] = APP.accept_grid(bid, pg)
+                if not (out["edits"] or out["groups"] or out["remove"]):     # nothing to change: accept what it vouched for
+                    out["accepted"] = APP.accept_grid(bid, pg, set(out.get("confirmed") or []))
                 return out
             return self._route(grid, bid)
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
