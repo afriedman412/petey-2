@@ -29,7 +29,7 @@ import sys
 
 NUM = re.compile(r"\d+")
 LINE = re.compile(r"^\d+[a-z]?$")          # an iteration or a line number (2, 12, 4a)
-TOL_X, TOL_W, TOL_Y = 3.0, 4.0, 3.0
+TOL_X, TOL_W, TOL_Y = 6.0, 4.0, 3.0      # x 6: a column whose boxes sit a few points apart (EP-2) is one column
 
 
 def _cluster(vals: list[float], tol: float) -> list[float]:
