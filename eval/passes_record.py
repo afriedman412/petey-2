@@ -1,5 +1,6 @@
-"""Which forms have had the passes after generation (scripts/validate_passes.sh), for the home page's pipeline:
-generated -> passed validation -> manual review (Andrew, 2026-10-16). One file for every form,
+"""Which forms are cleared: through the automated passes (scripts/validate_passes.sh), for the home page's pipeline
+generated -> cleared -> validated (Andrew, 2026-10-16: generation is the generation pipeline and its loops, clearing the
+automated passes, validation the manual check). One file for every form,
 runs/hand_review/passes.json `{bid: {when, steps}}`, apart from the blueprints so recording it changes no file's sha.
 
     PYTHONPATH=. venv/bin/python eval/passes_record.py ID ...        # the passes just ran on these (validate_passes.sh)
@@ -89,7 +90,7 @@ def main() -> int:
         for b in args.ids:
             rec[b] = {"when": now, "steps": STEPS}
     save(rec)
-    print(f"{len(rec)} forms recorded as through the passes", file=sys.stderr)
+    print(f"{len(rec)} forms recorded as cleared", file=sys.stderr)
     return 0
 
 

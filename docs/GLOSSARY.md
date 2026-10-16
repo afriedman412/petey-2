@@ -3,6 +3,21 @@
 The words the loop is described in, one meaning each (Andrew, 2026-10-01: codify the terms). Where a term names a
 module, the module is given. Older documents use some of these loosely; this page is the reference.
 
+## The pipeline stages
+
+Every form moves through three stages, in order (Andrew, 2026-10-16). The home page shows each form's stage.
+
+- **Generated**: made by the generation pipeline and its loops (`petey.validate`: the labeler, the loop, runs). The
+  command is still `validate --blank ...`, and older documents say "validation" or "validated" for a generation run;
+  they mean generation.
+- **Cleared**: through the automated passes after generation (`scripts/validate_passes.sh`: mechanical pass, naming
+  standard, re-read captions, page check, Jev), recorded per form in `runs/hand_review/passes.json`
+  (`eval/passes_record.py`). Clearing began on 2026-10-15; nothing earlier is cleared.
+- **Validated**: the manual check. A person has a verdict on every field, nothing is flagged, every correction is
+  applied, and the file is the one checked. On the way there a form is *in review* (verdicts after clearing),
+  *needs work* (all verdicts, something flagged or pending) or *changed since check* (the file moved after the check).
+  Forms fully checked before clearing existed keep their stage.
+
 ## The document
 
 - **Blank**: the publisher's PDF as downloaded, under `source_pdfs/`. The only input generation is allowed to read.
@@ -57,7 +72,7 @@ module, the module is given. Older documents use some of these loosely; this pag
 - **Widget key** (`boxes.widget_key`): the key a widget's ground truth is stored under: its AcroForm path, or on a
   flat blueprint `rect:p<page>:<rect>`. The scorer, the rect join and the witness identity all go through it.
 - **Build stamp** (`x_petey_build`, `petey/validate/provenance.py`): the finder version, classifier model and
-  prompt, generator, case set and run of the blueprint's latest validation. Written by the loop after every run.
+  prompt, generator, case set and run of the blueprint's latest generation run. Written by the loop after every run.
 
 ## The page side
 
@@ -91,7 +106,7 @@ module, the module is given. Older documents use some of these loosely; this pag
 
 ## Reading back
 
-- **Run** (`runs/<form>_<timestamp>/`): one validation: the blueprint copy, each case's directory, scores, the
+- **Run** (`runs/<form>_<timestamp>/`): one generation run: the blueprint copy, each case's directory, scores, the
   summary with its build record.
 - **Native reader**: extraction through the AcroForm paths the blueprint names, then the text layer clipped to
   the rect, then (a path-less option box, flat blueprints) ink against the blank, then OCR. Cannot see a misnamed
@@ -100,10 +115,10 @@ module, the module is given. Older documents use some of these loosely; this pag
   text or image, so a wrong name produces a wrong value. A dev-time instrument, metered; not product extraction.
 - **Reviewer** (`petey/validate/review.py`): the model that receives flagged fields with their evidence and
   returns `ok` or a fix (rename, type, pattern, description). Its edits are applied and then judged by the next
-  validation (`iterate.judge_review`).
+  generation run (`iterate.judge_review`).
 - **Adjudicator** (`petey/validate/adjudicate.py`): the vision model that decides a contested rename from a crop
   of the blank with the widget outlined: `current` / `proposed` / `unclear`. Independent of the classifier.
-- **The loop** (`petey/validate/iterate.py`): validate, detect, fix (rules, then reviewer), validate again; keeps
+- **The loop** (`petey/validate/iterate.py`): run, detect, fix (rules, then reviewer), run again; keeps
   a reviewed change only if the next run says it helped.
 
 ## Checks and measures

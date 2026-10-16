@@ -115,7 +115,7 @@
   .pill.validated { color:var(--green); border-color:rgba(134,239,172,.4); }
   .pill.work { color:var(--red); border-color:rgba(240,113,106,.4); }
   .pill.recheck, .pill.progress { color:var(--amber); border-color:rgba(247,181,56,.4); }
-  .pill.passed { color:var(--text); border-color:var(--text-dim); }
+  .pill.cleared { color:var(--text); border-color:var(--text-dim); }
   .pill.copy { color:var(--accent); border-color:rgba(216,87,42,.45); }
   /* Audit mode (run_audit): read-only tables, so the page image gives way and the panel takes the width */
   body.audit #left, body.audit #sidegrip { display:none; }
@@ -529,9 +529,10 @@ const HOME = {on: false, sort: 'section', asc: true, q: '', section: '', domain:
 try { Object.assign(HOME, JSON.parse(store('br_home') || '{}'), {on: false}); } catch (e) {}
 const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, domain: HOME.domain, status: HOME.status, hideVal: HOME.hideVal}));
 // one status per form, the worst first: a working copy not saved, flags, a check gone stale, under way, done, untouched
-// the pipeline (Andrew, 2026-10-16): generated -> passed validation (the passes after generation,
-// eval/passes_record.py) -> manual review (in review, needs work, changed since check, validated). The pipeline runs
-// forward: a form is in review only once it passed validation and has verdicts made after that (the 10-07 bulk accepts
+// the pipeline (Andrew, 2026-10-16): generated (the generation pipeline and its loops) -> cleared (the automated passes,
+// scripts/validate_passes.sh, recorded by eval/passes_record.py) -> validated (the manual check: in review, needs work,
+// changed since check, validated). It runs forward: a form is in review only once cleared, with verdicts made after
+// that (the 10-07 bulk accepts
 // predate the passes, which came on 2026-10-15); without the passes it is generated, unless it was fully checked before
 // they existed (validated, needs work, changed since check: a finished hand review stands).
 function statusOf(b) {
@@ -541,10 +542,10 @@ function statusOf(b) {
   if (c && c.stale) return {k: 'recheck', t: 'changed since check'};
   const reviewed = !!b.passes && (b.accepted + b.flagged) > 0 && (b.touched || '') > (b.passes.when || '');
   if (reviewed) return {k: 'progress', t: 'in review'};
-  if (b.passes) return {k: 'passed', t: 'passed validation'};
+  if (b.passes) return {k: 'cleared', t: 'cleared'};
   return {k: 'generated', t: 'generated'};
 }
-const STATUS_ORDER = {generated: 0, passed: 1, progress: 2, work: 3, recheck: 4, validated: 5};
+const STATUS_ORDER = {generated: 0, cleared: 1, progress: 2, work: 3, recheck: 4, validated: 5};
 const SECTION_ORDER = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k, i]));
 const HCOLS = [
   // key, header, sort value, cell html, numeric, tooltip
@@ -564,9 +565,9 @@ const HCOLS = [
        : `${b.check_errors}<span class="dim"> / ${b.check_suggestions}</span>`, true, "page check: errors / suggestions"],
   ['groups', 'groups', b => (b.groups || {}).groups ?? -1, b => b.groups ? b.groups.groups : '—', true, 'option groups in the blueprint'],
   ['status', 'stage', b => STATUS_ORDER[statusOf(b).k], b => { const s = statusOf(b), p = b.passes;
-    const tip = p ? `passes ${p.when}: ${(p.steps || []).join(', ')}` : 'the passes after generation have not run';
+    const tip = p ? `cleared ${p.when}: ${(p.steps || []).join(', ')}` : 'not cleared: the automated passes have not run';
     return `<span class="pill ${s.k}" title="${esc(tip)}">${s.t}</span>`; }, false,
-    'generated -> passed validation (the passes after generation) -> manual review'],
+    'generated (the generation pipeline) -> cleared (the automated passes) -> validated (the manual check)'],
   ['copy', 'unsaved', b => b.draft ? b.draft.changes : -1, b => b.draft ? `<span class="pill copy" title="${esc('working copy made ' + b.draft.made)}">${b.draft.changes} change${b.draft.changes === 1 ? '' : 's'}</span>` : '', false,
     'a working copy with changes not saved into the blueprint yet'],
   ['made', 'made', b => (b.age || {}).when || '', b => `<span title="${esc((b.age || {}).by || '')}">${esc((b.age || {}).when || '—')}</span>`, false, 'when and by what the blueprint was made'],
@@ -574,8 +575,8 @@ const HCOLS = [
   ['touched', 'last review', b => b.touched || '', b => b.touched ? esc(b.touched.slice(0, 16)) : '<span class="dim">—</span>', false, 'the last verdict or note'],
 ];
 const HSTAGES = [[null, [['', 'blueprints']]],
-                 ['automated', [['generated', 'generated'], ['passed', 'passed validation']]],
-                 ['manual review', [['progress', 'in review'], ['work', 'needs work'], ['recheck', 'changed since check'], ['validated', 'validated']]],
+                 ['automated', [['generated', 'generated'], ['cleared', 'cleared']]],
+                 ['validation (manual)', [['progress', 'in review'], ['work', 'needs work'], ['recheck', 'changed since check'], ['validated', 'validated']]],
                  [null, [['copy', 'unsaved copies']]]];
 const homeMatch = (b, st) => st === 'copy' ? !!b.draft : !st || statusOf(b).k === st;
 
@@ -1066,7 +1067,7 @@ MODE.review = (() => {
     if (m.file_time) rows.push(`not in git; file last written ${e(m.file_time)}`);
     if (m.loop_edits) rows.push('loop edits kept: ' + Object.entries(m.loop_edits).map(([k, n]) => `${n} by ${e(k || '?')}`).join(', '));
     // the generation run (petey.validate's loop, `validate --blank`), not the passes or a hand review: said as such since
-    // the pipeline got a "passed validation" stage (Andrew, 2026-10-16, je__dod_dd_149)
+    // the pipeline's stages got names: generated -> cleared -> validated (Andrew, 2026-10-16, je__dod_dd_149)
     if (m.validated) rows.push(`generated by run ${m.validated.run ? e(m.validated.run) + ' ' : ''}on ${e(m.validated.when || '?')}`);
     return `<div class="help">${rows.join('<br>')}</div>`;
   }

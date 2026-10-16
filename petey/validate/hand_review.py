@@ -338,7 +338,7 @@ class State:
                 "collection": collection(bp), "pages": len(bp.get("source_pages") or []) or None,
                 "touched": v.get("updated"), "note": (notes if notes is not None else form_notes()).get(bid),
                 "draft": draft.status(bid, real)}
-                # through the passes after generation (eval/passes_record.py): the home page's pipeline stage
+                # cleared: through the automated passes (eval/passes_record.py), the home page's pipeline stage
                 "passes": passes_record().get(bid),
 
     def index(self) -> None:
