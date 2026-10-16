@@ -169,6 +169,21 @@ class App:
             out = hand_review.load_verdicts(bid)
         return {**out, **ap, "entry": self.entry(bid)}
 
+    def code_grid(self, bid: str, page: int) -> tuple[list, list]:
+        """The numbered tables on the page split by the code check that runs before any model (Andrew, 2026-10-15:
+        "a quick validation check with code for CHECK GRID before we do anything with AI"; grid_naming.on_pattern):
+        ([table body passing], [table failing]). A passing table's cells are accepted without the model; the page goes
+        to the model only when a table fails, or the layout finds none."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+        import grid_naming
+        bp = hand_review._load(self.working(bid))
+        passed, failed = [], []
+        for g in grid_naming.grids(bp):
+            if g[0]["page"] == page and grid_naming.iterated(g):
+                (passed.append(grid_naming.body(g)) if grid_naming.on_pattern(g)[0] else failed.append(g))
+        return passed, failed
+
     def accept_grid(self, bid: str, page: int, ok: set) -> list[str]:
         """Accept the cells the grid check vouched for (Andrew, 2026-10-15: "automatically accept any grid fields
         checked by the grid validator"; and: "if it's checking for it why doesn't it consider it when accepting?"): a
@@ -433,10 +448,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
             from petey.validate import form_chat
             def grid():
                 pg = int(body.get("page") or 1)
+                passed, failed = APP.code_grid(bid, pg)
+                accepted = APP.accept_grid(bid, pg, {c["name"] for g in passed for c in g})
+                if passed and not failed:            # every table on the page passes the code check: no model call
+                    n = sum(len(g) for g in passed)
+                    return {"reply": f"Page {pg}: {len(passed)} table(s), {n} cell(s): each column one pattern that "
+                                     f"varies only by its iteration, rows numbered by steps of 1 (code check, no "
+                                     f"model call).", "edits": [], "groups": [], "remove": [], "errors": [],
+                            "confirmed": [], "cost_usd": 0, "accepted": accepted}
                 req = form_chat.grid_request(bid, pg)
                 out = {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}])}
                 if not (out["edits"] or out["groups"] or out["remove"]):     # nothing to change: accept what it vouched for
-                    out["accepted"] = APP.accept_grid(bid, pg, set(out.get("confirmed") or []))
+                    accepted += APP.accept_grid(bid, pg, set(out.get("confirmed") or []))
+                out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written

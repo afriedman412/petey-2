@@ -176,9 +176,12 @@ def grid_request(bid: str, page: int) -> str:
     text = SKILL.read_text(encoding="utf-8") if SKILL.exists() else ""
     a, b = text.find("3. **Decide the names**"), text.find("4. **Apply**")
     rules = text[a:b].strip() if a >= 0 and b > a else ""
-    found = []
+    found, done = [], []
     for g in G.grids(bp):
         if g[0]["page"] != page:
+            continue
+        if G.iterated(g) and G.on_pattern(g)[0]:       # passed the code check, its cells accepted: not asked again
+            done.append(f"{g[0]['name']} ... {g[-1]['name']}")
             continue
         nr, nc = max(c["row"] for c in g) + 1, max(c["col"] for c in g) + 1
         cells = {(c["row"], c["col"]): c["name"] for c in g}
@@ -198,6 +201,8 @@ def grid_request(bid: str, page: int) -> str:
             f"The rule: each column one kind of value with one wording, each row one iteration number (or the "
             f"transpose), names in the naming standard's shape.\n{rules}\n\n"
             f"What the layout test found on page {page}:\n" + ("\n\n".join(found) if found else "no table") +
+            ("\n\nAlready on pattern by the code check and accepted (leave these tables alone, propose nothing and "
+             "confirm nothing for them): " + "; ".join(done) if done else "") +
             ("\n\nIts mechanical renames (a hint, not an order): " + "; ".join(f"{o} -> {n}" for o, n in on_page.items())
              if on_page else ""))
 

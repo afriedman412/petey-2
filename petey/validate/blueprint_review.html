@@ -500,9 +500,9 @@ async function openBlueprint(id) {
 // ---------------------------------------------------------------- home (2026-10-15)
 // every blueprint in one table, sortable by any column, filtered by section / status / text; a row opens the form in
 // the current mode. Sort and filters are kept per browser.
-const HOME = {on: false, sort: 'section', asc: true, q: '', section: '', status: ''};
+const HOME = {on: false, sort: 'section', asc: true, q: '', section: '', domain: null, status: ''};
 try { Object.assign(HOME, JSON.parse(store('br_home') || '{}'), {on: false}); } catch (e) {}
-const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, status: HOME.status}));
+const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, domain: HOME.domain, status: HOME.status}));
 // one status per form, the worst first: a working copy not saved, flags, a check gone stale, under way, done, untouched
 function statusOf(b) {
   const c = b.checked;
@@ -518,7 +518,7 @@ const HCOLS = [
   // key, header, sort value, cell html, numeric, tooltip
   ['form', 'form', b => b.form, b => `<a href="#review/${encodeURIComponent(b.id)}">${esc(b.form)}</a><span class="fid">${esc(b.id)}</span>`, false],
   ['section', 'section', b => SECTION_ORDER[sectionOf(b)] ?? 99, b => esc(SECTION_SHORT[sectionOf(b)] || sectionOf(b)), false],
-  ['collection', 'collection', b => b.collection ?? '~', b => b.collection === '' ? '<span class="dim">(top)</span>' : esc(b.collection ?? '—'), false, 'the source_pdfs folder the blank is in'],
+  ['collection', 'domain', b => b.collection ?? '~', b => b.collection === '' ? '<span class="dim">(top)</span>' : esc(b.collection ?? '—'), false, 'domain: the source_pdfs folder the blank is in'],
   ['pages', 'pages', b => b.pages ?? -1, b => b.pages ?? '—', true],
   ['fields', 'fields', b => b.fields, b => b.fields, true],
   ['reviewed', 'reviewed', b => b.fields ? (b.accepted + b.flagged) / b.fields : 0, b => {
@@ -551,19 +551,23 @@ async function showHome(on) {
 }
 function renderHome() {
   const el = $('#home');
-  const inSection = LIST.filter(b => !HOME.section || sectionOf(b) === HOME.section);
+  // domain: null is any, '' the forms at the top of source_pdfs
+  const inSection = LIST.filter(b => (!HOME.section || sectionOf(b) === HOME.section) && (HOME.domain == null || (b.collection ?? '') === HOME.domain));
   const q = HOME.q.trim().toLowerCase();
   const rows = inSection.filter(b => homeMatch(b, HOME.status) && (!q || [b.form, b.id, b.collection].some(s => String(s ?? '').toLowerCase().includes(q))));
   const col = HCOLS.find(c => c[0] === HOME.sort) || HCOLS[1], dir = HOME.asc ? 1 : -1;
   const cmp = (x, y) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
   rows.sort((a, b) => dir * cmp(col[2](a), col[2](b)) || a.form.localeCompare(b.form));
   const secs = Object.keys(SECTIONS).filter(k => LIST.some(b => sectionOf(b) === k));
+  const dn = {}; for (const b of LIST) if (!HOME.section || sectionOf(b) === HOME.section) dn[b.collection ?? ''] = (dn[b.collection ?? ''] || 0) + 1;
+  const doms = Object.entries(dn).sort((a, b) => a[0].localeCompare(b[0]));
   el.innerHTML = `
     <div class="hstats">${HSTATS.map(([k, t]) => `<div class="hstat ${HOME.status === k ? 'on' : ''}" data-st="${k}"><b>${inSection.filter(b => homeMatch(b, k)).length}</b><span>${t}</span></div>`).join('')}</div>
     <div class="hctl">
-      <input id="hq" type="text" placeholder="search form, id, collection (/)" value="${esc(HOME.q)}">
+      <input id="hq" type="text" placeholder="search form, id, domain (/)" value="${esc(HOME.q)}">
       <select id="hsec"><option value="">all sections</option>${secs.map(k => `<option value="${k}" ${HOME.section === k ? 'selected' : ''}>${esc(SECTIONS[k])} (${LIST.filter(b => sectionOf(b) === k).length})</option>`).join('')}</select>
-      ${HOME.q || HOME.section || HOME.status ? '<button class="btn" id="hclear">clear filters</button>' : ''}
+      <select id="hdom"><option value="*">all domains</option>${doms.map(([d, n]) => `<option value="${esc(d)}" ${HOME.domain === d ? 'selected' : ''}>${d === '' ? '(top of source_pdfs)' : esc(d)} (${n})</option>`).join('')}</select>
+      ${HOME.q || HOME.section || HOME.domain != null || HOME.status ? '<button class="btn" id="hclear">clear filters</button>' : ''}
       <span class="help">${rows.length} of ${LIST.length} · click a row to open it in ${esc(mode)}${bid ? ` · <a href="#" id="hback">back to ${esc((LIST.find(b => b.id === bid) || {}).form || bid)}</a>` : ''}</span>
     </div>
     <table class="home"><thead><tr>${HCOLS.map(c => `<th data-k="${c[0]}" class="${c[4] ? 'num' : ''} ${c[0] === HOME.sort ? 'sorted' + (HOME.asc ? ' asc' : '') : ''}" ${c[5] ? `title="${esc(c[5])}"` : ''}>${c[1]}</th>`).join('')}</tr></thead>
@@ -579,7 +583,8 @@ function renderHome() {
   hq.oninput = () => { HOME.q = hq.value; keepHome(); const pos = hq.selectionStart; renderHome(); const n = $('#hq'); n.focus(); n.setSelectionRange(pos, pos); };
   hq.onkeydown = e => { if (e.key === 'Escape') { hq.blur(); } else if (e.key === 'Enter' && rows.length === 1) openBlueprint(rows[0].id); };
   $('#hsec').onchange = e => { HOME.section = e.target.value; keepHome(); renderHome(); };
-  if ($('#hclear')) $('#hclear').onclick = () => { HOME.q = HOME.section = HOME.status = ''; keepHome(); renderHome(); };
+  $('#hdom').onchange = e => { HOME.domain = e.target.value === '*' ? null : e.target.value; keepHome(); renderHome(); };
+  if ($('#hclear')) $('#hclear').onclick = () => { HOME.q = HOME.section = HOME.status = ''; HOME.domain = null; keepHome(); renderHome(); };
   if ($('#hback')) $('#hback').onclick = e => { e.preventDefault(); openBlueprint(bid); };
 }
 
@@ -652,7 +657,7 @@ async function checkGrid() {
   try {
     const out = await send('POST', mapi('review', '/grid'), {page, history: st.history});
     turn.out = out; turn.picked = new Set(chatItems(out).map(it => it.k));
-    st.history.push({role: 'user', content: out.request}, {role: 'assistant', content: out.raw});
+    if (out.request) st.history.push({role: 'user', content: out.request}, {role: 'assistant', content: out.raw});   // a code-only pass asks no model
     if ((out.accepted || []).length) { turn.accepted = out.accepted; if (bid === form) await loadMode(); }
   } catch (e) { turn.err = 'The grid check failed: ' + e.message; }
   if (bid === form) renderChat();

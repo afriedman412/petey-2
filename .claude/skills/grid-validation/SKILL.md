@@ -20,7 +20,9 @@ The code finds and fixes the mechanical cases; the judgment below is what the co
    PYTHONPATH=. venv/bin/python eval/grid_naming.py <bid>          # cells off the pattern
    PYTHONPATH=. venv/bin/python eval/grid_naming.py <bid> --fix    # the renames it would make
    ```
-   Print each grid as rows x columns (`grid_naming.grids(bp)`) to see the names in place.
+   Print each grid as rows x columns (`grid_naming.grids(bp)`) to see the names in place. A table that passes the
+   code check (`grid_naming.on_pattern`: each column one pattern varying only by its iteration, rows numbered by steps
+   of 1) is done; the review page's "check grid" accepts it without a model call. Spend the judgment on the rest.
 
 2. **Look at the page.** Render it with the boxes numbered and read the headers:
    `pc.render(resolve_blank(bp), page, pc.numbered(bp), dpi=100)` (petey/validate/page_check.py), then Read the PNG.

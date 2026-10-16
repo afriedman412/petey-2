@@ -141,11 +141,17 @@ def _close(a: str, b: str) -> bool:
     return bool(ta and tb) and len(ta & tb) / len(ta | tb) >= 0.6
 
 
-def breaks(grid: list[dict]) -> tuple[str, list[str]]:
-    """(reading, [cell problems]) for one grid. A last row of totals (every name starting total_) is left out."""
+def body(grid: list[dict]) -> list[dict]:
+    """The grid without a last row of totals (every name starting total_)."""
     last = max(c["row"] for c in grid)
     if all(c["name"].startswith("total") for c in grid if c["row"] == last):
-        grid = [c for c in grid if c["row"] != last]
+        return [c for c in grid if c["row"] != last]
+    return grid
+
+
+def breaks(grid: list[dict]) -> tuple[str, list[str]]:
+    """(reading, [cell problems]) for one grid. A last row of totals (every name starting total_) is left out."""
+    grid = body(grid)
     def score(shape_axis: str, num_axis: str):
         shapes, nums = collections.defaultdict(collections.Counter), collections.defaultdict(collections.Counter)
         for c in grid:
@@ -176,6 +182,53 @@ def iterated(grid: list[dict]) -> bool:
     if not ((nrow >= 3 and ncol >= 2) or (nrow >= 2 and ncol >= 3)):
         return False
     return sum(_number(c["name"]) is not None for c in grid) >= 0.5 * len(grid)
+
+
+def _pattern(name: str) -> str | None:
+    """The name with its iteration (the last one) as N; any other number in it stays (sched_2_line_N_amt)."""
+    toks, its = name.split("_"), _iter_tokens(name)
+    if not its:
+        return None
+    toks[its[-1]] = "N"
+    return "_".join(toks)
+
+
+def _next(a: str, b: str) -> bool:
+    """b is the iteration after a: 3 then 4, b then c."""
+    if a.isdigit() and b.isdigit():
+        return int(b) == int(a) + 1
+    return len(a) == len(b) == 1 and a.isalpha() and b.isalpha() and ord(b) == ord(a) + 1
+
+
+def on_pattern(grid: list[dict]) -> tuple[bool, str]:
+    """The quick code check, before any model (Andrew, 2026-10-15: "there should be a pattern for every column that
+    will only vary by iteration, and the iterations should descend by 1"): (passes, how it reads or why not). Passes
+    when, read by columns (or the transpose): every cell carries an iteration, every column one pattern its cells
+    differ from only in that iteration, every row one number, the rows numbered top to bottom by steps of 1. A last
+    row of totals is left out. The naming standard's shape is not checked here: it is its own step."""
+    grid = body(grid)
+    for c in grid:
+        if _pattern(c["name"]) is None:
+            return False, f"{c['name']}: no iteration"
+    whys = []
+    for reading, pat_axis, num_axis in (("columns", "col", "row"), ("rows", "row", "col")):
+        line, other = ("column", "row") if pat_axis == "col" else ("row", "column")
+        pats, nums = collections.defaultdict(set), collections.defaultdict(set)
+        for c in grid:
+            pats[c[pat_axis]].add(_pattern(c["name"]))
+            nums[c[num_axis]].add(_number(c["name"]))
+        bad = next((f"{line} {k + 1} has {len(v)} patterns ({', '.join(sorted(v))})"
+                    for k, v in sorted(pats.items()) if len(v) > 1), None) or \
+            next((f"{other} {k + 1} has {len(v)} numbers ({', '.join(sorted(v))})"
+                  for k, v in sorted(nums.items()) if len(v) > 1), None)
+        if not bad:
+            seq = [next(iter(nums[k])) for k in sorted(nums)]
+            if not all(_next(a, b) for a, b in zip(seq, seq[1:])):
+                bad = f"{other}s numbered {', '.join(seq)}, not by steps of 1"
+        if not bad:
+            return True, reading
+        whys.append(f"by {line}s: {bad}")
+    return False, "; ".join(whys)
 
 
 def _standard(name: str, spec: dict) -> str:
@@ -266,8 +319,14 @@ def main() -> int:
     for bid in args.ids:
         bp = h._load(h.working_path(bid))
         lines = check(bp)
-        print(f"{bid}: {len(grids(bp))} grid(s), {len(lines)} cell(s) breaking the pattern")
+        tables = [g for g in grids(bp) if iterated(g)]
+        print(f"{bid}: {len(grids(bp))} grid(s), {len(lines)} cell(s) breaking the pattern; "
+              f"{sum(on_pattern(g)[0] for g in tables)} of {len(tables)} numbered table(s) pass the code check")
         if not args.fix:
+            for g in tables:
+                ok, why = on_pattern(g)
+                if not ok:
+                    print(f"  table p{g[0]['page']} ({g[0]['name']} ...) off the code check: {why}")
             for ln in lines[:25]:
                 print("  " + ln)
             continue
