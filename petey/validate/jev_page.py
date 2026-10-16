@@ -174,8 +174,14 @@ def ask(client: httpx.Client, key: str, body: dict, imgs: dict[str, bytes]) -> d
     full = dict(body, assets={r: {"type": "image", "format": "png", "data_base64": base64.b64encode(b).decode()}
                               for r, b in imgs.items()})
     for attempt in range(6):
-        r = client.post(URL, json=full, timeout=180, headers={"Authorization": f"Bearer {key}",
-                                                              "TypeSafe-Danger-Zone-Images": "true"})
+        try:
+            r = client.post(URL, json=full, timeout=180, headers={"Authorization": f"Bearer {key}",
+                                                                  "TypeSafe-Danger-Zone-Images": "true"})
+        except httpx.TransportError:            # a dropped connection (2026-10-16: a TLS decode error killed a batch)
+            if attempt == 5:
+                raise
+            time.sleep(2 ** attempt)
+            continue
         if r.status_code in (429, 529) and attempt < 5:
             time.sleep(float(r.headers.get("retry-after") or 2 ** attempt))
             continue
