@@ -116,7 +116,8 @@ class App:
                 "groups": ({k: g[k] for k in ("groups", "orphans", "confirmed", "units", "combos", "stale")} if g else None),
                 "add": {"added": len(rec.get("added") or []), "dismissed": len(rec.get("dismissed") or []),
                         "removed": len(rec.get("removed") or []),
-                        "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])}}
+                        "applied": sum(len(a.get("changes") or []) for a in rec.get("applied") or [])},
+                "passes": hand_review.passes_record().get(bid)}       # read fresh: the passes record changes on its own
 
     def apply_groups(self, bid: str) -> dict:
         """Groups' regrouping into the working copy (on leaving Groups, its apply button, or Save)."""

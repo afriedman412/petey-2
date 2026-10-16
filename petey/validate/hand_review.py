@@ -338,6 +338,8 @@ class State:
                 "collection": collection(bp), "pages": len(bp.get("source_pages") or []) or None,
                 "touched": v.get("updated"), "note": (notes if notes is not None else form_notes()).get(bid),
                 "draft": draft.status(bid, real)}
+                # through the passes after generation (eval/passes_record.py): the home page's pipeline stage
+                "passes": passes_record().get(bid),
 
     def index(self) -> None:
         """Read every blueprint once at startup; the listing is served from memory and one entry is refreshed
@@ -562,6 +564,24 @@ _PDF_DIRS: dict[str, str] = {}
 FORM_NOTES = OUT / "form_notes.json"
 
 
+
+
+_PASSES: dict = {"mtime": None, "rec": {}}
+
+
+def passes_record() -> dict[str, dict]:
+    """runs/hand_review/passes.json `{bid: {when, steps}}` (eval/passes_record.py), read again only when it changes."""
+    p = OUT / "passes.json"
+    try:
+        m = p.stat().st_mtime
+    except OSError:
+        return {}
+    if _PASSES["mtime"] != m:
+        try:
+            _PASSES.update(mtime=m, rec=json.loads(p.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            return _PASSES["rec"]
+    return _PASSES["rec"]
 def form_notes() -> dict[str, dict]:
     """{bid: {text, updated}}: Andrew's notes on a whole form (2026-10-15), one file for every form, kept apart from
     the per-form records so a working copy's discard (which puts those back) leaves them."""

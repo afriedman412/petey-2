@@ -84,7 +84,10 @@
   body.home #home { display:block; }
   body.home main, body.home #modebar, body.home #chatBtn, body.home #gridBtn, body.home #clashBtn, body.home #zoomctl,
   body.home #draftBar, body.home #notesBtn { display:none !important; }
-  .hstats { display:flex; gap:22px; flex-wrap:wrap; margin:2px 0 14px; }
+  .hstats { display:flex; gap:22px; flex-wrap:wrap; margin:2px 0 14px; align-items:flex-end; }
+  .hstage-l { font-size:.62rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim);
+              border-bottom:1px solid var(--border); padding-bottom:3px; margin-bottom:6px; }
+  .hstage-t { display:flex; gap:10px; }
   .hstat { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:8px 14px; cursor:pointer; min-width:110px; }
   .hstat.on { border-color:var(--accent); background:var(--accent-dim); }
   .hstat b { display:block; font:400 1.5rem/1.1 'DM Serif Display', Georgia, serif; color:var(--text); }
@@ -112,6 +115,7 @@
   .pill.validated { color:var(--green); border-color:rgba(134,239,172,.4); }
   .pill.work { color:var(--red); border-color:rgba(240,113,106,.4); }
   .pill.recheck, .pill.progress { color:var(--amber); border-color:rgba(247,181,56,.4); }
+  .pill.passed { color:var(--text); border-color:var(--text-dim); }
   .pill.copy { color:var(--accent); border-color:rgba(216,87,42,.45); }
   /* Audit mode (run_audit): read-only tables, so the page image gives way and the panel takes the width */
   body.audit #left, body.audit #sidegrip { display:none; }
@@ -525,15 +529,20 @@ const HOME = {on: false, sort: 'section', asc: true, q: '', section: '', domain:
 try { Object.assign(HOME, JSON.parse(store('br_home') || '{}'), {on: false}); } catch (e) {}
 const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, domain: HOME.domain, status: HOME.status, hideVal: HOME.hideVal}));
 // one status per form, the worst first: a working copy not saved, flags, a check gone stale, under way, done, untouched
+// the pipeline (Andrew, 2026-10-16): generated -> passed validation (the passes after generation,
+// eval/passes_record.py) -> manual review (in review, needs work, changed since check, validated). Review counts as
+// started only with verdicts after the passes ran (a bulk accept from before them is not a review).
 function statusOf(b) {
   const c = b.checked;
   if (c && c.validated) return {k: 'validated', t: 'validated'};
   if (c && (c.flagged || c.pending)) return {k: 'work', t: 'needs work'};
   if (c && c.stale) return {k: 'recheck', t: 'changed since check'};
-  if (b.accepted + b.flagged) return {k: 'progress', t: 'in progress'};
-  return {k: 'new', t: 'not started'};
+  const reviewed = (b.accepted + b.flagged) > 0 && (!b.passes || (b.touched || '') > (b.passes.when || ''));
+  if (reviewed) return {k: 'progress', t: 'in review'};
+  if (b.passes) return {k: 'passed', t: 'passed validation'};
+  return {k: 'generated', t: 'generated'};
 }
-const STATUS_ORDER = {work: 0, recheck: 1, progress: 2, new: 3, validated: 4};
+const STATUS_ORDER = {generated: 0, passed: 1, progress: 2, work: 3, recheck: 4, validated: 5};
 const SECTION_ORDER = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k, i]));
 const HCOLS = [
   // key, header, sort value, cell html, numeric, tooltip
@@ -552,15 +561,20 @@ const HCOLS = [
     b => b.check_errors == null ? (b.page_check_flags == null ? '<span class="dim">—</span>' : b.page_check_flags)
        : `${b.check_errors}<span class="dim"> / ${b.check_suggestions}</span>`, true, "page check: errors / suggestions"],
   ['groups', 'groups', b => (b.groups || {}).groups ?? -1, b => b.groups ? b.groups.groups : '—', true, 'option groups in the blueprint'],
-  ['status', 'status', b => STATUS_ORDER[statusOf(b).k], b => { const s = statusOf(b); return `<span class="pill ${s.k}">${s.t}</span>`; }, false],
+  ['status', 'stage', b => STATUS_ORDER[statusOf(b).k], b => { const s = statusOf(b), p = b.passes;
+    const tip = p ? `passes ${p.when}: ${(p.steps || []).join(', ')}` : 'the passes after generation have not run';
+    return `<span class="pill ${s.k}" title="${esc(tip)}">${s.t}</span>`; }, false,
+    'generated -> passed validation (the passes after generation) -> manual review'],
   ['copy', 'unsaved', b => b.draft ? b.draft.changes : -1, b => b.draft ? `<span class="pill copy" title="${esc('working copy made ' + b.draft.made)}">${b.draft.changes} change${b.draft.changes === 1 ? '' : 's'}</span>` : '', false,
     'a working copy with changes not saved into the blueprint yet'],
   ['made', 'made', b => (b.age || {}).when || '', b => `<span title="${esc((b.age || {}).by || '')}">${esc((b.age || {}).when || '—')}</span>`, false, 'when and by what the blueprint was made'],
   ['notes', 'notes', b => (b.note || {}).text || '~', b => b.note ? `<span title="${esc(b.note.text + '\n\n' + b.note.updated)}">${esc(b.note.text.split('\n')[0])}</span>` : '', false, 'your note on the form'],
   ['touched', 'last review', b => b.touched || '', b => b.touched ? esc(b.touched.slice(0, 16)) : '<span class="dim">—</span>', false, 'the last verdict or note'],
 ];
-const HSTATS = [['', 'blueprints'], ['validated', 'validated'], ['work', 'needs work'], ['recheck', 'changed since check'],
-                ['progress', 'in progress'], ['new', 'not started'], ['copy', 'unsaved copies']];
+const HSTAGES = [[null, [['', 'blueprints']]],
+                 ['automated', [['generated', 'generated'], ['passed', 'passed validation']]],
+                 ['manual review', [['progress', 'in review'], ['work', 'needs work'], ['recheck', 'changed since check'], ['validated', 'validated']]],
+                 [null, [['copy', 'unsaved copies']]]];
 const homeMatch = (b, st) => st === 'copy' ? !!b.draft : !st || statusOf(b).k === st;
 
 async function showHome(on) {
@@ -586,7 +600,7 @@ function renderHome() {
   const dn = {}; for (const b of LIST) if (!HOME.section || sectionOf(b) === HOME.section) dn[b.collection ?? ''] = (dn[b.collection ?? ''] || 0) + 1;
   const doms = Object.entries(dn).sort((a, b) => a[0].localeCompare(b[0]));
   el.innerHTML = `
-    <div class="hstats">${HSTATS.map(([k, t]) => `<div class="hstat ${HOME.status === k ? 'on' : ''}" data-st="${k}"><b>${inSection.filter(b => homeMatch(b, k)).length}</b><span>${t}</span></div>`).join('')}</div>
+    <div class="hstats">${HSTAGES.map(([label, tiles]) => `<div class="hstage">${label ? `<div class="hstage-l">${label}</div>` : '<div class="hstage-l">&nbsp;</div>'}<div class="hstage-t">${tiles.map(([k, t]) => `<div class="hstat ${HOME.status === k ? 'on' : ''}" data-st="${k}"><b>${inSection.filter(b => homeMatch(b, k)).length}</b><span>${t}</span></div>`).join('')}</div></div>`).join('')}</div>
     <div class="hctl">
       <input id="hq" type="text" placeholder="search form, id, domain, notes (/)" value="${esc(HOME.q)}">
       <select id="hsec"><option value="">all sections</option>${secs.map(k => `<option value="${k}" ${HOME.section === k ? 'selected' : ''}>${esc(SECTIONS[k])} (${LIST.filter(b => sectionOf(b) === k).length})</option>`).join('')}</select>
