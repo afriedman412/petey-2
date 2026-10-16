@@ -47,8 +47,51 @@ def _near(v: float, centres: list[float], tol: float) -> int:
     return min(range(len(centres)), key=lambda i: abs(centres[i] - v)) if centres and min(abs(c - v) for c in centres) <= tol else -1
 
 
+BLOCK_TOL = 3.0          # pt: a repeated block's spacing may wander this much from one repeat to the next
+MIN_REPEATS = 3
+
+
+def repeated_blocks(cells_by_page: dict[int, list[dict]], cols_by_page: dict[int, dict]) -> list[list[dict]]:
+    """Repeated blocks (2026-10-16, FAA 8050-1 page 3: nine signer blocks of applicant / signature / date / signer /
+    title over three lines each): columns of same-placed, same-width boxes that repeat at one regular spacing, two or
+    more of them with the same spacing and count, starting within one spacing of each other. Each repeat is a row
+    (the block's iteration), each column a slot, so the table's checks and fixes apply as they are."""
+    out = []
+    for page, cols in cols_by_page.items():
+        periodic = []
+        for k, cs in cols.items():
+            if len(cs) < MIN_REPEATS:
+                continue
+            ys = sorted(c["y"] for c in cs)
+            gaps = [b - a for a, b in zip(ys, ys[1:])]
+            med = sorted(gaps)[len(gaps) // 2]
+            if med > 8 and all(abs(g - med) <= BLOCK_TOL for g in gaps):
+                periodic.append((k, med, ys[0], sorted(cs, key=lambda c: c["y"])))
+        used = set()
+        for i, (k, stride, y0, cs) in enumerate(periodic):
+            if k in used:
+                continue
+            members = [(k, y0, cs)]
+            for k2, s2, y2, cs2 in periodic[i + 1:]:
+                if k2 not in used and abs(s2 - stride) <= BLOCK_TOL and len(cs2) == len(cs) and abs(y2 - y0) < stride:
+                    members.append((k2, y2, cs2))
+            if len(members) < 2:
+                continue
+            # a block runs over two or more lines (FAA 8050-1: three); repeats of one line are tables, found as such
+            # (2026-10-16: single-line "blocks" turned 3-row tables into blocks and raised false alarms on ACORD 125/130)
+            if len({round((m[1] - y0) / 4) for m in members}) < 2:
+                continue
+            # a slot per column, in reading order within the block: by its offset down the block, then across
+            members.sort(key=lambda m: (round((m[1] - y0) / 4), min(c["x"] for c in m[2])))
+            used.update(m[0] for m in members)
+            out.append([{"name": c["name"], "page": page, "row": r, "col": ci, "block": True}
+                        for ci, (_k, _y, cs_) in enumerate(members) for r, c in enumerate(cs_)])
+    return out
+
+
 def grids(bp: dict) -> list[list[dict]]:
-    """[[cell]] per grid; a cell = {name, page, row, col}."""
+    """[[cell]] per grid; a cell = {name, page, row, col}. Repeated blocks (`repeated_blocks`) count as grids, a block per row,
+    and a table the code would otherwise find inside one is left to the block."""
     by_page = collections.defaultdict(list)
     for n, s in (bp.get("fields") or {}).items():
         if not isinstance(s, dict) or s.get("widgets"):
@@ -59,8 +102,10 @@ def grids(bp: dict) -> list[list[dict]]:
         x0, y0, x1, y1 = w["rect"]
         by_page[w["page"]].append({"name": n, "page": w["page"], "x": x0, "w": x1 - x0, "y": (y0 + y1) / 2})
     out = []
+    cols_by_page: dict[int, dict] = {}
     for page, cells in by_page.items():
         cols: dict[tuple, list[dict]] = collections.defaultdict(list)
+        cols_by_page[page] = cols
         xs, ws = _cluster([c["x"] for c in cells], TOL_X), None
         for c in cells:
             c["xc"] = _near(c["x"], xs, TOL_X)
@@ -113,7 +158,11 @@ def grids(bp: dict) -> list[list[dict]]:
                 grid = [{"name": c["name"], "page": page, "row": blk.index(c["row"]), "col": ci}
                         for ci, k in enumerate(ks) for c in cols[k] if c["row"] in blk]
                 out.append(grid)
-    return out
+    reps = repeated_blocks(by_page, cols_by_page)
+    names = [{c["name"] for c in b} for b in reps]
+    # a table mostly inside a block is the block's (I-130 page 12: a 3 x 6 table took the block's cells and two others)
+    out = [g for g in out if not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in names)]
+    return out + reps
 
 
 def _iter_tokens(name: str) -> list[int]:
@@ -132,6 +181,12 @@ def _shape(name: str) -> str:
 def _number(name: str):
     its = _iter_tokens(name)
     return name.split("_")[its[-1]] if its else None
+
+
+def _core(tok):
+    """A line number's number without its letter (5a -> 5): in a block of item-lettered cells (I-130 page 12: item_5a_
+    page_number, item_5b_part_number, ... per row) the number is the row's and the letter the column's (2026-10-16)."""
+    return tok[:-1] if tok and len(tok) > 1 and tok[-1].isalpha() and tok[:-1].isdigit() else tok
 
 
 def _close(a: str, b: str) -> bool:
@@ -156,14 +211,16 @@ def breaks(grid: list[dict]) -> tuple[str, list[str]]:
         shapes, nums = collections.defaultdict(collections.Counter), collections.defaultdict(collections.Counter)
         for c in grid:
             shapes[c[shape_axis]][_shape(c["name"])] += 1
-            nums[c[num_axis]][_number(c["name"])] += 1
+            nums[c[num_axis]][_core(_number(c["name"]))] += 1
         probs = []
         for c in grid:
             want_s = shapes[c[shape_axis]].most_common(1)[0][0]
             want_n = nums[c[num_axis]].most_common(1)[0][0]
             if _shape(c["name"]) != want_s and _close(_shape(c["name"]), want_s):
                 probs.append(f"{c['name']}: its {('column' if shape_axis == 'col' else 'row')} is named {want_s}")
-            elif _shape(c["name"]) == want_s and want_n is not None and _number(c["name"]) != want_n:
+            elif (_shape(c["name"]) == want_s and want_n is not None
+                  and want_n not in {_core(c["name"].split("_")[i]) for i in _iter_tokens(c["name"])}):
+                # any of its numbers may be the row's (ACORD 130: loc_1_address_line_2_txt is location 1's line 2)
                 probs.append(f"{c['name']}: its {('row' if num_axis == 'row' else 'column')} is number {want_n}")
         return probs
     def uniform(axis: str) -> float:                # how far one shape runs along each column (or row)
