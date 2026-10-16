@@ -125,11 +125,17 @@ def main() -> int:
     ap.add_argument("--crop", action="store_true", help="a close-up around each field's box in its question")
     ap.add_argument("--limit", type=int, default=0, help="only the first N requests (a smoke test)")
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--provider", choices=("jev", "openai"), default="jev",
+                    help="openai: the same requests to OpenAI's Decisions API (petey.validate.decisions_page)")
     ap.add_argument("--save", required=True)
     args = ap.parse_args()
-    key = _key()
+    if args.provider == "openai":
+        from petey.validate import decisions_page as dp
+        key, asker, price = dp._key(), dp.ask_split, dp.PRICE
+    else:
+        key, asker, price = _key(), ask_split, 0.042
     if not key:
-        raise SystemExit("TYPESAFE_API_KEY not in .env")
+        raise SystemExit(f"no API key for {args.provider} (.env, petey-master/.env)")
     forms = args.forms or list(json.loads(Path("runs/belongs_to/validated_forms_2026-10-14.json").read_text())["forms"])
     jobs = [j for bid in forms for j in jobs_for(bid, args.text, args.crop)]
     if args.limit:
@@ -138,7 +144,7 @@ def main() -> int:
     print(f"{len(jobs)} requests, {len(pages)} pages, {sum(len(j[4]) for j in jobs)} fields", file=sys.stderr)
     scores, tokens, t0 = {}, 0, time.time()
     with httpx.Client() as client, cf.ThreadPoolExecutor(args.workers) as ex:
-        futs = {ex.submit(ask_split, client, key, j[2], j[3]): j for j in jobs}
+        futs = {ex.submit(asker, client, key, j[2], j[3]): j for j in jobs}
         for k, f in enumerate(cf.as_completed(futs), 1):
             j = futs[f]
             res = f.result()
@@ -151,7 +157,7 @@ def main() -> int:
                 print(f"  {k}/{len(jobs)} requests, {time.time() - t0:.0f}s", file=sys.stderr)
     Path(args.save).parent.mkdir(parents=True, exist_ok=True)
     Path(args.save).write_text(json.dumps([[b, n, v] for (b, n), v in scores.items()]))
-    print(f"input tokens {tokens:,} (~${tokens / 1e6 * 0.042:.4f}; ${tokens / 1e6 * 0.042 / max(1, len(pages)):.5f}/page, "
+    print(f"input tokens {tokens:,} (~${tokens / 1e6 * price:.4f}; ${tokens / 1e6 * price / max(1, len(pages)):.5f}/page, "
           f"cached responses included)")
 
     # at the page check's own flag count, on the fields the fixture reviewed
