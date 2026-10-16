@@ -36,7 +36,7 @@ from typing import Optional
 
 import yaml
 
-from petey.paths import BLUEPRINTS, RUNS
+from petey.paths import BLUEPRINTS, RUNS, SOURCE_PDFS
 from petey.synth.boxes import FINDER_LABEL
 from petey.validate import witness
 from petey.validate.retype import resolve_blank
@@ -334,6 +334,9 @@ class State:
                        if bp.get("x_petey_run") else None,
                 # listed first in the picker: forms with name-check flags still to confirm (runs/hand_review/focus.json)
                 "focus": focus,
+                # the home page's table (2026-10-15)
+                "collection": collection(bp), "pages": len(bp.get("source_pages") or []) or None,
+                "touched": v.get("updated"),
                 "draft": draft.status(bid, real)}
 
     def index(self) -> None:
@@ -552,6 +555,25 @@ def claude_suggestions(bid: str) -> dict:
         return json.loads(p.read_text()) if p.exists() else {}
     except (OSError, json.JSONDecodeError):
         return {}
+
+
+_PDF_DIRS: dict[str, str] = {}
+
+
+def collection(bp: dict) -> Optional[str]:
+    """The source_pdfs folder the form's blank sits in (tax, uscis, ca_courts, ...; "" at the top), for the home
+    page: one walk of source_pdfs, not a search per blueprint."""
+    src = str(bp.get("source_pdf") or "")
+    if not src:
+        return None
+    if "/" in src:
+        return src.split("/")[0]
+    if not _PDF_DIRS:
+        for f in SOURCE_PDFS.rglob("*"):
+            if f.is_file() and "source_pdfs_old" not in f.parts:
+                rel = f.relative_to(SOURCE_PDFS).parts
+                _PDF_DIRS.setdefault(f.name, rel[0] if len(rel) > 1 else "")
+    return _PDF_DIRS.get(Path(src).name)
 
 
 def _focus() -> dict:

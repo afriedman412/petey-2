@@ -77,6 +77,42 @@
   .progress.justchecked { color:var(--green); }
 
   main { flex:1; display:flex; min-height:0; }
+
+  /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
+  .brand { cursor:pointer; }
+  #home { display:none; flex:1; overflow:auto; padding:14px 20px 40px; }
+  body.home #home { display:block; }
+  body.home main, body.home #modebar, body.home #chatBtn, body.home #gridBtn, body.home #clashBtn, body.home #zoomctl,
+  body.home #draftBar { display:none !important; }
+  .hstats { display:flex; gap:22px; flex-wrap:wrap; margin:2px 0 14px; }
+  .hstat { background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:8px 14px; cursor:pointer; min-width:110px; }
+  .hstat.on { border-color:var(--accent); background:var(--accent-dim); }
+  .hstat b { display:block; font:400 1.5rem/1.1 'DM Serif Display', Georgia, serif; color:var(--text); }
+  .hstat span { font-size:.66rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); }
+  .hctl { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; }
+  .hctl input { width:260px; }
+  .hctl .help { margin-left:auto; }
+  table.home { border-collapse:separate; border-spacing:0; width:100%; font-size:.8rem; }
+  table.home th { position:sticky; top:-14px; z-index:1; background:var(--bg); text-align:left; font-size:.64rem; font-weight:700;
+                  letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); padding:8px 6px 6px; border-bottom:1px solid var(--border);
+                  cursor:pointer; white-space:nowrap; user-select:none; }
+  table.home th.num, table.home td.num { text-align:right; }
+  table.home th.sorted { color:var(--text); }
+  table.home th.sorted::after { content:' ▾'; } table.home th.sorted.asc::after { content:' ▴'; }
+  table.home td { padding:5px 6px; border-bottom:1px solid var(--surface-2); white-space:nowrap; vertical-align:middle; }
+  table.home tr.r { cursor:pointer; } table.home tr.r:hover td { background:var(--surface); }
+  table.home tr.cur td { background:var(--accent-dim); }
+  table.home td.form a { color:var(--text); text-decoration:none; font-weight:500; }
+  table.home td.form .fid { display:block; color:var(--text-dim); font-size:.7rem; }
+  table.home .dim { color:var(--text-dim); }
+  .pbar { display:inline-flex; width:64px; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden; vertical-align:middle; margin-right:6px; }
+  .pbar i { display:block; height:100%; } .pbar i.a { background:var(--accent); } .pbar i.f { background:var(--red); }
+  .pill { display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:1px 7px; border-radius:9px;
+          border:1px solid var(--border); color:var(--text-dim); }
+  .pill.validated { color:var(--green); border-color:rgba(134,239,172,.4); }
+  .pill.work { color:var(--red); border-color:rgba(240,113,106,.4); }
+  .pill.recheck, .pill.progress { color:var(--amber); border-color:rgba(247,181,56,.4); }
+  .pill.copy { color:var(--accent); border-color:rgba(216,87,42,.45); }
   /* Audit mode (run_audit): read-only tables, so the page image gives way and the panel takes the width */
   body.audit #left, body.audit #sidegrip { display:none; }
   body.audit #panel { flex:1; width:auto !important; max-width:none; }
@@ -259,7 +295,7 @@
 </head>
 <body>
 <header>
-  <div class="brand"><h1>Petey<span class="dot">.</span></h1><span class="sub">Blueprint review</span></div>
+  <div class="brand" id="brand" title="home: every blueprint in one table"><h1>Petey<span class="dot">.</span></h1><span class="sub">Blueprint review</span></div>
   <select id="pick"></select>
   <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most to look at first</option></select></label>
   <span class="tabs" id="tabs">
@@ -268,7 +304,7 @@
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span id="draftBar" hidden></span>
   <span class="spacer"></span>
-  <span class="ctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
+  <span class="ctl" id="zoomctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
   <button class="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)">chat</button>
   <button class="btn" id="gridBtn" title="check the tables on this page against the grid rule (the grid-validation skill): proposals in the chat, you tick and apply">check grid</button>
@@ -276,6 +312,7 @@
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
 </header>
 <div id="modebar"></div>
+<div id="home"></div>
 <div id="helpmenu" hidden></div>
 <main>
   <div id="left">
@@ -353,8 +390,9 @@ async function init() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkFresh(); });
   setInterval(() => { if (!document.hidden) checkFresh(); }, 20000);
   bindCanvas();
+  $('#brand').onclick = () => showHome(true);
   const first = hb && LIST.some(b => b.id === hb) ? hb : null;
-  if (first) { $('#pick').value = first; openBlueprint(first); }
+  if (first) { $('#pick').value = first; openBlueprint(first); } else showHome(true);
 }
 
 // the reboot button: the server re-execs itself on the same port (edited Python loads); wait for it to answer
@@ -371,7 +409,7 @@ async function reboot() {
   b.disabled = false; b.textContent = 'reboot';
   alert('The server did not come back within 5 minutes; check the terminal it was started from.');
 }
-function setHash() { history.replaceState(null, '', '#' + encodeURIComponent(mode) + (bid ? '/' + encodeURIComponent(bid) : '')); }
+function setHash() { history.replaceState(null, '', HOME.on ? '#home' : '#' + encodeURIComponent(mode) + (bid ? '/' + encodeURIComponent(bid) : '')); }
 function renderTabs() { document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === mode)); $('#canvas').classList.toggle('drawable', mode === 'add'); document.body.classList.toggle('audit', mode === 'audit'); }
 
 function pickerText(b) {
@@ -382,12 +420,16 @@ function pickerText(b) {
   if (b.checked && b.checked.validated) bits.push('VALIDATED');
   return `${b.form}${b.draft ? ' *' : ''}  (${bits.join(', ')})`;
 }
+const SECTIONS = {focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
+                  rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies',
+                  rl: 'relabels', fl: 'flat forms'};
+const SECTION_SHORT = {focus: 'review queue', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4', rerun: 'fresh run',
+                       lib: 'library', je: 'side copy', rl: 'relabel', fl: 'flat'};
+const sectionOf = x => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
 function renderPicker() {
   const pick = $('#pick'), keep = pick.value || bid;
   pick.innerHTML = '<option value="">pick a blueprint…</option>';
-  const groups = {focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
-                  rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies',
-                  rl: 'relabels', fl: 'flat forms'};
+  const groups = SECTIONS;
   const how = $('#listorder').value;
   // most errors first (Andrew, 2026-10-07): the page check's errors, then its suggestions, within each section; a
   // blueprint with no page check sorts last
@@ -395,7 +437,7 @@ function renderPicker() {
   const order = how === 'oldest' ? (a, b) => ((a.age || {}).when || '').localeCompare((b.age || {}).when || '') || a.form.localeCompare(b.form)
               : how === 'errors' ? (a, b) => (errs(b) - errs(a)) || (sugs(b) - sugs(a)) || a.form.localeCompare(b.form)
               : (a, b) => a.form.localeCompare(b.form);
-  const groupOf = x => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : x.source;
+  const groupOf = sectionOf;
   for (const src of Object.keys(groups)) {
     const items = LIST.filter(x => groupOf(x) === src); if (!items.length) continue;
     // the top section follows the menu too (2026-10-15: it was always most-to-look-at first, so the menu seemed dead
@@ -408,7 +450,7 @@ function renderPicker() {
   }
   if (keep && LIST.some(b => b.id === keep)) pick.value = keep;
 }
-function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); if (e.id === bid) renderDraft(); }
+function updateEntry(e) { if (!e) return; const i = LIST.findIndex(b => b.id === e.id); if (i >= 0) LIST[i] = e; renderPicker(); if (e.id === bid) renderDraft(); if (HOME.on) renderHome(); }
 
 // the working copy (2026-10-13, Andrew: "everything should be reading from the same source"): every change goes into
 // one copy of the blueprint that all three modes read; this bar saves it over the blueprint or throws it away
@@ -446,11 +488,99 @@ async function syncSha() { try { shaSeen = (await j(`/api/blueprints/${encodeURI
 
 async function openBlueprint(id) {
   if (!id) return;
+  const wasHome = HOME.on; showHome(false);
+  if (wasHome && id === bid) { $('#pick').value = id; setHash(); await loadMode(); return; }
   if (bid && mode === 'groups') await MODE.groups.leave();
   bid = id; setHash(); renderDraft();
   $('#panel').innerHTML = '<p class="help">loading…</p>';
   await loadMode();
   if (!$('#chat').hidden) renderChat();
+}
+
+// ---------------------------------------------------------------- home (2026-10-15)
+// every blueprint in one table, sortable by any column, filtered by section / status / text; a row opens the form in
+// the current mode. Sort and filters are kept per browser.
+const HOME = {on: false, sort: 'section', asc: true, q: '', section: '', status: ''};
+try { Object.assign(HOME, JSON.parse(store('br_home') || '{}'), {on: false}); } catch (e) {}
+const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, status: HOME.status}));
+// one status per form, the worst first: a working copy not saved, flags, a check gone stale, under way, done, untouched
+function statusOf(b) {
+  const c = b.checked;
+  if (c && c.validated) return {k: 'validated', t: 'validated'};
+  if (c && (c.flagged || c.pending)) return {k: 'work', t: 'needs work'};
+  if (c && c.stale) return {k: 'recheck', t: 'changed since check'};
+  if (b.accepted + b.flagged) return {k: 'progress', t: 'in progress'};
+  return {k: 'new', t: 'not started'};
+}
+const STATUS_ORDER = {work: 0, recheck: 1, progress: 2, new: 3, validated: 4};
+const SECTION_ORDER = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k, i]));
+const HCOLS = [
+  // key, header, sort value, cell html, numeric, tooltip
+  ['form', 'form', b => b.form, b => `<a href="#review/${encodeURIComponent(b.id)}">${esc(b.form)}</a><span class="fid">${esc(b.id)}</span>`, false],
+  ['section', 'section', b => SECTION_ORDER[sectionOf(b)] ?? 99, b => esc(SECTION_SHORT[sectionOf(b)] || sectionOf(b)), false],
+  ['collection', 'collection', b => b.collection ?? '~', b => b.collection === '' ? '<span class="dim">(top)</span>' : esc(b.collection ?? '—'), false, 'the source_pdfs folder the blank is in'],
+  ['pages', 'pages', b => b.pages ?? -1, b => b.pages ?? '—', true],
+  ['fields', 'fields', b => b.fields, b => b.fields, true],
+  ['reviewed', 'reviewed', b => b.fields ? (b.accepted + b.flagged) / b.fields : 0, b => {
+    const a = b.fields ? 100 * b.accepted / b.fields : 0, f = b.fields ? 100 * b.flagged / b.fields : 0;
+    return `<span class="pbar"><i class="a" style="width:${a}%"></i><i class="f" style="width:${f}%"></i></span>${b.accepted + b.flagged}<span class="dim">/${b.fields}</span>`; }, true,
+    'fields with a verdict (orange accepted, red flagged)'],
+  ['flagged', 'flagged', b => b.flagged, b => b.flagged || '<span class="dim">0</span>', true],
+  ['queue', 'to look at', b => b.focus ?? -1, b => b.focus ?? '<span class="dim">—</span>', true, 'review-queue count (focus.json): fields to look at'],
+  ['check', 'page check', b => b.check_errors ?? b.page_check_flags ?? -1,
+    b => b.check_errors == null ? (b.page_check_flags == null ? '<span class="dim">—</span>' : b.page_check_flags)
+       : `${b.check_errors}<span class="dim"> / ${b.check_suggestions}</span>`, true, "page check: errors / suggestions"],
+  ['groups', 'groups', b => (b.groups || {}).groups ?? -1, b => b.groups ? b.groups.groups : '—', true, 'option groups in the blueprint'],
+  ['status', 'status', b => STATUS_ORDER[statusOf(b).k], b => { const s = statusOf(b); return `<span class="pill ${s.k}">${s.t}</span>`; }, false],
+  ['copy', 'unsaved', b => b.draft ? b.draft.changes : -1, b => b.draft ? `<span class="pill copy" title="${esc('working copy made ' + b.draft.made)}">${b.draft.changes} change${b.draft.changes === 1 ? '' : 's'}</span>` : '', false,
+    'a working copy with changes not saved into the blueprint yet'],
+  ['made', 'made', b => (b.age || {}).when || '', b => `<span title="${esc((b.age || {}).by || '')}">${esc((b.age || {}).when || '—')}</span>`, false, 'when and by what the blueprint was made'],
+  ['touched', 'last review', b => b.touched || '', b => b.touched ? esc(b.touched.slice(0, 16)) : '<span class="dim">—</span>', false, 'the last verdict or note'],
+];
+const HSTATS = [['', 'blueprints'], ['validated', 'validated'], ['work', 'needs work'], ['recheck', 'changed since check'],
+                ['progress', 'in progress'], ['new', 'not started'], ['copy', 'unsaved copies']];
+const homeMatch = (b, st) => st === 'copy' ? !!b.draft : !st || statusOf(b).k === st;
+
+async function showHome(on) {
+  if (on && bid && mode === 'groups') await MODE.groups.leave();
+  HOME.on = on; document.body.classList.toggle('home', on); setHash();
+  if (!on) return;
+  if (!$('#chat').hidden) toggleChat(false);
+  renderHome();
+  try { LIST = await j('/api/blueprints'); renderPicker(); renderHome(); } catch (e) {}
+}
+function renderHome() {
+  const el = $('#home');
+  const inSection = LIST.filter(b => !HOME.section || sectionOf(b) === HOME.section);
+  const q = HOME.q.trim().toLowerCase();
+  const rows = inSection.filter(b => homeMatch(b, HOME.status) && (!q || [b.form, b.id, b.collection].some(s => String(s ?? '').toLowerCase().includes(q))));
+  const col = HCOLS.find(c => c[0] === HOME.sort) || HCOLS[1], dir = HOME.asc ? 1 : -1;
+  const cmp = (x, y) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
+  rows.sort((a, b) => dir * cmp(col[2](a), col[2](b)) || a.form.localeCompare(b.form));
+  const secs = Object.keys(SECTIONS).filter(k => LIST.some(b => sectionOf(b) === k));
+  el.innerHTML = `
+    <div class="hstats">${HSTATS.map(([k, t]) => `<div class="hstat ${HOME.status === k ? 'on' : ''}" data-st="${k}"><b>${inSection.filter(b => homeMatch(b, k)).length}</b><span>${t}</span></div>`).join('')}</div>
+    <div class="hctl">
+      <input id="hq" type="text" placeholder="search form, id, collection (/)" value="${esc(HOME.q)}">
+      <select id="hsec"><option value="">all sections</option>${secs.map(k => `<option value="${k}" ${HOME.section === k ? 'selected' : ''}>${esc(SECTIONS[k])} (${LIST.filter(b => sectionOf(b) === k).length})</option>`).join('')}</select>
+      ${HOME.q || HOME.section || HOME.status ? '<button class="btn" id="hclear">clear filters</button>' : ''}
+      <span class="help">${rows.length} of ${LIST.length} · click a row to open it in ${esc(mode)}${bid ? ` · <a href="#" id="hback">back to ${esc((LIST.find(b => b.id === bid) || {}).form || bid)}</a>` : ''}</span>
+    </div>
+    <table class="home"><thead><tr>${HCOLS.map(c => `<th data-k="${c[0]}" class="${c[4] ? 'num' : ''} ${c[0] === HOME.sort ? 'sorted' + (HOME.asc ? ' asc' : '') : ''}" ${c[5] ? `title="${esc(c[5])}"` : ''}>${c[1]}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map(b => `<tr class="r ${b.id === bid ? 'cur' : ''}" data-id="${esc(b.id)}">${HCOLS.map(c => `<td class="${c[0]} ${c[4] ? 'num' : ''}">${c[3](b)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  el.querySelectorAll('th').forEach(th => th.onclick = () => {
+    if (HOME.sort === th.dataset.k) HOME.asc = !HOME.asc; else { HOME.sort = th.dataset.k; HOME.asc = !HCOLS.find(c => c[0] === th.dataset.k)[4]; }
+    keepHome(); renderHome(); });
+  el.querySelectorAll('.hstat').forEach(d => d.onclick = () => { HOME.status = HOME.status === d.dataset.st ? '' : d.dataset.st; keepHome(); renderHome(); });
+  el.querySelectorAll('tr.r').forEach(tr => tr.onclick = e => {
+    if (e.metaKey || e.ctrlKey) return;                     // cmd-click on the name opens a new tab
+    e.preventDefault(); $('#pick').value = tr.dataset.id; openBlueprint(tr.dataset.id); });
+  const hq = $('#hq');
+  hq.oninput = () => { HOME.q = hq.value; keepHome(); const pos = hq.selectionStart; renderHome(); const n = $('#hq'); n.focus(); n.setSelectionRange(pos, pos); };
+  hq.onkeydown = e => { if (e.key === 'Escape') { hq.blur(); } else if (e.key === 'Enter' && rows.length === 1) openBlueprint(rows[0].id); };
+  $('#hsec').onchange = e => { HOME.section = e.target.value; keepHome(); renderHome(); };
+  if ($('#hclear')) $('#hclear').onclick = () => { HOME.q = HOME.section = HOME.status = ''; keepHome(); renderHome(); };
+  if ($('#hback')) $('#hback').onclick = e => { e.preventDefault(); openBlueprint(bid); };
 }
 
 // ---------------------------------------------------------------- chat (form_chat.py)
@@ -547,7 +677,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
 // the blueprint file can change under the page (an --apply, a loop run): reload the mode in place when it does
 let checking = false;
 async function checkFresh() {
-  if (!bid || checking) return; checking = true;
+  if (!bid || checking || HOME.on) return; checking = true;
   try {
     const {sha} = await j(`/api/blueprints/${encodeURIComponent(bid)}/sha`);
     if (shaSeen && sha !== shaSeen) {
@@ -633,6 +763,7 @@ function onKey(e) {
   if (t && ['TEXTAREA', 'INPUT', 'SELECT'].includes(t.tagName) && t.type !== 'checkbox' && t.type !== 'radio') return;
   if (e.key === '?') { toggleHelp(); e.preventDefault(); return; }
   if (e.key === 'Escape' && !$('#helpmenu').hidden) { toggleHelp(false); e.preventDefault(); return; }
+  if (HOME.on) { if (e.key === '/') { $('#hq').focus(); e.preventDefault(); } return; }
   if (e.shiftKey && /^Digit[1234]$/.test(e.code)) { setMode(['review', 'groups', 'add', 'audit'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
   if (!bid) return;
   if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);
