@@ -48,9 +48,18 @@ STOP = {"of", "the", "a", "an", "and", "or", "for", "to", "in", "on", "at", "by"
         "please", "enter", "with", "from", "any"}
 
 
-def words(name: str) -> list[str]:
-    """A name's description words: suffixes, iteration numbers and filler left out."""
-    return [t for t in name.split("_") if t and t not in SUFFIXES and not t.isdigit() and t not in STOP and t != "ind"]
+# grading: suffixes, the words suffixes stand for, iteration numbers and filler are left out, common abbreviations
+# written out (2026-10-15: a strict first grading called phone_nbr against generator_phone_no and name against nm wrong)
+SUFFIX_WORDS = SUFFIXES | {"num", "no", "number", "name", "date", "amount", "code", "phone", "tel", "telephone", "f",
+                           "line", "s", "ind", "txt", "days", "months", "years", "yrs", "mos"}
+EQ = {"addr": "address", "st": "street", "yr": "year", "dob": "birth", "zipcode": "zip", "org": "organization",
+      "emp": "employee", "info": "information", "dept": "department", "govt": "government", "acct": "account"}
+
+
+def words(name: str | None) -> set[str]:
+    """A name's description words."""
+    toks = (EQ.get(t, t) for t in (name or "").split("_"))
+    return {t for t in toks if t and not t.isdigit() and t not in SUFFIX_WORDS and t not in STOP}
 
 
 def grade(got: str | None, want: str) -> str:
@@ -58,21 +67,82 @@ def grade(got: str | None, want: str) -> str:
         return "none"
     g, w = words(got), words(want)
     if g == w:
-        return "exact"
-    if set(g) == set(w):
         return "same words"
-    if w and len(set(g) & set(w)) >= max(1, len(set(w)) / 2):
+    if g and g < w:
+        return "right words, no section"
+    if w and len(g & w) >= max(1, len(w) / 2):
         return "close"
     return "wrong"
 
 
-ORDER = ["exact", "same words", "close", "wrong", "none"]
+ORDER = ["same words", "right words, no section", "close", "wrong", "none"]
+
+# ---- candidates v2 (2026-10-15): junk dropped, section headings, line numbers, bilingual halves
+JUNK = re.compile(r"\bSAMPLE\b|©|\(c\)\s*\d{4}|do not (cut|separate|write|staple)|department of the treasury|"
+                  r"internal revenue service|omb no|cat\. ?no|^page \d|for privacy act|paperwork reduction|"
+                  r"see (the )?(separate )?instructions|^form [\w-]+$|www\.|https?://", re.I)
+HEAD_PREFIX = re.compile(r"^(section|part|schedule|step)\s+[\divxlc]+[a-z]?\b[.:)\-–]*\s*", re.I)
+LINE_NO = re.compile(r"^\(?\d{1,3}[a-z]?\)?(\(\d\))?\.?$", re.I)
+
+
+def headings(blank: Path) -> dict[int, list[tuple[list[float], str]]]:
+    """{page: [(bbox, text)]}: lines that read as section headings from the page's own type: bold or larger than the
+    page's usual size, or all capitals, short, not a caption with a blank after it, or starting Section / Part."""
+    import statistics
+    import pymupdf
+    out = {}
+    doc = pymupdf.open(str(blank))
+    try:
+        for i, pg in enumerate(doc, start=1):
+            D = pg.get_text("dict")
+            spans = [sp for b in D["blocks"] for ln in b.get("lines", []) for sp in ln["spans"] if sp["text"].strip()]
+            if not spans:
+                continue
+            med = statistics.median(sp["size"] for sp in spans)
+            hs = []
+            for b in D["blocks"]:
+                for ln in b.get("lines", []):
+                    t = " ".join(sp["text"] for sp in ln["spans"]).strip()
+                    letters = [c for c in t if c.isalpha()]
+                    if not t or len(t.split()) > 9 or len(letters) < 3 or "_" * 3 in t or t.endswith(":"):
+                        continue
+                    sp = max(ln["spans"], key=lambda x: len(x["text"]))
+                    bold = bool(sp["flags"] & 16) or "bold" in sp["font"].lower()
+                    caps = sum(c.isupper() for c in letters) / len(letters) > 0.85
+                    if HEAD_PREFIX.match(t) or ((bold or sp["size"] > med + 0.8) and (caps or bold)) or (caps and len(letters) >= 6 and bold):
+                        hs.append((list(ln["bbox"]), t))
+            out[i] = hs
+    finally:
+        doc.close()
+    return out
+
+
+def section_of(rect, hs: list[tuple[list[float], str]]) -> str | None:
+    """The nearest heading above the box in its column: the heading starts left of the box (or spans it), and of the
+    headings on that band the one furthest right that does (1004D: APPRAISER over the left column, SUPERVISORY
+    APPRAISER over the right)."""
+    above = [(bb, t) for bb, t in hs if bb[3] <= rect[1] + 2 and bb[0] <= rect[0] + 6 and rect[1] - bb[3] < 400]
+    if not above:
+        return None
+    bb, t = max(above, key=lambda x: (round(x[0][3] / 4), x[0][0]))
+    t = HEAD_PREFIX.sub("", t).strip(" .:-–")
+    return t or None
+
+
+def tidy_name(n: str | None) -> str | None:
+    """A caption that is only a line number (tax forms) names the line: f_22_amt -> line_22_amt."""
+    if n and n.startswith("f_") and len(n) > 2 and n[2].isdigit():
+        return "line_" + n[2:]
+    return n
 
 
 def to_name(caption: str | None, spec: dict) -> str | None:
     kind = "option" if spec.get("type") == "boolean" else "text"
-    n = name_from(caption, kind)
+    n = tidy_name(name_from(caption, kind))
     return standard(n, spec)[0] if n else None
+
+
+V2 = {"junk": False, "sections": False, "halves": False}      # set from the command line
 
 
 def form_items(bid: str):
@@ -80,6 +150,7 @@ def form_items(bid: str):
     bp = h._load(h.working_path(bid))
     blank = pc.resolve_blank(bp)
     lines = _page_lines(str(blank))
+    heads = headings(blank)
     rows = pc.numbered(bp)
     flat = flat_copy(blank)
     fields = []
@@ -89,19 +160,36 @@ def form_items(bid: str):
             continue                                   # option groups: their captions are another question
         cands = []
         for t in W.page_texts(spec, lines):
-            c = clean_caption(t)
-            if c and c not in cands:
-                cands.append(c)
+            if V2["junk"] and JUNK.search(t):
+                continue
+            parts = [t]
+            if V2["halves"]:
+                parts += [x for x in re.split(r"\s[–/|-]\s", t) if x != t and len(x.split()) >= 1]
+            for x in parts:
+                c = clean_caption(x)
+                if c and c not in cands:
+                    cands.append(c)
         w = spec.get("widget") or {}
         pl = lines.get(w.get("page"), [])
+        if V2["sections"] and w.get("rect"):
+            sec = section_of(w["rect"], heads.get(w.get("page"), []))
+            if sec:
+                for c in list(cands[:2]):
+                    both = clean_caption(f"{sec} {c}")
+                    if both and both not in cands and not words(name_from(sec, "text")) <= words(name_from(c, "text")):
+                        cands.append(both)
         if w.get("rect") and pl:
             col, row = W.column_header(w["rect"], pl), W.row_header(w["rect"], pl)
             if col and row:
                 both = clean_caption(f"{row} {col}")
                 if both and both not in cands:
                     cands.append(both)
+        ctx = {}
+        if w.get("rect") and pl:
+            ctx = {"sec": section_of(w["rect"], heads.get(w.get("page"), [])), "row": W.row_header(w["rect"], pl),
+                   "col": W.column_header(w["rect"], pl)}
         fields.append({"bid": bid, "id": r["id"], "page": r["boxes"][0]["page"], "name": r["name"],
-                       "type": spec.get("type"), "spec": spec, "cands": cands[:8]})
+                       "type": spec.get("type"), "spec": spec, "cands": cands[:8], "ctx": ctx})
     jobs = []
     for page_no in sorted({f["page"] for f in fields}):
         png, _dpi, px = pc.render(flat, page_no, rows, limits=LIMITS)
@@ -128,13 +216,17 @@ def main() -> int:
     ap.add_argument("--max-pages", type=int, default=4)
     ap.add_argument("--list", default="")
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--v2", nargs="*", default=[], choices=list(V2), help="candidate improvements to switch on")
+    ap.add_argument("--forms-list", nargs="*", help="these review ids instead of a sample")
     ap.add_argument("--save", required=True)
     args = ap.parse_args()
+    for k in args.v2:
+        V2[k] = True
     listing = json.loads(Path(args.list).read_text()) if args.list else httpx.get("http://127.0.0.1:5005/api/blueprints", timeout=120).json()
     cands = [e["id"] for e in listing if (e.get("checked") or {}).get("validated") and (e.get("pages") or 99) <= args.max_pages
              and (b := pc.resolve_blank(h._load(h.working_path(e["id"])))) and cached_boxes(b) is not None]
     random.Random(7).shuffle(cands)
-    forms = cands[:args.forms]
+    forms = args.forms_list or cands[:args.forms]
     fields, jobs = [], []
     for bid in forms:
         f, j = form_items(bid)
@@ -163,15 +255,38 @@ def main() -> int:
         grades["best candidate"] = best
         for k, g in grades.items():
             G[k][g] += 1
-        out.append({k: v for k, v in f.items() if k != "spec"} | {"names": names, "grades": grades, "jev_choice": choice})
+        out.append({k: v for k, v in f.items() if k != "spec"} | {"names": names, "grades": grades, "jev_choice": choice,
+                                                                 "_spec": f["spec"]})
+    # names must be unique on a form: where Jev's names collide, add context (section heading, row label, column
+    # header, in that order) until they part; the rest keep a number (2026-10-15)
+    by_form = collections.defaultdict(list)
+    for o in out:
+        by_form[o["bid"]].append(o)
+    for rows_ in by_form.values():
+        dup = collections.Counter(o["names"]["Jev's pick"] for o in rows_ if o["names"]["Jev's pick"])
+        for o in rows_:
+            n = o["names"]["Jev's pick"]
+            new = n
+            if n and dup[n] > 1:
+                for k in ("sec", "row", "col"):
+                    c = (o.get("ctx") or {}).get(k)
+                    pre = name_from(c, "text") if c else None
+                    if pre and not words(pre) <= words(n):
+                        new = standard(tidy_name(f"{pre}_{n}"), o["_spec"])[0]
+                        break
+            o["names"]["Jev + context on clashes"] = new
+            o["grades"]["Jev + context on clashes"] = grade(new, o["name"])
+            G["Jev + context on clashes"][o["grades"]["Jev + context on clashes"]] += 1
+    for o in out:
+        o.pop("_spec", None)
     Path(args.save).parent.mkdir(parents=True, exist_ok=True)
     Path(args.save).write_text(json.dumps(out, indent=1))
     pages = len({(j[0], j[1]) for j in jobs})
     print(f"input tokens {tokens:,} (~${tokens / 1e6 * 0.042:.3f}, ${tokens / 1e6 * 0.042 / max(pages, 1):.4f}/page)")
     print(f"\n{len(fields)} fields ({sum(1 for f in fields if not f['cands'])} with no printed text near them)")
-    print(f"{'':16}" + "".join(f"{g:>12}" for g in ORDER))
-    for k in ("nearest line", "Jev's pick", "best candidate"):
-        print(f"{k:16}" + "".join(f"{G[k][g]:>8} {G[k][g] / len(fields):3.0%}" for g in ORDER))
+    print("columns: " + " | ".join(ORDER))
+    for k in ("nearest line", "Jev's pick", "Jev + context on clashes", "best candidate"):
+        print(f"{k:26}" + "".join(f"{G[k][g]:>7} {G[k][g] / len(fields):4.0%}" for g in ORDER))
     return 0
 
 
