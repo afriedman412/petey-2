@@ -500,9 +500,9 @@ async function openBlueprint(id) {
 // ---------------------------------------------------------------- home (2026-10-15)
 // every blueprint in one table, sortable by any column, filtered by section / status / text; a row opens the form in
 // the current mode. Sort and filters are kept per browser.
-const HOME = {on: false, sort: 'section', asc: true, q: '', section: '', domain: null, status: ''};
+const HOME = {on: false, sort: 'section', asc: true, q: '', section: '', domain: null, status: '', hideVal: false};
 try { Object.assign(HOME, JSON.parse(store('br_home') || '{}'), {on: false}); } catch (e) {}
-const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, domain: HOME.domain, status: HOME.status}));
+const keepHome = () => store('br_home', JSON.stringify({sort: HOME.sort, asc: HOME.asc, q: HOME.q, section: HOME.section, domain: HOME.domain, status: HOME.status, hideVal: HOME.hideVal}));
 // one status per form, the worst first: a working copy not saved, flags, a check gone stale, under way, done, untouched
 function statusOf(b) {
   const c = b.checked;
@@ -554,7 +554,8 @@ function renderHome() {
   // domain: null is any, '' the forms at the top of source_pdfs
   const inSection = LIST.filter(b => (!HOME.section || sectionOf(b) === HOME.section) && (HOME.domain == null || (b.collection ?? '') === HOME.domain));
   const q = HOME.q.trim().toLowerCase();
-  const rows = inSection.filter(b => homeMatch(b, HOME.status) && (!q || [b.form, b.id, b.collection].some(s => String(s ?? '').toLowerCase().includes(q))));
+  // hide validated (Andrew, 2026-10-15); the validated tile still shows them
+  const rows = inSection.filter(b => homeMatch(b, HOME.status) && !(HOME.hideVal && HOME.status !== 'validated' && statusOf(b).k === 'validated') && (!q || [b.form, b.id, b.collection].some(s => String(s ?? '').toLowerCase().includes(q))));
   const col = HCOLS.find(c => c[0] === HOME.sort) || HCOLS[1], dir = HOME.asc ? 1 : -1;
   const cmp = (x, y) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
   rows.sort((a, b) => dir * cmp(col[2](a), col[2](b)) || a.form.localeCompare(b.form));
@@ -567,6 +568,7 @@ function renderHome() {
       <input id="hq" type="text" placeholder="search form, id, domain (/)" value="${esc(HOME.q)}">
       <select id="hsec"><option value="">all sections</option>${secs.map(k => `<option value="${k}" ${HOME.section === k ? 'selected' : ''}>${esc(SECTIONS[k])} (${LIST.filter(b => sectionOf(b) === k).length})</option>`).join('')}</select>
       <select id="hdom"><option value="*">all domains</option>${doms.map(([d, n]) => `<option value="${esc(d)}" ${HOME.domain === d ? 'selected' : ''}>${d === '' ? '(top of source_pdfs)' : esc(d)} (${n})</option>`).join('')}</select>
+      <label class="ctl"><input type="checkbox" id="hhide" ${HOME.hideVal ? 'checked' : ''}> hide validated</label>
       ${HOME.q || HOME.section || HOME.domain != null || HOME.status ? '<button class="btn" id="hclear">clear filters</button>' : ''}
       <span class="help">${rows.length} of ${LIST.length} · click a row to open it in ${esc(mode)}${bid ? ` · <a href="#" id="hback">back to ${esc((LIST.find(b => b.id === bid) || {}).form || bid)}</a>` : ''}</span>
     </div>
@@ -583,6 +585,7 @@ function renderHome() {
   hq.oninput = () => { HOME.q = hq.value; keepHome(); const pos = hq.selectionStart; renderHome(); const n = $('#hq'); n.focus(); n.setSelectionRange(pos, pos); };
   hq.onkeydown = e => { if (e.key === 'Escape') { hq.blur(); } else if (e.key === 'Enter' && rows.length === 1) openBlueprint(rows[0].id); };
   $('#hsec').onchange = e => { HOME.section = e.target.value; keepHome(); renderHome(); };
+  $('#hhide').onchange = e => { HOME.hideVal = e.target.checked; keepHome(); renderHome(); };
   $('#hdom').onchange = e => { HOME.domain = e.target.value === '*' ? null : e.target.value; keepHome(); renderHome(); };
   if ($('#hclear')) $('#hclear').onclick = () => { HOME.q = HOME.section = HOME.status = ''; HOME.domain = null; keepHome(); renderHome(); };
   if ($('#hback')) $('#hback').onclick = e => { e.preventDefault(); openBlueprint(bid); };
