@@ -250,6 +250,13 @@ class App:
                              + ", ".join(stuck))
         rec = field_add.load_record(bid)
         if rec.get("added") or rec.get("removed"):
+            pl = field_add.plan(hand_review._load(self.working(bid)), rec.get("added") or [], rec.get("removed") or [])
+            if not pl["changes"] and not pl["errors"]:
+                # only entries with nothing left to do (a removed field renamed by a rerun: 1014r, 2026-10-15):
+                # applying clears them, instead of the record blocking the save for good
+                field_add.apply(bid)
+                rec = field_add.load_record(bid)
+        if rec.get("added") or rec.get("removed"):
             raise ValueError("Add / remove has changes that do not apply cleanly; see its change list")
         out = draft.save(bid, self.paths[bid], force)
         self.refresh()
