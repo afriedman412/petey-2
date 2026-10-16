@@ -125,13 +125,21 @@ def main() -> int:
     ap.add_argument("--crop", action="store_true", help="a close-up around each field's box in its question")
     ap.add_argument("--limit", type=int, default=0, help="only the first N requests (a smoke test)")
     ap.add_argument("--workers", type=int, default=6)
-    ap.add_argument("--provider", choices=("jev", "openai"), default="jev",
-                    help="openai: the same requests to OpenAI's Decisions API (petey.validate.decisions_page)")
+    ap.add_argument("--provider", default="jev",
+                    help="jev | openai (OpenAI's Decisions API) | liquid (Liquid d1 direct, with the image) | dapi:<model> (decisions-api.dev, text only: "
+                         "liquid/d1, upstage/solar-decide, jaredpalmer/kev-4b, togethercomputer/tev1-4b-experimental, "
+                         "typesafe/jev-1.13); petey.validate.decisions_page")
     ap.add_argument("--save", required=True)
     args = ap.parse_args()
     if args.provider == "openai":
         from petey.validate import decisions_page as dp
         key, asker, price = dp._key(), dp.ask_split, dp.PRICE
+    elif args.provider == "liquid":
+        from petey.validate import decisions_page as dp
+        key, asker, price = dp.liquid_key(), dp.liquid_ask, dp.LIQUID_PRICE
+    elif args.provider.startswith("dapi:"):
+        from petey.validate import decisions_page as dp
+        key, asker, price = dp.dapi_key(), dp.dapi_ask(args.provider[5:]), 0.06    # 600 credits / M tokens
     else:
         key, asker, price = _key(), ask_split, 0.042
     if not key:
