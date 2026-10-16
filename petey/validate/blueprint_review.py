@@ -185,6 +185,33 @@ class App:
                 (passed.append(grid_naming.body(g)) if grid_naming.on_pattern(g)[0] else failed.append(g))
         return passed, failed
 
+    def code_fix(self, bid: str, failed: list) -> tuple[list[dict], list[str], list]:
+        """The renumbering the code can do itself for tables that fail its check (Andrew, 2026-10-16: "we have a
+        programmatic check to see if it's already set up right, we should be able to programmatically just number
+        things if they are out of order"): grid_naming's fixes for a table, kept only when they leave nothing
+        unexplained, put the table on pattern and take no name another field keeps. ([edit], [cells now on pattern],
+        [tables the code cannot fix])."""
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+        import grid_naming
+        bp = hand_review._load(self.working(bid))
+        fields = bp.get("fields") or {}
+        ren, left = grid_naming.fixes(bp)
+        edits, cells, rest = [], [], []
+        for g in failed:
+            names = {c["name"] for c in g}
+            mine = {o: n for o, n in ren.items() if o in names}
+            unexplained = [ln for ln in left if ln.split(":")[0] in names or ln.startswith(f"grid p{g[0]['page']} ")]
+            after = [dict(c, name=mine.get(c["name"], c["name"])) for c in g]
+            free = all(n not in fields or n in mine for n in mine.values())
+            if mine and not unexplained and free and grid_naming.on_pattern(after)[0]:
+                edits += [{"field": o, "edit": {"name": n}, "why": "renumbered by the grid check's code: each column one "
+                           "wording, each row one number"} for o, n in mine.items()]
+                cells += [c["name"] for c in grid_naming.body(g)]     # current names: the apply maps them through the renames
+            else:
+                rest.append(g)
+        return edits, cells, rest
+
     def accept_grid(self, bid: str, page: int, ok: set) -> list[str]:
         """Accept the cells the grid check vouched for (Andrew, 2026-10-15: "automatically accept any grid fields
         checked by the grid validator"; and: "if it's checking for it why doesn't it consider it when accepting?"): a
@@ -464,8 +491,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
                                      f"varies only by its iteration, rows numbered by steps of 1 (code check, no "
                                      f"model call).", "edits": [], "groups": [], "remove": [], "errors": [],
                             "confirmed": [], "cost_usd": 0, "accepted": accepted}
-                req = form_chat.grid_request(bid, pg)
-                out = {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}])}
+                edits, fixed, rest = APP.code_fix(bid, failed)
+                if failed and not rest:              # the code can renumber every failing table: no model call
+                    n = sum(len(g) for g in passed)
+                    return {"reply": f"Page {pg}: {len(failed)} table(s) out of order, renumbered by code ({len(edits)} "
+                                     f"rename(s)); tick and apply" + (f"; {len(passed)} table(s) already right, "
+                                     f"{n} cell(s) accepted" if passed else "") + " (no model call).",
+                            "edits": edits, "groups": [], "remove": [], "errors": [], "confirmed": fixed,
+                            "cost_usd": 0, "accepted": accepted}
+                req = form_chat.grid_request(bid, pg)     # tables the code cannot fix, or none found: the model,
+                out = {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}],
+                                                       only_pages=[pg])}          # with that page only
                 if not (out["edits"] or out["groups"] or out["remove"]):     # nothing to change: accept what it vouched for
                     accepted += APP.accept_grid(bid, pg, set(out.get("confirmed") or []))
                 out["accepted"] = accepted

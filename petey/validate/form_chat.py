@@ -85,8 +85,10 @@ SCHEMA = {"type": "object", "additionalProperties": False, "required": ["reply",
                   "properties": {"field": {"type": "string"}, "why": {"type": "string"}}}}}}
 
 
-def _context(bp: dict) -> tuple[list[dict], dict[str, str]]:
-    """(the request's first content blocks: page images and the field list, cached; {number: field name})."""
+def _context(bp: dict, only_pages: Optional[list[int]] = None) -> tuple[list[dict], dict[str, str]]:
+    """(the request's first content blocks: page images and the field list, cached; {number: field name}).
+    `only_pages`: those pages' images and fields only (check grid looks at one page: 2026-10-16, twelve page images
+    for one page's tables made it slow)."""
     blank = resolve_blank(bp)
     rows = pc.numbered(bp)
     num = {r["id"]: r["name"] for r in rows}
@@ -107,6 +109,9 @@ def _context(bp: dict) -> tuple[list[dict], dict[str, str]]:
         lines.append(json.dumps(item, ensure_ascii=False))
     blocks: list[dict] = []
     pages = sorted({b["page"] for r in rows for b in r["boxes"]})
+    if only_pages:
+        pages = [pg for pg in pages if pg in only_pages]
+        lines = [ln for ln in lines if any(f'"page": {pg},' in ln for pg in only_pages)]
     for page in pages[:MAX_PAGES]:
         png, _, _ = pc.render(blank, page, rows)
         blocks += [{"type": "text", "text": f"Page {page}:"},
@@ -207,7 +212,7 @@ def grid_request(bid: str, page: int) -> str:
              if on_page else ""))
 
 
-def ask(bid: str, history: list[dict], *, model: str = MODEL, client=None) -> dict:
+def ask(bid: str, history: list[dict], *, model: str = MODEL, client=None, only_pages: Optional[list[int]] = None) -> dict:
     """One turn: `history` is the conversation so far, [{role: user | assistant, content: text}], ending with the
     person's request. Returns the checked proposal, the model's raw JSON (to send back as the assistant turn next
     time), usage and cost."""
@@ -215,7 +220,7 @@ def ask(bid: str, history: list[dict], *, model: str = MODEL, client=None) -> di
         raise ValueError("the conversation must end with a request")
     p = h.working_path(bid)
     bp = h._load(p)
-    blocks, num = _context(bp)
+    blocks, num = _context(bp, only_pages)
     msgs = []
     for i, m in enumerate(history):
         text = str(m.get("content") or "")
