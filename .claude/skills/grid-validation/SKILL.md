@@ -51,7 +51,22 @@ The code finds and fixes the mechanical cases; the judgment below is what the co
      the page beats the widget metadata (memory: feedback-page-over-metadata).
    - **Misaligned boxes** (EP-2's RRC column a few points off): number each column from box positions, top to bottom,
      after checking every column has the same count.
-   - Tax forms may keep line-number names (`line_4c`) where the caption is only an instruction.
+   - **Repeated blocks** are tables too: the same group of fields over several lines, repeated down the page (FAA
+     8050-1 page 3: nine signer blocks, each applicant name / signature / date / signer name / title; ACORD 125
+     page 2: four premises blocks of ten fields). Each block is a row, numbered once; each field of the block is a
+     column with one wording: `applicant_3_nm`, `signature_3_txt`, `signature_3_dt`, `signer_3_nm`, `title_3_txt` all
+     carry block 3. `grid_naming` finds them (a block per row) when the block spans two or more lines; a block
+     that is one line is an ordinary table.
+   - **A block that continues another page** keeps counting (FAA 8050-1: page 2 has the first signer block under
+     "all applicants must sign. Use next page", so page 3's blocks are signers 2-10, not 1-9). That is the opposite
+     of separate tables (8949's Part I and Part II each start at 1): decide by whether the page says the list goes
+     on. Renumbering a whole series one by one clashes (each new name is still held by the next field); rename
+     them together, through `grid_naming --fix --apply` or one `form_chat.apply` call.
+   - **A first block named for its role** may stay so where the form prints it that way (ACORD 125:
+     `first_named_insured_*`, then `other_named_insured_1_*`, `_2_*`); the code flags it, the person decides.
+   - Tax forms may keep line-number names (`line_4c`) where the caption is only an instruction. Item-lettered
+     names in a block (I-130 `item_5a_page_number`, `item_5b_part_number` in one row) are numbered by their item
+     number; the letter belongs to the column.
    - A signature or address block that merely lines up is not a table: leave it.
 
 4. **Apply** through the chat's apply path, which validates like a correction, refuses clashes, moves Andrew's verdicts
