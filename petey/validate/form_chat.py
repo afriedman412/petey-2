@@ -51,7 +51,10 @@ numbers, _dt dates, _amt money, _cnt / _qty counts, _pct percentages, _cd codes 
 _txt free text, _signature, unit suffixes (_hours, _days, _months, _years, _ft, _miles). Every iteration is numbered \
 when there are several, the first too (parent_1_nm, parent_2_nm). Parts of one value go after the suffix \
 (birth_dt_month, birth_dt_day, birth_dt_yr, phone_nbr_area); a year on its own is _yr (tax_yr), a month on its own \
-_month. A group is named for its question, with no suffix. Keep the form's own words.
+_month. A group is named for its question, with no suffix. Keep the form's own words. A table is named on one \
+pattern: each column one wording, each row one number (or the transpose), numbered 1..N by the table's own rows; labels \
+that change page to page (A-D) become 1, 2, 3; two separate tables of the same columns get a prefix each (short_term_, \
+long_term_); a totals row has no number.
 
 When the request is unclear or would touch fields you cannot identify, say so in the reply and propose nothing for \
 them. The reply is one or two plain sentences: what you propose, and anything left out. Return JSON only."""
