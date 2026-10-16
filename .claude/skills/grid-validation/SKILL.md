@@ -1,9 +1,9 @@
 ---
 name: grid-validation
-description: Validate and fix the field names of a table (grid) on a blueprint so every cell follows one pattern. Use when Andrew asks to check, validate, fix or rename a grid / table / schedule on a form (e.g. "can you check the grid on je__form10 p1"), or when eval/grid_naming.py flags cells.
+description: Validate and fix the field names of a table (grid) or repeated block on a blueprint so every cell follows one pattern. Use when Andrew asks to check, validate, fix or rename a grid / table / schedule / repeated block on a form (e.g. "can you check the grid on je__form10 p1"), when eval/grid_naming.py flags cells, or when the review page's Grids & blocks view hands a table to the chat.
 ---
 
-# Grid validation
+# Grid and block validation
 
 The rule (Andrew, 2026-10-15; docs/NAMING.md "Grids"): a table is named on one pattern. Either each column is one
 kind of value with one wording and each row carries one iteration number (AO 40B's expense table:
@@ -12,17 +12,50 @@ Names follow the naming standard `[description]_[iteration]_[suffix]_[part]` (do
 
 The code finds and fixes the mechanical cases; the judgment below is what the code cannot do.
 
+## The ladder (2026-10-16)
+
+The review page's **Grids & blocks** view (`petey/validate/grid_check.py`) outlines every numbered table and repeated
+block in dots and checks one in a click, lightest method first. Only what is still unclear reaches a model:
+
+1. **Code check** (`grid_naming.on_pattern`): each position one wording, each line one number, steps of 1. Passing ->
+   its cells are accepted, done.
+2. **Resolver** (`grid_naming.resolve`), no model beyond our own small one:
+   - which way the table runs (by which way the wordings stay uniform);
+   - each position's wording: one wording, or variants the name-check model (`petey.label.text_match`, trained on the
+     name checks, local) scores against the caption the position's cells share (column header; row label; in a block,
+     the caption printed beside each repeat). The naming standard breaks ties between synonyms. An unnumbered first
+     row joins its column (`class_cd` beside `class_cd_2` -> `class_cd_1`). The column's own wording is kept: reshaping
+     to the naming standard is that pass's job;
+   - numbers: 1..N, unless the series continues another page's (a field outside the table on the same pattern
+     numbered start - 1, or an unnumbered twin before a series from 2) or the numbers are printed on the page beside
+     the lines; line-number names (`line_116_...`, `line_3_3_...`) keep theirs; lettered items (5a, 5b) count by their
+     number; in a name with two numbers, the one that changes from line to line is renumbered;
+   - never silently: a rename that changes what a cell says (not a variant), a swap of two names, or a new name another
+     field keeps -> the table goes up the ladder instead.
+   Settled -> the renames are applied as Claude's and the cells accepted.
+3. **Jev**: a position the model could not settle (two wordings that both fit the caption and mean different things;
+   no caption) is chosen from its candidates with the page image; then the resolver runs again.
+4. **Opus** (the chat, this page only, with section 3 below as its rules): what is still unclear: tangled layouts
+   (sub-columns merged into one position), a table whose structure does not come right. Its proposals come back for
+   the person to tick.
+
+Measured on the 154 validated forms (`eval/grid_resolver_eval.py`): of 163 tables, 108 left as they are, 9 fixed
+(all unnumbered first rows), the rest escalated; planted errors undone exactly 85-91% (numbering) and 52%
+(rewording), 2 of 381 wrong.
+
 ## Steps
 
 1. **Look at what the code sees.** Work on the review page's working copy (`hand_review.working_path(bid)`), never the
-   saved file (it can be stale: the naming pass may already have fixed it).
+   saved file (it can be stale: the naming pass may already have fixed it). When you are asked about a table, first
+   run the ladder's code steps on it (`grid_check.tables(bp)`, `grid_naming.resolve`): if they settle it, there is no
+   judgment left to make.
    ```
    PYTHONPATH=. venv/bin/python eval/grid_naming.py <bid>          # cells off the pattern
    PYTHONPATH=. venv/bin/python eval/grid_naming.py <bid> --fix    # the renames it would make
    ```
    Print each grid as rows x columns (`grid_naming.grids(bp)`) to see the names in place. A table that passes the
    code check (`grid_naming.on_pattern`: each column one pattern varying only by its iteration, rows numbered by steps
-   of 1) is done; the review page's "check grid" accepts it without a model call. Spend the judgment on the rest.
+   of 1) is done; the Grids & blocks view accepts it without a model call. Spend the judgment on the rest.
 
 2. **Look at the page.** Render it with the boxes numbered and read the headers:
    `pc.render(resolve_blank(bp), page, pc.numbered(bp), dpi=100)` (petey/validate/page_check.py), then Read the PNG.
