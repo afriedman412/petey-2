@@ -282,9 +282,10 @@ def apply(bid: str, edits: list[dict], groups: list[dict]) -> dict:
             if vp.exists():
                 rec = json.loads(vp.read_text())
                 vs = rec.get("verdicts") or {}
-                for o, nw in ren.items():
-                    if o != nw and o in vs:
-                        vs[nw] = vs.pop(o)
+                # all at once: in a shifted series (title_1 -> title_2 while title_2 -> title_3) moving one by one
+                # overwrote the next field's verdict before it moved (2026-10-16, FAA 8050-1)
+                moved = {o: vs.pop(o) for o, nw in ren.items() if o != nw and o in vs}
+                vs.update({ren[o]: v for o, v in moved.items()})
                 rec["verdicts"] = vs
                 vp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
             renamed = {o: nw for o, nw in ren.items() if o != nw}
