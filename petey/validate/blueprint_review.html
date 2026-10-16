@@ -271,6 +271,7 @@
   <span class="ctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
   <button class="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)">chat</button>
+  <button class="btn" id="gridBtn" title="check the tables on this page against the grid rule (the grid-validation skill): proposals in the chat, you tick and apply">check grid</button>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
 </header>
@@ -342,6 +343,7 @@ async function init() {
   $('#chatBtn').onclick = () => toggleChat(); $('#chatClose').onclick = () => toggleChat(false);
   $('#chatClear').onclick = () => { if (bid) { delete CHAT[bid]; renderChat(); } };
   $('#chatSend').onclick = sendChat;
+  $('#gridBtn').onclick = checkGrid;
   $('#chatIn').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
   $('#helpBtn').onclick = e => { e.stopPropagation(); toggleHelp(); };
   document.addEventListener('click', e => { if (!$('#helpmenu').hidden && !$('#helpmenu').contains(e.target)) toggleHelp(false); });
@@ -508,6 +510,19 @@ async function sendChat() {
     turn.out = out; turn.picked = new Set(chatItems(out).map(it => it.k));
     st.history.push({role: 'assistant', content: out.raw});
   } catch (e) { turn.err = 'The request failed: ' + e.message; st.history.pop(); }
+  if (bid === form) renderChat();
+}
+// "check grid" (Andrew, 2026-10-15): the grid-validation skill on the tables of the page shown, as a chat turn
+async function checkGrid() {
+  if (!bid) return;
+  toggleChat(true);
+  const form = bid, st = chatState(), turn = {req: `check the grids on page ${page}`};
+  st.turns.push(turn); renderChat();
+  try {
+    const out = await send('POST', mapi('review', '/grid'), {page, history: st.history});
+    turn.out = out; turn.picked = new Set(chatItems(out).map(it => it.k));
+    st.history.push({role: 'user', content: out.request}, {role: 'assistant', content: out.raw});
+  } catch (e) { turn.err = 'The grid check failed: ' + e.message; }
   if (bid === form) renderChat();
 }
 async function applyChat(ti, btn) {

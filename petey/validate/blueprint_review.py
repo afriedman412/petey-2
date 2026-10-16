@@ -397,6 +397,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("review", "chat"):           # the chat's request: a proposal, nothing written (form_chat)
             from petey.validate import form_chat
             return self._route(lambda: form_chat.ask(bid, body.get("history") or []), bid)
+        if (mode, what) == ("review", "grid"):           # "check grid": the grid skill's request for this page, asked
+            from petey.validate import form_chat
+            def grid():
+                req = form_chat.grid_request(bid, int(body.get("page") or 1))
+                return {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}])}
+            return self._route(grid, bid)
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
             return self._route(lambda: APP.chat_apply(bid, body), bid)
         if (mode, what) == ("review", "captions"):       # "re-read captions" on a group, from Review (2026-10-15)

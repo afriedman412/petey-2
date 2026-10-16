@@ -32,6 +32,8 @@ The code finds and fixes the mechanical cases; the judgment below is what the co
    - **Number by the table's own row, 1..N.** Not a continuation of another table's numbers (8949 page 2 had 12-22
      after page 1's 1-11; ACORD 81 page 3 amounts ran on from page 1).
    - **Labels that change page to page** (8825's properties A-D, schedule letters): number 1, 2, 3 instead.
+     Fixed letters the form itself refers to keep their letters (the ADA claim's diagnosis codes A-D, which the
+     procedure lines' "diag pointer" column points to): `diagnosis_code_a_txt`, not `_1_`.
    - **Preprinted rows and blank rows are one table.** ACORD 81's classes 1-13 (Jewelry, Furs, ...) and blank rows
      14-21 are all schedule numbers 1-21; fields only the blank rows have (class code, description) keep the row's number.
    - **Separate tables get separate names.** Two tables of the same columns (8949's Part I short-term, Part II

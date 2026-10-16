@@ -157,6 +157,45 @@ def _clean(bp: dict, ans: dict, num: dict[str, str]) -> dict:
     return out
 
 
+SKILL = Path(__file__).resolve().parents[2] / ".claude" / "skills" / "grid-validation" / "SKILL.md"
+
+
+def grid_request(bid: str, page: int) -> str:
+    """The review page's "check grid" request (Andrew, 2026-10-15: "run the skill on any grid on the page"): the grid
+    rule and decisions from the grid-validation skill (read from the skill file, so the two stay one), and what
+    eval/grid_naming.py finds on this page: each table as rows x columns, the cells off its pattern, its mechanical
+    renames. The model checks every table on the page, the ones the layout test missed too, and proposes the edits."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+    import grid_naming as G
+    bp = h._load(h.working_path(bid))
+    text = SKILL.read_text(encoding="utf-8") if SKILL.exists() else ""
+    a, b = text.find("3. **Decide the names**"), text.find("4. **Apply**")
+    rules = text[a:b].strip() if a >= 0 and b > a else ""
+    found = []
+    for g in G.grids(bp):
+        if g[0]["page"] != page:
+            continue
+        nr, nc = max(c["row"] for c in g) + 1, max(c["col"] for c in g) + 1
+        cells = {(c["row"], c["col"]): c["name"] for c in g}
+        found.append(f"Table {nr} rows x {nc} columns (row by row):\n" + "\n".join(
+            " | ".join(cells.get((r, c), "-") for c in range(nc)) for r in range(nr)))
+        reading, probs = G.breaks(g)
+        if probs:
+            found.append("Cells off its pattern: " + "; ".join(probs))
+    ren, left = G.fixes(bp)
+    on_page = {o: n for o, n in ren.items() if ((bp["fields"].get(o) or {}).get("widget") or {}).get("page") == page}
+    return (f"Check every table (grid) on page {page} against the grid rule below and propose the renames, and the "
+            f"^[YN]$ pattern for a column printed Y / N, that put each table on one pattern. Look at the page image "
+            f"too: a table the layout test missed counts, and a block that only lines up (signature, address) is not "
+            f"a table. Propose nothing for a table that is already right; say so in the reply.\n\n"
+            f"The rule: each column one kind of value with one wording, each row one iteration number (or the "
+            f"transpose), names in the naming standard's shape.\n{rules}\n\n"
+            f"What the layout test found on page {page}:\n" + ("\n\n".join(found) if found else "no table") +
+            ("\n\nIts mechanical renames (a hint, not an order): " + "; ".join(f"{o} -> {n}" for o, n in on_page.items())
+             if on_page else ""))
+
+
 def ask(bid: str, history: list[dict], *, model: str = MODEL, client=None) -> dict:
     """One turn: `history` is the conversation so far, [{role: user | assistant, content: text}], ending with the
     person's request. Returns the checked proposal, the model's raw JSON (to send back as the assistant turn next
