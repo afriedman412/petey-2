@@ -401,6 +401,7 @@ The following values are registered in v1.1. The `type` column gives the `type` 
 | `country` | `string` | — |
 | `city` | `string` | — |
 | `street_address` | `string` | — |
+| `name_and_address` | `string` | — |
 | `person_name` | `string` | — |
 | `first_name` | `string` | — |
 | `last_name` | `string` | — |
@@ -950,7 +951,7 @@ Additive MINOR revision. Every v1.0 blueprint is a valid v1.1 blueprint unchange
 | Addition | Section |
 | -------- | ------- |
 | `semantic_type` on a field, advisory, valid on every type | §5.8 |
-| 32 registered `semantic_type` values with paired `type` and canonical `pattern` | §5.8.1 |
+| 33 registered `semantic_type` values with paired `type` and canonical `pattern` | §5.8.1 |
 | `indicator` semantics: `null` and `false` equivalent | §5.9.4 |
 
 **Changed**

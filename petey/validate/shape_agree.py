@@ -254,7 +254,7 @@ TEXT_EXPECTED_CLASSES = {"TEXT", "STATE2", "NUMBER", "DIGITS", "ZIP",
 
 # Free-text semantics: mutually indistinguishable by shape.
 TEXT_SEMANTICS = {
-    "country", "city", "street_address", "person_name", "first_name",
+    "country", "city", "street_address", "name_and_address", "person_name", "first_name",
     "last_name", "entity_name", "business_name", "description", "text",
 }
 

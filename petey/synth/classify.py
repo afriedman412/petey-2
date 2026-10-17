@@ -96,7 +96,7 @@ SEMANTIC_TO_CLASS: dict[str, str] = {
     "count": "count", "birth_date": "birth_date", "service_date": "date", "iso_date": "date",
     "year": "year", "phone": "phone", "email": "email", "state_abbr": "state", "zip": "zip",
     "city": "city", "country_code": "country", "country": "country",
-    "street_address": "street", "entity_name": "business_name",
+    "street_address": "street", "name_and_address": "address_block", "entity_name": "business_name",
     "business_name": "business_name", "first_name": "first_name", "last_name": "last_name",
     "person_name": "full_name", "description": "free_text", "text": "free_text",
     "indicator": "option",

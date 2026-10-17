@@ -478,7 +478,7 @@ def shape_mismatch(field: dict, value: Any) -> Optional[str]:
             except re.error:
                 return None
         st = field.get("semantic_type")
-        if st in ("street_address", "city", "person_name", "first_name",
+        if st in ("street_address", "name_and_address", "city", "person_name", "first_name",
                   "last_name", "entity_name", "business_name") and "@" in s:
             return "name_vs_value"
     return None

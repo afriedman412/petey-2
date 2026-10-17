@@ -110,8 +110,9 @@ def rule_caption_field(bp: dict, facts: dict) -> list[str]:
         f = facts.get(w.get("path"))
         if not f:
             continue
-        if (f["flags"] & READONLY_FLAG) and f["value"]:
-            out.append(name)
+        if (f["flags"] & READONLY_FLAG) and f["value"] and \
+                f["type"] not in (pymupdf.PDF_WIDGET_TYPE_CHECKBOX, pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON):
+            out.append(name)       # a checkbox's value is its state ('Off'), not a caption (acroform._STATE_TYPES)
     return out
 
 

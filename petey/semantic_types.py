@@ -212,6 +212,17 @@ REGISTRY: tuple[SemanticType, ...] = (
         matches=("_country_name", "_country_nm", "_country"),
         whole_names=("country",),
     ),
+    # a name with its mailing address in one box (a 1099's "PAYER'S name, street address, city ..."), 395 fields over
+    # 121 blueprints typed person_name / business_name / street_address or nothing (Andrew, 2026-10-16). After the
+    # address parts (a ZIP box inside the block stays zip), before street_address and the names, which its slugs
+    # would otherwise hit (`payer_name_address` matched business_name's `_payer_name`)
+    SemanticType(
+        name="name_and_address",
+        matches=("_name_and_address", "_name_address", "_nm_and_address", "_nm_address",
+                 "_name_and_addr", "_name_addr", "_address_and_name", "_name_and_mailing_address",
+                 "_name_mailing_address"),
+        whole_names=("name_and_address", "name_address"),
+    ),
     SemanticType(
         name="street_address",
         matches=("_address_line_1", "_address_line", "_street",
@@ -275,7 +286,7 @@ SPEC_ONLY_TYPES: tuple[SemanticType, ...] = (
 )
 
 # Every value registered by spec §5.8.1 — the canonical vocabulary, as
-# distinct from REGISTRY's matcher ordering. Should be 32.
+# distinct from REGISTRY's matcher ordering.
 ALL_TYPES: tuple[SemanticType, ...] = (
     REGISTRY + (CHECKBOX_TYPE,) + SPEC_ONLY_TYPES
 )
@@ -332,7 +343,7 @@ def pattern_for(name: Optional[str]) -> Optional[str]:
 
 
 def registered_names() -> list[str]:
-    """Every `semantic_type` name registered by spec §5.8.1 (32 of them)."""
+    """Every `semantic_type` name registered by spec §5.8.1, plus the date and ID parts."""
     return [st.name for st in ALL_TYPES]
 
 

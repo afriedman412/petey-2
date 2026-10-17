@@ -186,6 +186,9 @@ SEMANTIC: dict[str, Callable[[random.Random], str]] = {
     "country_code": lambda r: r.choice(_COUNTRY_CODES),
     "country": lambda r: r.choice(_COUNTRIES),
     "street_address": lambda r: f"{r.randint(10, 9899)} {r.choice(_STREETS)}",
+    "name_and_address": lambda r: (f"{r.choice(_BUSINESS) if r.random() < 0.5 else r.choice(_FIRST) + ' ' + r.choice(_LAST)}, "
+                                   f"{r.randint(10, 9899)} {r.choice(_STREETS)}, {r.choice(_CITIES)}, "
+                                   f"{r.choice(_STATES)} {r.randint(10000, 99999):05d}"),
     "entity_name": lambda r: r.choice(_BUSINESS),
     "business_name": lambda r: r.choice(_BUSINESS),
     "first_name": lambda r: r.choice(_FIRST),

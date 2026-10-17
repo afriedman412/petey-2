@@ -108,9 +108,15 @@ PUSHBUTTON_FLAG = 1 << 16
 READONLY_FLAG = 1 << 0
 
 
+# A checkbox's or radio button's value is its state ('Off' or an on-state), never printed words: IRS 1096 box 6's
+# 38 locked checkboxes hold 'Off' and were dropped as captions, with ~190 more over 21 other blueprints (IRS
+# information returns, W-3, 941-X, FMCSA MCS-150B; 2026-10-16).
+_STATE_TYPES = (pymupdf.PDF_WIDGET_TYPE_CHECKBOX, pymupdf.PDF_WIDGET_TYPE_RADIOBUTTON)
+
+
 def _is_caption_widget(w) -> bool:
     """A locked widget whose value IS the printed label."""
-    if not ((w.field_flags or 0) & READONLY_FLAG):
+    if not ((w.field_flags or 0) & READONLY_FLAG) or w.field_type in _STATE_TYPES:
         return False
     return bool((w.field_value or "").strip())
 
