@@ -1,7 +1,8 @@
 #!/bin/zsh
 # usage: scripts/validate_passes.sh <review id> ...   (je__boat_application lib__fw9 ...)
 # Clearing: the automated passes after generation (2026-10-15), on each form's review-page working copy, in order:
-#   1. mechanical pass   person_name / pattern fixes, Yes / No pairs, row groups; checks (eval/mechanical_pass.py)
+#   1. mechanical pass   "reserved for future use" boxes removed (in Add / remove), person_name / pattern fixes,
+#                        Yes / No pairs, row groups; checks (eval/mechanical_pass.py)
 #   2. naming standard   renames recorded as Claude's corrections (eval/standardize_names.py --apply)
 #   3. re-read captions  every group's option captions read again from the page (eval/reread_captions.py)
 #   4. page check        Opus 5 on the working copy, stamped (eval/page_check_working.py)
