@@ -1649,3 +1649,54 @@ Agent' vs `email_address_txt` 0.0067 -> 0.0115; 5021 'middle initial' 0.0159 -> 
 unchanged (12/13, 31/34; sentence proposals 214 -> 206). Full precision stays the default; int8 is opt-in for dev
 runs.
 
+
+## Indra OCR, and a code-only page reader against it (2026-10-17; branch `page-reader-prototype`, `eval/page_reader.py`)
+
+Andrew asked whether datalab's Indra OCR (huggingface.co/datalab-to/indra-ocr, 0.3.2; ~1M parameters on ONNX, CPU)
+"kills what we are doing". It does not: Indra turns a page into text, line and block boxes, block labels (Text,
+Section-Header, List-Group, Table, Form, Page-Header / Footer, Caption, Footnote), reading order and markdown. It
+gives no fields, field types or label-value pairs (checked in its JSON on five forms: no field keys at all).
+
+**How Indra works (read from its code).** On a PDF it reads the text layer and OCRs only what is missing (`--mode
+auto`): the layer is checked first (junk characters from a broken font map, invisible text, text with no ink under
+it), and a line detector on the rendered page (~190 of ~320 ms a page) finds printed text the layer lacks
+("hybrid": W-9 page 1; "ocr": the Farmers Branch tradework affidavit, broken font map). Reading order is a learned
+pairwise model (box geometry + text cues, "i before j"), but on digital PDFs it mostly keeps the PDF's own content
+order when that order passes a check (few upward moves that are not column changes; the model agrees on 85%+ of
+consecutive pairs). Tables come from its layout model; table lines are split into cells at gaps. XY-cut is only a
+baseline in its code. Weights: modified OpenRAIL-M, free under $20M funding / revenue.
+
+**The prototype.** `eval/page_reader.py` matches Indra's output (Andrew: "we are only aiming to match what Indra
+does") with code we have and no model: the text layer, `cheap_names.headings`, headers / footers by repetition and
+form stamps, a recursive XY-cut, tables from the grid finder on widget / finder boxes (combs merged) and from ruled
+lattices (pdfplumber's lines strategy written out on `lattice.segments`; a lattice is a Table when at most 40% of
+its body cells are empty). Field boxes are a layout signal only. On a 40-form random sample (one per source_pdfs
+folder, 116 pages) it keeps a median 98% of the page text (Indra 96.4%), at 0.02-0.3 s a page on widget forms
+(1.2-4.7 s with an uncached finder on flat ones; Indra ~0.4 s on the M1).
+
+**OmniParseBench** (datalab-to/omni_parse_bench; yes / no tests per page; scorer `opb` 0.2.0). Run on the three
+forms suites and tables_derived (610 pages; most forms_federal / forms_filled pages have no text layer). Both
+readers' output went through one converter (markdown to HTML with the benchmark's own converter, labels mapped,
+boxes to page fractions); our run of Indra gives the same verdict as Datalab's published Indra results on 93% of
+5,669 tests, 2-5 points lower per test type, so the glue costs both a little. On the 559 pages with a text layer
+that both read:
+
+| test type | tests | Indra | ours |
+|---|---|---|---|
+| text present | 247 | 81.0 | **87.9** |
+| block label | 527 | **90.9** | 40.6 |
+| table cell | 4,731 | **56.0** | 0.6 |
+
+523 of the 559 pages are journal-article tables (tables_derived), drawn with horizontal rules or none: ours finds a
+table on 84 of 528 (3,927 cell tests fail "no tables found"), and 189 of its block-label misses are Form where the
+answer is table (no widgets on the page, so the finder marks table cells as boxes). Indra finds a table on 518 of 523
+but puts cells under the wrong headings (787), misses them (694) or puts them in the wrong row group / section
+(367). On the ~120 forms-suite tests the two are about even. Pages with no text layer: ours returns nothing; the
+published Tesseract row is far behind Indra there (text present 16.6 vs 55.4 on the 788 image pages), and our
+layout code needs fonts, vector rules and widgets that a scan does not have.
+
+**Conclusion (Andrew, 2026-10-17: "lets just record this in the notes and move on").** Matching Indra further buys
+little for Petey: journal tables are well covered by other tools, and Indra attempts none of the blueprint work.
+The one plausible use is a gate for digital PDFs with a broken text layer (Indra's checks, its OCR as the fallback);
+how many of the 1,381 corpus PDFs have one was not measured. The benchmark runs lived in the session scratchpad and
+are gone; the prototype and its commits stay on `page-reader-prototype` (not pushed).
