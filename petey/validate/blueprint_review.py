@@ -83,11 +83,23 @@ class Grids:
                 doc.close()
         vs = hand_review.load_verdicts(bid).get("verdicts") or {}
         tabs = grid_check.tables(bp)
+        nots = grid_check.not_grids(bid)
         for t in tabs:
+            t["dismissed"] = grid_check.dismissed(nots, t["page"], [c["name"] for c in t["cells"]])
             for c in t["cells"]:
                 c["accepted"] = (vs.get(c["name"]) or {}).get("verdict") == "accept"
-            t["accepted"] = sum(c["accepted"] for c in t["cells"])
+            t["accepted"] = sum(c["accepted"] for c in t["cells"] if not c.get("total"))
+            t["body"] = sum(not c.get("total") for c in t["cells"])     # validated when every one is accepted
         return {"id": bid, "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
+
+    def dismiss(self, bid: str, tid: str, on: bool) -> dict:
+        """'not a grid or block' (or its undo) on one table of the listing."""
+        from petey.validate import grid_check
+        t = next((t for t in grid_check.tables(hand_review._load(self.app.working(bid))) if t["id"] == tid), None)
+        if not t:
+            raise ValueError(f"no table {tid} on this form now")
+        grid_check.set_not_grid(bid, t["page"], [c["name"] for c in t["cells"]], on)
+        return {"table": tid, "dismissed": on}
 
     def check(self, bid: str, tid: str) -> dict:
         from petey.validate import form_chat, grid_check
@@ -273,7 +285,10 @@ class App:
         have = hand_review.load_verdicts(bid).get("verdicts") or {}
         names = []
         for g in grid_naming.grids(bp):
-            if g[0]["page"] != page or not grid_naming.iterated(g) or grid_naming.breaks(g)[1]:
+            # on pattern by the code check, or nothing off it by the older check (2026-10-16: tables named by role or
+            # kind pass the code check, and were never accepted)
+            if g[0]["page"] != page or not grid_naming.iterated(g) or \
+                    (grid_naming.breaks(g)[1] and not grid_naming.on_pattern(g)[0]):
                 continue
             names += [c["name"] for c in g if c["name"] in ok and not (have.get(c["name"]) or {}).get("verdict")]
         if names:
@@ -557,6 +572,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(grid, bid)
         if (mode, what) == ("grids", "check"):           # grids and blocks: check and validate one table
             return self._route(lambda: APP.grids.check(bid, body["table"]), bid)
+        if (mode, what) == ("grids", "dismiss"):         # "not a grid or block", or its undo
+            return self._route(lambda: APP.grids.dismiss(bid, body["table"], bool(body.get("on", True))), bid)
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
             return self._route(lambda: APP.chat_apply(bid, body), bid)
         if (mode, what) == ("review", "captions"):       # "re-read captions" on a group, from Review (2026-10-15)

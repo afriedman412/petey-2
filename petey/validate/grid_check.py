@@ -39,9 +39,52 @@ def _lines(blank: Path) -> dict:
     return _LINES[k]
 
 
+NOT_GRIDS = h.OUT / "not_grids.json"      # {bid: [{page, cells, when}]}: what the person said is not a grid or block
+
+
+def not_grids(bid: str) -> list[dict]:
+    """The tables the person set aside as not a grid or block (Andrew, 2026-10-16: 'lets add a "not a grid or block"
+    button'), by page and cell names, so the decision outlives renumbering of the listing; also a record of where the
+    finder is wrong."""
+    import json
+    try:
+        return (json.loads(NOT_GRIDS.read_text(encoding="utf-8")) if NOT_GRIDS.exists() else {}).get(bid) or []
+    except (OSError, ValueError):
+        return []
+
+
+def set_not_grid(bid: str, page: int, cells: list[str], on: bool) -> list[dict]:
+    import json
+    import time
+    rec = json.loads(NOT_GRIDS.read_text(encoding="utf-8")) if NOT_GRIDS.exists() else {}
+    have = [e for e in rec.get(bid) or [] if not (e["page"] == page and _same(e["cells"], cells))]
+    if on:
+        have.append({"page": page, "cells": sorted(cells), "when": time.strftime("%Y-%m-%d %H:%M:%S")})
+    rec[bid] = have
+    if not have:
+        rec.pop(bid)
+    NOT_GRIDS.write_text(json.dumps(rec, indent=1, sort_keys=True), encoding="utf-8")
+    return have
+
+
+def _same(a, b) -> bool:
+    """The same table, near enough: most of its cells (a rename or a cell joining moves a few)."""
+    a, b = set(a), set(b)
+    return bool(a and b) and len(a & b) >= 0.8 * max(len(a), len(b))
+
+
+def dismissed(entries: list[dict], page: int, cells) -> bool:
+    return any(e["page"] == page and _same(e["cells"], cells) for e in entries)
+
+
 def _rect(bp: dict, name: str):
-    w = ((bp.get("fields") or {}).get(name) or {}).get("widget") or {}
-    return w.get("rect")
+    """A field's box; an option group's (a column of a table or block since 2026-10-16) is the box around its boxes."""
+    spec = (bp.get("fields") or {}).get(name) or {}
+    w = spec.get("widget") or {}
+    if w.get("rect") or not spec.get("widgets"):
+        return w.get("rect")
+    rs = [x["rect"] for x in spec["widgets"].values() if x.get("rect")]
+    return [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)] if rs else None
 
 
 _HEADS: dict[str, dict] = {}
@@ -97,10 +140,11 @@ def tables(bp: dict) -> list[dict]:
         if not rs:
             continue
         ok, why = G.on_pattern(g)
-        reading, _ = G.breaks(g)
+        reading = "columns" if G.keyed(g) else G.breaks(g)[0]      # lines named by role or kind are the rows
         pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
         how = "block" if g[0].get("block") else reading
         body = G.body(g)
+        body_names = {c["name"] for c in body}             # a totals row is outside the check (and the validation)
         positions = []
         for k in sorted({c[pos_axis] for c in body}):
             pcs = [c for c in body if c[pos_axis] == k]
@@ -112,7 +156,8 @@ def tables(bp: dict) -> list[dict]:
                     "title": _title(bbox, page_text.get(page), heads.get(page), [p["caption"] for p in positions]),
                     "rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1,
                     "bbox": bbox,
-                    "cells": [{k: c[k] for k in ("name", "rect", "row", "col")} for c in cells],
+                    "cells": [dict({k: c[k] for k in ("name", "rect", "row", "col")}, total=c["name"] not in body_names)
+                              for c in cells],
                     "on_pattern": ok, "why": why})
     out.sort(key=lambda t: (t["page"], t["bbox"][1], t["bbox"][0]))
     return out

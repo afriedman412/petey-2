@@ -2289,8 +2289,11 @@ MODE.add = (() => {
 // settle, then Opus (its proposals land in the chat to tick)
 MODE.grids = (() => {
   let GD = null, selected = null, results = {}, busy = new Set();
-  const onPage = p => GD ? GD.tables.filter(t => t.page === p) : [];
-  const status = t => t.accepted === t.cells.length ? 'validated' : t.on_pattern ? 'on pattern' : 'needs a check';
+  const live = () => GD ? GD.tables.filter(t => !t.dismissed) : [];     // set aside as "not a grid or block": hidden
+  const onPage = p => live().filter(t => t.page === p);
+  const asidePage = p => GD ? GD.tables.filter(t => t.dismissed && t.page === p) : [];
+  const done = t => t.accepted >= (t.body ?? t.cells.length);       // every cell accepted (a totals row aside)
+  const status = t => done(t) ? 'validated' : t.on_pattern ? 'on pattern' : 'needs a check';
   function dots(el, w, h, cls) {
     el.innerHTML = `<svg width="${w}" height="${h}" class="gtsvg"><rect x="2" y="2" width="${Math.max(0, w - 4)}" height="${Math.max(0, h - 4)}" rx="4"/></svg>`;
   }
@@ -2311,12 +2314,15 @@ MODE.grids = (() => {
     return `<div class="gtcard ${selected === t.id ? 'sel' : ''}" data-t="${esc(t.id)}">
       <div class="gttitle">${esc(t.title || (blk ? 'repeated block' : 'table'))}</div>
       <div><span class="pill ${blk ? 'copy' : 'passed'}">${t.kind}</span> <b>${size}</b>
-        <span class="help">· ${t.accepted}/${t.cells.length} cells accepted · ${esc(status(t))}</span></div>
+        ${done(t) ? '<span class="pill validated">validated</span>' : ''}
+        <span class="help">· ${t.accepted}/${t.body ?? t.cells.length} cells accepted · ${esc(status(t))}</span></div>
       <details class="gtpos"><summary class="help">${blk ? 'fields of each block' : 'columns'}</summary><ol>${(t.positions || []).map(p =>
         `<li><code>${esc(p.wordings.join(' / '))}</code>${p.caption ? ` <span class="help">· printed: ${esc(p.caption)}</span>` : ''}</li>`).join('')}</ol></details>
       ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
-      <button class="btn primary" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : 'check & validate'}</button>
-      ${res ? `<ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+      <button class="btn ${done(t) ? '' : 'primary'}" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : done(t) ? 'validated ✓ · check again' : 'check & validate'}</button>
+      <button class="btn" data-notgrid="${esc(t.id)}" title="set this aside: the finder is wrong here; it is hidden and kept out of 'check all'">not a grid or block</button>
+      ${res ? `<div class="help">last run: <b>${esc(res.status)}</b>${res.status === 'proposed' ? ' · the proposals are in the chat' : ''}${!done(t) && ['validated', 'fixed'].includes(res.status) ? ' · some cells keep an earlier verdict (flagged?)' : ''}</div>
+        <ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
     </div>`;
   }
   function panel() {
@@ -2325,11 +2331,22 @@ MODE.grids = (() => {
     a.innerHTML = `<div class="help">Tables and repeated blocks the layout code finds, outlined in dots on the page. One click runs
       the lightest check that settles a table: the code, then the name-check model, then Jev, and Opus only when it is still unclear.</div>
       ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
-        `<p class="help">No numbered table or block on this page${GD.tables.length ? ` (${GD.tables.length} on other pages)` : ''}.</p>`}`;
+        `<p class="help">No numbered table or block on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
+      ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Set aside as not a grid or block: ${asidePage(page).map(t =>
+        `<span>${esc(t.title || t.kind)} (${t.rows} x ${t.cols}) <a href="#" data-restore="${esc(t.id)}">restore</a></span>`).join(' · ')}</div>` : ''}`;
     a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
+    a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = e => { e.stopPropagation(); setAside(b.dataset.notgrid, true); });
+    a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
     a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected === c.dataset.t) return; selected = c.dataset.t; placeAll(); panel(); });
     a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
     if ($('#gtAll')) $('#gtAll').onclick = async () => { for (const t of onPage(page)) await run(t.id); };
+  }
+  async function setAside(tid, on) {
+    try { await send('POST', mapi('grids', '/dismiss'), {table: tid, on}); }
+    catch (e) { alert('Could not save: ' + e.message); return; }
+    if (on && selected === tid) selected = null;
+    const keep = results; await loadMode(); results = keep;
+    toast(on ? 'Set aside: not a grid or block.' : 'Restored.');
   }
   async function run(tid) {
     const form = bid; busy.add(tid); panel();
@@ -2360,11 +2377,11 @@ MODE.grids = (() => {
     place, panel,
     progress() {
       const el = $('#progress'); if (!el || !GD) return;
-      const v = GD.tables.filter(t => t.accepted === t.cells.length).length, ok = GD.tables.filter(t => t.on_pattern).length;
-      el.innerHTML = `<b>${GD.tables.length}</b> tables and blocks · ${ok} on pattern · ${v} validated`;
+      const ts = live(), v = ts.filter(done).length, ok = ts.filter(t => t.on_pattern).length, n = GD.tables.length - ts.length;
+      el.innerHTML = `<b>${ts.length}</b> tables and blocks · ${ok} on pattern · ${v} validated${n ? ` · ${n} set aside` : ''}`;
     },
     key(e) {
-      const ts = GD ? GD.tables : [], i = ts.findIndex(t => t.id === selected);
+      const ts = live(), i = ts.findIndex(t => t.id === selected);
       if (e.key === 'n' || e.key === 'p') {
         const t = ts[(i + (e.key === 'n' ? 1 : -1) + ts.length) % ts.length]; if (!t) return true;
         selected = t.id; if (t.page !== page) gotoPage(t.page); else { placeAll(); panel(); } return true;

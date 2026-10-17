@@ -49,6 +49,39 @@ def _near(v: float, centres: list[float], tol: float) -> int:
 
 BLOCK_TOL = 3.0          # pt: a repeated block's spacing may wander this much from one repeat to the next
 MIN_REPEATS = 3
+CELL_TYPES = ("text", "combobox", "listbox", "checkbox", "radio")   # a lone tick box too (SF 3107 G: "disabled")
+
+
+def _runs(cs: list[dict]) -> list[list[dict]]:
+    """A column cut where its spacing jumps to more than twice the usual (IMM 5645 page 1: Section A's applicant,
+    spouse, mother and father, then Section B's children, in the same columns), so each section can be its own
+    block."""
+    cs = sorted(cs, key=lambda c: c["y"])
+    gaps = [b["y"] - a["y"] for a, b in zip(cs, cs[1:])]
+    if not gaps:
+        return [cs]
+    usual = sorted(gaps)[len(gaps) // 2]
+    out = [[cs[0]]]
+    for c, g in zip(cs[1:], gaps):
+        if g > 2 * usual + 2:
+            out.append([])
+        out[-1].append(c)
+    return out
+
+
+def _phases(cs: list[dict]) -> list[list[dict]]:
+    """A column holding two (or three) slots of a block, one above the other with the same left edge and width (IMM 5645
+    page 2: each sibling's present address over present occupation), spaced unevenly (address, occupation, address
+    ...) but evenly every second (or third) box: split into one column per slot. [] when it is not that."""
+    cs = sorted(cs, key=lambda c: c["y"])
+    for k in (2, 3):
+        if len(cs) < k * MIN_REPEATS or len(cs) % k:
+            continue
+        steps = [cs[i + k]["y"] - cs[i]["y"] for i in range(len(cs) - k)]
+        med = sorted(steps)[len(steps) // 2]
+        if med > 8 and all(abs(st - med) <= BLOCK_TOL for st in steps):
+            return [cs[j::k] for j in range(k)]
+    return []
 
 
 def repeated_blocks(cells_by_page: dict[int, list[dict]], cols_by_page: dict[int, dict]) -> list[list[dict]]:
@@ -59,34 +92,99 @@ def repeated_blocks(cells_by_page: dict[int, list[dict]], cols_by_page: dict[int
     out = []
     for page, cols in cols_by_page.items():
         periodic = []
-        for k, cs in cols.items():
-            if len(cs) < MIN_REPEATS:
-                continue
-            ys = sorted(c["y"] for c in cs)
-            gaps = [b - a for a, b in zip(ys, ys[1:])]
-            med = sorted(gaps)[len(gaps) // 2]
-            if med > 8 and all(abs(g - med) <= BLOCK_TOL for g in gaps):
-                periodic.append((k, med, ys[0], sorted(cs, key=lambda c: c["y"])))
+        for k0, cs0 in cols.items():
+            runs = _runs(cs0)
+            for si, cs in enumerate(runs):
+                k = k0 + (("s", si),) if len(runs) > 1 else k0
+                if len(cs) == 2:                            # two boxes: only ever a slot missing from some repeats
+                    cs = sorted(cs, key=lambda c: c["y"])
+                    periodic.append((k + (("two",),), cs[1]["y"] - cs[0]["y"], cs[0]["y"], cs))
+                    continue
+                if len(cs) < MIN_REPEATS:
+                    continue
+                ys = sorted(c["y"] for c in cs)
+                gaps = [b - a for a, b in zip(ys, ys[1:])]
+                med = sorted(gaps)[len(gaps) // 2]
+                if med > 8 and all(abs(g - med) <= BLOCK_TOL for g in gaps):
+                    periodic.append((k, med, ys[0], sorted(cs, key=lambda c: c["y"])))
+                    continue
+                # a column ending in a total at another spacing (CBP 7512: quantity 1-3, then the total) repeats on the
+                # boxes above it
+                if len(cs) > MIN_REPEATS and med > 8 and all(abs(g - med) <= BLOCK_TOL for g in gaps[:-1]):
+                    periodic.append((k, med, ys[0], sorted(cs, key=lambda c: c["y"])[:-1]))
+                    continue
+                for j, ph in enumerate(_phases(cs)):           # two slots stacked in one column: a column each
+                    periodic.append((k + (("p", j),), ph[1]["y"] - ph[0]["y"], ph[0]["y"], ph))
+        split = {k for k, *_ in periodic if any(isinstance(t, tuple) and t[0] == "p" for t in k)}
+        # a block is built on its longest column; the others join when each of their boxes sits on one of its repeats
+        periodic.sort(key=lambda e: -len(e[3]))
         used = set()
         for i, (k, stride, y0, cs) in enumerate(periodic):
-            if k in used:
+            if k in used or k[0] == "g" or all(c.get("box") for c in cs) or len(cs) < MIN_REPEATS:
+                continue                                      # nor do groups, tick boxes or a pair build a block
+            # the block's top: the highest first box of the full columns starting within a repeat of this one
+            top = min(y2 for k2, s2, y2, cs2 in periodic if k2 not in used and abs(s2 - stride) <= BLOCK_TOL
+                      and len(cs2) == len(cs) and abs(y2 - y0) < stride - BLOCK_TOL)
+            members = []
+            for k2, s2, y2, cs2 in periodic[i:]:
+                pair = len(cs2) == 2
+                if k2 in used or (abs(s2 - stride) > BLOCK_TOL and not pair):
+                    continue
+                rows = _on_repeats(cs2, top, stride, len(cs))
+                if rows is not None:
+                    members.append((k2, rows[0], rows[1]))
+            # a pair joins only inside the width of the full slots (CBP 7512: the delivery inspector of rows 2 and 3)
+            full = [m for m in members if len(m[2]) == len(cs)]
+            if full:
+                lo = min(c["x"] for m in full for c in m[2].values())
+                hi = max(c["x"] + c["w"] for m in full for c in m[2].values())
+                members = [m for m in members if len(m[2]) > 2 or all(lo <= c["x"] <= hi for c in m[2].values())]
+            # a block has two or more slots in every repeat; slots missing from some (IMM 5645: the applicant's "will
+            # accompany") fill in around them. One column running through two stacked tables, the others each in one
+            # (ACORD 90 NY page 1: NEW / USED and the driver-use boxes under it), is not a block
+            if len(members) < 2 or sum(len(m[2]) == len(cs) for m in members) < 2:
                 continue
-            members = [(k, y0, cs)]
-            for k2, s2, y2, cs2 in periodic[i + 1:]:
-                if k2 not in used and abs(s2 - stride) <= BLOCK_TOL and len(cs2) == len(cs) and abs(y2 - y0) < stride:
-                    members.append((k2, y2, cs2))
-            if len(members) < 2:
+            # split columns join a block that has a column repeating evenly on its own (IMM 5645: name, relationship);
+            # when every column only repeats once split, it is two-row tables stacked (ACORD 125 page 3: fire code
+            # violations, bankruptcies, judgements, two rows each), not a block
+            if all(m[0] in split for m in members):
                 continue
             # a block runs over two or more lines (FAA 8050-1: three); repeats of one line are tables, found as such
             # (2026-10-16: single-line "blocks" turned 3-row tables into blocks and raised false alarms on ACORD 125/130)
-            if len({round((m[1] - y0) / 4) for m in members}) < 2:
+            # (a new line: a slot lower than half the boxes' height; CBP 7512's conveyance boxes, 7 pt above the rest
+            # of their row, are the same line)
+            offs = sorted((m[1], sorted(c.get("h", 8) for c in m[2].values())[len(m[2]) // 2]) for m in members)
+            multi = any(b[0] - a[0] > 0.5 * max(a[1], b[1]) for i, a in enumerate(offs) for b in offs[i + 1:])
+            if not multi and len({round(m[1] / 4) for m in members}) < 2:
                 continue
-            # a slot per column, in reading order within the block: by its offset down the block, then across
-            members.sort(key=lambda m: (round((m[1] - y0) / 4), min(c["x"] for c in m[2])))
+            # slots repeating together at different heights on one line (Form 8949: the description box twice as
+            # tall as the row's others; CBP 7512: conveyance 7 pt above) are a table whose rows the row finder splits:
+            # kept, as a table
+            # a slot per column, left to right (Andrew, 2026-10-16: "display the columns ... in order (L to R)"); slots
+            # stacked at one left edge (address over occupation) top first
+            members.sort(key=lambda m: (round(min(c["x"] for c in m[2].values()) / TOL_X), m[1]))
             used.update(m[0] for m in members)
-            out.append([{"name": c["name"], "page": page, "row": r, "col": ci, "block": True}
-                        for ci, (_k, _y, cs_) in enumerate(members) for r, c in enumerate(cs_)])
+            out.append([dict({"name": c["name"], "page": page, "row": r, "col": ci}, **({"block": True} if multi else {}))
+                        for ci, (_k, _o, rows) in enumerate(members) for r, c in sorted(rows.items())])
     return out
+
+
+def _on_repeats(cs: list[dict], y0: float, stride: float, n: int):
+    """(offset within the block, {repeat: cell}) when every box of the column sits on one of a block's n repeats (first
+    at y0, then every stride) at one offset down the block, else None. A column may miss repeats (IMM 5645: the
+    applicant has no "will accompany" boxes); a full column must start on the first repeat: one starting a repeat
+    lower is the same lines shifted by one (CRA T1 page 3: gross 13499-14299 beside net 13700-14300 and line 27)."""
+    cs = sorted(cs, key=lambda c: c["y"])
+    off = (cs[0]["y"] - y0 + BLOCK_TOL) % stride - BLOCK_TOL      # y0 is the block's top: slots sit below it
+    rows = {}
+    for c in cs:
+        r = round((c["y"] - y0 - off) / stride)
+        if not 0 <= r < n or r in rows or abs(c["y"] - y0 - off - r * stride) > 2 * BLOCK_TOL:
+            return None
+        rows[r] = c
+    if len(cs) < 2 or (len(cs) == n and min(rows) != 0) or len(cs) > n:
+        return None
+    return off, rows
 
 
 def grids(bp: dict) -> list[list[dict]]:
@@ -97,10 +195,13 @@ def grids(bp: dict) -> list[list[dict]]:
         if not isinstance(s, dict) or s.get("widgets"):
             continue
         w = s.get("widget") or {}
-        if w.get("widget_type") != "text" or not w.get("rect"):
+        # a dropdown or a lone tick box is a cell like a text box (IMM 5645 page 2: each sibling's marital status; SF
+        # 3107 section G: each child's "disabled", 2026-10-16)
+        if w.get("widget_type") not in CELL_TYPES or not w.get("rect"):
             continue
         x0, y0, x1, y1 = w["rect"]
-        by_page[w["page"]].append({"name": n, "page": w["page"], "x": x0, "w": x1 - x0, "y": (y0 + y1) / 2})
+        by_page[w["page"]].append({"name": n, "page": w["page"], "x": x0, "w": x1 - x0, "y": (y0 + y1) / 2,
+                                   "h": y1 - y0, "box": w["widget_type"] in ("checkbox", "radio")})
     out = []
     cols_by_page: dict[int, dict] = {}
     for page, cells in by_page.items():
@@ -112,11 +213,16 @@ def grids(bp: dict) -> list[list[dict]]:
         for xi in set(c["xc"] for c in cells):
             group = [c for c in cells if c["xc"] == xi]
             for wc in _cluster([c["w"] for c in group], TOL_W):
-                cols[(xi, round(wc))] = [c for c in group if abs(c["w"] - wc) <= TOL_W]
-        ys = _cluster([c["y"] for c in cells], TOL_Y)
+                same = [c for c in group if abs(c["w"] - wc) <= TOL_W]
+                for box in (False, True):
+                    if [c for c in same if c["box"] == box]:
+                        cols[(xi, round(wc)) + (("box",) if box else ())] = [c for c in same if c["box"] == box]
+        ys = _cluster([c["y"] for c in cells if not c["box"]], TOL_Y)    # tick boxes would chain rows together
         for c in cells:
             c["row"] = _near(c["y"], ys, TOL_Y)
-        keys = [k for k, v in cols.items() if len(v) >= 2]
+        # tables are found from text boxes and dropdowns; a tick-box column would join unrelated tables through the
+        # rows it shares (the D&D sheet's skill boxes): tick boxes are added to a table afterwards (`_with_groups`)
+        keys = [k for k, v in cols.items() if len(v) >= 2 and not any(c["box"] for c in v)]
         rows_of = {k: {c["row"] for c in cols[k]} for k in keys}
         # columns joined when they share two or more rows; a grid is a joined set of two or more columns
         parent = {k: k for k in keys}
@@ -152,17 +258,201 @@ def grids(bp: dict) -> list[list[dict]]:
                     cur = []
                 cur.append(r)
             blocks.append(cur)
+            # a table's columns numbered one per column, 1..N left to right (ACORD 90 NY coverages: vehicle 1-4
+            # premiums beside limit and deductible columns that share their rows) are a table of their own
+            parts = []
             for blk in blocks:
+                num = {}
+                for k in ks:
+                    ns = {_number(c["name"]) for c in cols[k] if c["row"] in blk}
+                    if len(ns) == 1 and None not in ns and sum(c["row"] in blk for c in cols[k]) >= 0.5 * len(blk):
+                        num[k] = next(iter(ns))
+                run = [k for k in ks if k in num]
+                seq = [num[k] for k in run]
+                if len(run) >= 2 and len(run) < len(ks) and seq == [str(i) for i in range(1, len(run) + 1)]:
+                    parts.append((blk, run))
+                    parts.append((blk, [k for k in ks if k not in num]))
+                else:
+                    parts.append((blk, ks))
+            # tables stacked under each other's headings at the usual spacing (ACORD 90 NY page 1: vehicle description,
+            # then cost new / symbols, then class / seat belts; page 2), joined by a column they share: cut where the
+            # columns a row fills change from the row above's by more than half
+            cut = []
+            for blk, kk in parts:
+                occ = {r: {k for k in kk if any(c["row"] == r for c in cols[k])} for r in blk}
+                blk = [r for r in blk if occ[r]]
+                if not blk:
+                    continue
+                segs = [[blk[0]]]
+                for r in blk[1:]:
+                    a, b = occ[segs[-1][-1]], occ[r]
+                    if len(a & b) < 0.5 * len(a | b):
+                        segs.append([])
+                    segs[-1].append(r)
+                # a cut needs two or more rows on each side. A table whose every row differs (CRA T5's slips) is not
+                # cut; a lone row that differs stays with the table beside it when half or more of its columns are the
+                # table's (a totals row, AO 40B), and is left out otherwise (ACORD 90 NY: the driver numbers under the
+                # vehicle table share one column with it)
+                if all(len(sg) < 2 for sg in segs):
+                    segs = [blk]
+                i = 0
+                while len(segs) > 1 and i < len(segs):
+                    if len(segs[i]) >= 2:
+                        i += 1
+                        continue
+                    r = segs[i][0]
+                    near = [j for j in (i - 1, i + 1) if 0 <= j < len(segs)
+                            and len(occ[r] & occ[segs[j][-1 if j < i else 0]]) >= 0.5 * len(occ[r])]
+                    if near:
+                        j = near[0]
+                        lo, hi = min(i, j), max(i, j)
+                        segs[lo:hi + 1] = [segs[lo] + segs[hi]]
+                    else:
+                        del segs[i]
+                    i = 0
+                cut += [(sg, kk) for sg in segs]
+            for blk, kk in cut:
                 if len(blk) < 2:
                     continue
+                used = [k for k in kk if any(c["row"] in blk for c in cols[k])]
                 grid = [{"name": c["name"], "page": page, "row": blk.index(c["row"]), "col": ci}
-                        for ci, k in enumerate(ks) for c in cols[k] if c["row"] in blk]
+                        for ci, k in enumerate(used) for c in cols[k] if c["row"] in blk]
                 out.append(grid)
+    # option groups on one line (a Yes / No pair) are cells of a block (IMM 5645: "will accompany you to Canada?"), as
+    # one cell spanning their boxes; tables are found without them
+    for n, s in (bp.get("fields") or {}).items():
+        ws = list(((s or {}).get("widgets") or {}).values()) if isinstance(s, dict) else []
+        rs = [w["rect"] for w in ws if w.get("rect")]
+        if len(rs) < 2 or len({w.get("page") for w in ws}) > 1:
+            continue
+        ycs = [(r[1] + r[3]) / 2 for r in rs]
+        if max(ycs) - min(ycs) > 2 * TOL_Y:
+            continue
+        x0, x1 = min(r[0] for r in rs), max(r[2] for r in rs)
+        cell = {"name": n, "page": ws[0]["page"], "x": x0, "w": x1 - x0, "y": sum(ycs) / len(ycs)}
+        cols = cols_by_page.setdefault(ws[0]["page"], collections.defaultdict(list))
+        key = next((k for k in cols if k[0] == "g" and abs(k[1] - x0) <= TOL_X and abs(k[2] - (x1 - x0)) <= TOL_W),
+                   ("g", x0, x1 - x0))
+        cols[key].append(cell)
     reps = repeated_blocks(by_page, cols_by_page)
     names = [{c["name"] for c in b} for b in reps]
     # a table mostly inside a block is the block's (I-130 page 12: a 3 x 6 table took the block's cells and two others)
     out = [g for g in out if not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in names)]
-    return out + reps
+    return [_with_groups(bp, g) for g in _merge_offset(bp, out)] + reps
+
+
+def _merge_offset(bp: dict, tables: list[list[dict]]) -> list[list[dict]]:
+    """Two tables that are one, their boxes set at two heights in each row (SF 3107 page 10, Section C: nature of
+    action, salary rate, basis and leave a few points above effective date, earned from / to and total; 2026-10-16):
+    same page, same number of rows, each row of one overlapping the same row of the other from top to bottom, and no
+    column of one over a column of the other. Merged, columns in left-to-right order."""
+    fields = bp.get("fields") or {}
+    rect = lambda n: ((fields.get(n) or {}).get("widget") or {}).get("rect")
+
+    def shape(g):
+        rows, cols = collections.defaultdict(list), collections.defaultdict(list)
+        for c in g:
+            r = rect(c["name"])
+            if r:
+                rows[c["row"]].append(r)
+                cols[c["col"]].append(r)
+        return ({k: (min(r[1] for r in v), max(r[3] for r in v)) for k, v in rows.items()},
+                {k: (min(r[0] for r in v), max(r[2] for r in v)) for k, v in cols.items()})
+    tables = list(tables)
+    merged = True
+    while merged:
+        merged = False
+        for i, a in enumerate(tables):
+            for j in range(i + 1, len(tables)):
+                b = tables[j]
+                if a[0]["page"] != b[0]["page"]:
+                    continue
+                (ra, ca), (rb, cb) = shape(a), shape(b)
+                if len(ra) < 2 or sorted(ra) != list(range(len(ra))) or sorted(rb) != list(range(len(ra))):
+                    continue
+                if not all(min(ra[k][1], rb[k][1]) - max(ra[k][0], rb[k][0]) > 0.5 * min(ra[k][1] - ra[k][0], rb[k][1] - rb[k][0])
+                           for k in ra):
+                    continue
+                if any(min(x[1], y[1]) - max(x[0], y[0]) > 0 for x in ca.values() for y in cb.values()):
+                    continue
+                # interleaved across one width (SF 3107: the two heights alternate along the row), not two tables side
+                # by side whose rows happen to line up (the D&D sheet's attacks beside its skills)
+                sa = (min(v[0] for v in ca.values()), max(v[1] for v in ca.values()))
+                sb = (min(v[0] for v in cb.values()), max(v[1] for v in cb.values()))
+                if not (sa[0] < sb[0] < sa[1] or sb[0] < sa[0] < sb[1]):
+                    continue
+                order = sorted([("a", k, v[0]) for k, v in ca.items()] + [("b", k, v[0]) for k, v in cb.items()],
+                               key=lambda t: t[2])
+                col = {(t, k): n for n, (t, k, _x) in enumerate(order)}
+                tables[i] = [dict(c, col=col[("a", c["col"])]) for c in a if ("a", c["col"]) in col] + \
+                            [dict(c, col=col[("b", c["col"])]) for c in b if ("b", c["col"]) in col]
+                del tables[j]
+                merged = True
+                break
+            if merged:
+                break
+    return tables
+
+
+def _with_groups(bp: dict, g: list[dict]) -> list[dict]:
+    """A table with its option-group and tick-box columns (SF 3107 Schedule C: each claim's "type of benefit", three
+    checkboxes over two lines; section G: each child's "disabled"; 2026-10-16): groups and lone tick boxes on the
+    table's page, none in the table yet, whose middle falls inside one of its
+    rows, lined up one above the other (same left edge) in two or more rows, one per row, beside or inside the table
+    (within 24 pt of its sides)."""
+    fields = bp.get("fields") or {}
+    page = g[0]["page"]
+    rect = lambda n: ((fields.get(n) or {}).get("widget") or {}).get("rect")
+    spans = collections.defaultdict(list)
+    for c in g:
+        r = rect(c["name"])
+        if r:
+            spans[c["row"]].append(r)
+    if not spans:
+        return g
+    rows = {k: (min(r[1] for r in v), max(r[3] for r in v)) for k, v in spans.items()}
+    left, right = min(r[0] for v in spans.values() for r in v), max(r[2] for v in spans.values() for r in v)
+    have = {c["name"] for c in g}
+    cand = []
+    for n, s in fields.items():
+        if not isinstance(s, dict) or n in have:
+            continue
+        w = s.get("widget") or {}
+        if w.get("widget_type") in ("checkbox", "radio") and w.get("rect") and w.get("page") == page:
+            ws = [w]                                       # a lone tick box (SF 3107 section G: "disabled")
+        else:
+            ws = list((s.get("widgets") or {}).values())
+            if len(ws) < 2:
+                continue
+        rs = [w["rect"] for w in ws if w.get("rect") and w.get("page") == page]
+        if not rs or len(rs) != len(ws):
+            continue
+        x0, y0, x1, y1 = min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)
+        row = next((k for k, (a, b) in rows.items() if a <= (y0 + y1) / 2 <= b), None)
+        if row is not None:
+            cand.append({"name": n, "row": row, "x": x0, "near": x0 >= left - 24 and x1 <= right + 24 + (x1 - x0)})
+    cols = collections.defaultdict(list)
+    for c in cand:
+        key = next((k for k in cols if abs(k - c["x"]) <= TOL_X), c["x"])
+        cols[key].append(c)
+    # beside or inside the table; or anywhere on its rows when lined up with most of them (CH-100 item 6: the tick box
+    # before each kind of case, the kind's printed name between it and the text columns)
+    add = [cs for cs in cols.values() if len(cs) >= 2 and len({c["row"] for c in cs}) == len(cs)
+           and (all(c["near"] for c in cs) or len(cs) >= max(3, 0.6 * len(rows)))]
+    if not add:
+        return g
+    # columns in left-to-right order, the groups' among them
+    xs = {}
+    for c in g:
+        r = rect(c["name"])
+        if r:
+            xs.setdefault(c["col"], []).append(r[0])
+    order = sorted([("t", k, min(v)) for k, v in xs.items()] + [("g", i, min(c["x"] for c in cs)) for i, cs in enumerate(add)],
+                   key=lambda t: t[2])
+    new_col = {(kind, k): ci for ci, (kind, k, _x) in enumerate(order)}
+    out = [dict(c, col=new_col[("t", c["col"])]) for c in g if ("t", c["col"]) in new_col]
+    out += [{"name": c["name"], "page": page, "row": c["row"], "col": new_col[("g", i)]} for i, cs in enumerate(add) for c in cs]
+    return out
 
 
 def _iter_tokens(name: str) -> list[int]:
@@ -234,12 +524,52 @@ def breaks(grid: list[dict]) -> tuple[str, list[str]]:
 
 
 def iterated(grid: list[dict]) -> bool:
-    """A table numbered along one side: 3+ cells one way and 2+ the other, most cells carrying an iteration."""
+    """A table numbered along one side: 3+ cells one way and 2+ the other, most cells carrying an iteration; or
+    lines named by role or kind (`keyed`): a block's repeats, or a table's 3+ rows of 3+ columns."""
     nrow, ncol = len({c["row"] for c in grid}), len({c["col"] for c in grid})
     if not ((nrow >= 3 and ncol >= 2) or (nrow >= 2 and ncol >= 3)):
         return False
-    return sum(_number(c["name"]) is not None for c in grid) >= 0.5 * len(grid)
+    # a table named by kind needs 3+ rows and 3+ columns: two columns by kind are mostly one value per line in parts
+    # (943's dollars / cents, CA 540's count / amount)
+    if keyed(grid) and (grid[0].get("block") or (nrow >= 3 and ncol >= 3)):
+        return True
+    # more than half: a box of separate fields with two address lines each (ACORD 90 NY's agency / applicant header:
+    # producer_address_line_1, _2) is half numbered, and not a table
+    return sum(_number(c["name"]) is not None for c in grid) > 0.5 * len(grid)
 
+
+def keyed(grid: list[dict]) -> bool:
+    """Lines named by role or kind, not number (IMM 5645 Section A: applicant_nm, spouse_nm, mother_nm, father_nm;
+    CH-100 item 6, other court cases: civil_harassment_case_nbr, domestic_violence_case_nbr ...): each column's names
+    share an ending (case_nbr, filed_in_txt), the rest is the line's key; a line's cells share the start of their keys
+    and every line's is its own. On pattern as it is: roles and kinds are not renumbered."""
+    by_col, keys = collections.defaultdict(list), collections.defaultdict(list)
+    for c in grid:
+        by_col[c["col"]].append(c)
+    for cs in by_col.values():
+        toks = [c["name"].split("_") for c in cs]
+        if len(cs) < 2:
+            continue
+        n = 0
+        while all(len(t) > n + 1 for t in toks) and len({t[-1 - n] for t in toks}) == 1:
+            n += 1
+        if not n:
+            return False
+        for c, t in zip(cs, toks):
+            keys[c["row"]].append(t[:len(t) - n])
+    if len(keys) < 2:
+        return False
+    line = {}
+    for r, ks in keys.items():
+        common = []
+        for parts in zip(*ks):
+            if len(set(parts)) > 1:
+                break
+            common.append(parts[0])
+        if not common:
+            return False
+        line[r] = "_".join(common)
+    return len(set(line.values())) == len(line) and not any(LINE.match(v.split("_")[-1]) for v in line.values())
 
 def _pattern(name: str) -> str | None:
     """The name with its iteration (the last one) as N; any other number in it stays (sched_2_line_N_amt)."""
@@ -248,6 +578,20 @@ def _pattern(name: str) -> str | None:
         return None
     toks[its[-1]] = "N"
     return "_".join(toks)
+
+
+def _varying(names: list[str]):
+    """The token position of a column's iteration: the number that changes down the column while the rest of the
+    name stays (ACORD 130: loc_1_address_line_2_txt, loc_2_address_line_2_txt -> the location, not the line); None
+    (the last number, as before) when no one position does."""
+    toks = [n.split("_") for n in names]
+    if len(names) < 2 or len({len(t) for t in toks}) > 1:
+        return None
+    for i in reversed(range(len(toks[0]))):
+        if all(LINE.match(t[i]) or (len(t[i]) == 1 and t[i].isalpha() and i > 0) for t in toks) and \
+                len({t[i] for t in toks}) == len(toks) and len({"_".join(t[:i] + t[i + 1:]) for t in toks}) == 1:
+            return i
+    return None
 
 
 def _next(a: str, b: str) -> bool:
@@ -263,6 +607,8 @@ def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     when, read by columns (or the transpose): every cell carries an iteration, every column one pattern its cells
     differ from only in that iteration, every row one number, the rows numbered top to bottom by steps of 1. A last
     row of totals is left out. The naming standard's shape is not checked here: it is its own step."""
+    if keyed(grid):
+        return True, "rows named by role or kind"
     grid = body(grid)
     for c in grid:
         if _pattern(c["name"]) is None:
@@ -270,10 +616,15 @@ def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     whys = []
     for reading, pat_axis, num_axis in (("columns", "col", "row"), ("rows", "row", "col")):
         line, other = ("column", "row") if pat_axis == "col" else ("row", "column")
+        by = collections.defaultdict(list)
+        for c in grid:
+            by[c[pat_axis]].append(c["name"])
+        vary = {k: _varying(ns) for k, ns in by.items()}
         pats, nums = collections.defaultdict(set), collections.defaultdict(set)
         for c in grid:
-            pats[c[pat_axis]].add(_pattern(c["name"]))
-            nums[c[num_axis]].add(_number(c["name"]))
+            i = vary[c[pat_axis]]
+            pats[c[pat_axis]].add(_pattern_at(c["name"], i))
+            nums[c[num_axis]].add(c["name"].split("_")[i] if i is not None else _number(c["name"]))
         bad = next((f"{line} {k + 1} has {len(v)} patterns ({', '.join(sorted(v))})"
                     for k, v in sorted(pats.items()) if len(v) > 1), None) or \
             next((f"{other} {k + 1} has {len(v)} numbers ({', '.join(sorted(v))})"
