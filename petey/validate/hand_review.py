@@ -336,10 +336,11 @@ class State:
                 "focus": focus,
                 # the home page's table (2026-10-15)
                 "collection": collection(bp), "pages": len(bp.get("source_pages") or []) or None,
+                "desc": describe(bp), "blank": bp.get("source_pdf_hash"),
                 "touched": v.get("updated"), "note": (notes if notes is not None else form_notes()).get(bid),
-                "draft": draft.status(bid, real)}
                 # cleared: through the automated passes (eval/passes_record.py), the home page's pipeline stage
                 "passes": passes_record().get(bid),
+                "draft": draft.status(bid, real)}
 
     def index(self) -> None:
         """Read every blueprint once at startup; the listing is served from memory and one entry is refreshed
@@ -349,6 +350,7 @@ class State:
         self._git_origin = git_dates(ORIGIN_BLUEPRINTS.parent, "blueprints") if ORIGIN_BLUEPRINTS.exists() else {}
         notes = form_notes()
         self._index = {bid: self._entry(bid, notes) for bid in self.paths}
+        save_descriptions()
         print(f"  indexed {len(self._index)} blueprints in {time.time() - t0:.1f}s")
 
     def listing(self) -> list[dict]:
@@ -564,8 +566,6 @@ _PDF_DIRS: dict[str, str] = {}
 FORM_NOTES = OUT / "form_notes.json"
 
 
-
-
 _PASSES: dict = {"mtime": None, "rec": {}}
 
 
@@ -582,6 +582,8 @@ def passes_record() -> dict[str, dict]:
         except (OSError, ValueError):
             return _PASSES["rec"]
     return _PASSES["rec"]
+
+
 def form_notes() -> dict[str, dict]:
     """{bid: {text, updated}}: Andrew's notes on a whole form (2026-10-15), one file for every form, kept apart from
     the per-form records so a working copy's discard (which puts those back) leaves them."""
@@ -602,6 +604,73 @@ def set_form_note(bid: str, text: str) -> dict:
     tmp.write_text(json.dumps(notes, indent=1, ensure_ascii=False, sort_keys=True), encoding="utf-8")
     tmp.replace(FORM_NOTES)
     return notes.get(bid) or {"text": "", "updated": None}
+
+
+DESC_CACHE = RUNS / "hand_review" / "form_descriptions.json"      # {blank sha: describe()}, kept across restarts
+_DESC: dict[str, Optional[dict]] = {}
+_DESC_NEW = [False]
+FILE_LIKE = re.compile(r"\.(pdf|xlsx?|docx?)$|^(book|layout|untitled|document)\s*\d*$", re.I)
+APP_PREFIX = re.compile(r"^microsoft \w+ - ", re.I)                # "Microsoft Word - EP-2 20251029_Final"
+
+
+def _heading(page) -> str:
+    """The largest-font lines in the top half of a page, top to bottom: the form's printed title, near enough."""
+    lines = []
+    for b in page.get_text("dict")["blocks"]:
+        for ln in b.get("lines", []):
+            t = " ".join(sp["text"].strip() for sp in ln["spans"]).strip()
+            if len(t) > 2 and any(c.isalpha() for c in t) and ln["bbox"][1] < page.rect.height / 2:
+                lines.append((max(sp["size"] for sp in ln["spans"]), ln["bbox"][1], t))
+    if not lines:
+        return ""
+    top = max(sz for sz, _, _ in lines)
+    return " ".join(t for sz, _, t in sorted(lines, key=lambda x: x[1]) if sz >= 0.8 * top)
+
+
+def describe(bp: dict) -> Optional[dict]:
+    """What the form is, for the home page (Andrew, 2026-10-15: "add a description to each form on the homepage so we
+    can figure out what duplicates we have"; "the info for the PDF might be a good place to start"): the blank's PDF
+    title, with its subject when that adds words; when the title is weak (under three words, or a file name such as
+    Book1.xlsx), the largest print on page 1 too. {"text", "from"}; None without a blank, or a blank with no title
+    and no text (a scanned page). Cached by blank (DESC_CACHE)."""
+    if not _DESC and DESC_CACHE.exists():
+        _DESC.update(json.loads(DESC_CACHE.read_text()))
+    key = bp.get("source_pdf_hash") or str(bp.get("source_pdf"))
+    if key in _DESC:
+        return _DESC[key]
+    path = resolve_blank(bp)
+    if not path:
+        return None
+    import pymupdf
+    doc = pymupdf.open(path)
+    info = doc.metadata or {}
+    clean = lambda v: " ".join(str(v or "").split())
+    title, subject = clean(info.get("title")), clean(info.get("subject"))
+    if APP_PREFIX.search(title):
+        title = APP_PREFIX.sub("", title).replace("_", " ")
+        title = " ".join(title.split()[:2])         # the file name's form number; its date and "Final" say nothing
+    if FILE_LIKE.search(title):
+        title = ""
+    words = lambda t: set(re.findall(r"[a-z0-9]+", t.lower()))
+    parts, src = [title] if title else [], ["pdf title"] if title else []
+    if subject and not words(subject) <= words(title):
+        parts.append(subject)
+        src.append("subject")
+    if len(title.split()) < 3 and len(doc):
+        head = _heading(doc[0])
+        if head and not words(head) <= words(" ".join(parts)):
+            parts.append(head if len(head) <= 110 else head[:110].rsplit(" ", 1)[0] + " …")
+            src.append("page 1")
+    out = {"text": " · ".join(parts), "from": " + ".join(src)} if parts else None
+    _DESC[key] = out
+    _DESC_NEW[0] = True
+    return out
+
+
+def save_descriptions() -> None:
+    if _DESC_NEW[0]:
+        DESC_CACHE.write_text(json.dumps(_DESC, indent=0, ensure_ascii=False), encoding="utf-8")
+        _DESC_NEW[0] = False
 
 
 def collection(bp: dict) -> Optional[str]:

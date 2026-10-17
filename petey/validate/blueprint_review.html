@@ -122,6 +122,7 @@
   table.home tr.r { cursor:pointer; } table.home tr.r:hover td { background:var(--surface); }
   table.home tr.cur td { background:var(--accent-dim); }
   table.home td.form a { color:var(--text); text-decoration:none; font-weight:500; }
+  table.home td.desc { max-width:340px; overflow:hidden; text-overflow:ellipsis; }
   table.home td.form .fid { display:block; color:var(--text-dim); font-size:.7rem; }
   table.home .dim { color:var(--text-dim); }
   .pbar { display:inline-flex; width:64px; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden; vertical-align:middle; margin-right:6px; }
@@ -564,6 +565,10 @@ const SECTION_ORDER = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k,
 const HCOLS = [
   // key, header, sort value, cell html, numeric, tooltip
   ['form', 'form', b => b.form, b => `<a href="#review/${encodeURIComponent(b.id)}">${esc(b.form)}</a><span class="fid">${esc(b.id)}</span>`, false],
+  ['desc', 'description', b => (b.desc || {}).text || '~', b => b.desc ? `<span title="${esc(b.desc.text + '\n\nfrom the blank: ' + b.desc.from)}">${esc(b.desc.text)}</span>` : '<span class="dim">—</span>', false,
+    "what the form is: the blank's PDF title and subject, and the largest print on page 1 when the title is thin"],
+  ['dups', 'dups', b => DUPS.of[b.id] ? DUPS.of[b.id].key : '~', b => { const d = DUPS.of[b.id]; return d ? `<span title="${esc(d.others.map(o => o.id + ' (' + o.why + ')').join('\n'))}">${d.others.length}</span>` : ''; }, false,
+    'other forms on the same blank, or with the same description once years and revision dates are left out; sorting groups them'],
   ['section', 'section', b => SECTION_ORDER[sectionOf(b)] ?? 99, b => esc(SECTION_SHORT[sectionOf(b)] || sectionOf(b)), false],
   ['collection', 'domain', b => b.collection ?? '~', b => b.collection === '' ? '<span class="dim">(top)</span>' : esc(b.collection ?? '—'), false, 'domain: the source_pdfs folder the blank is in'],
   ['pages', 'pages', b => b.pages ?? -1, b => b.pages ?? '—', true],
@@ -591,8 +596,33 @@ const HCOLS = [
 const HSTAGES = [[null, [['', 'blueprints']]],
                  ['automated', [['generated', 'generated'], ['cleared', 'cleared']]],
                  ['validation (manual)', [['progress', 'in review'], ['work', 'needs work'], ['recheck', 'changed since check'], ['validated', 'validated']]],
-                 [null, [['copy', 'unsaved copies']]]];
-const homeMatch = (b, st) => st === 'copy' ? !!b.draft : !st || statusOf(b).k === st;
+                 [null, [['copy', 'unsaved copies'], ['dup', 'possible duplicates']]]];
+const homeMatch = (b, st) => st === 'copy' ? !!b.draft : st === 'dup' ? !!DUPS.of[b.id] : !st || statusOf(b).k === st;
+// possible duplicates (Andrew, 2026-10-15: "so we can figure out what duplicates we have"): the same blank file, or
+// the same description once years, revision dates and punctuation are left out (2024 / 2025 editions of one form)
+const DUPS = {of: {}, n: -1};
+const MONTHS = 'january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec';
+const descKey = t => t.toLowerCase().replace(/\((rev|revised|ed|edition)[^)]*\)/g, ' ').replace(new RegExp(`\\b(19|20)\\d\\d\\b|\\b(rev|revised|${MONTHS})\\b`, 'g'), ' ')
+  .replace(/[^a-z0-9]+/g, ' ').trim();
+function findDups() {
+  if (DUPS.n === LIST.length && DUPS.list === LIST) return;
+  const parent = {}, find = x => parent[x] === x ? x : (parent[x] = find(parent[x]));
+  const seen = {};
+  for (const b of LIST) parent[b.id] = b.id;
+  for (const b of LIST) for (const k of [b.blank && 'h:' + b.blank, b.desc && b.desc.text && 'd:' + descKey(b.desc.text)]) {
+    if (!k) continue;
+    if (seen[k]) parent[find(b.id)] = find(seen[k]); else seen[k] = b.id;
+  }
+  const groups = {};
+  for (const b of LIST) (groups[find(b.id)] = groups[find(b.id)] || []).push(b);
+  DUPS.of = {};
+  for (const g of Object.values(groups)) {
+    if (g.length < 2) continue;
+    const key = g.map(b => b.form).sort()[0];
+    for (const b of g) DUPS.of[b.id] = {key, others: g.filter(o => o !== b).map(o => ({id: o.id, why: o.blank && o.blank === b.blank ? 'same blank' : 'same description'}))};
+  }
+  DUPS.n = LIST.length; DUPS.list = LIST;
+}
 
 async function showHome(on) {
   if (on && bid && mode === 'groups') await MODE.groups.leave();
@@ -606,10 +636,11 @@ async function showHome(on) {
 function renderHome() {
   const el = $('#home');
   // domain: null is any, '' the forms at the top of source_pdfs
+  findDups();
   const inSection = LIST.filter(b => (!HOME.section || sectionOf(b) === HOME.section) && (HOME.domain == null || (b.collection ?? '') === HOME.domain));
   const q = HOME.q.trim().toLowerCase();
   // hide validated (Andrew, 2026-10-15); the validated tile still shows them
-  const rows = inSection.filter(b => homeMatch(b, HOME.status) && !(HOME.hideVal && HOME.status !== 'validated' && statusOf(b).k === 'validated') && (!q || [b.form, b.id, b.collection, (b.note || {}).text].some(s => String(s ?? '').toLowerCase().includes(q))));
+  const rows = inSection.filter(b => homeMatch(b, HOME.status) && !(HOME.hideVal && HOME.status !== 'validated' && statusOf(b).k === 'validated') && (!q || [b.form, b.id, b.collection, (b.note || {}).text, (b.desc || {}).text].some(s => String(s ?? '').toLowerCase().includes(q))));
   const col = HCOLS.find(c => c[0] === HOME.sort) || HCOLS[1], dir = HOME.asc ? 1 : -1;
   const cmp = (x, y) => typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y));
   rows.sort((a, b) => dir * cmp(col[2](a), col[2](b)) || a.form.localeCompare(b.form));
@@ -619,7 +650,7 @@ function renderHome() {
   el.innerHTML = `
     <div class="hstats">${HSTAGES.map(([label, tiles]) => `<div class="hstage">${label ? `<div class="hstage-l">${label}</div>` : '<div class="hstage-l">&nbsp;</div>'}<div class="hstage-t">${tiles.map(([k, t]) => `<div class="hstat ${HOME.status === k ? 'on' : ''}" data-st="${k}"><b>${inSection.filter(b => homeMatch(b, k)).length}</b><span>${t}</span></div>`).join('')}</div></div>`).join('')}</div>
     <div class="hctl">
-      <input id="hq" type="text" placeholder="search form, id, domain, notes (/)" value="${esc(HOME.q)}">
+      <input id="hq" type="text" placeholder="search form, id, description, domain, notes (/)" value="${esc(HOME.q)}">
       <select id="hsec"><option value="">all sections</option>${secs.map(k => `<option value="${k}" ${HOME.section === k ? 'selected' : ''}>${esc(SECTIONS[k])} (${LIST.filter(b => sectionOf(b) === k).length})</option>`).join('')}</select>
       <select id="hdom"><option value="*">all domains</option>${doms.map(([d, n]) => `<option value="${esc(d)}" ${HOME.domain === d ? 'selected' : ''}>${d === '' ? '(top of source_pdfs)' : esc(d)} (${n})</option>`).join('')}</select>
       <label class="ctl"><input type="checkbox" id="hhide" ${HOME.hideVal ? 'checked' : ''}> hide validated</label>
