@@ -797,6 +797,54 @@ def _desc(pattern: str) -> str:
     return "_".join(t for t in pattern.split("_") if t != "N")
 
 
+SAME_WORD = {"num": "nbr", "number": "nbr", "no": "nbr", "nr": "nbr", "name": "nm", "date": "dt", "amount": "amt",
+             "code": "cd", "text": "txt", "year": "yr"}
+STOP = {"of", "to", "the", "a", "an", "for", "and", "or", "in", "on", "by"}
+LOOSE_SUFFIX = {"txt", "nbr", "cd", "nm"}      # say little about the value: hp_cc_nbr and hp_cc_txt are one text; dt, yr,
+                                               # amt, ssn ... say what it is (model_yr is not model_txt)
+
+
+def _stem(t: str) -> str:
+    """A word without its common ending, then without a final e: lease and leased, purchase and purchased read the
+    same."""
+    t = SAME_WORD.get(t, t)
+    for end in ("ing", "ed", "es", "s", "d"):
+        if t.endswith(end) and len(t) - len(end) >= 3:
+            t = t[:-len(end)]
+            break
+    return t[:-1] if t.endswith("e") and len(t) > 3 else t
+
+
+def _words(pattern: str, common: set) -> frozenset:
+    """The words that say what a wording is: its description without a loose type suffix (hp_cc_nbr and hp_cc_txt are
+    one text; model_yr and model_txt are not), stop words or the words most of the table shares, each without its ending."""
+    toks = [SAME_WORD.get(t, t) for t in _desc(pattern).split("_") if t]
+    while len(toks) > 1 and toks[-1] in LOOSE_SUFFIX:           # owner_name_txt and owner_nm: both owner
+        toks = toks[:-1]
+    return frozenset(_stem(t) for t in toks if t not in STOP and t not in common)
+
+
+def same_words(cells: list[dict], pat, common: set = frozenset()):
+    """The wording to keep when a position's wordings are the same text in other spellings (Andrew, 2026-10-18: "we
+    can probably standardize descriptions that are just equivalent text before going to opus"; ACORD 90 NY page 1:
+    vehicle_N_lease_dt / vehicle_N_leased_dt / vehicle_leased_N_dt, vehicle_N_nbr / vehicle_num_N, location_N_nbr /
+    vehicle_N_location_nbr; vehicle_N_hp_cc_nbr / vehicle_hp_cc_N_txt): the same words once endings, word order,
+    number place, the type suffix, nbr / num / number and the words most of the table's names share are set aside.
+    The commonest, numbered before not, then the one with the table's shared words, then the one already in the
+    naming standard's shape, then the shortest; None when they say different things (or there is only one)."""
+    pats = collections.Counter(pat(c) for c in cells)
+    if len(pats) < 2:
+        return None
+    full = {p: _words(p, set()) for p in pats}
+    base = {p: _words(p, common) for p in pats}
+    if len(set(full.values())) > 1 and (len(set(base.values())) > 1 or not all(base.values())):
+        return None
+    numbered = lambda p: "N" in p.split("_")      # noqa: E731
+    std = lambda p: _standard(p, {"type": "string"}) == p      # noqa: E731
+    shares = lambda p: len(set(p.split("_")) & set(common))      # noqa: E731   the table's own words (vehicle_)
+    return max(pats, key=lambda p: (pats[p], numbered(p), shares(p), std(p), -len(p)))
+
+
 def choose_wording(cells: list[dict], caption: str | None, score, pat=None) -> tuple[str | None, str]:
     """(the position's pattern, how it was chosen) or (None, why it is unsure). `score(caption, [names])`. Two
     wordings that both fit the caption and are not variants of each other (ACORD 125: building_nbr / location_nbr)
@@ -949,10 +997,21 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
         return toks[i] if i is not None and i < len(toks) else _number(c["name"])
     # (1) wording per position
     chosen, unsure, whys = {}, [], []
-    for k in sorted({c[pos_axis] for c in cells}):
+    positions = sorted({c[pos_axis] for c in cells})
+    # words nearly every cell's name has (ACORD 90 NY's vehicle_): leaving one out does not change what a cell says.
+    # Counted over cells, not positions: a row key (taxpayer / spouse, loc1 / loc2) is in every column but only in
+    # its own row's cells, and says which row a cell is
+    cell_words = [set(_desc(pat_of(c)).split("_")) for c in cells]
+    common = {t for t in set().union(*cell_words) if sum(t in w for w in cell_words) >= 0.8 * len(cell_words)} \
+        if cell_words else set()
+    for k in positions:
         pc_ = [c for c in cells if c[pos_axis] == k]
         if k in forced:
             chosen[k] = forced[k]
+            continue
+        pick = same_words(pc_, pat_of, common)
+        if pick:                       # one thing in several spellings: settled in code, no caption, no model
+            chosen[k] = pick
             continue
         cap = position_caption(bp, pc_, how, lines)
         p, why = choose_wording(pc_, cap, score, pat_of)
