@@ -808,10 +808,18 @@ def _stem(t: str) -> str:
     """A word without its common ending, then without a final e: lease and leased, purchase and purchased read the
     same."""
     t = SAME_WORD.get(t, t)
-    for end in ("ing", "ed", "es", "s", "d"):
-        if t.endswith(end) and len(t) - len(end) >= 3:
-            t = t[:-len(end)]
-            break
+    # a plural first, then -ing / -ed, then a final e, once each: mailings / mailing -> mail, expenses / expense ->
+    # expens, leased / lease -> leas (stripping again and again took expenses to expen but expense to expens)
+    if t.endswith("ies") and len(t) > 4:
+        t = t[:-3] + "y"
+    elif t.endswith("es") and len(t) > 4 and not t.endswith("ses"):
+        t = t[:-2]
+    elif t.endswith("s") and not t.endswith("ss") and len(t) > 3:
+        t = t[:-1]
+    if t.endswith("ing") and len(t) > 5:
+        t = t[:-3]
+    elif t.endswith("ed") and len(t) > 4:
+        t = t[:-2]
     return t[:-1] if t.endswith("e") and len(t) > 3 else t
 
 
@@ -822,6 +830,16 @@ def _words(pattern: str, common: set) -> frozenset:
     while len(toks) > 1 and toks[-1] in LOOSE_SUFFIX:           # owner_name_txt and owner_nm: both owner
         toks = toks[:-1]
     return frozenset(_stem(t) for t in toks if t not in STOP and t not in common)
+
+
+def equivalent(a: str, b: str, common: set = frozenset()) -> bool:
+    """Two wordings that are the same text (same_words' test): the same words once endings, word order, number place,
+    a loose suffix, nbr / num / number and the table's shared words are set aside."""
+    wa, wb = _words(a, set()), _words(b, set())
+    if wa == wb:
+        return True
+    ca, cb = _words(a, common), _words(b, common)
+    return bool(ca) and ca == cb
 
 
 def same_words(cells: list[dict], pat, common: set = frozenset()):
@@ -968,10 +986,104 @@ def _verify(cells: list[dict], pos_axis: str, num_axis: str, vary: dict) -> tupl
     return True, "on pattern"
 
 
+def _norm_tok(t: str) -> str:
+    """A name word as the equivalence test reads it: one spelling (name / nm, num / nbr ...), no ending, and the loose
+    type suffixes (txt / nbr / cd / nm) as one."""
+    t = SAME_WORD.get(t, t)
+    return "~" if t in LOOSE_SUFFIX else _stem(t)
+
+
+def keyed_split(grid: list[dict], norm: bool = False):
+    """The code check's reading of a table whose lines are labelled (`keyed`): each column's names share an ending
+    (the column's wording), the rest starts with the line's label. {name: (label words, middle words, ending words)}
+    with each line's label and each column's ending, or None when the table is not read this way. With `norm`, words
+    compared as `_norm_tok` reads them, so equivalent spellings agree."""
+    f = _norm_tok if norm else (lambda t: t)
+    by_col = collections.defaultdict(list)
+    for c in grid:
+        by_col[c["col"]].append(c)
+    ending, keys = {}, collections.defaultdict(list)
+    for col, cs in by_col.items():
+        toks = [c["name"].split("_") for c in cs]
+        if len(cs) < 2:
+            ending.update({c["name"]: 0 for c in cs})
+            continue
+        n = 0
+        while all(len(t) > n + 1 for t in toks) and len({f(t[-1 - n]) for t in toks}) == 1:
+            n += 1
+        if not n:
+            return None
+        for c, t in zip(cs, toks):
+            ending[c["name"]] = n
+            keys[c["row"]].append((c["name"], t[:len(t) - n]))
+    if len(keys) < 2:
+        return None
+    label = {}
+    for r, ks in keys.items():
+        common = 0
+        for parts in zip(*[k for _n, k in ks]):
+            if len({f(x) for x in parts}) > 1:
+                break
+            common += 1
+        if not common:
+            return None
+        label[r] = common
+    lab_words = {r: tuple(f(x) for x in keys[r][0][1][:label[r]]) for r in label}
+    if len(set(lab_words.values())) < len(lab_words) or any(LINE.match(w[-1]) for w in lab_words.values()):
+        return None
+    out = {}
+    for c in grid:
+        t = c["name"].split("_")
+        n = ending.get(c["name"], 0)
+        k = label.get(c["row"], 0)
+        out[c["name"]] = (t[:k], t[k:len(t) - n], t[len(t) - n:])
+    return out
+
+
+def resolve_labelled(bp: dict, g: list[dict]):
+    """resolve() for a table whose lines are labelled (Andrew, 2026-10-18: "a grid with consistent [row label]_[column
+    label] names is correct"): read as the code check reads it (`keyed`), with equivalent spellings agreeing
+    (`keyed_split(norm=True)`). When it holds, each cell takes its line's commonest spelling of the label and its
+    column's commonest spelling of the ending (any equivalent would do); None when the table is not read this way
+    (different labels are left to the ladder)."""
+    cells = body(g)
+    split = keyed_split(cells, norm=True)
+    if split is None:
+        return None
+    fields = bp.get("fields") or {}
+    names = {c["name"] for c in g}
+    lab_sp = collections.defaultdict(collections.Counter)
+    end_sp = collections.defaultdict(collections.Counter)
+    for c in cells:
+        lab, _mid, end = split[c["name"]]
+        lab_sp[c["row"]]["_".join(lab)] += 1
+        end_sp[c["col"]]["_".join(end)] += 1
+    ren = {}
+    for c in cells:
+        _lab, mid, end = split[c["name"]]
+        lab = lab_sp[c["row"]].most_common(1)[0][0]
+        en = end_sp[c["col"]].most_common(1)[0][0] if end else ""
+        new = "_".join(x for x in [lab, "_".join(mid), en] if x)
+        if new != c["name"]:
+            ren[c["name"]] = new
+    after = [ren.get(c["name"], c["name"]) for c in g]
+    clash = [n for n in ren.values() if n in fields and n not in ren and n not in names]
+    if clash or len(set(after)) < len(after):
+        return {"status": "confused", "renames": ren, "unsure": [],
+                "why": f"would take names other fields keep: {', '.join(clash[:4])}" if clash else "two cells would share a name"}
+    return {"status": "fixed" if ren else "ok", "renames": ren, "unsure": [],
+            "why": "lines labelled; equivalent spellings standardized"}
+
+
 def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | None = None) -> dict:
     """{status: ok | fixed | unsure | confused, renames, unsure: [{pos, caption, candidates, cells}], why}."""
     forced = forced or {}
     cells = body(g)
+    # lines labelled, not numbered (most cells carry no iteration): [line label]_[position's wording]
+    if not forced and sum(_number(c["name"]) is not None for c in cells) < 0.5 * len(cells):
+        lab = resolve_labelled(bp, g)
+        if lab is not None:
+            return lab
     reading, _ = breaks(g)
     pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
     how = "block" if g[0].get("block") else reading
@@ -1047,7 +1159,15 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
     ren = {}
     for c in cells:
         if c[pos_axis] in locked:
-            continue                           # line numbers stay
+            # line numbers stay; an equivalent spelling of the position's wording takes the chosen one, with this
+            # cell's own line number (CA 540: line_44_credit_name beside line_N_credit_nm)
+            pat = chosen.get(c[pos_axis])
+            mine = pat_of(c)
+            if pat and mine != pat and "N" in pat.split("_") and equivalent(mine, pat, common) and num_of(c):
+                toks_ = pat.split("_")
+                toks_[toks_.index("N")] = num_of(c)
+                ren[c["name"]] = "_".join(toks_)
+            continue
         pat = chosen[c[pos_axis]]
         num = number[c[num_axis]]
         if num is None or "N" not in pat.split("_"):
@@ -1064,7 +1184,8 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
         if new != c["name"]:
             ren[c["name"]] = new
     # a rename that changes what a cell says (different words, not a variant) is a judgment: Jev, not code
-    reworded = [o for o, n in ren.items() if not _variant(_pattern(o) or o, _pattern(n) or n)]
+    reworded = [o for o, n in ren.items() if not _variant(_pattern(o) or o, _pattern(n) or n)
+                and not equivalent(_pattern(o) or o, _pattern(n) or n, common)]
     swaps = [o for o, n in ren.items() if ren.get(n) == o]
     if swaps:                                  # two cells exchanging names: the rows' order is a judgment (FL-100)
         return {"status": "unsure", "renames": {}, "unsure": [{"pos": None, "caption": None, "cells": swaps,
