@@ -45,7 +45,7 @@ from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
 DPI = 144                      # option boxes are 8-10 pt; at 110 dpi (the old hand review) they are 12 px targets
-MODES = ("review", "groups", "add", "grids", "audit")
+MODES = ("review", "groups", "add", "grids", "blocks", "audit")
 
 
 class Audit:
@@ -66,8 +66,9 @@ class Grids:
     """Grids and blocks (`grid_check`): every numbered table and repeated block of the form, and one click to check
     and validate one."""
 
-    def __init__(self, app: "App") -> None:
+    def __init__(self, app: "App", kind: str = "table") -> None:
         self.app = app
+        self.kind = kind                 # "table" (the Grids tab) or "block" (the Blocks tab: block groups), 2026-10-18
 
     def detail(self, bid: str) -> dict:
         from petey.validate import grid_check
@@ -82,10 +83,9 @@ class Grids:
             finally:
                 doc.close()
         vs = hand_review.load_verdicts(bid).get("verdicts") or {}
-        tabs = grid_check.tables(bp)
-        nots = grid_check.not_grids(bid)
+        tabs = grid_check.tables(bp, bid, self.kind)      # the form's kept grids (or block groups): ids, cancelled, ...
         for t in tabs:
-            t["dismissed"] = grid_check.dismissed(nots, t["page"], [c["name"] for c in t["cells"]])
+            t["dismissed"] = t.get("status") == "cancelled"
             for c in t["cells"]:
                 c["accepted"] = (vs.get(c["name"]) or {}).get("verdict") == "accept"
             t["accepted"] = sum(c["accepted"] for c in t["cells"] if not c.get("total"))
@@ -93,13 +93,19 @@ class Grids:
         return {"id": bid, "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
 
     def dismiss(self, bid: str, tid: str, on: bool) -> dict:
-        """'not a grid or block' (or its undo) on one table of the listing."""
+        """Cancel ("not a grid or block") a grid or block, the finder's or the person's, or restore it (2026-10-17: one
+        button, the provenance tells them apart)."""
         from petey.validate import grid_check
-        t = next((t for t in grid_check.tables(hand_review._load(self.app.working(bid))) if t["id"] == tid), None)
-        if not t:
-            raise ValueError(f"no table {tid} on this form now")
-        grid_check.set_not_grid(bid, t["page"], [c["name"] for c in t["cells"]], on)
-        return {"table": tid, "dismissed": on}
+        return grid_check.set_status(bid, tid, on)
+
+    def create(self, bid: str, page: int, rect, kind: str) -> dict:
+        """A grid or block drawn on the page: the fields inside, arranged into rows and columns."""
+        from petey.validate import grid_check
+        return grid_check.create(bid, hand_review._load(self.app.working(bid)), page, rect, self.kind)
+
+    def combine(self, bid: str, ids: list[str]) -> dict:
+        from petey.validate import grid_check
+        return grid_check.combine(bid, hand_review._load(self.app.working(bid)), ids)
 
     def check(self, bid: str, tid: str) -> dict:
         from petey.validate import form_chat, grid_check
@@ -128,6 +134,7 @@ class App:
         self.add = field_add.State()
         self.audit = Audit(self)
         self.grids = Grids(self)
+        self.blocks = Grids(self, "block")
         self.paths = self.review.paths
         self.png: dict[tuple[str, int], bytes] = {}
         self.mtimes: dict[str, float] = {}
@@ -281,14 +288,14 @@ class App:
         import sys
         sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
         import grid_naming
+        from petey.validate import grid_check
         bp = hand_review._load(self.working(bid))
         have = hand_review.load_verdicts(bid).get("verdicts") or {}
         names = []
-        for g in grid_naming.grids(bp):
+        for g in [t["grid"] for t in grid_check.listing(bid, bp) if t["status"] == "active"]:   # the kept grids
             # on pattern by the code check, or nothing off it by the older check (2026-10-16: tables named by role or
             # kind pass the code check, and were never accepted)
-            if g[0]["page"] != page or not grid_naming.iterated(g) or \
-                    (grid_naming.breaks(g)[1] and not grid_naming.on_pattern(g)[0]):
+            if g[0]["page"] != page or (grid_naming.breaks(g)[1] and not grid_naming.on_pattern(g)[0]):
                 continue
             names += [c["name"] for c in g if c["name"] in ok and not (have.get(c["name"]) or {}).get("verdict")]
         if names:
@@ -570,10 +577,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
-        if (mode, what) == ("grids", "check"):           # grids and blocks: check and validate one table
-            return self._route(lambda: APP.grids.check(bid, body["table"]), bid)
-        if (mode, what) == ("grids", "dismiss"):         # "not a grid or block", or its undo
-            return self._route(lambda: APP.grids.dismiss(bid, body["table"], bool(body.get("on", True))), bid)
+        if mode in ("grids", "blocks") and what in ("check", "dismiss", "create", "combine"):   # Grids / Blocks tabs
+            tab = getattr(APP, mode)
+            if what == "check":                          # check and validate one
+                return self._route(lambda: tab.check(bid, body["table"]), bid)
+            if what == "dismiss":                        # cancel ("not a grid or block"), or restore
+                return self._route(lambda: tab.dismiss(bid, body["table"], bool(body.get("on", True))), bid)
+            if what == "create":                         # drawn on the page
+                return self._route(lambda: tab.create(bid, int(body["page"]), body["rect"], body.get("kind")), bid)
+            return self._route(lambda: tab.combine(bid, list(body.get("tables") or [])), bid)   # combine, one page
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
             return self._route(lambda: APP.chat_apply(bid, body), bid)
         if (mode, what) == ("review", "captions"):       # "re-read captions" on a group, from Review (2026-10-15)

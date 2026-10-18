@@ -187,9 +187,10 @@ def _on_repeats(cs: list[dict], y0: float, stride: float, n: int):
     return off, rows
 
 
-def grids(bp: dict) -> list[list[dict]]:
+def grids(bp: dict, blocks: bool = True) -> list[list[dict]]:
     """[[cell]] per grid; a cell = {name, page, row, col}. Repeated blocks (`repeated_blocks`) count as grids, a block per row,
-    and a table the code would otherwise find inside one is left to the block."""
+    and a table the code would otherwise find inside one is left to the block. `blocks=False` (2026-10-18: grids and
+    blocks apart; block groups are eval/block_groups.py's): tables only, the rows-at-two-heights ones included."""
     by_page = collections.defaultdict(list)
     for n, s in (bp.get("fields") or {}).items():
         if not isinstance(s, dict) or s.get("widgets"):
@@ -335,6 +336,8 @@ def grids(bp: dict) -> list[list[dict]]:
                    ("g", x0, x1 - x0))
         cols[key].append(cell)
     reps = repeated_blocks(by_page, cols_by_page)
+    if not blocks:
+        reps = [b for b in reps if not b[0].get("block")]
     names = [{c["name"] for c in b} for b in reps]
     # a table mostly inside a block is the block's (I-130 page 12: a 3 x 6 table took the block's cells and two others)
     out = [g for g in out if not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in names)]

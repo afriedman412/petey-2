@@ -87,6 +87,9 @@
   .gcell { position:absolute; border:1px solid rgba(26,115,232,.45); z-index:2; pointer-events:none; }
   .gcell.acc { border-color:var(--accept); background:rgba(30,142,62,.12); }
   .gtcard { border:1px solid var(--border); border-radius:var(--r); padding:8px 10px; margin:8px 0; cursor:pointer; }
+  .gtab .gtid { position:absolute; left:6px; top:-15px; font:600 10px/1 var(--mono, monospace); color:var(--c); background:var(--bg); padding:1px 3px; border-radius:3px; }
+  .gtidc { font:600 11px var(--mono, monospace); color:var(--text-dim); margin-right:6px; }
+  .gtprov { color:var(--text-dim); font-size:.72rem; }
   .gtcard.sel { border-color:var(--accent); }
   .gtcard .btn { margin-top:6px; }
   .gtsteps { margin:6px 0 0 16px; padding:0; font-size:12px; color:var(--text-dim); }
@@ -330,7 +333,7 @@
   <select id="pick"></select>
   <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most to look at first</option></select></label>
   <span class="tabs" id="tabs">
-    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="grids" title="Shift+4">Grids &amp; blocks</button><button data-mode="audit" title="Shift+5">Audit</button>
+    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="grids" title="Shift+4">Grids</button><button data-mode="blocks" title="Shift+5">Blocks</button><button data-mode="audit" title="Shift+6">Audit</button>
   </span>
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span id="draftBar" hidden></span>
@@ -863,8 +866,8 @@ function bindCanvas() {
 }
 
 // the help menu (2026-10-07): every key hint lives here, not in the bars and buttons; the current mode first
-const GLOBAL_KEYS = [['Shift+1 / 2 / 3 / 4', 'Review / Groups / Add / remove / Audit'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['?', 'this help']];
-const MODE_NAME = {review: 'Review', groups: 'Groups', add: 'Add / remove', audit: 'Audit'};
+const GLOBAL_KEYS = [['Shift+1 / 2 / 3 / 4 / 5 / 6', 'Review / Groups / Add / remove / Grids / Blocks / Audit'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['?', 'this help']];
+const MODE_NAME = {review: 'Review', groups: 'Groups', add: 'Add / remove', grids: 'Grids', blocks: 'Blocks', audit: 'Audit'};
 function helpHtml() {
   const keys = rows => `<table>${rows.map(([k, d]) => `<tr><td>${k.split(' / ').map(x => `<kbd>${esc(x)}</kbd>`).join(' / ')}</td><td>${esc(d)}</td></tr>`).join('')}</table>`;
   const h = M().help || {keys: [], tips: []};
@@ -884,7 +887,7 @@ function onKey(e) {
   if (e.key === '?') { toggleHelp(); e.preventDefault(); return; }
   if (e.key === 'Escape' && !$('#helpmenu').hidden) { toggleHelp(false); e.preventDefault(); return; }
   if (HOME.on) { if (e.key === '/') { $('#hq').focus(); e.preventDefault(); } return; }
-  if (e.shiftKey && /^Digit[12345]$/.test(e.code)) { setMode(['review', 'groups', 'add', 'grids', 'audit'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
+  if (e.shiftKey && /^Digit[123456]$/.test(e.code)) { setMode(['review', 'groups', 'add', 'grids', 'blocks', 'audit'][+e.code.slice(5) - 1]); e.preventDefault(); return; }
   if (!bid) return;
   if (e.key === '+' || e.key === '=') setZoom(zoom * 1.25);
   else if (e.key === '-') setZoom(zoom / 1.25);
@@ -2287,8 +2290,12 @@ MODE.add = (() => {
 // every numbered table and repeated block, outlined in dots (groups are dashed); one click checks and validates one:
 // the code check, then the resolver (the name-check model against the shared caption), then Jev for a column it cannot
 // settle, then Opus (its proposals land in the chat to tick)
-MODE.grids = (() => {
+function gridMode(API, KIND) {              // the Grids tab (tables) and the Blocks tab (block groups), 2026-10-18
+  const BLK = KIND === 'block', NOUN = BLK ? 'block group' : 'table';
   let GD = null, selected = null, results = {}, busy = new Set();
+  let ticked = new Set(), drawKind = null, drawStart = null, drawBox = null;    // combine; draw a new one (2026-10-17)
+  const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
+  const prov = t => t.source === 'person' ? 'drawn by you' : t.source === 'combined' ? `combined from ${(t.from || []).join(' + ')}` : 'found by the finder';
   const live = () => GD ? GD.tables.filter(t => !t.dismissed) : [];     // set aside as "not a grid or block": hidden
   const onPage = p => live().filter(t => t.page === p);
   const asidePage = p => GD ? GD.tables.filter(t => t.dismissed && t.page === p) : [];
@@ -2300,9 +2307,10 @@ MODE.grids = (() => {
   function place() {
     for (const t of onPage(page)) {
       const pad = 6, r = [t.bbox[0] - pad, t.bbox[1] - pad, t.bbox[2] + pad, t.bbox[3] + pad];
-      const d = put('gtab ' + t.kind + (t.on_pattern ? ' ok' : '') + (selected === t.id ? ' sel' : ''), r, `${t.kind} ${t.rows} x ${t.cols} · ${status(t)}`);
+      const d = put('gtab ' + t.kind + (t.on_pattern ? ' ok' : '') + (selected === t.id ? ' sel' : ''), r, `${t.id} · ${t.kind} ${t.rows} x ${t.cols} · ${status(t)} · ${prov(t)}`);
       dots(d, (r[2] - r[0]) * scale, (r[3] - r[1]) * scale);
-      d.onclick = () => { selected = t.id; placeAll(); panel(); };
+      const tag = document.createElement('span'); tag.className = 'gtid'; tag.textContent = t.id; d.appendChild(tag);
+      d.onclick = () => { if (drawKind) return; selected = t.id; placeAll(); panel(); };
       for (const c of t.cells) if (c.rect) put('gcell' + (c.accepted ? ' acc' : ''), c.rect, c.name + (c.accepted ? ' · accepted' : ''));
     }
   }
@@ -2312,7 +2320,9 @@ MODE.grids = (() => {
     const size = blk ? `${t.lines} block${t.lines === 1 ? '' : 's'} × ${across} field${across === 1 ? '' : 's'}`
                      : `${t.lines} row${t.lines === 1 ? '' : 's'} × ${across} column${across === 1 ? '' : 's'}`;
     return `<div class="gtcard ${selected === t.id ? 'sel' : ''}" data-t="${esc(t.id)}">
-      <div class="gttitle">${esc(t.title || (blk ? 'repeated block' : 'table'))}</div>
+      <div class="gttitle"><span class="gtidc">${esc(t.id)}</span>${esc(t.title || (blk ? 'repeated block' : 'table'))}
+        <label class="gtprov" style="float:right" title="tick two or more of one kind on this page, then 'combine ticked'"><input type="checkbox" data-tick="${esc(t.id)}" ${ticked.has(t.id) ? 'checked' : ''}> combine</label></div>
+      <div class="gtprov">${esc(prov(t))}</div>
       <div><span class="pill ${blk ? 'copy' : 'passed'}">${t.kind}</span> <b>${size}</b>
         ${done(t) ? '<span class="pill validated">validated</span>' : ''}
         <span class="help">· ${t.accepted}/${t.body ?? t.cells.length} cells accepted · ${esc(status(t))}</span></div>
@@ -2320,7 +2330,7 @@ MODE.grids = (() => {
         `<li><code>${esc(p.wordings.join(' / '))}</code>${p.caption ? ` <span class="help">· printed: ${esc(p.caption)}</span>` : ''}</li>`).join('')}</ol></details>
       ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
       <button class="btn ${done(t) ? '' : 'primary'}" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : done(t) ? 'validated ✓ · check again' : 'check & validate'}</button>
-      <button class="btn" data-notgrid="${esc(t.id)}" title="set this aside: the finder is wrong here; it is hidden and kept out of 'check all'">not a grid or block</button>
+      <button class="btn" data-notgrid="${esc(t.id)}" title="not a grid or block: hidden and kept out of 'check all'; one the finder found is recorded as its mistake, a combined one gives its parts back; restore below">cancel</button>
       ${res ? `<div class="help">last run: <b>${esc(res.status)}</b>${res.status === 'proposed' ? ' · the proposals are in the chat' : ''}${!done(t) && ['validated', 'fixed'].includes(res.status) ? ' · some cells keep an earlier verdict (flagged?)' : ''}</div>
         <ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
     </div>`;
@@ -2328,12 +2338,21 @@ MODE.grids = (() => {
   function panel() {
     const a = $('#panel'), ts = onPage(page);
     if (!GD) { a.innerHTML = '<p class="help">loading…</p>'; return; }
-    a.innerHTML = `<div class="help">Tables and repeated blocks the layout code finds, outlined in dots on the page. One click runs
+    a.innerHTML = `<div class="help">${BLK ? 'Block groups: a set of fields repeated (one block per repeat), outlined in dots on the page' : 'Tables (grids) the layout code finds, outlined in dots on the page'}. One click runs
       the lightest check that settles a table: the code, then the name-check model, then Jev, and Opus only when it is still unclear.</div>
+      <div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn ${drawKind ? 'primary' : ''}" id="gtDraw" title="${BLK ? 'then drag a box around every block of the group' : 'then drag a box around the fields on the page'}">draw a ${NOUN}</button>
+        ${ticked.size >= 2 ? `<button class="btn primary" id="gtComb">combine ticked (${ticked.size})</button>` : ''}
+      </div>
+      ${drawKind ? `<p class="help"><b>Drag a box on the page</b> around the ${BLK ? 'blocks of the group' : 'table'}: the fields whose middle is inside become a new ${NOUN}. Esc to stop.</p>` : ''}
       ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
-        `<p class="help">No numbered table or block on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
-      ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Set aside as not a grid or block: ${asidePage(page).map(t =>
-        `<span>${esc(t.title || t.kind)} (${t.rows} x ${t.cols}) <a href="#" data-restore="${esc(t.id)}">restore</a></span>`).join(' · ')}</div>` : ''}`;
+        `<p class="help">No ${BLK ? 'block group' : 'numbered table'} on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
+      ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Cancelled (${BLK ? 'not a block group' : 'not a grid'}): ${asidePage(page).map(t =>
+        `<span><b>${esc(t.id)}</b> ${esc(t.title || t.kind)} (${t.rows} x ${t.cols}, ${esc(prov(t))}) <a href="#" data-restore="${esc(t.id)}">restore</a></span>`).join(' · ')}</div>` : ''}`;
+    a.querySelectorAll('[data-tick]').forEach(b => { b.onclick = e => e.stopPropagation(); b.onchange = () => {
+      b.checked ? ticked.add(b.dataset.tick) : ticked.delete(b.dataset.tick); panel(); }; });
+    $('#gtDraw').onclick = () => { drawKind = drawKind ? null : KIND; panel(); };
+    if ($('#gtComb')) $('#gtComb').onclick = combineTicked;
     a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
     a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = e => { e.stopPropagation(); setAside(b.dataset.notgrid, true); });
     a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
@@ -2341,17 +2360,35 @@ MODE.grids = (() => {
     a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
     if ($('#gtAll')) $('#gtAll').onclick = async () => { for (const t of onPage(page)) await run(t.id); };
   }
+  async function create(rect) {
+    const kind = drawKind; drawKind = null;
+    let out;
+    try { out = await send('POST', mapi(API, '/create'), {page, rect, kind}); }
+    catch (e) { panel(); alert('Could not make it: ' + e.message); return; }
+    selected = out.id; const keep = results; await loadMode(); results = keep;
+    toast(`New ${NOUN} ${out.id}: ${out.cells} fields.`);
+  }
+  async function combineTicked() {
+    const ids = [...ticked], kinds = new Set(ids.map(i => (GD.tables.find(t => t.id === i) || {}).kind));
+    if (kinds.size > 1) { alert('A table and a block cannot be combined.'); return; }
+    let out;
+    try { out = await send('POST', mapi(API, '/combine'), {tables: ids}); }
+    catch (e) { alert('Could not combine: ' + e.message); return; }
+    ticked.clear(); selected = out.id; const keep = results; await loadMode(); results = keep;
+    toast(`Combined into ${out.id} (cancel it to get the parts back).`);
+  }
   async function setAside(tid, on) {
-    try { await send('POST', mapi('grids', '/dismiss'), {table: tid, on}); }
+    try { await send('POST', mapi(API, '/dismiss'), {table: tid, on}); }
     catch (e) { alert('Could not save: ' + e.message); return; }
     if (on && selected === tid) selected = null;
     const keep = results; await loadMode(); results = keep;
-    toast(on ? 'Set aside: not a grid or block.' : 'Restored.');
+    ticked.delete(tid);
+    toast(on ? `${tid} cancelled (not a grid or block).` : `${tid} restored.`);
   }
   async function run(tid) {
     const form = bid; busy.add(tid); panel();
     let out;
-    try { out = await send('POST', mapi('grids', '/check'), {table: tid}); }
+    try { out = await send('POST', mapi(API, '/check'), {table: tid}); }
     catch (e) { out = {status: 'error', steps: ['the check failed: ' + e.message]}; }
     busy.delete(tid); if (bid !== form) return;
     results[tid] = out; if (out.entry) updateEntry(out.entry);
@@ -2365,7 +2402,7 @@ MODE.grids = (() => {
     toast(`Table ${tid}: ${out.status}.`);
   }
   return {
-    async load() { GD = await j(mapi('grids')); if (selected && !GD.tables.some(t => t.id === selected)) selected = null; },
+    async load() { GD = await j(mapi(API)); if (selected && !GD.tables.some(t => t.id === selected)) selected = null; },
     pages: () => GD ? GD.pages : [],
     startPage: () => (GD && GD.tables[0] || {}).page || 1,
     pageLabel(p) { const n = onPage(p).length; return `p${p}${n ? ` (${n})` : ''}`; },
@@ -2378,7 +2415,7 @@ MODE.grids = (() => {
     progress() {
       const el = $('#progress'); if (!el || !GD) return;
       const ts = live(), v = ts.filter(done).length, ok = ts.filter(t => t.on_pattern).length, n = GD.tables.length - ts.length;
-      el.innerHTML = `<b>${ts.length}</b> tables and blocks · ${ok} on pattern · ${v} validated${n ? ` · ${n} set aside` : ''}`;
+      el.innerHTML = `<b>${ts.length}</b> ${BLK ? 'block groups' : 'tables'} · ${ok} on pattern · ${v} validated${n ? ` · ${n} set aside` : ''}`;
     },
     key(e) {
       const ts = live(), i = ts.findIndex(t => t.id === selected);
@@ -2387,10 +2424,27 @@ MODE.grids = (() => {
         selected = t.id; if (t.page !== page) gotoPage(t.page); else { placeAll(); panel(); } return true;
       }
       if (e.key === 'Enter' && selected) { run(selected); return true; }
+      if (e.key === 'Escape' && drawKind) { drawKind = null; panel(); return true; }
       return false;
     },
+    mousedown(e) { if (!drawKind || e.button !== 0) return; e.preventDefault(); e.stopPropagation(); drawStart = pt(e); },
+    mousemove(e) {
+      if (!drawStart) return; const q = pt(e);
+      const r = [Math.min(drawStart[0], q[0]), Math.min(drawStart[1], q[1]), Math.max(drawStart[0], q[0]), Math.max(drawStart[1], q[1])];
+      if (!drawBox && (r[2] - r[0]) * scale < 4 && (r[3] - r[1]) * scale < 4) return;
+      if (!drawBox) drawBox = put('ov draw', r);
+      else { drawBox.style.left = r[0] * scale + 'px'; drawBox.style.top = r[1] * scale + 'px'; drawBox.style.width = (r[2] - r[0]) * scale + 'px'; drawBox.style.height = (r[3] - r[1]) * scale + 'px'; }
+      drawBox._r = r;
+    },
+    mouseup() {
+      if (!drawStart) return;
+      const b = drawBox; drawStart = null; drawBox = null;
+      if (b) { b.remove(); create(b._r); }
+    },
   };
-})();
+}
+MODE.grids = gridMode('grids', 'table');
+MODE.blocks = gridMode('blocks', 'block');
 
 MODE.audit = (() => {
   let A = null, B = null, view = store('br_audit_view') || 'form';

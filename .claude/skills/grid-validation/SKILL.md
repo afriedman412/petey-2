@@ -1,6 +1,6 @@
 ---
 name: grid-validation
-description: Validate and fix the field names of a table (grid) or repeated block on a blueprint so every cell follows one pattern. Use when Andrew asks to check, validate, fix or rename a grid / table / schedule / repeated block on a form (e.g. "can you check the grid on je__form10 p1"), when eval/grid_naming.py flags cells, or when the review page's Grids & blocks view hands a table to the chat.
+description: Validate and fix the field names of a table (grid) or repeated block on a blueprint so every cell follows one pattern. Use when Andrew asks to check, validate, fix or rename a grid / table / schedule / repeated block on a form (e.g. "can you check the grid on je__form10 p1"), when eval/grid_naming.py flags cells, or when the review page's Grids or Blocks tab hands a table or block group to the chat.
 ---
 
 # Grid and block validation
@@ -14,8 +14,11 @@ The code finds and fixes the mechanical cases; the judgment below is what the co
 
 ## The ladder (2026-10-16)
 
-The review page's **Grids & blocks** view (`petey/validate/grid_check.py`) outlines every numbered table and repeated
-block in dots and checks one in a click, lightest method first. Only what is still unclear reaches a model:
+The review page's **Grids** tab (tables) and **Blocks** tab (block groups; split apart 2026-10-18) (`petey/validate/
+grid_check.py`) outline every numbered table / block group in dots and check one in a click, lightest method first.
+Each has a lasting id (p1-T2, p2-BG1), can be cancelled (not a grid / block group), drawn around an area, or
+combined with others of its kind on the page; the form's list is kept in runs/hand_review/grids/<id>.json with
+where each came from (finder, person, combined). Only what is still unclear reaches a model:
 
 1. **Code check** (`grid_naming.on_pattern`): each position one wording, each line one number, steps of 1. Passing ->
    its cells are accepted, done.
@@ -55,7 +58,7 @@ Measured on the 154 validated forms (`eval/grid_resolver_eval.py`): of 163 table
    ```
    Print each grid as rows x columns (`grid_naming.grids(bp)`) to see the names in place. A table that passes the
    code check (`grid_naming.on_pattern`: each column one pattern varying only by its iteration, rows numbered by steps
-   of 1) is done; the Grids & blocks view accepts it without a model call. Spend the judgment on the rest.
+   of 1) is done; the Grids / Blocks tab accepts it without a model call. Spend the judgment on the rest.
 
 2. **Look at the page.** Render it with the boxes numbered and read the headers:
    `pc.render(resolve_blank(bp), page, pc.numbered(bp), dpi=100)` (petey/validate/page_check.py), then Read the PNG.
@@ -88,8 +91,9 @@ Measured on the 154 validated forms (`eval/grid_resolver_eval.py`): of 163 table
      8050-1 page 3: nine signer blocks, each applicant name / signature / date / signer name / title; ACORD 125
      page 2: four premises blocks of ten fields). Each block is a row, numbered once; each field of the block is a
      column with one wording: `applicant_3_nm`, `signature_3_txt`, `signature_3_dt`, `signer_3_nm`, `title_3_txt` all
-     carry block 3. `grid_naming` finds them (a block per row) when the block spans two or more lines; a block
-     that is one line is an ordinary table.
+     carry block 3. They are found apart from tables since 2026-10-18 (eval/block_groups.py: a block group is a
+     set of three or more different fields over two or more lines and columns, laid out again one step on; one
+     line repeated is a table's rows), and shown in the Blocks tab, one block per row.
    - **A block that continues another page** keeps counting (FAA 8050-1: page 2 has the first signer block under
      "all applicants must sign. Use next page", so page 3's blocks are signers 2-10, not 1-9). That is the opposite
      of separate tables (8949's Part I and Part II each start at 1): decide by whether the page says the list goes

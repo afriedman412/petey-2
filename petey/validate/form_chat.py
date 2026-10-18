@@ -182,7 +182,8 @@ def grid_request(bid: str, page: int) -> str:
     a, b = text.find("3. **Decide the names**"), text.find("4. **Apply**")
     rules = text[a:b].strip() if a >= 0 and b > a else ""
     found, done = [], []
-    for g in G.grids(bp):
+    from petey.validate import grid_check
+    for g in [t["grid"] for t in grid_check.listing(bid, bp) if t["status"] == "active"]:
         if g[0]["page"] != page:
             continue
         if G.iterated(g) and G.on_pattern(g)[0]:       # passed the code check, its cells accepted: not asked again
