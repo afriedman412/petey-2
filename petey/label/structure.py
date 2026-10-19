@@ -222,7 +222,8 @@ def guidance(page_struct: dict | None, ids: set[int]) -> str:
             "Where a table's rows are named by role or kind instead (applicant, spouse; subtotal, total), name "
             "them so and skip the number. In a repeated block, the same field in each block gets the same wording "
             "with the block number as its own word (sibling_1_first_nm, sibling_2_first_nm). The structure says "
-            "WHICH boxes belong together; what they hold still comes from the captions, tooltips and paths.")
+            "WHICH boxes belong together; what they hold still comes from the captions, tooltips and paths. A cell "
+            "no filer writes in (shaded, hatched, \"reserved for future use\") still gets \"\" as always.")
 
 
 # ----------------------------------------------------------------- bulk: a column named once, its cells printed
