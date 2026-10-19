@@ -395,6 +395,35 @@ Return JSON only:
 {"labels": [{"id": <int>, "label": "<snake_case_slug>"}, ...]}"""
 
 
+# the simple naming scheme (docs/PLAN_SIMPLE_NAMES.md, 2026-10-19): the name is the subject in the form's own words,
+# the kind of value is a separate answer that sets type and semantic type; no suffix in the name
+NAMES = "standard"
+_KINDS: dict[int, str] = {}          # widget id -> the kind the labeler gave (simple scheme)
+
+
+def _simple_system() -> str:
+    from petey.semantic_types import prompt_vocabulary
+    a = LABEL_SYSTEM.index("- Emit snake_case slugs following IRS MeF-style")
+    b = LABEL_SYSTEM.index("Business names → `_business_name`.\n") + len("Business names → `_business_name`.\n")
+    rules = ("- The label names WHAT THE BOX HOLDS, in the form's own words, snake_case: `first_name`, "
+             "`vehicle_make`, `gross_rents`, `years_at_current_address`, `date_of_birth`. Do NOT add a type or "
+             "kind suffix (no _txt, _nm, _nbr, _cd, _dt, _amt, _ind, _qty, _ssn): the kind of value is a separate "
+             "answer, below, not part of the name.\n"
+             "- With every label give `\"kind\"`: the kind of value the box holds, one of "
+             + prompt_vocabulary() + " or \"checkbox\" (a tick box) or \"signature\". Use \"text\" for free "
+             "text and \"description\" for a longer explanation; \"money\" for a sum of money, \"count\" for a "
+             "whole-number count, \"percent\" for a percentage, \"iso_date\" for a full date, \"year\" for a "
+             "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\", \"city\", "
+             "\"business_name\", \"first_name\", \"last_name\" as their names say.\n")
+    out = LABEL_SYSTEM[:a] + rules + LABEL_SYSTEM[b:]
+    return out.replace('{"labels": [{"id": <int>, "label": "<snake_case_slug>"}, ...]}',
+                       '{"labels": [{"id": <int>, "label": "<snake_case_slug>", "kind": "<kind>"}, ...]}')
+
+
+def _system() -> str:
+    return _simple_system() if NAMES == "simple" else LABEL_SYSTEM
+
+
 def _parse_json_object(text: str) -> Optional[dict]:
     depth = 0
     start = -1
@@ -628,7 +657,7 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool
     client = make_client(model)
     if provider_for(model) is not None:
         # other vendors, chat-completions dialect (same prompt, text only)
-        kwargs = dict(model=model, messages=[{"role": "system", "content": LABEL_SYSTEM},
+        kwargs = dict(model=model, messages=[{"role": "system", "content": _system()},
                                              {"role": "user", "content": user_text}])
         if model.startswith(("gpt-5", "o1", "o3", "o4")):
             kwargs["max_completion_tokens"] = MAX_TOKENS
@@ -655,7 +684,7 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool
     else:
         with client.messages.stream(
             model=model, max_tokens=MAX_TOKENS,
-            system=LABEL_SYSTEM,
+            system=_system(),
             messages=[{"role": "user", "content": user_text}],
         ) as stream:
             final = stream.get_final_message()
@@ -706,6 +735,8 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool
             continue
         if isinstance(wid, int):
             out[wid] = lbl
+            if entry.get("kind"):
+                _KINDS[wid] = str(entry["kind"])
     if n_ignored:
         print(f"[auto_label] ignored {n_ignored} label entries whose id is "
               f"not a widget on this page (of "
@@ -730,7 +761,13 @@ def build_blueprint(
     geometry: str = "auto",
     use_llm: bool = True,
     structure: Optional[str] = None,       # None, "guide" (tables and blocks in the prompt) or "bulk" (columns named once)
+    names: str = "standard",               # "simple": subject-only names, the kind of value answered apart
 ) -> dict:
+    global NAMES
+    NAMES = names
+    _KINDS.clear()
+    from petey.label import structure as _S0
+    _S0.SIMPLE = names == "simple"
     widgets, dropped_widgets, geometry_method = enumerate_geometry(blank_pdf, geometry)
     print(f"[auto_label] geometry: {geometry_method} ({len(widgets)} fields)")
     if dropped_widgets:
@@ -1058,7 +1095,12 @@ def build_blueprint(
         assigned = dedup.assign(
             label, page=w["page"], rect=w["rect"],
         )
-        spec = enrich_field(label, w["widget_type"])
+        kind = (parts_by_id.get(w["id"]) or {}).get("kind") or _KINDS.get(w["id"])
+        if NAMES == "simple":
+            from petey.semantic_types import enrich_from_kind
+            spec = enrich_from_kind(kind, w["widget_type"])
+        else:
+            spec = enrich_field(label, w["widget_type"])
         if w.get("choices"):
             dropdown_spec(spec, w)
         spec["widget"] = widget_block
@@ -1071,7 +1113,7 @@ def build_blueprint(
             n_tooltip_descriptions += 1
         _overlay_xfa(spec, w.get("path"))
         if w["id"] in parts_by_id:
-            spec["x_petey_identifiers"] = dict(parts_by_id[w["id"]])
+            spec["x_petey_identifiers"] = {k: v for k, v in parts_by_id[w["id"]].items() if k != "kind"}
         fields[assigned] = _attach_audit(spec, w["id"])
 
     for group, val_to_widget in mutex_widgets.items():
@@ -1233,6 +1275,8 @@ def main() -> int:
     ap.add_argument("--structure", nargs="?", const="guide", choices=["guide", "bulk"], default=None,
                     help="find tables and repeated blocks first: 'guide' puts them in the labeler's prompt, 'bulk' names "
                          "a column once and prints its cells (2026-10-19)")
+    ap.add_argument("--names", choices=["standard", "simple"], default="standard",
+                    help="simple: subject-only names, the kind of value answered apart (docs/PLAN_SIMPLE_NAMES.md)")
     ap.add_argument("--no-retrieval", action="store_true",
                     help="disable local retrieval prepass; LLM-only")
     ap.add_argument("--retrieval-threshold", type=float,
@@ -1280,6 +1324,7 @@ def main() -> int:
         geometry=args.geometry,
         use_llm=not args.no_llm,
         structure=args.structure,
+        names=args.names,
         retrieval_threshold=args.retrieval_threshold,
     )
 

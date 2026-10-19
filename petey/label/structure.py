@@ -23,6 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
 
+SIMPLE = False        # the simple naming scheme: examples without suffixes, a kind with every label
 _KIND = {"text": "text", "checkbox": "checkbox", "radiobutton": "radio", "radio": "radio", "combobox": "combobox",
          "listbox": "listbox", "signature": "text"}
 
@@ -253,8 +254,9 @@ def guidance(page_struct: dict | None, ids: set[int]) -> str:
     return ("Structure on this page, found from the layout (rows of alike boxes; a set of fields laid out again):\n"
             + "\n".join(parts) + "\n\n"
             "In a table, every cell of one column holds the same kind of value: give the column ONE wording and "
-            "number the rows, the row number as its own word before the type suffix (vehicle_1_make_txt, "
-            "vehicle_2_make_txt, ... vehicle_4_make_txt; parent_1_first_nm, parent_2_first_nm). Every row is "
+            "number the rows, the row number as its own word" + ("" if SIMPLE else " before the type suffix") + " (vehicle_1_make"
+            + ("" if SIMPLE else "_txt") + ", vehicle_2_make" + ("" if SIMPLE else "_txt") + ", ... ; parent_1_first_name"
+            + ("" if SIMPLE else "_nm") + ", parent_2_first_name" + ("" if SIMPLE else "_nm") + "). Every row is "
             "numbered, the first one too; use the table's own printed numbers or letters when it prints them. "
             "Where a table's rows are named by role or kind instead (applicant, spouse; subtotal, total), name "
             "them so and skip the number. In a repeated block, the same field in each block gets the same wording "
@@ -299,6 +301,22 @@ BULK_RULES = (
 )
 
 
+def _rules() -> str:
+    """The bulk rules, with suffix-free examples and a kind per label under the simple scheme."""
+    r = BULK_RULES
+    if not SIMPLE:
+        return r
+    for a, b in (("vehicle_make_txt, parent_first_nm, gross_rents_amt", "vehicle_make, parent_first_name, gross_rents"),
+                 ("bodily_injury_limit_amt, net_income_amt", "bodily_injury_limit, net_income"),
+                 ("(child_name_1, child_birth_dt_1)", "(child_name_1, child_birth_date_1)"),
+                 ("name, birth_dt, present_address", "name, birth_date, present_address")):
+        r = r.replace(a, b)
+    r = r.replace('"columns": [{"col": 1, "label": "<slug>"}, ...]', '"columns": [{"col": 1, "label": "<slug>", "kind": "<kind>"}, ...]')
+    r = r.replace('[{"row": 1, "label": "<slug>"}, ...]', '[{"row": 1, "label": "<slug>", "kind": "<kind>"}, ...]')
+    r = r.replace('"fields": [{"slot": 1, "label": "<slug>"}, ...]', '"fields": [{"slot": 1, "label": "<slug>", "kind": "<kind>"}, ...]')
+    return r + "\nEvery column, row or field label carries its \"kind\" as the labels do; no suffix in the label."
+
+
 def guidance_bulk(page_struct: dict | None, ids: set[int]) -> str:
     """The structures a batch's widgets belong to, and the bulk answer format; '' when none. A table with evidence
     of its repeating axis is answered that way, not "unlike" (the labeler called ACORD 90 NY's coverage tables and
@@ -320,7 +338,7 @@ def guidance_bulk(page_struct: dict | None, ids: set[int]) -> str:
             told.append(f"{t['id']}: rows are line items and columns kinds. Answer both \"rows\" and \"columns\" as labels.")
     must = ("\n\nThese tables are settled by the publisher's own field names; do not answer \"unlike\" for them:\n- "
             + "\n- ".join(told)) if told else ""
-    return head + "\n\n" + BULK_RULES + must
+    return head + "\n\n" + _rules() + must
 
 
 def _split(label: str) -> tuple[str, str | None]:
@@ -362,6 +380,8 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
     parts: dict[int, dict] = {}
     left: list[int] = []
 
+    kinds: dict[tuple, str] = {}          # (axis key, index) -> the kind given with the label (simple scheme)
+
     def entries(lst, key):
         """{index: slug}; an empty label is kept as "" (the line is dropped), a missing one is absent."""
         if isinstance(lst, dict):
@@ -370,6 +390,8 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
         for e in lst or []:
             if isinstance(e, dict) and isinstance(e.get(key), int):
                 out[e[key]] = _slug(e.get("label"))
+                if e.get("kind"):
+                    kinds[(key, e[key])] = str(e["kind"])
         return out
     def axis(v, key):
         """('labels', {index: slug}) for a list of {row/col, label}; ('printed', [str]) for printed numbers or
@@ -453,9 +475,10 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 continue
             ident = {k: v for k, v in ident.items() if v}
             src = cv if ck == "label" else rv
+            kind = kinds.get(("col", c["col"] + 1)) if ck == "label" else kinds.get(("row", c["row"] + 1))
             names[c["id"]], pt = _emit(ident, src if "." in str(src) else "")
             if pt is not None:
-                parts[c["id"]] = pt
+                parts[c["id"]] = dict(pt, **({"kind": kind} if kind else {}))
     blocks = {b.get("id"): b for b in (parsed.get("blocks") or []) if isinstance(b, dict)}
     for b in (page_struct or {}).get("blocks") or []:
         cells = [c for c in b["cells"] if c["id"] in ids]
@@ -481,7 +504,8 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
             ident = {k: v for k, v in {"subject": subject, "suffix": suffix, "iteration": str(c["block"] + 1)}.items() if v}
             names[c["id"]], pt = _emit(ident, lab)
             if pt is not None:
-                parts[c["id"]] = pt
+                kind = kinds.get(("slot", c["slot"] + 1))
+                parts[c["id"]] = dict(pt, **({"kind": kind} if kind else {}))
     return names, parts, left
 
 

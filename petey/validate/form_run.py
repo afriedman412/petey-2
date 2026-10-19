@@ -243,7 +243,7 @@ def _stamp_record(bp: dict, rec_path: Path, model: str) -> None:
                                 "when": _now()}
 
 
-def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, structure: Optional[str] = None, first_model: str = FIRST_MODEL,
+def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, structure: Optional[str] = None, names: Optional[str] = None, first_model: str = FIRST_MODEL,
         loop_model: str = LOOP_MODEL, log=print) -> dict:
     lib = BLUEPRINTS / f"{form}.bpt"
     rec = Record(form, blank, lib if lib.exists() else None)
@@ -264,7 +264,7 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, s
         work.parent.mkdir(parents=True, exist_ok=True)
         r = subprocess.run([sys.executable, "-u", "-m", "petey.label.auto_label", "--blank", str(blank), "--output",
                             str(work), "--name", form, "--no-register", "--no-retrieval"]
-                           + (["--structure", structure] if structure else []))
+                           + (["--structure", structure] if structure else []) + (["--names", names] if names else []))
         if r.returncode or not work.exists():
             raise SystemExit(f"{form}: label failed (exit {r.returncode})")
         bp0 = yaml.safe_load(work.read_text(encoding="utf-8")) or {}
@@ -342,6 +342,7 @@ def main() -> int:
     ap.add_argument("--blank", required=True, type=Path)
     ap.add_argument("--reloop", action="store_true", help="re-run the loop from the last run's round 0 (no label)")
     ap.add_argument("--no-library", action="store_true", help="skip the library blueprint's comparison check")
+    ap.add_argument("--names", choices=["standard", "simple"], default=None, help="simple: subject-only names (docs/PLAN_SIMPLE_NAMES.md)")
     ap.add_argument("--structure", nargs="?", const="guide", choices=["guide", "bulk"], default=None,
                     help="tables and repeated blocks found first: guide the labeler, or name columns once (bulk) (2026-10-19)")
     ap.add_argument("--first-model", default=FIRST_MODEL, help=f"round-0 page check of every field (default {FIRST_MODEL})")
@@ -350,7 +351,7 @@ def main() -> int:
     args = ap.parse_args()
     first = args.page_check_model or args.first_model
     loop = args.page_check_model or args.loop_model
-    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library, structure=args.structure, first_model=first, loop_model=loop)
+    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library, structure=args.structure, names=args.names, first_model=first, loop_model=loop)
     return 0
 
 

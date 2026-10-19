@@ -336,6 +336,21 @@ def enrich_field(label: str, widget_type: str) -> dict:
     return spec
 
 
+def enrich_from_kind(kind: Optional[str], widget_type: str) -> dict:
+    """`{type, semantic_type?, pattern?}` from a KIND the labeler named apart from the field name (the simple naming
+    scheme, docs/PLAN_SIMPLE_NAMES.md, 2026-10-19): a registered semantic type, or text / checkbox / signature."""
+    k = (kind or "").strip().lower()
+    if widget_type == "checkbox" or k in ("checkbox", "indicator", "boolean"):
+        return {"type": "boolean"}
+    st = next((t for t in ALL_TYPES if t.name == k), None)
+    if st is None or k in ("text", "description", ""):
+        return {"type": "string"}
+    spec: dict = {"type": st.bpt_type, "semantic_type": st.name}
+    if st.pattern and st.bpt_type == "string":
+        spec["pattern"] = st.pattern
+    return spec
+
+
 def pattern_for(name: Optional[str]) -> Optional[str]:
     """The registry's pattern for a semantic type, where it applies (a string field; spec §5.6), else None."""
     st = next((t for t in ALL_TYPES if t.name == name), None) if name else None
