@@ -126,7 +126,36 @@ def axis_hint(cells: list[dict], path_of: dict[int, str]) -> dict:
     down = share("col", "row")           # pairs down a column alike -> rows repeat
     across = share("row", "col")         # pairs along a row alike -> columns repeat
     axis = "rows" if down >= 0.5 and down >= across + 0.2 else "columns" if across >= 0.5 and across >= down + 0.2 else None
-    return {"axis": axis, "rows": round(down, 2), "columns": round(across, 2)}
+    both = 0.0
+    if axis is None:
+        both = _both_named(cells, toks)
+        if both >= 0.5:
+            axis = "both"
+    return {"axis": axis, "rows": round(down, 2), "columns": round(across, 2), "both": round(both, 2)}
+
+
+def _both_named(cells: list[dict], toks: dict[int, list[str]]) -> float:
+    """A ledger: rows are line items and columns are kinds, and the publisher's names say so (AO 40B:
+    AttendFeesOffTrans / AttendFeesPrivateReport along a row share the leading stem, AttendFeesOffTrans /
+    SalaryOfficalTrans down a column share the trailing one). The share of cells whose name shares a leading token
+    with a row-mate and a trailing token with a column-mate."""
+    rows: dict[int, list] = {}
+    cols: dict[int, list] = {}
+    for c in cells:
+        rows.setdefault(c["row"], []).append(c)
+        cols.setdefault(c["col"], []).append(c)
+    hits = n = 0
+    for c in cells:
+        t = toks.get(c["id"]) or []
+        if len(t) < 2 or sum(len(x) >= 3 and x.isalpha() for x in t) < 2:
+            continue
+        n += 1
+        lead = any(toks.get(o["id"]) and toks[o["id"]][0] == t[0] and toks[o["id"]] != t for o in rows[c["row"]] if o is not c)
+        words = [x for x in t if x.isalpha() and len(x) >= 3]
+        trail = any(toks.get(o["id"]) and [x for x in toks[o["id"]] if x.isalpha() and len(x) >= 3][-1:] == words[-1:]
+                    and toks[o["id"]] != t for o in cols[c["col"]] if o is not c) if words else False
+        hits += lead and trail
+    return hits / n if n else 0.0
 
 
 def _units(page_struct: dict | None) -> list[list[list[int]]]:
@@ -198,6 +227,8 @@ def guidance(page_struct: dict | None, ids: set[int]) -> str:
             rows.setdefault(c["row"], []).append(c["id"])
         h = t.get("hint") or {}
         ev = ("" if not h.get("axis") else
+              " (evidence: the publisher's own field names share a stem along each row and a kind down each column, "
+              "so the rows are line items and the columns kinds: name both)" if h["axis"] == "both" else
               f" (evidence: the publisher's own field names repeat {'down the rows' if h['axis'] == 'rows' else 'across the columns'}"
               f", one letter or number apart, so the {h['axis']} are the repetitions)")
         parts.append(f"Table {t['id']}: {t['rows']} rows x {t['cols']} columns{ev}" + "".join(
