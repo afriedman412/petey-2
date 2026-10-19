@@ -282,6 +282,8 @@ BULK_RULES = (
     "by one in \"labels\". Where the table comes with evidence that one axis repeats, it does: name the other axis.\n"
     "- A row or column no filer writes in (shaded, \"reserved for future use\", a heading line): label it \"\" "
     "(empty) and its cells are dropped.\n"
+    "- A first or last row that is a line of another kind (a header line of driver numbers over the vehicle rows, "
+    "a totals line): list it in \"aside\" (1-based row numbers) and label its widgets one by one in \"labels\".\n"
     "- A repeated block: say what repeats as \"entity\" (child, sibling, employer, property) and give each FIELD of "
     "the block one label (the same field in every block: name, birth_dt, present_address), with no block number; "
     "the blocks are numbered in order and the entity leads every name (child_name_1, child_birth_dt_1).\n"
@@ -292,7 +294,7 @@ BULK_RULES = (
     "Return JSON only:\n"
     '{"labels": [{"id": <int>, "label": "<slug>"}, ...],\n'
     ' "tables": [{"id": "T1", "columns": [{"col": 1, "label": "<slug>"}, ...] | "numbered" | ["<printed>", ...],\n'
-    '             "rows": "numbered" | ["<printed>", ...] | [{"row": 1, "label": "<slug>"}, ...] | "unlike"}, ...],\n'
+    '             "rows": "numbered" | ["<printed>", ...] | [{"row": 1, "label": "<slug>"}, ...] | "unlike", "aside": [<row>, ...]}, ...],\n'
     ' "blocks": [{"id": "B1", "entity": "<slug>", "fields": [{"slot": 1, "label": "<slug>"}, ...]}, ...]}'
 )
 
@@ -397,6 +399,21 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
         if not ans or rkind == "unlike" or ckind == "unlike" or (ckind != "labels" and rkind != "labels"):
             left += [c["id"] for c in cells]
             continue
+        # rows the labeler set aside (a header or totals line of another kind): labeled one by one
+        aside = {int(x) - 1 for x in (ans.get("aside") or []) if str(x).isdigit()}
+        if aside:
+            left += [c["id"] for c in cells if c["row"] in aside]
+            cells = [c for c in cells if c["row"] not in aside]
+        # the same label on two columns (or rows): two panes side by side read as one table (ACORD 90 NY's
+        # class / seat belt table: vehicles 1-2 left, 3-4 right); the printed names would collide, so those cells
+        # are labeled one by one
+        for kind, val, key in ((ckind, cval, "col"), (rkind, rval, "row")):
+            if kind == "labels" and val:
+                dup = {v for v in val.values() if v and list(val.values()).count(v) > 1}
+                if dup:
+                    hit = {i for i, v in val.items() if v in dup}
+                    left += [c["id"] for c in cells if c[key] + 1 in hit]
+                    cells = [c for c in cells if c[key] + 1 not in hit]
         # two boxes at one position: the finder gave two different boxes one column; a label cannot name both
         at: dict[tuple, int] = {}
         for c in cells:
