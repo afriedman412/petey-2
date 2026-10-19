@@ -22,10 +22,20 @@ from standardize_names import SUFFIXES  # noqa: E402
 from petey.label import text_match as TM  # noqa: E402
 from petey.validate import grid_check as gc, hand_review as h  # noqa: E402
 
-FORMS = {"acord_90_ny": ("je__acord_90_ny", "acord_90_ny_bulk5", "acord_90_ny_simple"),
-         "f8825": ("je__f8825", "f8825_bulk3", "f8825_simple"),
-         "ao040b": ("je__ao040b", "ao040b_bulk5", "ao040b_simple"),
-         "imm5645": ("je__ircc_imm_5645", "imm5645_bulk3", "imm5645_simple")}
+# per form: the validated blueprint, and each arm's runs. standard: the bulk runs of 15:38-16:42 and the _final
+# runs of 17:27 (round 0 only: their loops died of the stream timeout), then _std on today's code (level with the
+# simple arms on the loop and timing columns). simple v1 (17:51): no identifier kind, an indicator on a Y / N text box
+# typed boolean. simple2 (18:02 on): those fixed.
+FORMS = {"acord_90_ny": ("je__acord_90_ny", {"standard": ["acord_90_ny_bulk5", "acord_90_ny_std"],
+                                             "simple v1": ["acord_90_ny_simple"],
+                                             "simple2": ["acord_90_ny_simple2", "acord_90_ny_simple2b"]}),
+         "f8825": ("je__f8825", {"standard": ["f8825_bulk3", "f8825_final", "f8825_std"], "simple v1": ["f8825_simple"],
+                                 "simple2": ["f8825_simple2", "f8825_simple2b"]}),
+         "ao040b": ("je__ao040b", {"standard": ["ao040b_bulk5", "ao040b_final", "ao040b_std"], "simple v1": [],
+                                   "simple2": ["ao040b_simple2", "ao040b_simple2b"]}),
+         "imm5645": ("je__ircc_imm_5645", {"standard": ["imm5645_bulk3", "imm5645_final", "imm5645_std"],
+                                           "simple v1": ["imm5645_simple"],
+                                           "simple2": ["imm5645_simple2", "imm5645_simple2b"]})}
 
 
 # the kind of value, in either scheme's spelling: left out of the subject comparison on both sides (the plan: the
@@ -119,37 +129,71 @@ def arm(tag: str, validated: dict) -> dict | None:
     vr, rr = by_rect(validated), by_rect(fields)
     both = [k for k in rr if k in vr]
     type_ok = sum(1 for k in both if rr[k][1].get("type") == vr[k][1].get("type"))
-    sem = lambda f: None if f.get("semantic_type") in (None, "", "text") else f["semantic_type"]   # text says nothing
+    # text says nothing; `address` is the registry's street_address in an older blueprint's spelling
+    sem = lambda f: (None if f.get("semantic_type") in (None, "", "text") else
+                     {"address": "street_address"}.get(f["semantic_type"], f["semantic_type"]))
     sem_ok = sum(1 for k in both if sem(rr[k][1]) == sem(vr[k][1]))
+    # where they differ: the run more specific than the validated blueprint (added), less (dropped), or both set and
+    # different (conflict); validated blueprints leave many semantic types unset, so only dropped and conflict count
+    # against an arm
+    sem_added = sum(1 for k in both if sem(rr[k][1]) and not sem(vr[k][1]))
+    sem_dropped = sum(1 for k in both if not sem(rr[k][1]) and sem(vr[k][1]))
+    sem_conflict = sum(1 for k in both if sem(rr[k][1]) and sem(vr[k][1]) and sem(rr[k][1]) != sem(vr[k][1]))
     subj = collections.Counter(subject_class(rr[k][0], vr[k][0]) for k in both)
     loops = [x for x in r["rounds"] if x.get("stage") == "loop"]
     reviewed = sum((x.get("loop") or {}).get("review_run", {}).get("fields_reviewed") or 0 for x in loops)
     res = r.get("result") or {}
-    dedup = ((r0.get("top") or {}).get("x_petey_dedup_log") or {}).get("duplicate_labels_reassigned")
+    from datetime import datetime
+    mins = None
+    if res.get("finished") and r.get("started"):
+        f = "%Y-%m-%d %H:%M:%S"
+        mins = round((datetime.strptime(res["finished"], f) - datetime.strptime(r["started"], f)).total_seconds() / 60, 1)
+    last = r["rounds"][-1]
+    pages = len({k[0] for k in rr})
+    dlog = (r0.get("top") or {}).get("x_petey_dedup_log") or {}
+    dedup = dlog.get("duplicate_labels_reassigned")
+    kind = lambda n: ((fields.get(n) or {}).get("type"), (fields.get(n) or {}).get("semantic_type"))
+    # the case a suffix separated: two fields with one subject and different kinds (a phone text box, a phone checkbox)
+    by_kind = sum(1 for c in dlog.get("collisions") or [] if c.get("original_label") in fields
+                  and kind(c["original_label"]) != kind(c.get("assigned_label")))
     return {"fields": len(fields), "flags": sum(flags.values()), "flags_by": dict(flags),
-            "matched": len(both), "type_ok": type_ok, "sem_ok": sem_ok, "subject": dict(subj),
+            "matched": len(both), "type_ok": type_ok, "sem_ok": sem_ok, "sem_added": sem_added,
+            "sem_dropped": sem_dropped, "sem_conflict": sem_conflict, "subject": dict(subj),
             "tables": len(tabs), "on_pattern": sum(1 for t in tabs if t["on_pattern"]),
             "printed": sum(1 for s in fields.values() if s.get("x_petey_identifiers")),
             "label_calls": len(calls), "label_s": round(sum(c[0] for c in calls)), "label_tokens": sum(c[1] for c in calls),
-            "rounds": len(loops), "reviewed": reviewed, "status": res.get("status") or "running", "collisions": dedup}
+            "rounds": len(loops), "reviewed": reviewed, "status": res.get("status") or "running", "collisions": dedup, "by_kind": by_kind,
+            "minutes": mins, "pages": pages, "finished": bool(res.get("finished"))}
 
 
 def main() -> int:
     paths = h.blueprint_paths()
-    for form, (vid, std, simple) in FORMS.items():
+    summary = []
+    for form, (vid, arms) in FORMS.items():
         validated = h._load(h.working_path(vid, paths)).get("fields") or {}
         print(f"== {form} (validated: {vid}, {len(validated)} fields)")
-        # simple v1 (2026-10-19 17:51): no identifier kind, a Y / N text box's indicator typed boolean; simple2: fixed
-        for label, tag in (("standard", std), ("simple v1", simple), ("simple2", simple + "2")):
-            a = arm(tag, validated)
-            if a is None:
-                print(f"   {label:9} no record yet ({tag})")
-                continue
-            s = a["subject"]
-            print(f"   {label:9} {a['fields']} fields | round 0: {a['flags']} flags {a['flags_by']} | vs validated ({a['matched']} matched by rect): "
-                  f"type {a['type_ok']}, semantic {a['sem_ok']}, subject same {s.get('same', 0)} / nested {s.get('nested', 0)} / overlap {s.get('overlap', 0)} / different {s.get('different', 0)}")
-            print(f"             tables {a['tables']} on pattern {a['on_pattern']}, printed {a['printed']} | labeler {a['label_calls']} calls {a['label_s']} s {a['label_tokens']} tokens | "
-                  f"loop {a['rounds']} rounds, {a['reviewed']} reviewed, {a['status']} | collisions {a['collisions']}")
+        for label, tags in arms.items():
+            for tag in tags:
+                a = arm(tag, validated)
+                if a is None:
+                    continue
+                s = a["subject"]
+                summary.append((form, label, tag, a))
+                print(f"   {label:9} {tag}: {a['fields']} fields | round 0: {a['flags']} flags {a['flags_by']} | vs validated ({a['matched']} matched by rect): "
+                      f"type {a['type_ok']}, semantic {a['sem_ok']} (+{a['sem_added']} -{a['sem_dropped']} x{a['sem_conflict']}), subject same {s.get('same', 0)} / nested {s.get('nested', 0)} / overlap {s.get('overlap', 0)} / different {s.get('different', 0)}")
+                print(f"             tables {a['tables']} on pattern {a['on_pattern']}, printed {a['printed']} | labeler {a['label_calls']} calls {a['label_s']} s {a['label_tokens']} tokens | "
+                      f"loop {a['rounds']} rounds, {a['reviewed']} reviewed, {a['status']}, {a['minutes']} min | collisions {a['collisions']} ({a['by_kind']} between kinds)")
+    # per page and per field, so forms of different sizes read on one scale (feedback: per page, not per form)
+    print("\nsummary: round-0 flags per 100 fields; type / semantic agreement, semantic dropped (sem-) and "
+          "conflicting (semx), subject same or nested, subject different: % of matched fields; labeler tokens and end-to-end minutes per page")
+    print(f"   {'form':12} {'arm':9} {'run':24} {'flags':>6} {'type':>6} {'sem':>6} {'sem-':>6} {'semx':>6} {'subj':>6} {'diff':>6} {'tok/pg':>7} {'min/pg':>7}")
+    for form, label, tag, a in summary:
+        m = a["matched"] or 1
+        s = a["subject"]
+        pct = lambda n: f"{100 * n / m:.1f}"
+        mp = f"{a['minutes'] / a['pages']:.1f}" if a["minutes"] else "-"
+        print(f"   {form:12} {label:9} {tag:24} {100 * a['flags'] / max(1, a['fields']):6.1f} {pct(a['type_ok']):>6} {pct(a['sem_ok']):>6} "
+              f"{pct(a['sem_dropped']):>6} {pct(a['sem_conflict']):>6} {pct(s.get('same', 0) + s.get('nested', 0)):>6} {pct(s.get('different', 0)):>6} {a['label_tokens'] / a['pages']:7.0f} {mp:>7}")
     return 0
 
 
