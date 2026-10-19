@@ -91,6 +91,47 @@ different tables sharing a subject (children's `first_name` and contacts' `first
 
 Steps 1-3 first: step 2's numbers show whether the automatic fill is good enough to build the rest on.
 
+## Steps 1-3 done (2026-10-19, later the same day)
+
+Record format in docs/NAMING.md "Identifiers" and `BPT SPEC v1.1.md` §5.2.1 (draft): `x_petey_identifiers`
+{subject, suffix, iteration, grid | block_group + block, part}; `eval/field_identifiers.print_name` prints the name
+in either order. `eval/field_identifiers.py` fills the parts in from today's names, the kept grids and block groups
+(`grid_check.listing`, so every form now has lasting ids under runs/hand_review/grids/) and the compound values, on
+copies under runs/identifiers/<id>/, with a report (runs/identifiers/report.json) per form and per page. Run on the
+289 launch T1 / T2 forms (Andrew: use those; 89 T1 + 200 T2), 1127 pages, 37,321 fields:
+
+| | fields | share |
+|---|---|---|
+| read cleanly | 34,405 | 92.2% |
+| flagged | 2,916 | 7.8%, 2.6 per page; 403 of 1127 pages have one, 147 have five or more; 107 forms have none |
+| in a kept grid or block group | 16,053 | |
+| with an iteration | 16,808 | 12,762 of them in a kept grid or block group |
+| series outside any kept grid or block group | 4,046 | 3.6 per page; 1,476 shapes (case_N_nbr, debtor_N_nm, line_N_amt) |
+| parts of compound values | 1,333 | |
+
+Why flagged (fields / forms): a cell's number is not its row's or column's 1,237 / 74 (ACORD 126's
+premises_operations_premium_amt_3: unstandardized names with the number after the suffix, and tables whose axis the
+finder reads the other way; the worst pages are GSA SF 330 p12 151 of 250, IRS 941 Sch B p1 121 of 209, ACORD 126 p1
+112 of 148); no standard suffix 1,034 / 112 (forms the naming pass has not touched; the fill should run after
+`standardize_names`, not before); an unnumbered cell in a numbered table 204 / 39 (location_number, the un-numbered
+first row); a row with no number at all 149 / 26 (ACORD 131's underlying coverages: rows named by kind the keyed
+test does not take); two numbers and no way to tell which iterates 116 / 16 (ACORD 90 NY's vehicle_1_driver_6_use_pct:
+a vehicle x driver grid); in two kept entries at once 111 / 10 (a finder table inside a block group both active);
+a name that is only a suffix 69 / 59 (dt, signature, initial).
+
+Round trip: printed back in today's order, 29,568 of 37,321 names come back the same and 7,753 (20.8%) differ, every
+one for the same reason: today's standard puts the iteration after the word it counts
+(garaging_location_1_address_txt, parent_1_first_nm), and one subject printed as [subject]_[iteration]_[suffix] gives
+garaging_location_address_1_txt. Printing the old shape would need the subject split into the thing counted and its
+attribute (the entity, `eval/associate.py`), which is parsing again. Andrew's iteration-last order
+([subject]_[suffix]_[iteration]_[part]) has no such question and would reprint 16,366 names (every iterated one).
+
+What this says for the decisions above: the print order decides whether the naming standard's "the number follows
+the word it counts" survives; the 4,046 series outside any kept grid or block group (debtor_1 / debtor_2, two address
+lines) are the iterations the kept list does not yet explain and need either a kept entry (a repeat the block-group
+finder could take: entities that repeat) or an iteration with no membership; and the fill is only as good as the
+names it reads, so the naming pass goes first.
+
 ## Where things stand (end of 2026-10-18 / 19 session)
 
 On `validation-tools-2026-10-14` (pushed only up to the commits before this session's; Andrew opens the PR):

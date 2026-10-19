@@ -54,3 +54,40 @@ When a table's own labels are letters that change from page to page (8825's prop
 mechanical pass); the page check flags them too.
 
 `eval/standardize_names.py` applies the rules that are mechanical and lists the names it cannot place.
+
+## Identifiers (draft, 2026-10-19; docs/PLAN_FIELD_IDENTIFIERS.md)
+
+A field name is printed from stored parts, never edited as a string (Andrew, 2026-10-19: "encode the field name
+parts instead of inferring the name from structure"). Each field carries them under `x_petey_identifiers`:
+
+    first_name_3_txt:
+      x_petey_identifiers:
+        subject: first_name     # what the box is about, in the form's own words (the word "subject" is provisional)
+        suffix: txt             # what kind of value it holds (the table above); an option group has none
+        iteration: '3'          # which one of a series: 3, 12, 4a, b; absent when the thing occurs once
+        grid: p1-T2             # the kept grid it is a cell of (ids from the review page's Grids tab); or
+        block_group: p2-BG1     # the kept block group, with
+        block: 2                #   which block (0-based, the kept record's row)
+        part: month             # which box of a compound value: month / day / yr, area / prefix / line,
+                                #   dollars / cents, 1 / 2 / 3 (SSN, EIN, ZIP, numbered lines); absent otherwise
+
+- `subject` and `suffix` are the name's words; `iteration` is the field's own number in its series; `grid`,
+  `block_group` and `block` say which kept table or repeat it belongs to (the kept record,
+  `runs/hand_review/grids/<id>.json`, holds the cells' rows and columns); `part` says which box of one value it is.
+  A compound value is the boxes whose subject, suffix and iteration agree and whose parts differ, as
+  `eval/associate.py` reads it today.
+- A number that is not an iteration stays in the subject (`line_6`, `item_5a`, `w2`): the subject is words, and a
+  number in it is one of the words.
+- Keyed tables (rows named by role or kind: `applicant_nm`, `spouse_nm`) have a grid but no iteration: the row's
+  key is part of the subject.
+- **Printing** (`eval/field_identifiers.print_name`): the parts in order, absent ones skipped, joined by `_`. The
+  order today is the standard above, `[subject]_[iteration]_[suffix]_[part]`; Andrew leans to
+  `[subject]_[suffix]_[iteration]_[part]` (the iteration last, as the one part that never repeats across a form),
+  which is a one-line change that reprints every numbered name. A table letter for a second table sharing a
+  subject (`first_name_txt_a1` / `_b1`) would go inside the iteration at print time; not decided.
+- Nothing reads the parts back out of the string. The grid checks, the resolver and the clash handling compare
+  identifiers (plan step 5); until then they parse the printed name as before.
+
+`eval/field_identifiers.py` fills the identifiers in from today's names, the kept grids and block groups and the
+compound values, on copies under `runs/identifiers/`, and reports what it could not read (plan step 2), then prints
+every name back and lists the differences (step 3).

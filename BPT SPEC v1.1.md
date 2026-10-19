@@ -114,6 +114,20 @@ The `fields` mapping is the heart of a blueprint. Each key is the name of a fiel
 
 Field names MUST be strings. They SHOULD be `snake_case`. They MAY contain ASCII letters, digits, `_`, `-`, and `.`. Consumers MAY sanitize field names for downstream API compatibility; when they do, they MUST preserve the original name as an alias for round-trip serialization.
 
+#### 5.2.1 Name parts (draft for v1.2, 2026-10-19)
+
+A producer MAY record the parts a field name was printed from, under the extension key `x_petey_identifiers` on the field (the shape and vocabulary are in `docs/NAMING.md`):
+
+| Key | Meaning |
+| --- | ------- |
+| `subject` | What the field is about, in the form's own words (`first_name`). |
+| `suffix` | The kind of value the box holds (`txt`, `nm`, `nbr`, `dt`, `amt`, ...). An option group has none. |
+| `iteration` | Which one of a series the field is (`3`, `4a`, `b`); absent when the thing occurs once. |
+| `grid`, `block_group`, `block` | The table or repeated block the field is a cell of, and for a block group which block. |
+| `part` | Which box of a value written in several boxes (`month`, `area`, `dollars`, `1`). |
+
+When the key is present the field name is derived from it: `[subject]_[iteration]_[suffix]_[part]`, absent parts skipped. A consumer that renames a field for its own purposes keeps the original name as an alias (above) and MUST NOT edit the parts. A blueprint with no `x_petey_identifiers` anywhere is unchanged by this section.
+
 ### 5.3 Type System
 
 A `.bpt` v1.0 document supports the following field types.
