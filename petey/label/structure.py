@@ -72,12 +72,18 @@ def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
         out.setdefault(page, {"tables": [], "blocks": []})["blocks"].append(
             {"blocks": max(c["row"] for c in g) + 1, "slots": max(c["col"] for c in g) + 1,
              "cells": [{"id": int(c["name"][1:]), "block": c["row"], "slot": c["col"]} for c in g]})
+    # small and odd tables are left out (Andrew, 2026-10-19: "ignore smaller and odd tables -- there's a lot of big
+    # ones that are low-hanging fruit"): a table is handed to the labeler when it is 3 x 3 or more, or two lines of
+    # 12+ cells with publisher evidence of which axis repeats (ACORD 90 NY's two-vehicle rows); the rest get their
+    # labels cell by cell as before
     for page, st in out.items():
+        st["tables"] = [t for t in st["tables"] if (t["rows"] >= 3 and t["cols"] >= 3)
+                        or (len(t["cells"]) >= 12 and t["hint"].get("axis"))]
         for k, t in enumerate(st["tables"], 1):
             t["id"] = f"T{k}"
         for k, b in enumerate(st["blocks"], 1):
             b["id"] = f"B{k}"
-    return out
+    return {p: st for p, st in out.items() if st["tables"] or st["blocks"]}
 
 
 def _path_tokens(path: str) -> list[str]:
