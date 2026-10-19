@@ -241,7 +241,7 @@ def classify_form(
     unknown: list[str] = []
     bad_class: dict[str, str] = {}
     seen: set[str] = set()
-    for page_no in sorted(pngs):
+    def one_page(page_no):
         ids = [b["id"] for b in boxes if b["page"] == page_no]
         user_text = USER_TEMPLATE.format(ids=", ".join(ids))
         text = call_page(client, model, pngs[page_no], system, user_text, tag)
@@ -257,6 +257,14 @@ def classify_form(
         if not parsed or not isinstance(parsed.get("boxes"), dict):
             raise RuntimeError(f"classifier did not return {{'boxes': {{...}}}} on page {page_no}.\n"
                                f"Got: {text[:500]}")
+        return ids, parsed
+    # the pages' calls go out together (2026-10-19: one after another they cost 64 + 34 + 11 + 11 s on ACORD 90 NY;
+    # a call's time is its output, so the form costs its slowest page); the answers are read in page order
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, len(pngs))) as ex:
+        answers = dict(zip(sorted(pngs), ex.map(one_page, sorted(pngs))))
+    for page_no in sorted(pngs):
+        ids, parsed = answers[page_no]
         raw[str(page_no)] = parsed["boxes"]
         page_ids = set(ids)
         for bid, ans in parsed["boxes"].items():
