@@ -30,21 +30,23 @@ from petey.validate import grid_check as gc, hand_review as h  # noqa: E402
 # repeated person or thing says whose (sibling_7_marital_status, not marital_status); IMM 5645 only, its bulk
 # answers dropped (the rule read as numbering every block's cells). simple4: a table or block answered by its parts
 # takes no number; IMM 5645 only, the lone box numbered in the middle, the printed block cells last. simple5: the
-# number last in the examples, as printing writes it.
+# number last in the examples, as printing writes it. simple6 (ACORD 90 NY only): a caption with # or "number" is an
+# identifier, count only for how many (simple5b still typed 45 location-number cells as counts).
 FORMS = {"acord_90_ny": ("je__acord_90_ny", {"standard": ["acord_90_ny_bulk5", "acord_90_ny_std"],
                                              "simple v1": ["acord_90_ny_simple"],
                                              "simple2": ["acord_90_ny_simple2", "acord_90_ny_simple2b"],
-                                             "simple3": ["acord_90_ny_simple3"], "simple4": ["acord_90_ny_simple4"], "simple5": ["acord_90_ny_simple5"]}),
+                                             "simple3": ["acord_90_ny_simple3"], "simple4": ["acord_90_ny_simple4"], "simple5": ["acord_90_ny_simple5", "acord_90_ny_simple5b"],
+                                             "simple6": ["acord_90_ny_simple6", "acord_90_ny_simple6b"]}),
          "f8825": ("je__f8825", {"standard": ["f8825_bulk3", "f8825_final", "f8825_std"], "simple v1": ["f8825_simple"],
                                  "simple2": ["f8825_simple2", "f8825_simple2b"],
-                                             "simple3": ["f8825_simple3"], "simple4": ["f8825_simple4"], "simple5": ["f8825_simple5"]}),
+                                             "simple3": ["f8825_simple3"], "simple4": ["f8825_simple4"], "simple5": ["f8825_simple5", "f8825_simple5b"]}),
          "ao040b": ("je__ao040b", {"standard": ["ao040b_bulk5", "ao040b_final", "ao040b_std"], "simple v1": [],
                                    "simple2": ["ao040b_simple2", "ao040b_simple2b"],
-                                             "simple3": ["ao040b_simple3"], "simple4": ["ao040b_simple4"], "simple5": ["ao040b_simple5"]}),
+                                             "simple3": ["ao040b_simple3"], "simple4": ["ao040b_simple4"], "simple5": ["ao040b_simple5", "ao040b_simple5b"]}),
          "imm5645": ("je__ircc_imm_5645", {"standard": ["imm5645_bulk3", "imm5645_final", "imm5645_std"],
                                            "simple v1": ["imm5645_simple"],
                                            "simple2": ["imm5645_simple2", "imm5645_simple2b"],
-                                             "simple3": ["imm5645_simple3"], "simple4": ["imm5645_simple4"], "simple5": ["imm5645_simple5"]})}
+                                             "simple3": ["imm5645_simple3"], "simple4": ["imm5645_simple4"], "simple5": ["imm5645_simple5", "imm5645_simple5b"]})}
 
 
 # the kind of value, in either scheme's spelling: left out of the subject comparison on both sides (the plan: the
@@ -203,7 +205,41 @@ def main() -> int:
         mp = f"{a['minutes'] / a['pages']:.1f}" if a["minutes"] else "-"
         print(f"   {form:12} {label:9} {tag:24} {100 * a['flags'] / max(1, a['fields']):6.1f} {pct(a['type_ok']):>6} {pct(a['sem_ok']):>6} "
               f"{pct(a['sem_dropped']):>6} {pct(a['sem_conflict']):>6} {pct(s.get('same', 0) + s.get('nested', 0)):>6} {pct(s.get('different', 0)):>6} {a['label_tokens'] / a['pages']:7.0f} {mp:>7}")
+    if "--md" in sys.argv:
+        print(markdown(summary))
     return 0
+
+
+def markdown(summary, arms=("standard", "simple5", "simple6")) -> str:
+    """Standard against the final simple version, one row per form and arm: each measure as the runs' range (one
+    value when they agree or there is one run), per 100 fields or % of matched fields, tokens and minutes per page."""
+    def rng(vals, fmt="{:.1f}"):
+        vals = [v for v in vals if v is not None]
+        if not vals:
+            return "-"
+        lo, hi = min(vals), max(vals)
+        return fmt.format(lo) if fmt.format(lo) == fmt.format(hi) else f"{fmt.format(lo)}-{fmt.format(hi)}"
+    out = ["| form | arm | runs | flags / 100 fields | type % | semantic dropped + conflict % | subject same or nested % "
+           "| tables on pattern | printed from parts % | labeler tokens / page | minutes / page |",
+           "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for form in FORMS:
+        for label in arms:
+            rows = [a for f, l, t, a in summary if f == form and l == label]
+            if not rows:
+                continue
+            pc = lambda a, k: 100 * a[k] / max(1, a["matched"])
+            out.append("| " + " | ".join([
+                form, label, str(len(rows)),
+                rng([100 * a["flags"] / max(1, a["fields"]) for a in rows]),
+                rng([pc(a, "type_ok") for a in rows]),
+                rng([100 * (a["sem_dropped"] + a["sem_conflict"]) / max(1, a["matched"]) for a in rows]),
+                rng([100 * (a["subject"].get("same", 0) + a["subject"].get("nested", 0)) / max(1, a["matched"]) for a in rows]),
+                ", ".join(f"{a['on_pattern']}/{a['tables']}" for a in rows),
+                rng([100 * a["printed"] / max(1, a["fields"]) for a in rows], "{:.0f}"),
+                rng([a["label_tokens"] / a["pages"] for a in rows], "{:.0f}"),
+                rng([a["minutes"] / a["pages"] if a["minutes"] else None for a in rows]),
+            ]) + " |")
+    return "\n".join(out)
 
 
 if __name__ == "__main__":

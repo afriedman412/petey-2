@@ -418,8 +418,9 @@ def _simple_system() -> str:
              + prompt_vocabulary() + " or \"identifier\" or \"checkbox\" (a tick box) or \"signature\". Use "
              "\"text\" for free text and \"description\" for a longer explanation; \"identifier\" for a number or "
              "code that names or refers to something rather than measuring it (a policy, location, vehicle, driver, "
-             "license or reference number, a class or rating code); \"money\" for a sum of money, \"count\" for "
-             "how many of something (a number of units, years, days), \"indicator\" for a box answered yes or no "
+             "license or reference number, a class or rating code; a caption with \"#\" or \"number\" in it, "
+             "LOC #, VEH #, DRIVER NUMBER, is an identifier); \"money\" for a sum of money, \"count\" only for a "
+             "box that asks how many of something (a number of units, years, days), \"indicator\" for a box answered yes or no "
              "(Y / N), \"percent\" for a percentage, \"iso_date\" for a full date, \"year\" for a "
              "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\", \"city\", "
              "\"business_name\", \"first_name\", \"last_name\" as their names say.\n")
