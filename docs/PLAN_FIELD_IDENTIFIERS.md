@@ -131,6 +131,24 @@ iteration last (decision 7), has no such question; it renames 16,366 names (43.9
 (garaging_location_address_txt_1). Those renames are the migration (step 3's review); the fill is only as good as
 the names it reads, so the naming pass goes first on the forms it has not touched.
 
+## Step 4 done (2026-10-19, evening)
+
+The review page's field card prints the name from its parts. The field name box is read-only; a "parts" button
+beside it opens subject / suffix / iteration / part (editable), the kept grid or block group the field is a cell of
+(read-only, from the kept list) and whether the parts are stored on the field or read from its name (plus what the
+reading could not settle, in red). Typing in a part reprints the name in the box as you type; "save correction"
+sends the parts, the server prints the name from them (`hand_review.clean_edit`, `identifiers` in the edit), the
+rename goes through as every rename does (verdicts follow, the working copy takes it) and the parts are stored on
+the field as `x_petey_identifiers` (membership kept from the kept list; `edit_fields`). The page's payload carries
+each field's parts (`hand_review.identifiers` -> `eval/field_identifiers.read_form`: stored ones with the membership
+refreshed, else read from the name, about 0.3 s per form on open). Headless check on lib__fw9: edit, save, reload,
+the rename in the list and the parts stored; no page errors.
+
+Not changed: "improve name" and the page check's fixes still fill the name box directly (the next save sends the
+name alone, and the parts are read from it again); the Groups tab and the chat's renames do not store parts; the
+old-order names on the 289 forms are not migrated (step 3's renames wait for a pass, after the naming standard
+on the forms it has not touched). The panel's open / closed state is remembered in the browser.
+
 ## Where things stand (end of 2026-10-18 / 19 session)
 
 On `validation-tools-2026-10-14` (pushed only up to the commits before this session's; Andrew opens the PR):

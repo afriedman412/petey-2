@@ -89,6 +89,7 @@ parts instead of inferring the name from structure"). Each field carries them un
 - Nothing reads the parts back out of the string. The grid checks, the resolver and the clash handling compare
   identifiers (plan step 5); until then they parse the printed name as before.
 
-`eval/field_identifiers.py` fills the identifiers in from today's names, the kept grids and block groups and the
+On the review page the field name is read-only and its parts sit under a "parts" button beside it (2026-10-19):
+edit a part and the name is reprinted; saving stores the parts on the field. `eval/field_identifiers.py` fills the identifiers in from today's names, the kept grids and block groups and the
 compound values, on copies under `runs/identifiers/`, and reports what it could not read (plan step 2), then prints
 every name back and lists the differences (step 3).

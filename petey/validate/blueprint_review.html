@@ -249,6 +249,11 @@
   .fgrid > label, .fgrid > .lbl { color:var(--text-dim); } .fgrid > span { word-break:break-word; }
   .fcard input, .fcard select { width:100%; padding:3px 6px; }
   .fcard input.dirty, .fcard select.dirty { border-color:var(--amber); background:var(--amber-dim); }
+  .namerow { display:flex; gap:6px; align-items:center; } .namerow input { flex:1; min-width:0; }
+  #eName[readonly] { background:var(--surface-2); color:var(--text); cursor:default; }
+  .btn.parts { padding:0 7px; font-size:11px; white-space:nowrap; }
+  .fgrid > label.sub, .fgrid > .lbl.sub { padding-left:14px; font-size:.86em; }
+  .fgrid > .sub + input, .fgrid > .sub + span { font-size:.92em; }
   .frow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .sect { margin:12px 0 0; }
   .listorder { display:flex; gap:14px; align-items:center; margin-top:6px; }
@@ -1032,6 +1037,26 @@ MODE.review = (() => {
   // `hand_review --apply <id>`). An emptied semantic type or pattern box clears it ("none" to the server).
   const FIX_BOXES = [['#eName', 'name'], ['#eType', 'type'], ['#eSem', 'semantic_type'], ['#ePat', 'pattern']];
   const orig = f => ({name: f.name, type: f.type || '', semantic_type: f.semantic_type || '', pattern: f.pattern || ''});
+  // the field name is printed from its parts (docs/NAMING.md "Identifiers", 2026-10-19): subject, suffix, iteration,
+  // part, in that order, absent ones skipped; the name box is read-only and the parts are what the person edits
+  const PART_KEYS = ['subject', 'suffix', 'iteration', 'part'];
+  const IDS = {open: (() => { try { return localStorage.getItem('ids_open') !== '0'; } catch (e) { return true; } })()};
+  const printParts = p => PART_KEYS.map(k => (p[k] || '').trim()).filter(Boolean).join('_');
+  const partsShown = (f, v) => { const src = v && v.edit && !v.applied && v.edit.identifiers ? v.edit.identifiers : (f.identifiers || {});
+    return Object.fromEntries(PART_KEYS.map(k => [k, src[k] == null ? '' : String(src[k])])); };
+  const partInputs = () => [...document.querySelectorAll('.ipart')];
+  const partsNow = () => partInputs().length ? Object.fromEntries(partInputs().map(el => [el.dataset.k, el.value.trim()])) : null;
+  function partsHtml(f, v) {
+    const p = partsShown(f, v), id = f.identifiers || {};
+    const where = id.grid ? `grid <code>${esc(id.grid)}</code>` : id.block_group ? `block group <code>${esc(id.block_group)}</code>, block ${esc(String((id.block ?? 0) + 1))}` : '<i>no kept grid or block group</i>';
+    const hint = {subject: 'what the box is about, in the form\'s own words', suffix: 'the kind of value (txt, nm, nbr, dt, amt, ind …); an option group has none',
+                  iteration: 'the Nth field holding this information (3, 4a, b); empty when it occurs once', part: 'which box of a value written in several boxes (month, area, dollars, 1)'};
+    const flags = (f.identifier_flags || []).length ? `<span class="lbl sub">read</span><span class="stale">${(f.identifier_flags || []).map(esc).join('; ')}</span>` : '';
+    return PART_KEYS.map(k => `<label class="sub" for="i_${k}">${k}</label><input class="ipart" id="i_${k}" data-k="${k}" value="${esc(p[k])}" placeholder="none" spellcheck="false" title="${hint[k]}">`).join('') +
+      `<span class="lbl sub">in</span><span>${where}<span class="help"> · ${f.identifiers_stored ? 'parts stored on the field' : 'parts read from the name'}</span></span>${flags}`;
+  }
+  function reprint() { const el = $('#eName'); if (el && partsNow()) el.value = printParts(partsNow()); }
+  function resetParts(f) { const was = partsShown(f, BP.verdicts[f.name]); partInputs().forEach(el => { el.value = was[el.dataset.k]; }); }
   function shown(f, v) {                                    // what the boxes show: the saved correction over the blueprint
     const e = (v && v.edit) || {}, o = orig(f), un = x => x === 'none' ? '' : x;
     const eo = e.options || {};
@@ -1056,12 +1081,15 @@ MODE.review = (() => {
       const d = now.options[r.dataset.k][k] !== was.options[r.dataset.k][k];
       r.querySelector(k === 'key' ? '.okey' : '.ocap').classList.toggle('dirty', d); any = any || d;
     }
+    const pw = partsShown(f, BP.verdicts[f.name]);
+    for (const el of partInputs()) { const d = el.value.trim() !== pw[el.dataset.k]; el.classList.toggle('dirty', d); any = any || d; }
     $('#vFix').disabled = !any; $('#vUndo').disabled = !any;
   }
   function resetBoxes() {
     const f = BP.fields.find(x => x.name === selected); if (!f || !$('#eName')) return;
     const was = shown(f, BP.verdicts[f.name]); for (const [s, k] of FIX_BOXES) $(s).value = was[k];
     for (const r of optRows()) { r.querySelector('.okey').value = was.options[r.dataset.k].key; r.querySelector('.ocap').value = was.options[r.dataset.k].caption; }
+    resetParts(f);
     markDirty();
   }
   let fixing = false;          // one save at a time: a second one while the first reloads re-sends the old name
@@ -1082,8 +1110,10 @@ MODE.review = (() => {
       if (Object.keys(d).length) opts[x.k] = d;
     }
     if (Object.keys(opts).length) edit.options = opts;
+    const pp = partsNow();                        // the parts changed: the server prints the name from them
+    if (pp && JSON.stringify(pp) !== JSON.stringify(partsShown(f, v))) edit.identifiers = pp;
     const note = $('#note') ? $('#note').value : (v.note || '');
-    const same = now.name === o.name && now.type === o.type && !edit.semantic_type && !edit.pattern && !edit.options;
+    const same = now.name === o.name && now.type === o.type && !edit.semantic_type && !edit.pattern && !edit.options && !edit.identifiers;
     if (same && !v.edit) { toast('Nothing changed.'); return; }
     // the verdicts (Andrew, 2026-10-07): accept = the field is good to go, a saved correction included (apply writes
     // it); flag = "I can't or don't want to fix this myself", the note says what is wrong and "review edits" sends it on
@@ -1287,7 +1317,8 @@ MODE.review = (() => {
       <div class="fcard sect">
         <h4 id="fref" title="click to copy the field reference (file_page_n)">Selected field ${f.id ? `<code class="fid">${esc(fieldRef(f))}</code>` : ''}${tierChip(f)}<span class="help">page ${f.page}${f.tier ? ' · ' + esc(f.tier) : ''}</span></h4>
         <div class="fgrid">
-          <label for="eName">Field name</label><input id="eName" value="${esc(s.name)}" spellcheck="false">
+          <label>Field name</label><span class="namerow"><input id="eName" value="${esc(s.name)}" readonly spellcheck="false" title="printed from its parts (subject, suffix, iteration, part); edit the parts to change it"><button class="btn parts" id="iToggle" title="the parts the name is printed from">${IDS.open ? 'parts ▾' : 'parts ▸'}</button></span>
+          ${IDS.open ? partsHtml(f, v) : ''}
           <label for="eType">Type</label><select id="eType">${typeOpts}</select>
           <label for="eSem">Semantic type</label><input id="eSem" list="semList" placeholder="none" value="${esc(s.semantic_type)}" spellcheck="false">
           <label for="ePat">Pattern</label><input id="ePat" placeholder="none" value="${esc(s.pattern)}" spellcheck="false">
@@ -1330,7 +1361,9 @@ MODE.review = (() => {
       r.addEventListener('focusin', pick); r.addEventListener('mouseenter', pick);
     }
     document.querySelectorAll('.fref').forEach(r => r.onclick = e => { e.preventDefault(); select(r.dataset.n); });
-    [...FIX_BOXES.map(([sel]) => $(sel)), ...document.querySelectorAll('.okey, .ocap')].forEach(el => {
+    const tg = $('#iToggle'); if (tg) tg.onclick = () => { IDS.open = !IDS.open; try { localStorage.setItem('ids_open', IDS.open ? '1' : '0'); } catch (e) {} panel(); };
+    partInputs().forEach(el => el.addEventListener('input', reprint));
+    [...FIX_BOXES.map(([sel]) => $(sel)), ...document.querySelectorAll('.okey, .ocap, .ipart')].forEach(el => {
       el.addEventListener('input', markDirty); el.addEventListener('change', markDirty);
       el.addEventListener('keydown', e => {
         if (e.key === 'Enter') { e.preventDefault(); saveFix(); }

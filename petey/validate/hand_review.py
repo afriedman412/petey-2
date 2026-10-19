@@ -148,6 +148,19 @@ def field_rows(bp: dict) -> list[dict]:
     return rows
 
 
+def identifiers(bid: str, bp: dict) -> dict:
+    """{field: (identifiers, flags)}: the parts the field name is printed from (docs/NAMING.md "Identifiers",
+    `eval/field_identifiers.read_form`): stored on the field once edited or filled, else read from the name."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+    try:
+        import field_identifiers
+        return field_identifiers.read_form(bid, bp)
+    except Exception as e:                      # a page without identifiers is still a review page
+        print(f"  identifiers: {e}")
+        return {}
+
+
 def claude_change(spec: dict) -> Optional[dict]:
     """What Claude's pass did to a field (`eval/claude_pass_apply.py`): {kind, why, from, when}, or None."""
     if not isinstance(spec, dict):
@@ -379,10 +392,14 @@ class State:
         rows = field_rows(bp)
         wit = self.witnesses(bid, p)
         cs = claude_suggestions(bid)
+        ids = identifiers(bid, bp)
         for r in rows:
             w = (wit.get("fields") or {}).get(r["name"]) or {}
             r["tier"], r["witnesses"], r["why"] = w.get("tier"), w.get("witnesses"), w.get("why") or []
             r["why"] = r["why"] + [{"kind": "suggestion", **x} for x in cs.get(r["name"]) or []]
+            ident, flags = ids.get(r["name"]) or ({}, [])
+            r["identifiers"], r["identifier_flags"] = ident, flags
+            r["identifiers_stored"] = isinstance((bp["fields"].get(r["name"]) or {}).get("x_petey_identifiers"), dict)
         return {"id": bid, "path": str(real), "working": str(p) if p != real else None,
                 "blank": str(blank) if blank else None, "sha": _sha(p),
                 "build": bp.get("x_petey_build"), "pages": pages, "fields": rows,
@@ -494,6 +511,21 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
         return None
     out = {}
     new_name = (edit.get("name") or "").strip()
+    # the name's parts (docs/NAMING.md "Identifiers", 2026-10-19): the name is printed from them, never typed
+    if isinstance(edit.get("identifiers"), dict):
+        ident = {}
+        for k in ("subject", "suffix", "iteration", "part"):
+            v = str(edit["identifiers"].get(k) or "").strip()
+            if v:
+                if not _SLUG.match(v):
+                    raise ValueError(f"{k} {v!r}: lower-case letters, digits and _ only")
+                ident[k] = v
+        if not ident.get("subject") and not ident.get("suffix"):
+            raise ValueError("a field needs a subject (what the box is about)")
+        if ident != {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items()
+                     if k in ("subject", "suffix", "iteration", "part") and v not in (None, "")}:
+            out["identifiers"] = ident
+        new_name = "_".join(ident[k] for k in ("subject", "suffix", "iteration", "part") if ident.get(k))
     if new_name and new_name != name:
         if not _SLUG.match(new_name):
             raise ValueError(f"field name {new_name!r}: lower-case letters, digits and _ only")
@@ -711,6 +743,10 @@ def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str,
             spec = dict(spec)
             before = {"name": n, "type": spec.get("type")}
             before.update(semantic_type=spec.get("semantic_type"), pattern=spec.get("pattern"))
+            if e.get("identifiers"):            # the parts the name was printed from (membership stays as kept)
+                keep = {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items() if k in ("grid", "block_group", "block")}
+                before["identifiers"] = spec.get("x_petey_identifiers")
+                spec["x_petey_identifiers"] = {**e["identifiers"], **keep}
             if "type" in e:
                 spec["type"] = e["type"]
                 if e["type"] != "string":

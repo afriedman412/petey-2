@@ -161,20 +161,42 @@ def _kind(name: str, printed: str) -> str:
     return "other"
 
 
-def run(bid: str, paths: dict) -> dict:
-    p = h.working_path(bid, paths)
-    bp = h._load(p)
+def read_form(bid: str, bp: dict) -> dict[str, tuple[dict, list[str]]]:
+    """{field name: (identifiers, flags)} for every field of a blueprint: the stored record (`x_petey_identifiers`,
+    once the person or the fill wrote it) with its membership refreshed from the kept list, else read from the name.
+    What the review page shows under the field name (plan step 4)."""
     fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     parts = {n: part for cv in compound_values(fields) for part, n in cv["fields"].items()}
     member, twice = _membership(bid, bp)
     series = _series_index([n for n, s in fields.items() if not _is_group(s)])
+    out = {}
+    for n, s in fields.items():
+        stored = s.get(KEY) if isinstance(s.get(KEY), dict) else None
+        if stored:
+            ident = {k: v for k, v in stored.items() if k in ("subject", "suffix", "iteration", "part") and v not in (None, "")}
+            m = member.get(n) or {}
+            ident.update({k: m[k] for k in ("grid", "block_group", "block") if k in m})
+            flags = [twice[n]] if n in twice else []
+            if print_name(ident) != n:
+                flags.append(f"the name is not what its parts print ({print_name(ident)})")
+        else:
+            ident, flags = read(n, s, parts, member.get(n), series)
+            if n in twice:
+                flags.append(twice[n])
+        out[n] = (ident, flags)
+    return out
+
+
+def run(bid: str, paths: dict) -> dict:
+    p = h.working_path(bid, paths)
+    bp = h._load(p)
+    fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
+    got = read_form(bid, bp)
     per_page: dict = collections.defaultdict(collections.Counter)
     flagged, diffs = {}, {}
     tot = collections.Counter()
     for n, s in fields.items():
-        ident, flags = read(n, s, parts, member.get(n), series)
-        if n in twice:
-            flags.append(twice[n])
+        ident, flags = got[n]
         s[KEY] = ident
         pg = (s.get("widget") or next(iter((s.get("widgets") or {}).values()), {}) or {}).get("page") or 0
         hard = flags
