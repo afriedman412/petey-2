@@ -244,14 +244,18 @@ BULK_RULES = (
     "by one in \"labels\". Where the table comes with evidence that one axis repeats, it does: name the other axis.\n"
     "- A row or column no filer writes in (shaded, \"reserved for future use\", a heading line): label it \"\" "
     "(empty) and its cells are dropped.\n"
-    "- A repeated block: give each FIELD of the block one label (the same field in every block), with no block "
-    "number; the blocks are numbered in order.\n"
+    "- A repeated block: say what repeats as \"entity\" (child, sibling, employer, property) and give each FIELD of "
+    "the block one label (the same field in every block: name, birth_dt, present_address), with no block number; "
+    "the blocks are numbered in order and the entity leads every name (child_name_1, child_birth_dt_1).\n"
+    "- A pair or cluster of tick boxes answering one question inside a table or block (Yes / No: will accompany you "
+    "to Canada?) is one choice per block: label each box <question>.<value> (will_accompany.yes, "
+    "will_accompany.no) and they become one field per block.\n"
     "- Every other widget: one label in \"labels\" as usual. Do not repeat a table's or block's widgets there.\n"
     "Return JSON only:\n"
     '{"labels": [{"id": <int>, "label": "<slug>"}, ...],\n'
     ' "tables": [{"id": "T1", "columns": [{"col": 1, "label": "<slug>"}, ...] | "numbered" | ["<printed>", ...],\n'
     '             "rows": "numbered" | ["<printed>", ...] | [{"row": 1, "label": "<slug>"}, ...] | "unlike"}, ...],\n'
-    ' "blocks": [{"id": "B1", "fields": [{"slot": 1, "label": "<slug>"}, ...]}, ...]}'
+    ' "blocks": [{"id": "B1", "entity": "<slug>", "fields": [{"slot": 1, "label": "<slug>"}, ...]}, ...]}'
 )
 
 
@@ -266,7 +270,7 @@ def guidance_bulk(page_struct: dict | None, ids: set[int]) -> str:
 
 def _split(label: str) -> tuple[str, str | None]:
     """(subject, suffix) of a column's label: the last word when it is a standard suffix."""
-    toks = [t for t in label.strip().strip("_").split("_") if t]
+    toks = [t for t in label.strip().strip("_").split("_") if t and t != "."]
     if len(toks) >= 2 and toks[-1] in SUFFIXES:
         return "_".join(toks[:-1]), toks[-1]
     return "_".join(toks), None
@@ -278,8 +282,21 @@ def print_name(ident: dict) -> str:
 
 
 def _slug(s) -> str:
+    """A label as a slug; a dot (one choice of a question, <group>.<value>) is kept."""
     import re
-    return re.sub(r"[^a-z0-9_]+", "_", str(s or "").strip().lower()).strip("_")
+    s = str(s or "").strip().lower()
+    if "." in s:
+        g, v = s.split(".", 1)
+        return _slug(g) + "." + re.sub(r"[^a-z0-9_]+", "_", v).strip("_")
+    return re.sub(r"[^a-z0-9_]+", "_", s).strip("_")
+
+
+def _emit(ident: dict, label: str) -> tuple[str, dict | None]:
+    """The printed name for a cell, and its parts; a <group>.<value> label prints the group from the parts and keeps
+    the value (will_accompany_1.yes): the labeler's grouping makes one field per block, with no parts stored."""
+    if "." in label:
+        return print_name(ident) + "." + label.split(".", 1)[1], None
+    return print_name(ident), ident
 
 
 def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[dict[int, str], dict[int, dict], list[int]]:
@@ -350,21 +367,24 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
             if (ck == "label" and not cv) or (rk == "label" and not rv):
                 left.append(c["id"])
                 continue
+            base = lambda x: str(x).split(".", 1)[0]     # noqa: E731  a <group>.<value> label: the group names the cell
             if ck == "label" and rk == "label":          # both named: [row]_[column]
-                subject, suffix = _split(cv)
-                ident = {"subject": f"{rv}_{subject}", "suffix": suffix}
+                subject, suffix = _split(base(cv))
+                ident = {"subject": f"{base(rv)}_{subject}", "suffix": suffix}
             elif ck == "label":                          # columns named, rows iterate
-                subject, suffix = _split(cv)
+                subject, suffix = _split(base(cv))
                 ident = {"subject": subject, "suffix": suffix, "iteration": rv}
             else:                                        # rows named, columns iterate
-                subject, suffix = _split(rv)
+                subject, suffix = _split(base(rv))
                 ident = {"subject": subject, "suffix": suffix, "iteration": cv}
             if ident.get("iteration") is None and "iteration" in ident:
                 left.append(c["id"])
                 continue
             ident = {k: v for k, v in ident.items() if v}
-            names[c["id"]] = print_name(ident)
-            parts[c["id"]] = ident
+            src = cv if ck == "label" else rv
+            names[c["id"]], pt = _emit(ident, src if "." in str(src) else "")
+            if pt is not None:
+                parts[c["id"]] = pt
     blocks = {b.get("id"): b for b in (parsed.get("blocks") or []) if isinstance(b, dict)}
     for b in (page_struct or {}).get("blocks") or []:
         cells = [c for c in b["cells"] if c["id"] in ids]
@@ -372,18 +392,25 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
             continue
         ans = blocks.get(b["id"])
         slots = entries((ans or {}).get("fields"), "slot") if ans else {}
+        entity = _slug((ans or {}).get("entity")) if ans else ""
         if not slots:
             left += [c["id"] for c in cells]
             continue
         for c in cells:
             lab = slots.get(c["slot"] + 1)
+            if lab == "":
+                names[c["id"]] = ""
+                continue
             if not lab:
                 left.append(c["id"])
                 continue
-            subject, suffix = _split(lab)
+            subject, suffix = _split(lab.split(".", 1)[0])
+            if entity and not subject.startswith(entity):
+                subject = f"{entity}_{subject}" if subject else entity
             ident = {k: v for k, v in {"subject": subject, "suffix": suffix, "iteration": str(c["block"] + 1)}.items() if v}
-            names[c["id"]] = print_name(ident)
-            parts[c["id"]] = ident
+            names[c["id"]], pt = _emit(ident, lab)
+            if pt is not None:
+                parts[c["id"]] = pt
     return names, parts, left
 
 
