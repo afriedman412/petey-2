@@ -4,7 +4,7 @@ arm (<form>_simple), per form, from the run records and the validated blueprints
     PYTHONPATH=. venv/bin/python eval/simple_names_bench.py
 
 Measures, per arm: round-0 flags by problem; type and semantic-type agreement with the validated blueprint (matched
-by widget rect); subject agreement with the validated names (the suffix left out of both sides); tables on pattern
+by widget rect); subject agreement with the validated names (word sets, the kind of value left out of both sides); tables on pattern
 from the labeler and cells printed from parts; labeler output tokens and time; loop rounds, fields reviewed, end
 state; dedup collisions.
 """
@@ -17,7 +17,6 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import field_identifiers as FI  # noqa: E402
 from standardize_names import SUFFIXES  # noqa: E402
 
 from petey.validate import grid_check as gc, hand_review as h  # noqa: E402
@@ -28,12 +27,35 @@ FORMS = {"acord_90_ny": ("je__acord_90_ny", "acord_90_ny_bulk5", "acord_90_ny_si
          "imm5645": ("je__ircc_imm_5645", "imm5645_bulk3", "imm5645_simple")}
 
 
-def subject_of(name: str, spec: dict, series) -> str:
-    """The name's subject as the identifiers fill reads it, the suffix and iteration left out."""
-    ident, _ = FI.read(name, spec, {}, None, series)
-    sub = ident.get("subject") or ""
-    toks = [t for t in sub.split("_") if t not in SUFFIXES]
-    return "_".join(toks)
+# the kind of value, in either scheme's spelling: left out of the subject comparison on both sides (the plan: the
+# suffix is not part of what is compared). Abbreviations are spelled out first so `birth_dt` and `birth_date` meet.
+SPELL = {"nm": "name", "dt": "date", "nbr": "number", "no": "number", "num": "number", "amt": "amount", "cnt": "count",
+         "cd": "code", "qty": "quantity", "yr": "year", "pct": "percent", "txt": "text", "ind": "indicator"}
+PHRASES = {"social_security_number": "ssn", "employer_identification_number": "ein",
+           "taxpayer_identification_number": "tin", "employer_id_number": "ein"}
+KIND = set(SUFFIXES) | {"name", "date", "number", "amount", "count", "code", "quantity", "year", "percent", "text",
+                        "indicator", "checkbox", "flag"}
+FILLER = {"a", "an", "the", "of", "and", "or", "from", "for", "to", "in", "on", "at", "by", "with", "if", "is"}
+
+
+def words(name: str) -> frozenset:
+    """The name's subject words: copy prefixes, iteration and part numbers, single letters (column / property
+    letters), filler words and kind-of-value words left out, the same way for both arms."""
+    s = name.split(".")[0].lower()
+    for ph, ab in PHRASES.items():
+        s = s.replace(ph, ab)
+    toks = [SPELL.get(t, t) for t in s.split("_")]
+    return frozenset(t for t in toks if t and not t.isdigit() and len(t) > 1 and t not in KIND and t not in FILLER
+                     and not (t[:-1].isdigit() and t[-1].isalpha()) and not (t.startswith("copy") and t[4:].isdigit()))
+
+
+def subject_class(a: str, b: str) -> str:
+    wa, wb = words(a), words(b)
+    if wa == wb:
+        return "same"
+    if wa < wb or wb < wa:
+        return "nested"
+    return "overlap" if wa & wb else "different"
 
 
 def rect_key(spec: dict):
@@ -70,17 +92,10 @@ def arm(tag: str, validated: dict) -> dict | None:
             calls.append((j.get("elapsed_s") or 0, (j.get("usage") or {}).get("output_tokens") or 0))
     # against the validated blueprint, by rect
     vr, rr = by_rect(validated), by_rect(fields)
-    series_v = FI._series_index([n for n, s in validated.items() if isinstance(s, dict) and not FI._is_group(s)])
-    series_r = FI._series_index([n for n, s in fields.items() if not FI._is_group(s)])
     both = [k for k in rr if k in vr]
     type_ok = sum(1 for k in both if rr[k][1].get("type") == vr[k][1].get("type"))
     sem_ok = sum(1 for k in both if (rr[k][1].get("semantic_type") or None) == (vr[k][1].get("semantic_type") or None))
-    subj = collections.Counter()
-    for k in both:
-        a = subject_of(rr[k][0], rr[k][1], series_r)
-        b = subject_of(vr[k][0], vr[k][1], series_v)
-        subj["same" if a == b else "same words" if sorted(a.split("_")) == sorted(b.split("_")) else
-             "overlap" if set(a.split("_")) & set(b.split("_")) else "different"] += 1
+    subj = collections.Counter(subject_class(rr[k][0], vr[k][0]) for k in both)
     loops = [x for x in r["rounds"] if x.get("stage") == "loop"]
     reviewed = sum((x.get("loop") or {}).get("review_run", {}).get("fields_reviewed") or 0 for x in loops)
     res = r.get("result") or {}
@@ -105,7 +120,7 @@ def main() -> int:
                 continue
             s = a["subject"]
             print(f"   {label:9} {a['fields']} fields | round 0: {a['flags']} flags {a['flags_by']} | vs validated ({a['matched']} matched by rect): "
-                  f"type {a['type_ok']}, semantic {a['sem_ok']}, subject same {s.get('same', 0)} / same words {s.get('same words', 0)} / overlap {s.get('overlap', 0)} / different {s.get('different', 0)}")
+                  f"type {a['type_ok']}, semantic {a['sem_ok']}, subject same {s.get('same', 0)} / nested {s.get('nested', 0)} / overlap {s.get('overlap', 0)} / different {s.get('different', 0)}")
             print(f"             tables {a['tables']} on pattern {a['on_pattern']}, printed {a['printed']} | labeler {a['label_calls']} calls {a['label_s']} s {a['label_tokens']} tokens | "
                   f"loop {a['rounds']} rounds, {a['reviewed']} reviewed, {a['status']} | collisions {a['collisions']}")
     return 0

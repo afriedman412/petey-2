@@ -298,8 +298,8 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
         kwargs["extra_body"] = {"temperature": 0}   # not a typed parameter in SDK 1.x
     else:
         kwargs["output_config"] = {"effort": "low"}
-    with client.messages.stream(**kwargs) as stream:
-        final = stream.get_final_message()
+    from petey.synth.generate import final_message
+    final = final_message(lambda: client.messages.stream(**kwargs), "judge")
     USAGE["input_tokens"] += final.usage.input_tokens
     USAGE["output_tokens"] += final.usage.output_tokens
     USAGE["calls"] += 1

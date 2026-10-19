@@ -354,9 +354,8 @@ def ask(client, model: str, png: bytes, items: list[dict], *, page_no: int, n_pa
     if provider_for(model) is not None:
         answers, usage = _ask_openai_compatible(client, params)
     else:
-        with client.messages.stream(**params) as s:
-            resp = s.get_final_message()
-        answers, usage = parse(resp)
+        from petey.synth.generate import final_message
+        answers, usage = parse(final_message(lambda: client.messages.stream(**params), f"page_check p{page_no}"))
     usage["seconds"] = round(time.time() - t0, 1)
     try:
         from petey.label import call_log

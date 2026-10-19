@@ -682,12 +682,12 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool
         u = getattr(resp, "usage", None)
         in_tok, out_tok = (getattr(u, "prompt_tokens", None), getattr(u, "completion_tokens", None)) if u else (None, None)
     else:
-        with client.messages.stream(
+        from petey.synth.generate import final_message
+        final = final_message(lambda: client.messages.stream(
             model=model, max_tokens=MAX_TOKENS,
             system=_system(),
             messages=[{"role": "user", "content": user_text}],
-        ) as stream:
-            final = stream.get_final_message()
+        ), "labeler")
         text = "".join(
             b.text for b in final.content
             if getattr(b, "type", None) == "text"
