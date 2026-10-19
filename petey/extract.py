@@ -112,7 +112,20 @@ def _tessdata_path() -> Optional[str]:
     return None
 
 
-def _selected_states(doc, widget: dict) -> Optional[set[str]]:
+def _widgets_at(doc, page_no: int, path, index: Optional[dict]) -> list:
+    """The page's widgets at an AcroForm path. Indexed once per page (2026-10-19: walking `page.widgets()` for
+    every field loaded 213,000 widgets on ACORD 90 NY, three minutes a case; the index makes it one pass)."""
+    if index is None:
+        return [pw for pw in doc[page_no].widgets() if pw.field_name == path]
+    if page_no not in index:
+        by: dict = {}
+        for pw in doc[page_no].widgets():
+            by.setdefault(pw.field_name, []).append(pw)
+        index[page_no] = by
+    return index[page_no].get(path, [])
+
+
+def _selected_states(doc, widget: dict, widget_index: Optional[dict] = None) -> Optional[set[str]]:
     """On-states currently selected on the field at `widget["path"]`, read
     from every widget of that field on the page (each kid reports its own
     state; the selected kid reports its on-state, the others `Off`).
@@ -120,8 +133,7 @@ def _selected_states(doc, widget: dict) -> Optional[set[str]]:
     page_no = int(widget.get("page", 1)) - 1
     if page_no < 0 or page_no >= len(doc):
         return None
-    matches = [pw for pw in doc[page_no].widgets()
-               if pw.field_name == widget.get("path")]
+    matches = _widgets_at(doc, page_no, widget.get("path"), widget_index)
     if not matches:
         return None
     out: set[str] = set()
@@ -441,6 +453,7 @@ def _extract_widget(
     ocr_api=None, whitelist: Optional[str] = None,
     page_img_cache: Optional[dict] = None,
     label_hint: Optional[set] = None,
+    widget_index: Optional[dict] = None,
 ) -> tuple[Any, str]:
     """Extract a single widget's value.
 
@@ -465,8 +478,7 @@ def _extract_widget(
     # So for radios, iterate every widget with the matching field_name
     # and return the first non-Off state (that's the selected option).
     is_radio = widget.get("widget_type") == "radiobutton"
-    matches = [pw for pw in page.widgets()
-               if pw.field_name == widget.get("path")]
+    matches = _widgets_at(doc, page_no, widget.get("path"), widget_index)
     if matches:
         if is_radio:
             for pw in matches:
@@ -611,6 +623,7 @@ def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -
     # "extract never touched the widget."
     dispatch_per_field: dict[str, Any] = {}
     page_img_cache: dict = {}
+    widget_index: dict = {}            # {page: {path: [widgets]}}, built once per page
 
     from .semantic_types import ocr_whitelist_for
 
@@ -627,7 +640,7 @@ def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -
                         # options share one path and differ only by
                         # on-state, so "is the path checked" would select
                         # every option at once.
-                        states = _selected_states(doc, w_block)
+                        states = _selected_states(doc, w_block, widget_index)
                         path_counts["acroform" if states is not None else "acroform_empty"] += 1
                         per_value_dispatch[value] = "acroform"
                         if states and w_block["on_state"] in states:
@@ -644,7 +657,7 @@ def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -
                     raw, path = _extract_widget(
                         doc, w_block,
                         ocr_api=ocr_api,
-                        page_img_cache=page_img_cache,
+                        page_img_cache=page_img_cache, widget_index=widget_index,
                     )
                     path_counts[path] += 1
                     per_value_dispatch[value] = path
@@ -678,7 +691,7 @@ def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -
                 doc, w_block,
                 ocr_api=ocr_api,
                 whitelist=whitelist,
-                page_img_cache=page_img_cache,
+                page_img_cache=page_img_cache, widget_index=widget_index,
                 label_hint=_label_tokens(field_name,
                                          field.get("description")),
             )
