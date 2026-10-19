@@ -494,12 +494,19 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
     if len(widgets_on_page) <= LABEL_BATCH:
         return _label_batch_via_llm(widgets_on_page, words, model=model, think=think)
 
-    merged: dict[int, str] = {}
+    # the batches go out together (Andrew, 2026-10-19: ACORD 90 NY's page 1 took its three batches one after
+    # another, 80 s each; a call's time is its output tokens, so the page costs one batch's time, not the sum).
+    # Each batch has everything it needs before the call; the merge keeps batch order
+    from concurrent.futures import ThreadPoolExecutor
     n = len(widgets_on_page)
-    for i in range(0, n, LABEL_BATCH):
-        batch = widgets_on_page[i:i + LABEL_BATCH]
-        print(f"    [batch] widgets {i + 1}-{i + len(batch)} of {n}")
-        merged.update(_label_batch_via_llm(batch, words, model=model, think=think))
+    batches = [widgets_on_page[i:i + LABEL_BATCH] for i in range(0, n, LABEL_BATCH)]
+    for i, batch in enumerate(batches):
+        print(f"    [batch] widgets {i * LABEL_BATCH + 1}-{i * LABEL_BATCH + len(batch)} of {n}")
+    with ThreadPoolExecutor(max_workers=len(batches)) as ex:
+        results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think), batches))
+    merged: dict[int, str] = {}
+    for r in results:
+        merged.update(r)
     return merged
 
 
