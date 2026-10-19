@@ -60,11 +60,13 @@ def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
         if any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in inside):
             continue
         tables.append(g)
+    path_of = {w["id"]: (w.get("path") or "") for w in entries}
     for g in tables:
         page = g[0]["page"]
+        cells = [{"id": int(c["name"][1:]), "row": c["row"], "col": c["col"]} for c in g]
         out.setdefault(page, {"tables": [], "blocks": []})["tables"].append(
-            {"rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1,
-             "cells": [{"id": int(c["name"][1:]), "row": c["row"], "col": c["col"]} for c in g]})
+            {"rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1, "cells": cells,
+             "hint": axis_hint(cells, path_of)})
     for g in groups:
         page = g[0]["page"]
         out.setdefault(page, {"tables": [], "blocks": []})["blocks"].append(
@@ -76,6 +78,55 @@ def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
         for k, b in enumerate(st["blocks"], 1):
             b["id"] = f"B{k}"
     return out
+
+
+def _path_tokens(path: str) -> list[str]:
+    """The publisher's field name as tokens: the last path part, split on _ . [ ] and case changes
+    (Vehicle_PIP_PremiumAmount_A[0] -> vehicle, pip, premium, amount, a, 0)."""
+    import re
+    last = (path or "").split(".")[-1]
+    return [t.lower() for t in re.findall(r"[A-Z]+(?=[A-Z][a-z])|[A-Z]?[a-z]+|[A-Z]+|\d+", last)]
+
+
+def _one_token_apart(a: list[str], b: list[str]) -> bool:
+    """Two publisher names that differ in exactly one token, that token a letter or a number: the same field in
+    another row or column (..._A, ..._B; ..._1, ..._2)."""
+    if len(a) != len(b) or a == b:
+        return False
+    if sum(len(t) >= 3 and t.isalpha() for t in a) < 2:      # f1_01 / f1_02: a generated id, not a name
+        return False
+    diff = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
+    if len(diff) != 1:
+        return False
+    x, y = a[diff[0]], b[diff[0]]
+    return (len(x) == 1 and len(y) == 1 and x.isalpha() and y.isalpha()) or (x.isdigit() and y.isdigit())
+
+
+def axis_hint(cells: list[dict], path_of: dict[int, str]) -> dict:
+    """Which axis the publisher's own field names say repeats: {"axis": "rows" | "columns" | None, "rows": share,
+    "columns": share}. Down a column, cells whose paths are one letter or number apart say the ROWS repeat
+    (ACORD 90 NY: Vehicle_SeatBeltCode_A / _B); along a row they say the COLUMNS repeat (PIP_PremiumAmount_A .. _D
+    across the vehicles). The share is of adjacent pairs so related; the axis with the larger share wins when it is
+    at least half and clearly ahead."""
+    toks = {c["id"]: _path_tokens(path_of.get(c["id"], "")) for c in cells}
+    if not any(toks.values()):
+        return {"axis": None, "rows": 0.0, "columns": 0.0}
+
+    def share(axis_key, other_key):
+        lines: dict[int, list] = {}
+        for c in cells:
+            lines.setdefault(c[axis_key], []).append(c)
+        pairs = hits = 0
+        for cs in lines.values():
+            cs = sorted(cs, key=lambda c: c[other_key])
+            for a, b in zip(cs, cs[1:]):
+                pairs += 1
+                hits += _one_token_apart(toks[a["id"]], toks[b["id"]])
+        return hits / pairs if pairs else 0.0
+    down = share("col", "row")           # pairs down a column alike -> rows repeat
+    across = share("row", "col")         # pairs along a row alike -> columns repeat
+    axis = "rows" if down >= 0.5 and down >= across + 0.2 else "columns" if across >= 0.5 and across >= down + 0.2 else None
+    return {"axis": axis, "rows": round(down, 2), "columns": round(across, 2)}
 
 
 def _units(page_struct: dict | None) -> list[list[list[int]]]:
@@ -145,7 +196,11 @@ def guidance(page_struct: dict | None, ids: set[int]) -> str:
         rows: dict[int, list] = {}
         for c in sorted(cells, key=lambda c: (c["row"], c["col"])):
             rows.setdefault(c["row"], []).append(c["id"])
-        parts.append(f"Table {t['id']}: {t['rows']} rows x {t['cols']} columns" + "".join(
+        h = t.get("hint") or {}
+        ev = ("" if not h.get("axis") else
+              f" (evidence: the publisher's own field names repeat {'down the rows' if h['axis'] == 'rows' else 'across the columns'}"
+              f", one letter or number apart, so the {h['axis']} are the repetitions)")
+        parts.append(f"Table {t['id']}: {t['rows']} rows x {t['cols']} columns{ev}" + "".join(
             f"\n  row {r + 1}: ids {rows[r]}" for r in sorted(rows)))
     for b in (page_struct or {}).get("blocks") or []:
         cells = [c for c in b["cells"] if c["id"] in ids]
@@ -186,7 +241,9 @@ BULK_RULES = (
     "- Both named (rows are things, columns are kinds: applicant / spouse by first / last name): \"rows\" and "
     "\"columns\" both as label lists; the cell's name joins them.\n"
     "- Neither (the layout code was wrong, the rows are unalike): \"rows\": \"unlike\" and label its widgets one "
-    "by one in \"labels\".\n"
+    "by one in \"labels\". Where the table comes with evidence that one axis repeats, it does: name the other axis.\n"
+    "- A row or column no filer writes in (shaded, \"reserved for future use\", a heading line): label it \"\" "
+    "(empty) and its cells are dropped.\n"
     "- A repeated block: give each FIELD of the block one label (the same field in every block), with no block "
     "number; the blocks are numbered in order.\n"
     "- Every other widget: one label in \"labels\" as usual. Do not repeat a table's or block's widgets there.\n"
@@ -234,6 +291,7 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
     left: list[int] = []
 
     def entries(lst, key):
+        """{index: slug}; an empty label is kept as "" (the line is dropped), a missing one is absent."""
         if isinstance(lst, dict):
             return {int(k): _slug(v) for k, v in lst.items() if str(k).lstrip("-").isdigit()}
         out = {}
@@ -253,7 +311,10 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
         if isinstance(v, list):
             if all(isinstance(x, dict) for x in v):
                 return "labels", entries(v, key)
-            return "printed", [_slug(x) for x in v]
+            printed = [_slug(x) for x in v]
+            if printed and all(len(x) == 1 and x.isalpha() for x in printed):
+                printed = [str(i + 1) for i in range(len(printed))]     # columns (a) .. (d): numbered 1 .. 4 (docs/NAMING.md)
+            return "printed", printed
         return None, None
     tables = {t.get("id"): t for t in (parsed.get("tables") or []) if isinstance(t, dict)}
     for t in (page_struct or {}).get("tables") or []:
@@ -273,7 +334,7 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
 
         def tag(kind, val, i):           # a line's number or label along one axis, 0-based index i
             if kind == "labels":
-                return "label", (val or {}).get(i + 1)
+                return "label", (val or {}).get(i + 1)      # "" when the line is not fillable, None when unanswered
             if kind == "printed":
                 return "iter", (val[i] if i < len(val) else None)
             return "iter", str(i + 1)
@@ -283,6 +344,9 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 continue
             ck, cv = tag(ckind, cval, c["col"])
             rk, rv = tag(rkind, rval, c["row"])
+            if (ck == "label" and cv == "") or (rk == "label" and rv == ""):
+                names[c["id"]] = ""                         # a line no filer writes in: its cells are dropped
+                continue
             if (ck == "label" and not cv) or (rk == "label" and not rv):
                 left.append(c["id"])
                 continue
