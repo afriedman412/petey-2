@@ -234,6 +234,21 @@ the box shows of a value that overflows it (4821 as 482): the loop's differ coun
 and those are real findings about boxes too narrow for the generator's values. Paths and tooltips stay in the
 blueprint as metadata for the labeler, the page check, the witnesses and the review page.
 
+## The whole loop, timed (2026-10-19, 17:06-17:26)
+
+ACORD 90 NY end to end with everything in (guided structure, the concurrent labeler / page check / classifier,
+the page-only extractor, the per-page judge), from the run records' stamps:
+
+| run | round 0 | loop rounds | end |
+|---|---|---|---|
+| plain, morning | 7.8 min (107 flags) | 18, 7, 7 min | 40.2 min |
+| guided, old pass | 4.6 min (13 flags) | 14, 7, 8 min | 33.9 min |
+| guided, new pass | 7.5 min (14 flags; a 172 s Gemini strip) | 6.8, 1.6, 2.2, 1.7 min | 19.8 min |
+
+A loop round after the first costs about two minutes instead of seven; the first costs the reviewer's Opus
+calls (124 fields) plus a fill. What is left: labeling (4.6 min, Gemini's time on a batch swings from one to three
+minutes), the first page check (3 min, output-bound), the reviewer in round 1 (about 4 min), and a fill a round.
+
 ## Where things stand (end of 2026-10-18 / 19 session)
 
 On `validation-tools-2026-10-14` (pushed only up to the commits before this session's; Andrew opens the PR):
