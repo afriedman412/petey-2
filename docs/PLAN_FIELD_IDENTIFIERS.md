@@ -221,6 +221,19 @@ money box drawn "424 / 87" then "424 87 / 00"), which re-asked that page: the fi
 that is the next thing to look at if the warm pass should be free. The 40-minute ACORD 90 NY run would be about
 20 with these in: the labeling, the reviewer's Opus calls and the first page check are what is left.
 
+## Extraction reads the page only (2026-10-19, late)
+
+Andrew: "the loop should be evaluating the ability to extract data from the form based on the blueprint alone.
+presume the form is flattened and no metadata is available. metadata is only for generating (and correcting,
+editing etc) the blueprint." Until today `petey/extract.py` (the product extractor, and the loop's native arm) read
+the AcroForm stored value by path first and fell back to the rect only without a form layer, so the loop measured
+the form layer. Now: the input is flattened in memory; a text field is the words mostly inside its rect less what
+the blank prints there; a mark is added ink against the blank; a dropdown is the text it shows mapped to its
+option; the form layer is never read. On ACORD 90 NY case 1, 652 of 687 values are as before and the rest are what
+the box shows of a value that overflows it (4821 as 482): the loop's differ count rises from 6 to 33 on that case,
+and those are real findings about boxes too narrow for the generator's values. Paths and tooltips stay in the
+blueprint as metadata for the labeler, the page check, the witnesses and the review page.
+
 ## Where things stand (end of 2026-10-18 / 19 session)
 
 On `validation-tools-2026-10-14` (pushed only up to the commits before this session's; Andrew opens the PR):
