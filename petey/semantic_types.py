@@ -340,10 +340,14 @@ def enrich_from_kind(kind: Optional[str], widget_type: str) -> dict:
     """`{type, semantic_type?, pattern?}` from a KIND the labeler named apart from the field name (the simple naming
     scheme, docs/PLAN_SIMPLE_NAMES.md, 2026-10-19): a registered semantic type, or text / checkbox / signature."""
     k = (kind or "").strip().lower()
-    if widget_type == "checkbox" or k in ("checkbox", "indicator", "boolean"):
+    # level with what the standard scheme's suffixes give (enrich_field): `_ind` on a text box is a string (Y / N
+    # written in), `_txt` / `_desc_txt` keep their semantic type, `_nbr` / `_cd` (an identifier) is a plain string
+    if widget_type == "checkbox" or (k in ("checkbox", "boolean") or k == "indicator" and widget_type != "text"):
         return {"type": "boolean"}
+    if k in ("text", "description"):
+        return {"type": "string", "semantic_type": k}
     st = next((t for t in ALL_TYPES if t.name == k), None)
-    if st is None or k in ("text", "description", ""):
+    if st is None or k in ("identifier", "indicator", ""):
         return {"type": "string"}
     spec: dict = {"type": st.bpt_type, "semantic_type": st.name}
     if st.pattern and st.bpt_type == "string":

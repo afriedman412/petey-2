@@ -19,6 +19,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from standardize_names import SUFFIXES  # noqa: E402
 
+from petey.label import text_match as TM  # noqa: E402
 from petey.validate import grid_check as gc, hand_review as h  # noqa: E402
 
 FORMS = {"acord_90_ny": ("je__acord_90_ny", "acord_90_ny_bulk5", "acord_90_ny_simple"),
@@ -28,31 +29,55 @@ FORMS = {"acord_90_ny": ("je__acord_90_ny", "acord_90_ny_bulk5", "acord_90_ny_si
 
 
 # the kind of value, in either scheme's spelling: left out of the subject comparison on both sides (the plan: the
-# suffix is not part of what is compared). Abbreviations are spelled out first so `birth_dt` and `birth_date` meet.
-SPELL = {"nm": "name", "dt": "date", "nbr": "number", "no": "number", "num": "number", "amt": "amount", "cnt": "count",
-         "cd": "code", "qty": "quantity", "yr": "year", "pct": "percent", "txt": "text", "ind": "indicator"}
-PHRASES = {"social_security_number": "ssn", "employer_identification_number": "ein",
-           "taxpayer_identification_number": "tin", "employer_id_number": "ein"}
+# suffix is not part of what is compared). Abbreviations are spelled out first (text_match.name_words, the name
+# checks' table) so `birth_dt` and `birth_date` meet.
 KIND = set(SUFFIXES) | {"name", "date", "number", "amount", "count", "code", "quantity", "year", "percent", "text",
-                        "indicator", "checkbox", "flag"}
+                        "indicator", "checkbox", "flag", "description", "identification"}
 FILLER = {"a", "an", "the", "of", "and", "or", "from", "for", "to", "in", "on", "at", "by", "with", "if", "is"}
 
 
-def words(name: str) -> frozenset:
-    """The name's subject words: copy prefixes, iteration and part numbers, single letters (column / property
-    letters), filler words and kind-of-value words left out, the same way for both arms."""
+def _stem(t: str) -> str:
+    for end in ("ing", "ed", "es", "s"):
+        if len(t) > len(end) + 3 and t.endswith(end):
+            t = t[: -len(end)]
+            break
+    return t[:-1] if len(t) > 4 and t.endswith("e") else t
+
+
+def words(name: str) -> list[str]:
+    """The name's subject words, in order: copy prefixes, iteration and part numbers, single letters (column /
+    property letters), filler words and kind-of-value words left out, the same way for both arms."""
     s = name.split(".")[0].lower()
-    for ph, ab in PHRASES.items():
-        s = s.replace(ph, ab)
-    toks = [SPELL.get(t, t) for t in s.split("_")]
-    return frozenset(t for t in toks if t and not t.isdigit() and len(t) > 1 and t not in KIND and t not in FILLER
-                     and not (t[:-1].isdigit() and t[-1].isalpha()) and not (t.startswith("copy") and t[4:].isdigit()))
+    toks = TM.name_words(s).split()
+    return [_stem(t) for t in toks if not t.isdigit() and len(t) > 1 and t not in KIND and t not in FILLER
+            and not (t[:-1].isdigit() and t[-1:].isalpha()) and not (t.startswith("copy") and t[4:].isdigit())]
+
+
+def _meet(xs: list[str], ys: list[str]) -> set:
+    """xs's words with abbreviations and acronyms of ys's words written as ys's words ('csl' against 'combined
+    single limit', 'veh' against 'vehicle')."""
+    out = set()
+    for t in xs:
+        if t in ys:
+            out.add(t)
+            continue
+        hit = next((w for w in ys if TM.abbreviates(t, w)), None)
+        if hit:
+            out.add(hit)
+            continue
+        acro = next((ys[i:i + len(t)] for i in range(len(ys) - len(t) + 1)
+                     if len(t) >= 2 and "".join(w[0] for w in ys[i:i + len(t)]) == t), None)
+        out.update(acro or [t])
+    return out
 
 
 def subject_class(a: str, b: str) -> str:
-    wa, wb = words(a), words(b)
+    wa0, wb0 = words(a), words(b)
+    wa, wb = _meet(wa0, wb0), _meet(wb0, wa0)
     if wa == wb:
         return "same"
+    if not wa or not wb:              # one name says nothing of the subject (`q2_description`)
+        return "different"
     if wa < wb or wb < wa:
         return "nested"
     return "overlap" if wa & wb else "different"
@@ -94,7 +119,8 @@ def arm(tag: str, validated: dict) -> dict | None:
     vr, rr = by_rect(validated), by_rect(fields)
     both = [k for k in rr if k in vr]
     type_ok = sum(1 for k in both if rr[k][1].get("type") == vr[k][1].get("type"))
-    sem_ok = sum(1 for k in both if (rr[k][1].get("semantic_type") or None) == (vr[k][1].get("semantic_type") or None))
+    sem = lambda f: None if f.get("semantic_type") in (None, "", "text") else f["semantic_type"]   # text says nothing
+    sem_ok = sum(1 for k in both if sem(rr[k][1]) == sem(vr[k][1]))
     subj = collections.Counter(subject_class(rr[k][0], vr[k][0]) for k in both)
     loops = [x for x in r["rounds"] if x.get("stage") == "loop"]
     reviewed = sum((x.get("loop") or {}).get("review_run", {}).get("fields_reviewed") or 0 for x in loops)
@@ -113,7 +139,8 @@ def main() -> int:
     for form, (vid, std, simple) in FORMS.items():
         validated = h._load(h.working_path(vid, paths)).get("fields") or {}
         print(f"== {form} (validated: {vid}, {len(validated)} fields)")
-        for label, tag in (("standard", std), ("simple", simple)):
+        # simple v1 (2026-10-19 17:51): no identifier kind, a Y / N text box's indicator typed boolean; simple2: fixed
+        for label, tag in (("standard", std), ("simple v1", simple), ("simple2", simple + "2")):
             a = arm(tag, validated)
             if a is None:
                 print(f"   {label:9} no record yet ({tag})")

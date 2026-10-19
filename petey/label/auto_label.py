@@ -410,9 +410,12 @@ def _simple_system() -> str:
              "kind suffix (no _txt, _nm, _nbr, _cd, _dt, _amt, _ind, _qty, _ssn): the kind of value is a separate "
              "answer, below, not part of the name.\n"
              "- With every label give `\"kind\"`: the kind of value the box holds, one of "
-             + prompt_vocabulary() + " or \"checkbox\" (a tick box) or \"signature\". Use \"text\" for free "
-             "text and \"description\" for a longer explanation; \"money\" for a sum of money, \"count\" for a "
-             "whole-number count, \"percent\" for a percentage, \"iso_date\" for a full date, \"year\" for a "
+             + prompt_vocabulary() + " or \"identifier\" or \"checkbox\" (a tick box) or \"signature\". Use "
+             "\"text\" for free text and \"description\" for a longer explanation; \"identifier\" for a number or "
+             "code that names or refers to something rather than measuring it (a policy, location, vehicle, driver, "
+             "license or reference number, a class or rating code); \"money\" for a sum of money, \"count\" for "
+             "how many of something (a number of units, years, days), \"indicator\" for a box answered yes or no "
+             "(Y / N), \"percent\" for a percentage, \"iso_date\" for a full date, \"year\" for a "
              "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\", \"city\", "
              "\"business_name\", \"first_name\", \"last_name\" as their names say.\n")
     out = LABEL_SYSTEM[:a] + rules + LABEL_SYSTEM[b:]
