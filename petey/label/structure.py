@@ -298,12 +298,27 @@ BULK_RULES = (
 
 
 def guidance_bulk(page_struct: dict | None, ids: set[int]) -> str:
-    """The structures a batch's widgets belong to, and the bulk answer format; '' when none."""
+    """The structures a batch's widgets belong to, and the bulk answer format; '' when none. A table with evidence
+    of its repeating axis is answered that way, not "unlike" (the labeler called ACORD 90 NY's coverage tables and
+    AO 40B's page-2 tables unlike with the evidence in front of it, 2026-10-19)."""
     g = guidance(page_struct, ids)
     if not g:
         return ""
     head = g.split("\n\nIn a table,")[0]
-    return head + "\n\n" + BULK_RULES
+    told = []
+    for t in (page_struct or {}).get("tables") or []:
+        if sum(c["id"] in ids for c in t["cells"]) < 2:
+            continue
+        ax = (t.get("hint") or {}).get("axis")
+        if ax == "rows":
+            told.append(f"{t['id']}: the rows repeat. Answer \"columns\" as labels and \"rows\": \"numbered\" (or the printed numbers).")
+        elif ax == "columns":
+            told.append(f"{t['id']}: the columns repeat. Answer \"rows\" as labels and \"columns\": \"numbered\" (or the printed letters).")
+        elif ax == "both":
+            told.append(f"{t['id']}: rows are line items and columns kinds. Answer both \"rows\" and \"columns\" as labels.")
+    must = ("\n\nThese tables are settled by the publisher's own field names; do not answer \"unlike\" for them:\n- "
+            + "\n- ".join(told)) if told else ""
+    return head + "\n\n" + BULK_RULES + must
 
 
 def _split(label: str) -> tuple[str, str | None]:
