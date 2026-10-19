@@ -421,9 +421,10 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 left.append(c["id"])
                 continue
             base = lambda x: str(x).split(".", 1)[0]     # noqa: E731  a <group>.<value> label: the group names the cell
-            if ck == "label" and rk == "label":          # both named: [row]_[column]
+            if ck == "label" and rk == "label":          # both named: [row]_[column], the suffix from either side
                 subject, suffix = _split(base(cv))
-                ident = {"subject": f"{base(rv)}_{subject}", "suffix": suffix}
+                rsub, rsuf = _split(base(rv))
+                ident = {"subject": f"{rsub}_{subject}" if subject else rsub, "suffix": suffix or rsuf}
             elif ck == "label":                          # columns named, rows iterate
                 subject, suffix = _split(base(cv))
                 ident = {"subject": subject, "suffix": suffix, "iteration": rv}
