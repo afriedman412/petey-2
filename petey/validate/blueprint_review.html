@@ -284,8 +284,9 @@
   .gcard h3 { margin:0; font-size:13px; display:flex; gap:6px; align-items:center; cursor:pointer; word-break:break-all; }
   .gcard h3 .grip { cursor:grab; color:var(--text-dim); }
   .gchips { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
-  .gchip { border:1px solid var(--border); border-radius:10px; padding:1px 8px; background:var(--surface-2); cursor:grab; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; }
-  .gchip.orphan { border-style:dashed; } .gchip.sel { border-color:var(--accent); color:var(--text); } .gchip .x { margin-left:5px; color:var(--text-dim); cursor:pointer; }
+  .gchip { display:inline-flex; align-items:baseline; border:1px solid var(--border); border-radius:10px; padding:1px 8px; background:var(--surface-2); cursor:grab; max-width:100%; box-sizing:border-box; white-space:nowrap; font-size:12px; }
+  .gchip .gl { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  .gchip.orphan { border-style:dashed; } .gchip.sel { border-color:var(--accent); color:var(--text); } .gchip .x { flex-shrink:0; margin-left:5px; color:var(--text-dim); cursor:pointer; }
   .tray { border:1.5px dashed var(--border); border-radius:var(--r); padding:8px 10px; min-height:44px; }
   .gcur { background:var(--surface); border:1px solid var(--accent); border-radius:var(--r-lg); padding:12px 14px; }
   .gcur h2 { margin:0 0 6px; font-size:14px; } .gcur input[type=text] { width:100%; }
@@ -1803,7 +1804,7 @@ MODE.groups = (() => {
     const it = item(id), orphan = !isGroup(u);
     const where = it.page !== page ? ` <span class="help">p${it.page}</span>` : '';
     const x = !orphan && !u.locked ? `<span class="x" data-out="${esc(id)}" title="${isText(u) ? 'take it out of the combined field' : 'take it out of the group'}">×</span>` : '';
-    return `<span class="gchip${orphan ? ' orphan' : ''}${u.uid === selected ? ' sel' : ''}" draggable="${!u.locked}" data-item="${esc(id)}" title="${esc(it.field)}${it.key !== null ? ' · ' + esc(it.key) : ''}${it.on_state ? ' · on ' + esc(it.on_state) : ''}">${esc(orphan ? u.name : label(id))}${where}${x}</span>`;
+    return `<span class="gchip${orphan ? ' orphan' : ''}${u.uid === selected ? ' sel' : ''}" draggable="${!u.locked}" data-item="${esc(id)}" title="${esc(it.field)}${it.key !== null ? ' · ' + esc(it.key) : ''}${it.on_state ? ' · on ' + esc(it.on_state) : ''}"><span class="gl">${esc(orphan ? u.name : label(id))}${where}</span>${x}</span>`;
   }
   function badge(u) {
     const st = status(u);
