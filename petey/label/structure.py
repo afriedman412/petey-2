@@ -306,7 +306,9 @@ def _rules() -> str:
     r = BULK_RULES
     if not SIMPLE:
         return r
-    for a, b in (("vehicle_make_txt, parent_first_nm, gross_rents_amt", "vehicle_make, parent_first_name, gross_rents"),
+    # every suffixed example in the rules has a suffix-free twin here; one left behind teaches the suffix back
+    # (2026-10-19: the first pair never matched, and ACORD 90 NY's simple runs still wrote _ind)
+    for a, b in (("(vehicle_make_txt, parent_first_nm)", "(vehicle_make, parent_first_name)"),
                  ("bodily_injury_limit_amt, net_income_amt", "bodily_injury_limit, net_income"),
                  ("(child_name_1, child_birth_dt_1)", "(child_name_1, child_birth_date_1)"),
                  ("name, birth_dt, present_address", "name, birth_date, present_address")):

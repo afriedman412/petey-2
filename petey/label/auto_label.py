@@ -406,8 +406,11 @@ def _simple_system() -> str:
     a = LABEL_SYSTEM.index("- Emit snake_case slugs following IRS MeF-style")
     b = LABEL_SYSTEM.index("Business names → `_business_name`.\n") + len("Business names → `_business_name`.\n")
     rules = ("- The label names WHAT THE BOX HOLDS, in the form's own words, snake_case: `first_name`, "
-             "`vehicle_make`, `gross_rents`, `years_at_current_address`, `date_of_birth`. Do NOT add a type or "
-             "kind suffix (no _txt, _nm, _nbr, _cd, _dt, _amt, _ind, _qty, _ssn): the kind of value is a separate "
+             "`vehicle_make`, `gross_rents`, `years_at_current_address`, `date_of_birth`. Where the box belongs "
+             "to one of several people or things the form repeats (a spouse, the 7th sibling, vehicle 2), the name "
+             "says whose, with the number as its own word: `spouse_first_name`, `sibling_7_marital_status`, "
+             "`vehicle_2_make`; a caption printed once per block does not make the box stand alone. Do NOT add a "
+             "type or kind suffix (no _txt, _nm, _nbr, _cd, _dt, _amt, _ind, _qty, _ssn): the kind of value is a separate "
              "answer, below, not part of the name.\n"
              "- With every label give `\"kind\"`: the kind of value the box holds, one of "
              + prompt_vocabulary() + " or \"identifier\" or \"checkbox\" (a tick box) or \"signature\". Use "
@@ -418,7 +421,7 @@ def _simple_system() -> str:
              "(Y / N), \"percent\" for a percentage, \"iso_date\" for a full date, \"year\" for a "
              "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\", \"city\", "
              "\"business_name\", \"first_name\", \"last_name\" as their names say.\n")
-    out = LABEL_SYSTEM[:a] + rules + LABEL_SYSTEM[b:]
+    out = (LABEL_SYSTEM[:a] + rules + LABEL_SYSTEM[b:]).replace("`is_amended_return_ind`", "`is_amended_return`")
     return out.replace('{"labels": [{"id": <int>, "label": "<snake_case_slug>"}, ...]}',
                        '{"labels": [{"id": <int>, "label": "<snake_case_slug>", "kind": "<kind>"}, ...]}')
 
