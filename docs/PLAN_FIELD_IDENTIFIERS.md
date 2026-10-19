@@ -48,11 +48,15 @@ different tables sharing a subject (children's `first_name` and contacts' `first
    be a small change.
 5. **New branch** (this one).
 
+6. **"subject"** is the word (Andrew, 2026-10-19, later: "subject works as a replacement for description").
+7. **Print order: the iteration last**, [subject]_[suffix]_[iteration]_[part] (Andrew: "I trust your judgement";
+   chosen because it dissolves the one round-trip difference, below).
+8. **An iteration needs no table.** It is "the Nth field that contains this information" (Andrew, 2026-10-19); a kept
+   grid or block group is how the checks verify the numbers, not what makes a number an iteration. The fill's
+   "series outside any kept grid" flag was dropped.
+
 ## Open decisions (for Andrew)
 
-- The word that replaces "description" (decision 3).
-- The print order: [subject]_[suffix]_[iteration]_[part], or [subject]_[iteration]_[suffix]_[part] (the current
-  standard, docs/NAMING.md). Andrew leaned to iteration last.
 - The table letter: on every table whose subject repeats elsewhere in the form, or only the later ones? (Raised
   2026-10-19, not answered.)
 - Where iteration membership lives: grids and block groups are kept outside the blueprint today
@@ -105,8 +109,7 @@ copies under runs/identifiers/<id>/, with a report (runs/identifiers/report.json
 | read cleanly | 34,405 | 92.2% |
 | flagged | 2,916 | 7.8%, 2.6 per page; 403 of 1127 pages have one, 147 have five or more; 107 forms have none |
 | in a kept grid or block group | 16,053 | |
-| with an iteration | 16,808 | 12,762 of them in a kept grid or block group |
-| series outside any kept grid or block group | 4,046 | 3.6 per page; 1,476 shapes (case_N_nbr, debtor_N_nm, line_N_amt) |
+| with an iteration | 16,808 | 12,762 of them in a kept grid or block group; 4,046 in series no kept grid covers (case_N_nbr, debtor_N_nm, line_N_amt), which is fine (decision 8) |
 | parts of compound values | 1,333 | |
 
 Why flagged (fields / forms): a cell's number is not its row's or column's 1,237 / 74 (ACORD 126's
@@ -119,18 +122,14 @@ test does not take); two numbers and no way to tell which iterates 116 / 16 (ACO
 a vehicle x driver grid); in two kept entries at once 111 / 10 (a finder table inside a block group both active);
 a name that is only a suffix 69 / 59 (dt, signature, initial).
 
-Round trip: printed back in today's order, 29,568 of 37,321 names come back the same and 7,753 (20.8%) differ, every
-one for the same reason: today's standard puts the iteration after the word it counts
-(garaging_location_1_address_txt, parent_1_first_nm), and one subject printed as [subject]_[iteration]_[suffix] gives
-garaging_location_address_1_txt. Printing the old shape would need the subject split into the thing counted and its
-attribute (the entity, `eval/associate.py`), which is parsing again. Andrew's iteration-last order
-([subject]_[suffix]_[iteration]_[part]) has no such question and would reprint 16,366 names (every iterated one).
-
-What this says for the decisions above: the print order decides whether the naming standard's "the number follows
-the word it counts" survives; the 4,046 series outside any kept grid or block group (debtor_1 / debtor_2, two address
-lines) are the iterations the kept list does not yet explain and need either a kept entry (a repeat the block-group
-finder could take: entities that repeat) or an iteration with no membership; and the fill is only as good as the
-names it reads, so the naming pass goes first.
+Round trip: printed back in the old order ([subject]_[iteration]_[suffix]_[part]), 29,568 of 37,321 names come back
+the same and 7,753 (20.8%) differ, every one for the same reason: the old standard put the iteration after the word
+it counts (garaging_location_1_address_txt, parent_1_first_nm), and one subject printed with the number next to the
+suffix gives garaging_location_address_1_txt. Printing that shape would need the subject split into the thing
+counted and its attribute (the entity, `eval/associate.py`), which is parsing again. The decided order, the
+iteration last (decision 7), has no such question; it renames 16,366 names (43.9%), every iterated one
+(garaging_location_address_txt_1). Those renames are the migration (step 3's review); the fill is only as good as
+the names it reads, so the naming pass goes first on the forms it has not touched.
 
 ## Where things stand (end of 2026-10-18 / 19 session)
 

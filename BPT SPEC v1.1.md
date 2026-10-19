@@ -126,7 +126,7 @@ A producer MAY record the parts a field name was printed from, under the extensi
 | `grid`, `block_group`, `block` | The table or repeated block the field is a cell of, and for a block group which block. |
 | `part` | Which box of a value written in several boxes (`month`, `area`, `dollars`, `1`). |
 
-When the key is present the field name is derived from it: `[subject]_[iteration]_[suffix]_[part]`, absent parts skipped. A consumer that renames a field for its own purposes keeps the original name as an alias (above) and MUST NOT edit the parts. A blueprint with no `x_petey_identifiers` anywhere is unchanged by this section.
+When the key is present the field name is derived from it: `[subject]_[suffix]_[iteration]_[part]`, absent parts skipped. A consumer that renames a field for its own purposes keeps the original name as an alias (above) and MUST NOT edit the parts. A blueprint with no `x_petey_identifiers` anywhere is unchanged by this section.
 
 ### 5.3 Type System
 

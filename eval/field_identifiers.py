@@ -4,21 +4,22 @@ in docs/NAMING.md "Identifiers"). Each field's name is read once into its parts 
 
     subject      the name's words once the iteration, suffix and part are taken out
     suffix       the last word when it is a standard suffix (standardize_names.SUFFIXES); an option group has none
-    iteration    the field's number (or letter) in its series: for a cell of a kept grid or block group, the number
-                 its row (or column) carries; outside one, a number that varies across otherwise identical names
-                 (parent_1_nm / parent_2_nm). A lone number nothing varies against stays in the subject (line_6)
+    iteration    the field's number (or letter) in its series, the Nth field holding this information (Andrew,
+                 2026-10-19): for a cell of a kept grid or block group, the number its row (or column) carries;
+                 elsewhere, a number that varies across otherwise identical names (parent_1_nm / parent_2_nm). A
+                 lone number nothing varies against stays in the subject (line_6). No membership is needed
     grid / block_group + block   the kept grid or block group the field is a cell of (grid_check.listing: the
                  review page's lasting ids), from the active entries only
     part         the last word when the field is one box of a compound value (associate.compound_values)
 
 Flag rather than guess: a name that cannot be read one way is written with what is certain and listed in the report
 with why (no standard suffix; a numbered grid's cell without a number; a cell whose number is not its row's; two
-numbers and no way to tell which iterates; in two kept grids). Series outside any kept grid or block group are
-counted apart: they are what the kept list does not yet explain.
+numbers and no way to tell which iterates; in two kept grids).
 
-Then every name is printed back from its parts (`print_name`, today's order [subject]_[iteration]_[suffix]_[part])
-and compared with the name it was read from: the differences are the renames the migration would make, listed by
-kind. The other order Andrew leans to ([subject]_[suffix]_[iteration]_[part]) is counted too.
+Then every name is printed back from its parts (`print_name`): in the order the names were written in (today's
+standard, [subject]_[iteration]_[suffix]_[part]) to show the reading is faithful, and in the decided order
+([subject]_[suffix]_[iteration]_[part], the iteration last; Andrew, 2026-10-19), whose differences are the renames
+the migration makes.
 
     PYTHONPATH=. venv/bin/python eval/field_identifiers.py je__acord_90_ny ...   [--tiers 1,2]  [--all]
 """
@@ -44,11 +45,12 @@ from standardize_names import SUFFIXES, _is_group  # noqa: E402
 
 OUT = RUNS / "identifiers"
 KEY = "x_petey_identifiers"
-ORDERS = {"standard": ("subject", "iteration", "suffix", "part"),          # docs/NAMING.md today
-          "iteration_last": ("subject", "suffix", "iteration", "part")}    # Andrew's lean (2026-10-19)
+ORDERS = {"iteration_last": ("subject", "suffix", "iteration", "part"),   # the decided order (Andrew, 2026-10-19)
+          "old": ("subject", "iteration", "suffix", "part")}              # docs/NAMING.md before identifiers
+ORDER = "iteration_last"
 
 
-def print_name(ident: dict, order: str = "standard") -> str:
+def print_name(ident: dict, order: str = ORDER) -> str:
     """The field name from its parts: the parts in order, absent ones skipped, joined by `_`."""
     return "_".join(str(ident[k]) for k in ORDERS[order] if ident.get(k) not in (None, ""))
 
@@ -138,7 +140,6 @@ def read(name: str, spec: dict, parts: dict[str, str], member: dict | None, seri
         vary = [i for i in vary if i < len(toks)]            # not the part, not the suffix
         if len(vary) == 1:
             pick = vary[0]
-            flags.append("series outside any kept grid or block group")
         elif len(vary) > 1:
             flags.append(f"{len(vary)} numbers vary ({', '.join(toks[i] for i in vary)}): which one iterates?")
     if pick is not None:
@@ -148,9 +149,6 @@ def read(name: str, spec: dict, parts: dict[str, str], member: dict | None, seri
     if not ident["subject"]:
         ident["subject"] = None                     # ssn_1: the suffix is all the name says (flagged above)
     return {k: v for k, v in ident.items() if v is not None}, flags
-
-
-SOFT = ("series outside any kept grid or block group",)      # counted, not an error
 
 
 def _kind(name: str, printed: str) -> str:
@@ -171,7 +169,7 @@ def run(bid: str, paths: dict) -> dict:
     member, twice = _membership(bid, bp)
     series = _series_index([n for n, s in fields.items() if not _is_group(s)])
     per_page: dict = collections.defaultdict(collections.Counter)
-    flagged, soft, diffs = {}, {}, {}
+    flagged, diffs = {}, {}
     tot = collections.Counter()
     for n, s in fields.items():
         ident, flags = read(n, s, parts, member.get(n), series)
@@ -179,7 +177,7 @@ def run(bid: str, paths: dict) -> dict:
             flags.append(twice[n])
         s[KEY] = ident
         pg = (s.get("widget") or next(iter((s.get("widgets") or {}).values()), {}) or {}).get("page") or 0
-        hard = [f for f in flags if f not in SOFT]
+        hard = flags
         per_page[pg]["fields"] += 1
         tot["fields"] += 1
         if "part" in ident:
@@ -198,25 +196,22 @@ def run(bid: str, paths: dict) -> dict:
         else:
             tot["clean"] += 1
             per_page[pg]["clean"] += 1
-        if any(f in SOFT for f in flags):
-            soft[n] = ident["iteration"]
-            per_page[pg]["series_outside_kept"] += 1
-            tot["series_outside_kept"] += 1
-        back = print_name(ident)
+        back = print_name(ident, "old")
         if back != n:
-            diffs[n] = {"printed": back, "kind": _kind(n, back), "flags": flags}
-            per_page[pg]["differs"] += 1
-            tot["differs"] += 1
-            tot["differs: " + diffs[n]["kind"]] += 1
-        if print_name(ident, "iteration_last") != n:
-            tot["differs_iteration_last"] += 1
+            tot["old_order_differs"] += 1
+            tot["old_order_differs: " + _kind(n, back)] += 1
+        new = print_name(ident)
+        if new != n:
+            diffs[n] = {"printed": new, "flags": flags}
+            per_page[pg]["renamed"] += 1
+            tot["renamed"] += 1
     bp[KEY + "_fill"] = {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "record": "eval/field_identifiers.py",
-                         "from": str(p), "flags": flagged, "series_outside_kept": soft, "printed_differently": diffs}
+                         "from": str(p), "order": ORDER, "flags": flagged, "renames": diffs}
     d = OUT / bid
     d.mkdir(parents=True, exist_ok=True)
     (d / p.name).write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
     return {"bid": bid, "pages": {str(k): dict(v) for k, v in sorted(per_page.items())}, **tot,
-            "flag_list": flagged, "series_list": soft, "diff_list": diffs}
+            "flag_list": flagged, "renames": diffs}
 
 
 def tiers(paths: dict, want: set[str]) -> list[str]:
@@ -246,7 +241,7 @@ def main() -> int:
         tot["pages"] += len(r["pages"])
         g = lambda k: r.get(k, 0)  # noqa: E731
         print(f"{bid:34} {g('fields'):5} fields  {g('clean'):5} clean  {g('flagged'):4} flagged  "
-              f"{g('in_kept'):4} in kept grids/blocks  {g('series_outside_kept'):4} series outside  {g('differs'):4} print differently"
+              f"{g('iterated'):4} iterated  {g('in_kept'):4} in kept grids/blocks  {g('renamed'):4} renamed"
               + (f"   [{i}/{len(ids)} {time.time() - t0:.0f}s]" if i % 25 == 0 else ""))
     f, p = tot["fields"], tot["pages"]
     print(f"\n{tot['forms']} forms, {p} pages, {f} fields")
@@ -255,14 +250,14 @@ def main() -> int:
     for k, v in sorted(tot.items(), key=lambda kv: -kv[1]):
         if k.startswith("why: "):
             print(f"    {v:6}  {k[5:]}")
-    print(f"  in a kept grid or block group {tot['in_kept']}; with an iteration {tot['iterated']}; "
-          f"series outside any kept grid or block group {tot['series_outside_kept']} ({tot['series_outside_kept'] / max(1, p):.1f} per page); "
+    print(f"  with an iteration {tot['iterated']}; in a kept grid or block group {tot['in_kept']}; "
           f"parts of compound values {tot['parts']}")
-    print(f"  printed back: {f - tot['differs']} same, {tot['differs']} differ ({tot['differs'] / max(1, f):.1%}); "
-          f"with the iteration last {tot['differs_iteration_last']} would differ")
+    print(f"  printed back in the old order: {f - tot['old_order_differs']} same, {tot['old_order_differs']} differ "
+          f"({tot['old_order_differs'] / max(1, f):.1%})")
     for k, v in sorted(tot.items(), key=lambda kv: -kv[1]):
-        if k.startswith("differs: "):
-            print(f"    {v:6}  {k[9:]}")
+        if k.startswith("old_order_differs: "):
+            print(f"    {v:6}  {k[19:]}")
+    print(f"  printed in the decided order ({ORDER}): {tot['renamed']} renames ({tot['renamed'] / max(1, f):.1%})")
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "report.json").write_text(json.dumps({"totals": dict(tot), "forms": rows}, indent=1), encoding="utf-8")
     return 0
