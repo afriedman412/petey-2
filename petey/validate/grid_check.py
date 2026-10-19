@@ -413,14 +413,22 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
         body = G.body(g)
         body_names = {c["name"] for c in body}             # a totals row is outside the check (and the validation)
         positions = []
+        F = G._Frame(g) if body else None      # the number that varies down a column is its N, not the last one
+        same_axis = bool(F) and F.pos_axis == pos_axis
+        number = F.numbers(bp, g, page_text, {})[0] if same_axis and not G.keyed(g) else {}
         for k in sorted({c[pos_axis] for c in body}):
             pcs = [c for c in body if c[pos_axis] == k]
-            wordings = sorted({(G._pattern(c["name"]) or c["name"]).replace("_N", "_#") for c in pcs})
-            positions.append({"pos": k + 1, "wordings": wordings, "caption": G.position_caption(bp, pcs, how, page_text)})
+            wordings = sorted({(F.pat_of(c) if same_axis else (G._pattern(c["name"]) or c["name"])).replace("_N", "_#") for c in pcs})
+            # cells whose number is not their line's (a column numbered from 2): the column's standardize button
+            off = sum(1 for c in pcs if number and number.get(c[num_axis]) is not None and k not in F.locked
+                      and (F.num_of(c) or "").isdigit() and int(F.num_of(c)) != number[c[num_axis]]) if same_axis else 0
+            positions.append({"pos": k + 1, "wordings": wordings, "off": off, "caption": G.position_caption(bp, pcs, how, page_text)})
         bbox = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
         out.append({"id": e["id"], "page": page, "kind": "block" if g[0].get("block") else "grid",
                     **{k: e.get(k) for k in ("source", "status", "from", "into")},
                     "lines": len({c[num_axis] for c in body}), "positions": positions, "reading": reading,
+                    "rows_info": rows_info(g, body, pos_axis, num_axis), "keyed": G.keyed(g),
+                    "aside": [{"row": r + 1, "why": why} for r, why in sorted(G.aside(g).items())],
                     "title": _title(bbox, page_text.get(page), heads.get(page), [p["caption"] for p in positions]),
                     "rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1,
                     "bbox": bbox,
@@ -429,6 +437,64 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
                     "on_pattern": ok, "why": why})
     out.sort(key=lambda t: (t["page"], t["bbox"][1], t["bbox"][0]))
     return out
+
+
+def rows_info(g: list[dict], body: list[dict], pos_axis: str, num_axis: str) -> dict:
+    """The table's lines (rows, or columns when the columns are numbered; a block group's blocks) as the card's
+    "rows" section says them (Andrew, 2026-10-19: "even if it's just numbers"): {kind: numerical | labelled |
+    lettered | mixed, summary, lines: [{line, number | label, numbers: every number its cells carry, cells}]}."""
+    blk = bool(g and g[0].get("block"))
+    if not body:
+        return {"kind": "none", "summary": "no rows", "lines": []}
+    if G.keyed(g):
+        ks = G.keyed_split(g) or {}
+        rows = []
+        for i in sorted({c[num_axis] for c in body}):
+            labels = sorted({"_".join(ks[c["name"]][0]) for c in body if c[num_axis] == i and c["name"] in ks})
+            rows.append({"line": i + 1, "label": labels[0] if labels else None, "cells": sum(1 for c in body if c[num_axis] == i)})
+        return {"kind": "labelled", "summary": "labelled: " + ", ".join(r["label"] or "?" for r in rows), "lines": rows}
+    F = G._Frame(g)
+    rows = []
+    for i in sorted({c[num_axis] for c in body}):
+        cs = [c for c in body if c[num_axis] == i]
+        nums = __import__("collections").Counter(F.num_of(c) for c in cs if F.num_of(c))
+        rows.append({"line": i + 1, "number": nums.most_common(1)[0][0] if nums else None,
+                     "numbers": [n for n, _ in nums.most_common()], "cells": len(cs)})
+    seq = [r["number"] for r in rows]
+    noun = "blocks" if blk else ("rows" if num_axis == "row" else "columns")
+    if all(n and n.isdigit() for n in seq):
+        ints = [int(n) for n in seq]
+        kind = "numerical"
+        summary = f"numerical, {noun} {ints[0]} to {ints[-1]}" if ints == list(range(ints[0], ints[0] + len(ints))) \
+            else f"numerical, {noun} numbered {', '.join(seq)} (not by steps of 1)"
+    elif all(n and len(n) == 1 and n.isalpha() for n in seq):
+        kind, summary = "lettered", f"lettered, {noun} {seq[0]} to {seq[-1]}"
+    else:
+        kind, summary = "mixed", f"{noun} numbered {', '.join(n or '?' for n in seq)}"
+    return {"kind": kind, "summary": summary, "lines": rows}
+
+
+def standardize(bid: str, tid: str, *, apply, pos: Optional[int] = None, line: Optional[int] = None) -> dict:
+    """The card's "standardize" buttons (Andrew, 2026-10-19): one column (`pos`, 1-based), every inconsistent column
+    (neither), or one row (`line`, 1-based) renumbered. {status, steps, applied, left}; nothing accepted."""
+    bp = h._load(h.working_path(bid))
+    t, g = _grid(bp, tid, bid)
+    if not g:
+        return {"status": "gone", "steps": ["the table is no longer found on the page (renamed or moved?)"]}
+    blank = resolve_blank(bp)
+    lines = _lines(blank) if blank else {}
+    r = G.standardize(bp, g, lines, G.text_match_score(), positions=[pos - 1] if pos else None,
+                      lines_=[line - 1] if line else None)
+    what = f"column {pos}" if pos else f"row {line}" if line else "every column"
+    steps = [f"standardize {what}: {r['why']}"] + r["left"]
+    if not r["renames"]:
+        return {"status": "nothing", "steps": steps + ["no rename to make"], "applied": [], "left": r["left"]}
+    out = apply([{"field": o, "edit": {"name": n}, "why": f"grids and blocks: standardize {what} of {tid} ({r['why'][:120]})"}
+                 for o, n in r["renames"].items()])
+    if out.get("errors"):
+        steps.append("not all applied: " + "; ".join(out["errors"][:3]))
+    steps.append(f"{len(out.get('changes') or [])} rename(s) applied")
+    return {"status": "standardized", "steps": steps, "applied": out.get("changes") or [], "left": r["left"]}
 
 
 def _grid(bp: dict, tid: str, bid: Optional[str] = None):

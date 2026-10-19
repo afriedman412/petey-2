@@ -489,12 +489,45 @@ def _close(a: str, b: str) -> bool:
     return bool(ta and tb) and len(ta & tb) / len(ta | tb) >= 0.6
 
 
-def body(grid: list[dict]) -> list[dict]:
-    """The grid without a last row of totals (every name starting total_)."""
-    last = max(c["row"] for c in grid)
+def aside(grid: list[dict]) -> dict[int, str]:
+    """{row: why} for the rows outside the pattern: a last row of totals (every name starting total_), and a first
+    or last row that is a line of its own kind (ACORD 90 NY: the DRIVER # boxes over the vehicle rows,
+    driver_1_nbr .. driver_6_nbr above vehicle_N_driver_1_use_pct): in most of its columns the cell's shape is not
+    the shape the column's other rows share, and the row carries no number of the rows' series."""
+    rows = sorted({c["row"] for c in grid})
+    out = {}
+    if len(rows) < 3:
+        return out
+    last = rows[-1]
     if all(c["name"].startswith("total") for c in grid if c["row"] == last):
-        return [c for c in grid if c["row"] != last]
-    return grid
+        out[last] = "a row of totals"
+        rows = rows[:-1]
+    if len(rows) < 3:
+        return out
+    for r in (rows[0], rows[-1]):
+        others = [c for c in grid if c["row"] in rows and c["row"] != r]
+        by_col = collections.defaultdict(collections.Counter)
+        for c in others:
+            by_col[c["col"]][_shape(c["name"])] += 1
+        mine = [c for c in grid if c["row"] == r]
+        if not mine:
+            continue
+        # the other rows agree on the column's shape (nearly all of them, two at least), and this row's cell is
+        # another shape and not a variant of it (an unnumbered first row, class_cd beside class_cd_N, is close to its
+        # column and stays; a table whose every row has its own label words agrees on nothing and keeps its rows)
+        agreed = {k: v.most_common(1)[0] for k, v in by_col.items()
+                  if v.most_common(1)[0][1] >= 2 and v.most_common(1)[0][1] >= 0.8 * sum(v.values())}
+        off = sum(1 for c in mine if c["col"] in agreed and _shape(c["name"]) != agreed[c["col"]][0]
+                  and not _close(_shape(c["name"]), agreed[c["col"]][0]))
+        if len(agreed) >= 0.6 * len(by_col) and off >= 0.6 * len(mine):
+            out[r] = "a line of its own kind (its cells are not named like their columns)"
+    return out
+
+
+def body(grid: list[dict]) -> list[dict]:
+    """The grid without its rows set aside (`aside`: totals, a header or footer line of another kind)."""
+    skip = aside(grid)
+    return [c for c in grid if c["row"] not in skip] if skip else grid
 
 
 def breaks(grid: list[dict]) -> tuple[str, list[str]]:
@@ -1075,6 +1108,86 @@ def resolve_labelled(bp: dict, g: list[dict]):
             "why": "lines labelled; equivalent spellings standardized"}
 
 
+class _Frame:
+    """How a table is read, shared by `resolve` and `standardize`: its body cells, which axis is the position and
+    which the line, which number varies per position, the line-numbered positions (locked), and the words nearly
+    every cell shares."""
+
+    def __init__(self, g: list[dict]):
+        self.cells = cells = body(g)
+        reading, _ = breaks(g)
+        self.reading = reading
+        self.pos_axis, self.num_axis = ("col", "row") if reading == "columns" else ("row", "col")
+        self.how = "block" if g[0].get("block") else reading
+        pos_axis = self.pos_axis
+        # which number varies, per position (two-number names: CMS-855A final_adverse_legal_action_1_txt_3)
+        self.vary = vary = {k: _varying([c["name"] for c in cells if c[pos_axis] == k]) for k in {c[pos_axis] for c in cells}}
+        self.positions = sorted({c[pos_axis] for c in cells})
+
+        # line-number names keep their numbers (Andrew's exception: line_116_direct_deposit_amt, line_3_3_make on tax
+        # and court forms): a position whose varying number follows "line" is the form's own numbering, not an iteration
+        def _line_numbered(k):
+            names_k = [c["name"] for c in cells if c[pos_axis] == k]
+            pk = _pattern_at(names_k[0], vary[k]) if names_k else None
+            toks_k = (pk or "").split("_")
+            return "N" in toks_k and toks_k.index("N") > 0 and toks_k[toks_k.index("N") - 1] in ("line", "ln") or \
+                bool(re.match(r"line_\d", names_k[0] if names_k else ""))
+        self.locked = {k for k in vary if _line_numbered(k)}
+        # words nearly every cell's name has (ACORD 90 NY's vehicle_): leaving one out does not change what a cell
+        # says. Counted over cells, not positions: a row key (taxpayer / spouse, loc1 / loc2) is in every column but
+        # only in its own row's cells, and says which row a cell is
+        cell_words = [set(_desc(self.pat_of(c)).split("_")) for c in cells]
+        self.common = {t for t in set().union(*cell_words) if sum(t in w for w in cell_words) >= 0.8 * len(cell_words)} \
+            if cell_words else set()
+
+    def pat_of(self, c):
+        return _pattern_at(c["name"], self.vary[c[self.pos_axis]]) or c["name"]
+
+    def num_of(self, c):
+        i = self.vary[c[self.pos_axis]]
+        toks = c["name"].split("_")
+        return toks[i] if i is not None and i < len(toks) else _number(c["name"])
+
+    def at(self, k):
+        return [c for c in self.cells if c[self.pos_axis] == k]
+
+    def numbers(self, bp: dict, g: list[dict], lines: dict, chosen: dict) -> tuple[dict, bool]:
+        """({line index: its number or None}, lettered): one number per line, by position; letters and lettered line
+        numbers (5a) keep theirs."""
+        cells, num_of = self.cells, self.num_of
+        free = [c for c in cells if c[self.pos_axis] not in self.locked]
+        toks = [num_of(c) for c in free]
+        lettered = any(t and not t.isdigit() for t in toks)
+        lines_idx = sorted({c[self.num_axis] for c in cells})
+        if lettered:
+            return {i: None for i in lines_idx}, True
+        offs = collections.Counter(int(num_of(c)) - lines_idx.index(c[self.num_axis])
+                                   for c in free if (num_of(c) or "").isdigit())
+        top = offs.most_common()
+        tied = [o for o, n in top if n == top[0][1]] if top else [1]
+        start = 1 if 1 in tied else min(tied)              # a tie (one column shifted in a two-column table): from 1
+        names = {c["name"] for c in g}
+        if start != 1 and not (start > 1 and (_continues(bp, names, list(chosen.values()), start)
+                                              or _printed(bp, cells, lines))):
+            start = 1                                      # the first line is 1, unless the series began elsewhere
+        return {i: start + n for n, i in enumerate(lines_idx)}, False   # or the numbers are printed on the page
+
+    def rename(self, c: dict, pat: str, number: dict, lettered: bool) -> str:
+        """The cell's name under its position's wording `pat` and its line's number."""
+        num = number[c[self.num_axis]]
+        if num is None or "N" not in pat.split("_"):
+            base = pat if "N" not in pat.split("_") else c["name"]
+            new = base if not lettered else c["name"]
+            if lettered and self.pat_of(c) != pat:
+                new = pat.replace("N", self.num_of(c) or "N")
+            return new
+        toks_ = pat.split("_")
+        toks_[max(i for i, t in enumerate(toks_) if t == "N")] = str(num)
+        # in the column's own wording: reshaping to the naming standard is that pass's job, and reshaping only the
+        # cells that change left a column in two shapes (ACORD 126: location_1_nbr beside location_number_2)
+        return "_".join(toks_)
+
+
 def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | None = None) -> dict:
     """{status: ok | fixed | unsure | confused, renames, unsure: [{pos, caption, candidates, cells}], why}."""
     forced = forced or {}
@@ -1084,38 +1197,13 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
         lab = resolve_labelled(bp, g)
         if lab is not None:
             return lab
-    reading, _ = breaks(g)
-    pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
-    how = "block" if g[0].get("block") else reading
+    F = _Frame(g)
+    reading, pos_axis, num_axis, how = F.reading, F.pos_axis, F.num_axis, F.how
     names = {c["name"] for c in g}
     fields = bp.get("fields") or {}
-    # which number varies, per position (two-number names: CMS-855A final_adverse_legal_action_1_txt_3)
-    vary = {k: _varying([c["name"] for c in cells if c[pos_axis] == k]) for k in {c[pos_axis] for c in cells}}
-    pat_of = lambda c: _pattern_at(c["name"], vary[c[pos_axis]]) or c["name"]                      # noqa: E731
-
-    # line-number names keep their numbers (Andrew's exception: line_116_direct_deposit_amt, line_3_3_make on tax and
-    # court forms): a position whose varying number follows "line" is the form's own numbering, not an iteration
-    def _line_numbered(k):
-        names_k = [c["name"] for c in cells if c[pos_axis] == k]
-        pk = _pattern_at(names_k[0], vary[k]) if names_k else None
-        toks_k = (pk or "").split("_")
-        return "N" in toks_k and toks_k.index("N") > 0 and toks_k[toks_k.index("N") - 1] in ("line", "ln") or \
-            bool(re.match(r"line_\d", names_k[0] if names_k else ""))
-    locked = {k for k in vary if _line_numbered(k)}
-
-    def num_of(c):
-        i = vary[c[pos_axis]]
-        toks = c["name"].split("_")
-        return toks[i] if i is not None and i < len(toks) else _number(c["name"])
+    vary, pat_of, locked, num_of, common, positions = F.vary, F.pat_of, F.locked, F.num_of, F.common, F.positions
     # (1) wording per position
     chosen, unsure, whys = {}, [], []
-    positions = sorted({c[pos_axis] for c in cells})
-    # words nearly every cell's name has (ACORD 90 NY's vehicle_): leaving one out does not change what a cell says.
-    # Counted over cells, not positions: a row key (taxpayer / spouse, loc1 / loc2) is in every column but only in
-    # its own row's cells, and says which row a cell is
-    cell_words = [set(_desc(pat_of(c)).split("_")) for c in cells]
-    common = {t for t in set().union(*cell_words) if sum(t in w for w in cell_words) >= 0.8 * len(cell_words)} \
-        if cell_words else set()
     for k in positions:
         pc_ = [c for c in cells if c[pos_axis] == k]
         if k in forced:
@@ -1136,25 +1224,7 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
     if unsure:
         return {"status": "unsure", "renames": {}, "unsure": unsure, "why": "; ".join(whys)}
     # (2) numbers: one per line, by position; letters and lettered line numbers (5a) keep theirs
-    free = [c for c in cells if c[pos_axis] not in locked]
-    toks = [num_of(c) for c in free]
-    if any(t and not t.isdigit() for t in toks):
-        lettered = True
-    else:
-        lettered = False
-    lines_idx = sorted({c[num_axis] for c in cells})
-    if lettered:
-        number = {i: None for i in lines_idx}
-    else:
-        offs = collections.Counter(int(num_of(c)) - lines_idx.index(c[num_axis])
-                                   for c in free if (num_of(c) or "").isdigit())
-        top = offs.most_common()
-        tied = [o for o, n in top if n == top[0][1]] if top else [1]
-        start = 1 if 1 in tied else min(tied)              # a tie (one column shifted in a two-column table): from 1
-        if start != 1 and not (start > 1 and (_continues(bp, names, list(chosen.values()), start)
-                                              or _printed(bp, cells, lines))):
-            start = 1                                      # the first line is 1, unless the series began elsewhere
-        number = {i: start + n for n, i in enumerate(lines_idx)}   # or the numbers are printed on the page
+    number, lettered = F.numbers(bp, g, lines, chosen)
     # (3) the new names, checked
     ren = {}
     for c in cells:
@@ -1168,19 +1238,7 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
                 toks_[toks_.index("N")] = num_of(c)
                 ren[c["name"]] = "_".join(toks_)
             continue
-        pat = chosen[c[pos_axis]]
-        num = number[c[num_axis]]
-        if num is None or "N" not in pat.split("_"):
-            base = pat if "N" not in pat.split("_") else c["name"]
-            new = base if not lettered else c["name"]
-            if lettered and pat_of(c) != pat:
-                new = pat.replace("N", num_of(c) or "N")
-        else:
-            toks_ = pat.split("_")
-            toks_[max(i for i, t in enumerate(toks_) if t == "N")] = str(num)
-            # in the column's own wording: reshaping to the naming standard is that pass's job, and reshaping only the
-            # cells that change left a column in two shapes (ACORD 126: location_1_nbr beside location_number_2)
-            new = "_".join(toks_)
+        new = F.rename(c, chosen[c[pos_axis]], number, lettered)
         if new != c["name"]:
             ren[c["name"]] = new
     # a rename that changes what a cell says (different words, not a variant) is a judgment: Jev, not code
@@ -1206,6 +1264,103 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
                                                "two cells would share a name" if dup else "",
                                                "" if ok else f"still off the code check: {why}"]))}
     return {"status": "fixed" if ren else "ok", "renames": ren, "unsure": [], "why": "; ".join(whys) or reading}
+
+
+def standardize(bp: dict, g: list[dict], lines: dict, score=None, positions: list[int] | None = None,
+                lines_: list[int] | None = None) -> dict:
+    """The "standardize" button on a column (Andrew, 2026-10-19): every cell of the position takes one wording, with
+    its line's number. {renames, chosen: {pos: (wording, how)}, left: [why a cell or position was left], why}.
+    The wording: the resolver's own pick (equivalent spellings settled in code, else the caption and the name-check
+    model), else the commonest wording in the column when it has a majority (the person asked for it; it is
+    reported); a column whose wordings split evenly and say different things is left. `positions` are 0-based;
+    None means every position with more than one wording; `lines_` instead names rows (0-based line indexes) to
+    renumber: each cell takes its line's number under the wording its column already has. Renames that would take a
+    name another field holds are left and said."""
+    F = _Frame(g)
+    cells, fields = F.cells, bp.get("fields") or {}
+    names = {c["name"] for c in g}
+    if lines_ is not None:                    # a row (or column) renumbered: each cell under its column's wording
+        return _standardize_lines(bp, g, lines, F, lines_)
+    want = [k for k in F.positions if positions is None or k in positions]
+    chosen, left = {}, []
+    number0, lettered0 = F.numbers(bp, g, lines, {})
+    for k in want:
+        pc_ = F.at(k)
+        pats = collections.Counter(F.pat_of(c) for c in pc_)
+        if len(pats) < 2:                    # one wording: standardize when its numbers are off their lines'
+            pat = next(iter(pats))
+            if k not in F.locked and any(F.rename(c, pat, number0, lettered0) != c["name"] for c in pc_):
+                chosen[k] = (pat, "its wording; the numbers set to the rows'")
+            continue
+        pick = same_words(pc_, F.pat_of, F.common)
+        how = "equivalent spellings, settled in code"
+        if not pick:
+            cap = position_caption(bp, pc_, F.how, lines)
+            pick, how = choose_wording(pc_, cap, score, F.pat_of)
+        if not pick:
+            p, n = pats.most_common(1)[0]
+            if n > sum(pats.values()) / 2:
+                pick, how = p, f"the commonest wording ({n} of {sum(pats.values())} cells), on request"
+            else:
+                left.append(f"position {k + 1}: no wording has a majority ({', '.join(f'{p} x{n}' for p, n in pats.most_common())}); left")
+                continue
+        chosen[k] = (pick, how)
+    if not chosen:
+        return {"renames": {}, "chosen": {}, "left": left, "why": "nothing to standardize" if not left else "; ".join(left)}
+    number, lettered = F.numbers(bp, g, lines, {k: v[0] for k, v in chosen.items()})
+    ren = {}
+    for k, (pat, _how) in chosen.items():
+        for c in F.at(k):
+            if k in F.locked:
+                mine = F.num_of(c)
+                if "N" in pat.split("_") and mine:
+                    toks_ = pat.split("_")
+                    toks_[toks_.index("N")] = mine
+                    new = "_".join(toks_)
+                else:
+                    continue
+            else:
+                new = F.rename(c, pat, number, lettered)
+            if new != c["name"]:
+                ren[c["name"]] = new
+    ren = _clashes(ren, fields, names, left)
+    why = "; ".join(f"position {k + 1}: {p} ({how})" for k, (p, how) in sorted(chosen.items()))
+    return {"renames": ren, "chosen": {k: v for k, v in chosen.items()}, "left": left, "why": why}
+
+
+def _clashes(ren: dict, fields: dict, names: set, left: list) -> dict:
+    for o, n in list(ren.items()):
+        if (n in fields and n not in ren) or (n in names and n not in ren):
+            left.append(f"{o} -> {n}: that name is another field's; left")
+            ren.pop(o)
+    targets = collections.Counter(ren.values())
+    for o, n in list(ren.items()):
+        if targets[n] > 1:
+            left.append(f"{o} -> {n}: two cells would share the name; left")
+            ren.pop(o)
+    return ren
+
+
+def _standardize_lines(bp: dict, g: list[dict], lines: dict, F: "_Frame", which: list[int]) -> dict:
+    """The rows (lines) named in `which` renumbered: a cell whose number is not its line's takes it, under the
+    wording most of its column has (its own when the column agrees)."""
+    fields, names, left, ren = bp.get("fields") or {}, {c["name"] for c in g}, [], {}
+    number, lettered = F.numbers(bp, g, lines, {})
+    for c in F.cells:
+        if c[F.num_axis] not in which or c[F.pos_axis] in F.locked:
+            continue
+        pats = collections.Counter(F.pat_of(x) for x in F.at(c[F.pos_axis]))
+        pat, n = pats.most_common(1)[0]
+        if n <= sum(pats.values()) / 2 and F.pat_of(c) != pat:
+            left.append(f"{c['name']}: its column has no agreed wording; left")
+            continue
+        new = F.rename(c, pat, number, lettered)
+        if new != c["name"]:
+            ren[c["name"]] = new
+    ren = _clashes(ren, fields, names, left)
+    idx = sorted({c[F.num_axis] for c in F.cells})
+    why = "; ".join(f"line {idx.index(i) + 1 if i in idx else i + 1}: number {number.get(i)}" for i in which)
+    return {"renames": ren, "chosen": {}, "left": left, "why": why}
 
 
 def text_match_score():

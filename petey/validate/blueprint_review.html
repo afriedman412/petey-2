@@ -250,7 +250,9 @@
   .fcard input.dirty, .fcard select.dirty { border-color:var(--amber); background:var(--amber-dim); }
   .namerow { display:flex; gap:6px; align-items:center; } .namerow input { flex:1; min-width:0; }
   #eName[readonly] { background:var(--surface-2); color:var(--text); cursor:default; }
-  .btn.parts { padding:0 7px; font-size:11px; white-space:nowrap; }
+  .btn.parts, .btn.mini { padding:0 7px; font-size:11px; white-space:nowrap; }
+  .gtidc[data-copy], .gtab .gtid { cursor:copy; }
+  .gtab .gtid { pointer-events:auto; }
   .fgrid > label.sub, .fgrid > .lbl.sub { padding-left:14px; font-size:.86em; }
   .fgrid > .sub + input, .fgrid > .sub + span { font-size:.92em; }
   .frow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
@@ -2346,7 +2348,8 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       const d = put('gtab ' + t.kind + (t.on_pattern ? ' ok' : '') + (selected === t.id ? ' sel' : ''), r, `${t.id} · ${t.kind} ${t.rows} x ${t.cols} · ${status(t)} · ${prov(t)}`);
       d.style.setProperty('--c', c);
       dots(d, (r[2] - r[0]) * scale, (r[3] - r[1]) * scale);
-      const tag = document.createElement('span'); tag.className = 'gtid'; tag.textContent = t.id; d.appendChild(tag);
+      const tag = document.createElement('span'); tag.className = 'gtid'; tag.textContent = t.id; tag.title = 'click to copy the reference'; d.appendChild(tag);
+      tag.onclick = e => { e.stopPropagation(); copyTableRef(t.id); };
       d.onclick = () => { if (drawKind) return; selected = t.id; placeAll(); panel(); };
       for (const x of t.cells) if (x.rect) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : '')).style.setProperty('--c', c);
     }
@@ -2357,14 +2360,19 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     const size = blk ? `${t.lines} block${t.lines === 1 ? '' : 's'} × ${across} field${across === 1 ? '' : 's'}`
                      : `${t.lines} row${t.lines === 1 ? '' : 's'} × ${across} column${across === 1 ? '' : 's'}`;
     return `<div class="gtcard ${selected === t.id ? 'sel' : ''}" data-t="${esc(t.id)}" style="--c:${colorOfTable(t)}">
-      <div class="gttitle"><span class="gtidc">${esc(t.id)}</span>${esc(t.title || (blk ? 'repeated block' : 'table'))}
+      <div class="gttitle"><span class="gtidc" data-copy="${esc(t.id)}" title="click to copy the reference (file_id)">${esc(t.id)}</span>${esc(t.title || (blk ? 'repeated block' : 'table'))}
         <label class="gtprov" style="float:right" title="tick two or more of one kind on this page, then 'combine ticked'"><input type="checkbox" data-tick="${esc(t.id)}" ${ticked.has(t.id) ? 'checked' : ''}> combine</label></div>
       <div class="gtprov">${esc(prov(t))}</div>
       <div><span class="pill ${blk ? 'copy' : 'passed'}">${t.kind}</span> <b>${size}</b>
         ${done(t) ? '<span class="pill validated">validated</span>' : ''}
         <span class="help">· ${t.accepted}/${t.body ?? t.cells.length} cells accepted · ${esc(status(t))}</span></div>
-      <details class="gtpos"><summary class="help">${blk ? 'fields of each block' : 'columns'}</summary><ol>${(t.positions || []).map(p =>
-        `<li><code>${esc(p.wordings.join(' / '))}</code>${p.caption ? ` <span class="help">· printed: ${esc(p.caption)}</span>` : ''}</li>`).join('')}</ol></details>
+      ${(t.aside || []).length ? `<div class="help">${t.aside.map(a => `row ${a.row} set aside: ${esc(a.why)}`).join('; ')}</div>` : ''}
+      <details class="gtpos" ${!t.keyed && (t.positions || []).some(p => p.wordings.length > 1 || p.off) ? 'open' : ''}><summary class="help">${blk ? 'fields of each block' : (t.reading === 'rows' ? 'rows' : 'columns')}${!t.keyed && (t.positions || []).some(p => p.wordings.length > 1 || p.off)
+          ? ` <button class="btn mini" data-std="${esc(t.id)}" ${b ? 'disabled' : ''} title="every column with more than one wording, or numbers off its rows', to one wording (the resolver's pick, else the commonest) with each cell numbered as its row; nothing accepted">standardize all</button>` : ''}</summary><ol>${(t.positions || []).map(p =>
+        `<li><code>${esc(p.wordings.join(' / '))}</code>${p.caption ? ` <span class="help">· printed: ${esc(p.caption)}</span>` : ''}${p.off ? ` <span class="stale">${p.off} cell${p.off === 1 ? '' : 's'} numbered off the row</span>` : ''}${!t.keyed && (p.wordings.length > 1 || p.off)
+          ? ` <button class="btn mini" data-std="${esc(t.id)}" data-pos="${p.pos}" ${b ? 'disabled' : ''} title="${p.wordings.length > 1 ? 'this column to one wording, each cell numbered as its row' : 'this column numbered as its rows'}">standardize</button>` : ''}</li>`).join('')}</ol></details>
+      <details class="gtpos"><summary class="help">${blk ? 'blocks' : (t.reading === 'rows' ? 'columns' : 'rows')}${t.rows_info ? ` · ${esc(t.rows_info.summary)}` : ''}</summary><ol>${((t.rows_info || {}).lines || []).map(r =>
+        `<li>${r.label != null ? `<code>${esc(r.label || '?')}</code>` : `<code>${esc(r.number || '?')}</code>${(r.numbers || []).length > 1 ? ` <span class="stale">also ${esc(r.numbers.slice(1).join(', '))}</span> <button class="btn mini" data-std="${esc(t.id)}" data-line="${r.line}" ${b ? 'disabled' : ''} title="every cell of this row takes the row's number, under its column's wording">standardize</button>` : ''}`} <span class="help">· ${r.cells} cells</span></li>`).join('')}</ol></details>
       ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
       <button class="btn ${done(t) ? '' : 'primary'}" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : done(t) ? 'validated ✓ · check again' : 'check & validate'}</button>
       <button class="btn" data-notgrid="${esc(t.id)}" title="not a grid or block: hidden and kept out of 'check all'; one the finder found is recorded as its mistake, a combined one gives its parts back; restore below">cancel</button>
@@ -2394,6 +2402,8 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = e => { e.stopPropagation(); setAside(b.dataset.notgrid, true); });
     a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
     a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected === c.dataset.t) return; selected = c.dataset.t; placeAll(); panel(); });
+    a.querySelectorAll('[data-copy]').forEach(el => el.onclick = e => { e.stopPropagation(); copyTableRef(el.dataset.copy); });
+    a.querySelectorAll('[data-std]').forEach(bt => bt.onclick = e => { e.stopPropagation(); standardize(bt.dataset.std, bt.dataset.pos, bt.dataset.line); });
     a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
     if ($('#gtAll')) $('#gtAll').onclick = async () => { for (const t of onPage(page)) await run(t.id); };
   }
@@ -2421,6 +2431,25 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     const keep = results; await loadMode(); results = keep;
     ticked.delete(tid);
     toast(on ? `${tid} cancelled (not a grid or block).` : `${tid} restored.`);
+  }
+  // the table's reference, as a field's: <blueprint file stem>_<id> (acord_90_ny_p1-T13); the id on the card and on
+  // the page copies it (Andrew, 2026-10-19: "grids should have IDs like fields, click to copy in the same way")
+  const tableRef = tid => `${(GD.path || bid).split('/').pop().replace(/\.bpt$/, '')}_${tid}`;
+  async function copyTableRef(tid) {
+    const ref = tableRef(tid);
+    try { await navigator.clipboard.writeText(ref); }
+    catch (e) { const t = document.createElement('textarea'); t.value = ref; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+    toast(`Copied ${ref}`);
+  }
+  async function standardize(tid, pos, line) {
+    const form = bid; busy.add(tid); panel();
+    let out;
+    try { out = await send('POST', mapi(API, '/standardize'), {table: tid, pos: pos ? +pos : null, line: line ? +line : null}); }
+    catch (e) { out = {status: 'error', steps: ['standardize failed: ' + e.message]}; }
+    busy.delete(tid); if (bid !== form) return;
+    results[tid] = out; if (out.entry) updateEntry(out.entry);
+    const keep = results; await loadMode(); results = keep;
+    toast(`${tid}: ${out.status}${out.applied ? `, ${out.applied.length} renamed` : ''}.`);
   }
   async function run(tid) {
     const form = bid; busy.add(tid); panel();

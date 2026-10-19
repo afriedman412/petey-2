@@ -90,7 +90,7 @@ class Grids:
                 c["accepted"] = (vs.get(c["name"]) or {}).get("verdict") == "accept"
             t["accepted"] = sum(c["accepted"] for c in t["cells"] if not c.get("total"))
             t["body"] = sum(not c.get("total") for c in t["cells"])     # validated when every one is accepted
-        return {"id": bid, "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
+        return {"id": bid, "path": str(self.app.paths[bid]), "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
 
     def dismiss(self, bid: str, tid: str, on: bool) -> dict:
         """Cancel ("not a grid or block") a grid or block, the finder's or the person's, or restore it (2026-10-17: one
@@ -107,8 +107,8 @@ class Grids:
         from petey.validate import grid_check
         return grid_check.combine(bid, hand_review._load(self.app.working(bid)), ids)
 
-    def check(self, bid: str, tid: str) -> dict:
-        from petey.validate import form_chat, grid_check
+    def _apply(self, bid: str):
+        from petey.validate import form_chat
 
         def apply(edits):
             self.app.open_draft(bid)
@@ -117,6 +117,18 @@ class Grids:
             self.app.follow(bid, before)
             draft.log(bid, "claude", out.get("changes") or [])
             return out
+        return apply
+
+    def standardize(self, bid: str, tid: str, pos=None, line=None) -> dict:
+        """One column, every inconsistent column, or one row of a table to one wording / its number (2026-10-19)."""
+        from petey.validate import grid_check
+        out = grid_check.standardize(bid, tid, apply=self._apply(bid), pos=int(pos) if pos else None, line=int(line) if line else None)
+        self.app.refresh()
+        return {**out, "entry": self.app.entry(bid)}
+
+    def check(self, bid: str, tid: str) -> dict:
+        from petey.validate import form_chat, grid_check
+        apply = self._apply(bid)
 
         def ask_opus(page):
             req = form_chat.grid_request(bid, page)
@@ -577,10 +589,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
-        if mode in ("grids", "blocks") and what in ("check", "dismiss", "create", "combine"):   # Grids / Blocks tabs
+        if mode in ("grids", "blocks") and what in ("check", "dismiss", "create", "combine", "standardize"):   # Grids / Blocks
             tab = getattr(APP, mode)
             if what == "check":                          # check and validate one
                 return self._route(lambda: tab.check(bid, body["table"]), bid)
+            if what == "standardize":                    # a column, every inconsistent column, or a row
+                return self._route(lambda: tab.standardize(bid, body["table"], body.get("pos"), body.get("line")), bid)
             if what == "dismiss":                        # cancel ("not a grid or block"), or restore
                 return self._route(lambda: tab.dismiss(bid, body["table"], bool(body.get("on", True))), bid)
             if what == "create":                         # drawn on the page

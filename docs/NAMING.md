@@ -51,7 +51,13 @@ A table is named on one pattern (2026-10-15): each column (or row) is one kind o
 Form 8825's income grid runs by column, the property: `gross_rents_2_amt`, `advertising_2_amt`, ... (property 2).
 When a table's own labels are letters that change from page to page (8825's properties A-D), number the iterations
 1, 2, 3 instead. `eval/grid_naming.py` finds tables by layout and lists the cells that break the pattern (in the
-mechanical pass); the page check flags them too.
+mechanical pass); the page check flags them too. Rows outside the pattern are set aside and said on the Grids card
+(2026-10-19): a last row of totals, and a first or last row of its own kind whose cells are not named like their
+columns while the other rows agree (ACORD 90 NY's driver-number boxes over the vehicle rows). The card lists the
+columns (each wording, the printed caption, cells numbered off their row) with a "standardize" button on a column
+that needs one and "standardize all" at the top, and the rows (numerical 1 to N, lettered, or labelled) with
+"standardize" on a row whose cells carry more than one number; the table's id copies its reference
+(`acord_90_ny_p1-T13`) like a field's.
 
 `eval/standardize_names.py` applies the rules that are mechanical and lists the names it cannot place.
 
