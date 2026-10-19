@@ -149,6 +149,56 @@ name alone, and the parts are read from it again); the Groups tab and the chat's
 old-order names on the 289 forms are not migrated (step 3's renames wait for a pass, after the naming standard
 on the forms it has not touched). The panel's open / closed state is remembered in the browser.
 
+## Step 6 in progress: structure before labeling (2026-10-19, evening)
+
+Andrew: "identify the grids and blocks first, then use that as guidance for labeling"; then "keep working on
+integrating grid and block structure into the generation process". Built (`petey/label/structure.py`; `auto_label
+--structure guide | bulk`, `form_run --structure`):
+
+- **The finders run on the raw widgets** (box positions; the page's captions for block groups), before any name,
+  in half a second. A table or block group is never split across two labeler batches (the batches are cut at its
+  edges), and each batch's prompt lists its structures row by row, with evidence of which axis repeats read from
+  the publisher's own field names (Vehicle_SeatBeltCode_A / _B down a column: the rows; PIP_PremiumAmount_A .. _D
+  along a row: the columns; generated ids f1_01 / f1_02 say nothing).
+- **guide**: still one label per widget, with the structure as context.
+- **bulk**: the labeler names a table's columns once (or its rows, when the columns repeat; or both, when rows are
+  things and columns kinds) and a block's fields once with the entity that repeats; the cells are printed from the
+  parts, `[subject]_[suffix]_[iteration]`, and keep them as `x_petey_identifiers` (the review page shows "parts
+  stored on the field"). A Yes / No pair inside a structure is labelled `<question>.<value>` and becomes one choice
+  field per row or block. A line no filer writes in is labelled "" and its cells dropped. A table the labeler calls
+  unlike, a column it leaves out, or two boxes the finder stacked at one position are labeled one by one.
+- Also today, on the way: labeler batches and page-check pages run concurrently (a call's time is its output, so a
+  dense page costs its slowest batch and a form its slowest page); the grid finder no longer lumps boxes whose x
+  matches no column centre into one bogus column.
+
+Measured on four forms (round 0 = straight out of the labeler and its first page check; "on pattern" = tables
+the code check passes on the round-0 blueprint; "printed" = names printed from parts, kept as identifiers; label
+cost = the labeler's calls' output tokens). The bulk column is its last version (v3-v5: evidence hints, the
+settled axis told, ledger suffix, aside rows, duplicate labels); the run records are under
+runs/judge_eval/form_runs/ as <form>_guide / _bulkN:
+
+| form | plain | guided | bulk |
+|---|---|---|---|
+| ACORD 90 NY (687 fields, 13 tables) | 107 flags (a batch split the vehicle table); 2 on pattern; 16k tokens; 214 reviewed; 40 min, 89 flags left | 13 flags; 8 on pattern; 17k tokens; 150 reviewed; 34 min, 7 flags left | 13 flags; 10 on pattern; 437 of 690 printed; 9.8k tokens |
+| Form 8825 (205, 7 tables) | 0 flags; 3 on pattern; 4.9k tokens; 143 reviewed | 8 flags (reserved lines kept); 6 on pattern; 124 reviewed | 0 flags; 7 on pattern; 198 printed; 1.4k tokens; 121 reviewed |
+| AO 40B (238, 3 tables, a 27-row ledger) | 8 flags (hatched cells); 0 on pattern; 5.1k tokens | 8 flags; 1 on pattern; 5.5k tokens | 8 flags; 3 on pattern; 222 printed; 1.2k tokens |
+| IMM 5645 (113, 3 block groups) | 0 flags; 1 on pattern; 2.7k tokens; 2 review rounds | 0 flags; 3 on pattern; 1 review round | 0 flags; 3 on pattern; 76 printed (the Yes / No pairs are choice fields); 1.9k tokens |
+
+What it took to get the labeler to name tables in bulk (each a prompt or printing change, each measured):
+without evidence it called 6 of ACORD 90 NY's 9 tables and all of AO 40B's "unlike"; told which axis the
+publisher's field names settle, and that such a table is not unlike, it named them all; a ledger cell takes its
+suffix from the row label when the column has none; a header line over a table (ACORD's driver numbers) is set
+aside by the labeler; two panes side by side read as one table (vehicles 1-2 left, 3-4 right) give one label to two
+columns and those cells are labeled one by one instead of colliding. Small and odd tables (under 3 x 3 without
+evidence) are left out altogether (Andrew: the big ones are the low-hanging fruit).
+
+What this says: cutting the batches at table edges removes the split-table failure outright; the structure in the
+prompt doubles or triples the tables on pattern straight from the labeler and shortens the loop; bulk reaches the
+same round-0 flags as guided at a third of the labeler's output tokens (8825: 4.9k -> 1.4k; AO 40B: 5.1k -> 1.2k;
+ACORD 90 NY: 16k -> 9.8k) and leaves every printed cell with its parts stored. Open: a block's choice field carries
+no parts yet; the kept-list ids for structures found before labeling (today `listing` refinds them on the finished
+blueprint); whether bulk goes on by default (it is a flag on form_run today).
+
 ## Where things stand (end of 2026-10-18 / 19 session)
 
 On `validation-tools-2026-10-14` (pushed only up to the commits before this session's; Andrew opens the PR):
