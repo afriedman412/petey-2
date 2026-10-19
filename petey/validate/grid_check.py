@@ -162,7 +162,7 @@ def listing(bid: str, bp: dict) -> list[dict]:
             e["cells"] = [[cd, c["row"], c["col"]] for cd, c in zip(codes, g)]
             changed = True
         claimed.add(id(e))
-        out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when")},
+        out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts")},
                     "grid": [dict(c) for c in g]})
     for e in rec["grids"]:
         if e["source"] == "finder":
@@ -170,7 +170,7 @@ def listing(bid: str, bp: dict) -> list[dict]:
         cells = [{"name": name[c], "page": e["page"], "row": r, "col": k, **({"block": True} if e["kind"] == "block" else {})}
                  for c, r, k in e["cells"] if c in name]
         if cells:
-            out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when")},
+            out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts")},
                         "grid": cells})
     mine = [set(c["name"] for c in t["grid"]) for t in out if t["source"] != "finder" and t["status"] == "active"]
     for t in out:                   # a finder grid mostly inside one the person made or combined is shown as that one
@@ -191,7 +191,7 @@ def set_status(bid: str, gid: str, cancel: bool) -> dict:
         raise ValueError(f"no grid {gid}")
     e["status"] = "cancelled" if cancel else "active"
     e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    if e["source"] == "combined":
+    if e["source"] in ("combined", "edited"):
         for x in rec["grids"]:
             if x["id"] in (e.get("from") or []) and x.get("into") == gid:
                 x["status"] = "active" if cancel else "combined"
@@ -335,6 +335,184 @@ def _add(bid: str, bp: dict, page: int, kind: str, cells: list[dict], source: st
     return {"id": e["id"], "cells": len(cells)}
 
 
+# ------------------------------------------------------------------ a block group's layout (2026-10-19)
+# Andrew, on je__cra_t5013 p1-BG2 (two slips): "we need some kind of way to edit the block layout". The repeat step
+# `arrange` looks for misses when one block's boxes sit a few points off the other's (slip 2's header boxes shift
+# right), and a table's two panes read as one line (the finder's T2: T6 and T7 side by side). So the person marks
+# the blocks (`layout`): the fields in each, paired with the first block's, a kept table inside a block taken whole
+# (T6 in slip 1 pairs with T8 in slip 2 cell by cell), the rest by where they sit inside their block. The pairing is
+# then edited by hand (`set_cells`): swap, move, take out, add. The entry keeps `blocks` (the areas drawn) and
+# `parts` (which kept tables fill which positions). A finder's block group is edited as a copy ("edited", `from` the
+# finder's), since the finder's entry follows the finder on every read; cancelling the copy gives the original back.
+
+def _editable(rec: dict, gid: str) -> dict:
+    import time
+    e = next((e for e in rec["grids"] if e["id"] == gid), None)
+    if e is None:
+        raise ValueError(f"no block group {gid}")
+    if e["kind"] != "block":
+        raise ValueError(f"{gid} is a table, not a block group")
+    if e["source"] != "finder":
+        return e
+    c = {"id": _new_id(rec, e["page"], "block"), "kind": "block", "page": e["page"], "source": "edited",
+         "status": "active", "cells": [list(x) for x in e.get("cells") or []], "from": [gid],
+         "when": time.strftime("%Y-%m-%d %H:%M:%S")}
+    e["status"], e["into"] = "combined", c["id"]
+    rec["grids"].append(c)
+    return c
+
+
+def _units(bp: dict, names: list[str], tables: list[dict]) -> tuple[list[dict], tuple]:
+    """One block's parts: the kept tables mostly inside it, whole, and its other fields one by one; each with its box
+    and its place relative to the block's top left (the block's boxes, not the area drawn: drawn by hand, it is loose)."""
+    rect = {n: _rect(bp, n) for n in names}
+    rect = {n: r for n, r in rect.items() if r}
+    if not rect:
+        return [], (0, 0)
+    o = (min(r[0] for r in rect.values()), min(r[1] for r in rect.values()))
+    units, used = [], set()
+    for t in tables:
+        mine = [c for c in t["grid"] if c["name"] in rect and c["name"] not in used]
+        if len(mine) < 0.5 * len(t["grid"]) or len(mine) < 2:
+            continue
+        rs = [rect[c["name"]] for c in mine]
+        units.append({"table": t["id"], "cells": {(c["row"], c["col"]): c["name"] for c in mine},
+                      "shape": (max(c["row"] for c in t["grid"]) + 1, max(c["col"] for c in t["grid"]) + 1),
+                      "box": [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]})
+        used |= {c["name"] for c in mine}
+    units += [{"name": n, "box": r} for n, r in rect.items() if n not in used]
+    for u in units:
+        b = u["box"]
+        u["rel"] = ((b[0] + b[2]) / 2 - o[0], (b[1] + b[3]) / 2 - o[1])
+    units.sort(key=lambda u: (round(u["box"][1] / 4), u["box"][0]))
+    return units, o
+
+
+def _pair(ref: list[dict], other: list[dict]) -> dict[int, int]:
+    """Which of `other`'s parts is which of `ref`'s: tables with tables (same shape first), fields with fields, by
+    where they sit in their block, the least total distance; a pair more than PAIR_MAX points apart is no pair."""
+    from scipy.optimize import linear_sum_assignment
+    out = {}
+    for is_tab in (True, False):
+        R = [i for i, u in enumerate(ref) if ("table" in u) == is_tab]
+        O = [j for j, u in enumerate(other) if ("table" in u) == is_tab]
+        if not R or not O:
+            continue
+        cost = [[((ref[i]["rel"][0] - other[j]["rel"][0]) ** 2 + (ref[i]["rel"][1] - other[j]["rel"][1]) ** 2) ** 0.5
+                 + (0 if not is_tab or ref[i]["shape"] == other[j]["shape"] else PAIR_MAX) for j in O] for i in R]
+        for a, b in zip(*linear_sum_assignment(cost)):
+            if cost[a][b] <= PAIR_MAX:
+                out[R[a]] = O[b]
+    return out
+
+
+PAIR_MAX = 60.0          # points: further apart than this inside their blocks, two fields are not the same position
+
+
+def layout(bid: str, bp: dict, gid: str, blocks: list) -> dict:
+    """The block group as the person marked it: `blocks` the areas drawn, one per block, in order. Each block's
+    fields are the ones inside its area; the first block sets the positions (its parts top to bottom, left to right,
+    a table's cells row by row), the others' parts are paired with them (`_pair`), a table's cells by row and column.
+    A field with no pair gets a position of its own."""
+    import time
+    if len(blocks) < 2:
+        raise ValueError("mark two or more blocks")
+    rec = load_set(bid)
+    e = _editable(rec, gid)
+    page = e["page"]
+    code = {n: str(s.get("x_petey_id")) for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
+    tables = [t for t in listing(bid, bp) if t["kind"] == "table" and t["status"] == "active" and t["page"] == page]
+    taken: set = set()
+    per = []
+    for r in blocks:
+        names = [n for n in _in_area(bp, page, r) if n not in taken]
+        taken |= set(names)
+        per.append(_units(bp, names, tables)[0])
+    if sum(1 for u in per if u) < 2:
+        raise ValueError("fewer than two of the blocks have fields in them")
+    ref = per[0]
+    slots: list = []                      # a position: (ref unit index, table cell or None)
+    for i, u in enumerate(ref):
+        slots += [(i, rc) for rc in sorted(u["cells"])] if "table" in u else [(i, None)]
+    cells = []
+    parts = []
+    for i, u in enumerate(ref):
+        if "table" in u:
+            first = slots.index((i, min(u["cells"])))
+            parts.append({"from": first + 1, "to": first + len(u["cells"]), "tables": [u["table"]]})
+    for b, units in enumerate(per):
+        pair = {i: i for i in range(len(units))} if b == 0 else _pair(ref, units)
+        back = {j: i for i, j in pair.items()}
+        for i, j in pair.items():
+            if b and "table" in ref[i]:
+                next(p for p in parts if p["tables"][0] == ref[i]["table"])["tables"].append(units[j]["table"])
+        for j, u in enumerate(units):
+            i = back.get(j)
+            if i is None:                                   # no pair in the first block: positions of its own
+                for n in (u["cells"].values() if "table" in u else [u["name"]]):
+                    slots.append(("extra", n))
+                    cells.append([code[n], b, len(slots) - 1])
+                continue
+            if "table" in u:
+                for rc, n in u["cells"].items():
+                    k = slots.index((i, rc)) if (i, rc) in slots else None
+                    if k is None:
+                        slots.append(("extra", n))
+                        k = len(slots) - 1
+                    cells.append([code[n], b, k])
+            else:
+                cells.append([code[u["name"]], b, slots.index((i, None))])
+    e["cells"] = _compact(cells)
+    e["blocks"] = [list(map(float, r)) for r in blocks]
+    e["parts"] = parts
+    e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    _save_set(bid, rec)
+    return {"id": e["id"], "cells": len(cells), "blocks": len(blocks), "positions": len({c[2] for c in e["cells"]})}
+
+
+def _compact(cells: list) -> list:
+    """Positions numbered 0..n-1 in their order (an emptied one dropped), blocks likewise; cells by block, then
+    position."""
+    pos = {k: i for i, k in enumerate(sorted({c[2] for c in cells}))}
+    blk = {k: i for i, k in enumerate(sorted({c[1] for c in cells}))}
+    return sorted([[c[0], blk[c[1]], pos[c[2]]] for c in cells], key=lambda c: (c[1], c[2]))
+
+
+def set_cells(bid: str, bp: dict, gid: str, cells: list) -> dict:
+    """The layout as edited on the card: [[field code, block, position]] (swapped, moved, taken out, added). A field
+    once, a block and position once; positions and blocks renumbered in order."""
+    import time
+    have = {str(s.get("x_petey_id")) for s in (bp.get("fields") or {}).values() if isinstance(s, dict)}
+    cells = [[str(c), int(r), int(k)] for c, r, k in cells]
+    if len({c[0] for c in cells}) < len(cells):
+        raise ValueError("a field is in two places")
+    if len({(c[1], c[2]) for c in cells}) < len(cells):
+        raise ValueError("two fields in one place")
+    if any(c[0] not in have for c in cells):
+        raise ValueError("a field that is not on the form")
+    if len({c[1] for c in cells}) < 2:
+        raise ValueError("a block group needs two or more blocks")
+    rec = load_set(bid)
+    e = _editable(rec, gid)
+    e["cells"] = _compact(cells)
+    e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    _save_set(bid, rec)
+    return {"id": e["id"], "cells": len(cells)}
+
+
+def page_fields(bp: dict, page: int) -> list[dict]:
+    """Every field on the page with its code and box: what can be added to a block by clicking it."""
+    out = []
+    for n, s in (bp.get("fields") or {}).items():
+        if not isinstance(s, dict) or s.get("x_petey_id") is None:
+            continue
+        ws = [s["widget"]] if s.get("widget") else list((s.get("widgets") or {}).values())
+        r = _rect(bp, n)
+        if r and ws and all(w.get("page") == page for w in ws):
+            out.append({"name": n, "code": str(s["x_petey_id"]), "rect": r})
+    return out
+
+
 def _rect(bp: dict, name: str):
     """A field's box; an option group's (a column of a table or block since 2026-10-16) is the box around its boxes."""
     spec = (bp.get("fields") or {}).get(name) or {}
@@ -425,14 +603,15 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
             positions.append({"pos": k + 1, "wordings": wordings, "off": off, "caption": G.position_caption(bp, pcs, how, page_text)})
         bbox = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
         out.append({"id": e["id"], "page": page, "kind": "block" if g[0].get("block") else "grid",
-                    **{k: e.get(k) for k in ("source", "status", "from", "into")},
+                    **{k: e.get(k) for k in ("source", "status", "from", "into", "blocks", "parts")},
                     "lines": len({c[num_axis] for c in body}), "positions": positions, "reading": reading,
                     "rows_info": rows_info(g, body, pos_axis, num_axis), "keyed": G.keyed(g),
                     "aside": [{"row": r + 1, "why": why} for r, why in sorted(G.aside(g).items())],
                     "title": _title(bbox, page_text.get(page), heads.get(page), [p["caption"] for p in positions]),
                     "rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1,
                     "bbox": bbox,
-                    "cells": [dict({k: c[k] for k in ("name", "rect", "row", "col")}, total=c["name"] not in body_names)
+                    "cells": [dict({k: c[k] for k in ("name", "rect", "row", "col")}, total=c["name"] not in body_names,
+                                   code=str(((bp.get("fields") or {}).get(c["name"]) or {}).get("x_petey_id", "")))
                               for c in cells],
                     "on_pattern": ok, "why": why})
     out.sort(key=lambda t: (t["page"], t["bbox"][1], t["bbox"][0]))

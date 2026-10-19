@@ -90,7 +90,10 @@ class Grids:
                 c["accepted"] = (vs.get(c["name"]) or {}).get("verdict") == "accept"
             t["accepted"] = sum(c["accepted"] for c in t["cells"] if not c.get("total"))
             t["body"] = sum(not c.get("total") for c in t["cells"])     # validated when every one is accepted
-        return {"id": bid, "path": str(self.app.paths[bid]), "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
+        out = {"id": bid, "path": str(self.app.paths[bid]), "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
+        if self.kind == "block":        # what a block can take in, clicked on the page (the layout editor, 2026-10-19)
+            out["fields"] = {pg["page"]: grid_check.page_fields(bp, pg["page"]) for pg in pages}
+        return out
 
     def dismiss(self, bid: str, tid: str, on: bool) -> dict:
         """Cancel ("not a grid or block") a grid or block, the finder's or the person's, or restore it (2026-10-17: one
@@ -106,6 +109,16 @@ class Grids:
     def combine(self, bid: str, ids: list[str]) -> dict:
         from petey.validate import grid_check
         return grid_check.combine(bid, hand_review._load(self.app.working(bid)), ids)
+
+    def layout(self, bid: str, tid: str, blocks: list) -> dict:
+        """A block group's blocks as the person marked them, its fields paired across them (2026-10-19)."""
+        from petey.validate import grid_check
+        return grid_check.layout(bid, hand_review._load(self.app.working(bid)), tid, blocks)
+
+    def cells(self, bid: str, tid: str, cells: list) -> dict:
+        """A block group's layout as edited on its card: [[field code, block, position]]."""
+        from petey.validate import grid_check
+        return grid_check.set_cells(bid, hand_review._load(self.app.working(bid)), tid, cells)
 
     def _apply(self, bid: str):
         from petey.validate import form_chat
@@ -589,8 +602,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
-        if mode in ("grids", "blocks") and what in ("check", "dismiss", "create", "combine", "standardize"):   # Grids / Blocks
-            tab = getattr(APP, mode)
+        if mode in ("grids", "blocks") and what in ("check", "dismiss", "create", "combine", "standardize", "layout", "cells"):
+            tab = getattr(APP, mode)                     # Grids / Blocks
+            if what == "layout":                         # the blocks marked on the page
+                return self._route(lambda: tab.layout(bid, body["table"], list(body.get("blocks") or [])), bid)
+            if what == "cells":                          # the layout edited on the card
+                return self._route(lambda: tab.cells(bid, body["table"], list(body.get("cells") or [])), bid)
             if what == "check":                          # check and validate one
                 return self._route(lambda: tab.check(bid, body["table"]), bid)
             if what == "standardize":                    # a column, every inconsistent column, or a row

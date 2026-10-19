@@ -95,6 +95,23 @@
   .gttitle { font-weight:600; margin-bottom:3px; }
   .gtpos ol { margin:4px 0 0 18px; padding:0; font-size:12px; }
   .gtpos li { margin:2px 0; }
+  /* a block group's layout: one line per position, one column per block (2026-10-19) */
+  .glay table { border-collapse:collapse; font:11px var(--mono, monospace); margin-top:4px; }
+  .glay td, .glay th { border:1px solid var(--border); padding:1px 4px; text-align:left; white-space:nowrap; }
+  .glay th { color:var(--text-dim); font-weight:600; }
+  .glay tr.gap td { background:color-mix(in srgb, var(--flag, #d93025) 10%, transparent); }
+  .glay .lpart { color:var(--text-dim); }
+  .lchip { cursor:pointer; padding:0 3px; border-radius:3px; }
+  .lchip.pick, .lempty.pick { outline:2px solid var(--accent); }
+  .lchip .x { margin-left:4px; color:var(--text-dim); }
+  .lempty { cursor:pointer; color:var(--text-dim); padding:0 8px; }
+  .lpos { position:absolute; z-index:3; pointer-events:none; border:2px solid var(--c); font:600 9px/1 var(--mono, monospace); color:var(--c); }
+  .lpos span { position:absolute; left:1px; top:1px; background:var(--bg); padding:0 1px; }
+  .lpos.pick { border-width:3px; border-color:var(--accent); }
+  .lfree { position:absolute; z-index:4; cursor:copy; border:1px dashed var(--text-dim); }
+  .lfree:hover { border:2px solid var(--accent); }
+  .lblk { position:absolute; z-index:1; pointer-events:none; border:2px dashed var(--c); }
+  .lblk span { position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--c); background:var(--bg); padding:1px 3px; }
 
   /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
   .brand { cursor:pointer; }
@@ -2330,8 +2347,13 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
   const BLK = KIND === 'block', NOUN = BLK ? 'block group' : 'table';
   let GD = null, selected = null, results = {}, busy = new Set();
   let ticked = new Set(), drawKind = null, drawStart = null, drawBox = null;    // combine; draw a new one (2026-10-17)
+  // a block group's layout (2026-10-19): `marking` the group whose blocks are being marked on the page (`marks` the
+  // boxes so far, in order); `ed` the layout being edited on the card ({tid, cells: [[code, block, position]], pick:
+  // a code, or {b, k} an empty place}), saved in one go
+  let marking = null, marks = [], ed = null;
   const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
-  const prov = t => t.source === 'person' ? 'drawn by you' : t.source === 'combined' ? `combined from ${(t.from || []).join(' + ')}` : 'found by the finder';
+  const prov = t => t.source === 'person' ? 'drawn by you' : t.source === 'combined' ? `combined from ${(t.from || []).join(' + ')}`
+    : t.source === 'edited' ? `edited from ${(t.from || []).join(' + ')}` : 'found by the finder';
   const live = () => GD ? GD.tables.filter(t => !t.dismissed) : [];     // set aside as "not a grid or block": hidden
   const onPage = p => live().filter(t => t.page === p);
   const asidePage = p => GD ? GD.tables.filter(t => t.dismissed && t.page === p) : [];
@@ -2351,9 +2373,99 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       dots(d, (r[2] - r[0]) * scale, (r[3] - r[1]) * scale);
       const tag = document.createElement('span'); tag.className = 'gtid'; tag.textContent = t.id; tag.title = 'click to copy the reference'; d.appendChild(tag);
       tag.onclick = e => { e.stopPropagation(); copyTableRef(t.id); };
-      d.onclick = () => { if (drawKind) return; selected = t.id; placeAll(); panel(); };
+      d.onclick = () => { if (drawKind || marking) return; selected = t.id; placeAll(); panel(); };
+      if (BLK && selected === t.id) { placeLayout(t); continue; }
       for (const x of t.cells) if (x.rect) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : '')).style.setProperty('--c', c);
     }
+    marks.forEach((r, i) => { const d = put('lblk', r); d.style.setProperty('--c', 'var(--accent)'); d.innerHTML = `<span>block ${i + 1}</span>`; });
+  }
+  // the selected block group: its blocks outlined, every box with its position (same color for a position in every
+  // block, so a box in the wrong place shows); an empty place picked: the page's other boxes can be clicked in
+  const fieldsHere = () => (GD.fields || {})[page] || [];
+  const rectOf = code => (fieldsHere().find(f => f.code === code) || {}).rect;
+  const cellsOf = t => ed && ed.tid === t.id ? ed.cells : t.cells.map(x => [x.code, x.row, x.col]);
+  function placeLayout(t) {
+    (t.blocks || []).forEach((r, i) => { if (!marks.length) { const d = put('lblk', r); d.style.setProperty('--c', colorOfTable(t)); d.innerHTML = `<span>block ${i + 1}</span>`; } });
+    const pick = ed && ed.tid === t.id ? ed.pick : null;
+    for (const [code, b, k] of cellsOf(t)) {
+      const r = rectOf(code); if (!r) continue;
+      const d = put('lpos' + (pick === code ? ' pick' : ''), r, `${code} · block ${b + 1}, position ${k + 1}`);
+      d.style.setProperty('--c', GROUP_COLORS[k % GROUP_COLORS.length]); d.innerHTML = `<span>${k + 1}</span>`;
+    }
+    if (pick && typeof pick === 'object') {
+      const inIt = new Set(cellsOf(t).map(c => c[0]));
+      for (const f of fieldsHere()) {
+        const d = put('lfree', f.rect, `${f.code}: ${inIt.has(f.code) ? 'move it' : 'put it'} to block ${pick.b + 1}, position ${pick.k + 1}`);
+        d.onclick = e => { e.stopPropagation(); placeAt(f.code, pick.b, pick.k); };
+      }
+    }
+  }
+  function startEdit(t) { if (!ed || ed.tid !== t.id) ed = {tid: t.id, cells: cellsOf(t).map(c => [...c]), pick: null, dirty: false}; }
+  function placeAt(code, b, k) {                   // a field to a place: moved there if it is in the layout, else added
+    const at = ed.cells.find(c => c[1] === b && c[2] === k);
+    const cur = ed.cells.find(c => c[0] === code);
+    if (at && cur) { [at[1], at[2], cur[1], cur[2]] = [cur[1], cur[2], at[1], at[2]]; }   // both placed: swap
+    else if (at) { at[0] = code; }                                                      // replaces (the other leaves)
+    else if (cur) { cur[1] = b; cur[2] = k; }
+    else ed.cells.push([code, b, k]);
+    ed.pick = null; ed.dirty = true; placeAll(); panel();
+  }
+  function layoutHtml(t) {
+    const cells = cellsOf(t), mine = ed && ed.tid === t.id;
+    const nb = Math.max(1, ...cells.map(c => c[1] + 1)), np = Math.max(0, ...cells.map(c => c[2] + 1)) + 1;   // + one empty position
+    const at = {}; for (const c of cells) at[c[1] + ':' + c[2]] = c[0];
+    const part = {}; for (const p of t.parts || []) part[p.from - 1] = (p.tables || []).join(' / ');
+    const pick = mine ? ed.pick : null;
+    const rows = [...Array(np).keys()].map(k => {
+      const gap = k < np - 1 && [...Array(nb).keys()].some(b => !at[b + ':' + k]);
+      return `<tr class="${gap ? 'gap' : ''}"><th style="color:${GROUP_COLORS[k % GROUP_COLORS.length]}">${k < np - 1 ? k + 1 : 'new'}</th>${[...Array(nb).keys()].map(b => {
+        const code = at[b + ':' + k];
+        return `<td>${code ? `<span class="lchip ${pick === code ? 'pick' : ''}" data-lc="${esc(code)}" title="click, then click another to swap or an empty place to move it">${esc(code)}<span class="x" data-lx="${esc(code)}" title="take it out of the block group">×</span></span>`
+          : `<span class="lempty ${pick && pick.b === b && pick.k === k ? 'pick' : ''}" data-lb="${b}" data-lk="${k}" title="${pick && typeof pick === 'string' ? 'move it here' : 'pick, then click a box on the page'}">·</span>`}</td>`; }).join('')}
+        <td class="lpart">${part[k] ? esc(part[k]) : ''}</td></tr>`; }).join('');
+    const gaps = [...Array(np - 1).keys()].filter(k => [...Array(nb).keys()].some(b => !at[b + ':' + k])).length;
+    return `<details class="gtpos glay" ${selected === t.id ? 'open' : ''}><summary class="help">layout · ${nb} block${nb === 1 ? '' : 's'}, ${np - 1} positions${gaps ? ` · <span class="stale">${gaps} not in every block</span>` : ''}${t.blocks ? '' : ' · blocks not marked'}</summary>
+      ${marking === t.id ? `<div class="help"><b>Drag a box around each block on the page</b>, first block first: ${marks.length} marked.
+          <button class="btn mini primary" id="lMarkDone" ${marks.length < 2 ? 'disabled' : ''}>pair them</button> <button class="btn mini" id="lMarkStop">stop</button></div>`
+        : `<button class="btn mini" data-lmark="${esc(t.id)}" title="drag a box around each block, then the fields are paired with the first block's: a kept table whole, the rest by where they sit">mark blocks</button>`}
+      ${mine && ed.dirty ? `<button class="btn mini primary" id="lSave">save layout</button> <button class="btn mini" id="lUndo">undo changes</button>` : ''}
+      ${pick && typeof pick === 'object' ? `<div class="help">Click a box on the page to put it at block ${pick.b + 1}, position ${pick.k + 1}.</div>` : ''}
+      <table><tr><th>#</th>${[...Array(nb).keys()].map(b => `<th>block ${b + 1}</th>`).join('')}<th>table</th></tr>${rows}</table></details>`;
+  }
+  function bindLayout(a) {
+    const t = GD.tables.find(x => x.id === selected); if (!t) return;
+    a.querySelectorAll('.glay').forEach(d => d.addEventListener('click', e => e.stopPropagation()));
+    a.querySelectorAll('[data-lmark]').forEach(bt => bt.onclick = () => { marking = bt.dataset.lmark; marks = []; drawKind = null; placeAll(); panel(); });
+    if ($('#lMarkStop')) $('#lMarkStop').onclick = () => { marking = null; marks = []; placeAll(); panel(); };
+    if ($('#lMarkDone')) $('#lMarkDone').onclick = pairBlocks;
+    a.querySelectorAll('[data-lc]').forEach(el => el.onclick = () => {
+      startEdit(t); const code = el.dataset.lc, p = ed.pick;
+      if (typeof p === 'string' && p !== code) { const c = ed.cells.find(x => x[0] === code); placeAt(p, c[1], c[2]); return; }
+      ed.pick = p === code ? null : code; placeAll(); panel(); });
+    a.querySelectorAll('[data-lb]').forEach(el => el.onclick = () => {
+      startEdit(t); const b = +el.dataset.lb, k = +el.dataset.lk, p = ed.pick;
+      if (typeof p === 'string') { placeAt(p, b, k); return; }
+      ed.pick = p && p.b === b && p.k === k ? null : {b, k}; placeAll(); panel(); });
+    a.querySelectorAll('[data-lx]').forEach(el => el.onclick = e => { e.stopPropagation(); startEdit(t);
+      ed.cells = ed.cells.filter(c => c[0] !== el.dataset.lx); ed.pick = null; ed.dirty = true; placeAll(); panel(); });
+    if ($('#lSave')) $('#lSave').onclick = saveLayout;
+    if ($('#lUndo')) $('#lUndo').onclick = () => { ed = null; placeAll(); panel(); };
+  }
+  async function pairBlocks() {
+    const tid = marking, blocks = marks; marking = null; marks = [];
+    let out;
+    try { out = await send('POST', mapi(API, '/layout'), {table: tid, blocks}); }
+    catch (e) { alert('Could not pair them: ' + e.message); placeAll(); panel(); return; }
+    ed = null; selected = out.id; const keep = results; await loadMode(); results = keep;
+    toast(`${out.id}: ${out.blocks} blocks, ${out.positions} positions.`);
+  }
+  async function saveLayout() {
+    const tid = ed.tid;
+    let out;
+    try { out = await send('POST', mapi(API, '/cells'), {table: tid, cells: ed.cells}); }
+    catch (e) { alert('Could not save: ' + e.message); return; }
+    ed = null; selected = out.id; const keep = results; await loadMode(); results = keep;
+    toast(`${out.id}: layout saved.`);
   }
   function card(t) {
     const res = results[t.id], b = busy.has(t.id);
@@ -2374,6 +2486,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
           ? ` <button class="btn mini" data-std="${esc(t.id)}" data-pos="${p.pos}" ${b ? 'disabled' : ''} title="${p.wordings.length > 1 ? 'this column to one wording, each cell numbered as its row' : 'this column numbered as its rows'}">standardize</button>` : ''}</li>`).join('')}</ol></details>
       <details class="gtpos"><summary class="help">${blk ? 'blocks' : (t.reading === 'rows' ? 'columns' : 'rows')}${t.rows_info ? ` · ${esc(t.rows_info.summary)}` : ''}</summary><ol>${((t.rows_info || {}).lines || []).map(r =>
         `<li>${r.label != null ? `<code>${esc(r.label || '?')}</code>` : `<code>${esc(r.number || '?')}</code>${(r.numbers || []).length > 1 ? ` <span class="stale">also ${esc(r.numbers.slice(1).join(', '))}</span> <button class="btn mini" data-std="${esc(t.id)}" data-line="${r.line}" ${b ? 'disabled' : ''} title="every cell of this row takes the row's number, under its column's wording">standardize</button>` : ''}`} <span class="help">· ${r.cells} cells</span></li>`).join('')}</ol></details>
+      ${blk && selected === t.id ? layoutHtml(t) : ''}
       ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
       <button class="btn ${done(t) ? '' : 'primary'}" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : done(t) ? 'validated ✓ · check again' : 'check & validate'}</button>
       <button class="btn" data-notgrid="${esc(t.id)}" title="not a grid or block: hidden and kept out of 'check all'; one the finder found is recorded as its mistake, a combined one gives its parts back; restore below">cancel</button>
@@ -2407,6 +2520,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     a.querySelectorAll('[data-std]').forEach(bt => bt.onclick = e => { e.stopPropagation(); standardize(bt.dataset.std, bt.dataset.pos, bt.dataset.line); });
     a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
     if ($('#gtAll')) $('#gtAll').onclick = async () => { for (const t of onPage(page)) await run(t.id); };
+    if (BLK) bindLayout(a);
   }
   async function create(rect) {
     const kind = drawKind; drawKind = null;
@@ -2492,9 +2606,11 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       }
       if (e.key === 'Enter' && selected) { run(selected); return true; }
       if (e.key === 'Escape' && drawKind) { drawKind = null; panel(); return true; }
+      if (e.key === 'Escape' && marking) { marking = null; marks = []; placeAll(); panel(); return true; }
+      if (e.key === 'Escape' && ed && ed.pick) { ed.pick = null; placeAll(); panel(); return true; }
       return false;
     },
-    mousedown(e) { if (!drawKind || e.button !== 0) return; e.preventDefault(); e.stopPropagation(); drawStart = pt(e); },
+    mousedown(e) { if (!(drawKind || marking) || e.button !== 0) return; e.preventDefault(); e.stopPropagation(); drawStart = pt(e); },
     mousemove(e) {
       if (!drawStart) return; const q = pt(e);
       const r = [Math.min(drawStart[0], q[0]), Math.min(drawStart[1], q[1]), Math.max(drawStart[0], q[0]), Math.max(drawStart[1], q[1])];
@@ -2506,7 +2622,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     mouseup() {
       if (!drawStart) return;
       const b = drawBox; drawStart = null; drawBox = null;
-      if (b) { b.remove(); create(b._r); }
+      if (b) { b.remove(); if (marking) { marks.push(b._r); placeAll(); panel(); } else create(b._r); }
     },
   };
 }
