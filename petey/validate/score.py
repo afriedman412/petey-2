@@ -61,7 +61,7 @@ import yaml
 
 from petey.synth.boxes import widget_key
 
-REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty", "ink"}
+REACHED_PATHS = {"acroform", "text_clip", "ocr", "acroform_empty", "ink", "empty"}   # empty: the rect was reached, nothing in it (2026-10-19)
 
 
 _FALSY_ANSWER = {"n", "no", "false", "0", "off", "/off"}     # as extract.FALSY_ANSWER
