@@ -470,7 +470,8 @@ def _description_from_tooltip(tooltip: Optional[str]) -> Optional[str]:
 LABEL_BATCH = 150
 
 
-def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True):
+def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True, structure: dict | None = None,
+                       bulk: bool = False, parts_out: dict | None = None):
     """Label one page's widgets, in batches if the page is dense.
 
     The labeler already makes one call per page. That is not enough
@@ -491,6 +492,52 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
     widget list, so behaviour is unchanged for all but the dense minority
     (14 of 229 unlabeled forms average over 200 widgets per page).
     """
+    if structure:
+        # tables and repeated blocks found first (petey/label/structure.py, 2026-10-19): a structure is never split
+        # across batches, and each batch's prompt says which of its widgets form one. In bulk mode the labeler names
+        # a table's columns (a block's fields) once and the cells are printed from the parts, which the field keeps
+        # as x_petey_identifiers; a structure the labeler calls unlike, or a column it leaves out, is labeled one by one
+        from concurrent.futures import ThreadPoolExecutor
+        from petey.label import structure as S
+        bs = S.batches(widgets_on_page, structure, LABEL_BATCH)
+        n = len(widgets_on_page)
+        for i, batch in enumerate(bs):
+            print(f"    [batch] {len(batch)} widgets ({i + 1} of {len(bs)}, {n} on the page; structure-{'bulk' if bulk else 'guided'})")
+        if not bulk:
+            with ThreadPoolExecutor(max_workers=len(bs)) as ex:
+                results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
+                                                                     guidance=S.guidance(structure, {w["id"] for w in b})), bs))
+            merged = {}
+            for r in results:
+                merged.update(r)
+            return merged
+        inside = S.in_structure(structure)
+        with ThreadPoolExecutor(max_workers=len(bs)) as ex:
+            results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
+                                                                 guidance=S.guidance_bulk(structure, {w["id"] for w in b}),
+                                                                 want_parsed=True), bs))
+        merged, left_ids = {}, []
+        for b, (labels, parsed) in zip(bs, results):
+            ids = {w["id"] for w in b}
+            merged.update({i: l for i, l in labels.items() if i not in inside})
+            names, parts, left = S.print_cells(structure, parsed, ids)
+            merged.update(names)
+            if parts_out is not None:
+                parts_out.update(parts)
+            left_ids += [i for i in left if i not in merged]
+            for i in ids - inside:
+                if i not in merged and i in labels:
+                    merged[i] = labels[i]
+        if left_ids:                          # cells the bulk answer did not cover: labeled one by one, guided
+            by_id = {w["id"]: w for w in widgets_on_page}
+            rest = [by_id[i] for i in left_ids if i in by_id]
+            print(f"    [batch] {len(rest)} cells left by the bulk answer, labeled one by one")
+            for i in range(0, len(rest), LABEL_BATCH):
+                merged.update(_label_batch_via_llm(rest[i:i + LABEL_BATCH], words, model=model, think=think,
+                                                   guidance=S.guidance(structure, {w["id"] for w in rest[i:i + LABEL_BATCH]})))
+        printed = sum(1 for i in merged if i in inside and i not in left_ids)
+        print(f"    [structure] {printed} cells printed from column / field labels, {len(left_ids)} labeled one by one")
+        return merged
     if len(widgets_on_page) <= LABEL_BATCH:
         return _label_batch_via_llm(widgets_on_page, words, model=model, think=think)
 
@@ -531,7 +578,8 @@ def dropdown_spec(spec: dict, w: dict) -> dict:
     return spec
 
 
-def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True):
+def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True, guidance: str = "",
+                         want_parsed: bool = False):
     widget_lines = []
     for w in widgets_on_page:
         x0, y0, x1, y1 = w["rect"]
@@ -571,7 +619,8 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool
     user_text = (
         f"Widgets on this page:\n{widget_json}\n\n"
         f"Printed text on this page (with positions):\n{words_json}\n\n"
-        f"Emit a snake_case label for every widget."
+        + (guidance + "\n\n" if guidance else "")
+        + f"Emit a snake_case label for every widget."
     )
 
     from petey.synth.generate import make_client, provider_for
@@ -661,7 +710,7 @@ def _label_batch_via_llm(widgets_on_page, words, model: str = MODEL, think: bool
         print(f"[auto_label] ignored {n_ignored} label entries whose id is "
               f"not a widget on this page (of "
               f"{len(parsed['labels'])} returned)")
-    return out
+    return (out, parsed) if want_parsed else out
 
 
 def _sha1(path: Path) -> str:
@@ -680,6 +729,7 @@ def build_blueprint(
     retrieval_threshold: float = RETRIEVAL_ACCEPT,
     geometry: str = "auto",
     use_llm: bool = True,
+    structure: Optional[str] = None,       # None, "guide" (tables and blocks in the prompt) or "bulk" (columns named once)
 ) -> dict:
     widgets, dropped_widgets, geometry_method = enumerate_geometry(blank_pdf, geometry)
     print(f"[auto_label] geometry: {geometry_method} ({len(widgets)} fields)")
@@ -820,6 +870,13 @@ def build_blueprint(
               f"SKIPPING them rather than inventing labels. "
               f"OCR the source to recover these fields.")
 
+    page_structure: dict[int, dict] = {}
+    parts_by_id: dict[int, dict] = {}       # bulk: the parts a cell's name was printed from
+    if use_llm and structure:
+        from petey.label import structure as _S
+        page_structure = _S.find(blank_pdf, label_entries)
+        print(f"[auto_label] structure: " + ", ".join(
+            f"p{p} {len(st['tables'])} table(s) {len(st['blocks'])} block group(s)" for p, st in sorted(page_structure.items())) or "none")
     labels_by_id: dict[int, str] = {}
     audit_by_id: dict[int, dict] = {}
     retrieval_ct = 0
@@ -863,7 +920,8 @@ def build_blueprint(
             if residual:
                 words = _words_from_page(page_obj)
                 llm_labels = label_page_via_llm(
-                    residual, words, model=model,
+                    residual, words, model=model, structure=page_structure.get(page_no),
+                    bulk=(structure == "bulk"), parts_out=parts_by_id,
                 )
                 llm_ct += len(residual)
                 for wid, lbl in llm_labels.items():
@@ -1012,6 +1070,8 @@ def build_blueprint(
             spec["x_petey_description_source"] = "tooltip"
             n_tooltip_descriptions += 1
         _overlay_xfa(spec, w.get("path"))
+        if w["id"] in parts_by_id:
+            spec["x_petey_identifiers"] = dict(parts_by_id[w["id"]])
         fields[assigned] = _attach_audit(spec, w["id"])
 
     for group, val_to_widget in mutex_widgets.items():
@@ -1170,6 +1230,9 @@ def main() -> int:
                     help="where field rects come from; auto = AcroForm if present, else step2flat (sibling is opt-in)")
     ap.add_argument("--no-llm", action="store_true",
                     help="emit placeholder field names; no API call (geometry-only draft)")
+    ap.add_argument("--structure", nargs="?", const="guide", choices=["guide", "bulk"], default=None,
+                    help="find tables and repeated blocks first: 'guide' puts them in the labeler's prompt, 'bulk' names "
+                         "a column once and prints its cells (2026-10-19)")
     ap.add_argument("--no-retrieval", action="store_true",
                     help="disable local retrieval prepass; LLM-only")
     ap.add_argument("--retrieval-threshold", type=float,
@@ -1216,6 +1279,7 @@ def main() -> int:
         use_retrieval=not args.no_retrieval,
         geometry=args.geometry,
         use_llm=not args.no_llm,
+        structure=args.structure,
         retrieval_threshold=args.retrieval_threshold,
     )
 
