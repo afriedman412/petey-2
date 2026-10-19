@@ -30,6 +30,7 @@ import hashlib
 import json
 import re
 import subprocess
+import threading
 import time
 from pathlib import Path
 from typing import Optional
@@ -105,6 +106,19 @@ def _sha(p: Path) -> str:
 
 def verdict_path(bid: str) -> Path:
     return OUT / f"{bid}.json"
+
+
+# the server answers requests on threads: two saves of one record at once (je__cra_t2, 2026-10-19 16:20:42) wrote
+# over each other, the shorter on top of the longer, and left the file unreadable. Saves read, change and write the
+# record under one lock, and write it whole (a temporary file put in its place).
+_VERDICT_LOCK = threading.RLock()
+
+
+def _write_verdicts(bid: str, rec: dict) -> None:
+    p = verdict_path(bid)
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(p)
 
 
 def load_verdicts(bid: str) -> dict:
@@ -445,6 +459,10 @@ class State:
         """Merge the page's verdicts into the record. `on_pending` is called before the record is written when it
         holds a correction not yet applied (the page opens its working copy there, so the copy's snapshot of the
         record predates the correction)."""
+        with _VERDICT_LOCK:
+            return self._put_verdicts(bid, incoming, on_pending)
+
+    def _put_verdicts(self, bid: str, incoming: dict, on_pending=None) -> dict:
         p = self.path(bid)
         if p is None:
             raise KeyError(bid)
@@ -487,7 +505,7 @@ class State:
                               {"when": now, "blueprint_sha": sha})
             out["checked"].update(fields=len(names), flagged=sum(1 for n in names if vs[n]["verdict"] == "flag"))
         OUT.mkdir(parents=True, exist_ok=True)
-        verdict_path(bid).write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")
+        _write_verdicts(bid, out)
         if self._index:
             self._index[bid] = self._entry(bid)
         return out
@@ -810,6 +828,11 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
     `values` when it has none). Each field records `x_petey_hand_edit` {when, from, to, record}; the review
     record follows the rename; a form_run blueprint gets a `hand_edit` round in its run record. Writes the working
     copy while one is open (`draft.py`)."""
+    with _VERDICT_LOCK:
+        return _apply_edits(bid, dry=dry, log=log)
+
+
+def _apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
     p = working_path(bid)
     if p is None:
         raise SystemExit(f"{bid}: no such blueprint")
@@ -853,7 +876,7 @@ def apply_edits(bid: str, *, dry: bool = False, log=print) -> int:
     ck = rec.get("checked")
     if isinstance(ck, dict) and ck.get("blueprint_sha") == old_sha:
         ck["blueprint_sha"] = rec["blueprint_sha"]       # applying the corrections does not undo the check
-    verdict_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
+    _write_verdicts(bid, rec)
     log(f"{bid}: {len(edits)} correction(s) applied to {p}")
     return len(edits)
 
