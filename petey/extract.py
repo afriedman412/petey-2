@@ -76,16 +76,30 @@ OCR_DPI = 300
 _DINGBAT_MARKS = {"4", "8", "l", "n", "u", "H", "3", "6"}   # ZapfDingbats: check, cross, circle, square, heavy check ...
 
 
-def _text_in(page, rect) -> str:
+def _words_of(page, memo: Optional[dict], tag: str = "words") -> list:
+    """The page's words once (2026-10-19: asking pymupdf for the words clipped to each rect rebuilt the page's text
+    1,136 times on ACORD 90 NY, 2.6 of the 3.2 s a case)."""
+    key = (tag, page.number)
+    if memo is not None and key in memo:
+        return memo[key]
+    words = [(x0, y0, x1, y1, w, b, l, n) for x0, y0, x1, y1, w, b, l, n in page.get_text("words")]
+    if memo is not None:
+        memo[key] = words
+    return words
+
+
+def _text_in(page, rect, memo: Optional[dict] = None, tag: str = "words") -> str:
     """The words whose box lies mostly inside the rect, in reading order. A neighbour's glyph that only touches the
     rect is not the filer's; a value that overflows the box reads as what the box shows."""
     r = pymupdf.Rect(rect)
-    grown = pymupdf.Rect(r.x0 - 2, r.y0 - 2, r.x1 + 2, r.y1 + 2)
+    area_r = r.get_area()
     words = []
-    for x0, y0, x1, y1, w, b, l, n in page.get_text("words", clip=grown):
+    for x0, y0, x1, y1, w, b, l, n in _words_of(page, memo, tag):
+        if x1 < r.x0 - 2 or x0 > r.x1 + 2 or y1 < r.y0 - 2 or y0 > r.y1 + 2:
+            continue
         wb = pymupdf.Rect(x0, y0, x1, y1)
         inter = wb & r
-        if wb.get_area() > 0 and inter.get_area() >= 0.5 * wb.get_area():
+        if wb.get_area() > 0 and area_r > 0 and inter.get_area() >= 0.5 * wb.get_area():
             words.append((b, l, n, w))
     return " ".join(w for _, _, _, w in sorted(words)).strip()
 
@@ -96,7 +110,7 @@ def _page_has_text(page, memo: Optional[dict]) -> bool:
     key = ("has_text", page.number)
     if memo is not None and key in memo:
         return memo[key]
-    v = bool(page.get_text("text").strip())
+    v = bool(_words_of(page, memo))
     if memo is not None:
         memo[key] = v
     return v
@@ -447,11 +461,11 @@ def _extract_widget(
     # Path 2: rect-clipped text extraction — the PDF is flattened or
     # the widget path drifted; try the embedded text layer.
     rect = pymupdf.Rect(*widget["rect"])
-    txt = _text_in(page, rect)
+    txt = _text_in(page, rect, page_img_cache)
     if blank_page is not None and txt:
         # what the blank already prints in the rect (a caption that overlaps a small box, a "$", a dotted leader) is
         # not the filer's: only the added text counts, as only added ink counts for a mark
-        printed = set(_text_in(blank_page, rect).split())
+        printed = set(_text_in(blank_page, rect, page_img_cache, "blank_words").split())
         if printed:
             txt = " ".join(w for w in txt.split() if w not in printed).strip()
     if widget.get("widget_type") in ("checkbox", "radiobutton"):
