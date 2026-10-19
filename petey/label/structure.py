@@ -175,19 +175,25 @@ def guidance(page_struct: dict | None, ids: set[int]) -> str:
 from standardize_names import SUFFIXES  # noqa: E402
 
 BULK_RULES = (
-    "Name the structures by their parts, not cell by cell:\n"
-    "- A table: give each COLUMN one label, the wording every cell of the column shares, with NO row number in it "
-    "(vehicle_make_txt, parent_first_nm, gross_rents_amt). Say how its rows are told apart: \"rows\": \"numbered\" "
-    "when they are repetitions (row 1, row 2, ...; the printed line numbers or letters when the page prints them, "
-    "as a list of strings), or a list of row labels when each row is a thing of its own named on the page "
-    "(\"applicant\", \"spouse\"; \"subtotal\", \"total\"). If the rows are NOT alike at all (the layout code was "
-    "wrong and this is no table), answer \"rows\": \"unlike\" and label its widgets one by one in \"labels\".\n"
+    "Name the structures by their parts, not cell by cell. A table repeats along one axis: say which.\n"
+    "- Rows are the repetitions (vehicle 1, 2, 3 down the page; line items): give each COLUMN one label, the wording "
+    "every cell of the column shares, with NO row number in it (vehicle_make_txt, parent_first_nm), and "
+    "\"rows\": \"numbered\" (or the printed line numbers / letters as a list of strings when the page prints them).\n"
+    "- Columns are the repetitions (vehicle 1 .. 4 across the page; year 1, year 2; columns (a), (b), (c)): give each "
+    "ROW one label, the wording every cell of the row shares (bodily_injury_limit_amt, net_income_amt), as "
+    "\"rows\": [{\"row\": 1, \"label\": ...}, ...] and \"columns\": \"numbered\" (or the printed column "
+    "letters / numbers as a list of strings).\n"
+    "- Both named (rows are things, columns are kinds: applicant / spouse by first / last name): \"rows\" and "
+    "\"columns\" both as label lists; the cell's name joins them.\n"
+    "- Neither (the layout code was wrong, the rows are unalike): \"rows\": \"unlike\" and label its widgets one "
+    "by one in \"labels\".\n"
     "- A repeated block: give each FIELD of the block one label (the same field in every block), with no block "
     "number; the blocks are numbered in order.\n"
     "- Every other widget: one label in \"labels\" as usual. Do not repeat a table's or block's widgets there.\n"
     "Return JSON only:\n"
     '{"labels": [{"id": <int>, "label": "<slug>"}, ...],\n'
-    ' "tables": [{"id": "T1", "columns": [{"col": 1, "label": "<slug>"}, ...], "rows": "numbered" | ["<row label>", ...] | "unlike"}, ...],\n'
+    ' "tables": [{"id": "T1", "columns": [{"col": 1, "label": "<slug>"}, ...] | "numbered" | ["<printed>", ...],\n'
+    '             "rows": "numbered" | ["<printed>", ...] | [{"row": 1, "label": "<slug>"}, ...] | "unlike"}, ...],\n'
     ' "blocks": [{"id": "B1", "fields": [{"slot": 1, "label": "<slug>"}, ...]}, ...]}'
 )
 
@@ -235,38 +241,61 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
             if isinstance(e, dict) and isinstance(e.get(key), int):
                 out[e[key]] = _slug(e.get("label"))
         return out
+    def axis(v, key):
+        """('labels', {index: slug}) for a list of {row/col, label}; ('printed', [str]) for printed numbers or
+        letters; ('numbered', None); ('unlike', None); (None, None) when absent."""
+        if v is None:
+            return None, None
+        if isinstance(v, str):
+            return (v if v in ("numbered", "unlike") else None), None
+        if isinstance(v, dict):
+            return "labels", {int(k): _slug(x) for k, x in v.items() if str(k).isdigit()}
+        if isinstance(v, list):
+            if all(isinstance(x, dict) for x in v):
+                return "labels", entries(v, key)
+            return "printed", [_slug(x) for x in v]
+        return None, None
     tables = {t.get("id"): t for t in (parsed.get("tables") or []) if isinstance(t, dict)}
     for t in (page_struct or {}).get("tables") or []:
         cells = [c for c in t["cells"] if c["id"] in ids]
         if not cells:
             continue
-        ans = tables.get(t["id"])
-        cols = entries((ans or {}).get("columns"), "col") if ans else {}
-        rows = (ans or {}).get("rows")
-        if not ans or rows == "unlike" or not cols:
+        ans = tables.get(t["id"]) or {}
+        ckind, cval = axis(ans.get("columns"), "col")
+        rkind, rval = axis(ans.get("rows"), "row")
+        if not ans or rkind == "unlike" or ckind == "unlike" or (ckind != "labels" and rkind != "labels"):
             left += [c["id"] for c in cells]
             continue
-        row_labels = [_slug(x) for x in rows] if isinstance(rows, list) else None
-        # two boxes at one position: the finder gave two different boxes one column (ACORD 90 NY's transportation
-        # expense limits, 170 pt apart); a column label cannot name both, so they are labeled one by one
+        # two boxes at one position: the finder gave two different boxes one column; a label cannot name both
         at: dict[tuple, int] = {}
         for c in cells:
             at[(c["row"], c["col"])] = at.get((c["row"], c["col"]), 0) + 1
-        keyed = row_labels is not None and not all(x.replace("_", "").isalnum() and (x.isdigit() or (len(x) <= 3 and x[0].isdigit())) for x in row_labels)
+
+        def tag(kind, val, i):           # a line's number or label along one axis, 0-based index i
+            if kind == "labels":
+                return "label", (val or {}).get(i + 1)
+            if kind == "printed":
+                return "iter", (val[i] if i < len(val) else None)
+            return "iter", str(i + 1)
         for c in cells:
-            lab = cols.get(c["col"] + 1)
-            if not lab or at.get((c["row"], c["col"]), 0) > 1:
+            if at.get((c["row"], c["col"]), 0) > 1:
                 left.append(c["id"])
                 continue
-            subject, suffix = _split(lab)
-            if row_labels is not None and c["row"] < len(row_labels) and row_labels[c["row"]]:
-                if keyed:
-                    ident = {"subject": f"{row_labels[c['row']]}_{subject}", "suffix": suffix}
-                else:
-                    ident = {"subject": subject, "suffix": suffix, "iteration": row_labels[c["row"]]}
-            else:
-                ident = {"subject": subject, "suffix": suffix, "iteration": str(c["row"] + 1)}
-            if at.get((c["row"], c["col"]), 0) > 1:
+            ck, cv = tag(ckind, cval, c["col"])
+            rk, rv = tag(rkind, rval, c["row"])
+            if (ck == "label" and not cv) or (rk == "label" and not rv):
+                left.append(c["id"])
+                continue
+            if ck == "label" and rk == "label":          # both named: [row]_[column]
+                subject, suffix = _split(cv)
+                ident = {"subject": f"{rv}_{subject}", "suffix": suffix}
+            elif ck == "label":                          # columns named, rows iterate
+                subject, suffix = _split(cv)
+                ident = {"subject": subject, "suffix": suffix, "iteration": rv}
+            else:                                        # rows named, columns iterate
+                subject, suffix = _split(rv)
+                ident = {"subject": subject, "suffix": suffix, "iteration": cv}
+            if ident.get("iteration") is None and "iteration" in ident:
                 left.append(c["id"])
                 continue
             ident = {k: v for k, v in ident.items() if v}

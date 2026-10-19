@@ -211,6 +211,8 @@ def grids(bp: dict, blocks: bool = True) -> list[list[dict]]:
         xs, ws = _cluster([c["x"] for c in cells], TOL_X), None
         for c in cells:
             c["xc"] = _near(c["x"], xs, TOL_X)
+            if c["xc"] < 0:                  # no centre within reach (a dense page chains x values into one wide
+                c["xc"] = f"x{round(c['x'])}"   # cluster): its own column, not one bogus column for all such boxes
         for xi in set(c["xc"] for c in cells):
             group = [c for c in cells if c["xc"] == xi]
             for wc in _cluster([c["w"] for c in group], TOL_W):
