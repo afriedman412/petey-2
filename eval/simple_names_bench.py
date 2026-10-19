@@ -27,21 +27,24 @@ from petey.validate import grid_check as gc, hand_review as h  # noqa: E402
 # simple arms on the loop and timing columns). simple v1 (17:51): no identifier kind, an indicator on a Y / N text box
 # typed boolean. simple2 (18:02 on): those fixed. simple3 (19:00 on): no suffixed example left in the prompts
 # (the bulk rules kept vehicle_make_txt / parent_first_nm, the radio rule is_amended_return_ind), and a box of a
-# repeated person or thing says whose (sibling_7_marital_status, not marital_status).
+# repeated person or thing says whose (sibling_7_marital_status, not marital_status); IMM 5645 only, its bulk
+# answers dropped (the rule read as numbering every block's cells). simple4: a table or block answered by its parts
+# takes no number; IMM 5645 only, the lone box numbered in the middle, the printed block cells last. simple5: the
+# number last in the examples, as printing writes it.
 FORMS = {"acord_90_ny": ("je__acord_90_ny", {"standard": ["acord_90_ny_bulk5", "acord_90_ny_std"],
                                              "simple v1": ["acord_90_ny_simple"],
                                              "simple2": ["acord_90_ny_simple2", "acord_90_ny_simple2b"],
-                                             "simple3": ["acord_90_ny_simple3"]}),
+                                             "simple3": ["acord_90_ny_simple3"], "simple4": ["acord_90_ny_simple4"], "simple5": ["acord_90_ny_simple5"]}),
          "f8825": ("je__f8825", {"standard": ["f8825_bulk3", "f8825_final", "f8825_std"], "simple v1": ["f8825_simple"],
                                  "simple2": ["f8825_simple2", "f8825_simple2b"],
-                                             "simple3": ["f8825_simple3"]}),
+                                             "simple3": ["f8825_simple3"], "simple4": ["f8825_simple4"], "simple5": ["f8825_simple5"]}),
          "ao040b": ("je__ao040b", {"standard": ["ao040b_bulk5", "ao040b_final", "ao040b_std"], "simple v1": [],
                                    "simple2": ["ao040b_simple2", "ao040b_simple2b"],
-                                             "simple3": ["ao040b_simple3"]}),
+                                             "simple3": ["ao040b_simple3"], "simple4": ["ao040b_simple4"], "simple5": ["ao040b_simple5"]}),
          "imm5645": ("je__ircc_imm_5645", {"standard": ["imm5645_bulk3", "imm5645_final", "imm5645_std"],
                                            "simple v1": ["imm5645_simple"],
                                            "simple2": ["imm5645_simple2", "imm5645_simple2b"],
-                                             "simple3": ["imm5645_simple3"]})}
+                                             "simple3": ["imm5645_simple3"], "simple4": ["imm5645_simple4"], "simple5": ["imm5645_simple5"]})}
 
 
 # the kind of value, in either scheme's spelling: left out of the subject comparison on both sides (the plan: the

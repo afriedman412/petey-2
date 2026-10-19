@@ -316,7 +316,9 @@ def _rules() -> str:
     r = r.replace('"columns": [{"col": 1, "label": "<slug>"}, ...]', '"columns": [{"col": 1, "label": "<slug>", "kind": "<kind>"}, ...]')
     r = r.replace('[{"row": 1, "label": "<slug>"}, ...]', '[{"row": 1, "label": "<slug>", "kind": "<kind>"}, ...]')
     r = r.replace('"fields": [{"slot": 1, "label": "<slug>"}, ...]', '"fields": [{"slot": 1, "label": "<slug>", "kind": "<kind>"}, ...]')
-    return r + "\nEvery column, row or field label carries its \"kind\" as the labels do; no suffix in the label."
+    return (r + "\nEvery column, row or field label carries its \"kind\" as the labels do; no suffix in the label."
+            " A widget in \"labels\" that belongs to one of the numbered people or things (a box the block layout "
+            "missed) still says whose, with its number last: sibling_marital_status_7.")
 
 
 def guidance_bulk(page_struct: dict | None, ids: set[int]) -> str:
