@@ -199,6 +199,28 @@ ACORD 90 NY: 16k -> 9.8k) and leaves every printed cell with its parts stored. O
 no parts yet; the kept-list ids for structures found before labeling (today `listing` refinds them on the finished
 blueprint); whether bulk goes on by default (it is a flag on form_run today).
 
+## The validate pass, measured and cut (2026-10-19, late)
+
+A loop round on ACORD 90 NY cost about seven minutes whether it changed 24 fields or none, because the pass
+regenerated, re-extracted and re-judged the whole form every round. Measured step by step (round 1, 14:29-14:40):
+classify the boxes for the generator 4 min (once per blank, cached), make and fill 3 cases 1 min, native
+extraction and scoring 3 min, the judge 2 min (a Sonnet call per 120 fields with the whole document in each, cached
+on the whole document and field list, so any rename missed every call), then detection and the reviewer. Fixed:
+
+- **Native extraction** walked `page.widgets()` for every field: 213,000 widget loads, 182 s a case. The page's
+  widgets are indexed once: 0.7 s, the same 687 values.
+- **The judge** reads one page per call, a page's fields against that page's text, cached on the page and its
+  fields, the pages together. A page nothing changed on is free in the next round.
+- **The classifier's pages** go out together (64 + 34 + 11 + 11 s -> the slowest).
+- Also: the labeler's batches and the page check's pages together (the morning's change).
+
+A full pass on the guided ACORD 90 NY blueprint now takes 1 min 38 s (three cases: fill 55 s, native 2 s, judge
+and scoring 40 s), from about six with the classification cached and ten without. A second pass with nothing
+changed took the same, because one page's filled text differed between two renders of the same frozen case (a
+money box drawn "424 / 87" then "424 87 / 00"), which re-asked that page: the fill is not byte-deterministic, and
+that is the next thing to look at if the warm pass should be free. The 40-minute ACORD 90 NY run would be about
+20 with these in: the labeling, the reviewer's Opus calls and the first page check are what is left.
+
 ## Where things stand (end of 2026-10-18 / 19 session)
 
 On `validation-tools-2026-10-14` (pushed only up to the commits before this session's; Andrew opens the PR):
