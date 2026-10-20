@@ -53,8 +53,16 @@ yesterday's standard wrong-type flags. They also showed the simple scheme's own 
 - Folded by Claude, not yet confirmed: `birth_date` and `service_date` are no longer offered; they are `iso_date` to
   the letter (type, pattern, charset), and IMM 5645's dates of birth came back as either.
 
+## Decided later the same day (Andrew)
+
+- **Simple names are the default** for new blueprints (`--names standard` gives the suffixed scheme).
+- **Non-US patterns**: new kinds `ca_postal_code` (A1A 1A1), `uk_postcode` (SW1A 1AA), `uk_phone`, `intl_phone`
+  (Canada's phones fit `phone`). 19 fields in 11 library blueprints corrected in their working copies as Claude's
+  edits (CRA T2 and T1 postal codes; HMRC 64-8, IHT400 and six Companies House phones; Hong Kong IRD phone and fax),
+  for Andrew to save or discard on the review page; IRCC IMM 5476's representative postal code left as a suggestion
+  (the country varies).
+- **Dates**: what a date is for belongs in the name; the type is `iso_date`.
+
 ## Open
 
-- US patterns on non-US forms (`zip`, `phone`): both schemes; a fix needs some notion of the form's country, or
-  patterns that only apply when they match.
-- Simple as the default for new blueprints, and the suffix printed on request (not built).
+- The suffix printed on request (MeF-style names from the type at output): not built.
