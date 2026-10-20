@@ -99,7 +99,8 @@ SEMANTIC_TO_CLASS: dict[str, str] = {
     "street_address": "street", "name_and_address": "address_block", "entity_name": "business_name",
     "business_name": "business_name", "first_name": "first_name", "last_name": "last_name",
     "person_name": "full_name", "description": "free_text", "text": "free_text",
-    "indicator": "option",
+    "indicator": "option", "name": "full_name", "ca_postal_code": "zip", "uk_postcode": "zip", "uk_phone": "phone",
+    "intl_phone": "phone",
 }
 
 # Classes that agree with each other for the labeler comparison (a whole

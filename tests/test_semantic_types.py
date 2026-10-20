@@ -105,3 +105,36 @@ class TestVocabulary:
     def test_not_offered_types_stay_registered(self):
         # blueprints that carry them stay valid
         assert {"first_name", "business_name", "person_name", "birth_date", "name"} <= set(registered_names())
+
+
+# ---------------------------------------------------------------------------
+# Postal codes and phone numbers outside the US (2026-10-20)
+# ---------------------------------------------------------------------------
+
+import re                                                     # noqa: E402
+
+from petey.semantic_types import pattern_for                  # noqa: E402
+
+
+@pytest.mark.parametrize("kind, good, bad", [
+    ("ca_postal_code", ["K1A 0B1", "M5V3L9", "h0h 0h0", "T2P-1J9"], ["12345", "K1A 0B", "SW1A 1AA"]),
+    ("uk_postcode", ["SW1A 1AA", "M1 1AE", "B33 8TH", "CR2 6XH", "DN55 1PT", "EC1A1BB"], ["12345", "K1A 0B1", "SW1A"]),
+    ("uk_phone", ["020 7946 0958", "+44 20 7946 0958", "07700 900123", "01632 960001"], ["555-123-4567", "123"]),
+    ("intl_phone", ["+852 2123 4567", "+61 2 9374 4000", "2123 4567", "+353 1 234 5678"], ["12", "phone"]),
+    ("zip", ["20500", "20500-0003"], ["K1A 0B1", "SW1A 1AA"]),                 # the US pattern, unchanged
+])
+def test_patterns(kind, good, bad):
+    pat = pattern_for(kind)
+    assert pat and all(re.fullmatch(pat, v) for v in good) and not any(re.fullmatch(pat, v) for v in bad)
+
+
+def test_non_us_kinds_are_offered_and_carry_their_patterns():
+    v = set(json.loads(prompt_vocabulary()))
+    assert {"ca_postal_code", "uk_postcode", "uk_phone", "intl_phone"} <= v
+    assert enrich_from_kind("uk_postcode", "text")["pattern"] == pattern_for("uk_postcode")
+
+
+def test_names_are_not_typed_by_the_new_kinds():
+    # no slug matcher: the standard scheme's name inference is unchanged
+    assert enrich_field("mailing_postal_code", "text")["semantic_type"] == "zip"
+    assert enrich_field("home_phone", "text")["semantic_type"] == "phone"

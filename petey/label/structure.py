@@ -23,7 +23,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
 
-SIMPLE = False        # the simple naming scheme: examples without suffixes, a kind with every label
+SIMPLE = True         # the simple naming scheme (the default since 2026-10-20): examples without suffixes, a kind with every label
 _KIND = {"text": "text", "checkbox": "checkbox", "radiobutton": "radio", "radio": "radio", "combobox": "combobox",
          "listbox": "listbox", "signature": "text"}
 

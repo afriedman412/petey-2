@@ -342,7 +342,7 @@ def main() -> int:
     ap.add_argument("--blank", required=True, type=Path)
     ap.add_argument("--reloop", action="store_true", help="re-run the loop from the last run's round 0 (no label)")
     ap.add_argument("--no-library", action="store_true", help="skip the library blueprint's comparison check")
-    ap.add_argument("--names", choices=["standard", "simple"], default=None, help="simple: subject-only names (docs/PLAN_SIMPLE_NAMES.md)")
+    ap.add_argument("--names", choices=["standard", "simple"], default=None, help="simple (the default) or standard (suffixed names); docs/PLAN_SIMPLE_NAMES.md")
     ap.add_argument("--structure", nargs="?", const="guide", choices=["guide", "bulk"], default=None,
                     help="tables and repeated blocks found first: guide the labeler, or name columns once (bulk) (2026-10-19)")
     ap.add_argument("--first-model", default=FIRST_MODEL, help=f"round-0 page check of every field (default {FIRST_MODEL})")

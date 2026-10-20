@@ -397,7 +397,7 @@ Return JSON only:
 
 # the simple naming scheme (docs/PLAN_SIMPLE_NAMES.md, 2026-10-19): the name is the subject in the form's own words,
 # the kind of value is a separate answer that sets type and semantic type; no suffix in the name
-NAMES = "standard"
+NAMES = "simple"          # the default since 2026-10-20 (Andrew: "simple defaults from here")
 _KINDS: dict[int, str] = {}          # widget id -> the kind the labeler gave (simple scheme)
 
 
@@ -425,7 +425,10 @@ def _simple_system() -> str:
              "LOC #, VEH #, DRIVER NUMBER, is an identifier); \"money\" for a sum of money, \"count\" only for a "
              "box that asks how many of something (a number of units, years, days), \"indicator\" for a box answered yes or no "
              "(Y / N), \"percent\" for a percentage, \"iso_date\" for a full date, \"year\" for a "
-             "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\" as their names say.\n")
+             "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\" as their names say. "
+             "Outside the US: \"ca_postal_code\" for a Canadian postal code (A1A 1A1), \"uk_postcode\" for a UK "
+             "postcode (SW1A 1AA), another country's postal code is \"text\"; \"phone\" is a US or Canadian "
+             "number, \"uk_phone\" a UK one, \"intl_phone\" another country's.\n")
     out = (LABEL_SYSTEM[:a] + rules + LABEL_SYSTEM[b:]).replace("`is_amended_return_ind`", "`is_amended_return`")
     return out.replace('{"labels": [{"id": <int>, "label": "<snake_case_slug>"}, ...]}',
                        '{"labels": [{"id": <int>, "label": "<snake_case_slug>", "kind": "<kind>"}, ...]}')
@@ -772,7 +775,7 @@ def build_blueprint(
     geometry: str = "auto",
     use_llm: bool = True,
     structure: Optional[str] = None,       # None, "guide" (tables and blocks in the prompt) or "bulk" (columns named once)
-    names: str = "standard",               # "simple": subject-only names, the kind of value answered apart
+    names: str = "simple",                 # subject-only names, the kind of value answered apart; "standard": suffixes
 ) -> dict:
     global NAMES
     NAMES = names
@@ -1286,8 +1289,9 @@ def main() -> int:
     ap.add_argument("--structure", nargs="?", const="guide", choices=["guide", "bulk"], default=None,
                     help="find tables and repeated blocks first: 'guide' puts them in the labeler's prompt, 'bulk' names "
                          "a column once and prints its cells (2026-10-19)")
-    ap.add_argument("--names", choices=["standard", "simple"], default="standard",
-                    help="simple: subject-only names, the kind of value answered apart (docs/PLAN_SIMPLE_NAMES.md)")
+    ap.add_argument("--names", choices=["standard", "simple"], default="simple",
+                    help="simple (the default since 2026-10-20): subject-only names, the kind of value answered apart "
+                         "(docs/PLAN_SIMPLE_NAMES.md); standard: MeF-style suffixes")
     ap.add_argument("--no-retrieval", action="store_true",
                     help="disable local retrieval prepass; LLM-only")
     ap.add_argument("--retrieval-threshold", type=float,

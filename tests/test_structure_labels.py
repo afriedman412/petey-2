@@ -162,3 +162,15 @@ def test_page_check_lets_numbered_lines_of_one_answer_be():
     # "Entered or withdrawn by" over five lines was flagged `continues` in every run)
     from petey.validate.page_check import SYSTEM
     assert "Do not flag lines that are already named as numbered lines of one answer" in SYSTEM
+
+
+def test_simple_is_the_default():
+    # Andrew, 2026-10-20: "simple defaults from here"
+    import inspect
+    assert inspect.signature(auto_label.build_blueprint).parameters["names"].default == "simple"
+    assert 'default="simple"' in inspect.getsource(auto_label.main)
+
+
+def test_simple_prompt_names_the_non_us_kinds(simple):
+    p = auto_label._system()
+    assert '"ca_postal_code"' in p and '"uk_postcode"' in p and '"intl_phone"' in p

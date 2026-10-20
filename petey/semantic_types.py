@@ -286,6 +286,15 @@ SPEC_ONLY_TYPES: tuple[SemanticType, ...] = (
     # any name, a person's or an organization's, whole or part: the one name kind the labeler is offered (Andrew,
     # 2026-10-20). No matcher, so names are not typed from slugs.
     SemanticType(name="name", matches=()),
+    # postal codes and phone numbers outside the US (Andrew, 2026-10-20: "we can just use different patterns"): the
+    # `zip` and `phone` patterns are American (Canada's phone numbers fit `phone`, its postal codes do not). No slug
+    # matcher: the labeler picks them, as the page shows the country.
+    SemanticType(name="ca_postal_code", matches=(), pattern=r"^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$"),
+    SemanticType(name="uk_postcode", matches=(), pattern=r"^[A-Za-z]{1,2}\d[A-Za-z\d]?\s?\d[A-Za-z]{2}$"),
+    SemanticType(name="uk_phone", matches=(), pattern=r"^(?:\+44\s?|0)(?:\d[\s-]?){9,10}$",
+                 ocr_whitelist="0123456789+-() "),
+    SemanticType(name="intl_phone", matches=(), pattern=r"^\+?(?:\d[\s().-]?){6,15}$",
+                 ocr_whitelist="0123456789+-() "),
 )
 
 # Every value registered by spec §5.8.1 — the canonical vocabulary, as
