@@ -18,7 +18,7 @@ endif
 .PHONY: test
 
 test:
-	@export FLASK_ENV=test && python -m pytest tests/
+	@PYTHONPATH=. $(PYTHON) -m pytest
 
 .PHONY: install
 

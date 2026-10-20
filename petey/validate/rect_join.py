@@ -101,8 +101,12 @@ def case_to_paths(bpt: dict, case: dict[str, Any],
             continue
         # a field whose rect covers several case cells (a comb the finder
         # split) holds their concatenation in reading order, as the filler wrote it
+        # the filler's rule (synth.render): a cell is inside when its AREA is under 0.9 of the field's; a width rule
+        # missed the lines of a two-line box (full width, half height: Form 8825's address cells, 2026-10-20) and
+        # reported the second line as a box no field claims
+        area = lambda r: max(r[2] - r[0], 0) * max(r[3] - r[1], 0)    # noqa: E731
         inside = [r for r in rows if isinstance(r["value"], str) and overlap(rect, r["rect"]) >= 0.5
-                  and (r["rect"][2] - r["rect"][0]) < (rect[2] - rect[0]) * 0.9]
+                  and area(r["rect"]) < area(rect) * 0.9]
         if len(inside) > 1:
             inside.sort(key=lambda r: (round(r["rect"][1] / 4), r["rect"][0]))
             for r in inside:
@@ -112,6 +116,11 @@ def case_to_paths(bpt: dict, case: dict[str, Any],
             gt[path] = v if spec.get("type") != "boolean" else bool(v)
             continue
         used.add(m["key"])
+        # with the filler's targets, the cells of a split widget all landed at the widget's own rect (one value,
+        # the joined string, reported on each): every one of them is this field's, not a box no field claims
+        for r in rows:
+            if r["rect"] == m["rect"] and r["value"] == m["value"]:
+                used.add(r["key"])
         v = m["value"]
         if spec.get("type") == "boolean":
             gt[path] = v is True or (isinstance(v, str) and v.strip().lower() in ("x", "yes", "true"))

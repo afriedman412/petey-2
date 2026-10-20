@@ -268,6 +268,26 @@ def _draw_mark(page, rect) -> None:
                    color=(0, 0, 0), width=1.0)
 
 
+def _join_cells(cells: list[tuple[float, str]]) -> str:
+    """One widget's string from the values drawn for the page cells inside it, in reading order ((top, value)
+    pairs). Cells side by side on one line (a comb the finder split) run together: "1", "2", "3" -> "123". Cells on
+    different lines (a two-line box the finder saw as two) are lines of one answer: joined with a space, and a line
+    that repeats the line above is written once (the bank draws the same kind of value for both lines of an address
+    box: Form 8825's "Omar Fischer, 1120" twice, run together, 2026-10-20)."""
+    lines: list[list[str]] = []
+    last_y: Optional[float] = None
+    for y, v in cells:
+        if last_y is None or round(y / 4) != round(last_y / 4):
+            lines.append([])
+        lines[-1].append(v)
+        last_y = y
+    out: list[str] = []
+    for line in ("".join(parts) for parts in lines):
+        if line and (not out or line != out[-1]):
+            out.append(line)
+    return " ".join(out)
+
+
 def _parts_for(value: str, cls: Optional[str], n: int) -> list[str]:
     """How a filer spreads one value over `n` boxes that the page shows as
     one: a date by month / day / year, an amount by dollars / cents, a
@@ -354,9 +374,9 @@ def render_case(
             for xk, members in owners.items():
                 if len(members) > 1:
                     members.sort(key=lambda t: (round(t[0] / 4), t[1]))
-                    text = "".join(str(case[k]) for _, _, k in members)
+                    joined_text = _join_cells([(y, str(case[k])) for y, _, k in members])
                     for _, _, k in members:
-                        joined[k] = text
+                        joined[k] = joined_text
         written: set[str] = set()
         marked_on: set[str] = set()
         text_written: dict[str, str] = {}     # "page:xref" -> the value on the page
