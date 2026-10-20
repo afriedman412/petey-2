@@ -155,3 +155,10 @@ class TestPrompts:
         monkeypatch.setattr(S, "SIMPLE", False)
         assert auto_label._system() == auto_label.LABEL_SYSTEM
         assert "vehicle_make_txt" in S._rules() and '"kind"' not in S._rules()
+
+
+def test_page_check_lets_numbered_lines_of_one_answer_be():
+    # Andrew, 2026-10-20: "multiple text lines split into many similarly labeled fields is common" (CBP 7512's
+    # "Entered or withdrawn by" over five lines was flagged `continues` in every run)
+    from petey.validate.page_check import SYSTEM
+    assert "Do not flag lines that are already named as numbered lines of one answer" in SYSTEM

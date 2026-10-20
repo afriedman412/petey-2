@@ -92,7 +92,8 @@ year, a box that takes one of a printed list of choices typed as free text).
 duplicates another field's box).
 - continues: the box is a further line of another field's answer (the answer runs on from the line above, with no \
 caption of its own, or the page says it continues), so the two should be one field; put the name of the field it \
-continues in proposed_name.
+continues in proposed_name. Do not flag lines that are already named as numbered lines of one answer \
+(address_line_1, address_line_2; remarks_1, remarks_2): several fields for one multi-line answer are fine.
 - should_group: this checkbox is one of several that answer one question, whether the filer ticks one or several \
 (a list of boxes to tick under one question, item or column), and the blueprint keeps them as separate fields; name \
 the others in the reason.
