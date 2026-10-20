@@ -268,6 +268,46 @@ def _draw_mark(page, rect) -> None:
                    color=(0, 0, 0), width=1.0)
 
 
+_MULTILINE = 1 << 12          # text field flags (PDF 32000-1, table 228)
+_COMB = 1 << 24
+_PAD = 2.0                    # points a viewer keeps clear inside a text field's border, each side
+
+
+def fit_widget(value: str, rect, fontsize: float, *, multiline: bool = False, comb: bool = False) -> str:
+    """The part of `value` a widget shows: what fits its width at its own font size (one line), or its lines (a
+    multi-line field, words wrapped), cut at a word and else a character, as a filer types only what the box takes.
+    2026-10-20: a test value drawn for the page finder's box, wider than the widget inside it, overflowed ACORD 90 NY's
+    22 pt state boxes ("REF97533" read back "EF975") and was scored as the blueprint's miss (69 of ~100 wrong values
+    there). A comb field is left to its MaxLen."""
+    s = str(value)
+    if comb or not s:
+        return s
+    fs = float(fontsize or 0) or 12.0          # auto size: a viewer shrinks; pymupdf draws about 12 pt
+    r = pymupdf.Rect(rect)
+    avail = max(r.width - 2 * _PAD, 1.0)
+    width = lambda t: pymupdf.get_text_length(t, fontname="helv", fontsize=fs)     # noqa: E731
+    n_lines = max(1, int((r.height - 2 * _PAD + 0.5) // (fs * 1.15))) if multiline else 1
+    lines, cur = [], ""
+    for word in s.split(" "):
+        trial = f"{cur} {word}" if cur else word
+        if width(trial) <= avail:
+            cur = trial
+            continue
+        if cur:
+            lines.append(cur)
+        cur = word
+        if width(cur) > avail:                         # a word longer than a line is not broken: it is cut there
+            while len(cur) > 1 and width(cur) > avail:
+                cur = cur[:-1]
+            lines.append(cur)
+            cur = ""
+            break
+    if cur:
+        lines.append(cur)
+    out = " ".join(lines[:n_lines])
+    return out if s.startswith(out) else s[:len(out)]
+
+
 def widget_cells(case: dict[str, Any], widgets: dict[int, list[dict]], n_pages: int) -> dict[str, list[str]]:
     """{widget: [case keys]} for every widget that holds more than one of the case's text cells (a widget the page
     finder split: a comb, a two-line box), the keys in reading order. Only a CELL inside the widget counts; a box
@@ -439,6 +479,14 @@ def render_case(
                         maxlen = int(wid.text_maxlen or 0)
                         if maxlen and len(part) > maxlen:
                             part = part[:maxlen]
+                        elif not maxlen:            # a part fits its own widget too (ACORD 90 NY's state boxes)
+                            fitted = fit_widget(part, wid.rect, wid.text_fontsize,
+                                                multiline=bool(wid.field_flags & _MULTILINE),
+                                                comb=bool(wid.field_flags & _COMB))
+                            if fitted != part:
+                                report["truncated"].append({"key": key, "wanted": part, "wrote": fitted,
+                                                            "maxlen": None, "width": round(wid.rect.width, 1)})
+                                part = fitted
                         wid.field_value = part
                         wid.update()
                         text_written[xk] = part
@@ -527,6 +575,13 @@ def render_case(
                         s2 = compact[:maxlen]
                         report["truncated"].append({"key": key, "wanted": s, "wrote": s2, "maxlen": maxlen})
                         s = s2
+                    elif not maxlen:
+                        fitted = fit_widget(s, w.rect, w.text_fontsize, multiline=bool(w.field_flags & _MULTILINE),
+                                            comb=bool(w.field_flags & _COMB))
+                        if fitted != s:
+                            report["truncated"].append({"key": key, "wanted": s, "wrote": fitted, "maxlen": None,
+                                                        "width": round(w.rect.width, 1)})
+                            s = fitted
                     w.field_value = s
                     w.update()
                     text_written[xk] = s

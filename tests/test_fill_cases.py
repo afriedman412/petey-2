@@ -137,3 +137,42 @@ class TestExpectedValues:
         assert gt[ADDR] == "1120 Sycamore Terrace Fresno, CA 93721"
         assert gt[NAME] == "Harbor Light Logistics Inc"
         assert unclaimed == {}
+
+
+# ---------------------------------------------------------------------------
+# fit_widget: a value fits the widget it is typed into
+# ---------------------------------------------------------------------------
+
+from petey.extract import extract                       # noqa: E402
+from petey.synth.render import fit_widget               # noqa: E402
+
+TYPE_CELL, TYPE_RECT = "p1:201.6,180.0,295.2,204.0", [201.6, 180.0, 295.2, 204.0]     # multi-line, 93.6 pt, 8 pt font
+
+
+class TestFitWidget:
+    def test_a_long_value_in_a_narrow_box_is_cut_to_what_shows(self):
+        # ACORD 90 NY's 22 pt state box: "REF97533" read back "EF975" and was scored as the blueprint's miss
+        assert fit_widget("REF97533", (428, 318, 450, 330), 8) == "REF"
+
+    def test_a_value_that_fits_is_unchanged(self):
+        assert fit_widget("VA", (428, 318, 450, 330), 8) == "VA"
+        assert fit_widget("Harbor Light Logistics Inc", (36, 94, 453.6, 108), 8) == "Harbor Light Logistics Inc"
+
+    def test_multiline_wraps_words_over_its_lines(self):
+        s = "Rental real estate with several units on two parcels near the river"
+        assert fit_widget(s, TYPE_RECT, 8, multiline=True) == "Rental real estate with several units on two"
+
+    def test_a_word_longer_than_a_line_is_cut_not_broken(self):
+        assert fit_widget("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 Second", TYPE_RECT, 8, multiline=True) == \
+            "ABCDEFGHIJKLMNOP"
+
+    def test_comb_is_left_to_its_maxlen(self):
+        assert fit_widget("123456789", (0, 0, 20, 12), 8, comb=True) == "123456789"
+
+    @pytest.mark.parametrize("value", ["ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 Second",
+                                       "Rental real estate with several units on two parcels near the river", "Duplex"])
+    def test_what_is_expected_is_what_is_read(self, f8825, tmp_path, value):
+        eff, _ = render_case({TYPE_CELL: value}, f8825, tmp_path / "f.pdf")
+        got = extract({"fields": {"t": {"type": "string", "widget": {"page": 1, "rect": TYPE_RECT}}}},
+                      tmp_path / "f.pdf", blank_pdf=f8825)["t"]
+        assert eff[TYPE_CELL] == got
