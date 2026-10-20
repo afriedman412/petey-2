@@ -286,6 +286,13 @@ def fit_widget(value: str, rect, fontsize: float, *, multiline: bool = False, co
     r = pymupdf.Rect(rect)
     avail = max(r.width - 2 * _PAD, 1.0)
     width = lambda t: pymupdf.get_text_length(t, fontname="helv", fontsize=fs)     # noqa: E731
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", s) and width(s) > avail:
+        # a date is written shorter, never cut (the bank's fit_width does the same for the finder's box)
+        y, m, d = s.split("-")
+        for f in (f"{m}/{d}/{y}", f"{m}/{d}/{y[2:]}", f"{int(m)}/{int(d)}/{y[2:]}", f"{m}{d}{y[2:]}"):
+            if width(f) <= avail:
+                return f
+        return f"{m}{d}{y[2:]}"
     n_lines = max(1, int((r.height - 2 * _PAD + 0.5) // (fs * 1.15))) if multiline else 1
     lines, cur = [], ""
     for word in s.split(" "):

@@ -116,11 +116,16 @@ def case_to_paths(bpt: dict, case: dict[str, Any],
             gt[path] = v if spec.get("type") != "boolean" else bool(v)
             continue
         used.add(m["key"])
-        # with the filler's targets, the cells of a split widget all landed at the widget's own rect (one value,
-        # the joined string, reported on each): every one of them is this field's, not a box no field claims
-        for r in rows:
-            if r["rect"] == m["rect"] and r["value"] == m["value"]:
-                used.add(r["key"])
+        # with the filler's targets, every case cell that landed in this widget reports the widget's own rect: the
+        # cells of a split widget (one joined string on each), and a page box laid over it that wrote nothing (a
+        # mark of False on a text widget). All are this field's, not boxes no field claims; and the widget holds what
+        # was written, so a written string wins over an empty report (ACORD 90 NY's marital status code: the 'H'
+        # in the widget, expected '' from the empty box over it, 2026-10-20)
+        same = [r for r in rows if r["rect"] == m["rect"]]
+        for r in same:
+            used.add(r["key"])
+        if m["value"] in (None, "") or isinstance(m["value"], bool):        # a mark on a text widget writes no text
+            m = next((r for r in same if isinstance(r["value"], str) and r["value"]), m)
         v = m["value"]
         if spec.get("type") == "boolean":
             gt[path] = v is True or (isinstance(v, str) and v.strip().lower() in ("x", "yes", "true"))

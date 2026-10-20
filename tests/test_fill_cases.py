@@ -176,3 +176,29 @@ class TestFitWidget:
         got = extract({"fields": {"t": {"type": "string", "widget": {"page": 1, "rect": TYPE_RECT}}}},
                       tmp_path / "f.pdf", blank_pdf=f8825)["t"]
         assert eff[TYPE_CELL] == got
+
+
+class TestOverlaidBoxes:
+    def test_the_written_value_wins_over_an_empty_box_over_the_same_widget(self):
+        # ACORD 90 NY p2: a wide box treated as a mark (False, nothing written) and the small box that wrote 'H'
+        # both landed at the marital-status widget; the field expected '' while the widget held 'H'
+        rect = [497.0, 72.0, 511.0, 84.0]
+        targets = {"p2:482.9,72.5,532.3,83.5": [{"page": 2, "rect": rect, "value": False}],
+                   "p2:497.5,72.8,510.5,83.5": [{"page": 2, "rect": rect, "value": "H"}]}
+        bpt = {"fields": {"marital_status": {"type": "string", "widget": {"page": 2, "rect": rect, "path": "MS"}}}}
+        gt, unclaimed = case_to_paths(bpt, {}, targets)
+        assert gt == {"MS": "H"} and unclaimed == {}
+
+
+def test_a_date_too_wide_is_written_shorter_not_cut():
+    # ACORD 90 NY's reinstatement date: '2017-03-0' cut by width read back as no date
+    out = fit_widget("2017-03-05", (0, 0, 40, 12), 8)
+    assert out in ("03/05/2017", "03/05/17", "3/5/17", "030517") and fit_widget("2017-03-05", (0, 0, 200, 12), 8) == "2017-03-05"
+
+
+def test_a_written_string_wins_over_a_mark_on_the_same_text_widget():
+    rect = [497.0, 72.0, 511.0, 84.0]
+    targets = {"p2:482.9,72.5,532.3,83.5": [{"page": 2, "rect": rect, "value": True}],
+               "p2:497.5,72.8,510.5,83.5": [{"page": 2, "rect": rect, "value": "F"}]}
+    bpt = {"fields": {"marital_status": {"type": "string", "widget": {"page": 2, "rect": rect, "path": "MS"}}}}
+    assert case_to_paths(bpt, {}, targets)[0] == {"MS": "F"}
