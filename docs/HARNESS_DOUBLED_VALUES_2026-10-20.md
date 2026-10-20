@@ -1,4 +1,4 @@
-# Doubled test values in the validation loop (found and fixed 2026-10-20)
+# Test values the blank could not hold: doubled, overflowing (found and fixed 2026-10-20)
 
 ## What happened
 
@@ -45,12 +45,29 @@ extraction numbers on those 27 forms were off.
 - **Frozen cases repaired** (`eval/repair_frozen_cases.py --apply`): 272 replaced by their original draw (the seed
   reproduces it); 56 whose inputs changed since had each stored join kept once; backups in
   `runs/_gen_cache/_backup_frozen_2026-10-20/`. A second pass finds none left.
-- **A test suite** (`tests/`, `make test`, about 2 seconds, offline), run by the pre-push hook. It covers this bug
+- **A test value fits the widget it is typed into** (`render.fit_widget`). A value is drawn for the page finder's
+  box, which can be wider than the form field inside it; the field then showed only part of it (ACORD 90 NY's 22 pt
+  state boxes: "REF97533" read back "EF975") and the read was scored as the blueprint's miss. Now the filler writes
+  what the field shows at its own font size and width (a multi-line field's lines, words wrapped; a date written
+  shorter, never cut), and reports it as the expected value, as it already did for a field's MaxLen. A filer types
+  only what the box takes.
+- **Overlaid boxes**: when two page boxes land on one text field (a mark box laid over a code box), the expected
+  value is the string written, not the empty mark.
+- **A test suite** (`tests/`, `make test`, about 3 seconds, offline), run by the pre-push hook. It covers this bug
   (fill, freeze, reuse: the same expected values three times running) and this week's other changes.
 
 ## Verified
 
-VERIFICATION
+- **Form 8825**, a fresh run (`f8825_fixcheck`): 0 wrong read-backs in each of its four loop rounds (before: 0, then
+  21 from round 2 on), no harness drift.
+- **TX 01-114** (combs): three fills of the same frozen set, identical expected values, none repeated.
+- **CRA T1**, the worst-hit form: its 2026-10-06 run expected 633 doubled values ("234.12699234.12699"); refilled
+  after the repair, none, and two refills agree exactly.
+- **ACORD 90 NY**, its `_std` blueprint on its frozen set, page reader only: wrong read-backs 99 of 1,613 before,
+  43 after the fit, 24 after fitting split parts too, 3 after the overlaid-box and date rules. The 3 left are the
+  blueprint's (`vehicle_3_rate_class_cd` typed number; its letter codes read as none).
+
+RESCORE
 
 ## The "two boxes become one" question
 

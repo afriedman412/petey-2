@@ -430,8 +430,11 @@ def iterate(form: str, blank: Optional[Path], *, gen_model: str, methods: str, n
         run_dir = run_validate(form, blank, gen_model=gen_model, methods=methods, n_flat=n_flat,
                                gen_cache_only=gen_cache_only, label_model=label_model, gen_key=gen_key,
                                case_set=case_set, n_cases=n_cases, bpt=bpt, rebuild_set=rebuild_set and i == 1)
-        from petey.validate.harness_check import expected_drift
+        from petey.validate.harness_check import expected_drift, repeated_values
         drift = expected_drift(prev_run, run_dir) if prev_run is not None else []
+        if prev_run is None and (rep := repeated_values(run_dir)):
+            print(f"[{form}] HARNESS: {len(rep)} expected values repeat themselves (a fill joined a joined string), "
+                  f"e.g. {rep[0]['path']}: {str(rep[0]['value'])[:50]!r}")
         if drift:
             print(f"[{form}] HARNESS: {len(drift)} expected values changed since the last round on the same cases "
                   f"(the test drifted, not the blueprint), e.g. {drift[0]['path']}: "

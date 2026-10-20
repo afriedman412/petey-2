@@ -35,3 +35,22 @@ def expected_drift(prev_run: Path, cur_run: Path) -> list[dict]:
             if a[path] != b[path]:
                 out.append({"case": case, "path": path, "before": a[path], "after": b[path]})
     return out
+
+
+def repeated(value: Any) -> bool:
+    """A string that is one piece said over and over ("5C5C", "Omar Fischer, 1120Omar Fischer, 1120"): no drawn
+    value looks like that, a fill that joined a joined string does. Digit runs and one repeated character
+    ("1212", "0000") can be real and are not counted."""
+    if not isinstance(value, str) or len(value) < 4:
+        return False
+    for p in range(2, len(value) // 2 + 1):
+        unit = value[:p]
+        if len(value) % p == 0 and value == unit * (len(value) // p) and not unit.isdigit() and len(set(unit)) > 1:
+            return True
+    return False
+
+
+def repeated_values(run_dir: Path) -> list[dict]:
+    """Every expected value in one run that repeats itself (see `repeated`); a check that needs no second round."""
+    return [{"case": case, "path": path, "value": v}
+            for case, gt in _ground_truths(run_dir).items() for path, v in sorted(gt.items()) if repeated(v)]
