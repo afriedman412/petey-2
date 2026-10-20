@@ -380,7 +380,15 @@ def prompt_vocabulary() -> str:
 
 # valid where a blueprint has them, never offered to a model (person_name: Andrew, 2026-10-13, says nothing a string
 # does not)
-NOT_OFFERED = {"person_name"}
+NOT_OFFERED = {"person_name",
+               # plain strings with no pattern or type of their own: a box holding one is "text" (Andrew, 2026-10-20:
+               # offering first_name / last_name and no whole name got SBA 413's full-name box typed first_name;
+               # a semantic type is offered only when it changes the field: a type, a pattern, the reader's charset)
+               "first_name", "last_name", "entity_name", "business_name", "city", "country", "street_address",
+               "name_and_address", "description",
+               # dates with the same type, pattern and charset as iso_date (IMM 5645's dates of birth came back as
+               # either, a disagreement about nothing)
+               "birth_date", "service_date"}
 
 
 def ocr_whitelist_for(semantic_type: Optional[str]) -> Optional[str]:

@@ -46,7 +46,11 @@ FORMS = {"acord_90_ny": ("je__acord_90_ny", {"standard": ["acord_90_ny_bulk5", "
          "imm5645": ("je__ircc_imm_5645", {"standard": ["imm5645_bulk3", "imm5645_final", "imm5645_std"],
                                            "simple v1": ["imm5645_simple"],
                                            "simple2": ["imm5645_simple2", "imm5645_simple2b"],
-                                             "simple3": ["imm5645_simple3"], "simple4": ["imm5645_simple4"], "simple5": ["imm5645_simple5", "imm5645_simple5b"]})}
+                                             "simple3": ["imm5645_simple3"], "simple4": ["imm5645_simple4"], "simple5": ["imm5645_simple5", "imm5645_simple5b"]}),
+         # held out (2026-10-20): forms from families none of the prompt changes looked at, standard and simple6 run
+         # interleaved, two each
+         **{f: (vid, {"standard": [f"{f}_std", f"{f}_stdb"], "simple6": [f"{f}_simple6", f"{f}_simple6b"]})
+            for f, vid in (("sba413", "je__sba413"), ("cbp7512", "je__cbp_7512"), ("hmrc648", "je__hmrc_64_8"))}}
 
 
 # the kind of value, in either scheme's spelling: left out of the subject comparison on both sides (the plan: the
@@ -194,17 +198,17 @@ def main() -> int:
                       f"type {a['type_ok']}, semantic {a['sem_ok']} (+{a['sem_added']} -{a['sem_dropped']} x{a['sem_conflict']}), subject same {s.get('same', 0)} / nested {s.get('nested', 0)} / overlap {s.get('overlap', 0)} / different {s.get('different', 0)}")
                 print(f"             tables {a['tables']} on pattern {a['on_pattern']}, printed {a['printed']} | labeler {a['label_calls']} calls {a['label_s']} s {a['label_tokens']} tokens | "
                       f"loop {a['rounds']} rounds, {a['reviewed']} reviewed, {a['status']}, {a['minutes']} min | collisions {a['collisions']} ({a['by_kind']} between kinds)")
-    # per page and per field, so forms of different sizes read on one scale (feedback: per page, not per form)
+    # per field, so forms of different sizes read on one scale (Andrew, 2026-10-20: per form and per page are not useful)
     print("\nsummary: round-0 flags per 100 fields; type / semantic agreement, semantic dropped (sem-) and "
-          "conflicting (semx), subject same or nested, subject different: % of matched fields; labeler tokens and end-to-end minutes per page")
-    print(f"   {'form':12} {'arm':9} {'run':24} {'flags':>6} {'type':>6} {'sem':>6} {'sem-':>6} {'semx':>6} {'subj':>6} {'diff':>6} {'tok/pg':>7} {'min/pg':>7}")
+          "conflicting (semx), subject same or nested, subject different: % of matched fields; labeler tokens and end-to-end seconds per field")
+    print(f"   {'form':12} {'arm':9} {'run':24} {'flags':>6} {'type':>6} {'sem':>6} {'sem-':>6} {'semx':>6} {'subj':>6} {'diff':>6} {'tok/fld':>7} {'s/fld':>7}")
     for form, label, tag, a in summary:
         m = a["matched"] or 1
         s = a["subject"]
         pct = lambda n: f"{100 * n / m:.1f}"
-        mp = f"{a['minutes'] / a['pages']:.1f}" if a["minutes"] else "-"
+        mp = f"{60 * a['minutes'] / max(1, a['fields']):.1f}" if a["minutes"] else "-"
         print(f"   {form:12} {label:9} {tag:24} {100 * a['flags'] / max(1, a['fields']):6.1f} {pct(a['type_ok']):>6} {pct(a['sem_ok']):>6} "
-              f"{pct(a['sem_dropped']):>6} {pct(a['sem_conflict']):>6} {pct(s.get('same', 0) + s.get('nested', 0)):>6} {pct(s.get('different', 0)):>6} {a['label_tokens'] / a['pages']:7.0f} {mp:>7}")
+              f"{pct(a['sem_dropped']):>6} {pct(a['sem_conflict']):>6} {pct(s.get('same', 0) + s.get('nested', 0)):>6} {pct(s.get('different', 0)):>6} {a['label_tokens'] / max(1, a['fields']):7.1f} {mp:>7}")
     if "--md" in sys.argv:
         print(markdown(summary))
     return 0
@@ -220,7 +224,7 @@ def markdown(summary, arms=("standard", "simple5", "simple6")) -> str:
         lo, hi = min(vals), max(vals)
         return fmt.format(lo) if fmt.format(lo) == fmt.format(hi) else f"{fmt.format(lo)}-{fmt.format(hi)}"
     out = ["| form | arm | runs | flags / 100 fields | type % | semantic dropped + conflict % | subject same or nested % "
-           "| tables on pattern | printed from parts % | labeler tokens / page | minutes / page |",
+           "| tables on pattern | printed from parts % | labeler tokens / field | seconds / field |",
            "|---|---|---|---|---|---|---|---|---|---|---|"]
     for form in FORMS:
         for label in arms:
@@ -236,8 +240,8 @@ def markdown(summary, arms=("standard", "simple5", "simple6")) -> str:
                 rng([100 * (a["subject"].get("same", 0) + a["subject"].get("nested", 0)) / max(1, a["matched"]) for a in rows]),
                 ", ".join(f"{a['on_pattern']}/{a['tables']}" for a in rows),
                 rng([100 * a["printed"] / max(1, a["fields"]) for a in rows], "{:.0f}"),
-                rng([a["label_tokens"] / a["pages"] for a in rows], "{:.0f}"),
-                rng([a["minutes"] / a["pages"] if a["minutes"] else None for a in rows]),
+                rng([a["label_tokens"] / max(1, a["fields"]) for a in rows], "{:.1f}"),
+                rng([60 * a["minutes"] / max(1, a["fields"]) if a["minutes"] else None for a in rows]),
             ]) + " |")
     return "\n".join(out)
 
