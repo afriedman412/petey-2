@@ -1,0 +1,45 @@
+"""Review records (petey/validate/hand_review.py): the review server saves verdicts on threads; saves read, change
+and write a record under one lock and write it whole. 2026-10-19: two saves of je__cra_t2 in one second wrote over
+each other and left the record unreadable; the server would not start on it."""
+import json
+import threading
+
+import pytest
+import yaml
+
+from petey.validate import hand_review as H
+
+
+@pytest.fixture
+def state(tmp_path, monkeypatch):
+    bpt = tmp_path / "form.bpt"
+    fields = {f"f{i}": {"type": "string", "widget": {"page": 1, "rect": [0, i * 10, 50, i * 10 + 8]}} for i in range(20)}
+    bpt.write_text(yaml.safe_dump({"name": "form", "fields": fields}))
+    monkeypatch.setattr(H, "OUT", tmp_path / "records")
+    monkeypatch.setattr(H, "working_path", lambda bid, paths=None: bpt)
+    s = object.__new__(H.State)
+    s.paths, s._index = {"t__form": bpt}, {}
+    return s
+
+
+def test_a_save_is_read_back(state):
+    state.put_verdicts("t__form", {"verdicts": {"f0": {"verdict": "accept"}}})
+    rec = H.load_verdicts("t__form")
+    assert rec["verdicts"]["f0"]["verdict"] == "accept"
+
+
+def test_concurrent_saves_all_kept(state):
+    threads = [threading.Thread(target=state.put_verdicts, args=("t__form", {"verdicts": {f"f{i}": {"verdict": "flag",
+               "note": f"note {i}"}}})) for i in range(20)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    rec = json.loads(H.verdict_path("t__form").read_text())          # whole and readable
+    assert sorted(rec["verdicts"]) == sorted(f"f{i}" for i in range(20))
+
+
+def test_clearing_a_verdict(state):
+    state.put_verdicts("t__form", {"verdicts": {"f1": {"verdict": "accept"}}})
+    state.put_verdicts("t__form", {"verdicts": {"f1": None}})
+    assert "f1" not in H.load_verdicts("t__form")["verdicts"]
