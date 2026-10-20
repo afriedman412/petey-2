@@ -95,6 +95,11 @@ extraction numbers on those 27 forms were off.
   classifier's error. Either side can be the wrong one; the class check (`validate.class_check`) is the place that
   compares them.
 
+- **ACORD 90 NY end to end on the fixed harness** (fresh runs, both schemes): wrong read-backs by loop round 23, 13,
+  18 (standard) and 13, 14, 13 (simple), against about 100 every round in yesterday's runs; three rounds and about
+  20 minutes as before (the loop does not settle sooner, but what it reports is now the blueprint's); no harness
+  alarm; round-0 flags 14 (standard) and 4 (simple).
+
 ## The "two boxes become one" question
 
 Andrew asked whether this is intractable: two boxes on the page become one field in the blueprint (or the reverse),
