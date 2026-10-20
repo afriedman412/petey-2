@@ -283,6 +283,9 @@ SPEC_ONLY_TYPES: tuple[SemanticType, ...] = (
     # no longer matched from the name (Andrew, 2026-10-13): '_nm' / '_name' anywhere gave county, plan, firm and
     # facility names a person type, and the type says nothing a string does not. Still valid where it is set.
     SemanticType(name="person_name", matches=()),
+    # any name, a person's or an organization's, whole or part: the one name kind the labeler is offered (Andrew,
+    # 2026-10-20). No matcher, so names are not typed from slugs.
+    SemanticType(name="name", matches=()),
 )
 
 # Every value registered by spec §5.8.1 — the canonical vocabulary, as
@@ -381,11 +384,10 @@ def prompt_vocabulary() -> str:
 # valid where a blueprint has them, never offered to a model (person_name: Andrew, 2026-10-13, says nothing a string
 # does not)
 NOT_OFFERED = {"person_name",
-               # plain strings with no pattern or type of their own: a box holding one is "text" (Andrew, 2026-10-20:
-               # offering first_name / last_name and no whole name got SBA 413's full-name box typed first_name;
-               # a semantic type is offered only when it changes the field: a type, a pattern, the reader's charset)
-               "first_name", "last_name", "entity_name", "business_name", "city", "country", "street_address",
-               "name_and_address", "description",
+               # names: one kind, `name`, for any name, a person's or an organization's, whole or part (Andrew,
+               # 2026-10-20: "name is probably fine for type. more specific than that is just noise"; offering
+               # first_name / last_name and no whole name got SBA 413's full-name box, sba413_2_1, typed first_name)
+               "first_name", "last_name", "entity_name", "business_name",
                # dates with the same type, pattern and charset as iso_date (IMM 5645's dates of birth came back as
                # either, a disagreement about nothing)
                "birth_date", "service_date"}
