@@ -164,6 +164,11 @@ def arm(tag: str, validated: dict) -> dict | None:
         f = "%Y-%m-%d %H:%M:%S"
         mins = round((datetime.strptime(res["finished"], f) - datetime.strptime(r["started"], f)).total_seconds() / 60, 1)
     last = r["rounds"][-1]
+    # extraction, the measure that counts (Andrew, 2026-10-20): values filled into the blank and read back wrong
+    # (differ + extract_miss), the first loop round (the labeler's blueprint) and the last (the finished one)
+    lv = [x["loop"]["verdicts"] for x in r["rounds"] if x.get("stage") == "loop" and (x.get("loop") or {}).get("verdicts")]
+    bad = lambda v: v.get("differ", 0) + v.get("extract_miss", 0)      # noqa: E731
+    wrong = (bad(lv[0]), bad(lv[-1]), lv[0].get("agree", 0) + bad(lv[0])) if lv else (None, None, None)
     pages = len({k[0] for k in rr})
     dlog = (r0.get("top") or {}).get("x_petey_dedup_log") or {}
     dedup = dlog.get("duplicate_labels_reassigned")
@@ -178,7 +183,8 @@ def arm(tag: str, validated: dict) -> dict | None:
             "printed": sum(1 for s in fields.values() if s.get("x_petey_identifiers")),
             "label_calls": len(calls), "label_s": round(sum(c[0] for c in calls)), "label_tokens": sum(c[1] for c in calls),
             "rounds": len(loops), "reviewed": reviewed, "status": res.get("status") or "running", "collisions": dedup, "by_kind": by_kind,
-            "minutes": mins, "pages": pages, "finished": bool(res.get("finished"))}
+            "minutes": mins, "pages": pages, "finished": bool(res.get("finished")),
+            "wrong_first": wrong[0], "wrong_last": wrong[1], "read": wrong[2]}
 
 
 def main() -> int:
@@ -223,9 +229,10 @@ def markdown(summary, arms=("standard", "simple5", "simple6")) -> str:
             return "-"
         lo, hi = min(vals), max(vals)
         return fmt.format(lo) if fmt.format(lo) == fmt.format(hi) else f"{fmt.format(lo)}-{fmt.format(hi)}"
-    out = ["| form | arm | runs | flags / 100 fields | type % | semantic dropped + conflict % | subject same or nested % "
+    out = ["| form | arm | runs | wrong read back % (first loop round) | wrong read back % (last) | flags / 100 fields "
+           "| type % | semantic dropped + conflict % | subject same or nested % "
            "| tables on pattern | printed from parts % | labeler tokens / field | seconds / field |",
-           "|---|---|---|---|---|---|---|---|---|---|---|"]
+           "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for form in FORMS:
         for label in arms:
             rows = [a for f, l, t, a in summary if f == form and l == label]
@@ -234,6 +241,8 @@ def markdown(summary, arms=("standard", "simple5", "simple6")) -> str:
             pc = lambda a, k: 100 * a[k] / max(1, a["matched"])
             out.append("| " + " | ".join([
                 form, label, str(len(rows)),
+                rng([100 * a["wrong_first"] / a["read"] if a["read"] else None for a in rows]),
+                rng([100 * a["wrong_last"] / a["read"] if a["read"] else None for a in rows]),
                 rng([100 * a["flags"] / max(1, a["fields"]) for a in rows]),
                 rng([pc(a, "type_ok") for a in rows]),
                 rng([100 * (a["sem_dropped"] + a["sem_conflict"]) / max(1, a["matched"]) for a in rows]),
