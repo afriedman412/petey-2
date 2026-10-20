@@ -268,6 +268,27 @@ def _draw_mark(page, rect) -> None:
                    color=(0, 0, 0), width=1.0)
 
 
+def widget_cells(case: dict[str, Any], widgets: dict[int, list[dict]], n_pages: int) -> dict[str, list[str]]:
+    """{widget: [case keys]} for every widget that holds more than one of the case's text cells (a widget the page
+    finder split: a comb, a two-line box), the keys in reading order. Only a CELL inside the widget counts; a box
+    larger than the widget is the split rule's business (`_parts_for`)."""
+    from petey.synth.boxes import match_rect, parse_rect_key
+    owners: dict[str, list[tuple[float, float, str]]] = {}
+    for key, value in case.items():
+        page_no, rect = parse_rect_key(key)
+        m = match_rect(rect, widgets.get(page_no, [])) if 1 <= page_no <= n_pages else None
+        if m is None or not isinstance(value, str):
+            continue
+        if (rect[2] - rect[0]) * (rect[3] - rect[1]) < 0.9 * (m["rect"][2] - m["rect"][0]) * (m["rect"][3] - m["rect"][1]):
+            owners.setdefault(f"{page_no}:{m['xref']}", []).append((rect[1], rect[0], key))
+    out = {}
+    for xk, members in owners.items():
+        if len(members) > 1:
+            members.sort(key=lambda t: (round(t[0] / 4), t[1]))
+            out[xk] = [k for _, _, k in members]
+    return out
+
+
 def _join_cells(cells: list[tuple[float, str]]) -> str:
     """One widget's string from the values drawn for the page cells inside it, in reading order ((top, value)
     pairs). Cells side by side on one line (a comb the finder split) run together: "1", "2", "3" -> "123". Cells on
@@ -360,23 +381,11 @@ def render_case(
         # holds their concatenation in reading order; the scorer's join
         # applies the same rule (validate.rect_join).
         joined: dict[str, Any] = {}
-        owners: dict[str, list[tuple[float, float, str]]] = {}
         if not flat:
-            for key, value in case.items():
-                page_no, rect = parse_rect_key(key)
-                m = match_rect(rect, widgets.get(page_no, [])) if 1 <= page_no <= len(doc) else None
-                if m is None or not isinstance(value, str):
-                    continue
-                # only a CELL inside the widget joins (a comb the finder split);
-                # a box larger than the widget is the split rule's business
-                if (rect[2] - rect[0]) * (rect[3] - rect[1]) < 0.9 * (m["rect"][2] - m["rect"][0]) * (m["rect"][3] - m["rect"][1]):
-                    owners.setdefault(f"{page_no}:{m['xref']}", []).append((rect[1], rect[0], key))
-            for xk, members in owners.items():
-                if len(members) > 1:
-                    members.sort(key=lambda t: (round(t[0] / 4), t[1]))
-                    joined_text = _join_cells([(y, str(case[k])) for y, _, k in members])
-                    for _, _, k in members:
-                        joined[k] = joined_text
+            for members in widget_cells(case, widgets, len(doc)).values():
+                joined_text = _join_cells([(parse_rect_key(k)[1][1], str(case[k])) for k in members])
+                for k in members:
+                    joined[k] = joined_text
         written: set[str] = set()
         marked_on: set[str] = set()
         text_written: dict[str, str] = {}     # "page:xref" -> the value on the page
