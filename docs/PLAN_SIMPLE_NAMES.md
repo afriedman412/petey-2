@@ -1,5 +1,8 @@
 # Plan: benchmark a simpler naming scheme (2026-10-19)
 
+Run the same evening: the results, and the six versions of the simple scheme it took, are in
+`docs/RESULTS_SIMPLE_NAMES.md`.
+
 Andrew: the "suffix" concept may be overcomplicating things and making labeling harder. The question to settle
 with numbers: does a labeler that names only the SUBJECT, with the kind of value left to `type` and
 `semantic_type`, produce better or worse blueprints than the one that also writes a suffix?
