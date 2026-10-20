@@ -67,7 +67,33 @@ extraction numbers on those 27 forms were off.
   43 after the fit, 24 after fitting split parts too, 3 after the overlaid-box and date rules. The 3 left are the
   blueprint's (`vehicle_3_rate_class_cd` typed number; its letter codes read as none).
 
-RESCORE
+- **The simple-names benchmark's final runs**, each finished blueprint refilled on its own frozen set with the page
+  reader (no model calls), against the last loop round as recorded:
+
+| form | arm | wrong read back, as recorded | wrong read back, harness fixed |
+|---|---|---|---|
+| acord_90_ny | standard | 99 of 1613 | 3 of 1613 |
+| acord_90_ny | simple | 100 of 1605, 100 of 1578 | 14 of 1605, 2 of 1578 |
+| f8825 | standard | 21 of 576 | 0 of 576 |
+| f8825 | simple | 21 of 576, 21 of 576 | 0 of 576, 0 of 576 |
+| ao040b | standard | 42 of 702 | 35 of 702 |
+| ao040b | simple | 33 of 702, 33 of 702 | 31 of 702, 28 of 702 |
+| imm5645 | standard | 0 of 354 | 0 of 354 |
+| imm5645 | simple | 0 of 354, 0 of 354 | 0 of 354, 0 of 354 |
+| sba413 | standard | 3 of 384, 2 of 384 | 3 of 384, 2 of 384 |
+| sba413 | simple | 2 of 384, 1 of 384 | 2 of 384, 1 of 384 |
+| cbp7512 | standard | 19 of 362, 19 of 363 | 18 of 362, 16 of 363 |
+| cbp7512 | simple | 22 of 362, 17 of 362 | 14 of 362, 15 of 362 |
+| hmrc648 | standard | 0 of 207, 0 of 207 | 0 of 207, 0 of 207 |
+| hmrc648 | simple | 0 of 207, 0 of 207 | 0 of 207, 0 of 207 |
+
+  What is left is real, and mostly one thing: the page classifier (which draws the test values) and the blueprint
+  disagree on what a box holds. AO 40B's six empty reads are the shaded cells the page check flags as not fields in
+  every run (the form has widgets there; nothing shows). AO 40B's "life or rate" and CBP 7512's date fields are
+  typed number / date while the classifier drew words for them. ACORD 90 NY's simple runs type horsepower an integer
+  (right) and the classifier drew a state code there ("WI"); the standard runs typed it a string, which hid the
+  classifier's error. Either side can be the wrong one; the class check (`validate.class_check`) is the place that
+  compares them.
 
 ## The "two boxes become one" question
 

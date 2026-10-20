@@ -1,5 +1,7 @@
 # Results: the simple naming scheme against the standard one (2026-10-19 evening)
 
+Day 2 (held-out forms, extraction on the fixed test harness): `docs/RESULTS_SIMPLE_NAMES_2026-10-20.md`.
+
 The benchmark of `docs/PLAN_SIMPLE_NAMES.md`, run on its four forms (ACORD 90 NY, Form 8825, AO 40B, IMM 5645), bulk
 structure labeling, Gemini 3.8 Flash as labeler and round-0 page check, Opus 5 for the loop's page checks and review,
 the same page-check prompt (`bbf7099d`) in every run. Commits `001bd62` .. `6101afb` on `field-identifiers-2026-10-19`.
