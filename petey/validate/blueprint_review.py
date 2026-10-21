@@ -107,7 +107,9 @@ class Grids:
             finally:
                 doc.close()
         vs = hand_review.load_verdicts(bid).get("verdicts") or {}
-        tabs = grid_check.tables(bp, bid, self.kind)      # the form's kept grids (or block groups): ids, cancelled, ...
+        # the form's kept grids: ids, cancelled, ... (the Blocks tab has no block groups since 2026-10-21: its block
+        # types and their blocks)
+        tabs = grid_check.tables(bp, bid, self.kind) if self.kind != "block" else []
         for t in tabs:
             t["dismissed"] = t.get("status") == "cancelled"
             for c in t["cells"]:
@@ -115,10 +117,9 @@ class Grids:
             t["accepted"] = sum(c["accepted"] for c in t["cells"] if not c.get("total"))
             t["body"] = sum(not c.get("total") for c in t["cells"])     # validated when every one is accepted
         out = {"id": bid, "path": str(self.app.paths[bid]), "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
-        if self.kind == "block":        # what a block can take in, clicked on the page (the layout editor, 2026-10-19)
-            out["fields"] = {pg["page"]: grid_check.page_fields(bp, pg["page"]) for pg in pages}
+        if self.kind == "block":
             from petey.validate import block_types
-            out["types"] = block_types.listing(bp, grid_check.load_set(bid))         # block types (2026-10-21)
+            out["types"] = block_types.listing(bp, grid_check.load_set(bid), vs)     # block types (2026-10-21)
         return out
 
     def dismiss(self, bid: str, tid: str, on: bool) -> dict:
@@ -158,15 +159,116 @@ class Grids:
             return out
         return apply
 
-    def define_type(self, bid: str, page: int, rect) -> dict:
-        """A block type from an area drawn on the page: its fields kept as the template, nothing else (2026-10-21)."""
+    def block_draw(self, bid: str, page: int, rect) -> dict:
+        """An area drawn on the Blocks tab: a block of an existing block type, or a new type (2026-10-21)."""
         from petey.validate import block_types
-        return block_types.define(bid, hand_review._load(self.app.working(bid)), page, rect)
+        return block_types.draw(bid, hand_review._load(self.app.working(bid)), page, rect)
 
-    def designate(self, bid: str, tid: str, page: int, rect) -> dict:
-        """An area designated a block of a block type, checked against its template (2026-10-21)."""
+    def type_confirm(self, bid: str, tid: str, words: list) -> dict:
+        """A block type's wordings confirmed by the person (2026-10-21)."""
         from petey.validate import block_types
-        return block_types.designate(bid, hand_review._load(self.app.working(bid)), tid, page, rect)
+        return block_types.confirm(bid, hand_review._load(self.app.working(bid)), tid, words)
+
+    def block_validate(self, bid: str, code: str) -> dict:
+        """Check & validate one block against its confirmed type, in a block group or not: its cells accepted when
+        every name is the block's start and the type's wording (a field with a verdict keeps it)."""
+        from petey.validate import block_types
+        res = block_types.validate_block(bid, hand_review._load(self.app.working(bid)), code)
+        acc = []
+        if res["ok"]:
+            have = hand_review.load_verdicts(bid).get("verdicts") or {}
+            acc = [n for n in res["names"] if not (have.get(n) or {}).get("verdict")]
+            if acc:
+                self.app.put_verdicts(bid, {"verdicts": {n: {"verdict": "accept", "note": f"block type {res['type']}"}
+                                                         for n in acc}})
+        self.app.refresh()
+        return {**res, "accepted": acc, "entry": self.app.entry(bid)}
+
+    def block_parts(self, bid: str, code: str, prefix, iteration) -> dict:
+        """A block's prefix and iteration, set by the person."""
+        from petey.validate import block_types
+        return block_types.set_parts(bid, code, prefix, iteration)
+
+    def type_auto(self, bid: str, tid: str, on: bool) -> dict:
+        """A block type's blocks named from its label and numbered, or not."""
+        from petey.validate import block_types
+        return block_types.set_auto(bid, tid, on)
+
+    def type_label(self, bid: str, tid: str, label: str) -> dict:
+        """A block type's label."""
+        from petey.validate import block_types
+        return block_types.set_label(bid, tid, label)
+
+    def block_detect(self, bid: str, page: int) -> dict:
+        """Every block type's copies on a page added as its blocks."""
+        from petey.validate import block_types
+        return block_types.detect(bid, hand_review._load(self.app.working(bid)), page)
+
+    def block_assign(self, bid: str, code: str, tid: str) -> dict:
+        """A block given another block type by hand."""
+        from petey.validate import block_types
+        return block_types.assign(bid, hand_review._load(self.app.working(bid)), code, tid)
+
+    def type_fix(self, bid: str, tid: str) -> dict:
+        """Every block of a block type put to its wordings (each block's own start kept, cancelled renames left), as
+        Claude's renames in one go; nothing accepted (Andrew, 2026-10-21: "changing the block type wordings should raise
+        the option to change every block of that type")."""
+        from petey.validate import block_types, grid_check
+        bp = hand_review._load(self.app.working(bid))
+        t = next((x for x in grid_check.load_set(bid).get("types") or [] if x["id"] == tid), None)
+        if t is None:
+            raise ValueError(f"no block type {tid}")
+        edits = []
+        for b in t["blocks"]:
+            res = block_types.validate_block(bid, bp, b[0])
+            edits += [{"field": d["name"], "edit": {"name": d["want"]}, "why": f"block type {tid}: the type's wording"}
+                      for d in res["differs"]]
+        out = self._apply(bid)(edits) if edits else {"changes": [], "errors": []}
+        self.app.refresh()
+        return {"renamed": len(out.get("changes") or []), "errors": out.get("errors") or [], "entry": self.app.entry(bid)}
+
+    def block_keep(self, bid: str, code: str, pos: int, on: bool) -> dict:
+        """A suggested rename cancelled (the name kept as it is), or the cancel undone."""
+        from petey.validate import block_types
+        return block_types.keep_name(bid, code, int(pos), on)
+
+    def type_validate(self, bid: str, tid: str) -> dict:
+        """Check & validate every block of a confirmed block type (Andrew, 2026-10-21: "need a 'validate all' button on
+        the block type"): the cells of each block that follows the type's wordings accepted, in one write (a field with
+        a verdict keeps it); the others said, nothing of theirs accepted."""
+        from petey.validate import block_types, grid_check
+        bp = hand_review._load(self.app.working(bid))
+        t = next((x for x in grid_check.load_set(bid).get("types") or [] if x["id"] == tid), None)
+        if t is None:
+            raise ValueError(f"no block type {tid}")
+        have = hand_review.load_verdicts(bid).get("verdicts") or {}
+        ok, off, acc = [], [], []
+        for i, b in enumerate(t["blocks"], 1):
+            res = block_types.validate_block(bid, bp, b[0])
+            if res["ok"]:
+                ok.append(f"{tid}-{i}")
+                acc += [n for n in res["names"] if not (have.get(n) or {}).get("verdict")]
+            else:
+                off.append({"block": f"{tid}-{i}", "off": len(res["differs"])})
+        if acc:
+            self.app.put_verdicts(bid, {"verdicts": {n: {"verdict": "accept", "note": f"block type {tid}"} for n in acc}})
+        self.app.refresh()
+        return {"type": tid, "validated": ok, "off": off, "accepted": len(acc), "entry": self.app.entry(bid)}
+
+    def block_fix(self, bid: str, code: str) -> dict:
+        """A block's names put to its type's wordings (its own start kept), as Claude's renames; nothing accepted."""
+        from petey.validate import block_types
+        res = block_types.validate_block(bid, hand_review._load(self.app.working(bid)), code)
+        edits = [{"field": d["name"], "edit": {"name": d["want"]}, "why": f"block type {res['type']}: the type's wording"}
+                 for d in res["differs"]]
+        out = self._apply(bid)(edits) if edits else {"changes": [], "errors": []}
+        self.app.refresh()
+        return {"renamed": len(out.get("changes") or []), "errors": out.get("errors") or [], "entry": self.app.entry(bid)}
+
+    def block_out(self, bid: str, code: str, whole: bool = True) -> dict:
+        """A block that is no longer one."""
+        from petey.validate import block_types
+        return block_types.remove_block(bid, hand_review._load(self.app.working(bid)), code)
 
     def standardize(self, bid: str, tid: str, pos=None, line=None) -> dict:
         """One column, every inconsistent column, or one row of a table to one wording / its number (2026-10-19)."""
@@ -666,10 +768,32 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
-        if (mode, what) == ("blocks", "type"):          # an area drawn as a block type (block_types.py, 2026-10-21)
-            return self._route(lambda: APP.blocks.define_type(bid, int(body["page"]), body["rect"]), bid)
-        if (mode, what) == ("blocks", "designate"):     # an area designated a block of a type, checked against it
-            return self._route(lambda: APP.blocks.designate(bid, body["type"], int(body["page"]), body["rect"]), bid)
+        if (mode, what) == ("blocks", "draw"):          # an area drawn: a block (block_types.py, 2026-10-21)
+            return self._route(lambda: APP.blocks.block_draw(bid, int(body["page"]), body["rect"]), bid)
+        if (mode, what) == ("blocks", "out"):           # a block that is no longer one
+            return self._route(lambda: APP.blocks.block_out(bid, body["block"]), bid)
+        if (mode, what) == ("blocks", "confirm"):       # a block type's wordings confirmed
+            return self._route(lambda: APP.blocks.type_confirm(bid, body["type"], list(body.get("wordings") or [])), bid)
+        if (mode, what) == ("blocks", "bvalidate"):     # one block checked against its type, its cells accepted
+            return self._route(lambda: APP.blocks.block_validate(bid, body["block"]), bid)
+        if (mode, what) == ("blocks", "bparts"):        # a block's prefix and iteration
+            return self._route(lambda: APP.blocks.block_parts(bid, body["block"], body.get("prefix"), body.get("iteration")), bid)
+        if (mode, what) == ("blocks", "tauto"):         # a block type's blocks named from its label, numbered
+            return self._route(lambda: APP.blocks.type_auto(bid, body["type"], bool(body.get("on"))), bid)
+        if (mode, what) == ("blocks", "tlabel"):        # a block type's label
+            return self._route(lambda: APP.blocks.type_label(bid, body["type"], body.get("label") or ""), bid)
+        if (mode, what) == ("blocks", "detect"):        # every block type's copies on a page found
+            return self._route(lambda: APP.blocks.block_detect(bid, int(body["page"])), bid)
+        if (mode, what) == ("blocks", "assign"):        # a block given another block type
+            return self._route(lambda: APP.blocks.block_assign(bid, body["block"], body["type"]), bid)
+        if (mode, what) == ("blocks", "tvalidate"):     # every block of a confirmed type checked and validated
+            return self._route(lambda: APP.blocks.type_validate(bid, body["type"]), bid)
+        if (mode, what) == ("blocks", "tfix"):          # every block of a type put to its wordings
+            return self._route(lambda: APP.blocks.type_fix(bid, body["type"]), bid)
+        if (mode, what) == ("blocks", "bkeep"):         # a suggested rename cancelled, or the cancel undone
+            return self._route(lambda: APP.blocks.block_keep(bid, body["block"], body["pos"], bool(body.get("on", True))), bid)
+        if (mode, what) == ("blocks", "bfix"):          # one block's names put to its type's wordings
+            return self._route(lambda: APP.blocks.block_fix(bid, body["block"]), bid)
         if mode in ("grids", "blocks") and what in ("check", "cancel", "dismiss", "create", "combine", "standardize", "layout",
                                                     "cells"):
             tab = getattr(APP, mode)                     # Grids / Blocks

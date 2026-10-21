@@ -111,6 +111,16 @@
   .lfree { position:absolute; z-index:4; cursor:copy; border:1px dashed var(--text-dim); }
   .lfree:hover { border:2px solid var(--accent); }
   .lblk { position:absolute; z-index:1; pointer-events:none; border:2px dashed var(--c); }
+  .btb { position:absolute; z-index:2; border:2px dashed var(--accent); cursor:pointer; }      /* a block (block types): above the group outlines, below the layout editor's pickers */
+  .btb.sel { border-width:3px; border-style:solid; background:color-mix(in srgb, var(--accent) 8%, transparent); }
+  .btlist { margin:8px 0; } .btrow { padding:4px 6px; border-left:3px solid transparent; cursor:pointer; }
+  .btrow:hover { background:var(--hover, rgba(127,127,127,.08)); } .btrow.sel { border-left-color:var(--accent); background:var(--hover, rgba(127,127,127,.08)); }
+  .btmore code.accd { color:var(--accept); }
+  .btmore ol, .bttype ol { margin:4px 0 6px 18px; padding:0; font-size:11px; } .btmore .row, .bttype .row { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .bttype .btlabel { width:95%; font:12px inherit; }
+  .btparts input { width:55%; font:11px var(--mono, monospace); } .btparts input.btit { width:3.5em; }
+  .bttype { margin:4px 0; padding:4px 6px; border:1px solid var(--line, rgba(127,127,127,.3)); border-radius:4px; } .bttype input { width:95%; font:11px var(--mono, monospace); }
+  .btb span { cursor:copy; position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--accent); background:var(--bg); padding:1px 3px; white-space:nowrap; }
   .lblk span { position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--c); background:var(--bg); padding:1px 3px; }
 
   /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
@@ -2389,7 +2399,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
   const BLK = KIND === 'block', NOUN = BLK ? 'block group' : 'table';
   let GD = null, selected = null, results = {}, busy = new Set();
   let ticked = new Set(), drawKind = null, drawStart = null, drawBox = null;    // combine; draw a new one (2026-10-17)
-  let desigType = null;               // drawKind 'designate': the block type the areas drawn are checked against
+  let selBlock = null;                // the block clicked (its first box's code), shown in the sidebar
   // a block group's layout (2026-10-19): `marking` the group whose blocks are being marked on the page (`marks` the
   // boxes so far, in order); `ed` the layout being edited on the card ({tid, cells: [[code, block, position]], pick:
   // a code, or {b, k} an empty place}), saved in one go
@@ -2409,7 +2419,23 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
   // each table or block group in its own color, as option groups are in Groups (Andrew, 2026-10-19): the palette
   // by the table's place in the form's listing, so a color stays with its id across pages and cancellations
   const colorOfTable = t => GROUP_COLORS[Math.max(0, GD.tables.findIndex(x => x.id === t.id)) % GROUP_COLORS.length];
+  // blocks (block_types.py, Andrew 2026-10-21): an area dragged on the page is a block, of an existing block type when
+  // its boxes pair with one's template, else of a new type; block groups are gone ("we can basically ditch the
+  // entire block group concept now"): a type and its blocks carry what they did
+  function placeBlocks() {
+    for (const y of (BLK && GD && GD.types) || []) {
+      for (const b of y.blocks.filter(b => b.page === page)) {
+        const pad = 3, d = put('btb' + (b.code === selBlock ? ' sel' : ''), [b.bbox[0] - pad, b.bbox[1] - pad, b.bbox[2] + pad, b.bbox[3] + pad], `${y.id}-${b.n}${y.label ? ' ' + y.label : ''}`);
+        d.innerHTML = `<span title="click to copy the reference">${esc(y.id)}-${b.n}${y.label ? ' ' + esc(y.label) : ''}${b.validated ? ' ✓' : ''}</span>`;
+        d.firstChild.onclick = e => { e.stopPropagation(); copyTableRef(`${y.id}-${b.n}`); };     // as a field's name and a grid's id
+        // each field of the block, accepted or not, as the Grids tab shows a grid's cells
+        for (const x of (b.cells || []).filter(Boolean)) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : ' · not accepted yet')).style.setProperty('--c', 'var(--accent)');
+        d.onclick = e => { e.stopPropagation(); selectBlock(b); };
+      }
+    }
+  }
   function place() {
+    if (BLK) { placeBlocks(); return; }
     for (const t of onPage(page)) {
       const pad = 6, r = [t.bbox[0] - pad, t.bbox[1] - pad, t.bbox[2] + pad, t.bbox[3] + pad], c = colorOfTable(t);
       const d = put('gtab ' + t.kind + (t.on_pattern ? ' ok' : '') + (selected === t.id ? ' sel' : ''), r, `${t.id} · ${t.kind} ${t.rows} x ${t.cols} · ${status(t)} · ${prov(t)}`);
@@ -2422,12 +2448,6 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       for (const x of t.cells) if (x.rect) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : '')).style.setProperty('--c', c);
     }
     marks.forEach((r, i) => { const d = put('lblk', r); d.style.setProperty('--c', 'var(--accent)'); d.innerHTML = `<span>block ${i + 1}</span>`; });
-    for (const y of (BLK && GD && GD.types) || []) {      // block types: each block outlined, numbered in the type's order
-      for (const b of y.blocks.filter(b => b.page === page)) {
-        const pad = 3, d = put('lblk', [b.bbox[0] - pad, b.bbox[1] - pad, b.bbox[2] + pad, b.bbox[3] + pad], `${y.id} block ${b.n}`);
-        d.style.setProperty('--c', 'var(--accent)'); d.innerHTML = `<span>${esc(y.id)} · ${b.n}${b.template ? ' (template)' : ''}</span>`;
-      }
-    }
   }
   // the selected block group: its blocks outlined, every box with its position (same color for a position in every
   // block, so a box in the wrong place shows); an empty place picked: the page's other boxes can be clicked in
@@ -2548,36 +2568,67 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
   function panel() {
     const a = $('#panel'), ts = onPage(page);
     if (!GD) { a.innerHTML = '<p class="help">loading…</p>'; return; }
-    a.innerHTML = `<div class="help">${BLK ? 'Block groups: a set of fields repeated (one block per repeat), outlined in dots on the page' : 'Tables (grids) the layout code finds, outlined in dots on the page'}. One click runs
+    // the Blocks tab is its block types and their blocks; the handlers below find nothing of the grids' there
+    a.innerHTML = BLK ? `<div class="help"><b>Drag on the page around one block</b> to make it a block: of an existing block type when its boxes match one, several blocks when the area holds several copies, else a new type. Click a block to open it; Delete removes it; n / p step through the blocks; Enter validates the open one.</div>` + typesHtml() + blocksHtml()
+      : `<div class="help">Tables (grids) the layout code finds, outlined in dots on the page. One click runs
       the lightest check that settles a table: the code, then the name-check model, then Jev, and Opus only when it is still unclear.</div>
       <div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn ${drawKind && drawKind !== 'type' ? 'primary' : ''}" id="gtDraw" title="${BLK ? 'then drag a box around every block of the group' : 'then drag a box around the fields on the page'} (d)">draw a ${NOUN}</button>
-        ${BLK ? `<button class="btn ${drawKind === 'type' ? 'primary' : ''}" id="gtType" title="then drag a box around ONE block: its fields become the template of a new block type (t)">define a block type</button>` : ''}
+        ${BLK ? '' : `<button class="btn ${drawKind ? 'primary' : ''}" id="gtDraw" title="then drag a box around the fields on the page (d)">draw a ${NOUN}</button>`}
         ${ticked.size >= 2 ? `<button class="btn primary" id="gtComb">combine ticked (${ticked.size})</button>` : ''}
       </div>
-      ${drawKind === 'designate' ? `<p class="help"><b>Drag a box around a block of ${esc(desigType)}</b>: checked against its template; an exact copy becomes one of its blocks. Stays on for the next one; Esc to stop.</p>`
-        : drawKind === 'type' ? `<p class="help"><b>Drag a box around one block</b>: the fields inside become the template of a new block type (nothing else is selected). t or Esc to stop.</p>`
-        : drawKind ? `<p class="help"><b>Drag a box on the page</b> around the ${BLK ? 'blocks of the group' : 'table'}: the fields whose middle is inside become a new ${NOUN}. Drawing stays on for the next one; d or Esc to stop.</p>` : ''}
-      ${BLK && (GD.types || []).length ? `<div class="help" style="margin:6px 0">Block types: ${GD.types.map(y =>
-        `<span><b>${esc(y.id)}</b> ${y.boxes} boxes, ${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} <button class="btn mini ${drawKind === 'designate' && desigType === y.id ? 'primary' : ''}" data-desig="${esc(y.id)}" title="then drag a box around another block: it is checked against ${esc(y.id)}'s template (same boxes, sizes and spacing) and, when it is an exact copy, becomes one of its blocks; stays on for the next one">designate blocks</button></span>`).join(' · ')}</div>` : ''}
+      ${BLK ? `<p class="help"><b>Drag on the page around one block</b> to make it a block: of an existing block type when it is an exact copy of one, else of a new type. <b>Drag a block onto another</b> of its type to group them.</p>`
+        : drawKind ? `<p class="help"><b>Drag a box on the page</b> around the table: the fields whose middle is inside become a new ${NOUN}. Drawing stays on for the next one; d or Esc to stop.</p>` : ''}
       ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
         `<p class="help">No ${BLK ? 'block group' : 'numbered table'} on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
       ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Set aside (${BLK ? 'not a block group' : 'not a grid'}): ${asidePage(page).map(t =>
         `<span><b>${esc(t.id)}</b> ${esc(t.title || t.kind)} (${t.rows} x ${t.cols}, ${esc(prov(t))}) <a href="#" data-restore="${esc(t.id)}">restore</a></span>`).join(' · ')}</div>` : ''}`;
     a.querySelectorAll('[data-tick]').forEach(b => { b.onclick = e => e.stopPropagation(); b.onchange = () => {
       b.checked ? ticked.add(b.dataset.tick) : ticked.delete(b.dataset.tick); panel(); }; });
-    $('#gtDraw').onclick = () => { drawKind = drawKind && drawKind !== 'type' ? null : KIND; panel(); };
-    if ($('#gtType')) $('#gtType').onclick = () => { drawKind = drawKind === 'type' ? null : 'type'; marking = null; marks = []; panel(); };
-    a.querySelectorAll('[data-desig]').forEach(b => b.onclick = e => { e.stopPropagation();
-      const on = drawKind === 'designate' && desigType === b.dataset.desig;
-      drawKind = on ? null : 'designate'; desigType = on ? null : b.dataset.desig; marking = null; marks = []; panel(); });
+    if ($('#gtDraw')) $('#gtDraw').onclick = () => { drawKind = drawKind ? null : KIND; panel(); };
+
+    a.querySelectorAll('[data-blk]').forEach(r => r.onclick = () => {
+      const hit = blocksHere().find(x => x.b.code === r.dataset.blk); if (hit) selectBlock(hit.b); });
+    a.querySelectorAll('[data-bval]').forEach(b => b.onclick = e => { e.stopPropagation(); blockValidate(b.dataset.bval); });
+    if ($('#btDetect')) $('#btDetect').onclick = e => { e.stopPropagation(); blockDetect(); };
+    a.querySelectorAll('[data-refit]').forEach(b => b.onclick = e => { e.stopPropagation();
+      const hit = blocksHere().find(x => x.b.code === b.dataset.refit); if (hit) blockAssign(b.dataset.refit, hit.y.id); });
+    a.querySelectorAll('[data-tassign]').forEach(sel => { sel.addEventListener('keydown', e => e.stopPropagation()); sel.onclick = e => e.stopPropagation();
+      sel.onchange = () => { if (sel.value) typeAssign(sel.dataset.tassign, sel.value); }; });
+    a.querySelectorAll('[data-assign]').forEach(sel => { sel.addEventListener('keydown', e => e.stopPropagation()); sel.onclick = e => e.stopPropagation();
+      sel.onchange = () => { if (sel.value) blockAssign(sel.dataset.assign, sel.value); }; });
+    a.querySelectorAll('[data-bfix]').forEach(b => b.onclick = e => { e.stopPropagation(); blockFix(b.dataset.bfix); });
+    a.querySelectorAll('[data-bkeep]').forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.dataset.bkeep, b.dataset.pos, true); });
+    a.querySelectorAll('[data-bunkeep]').forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.dataset.bunkeep, b.dataset.pos, false); });
+    a.querySelectorAll('[data-tw]').forEach(i => { i.addEventListener('keydown', e => e.stopPropagation()); i.onclick = e => e.stopPropagation(); });
+    a.querySelectorAll('[data-tconf]').forEach(b => b.onclick = e => { e.stopPropagation(); typeConfirm(b.dataset.tconf); });
+    // a block's prefix and iteration: saved on Enter or leaving the box (both sent, so one edit keeps the other)
+    a.querySelectorAll('[data-bpre], [data-bit]').forEach(i => { i.onclick = e => e.stopPropagation();
+      i.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') i.blur(); });
+      i.addEventListener('blur', () => {
+        const code = i.dataset.bpre || i.dataset.bit, b = blocksHere().map(x => x.b).find(x => x.code === code); if (!b) return;
+        const pre = a.querySelector(`[data-bpre="${CSS.escape(code)}"]`).value.trim(), it = a.querySelector(`[data-bit="${CSS.escape(code)}"]`).value.trim();
+        if (pre === (b.prefix || '') && it === (b.iteration || '')) return;
+        blockParts(code, {prefix: pre, iteration: it});
+      }); });
+    a.querySelectorAll('[data-bpreset]').forEach(x => x.onclick = e => { e.preventDefault(); e.stopPropagation(); blockParts(x.dataset.bpreset, {}); });
+    a.querySelectorAll('[data-tauto]').forEach(c => { c.onclick = e => e.stopPropagation(); c.onchange = () => typeAuto(c.dataset.tauto, c.checked); });
+    a.querySelectorAll('[data-tlabel]').forEach(i => { i.onclick = e => e.stopPropagation();
+      i.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') i.blur(); });
+      i.addEventListener('blur', () => typeLabel(i.dataset.tlabel, i.value)); });
+    a.querySelectorAll('[data-tfix]').forEach(b => b.onclick = e => { e.stopPropagation(); typeFix(b.dataset.tfix); });
+    a.querySelectorAll('[data-tval]').forEach(b => b.onclick = e => { e.stopPropagation(); typeValidate(b.dataset.tval); });
+    a.querySelectorAll('[data-tedit]').forEach(b => b.onclick = e => { e.preventDefault(); editing.add(b.dataset.tedit); panel(); });
+    a.querySelectorAll('[data-tblk]').forEach(r => r.onclick = () => {
+      const hit = (GD.types || []).flatMap(y => y.blocks).find(x => x.code === r.dataset.tblk); if (hit) selectBlock(hit); });
+    a.querySelectorAll('.bttype').forEach(d => d.addEventListener('click', e => e.stopPropagation()));
+    a.querySelectorAll('[data-blkdel]').forEach(b => b.onclick = e => { e.stopPropagation(); blockOut(b.dataset.blkdel); });
     if ($('#gtComb')) $('#gtComb').onclick = combineTicked;
     a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
     a.querySelectorAll('[data-stop]').forEach(b => b.onclick = e => { e.stopPropagation(); stop(b.dataset.stop); });
     a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = e => { e.stopPropagation(); setAside(b.dataset.notgrid, true); });
     a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
-    a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected === c.dataset.t) return; selected = c.dataset.t; placeAll(); panel(); });
-    a.querySelectorAll('[data-copy]').forEach(el => el.onclick = e => { e.stopPropagation(); copyTableRef(el.dataset.copy); });
+    a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected === c.dataset.t) return; selected = c.dataset.t; selBlock = null; placeAll(); panel(); });
+    a.querySelectorAll('[data-copy]').forEach(el => el.onclick = e => { e.preventDefault(); e.stopPropagation(); copyTableRef(el.dataset.copy); });
     a.querySelectorAll('[data-std]').forEach(bt => bt.onclick = e => { e.stopPropagation(); standardize(bt.dataset.std, bt.dataset.pos, bt.dataset.line); });
     a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
     if ($('#gtAll')) $('#gtAll').onclick = async () => {        // stops if you open another form
@@ -2589,26 +2640,192 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     };
     if (BLK) bindLayout(a);
   }
-  // a block type (Andrew, 2026-10-21): one block drawn, its fields kept as the template; nothing else selected
-  async function defineType(rect) {
-    drawKind = null;
-    let out;
-    try { out = await send('POST', mapi(API, '/type'), {page, rect}); }
-    catch (e) { panel(); alert('Could not make a block type: ' + e.message); return; }
-    const keep = results; await loadMode(); results = keep;
-    toast(`Block type ${out.id}: ${out.boxes} boxes, outlined on the page.`);
+  // the blocks on this page (Andrew, 2026-10-21: "blocks/block groups need to be clickable and show up in the
+  // sidebar"): each one clickable; the clicked one with its fields, "add to existing", "take out of" its group and
+  // "not a block"
+  const blocksHere = () => (GD.types || []).flatMap(y => y.blocks.filter(b => b.page === page).map(b => ({y, b})));
+  function selectBlock(b) {
+    selBlock = b.code;
+    if (b.page !== page) { gotoPage(b.page); return; }
+    placeAll(); panel();
+    const row = document.querySelector(`[data-blk="${CSS.escape(b.code)}"]`); if (row) row.scrollIntoView({block: 'nearest'});
   }
-  async function designateBlock(rect) {          // drawing stays on for the next block
+  function blocksHtml() {
+    const here = blocksHere();
+    const find = (GD.types || []).length ? `<button class="btn mini" id="btDetect" title="every block type's copies on this page added as its blocks (boxes already in a block are left)">find block types on this page</button>` : '';
+    if (!here.length) return find ? `<div class="btlist">${find}</div>` : '';
+    return `<div class="btlist"><h4>Blocks on page ${page} (${here.length}) ${find}</h4>${here.map(({y, b}) => {
+      const open = b.code === selBlock;
+      return `<div class="btrow${open ? ' sel' : ''}" data-blk="${esc(b.code)}"><b class="gtidc" data-copy="${esc(y.id)}-${b.n}" title="click to copy the reference (file_id)">${esc(y.id)}-${b.n}</b> <span class="help">${y.label ? esc(y.label) + ' · ' : ''}${b.template ? 'the type\'s template · ' : ''}${blockState(y, b)}</span>
+        ${open ? `<div class="btmore"><div class="row btparts">prefix <input type="text" data-bpre="${esc(b.code)}" value="${esc(b.prefix || '')}" title="the block's own start: every name is [prefix]_[iteration]_[wording]">
+            iteration <input type="text" class="btit" data-bit="${esc(b.code)}" value="${esc(b.iteration || '')}" placeholder="next free" title="the block's number among the type's blocks with this prefix; left empty, the next number free; - for none">
+            ${b.parts_set ? `<a href="#" data-bpreset="${esc(b.code)}" title="back to the prefix and iteration read from the names">reset</a>` : ''}</div>
+          <div class="help">${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} of ${esc(y.id)}, ${y.boxes} boxes each, named ${esc(b.prefix || '')}${b.iteration ? '_' + esc(b.iteration) : ''}_[wording]:</div>
+          <ol>${b.names.map((n, k) => { const d = b.differs.find(x => x.pos === k + 1), kept = (b.kept || []).includes(k + 1);
+            const ok = ((b.cells || [])[k] || {}).accepted;
+            if (n == null) return `<li class="help">(no box: ${esc(y.wordings[k] || '')})</li>`;
+            return `<li><code${ok ? ' class="accd" title="accepted"' : ' title="not accepted yet"'}>${esc(n)}</code>${ok ? ' ✓' : ''}${d ? ` <span class="stale">→ ${esc(d.want)}</span> <a href="#" class="x" data-bkeep="${esc(b.code)}" data-pos="${k + 1}" title="cancel this rename: the name stays as it is and no longer counts as off ${esc(y.id)}">×</a>`
+              : kept ? ` <span class="help">kept as is · <a href="#" data-bunkeep="${esc(b.code)}" data-pos="${k + 1}">undo</a></span>` : ''}</li>`; }).join('')}</ol>
+          <div class="row" style="margin-bottom:4px">${b.validated ? '<span class="pill validated">validated</span>' : ''}${y.confirmed ? `<button class="btn mini ${b.validated ? '' : 'primary'}" data-bval="${esc(b.code)}" ${bBusy.has(b.code) ? 'disabled' : ''} title="every name this block's start (${esc(b.start)}) and then ${esc(y.id)}'s wording: its cells accepted">${bBusy.has(b.code) ? 'checking…' : b.validated ? 'validated ✓ · check again' : `check & validate against ${esc(y.id)}`}</button>
+            ${b.differs.length ? `<button class="btn mini" data-bfix="${esc(b.code)}" title="the ${b.differs.length} name(s) marked → put to ${esc(y.id)}'s wordings, as Claude's renames; nothing accepted">rename to the type's wording (${b.differs.length})</button>` : ''}`
+            : `<span class="help">confirm ${esc(y.id)}'s wordings (Block types, above) to validate its blocks</span>`}</div>
+          <div class="row"><button class="btn mini" data-blkdel="${esc(b.code)}" title="this area is not a block: its fields leave ${esc(y.id)}">not a block</button>
+            ${b.names.some(n => n == null) ? `<button class="btn mini" data-refit="${esc(b.code)}" title="${b.names.filter(n => n == null).length} of ${esc(y.id)}'s boxes have no box in this block: fitted again from the boxes in and round it (place, size and label)">re-fit to ${esc(y.id)}</button>` : ''}
+            ${(GD.types || []).some(x => x.id !== y.id) ? `<select data-assign="${esc(b.code)}" title="this block given another type, a copy or not: its boxes paired with the type's by best fit (place, size and label); the type's boxes it lacks stay empty, its boxes the type has no place for stay out"><option value="">assign to type…</option>${typeOptions(y.id, closestFor[b.code])}</select>` : ''}</div></div>` : ''}</div>`;
+    }).join('')}</div>`;
+  }
+  // the other types, the closest one (if any) first
+  const typeOptions = (not, first) => (GD.types || []).filter(x => x.id !== not).sort((a, b) => (b.id === first) - (a.id === first))
+    .map(x => `<option value="${esc(x.id)}">${esc(x.id)}${x.label ? ' ' + esc(x.label) : ''} (${x.boxes} boxes, ${x.blocks.length} block${x.blocks.length === 1 ? '' : 's'})${x.id === first ? ' · closest' : ''}</option>`).join('');
+  const blockState = (y, b) => {
+    const acc = (b.cells || []).filter(x => x && x.accepted).length, n = (b.cells || []).filter(Boolean).length;
+    if (b.validated) return 'validated ✓';
+    const st = !y.confirmed ? 'type not confirmed' : b.differs.length ? `${b.differs.length} name${b.differs.length === 1 ? '' : 's'} off the type` : 'matches the type';
+    return `${st} · ${acc} of ${n} accepted`;
+  };
+  // block types (Andrew, 2026-10-21: "what happened to block types?"): each type, its wordings (editable until
+  // confirmed) and its blocks on every page, clickable
+  let editing = new Set();
+  function typesHtml() {
+    const ys = GD.types || [];
+    if (!ys.length) return '';
+    return `<div class="btlist"><h4>Block types (${ys.length})</h4>${ys.map(y => {
+      const edit = !y.confirmed || editing.has(y.id), mine = y.blocks.some(b => b.code === selBlock);
+      return `<details class="bttype" ${edit || mine ? 'open' : ''}><summary><b class="gtidc" data-copy="${esc(y.id)}" title="click to copy the reference (file_id)">${esc(y.id)}</b>${y.label ? ` ${esc(y.label)}` : ''} <span class="help">${y.boxes} boxes · ${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} · ${y.confirmed ? 'confirmed' : 'not confirmed'}</span></summary>
+        <div class="row" style="margin:2px 0 4px"><input type="text" class="btlabel" data-tlabel="${esc(y.id)}" value="${esc(y.label || '')}" placeholder="label (e.g. US address)" title="your name for ${esc(y.id)}; Enter or leaving the box saves it"></div>
+        <label class="help" title="every block's prefix the label as a name and its iteration its number in ${esc(y.id)} (1 to ${y.blocks.length}, the PDF's order); a block's own prefix or iteration, set by hand, still wins"><input type="checkbox" data-tauto="${esc(y.id)}" ${y.auto ? 'checked' : ''} ${y.label ? '' : 'disabled'}> name its blocks ${y.label ? `${esc(y.label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''))}_1, _2, …` : 'from the label (give it one first)'}</label>
+        <div class="help">Names: [block prefix]_[block iteration]_[wording]; an empty iteration takes the next number free (- for none). Wordings, one per position:</div>
+        <ol>${y.wordings.map((w, k) => `<li>${edit ? `<input type="text" data-tw="${esc(y.id)}" data-k="${k}" value="${esc(w)}">` : `<code>${esc(w)}</code>`}</li>`).join('')}</ol>
+        <div class="row">${edit ? `<button class="btn mini primary" data-tconf="${esc(y.id)}">confirm ${esc(y.id)}</button>` : `<a href="#" data-tedit="${esc(y.id)}">edit wordings</a>`}
+          ${y.confirmed ? `<button class="btn mini ${y.blocks.every(b => b.validated) ? '' : 'primary'}" data-tval="${esc(y.id)}" ${tBusy.has(y.id) ? 'disabled' : ''} title="check & validate every block of ${esc(y.id)}: the cells of each block that follows these wordings accepted; the others said, nothing of theirs accepted">${tBusy.has(y.id) ? 'checking…' : y.blocks.every(b => b.validated) ? 'all validated ✓ · check again' : `validate all ${y.blocks.length}`}</button>` : ''}
+          ${y.confirmed && typeOff(y) ? `<button class="btn mini" data-tfix="${esc(y.id)}" title="every block of ${esc(y.id)} put to these wordings (each block's own start kept; cancelled renames left), as Claude's renames; nothing accepted">rename every block to these wordings (${typeOff(y)})</button>` : ''}</div>
+        ${(GD.types || []).length > 1 ? `<div class="row"><select data-tassign="${esc(y.id)}" title="every block of ${esc(y.id)} given another type, each fitted by best fit (place, size, label); ${esc(y.id)} is then dropped"><option value="">assign ${y.blocks.length === 1 ? 'its block' : `its ${y.blocks.length} blocks`} to…</option>${typeOptions(y.id, y.blocks.length === 1 ? closestFor[y.blocks[0].code] : null)}</select></div>` : ''}
+        <div class="help" style="margin-top:4px">Blocks:</div>
+        ${y.blocks.map(b => `<div class="btrow${b.code === selBlock ? ' sel' : ''}" data-tblk="${esc(b.code)}"><b class="gtidc" data-copy="${esc(y.id)}-${b.n}" title="click to copy the reference (file_id)">${esc(y.id)}-${b.n}</b> <span class="help">p${b.page} · ${esc(b.start)} · ${blockState(y, b)}</span></div>`).join('')}
+      </details>`;
+    }).join('')}</div>`;
+  }
+  const typeOff = y => y.blocks.reduce((n, b) => n + (b.differs || []).length, 0);
+  const tBusy = new Set();
+  async function typeValidate(tid) {
     let out;
-    try { out = await send('POST', mapi(API, '/designate'), {type: desigType, page, rect}); }
+    tBusy.add(tid); panel();
+    try { out = await send('POST', mapi(API, '/tvalidate'), {type: tid}); }
+    catch (e) { tBusy.delete(tid); panel(); alert(e.message); return; }
+    tBusy.delete(tid);
+    if (out.entry) updateEntry(out.entry);
+    const keep = results; await loadMode(); results = keep;
+    toast(`${tid}: ${out.validated.length} block(s) validated` + (out.accepted ? `, ${out.accepted} cell(s) accepted` : '')
+      + (out.off.length ? `; not validated: ${out.off.map(o => `${o.block} (${o.off} name${o.off === 1 ? '' : 's'} off)`).join(', ')}` : '') + '.');
+  }
+  async function typeFix(tid) {
+    let out;
+    try { out = await send('POST', mapi(API, '/tfix'), {type: tid}); }
     catch (e) { alert(e.message); return; }
-    if (out.group) selected = out.group;
+    if (out.entry) updateEntry(out.entry);
     const keep = results; await loadMode(); results = keep;
-    toast(`${out.id}: block ${out.block} of ${out.of}${out.group ? ` (block group ${out.group})` : ''}.${leftNote(out)}`);
+    toast(`${tid}: ${out.renamed} rename(s) applied as Claude's.` + (out.errors.length ? ' Not applied: ' + out.errors.join('; ') : ''));
   }
+  async function blockParts(code, body) {
+    try { await send('POST', mapi(API, '/bparts'), {block: code, ...body}); }
+    catch (e) { alert(e.message); return; }
+    const keep = results; await loadMode(); results = keep;
+  }
+  async function typeAuto(tid, on) {
+    try { await send('POST', mapi(API, '/tauto'), {type: tid, on}); }
+    catch (e) { alert(e.message); panel(); return; }
+    const keep = results; await loadMode(); results = keep;
+    const y = (GD.types || []).find(x => x.id === tid), n = y ? typeOff(y) : 0;
+    if (on && y && y.confirmed && n && confirm(`${tid}: ${n} name(s) across its ${y.blocks.length} blocks do not follow ${y.label}_N_[wording]. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
+  }
+  async function typeLabel(tid, label) {
+    const y = (GD.types || []).find(x => x.id === tid); if (!y || (y.label || '') === label.trim()) return;
+    try { await send('POST', mapi(API, '/tlabel'), {type: tid, label}); }
+    catch (e) { alert(e.message); return; }
+    y.label = label.trim(); placeAll(); panel();
+  }
+  async function typeConfirm(tid) {
+    const words = [...document.querySelectorAll(`[data-tw="${CSS.escape(tid)}"]`)].sort((a, b) => a.dataset.k - b.dataset.k).map(i => i.value.trim());
+    let out;
+    try { out = await send('POST', mapi(API, '/confirm'), {type: tid, wordings: words}); }
+    catch (e) { alert(e.message); return; }
+    editing.delete(tid); const keep = results; await loadMode(); results = keep;
+    const y = (GD.types || []).find(x => x.id === tid), n = y ? typeOff(y) : 0;
+    toast(`${tid} confirmed: ${out.wordings.length} wordings.`);
+    if (n && confirm(`${tid}: ${n} name(s) across its ${y.blocks.length} blocks do not follow these wordings. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
+  }
+  const bBusy = new Set();
+  async function blockValidate(code) {
+    let out;
+    bBusy.add(code); panel();
+    try { out = await send('POST', mapi(API, '/bvalidate'), {block: code}); }
+    catch (e) { bBusy.delete(code); panel(); alert(e.message); return; }
+    bBusy.delete(code);
+    if (out.entry) updateEntry(out.entry);
+    const keep = results; await loadMode(); results = keep;
+    toast(out.ok ? `Validated against ${out.type}` + (out.accepted.length ? `: ${out.accepted.length} cell(s) accepted.` : ' (every cell already had a verdict).')
+      : `${out.differs.length} name(s) off ${out.type}'s wordings; nothing accepted (rename them, cancel the renames that are wrong, or edit the type).`);
+  }
+  async function blockKeep(code, pos, on) {
+    try { await send('POST', mapi(API, '/bkeep'), {block: code, pos: +pos, on}); }
+    catch (e) { alert(e.message); return; }
+    const keep = results; await loadMode(); results = keep;
+  }
+  async function blockFix(code) {
+    let out;
+    try { out = await send('POST', mapi(API, '/bfix'), {block: code}); }
+    catch (e) { alert(e.message); return; }
+    if (out.entry) updateEntry(out.entry);
+    const keep = results; await loadMode(); results = keep;
+    toast(`${out.renamed} rename(s) applied as Claude's.` + (out.errors.length ? ' Not applied: ' + out.errors.join('; ') : ''));
+  }
+  async function blockDetect() {
+    let out;
+    try { out = await send('POST', mapi(API, '/detect'), {page}); }
+    catch (e) { alert(e.message); return; }
+    const keep = results; await loadMode(); results = keep;
+    toast(out.n ? 'Found ' + Object.entries(out.found).map(([t, ns]) => ns.map(n => `${t}-${n}`).join(', ')).join('; ') + '.' : 'No new copies of a block type on this page.');
+  }
+  async function typeAssign(from, tid) {          // each block of `from` given type `tid`, one after another
+    const y = (GD.types || []).find(x => x.id === from); if (!y) return;
+    const said = [];
+    for (const b of y.blocks) {
+      try { const out = await send('POST', mapi(API, '/assign'), {block: b.code, type: tid}); said.push(`${tid}-${out.block}`); }
+      catch (e) { said.push(`${from}-${b.n}: ${e.message}`); }
+    }
+    const keep = results; await loadMode(); results = keep;
+    toast(`${from} into ${tid}: ${said.join(', ')}.`);
+  }
+  async function blockAssign(code, tid) {
+    let out;
+    try { out = await send('POST', mapi(API, '/assign'), {block: code, type: tid}); }
+    catch (e) { alert(e.message); return; }
+    const keep = results; await loadMode(); results = keep;
+    toast((out.refit ? `${out.type}-${out.block} fitted again.` : `Now ${out.type}-${out.block} (was a block of ${out.was}).`) + (out.missing.length ? ` It has no box for ${out.type}'s position${out.missing.length === 1 ? '' : 's'} ${out.missing.join(', ')}.` : '')
+      + (out.extra.length ? ` Left out (no place in ${out.type}): ${out.extra.join(', ')}.` : ''));
+  }
+  async function blockOut(code) {
+    let out;
+    try { out = await send('POST', mapi(API, '/out'), {block: code}); }
+    catch (e) { alert(e.message); return; }
+    selBlock = null;
+    const keep = results; await loadMode(); results = keep;
+    toast(out.said.join('; ') + '.');
+  }
+  const closestFor = {};           // a block just drawn as a new type: the type it nearly was, first in "assign to"
+  async function blockDraw(rect) {
+    let out;
+    try { out = await send('POST', mapi(API, '/draw'), {page, rect}); }
+    catch (e) { panel(); alert('Could not make a block: ' + e.message); return; }
+    if (out.code) { selBlock = out.code; closestFor[out.code] = out.closest && out.closest.type; }
+    const keep = results; await loadMode(); results = keep;
+    toast(out.found ? `${out.type}: ${out.found} blocks in the area (${out.blocks.map(n => out.type + '-' + n).join(', ')}), ${out.fresh} new.`
+      : out.already ? `That is block ${out.block} of ${out.type} already.`
+      : out.new ? `New block type ${out.type}.` + (out.closest ? ` Closest: ${out.closest.type} (${out.closest.differs}).` : '')
+      : `${out.type}: block ${out.block} of ${out.of}.` + ((out.left || []).length ? ' ' + out.left.join('; ') + '.' : ''));
+  }
+
   async function create(rect) {
-    if (drawKind === 'type') return defineType(rect);
-    if (drawKind === 'designate') return designateBlock(rect);
     const kind = drawKind;           // drawing stays on for the next one (Andrew, 2026-10-20); d or Esc stops it
     let out;
     try { out = await send('POST', mapi(API, '/create'), {page, rect, kind}); }
@@ -2701,7 +2918,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     pageLabel(p) { const n = onPage(p).length; return `p${p}${n ? ` (${n})` : ''}`; },
     bar: () => `<span class="progress" id="progress"></span>`,
     bindBar() { if (GD) this.progress(); },
-    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table'], ['d', 'draw on / off (stays on after each one drawn)'], ['t', 'Blocks: define a block type (drag around one block)']],
+    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table'], ['d', 'Grids: draw on / off (stays on after each one drawn)'], ['Delete', 'the selected block is no longer a block; else the selected grid or block group is set aside']],
            tips: ['Dotted outlines are tables and repeated blocks; dashed ones (in Review and Groups) are option groups.',
                   'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.']},
     place, panel,
@@ -2711,20 +2928,39 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       el.innerHTML = `<b>${ts.length}</b> ${BLK ? 'block groups' : 'tables'} · ${ok} on pattern · ${v} validated${n ? ` · ${n} set aside` : ''}`;
     },
     key(e) {
+      if (BLK) {                       // the Blocks tab: n / p through the blocks, Delete, Enter, Esc on the open one
+        const all = (GD && GD.types || []).flatMap(y => y.blocks).sort((a, b) => a.page - b.page || a.bbox[1] - b.bbox[1] || a.bbox[0] - b.bbox[0]);
+        if ((e.key === 'n' || e.key === 'p') && all.length) {
+          const k = all.findIndex(b => b.code === selBlock), b = all[(k + (e.key === 'n' ? 1 : -1) + all.length) % all.length];
+          selectBlock(b); return true;
+        }
+        if ((e.key === 'Delete' || e.key === 'Backspace') && selBlock) { blockOut(selBlock); return true; }
+        if (e.key === 'Enter' && selBlock) { blockValidate(selBlock); return true; }
+        if (e.key === 'Escape' && selBlock) { selBlock = null; placeAll(); panel(); return true; }
+        return false;
+      }
       const ts = live(), i = ts.findIndex(t => t.id === selected);
       if (e.key === 'n' || e.key === 'p') {
         const t = ts[(i + (e.key === 'n' ? 1 : -1) + ts.length) % ts.length]; if (!t) return true;
         selected = t.id; if (t.page !== page) gotoPage(t.page); else { placeAll(); panel(); } return true;
       }
       if (e.key === 'Enter' && selected) { run(selected); return true; }
-      if (e.key === 'd') { drawKind = drawKind && drawKind !== 'type' ? null : KIND; marking = null; marks = []; placeAll(); panel(); return true; }
-      if (e.key === 't' && BLK) { drawKind = drawKind === 'type' ? null : 'type'; marking = null; marks = []; placeAll(); panel(); return true; }
+      // Delete (Andrew, 2026-10-21): the selected block is no longer a block; else the selected grid or block group is
+      // set aside (restorable from "Set aside")
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selected) { setAside(selected, true); return true; }
+        return false;
+      }
+      if (e.key === 'd' && !BLK) { drawKind = drawKind ? null : KIND; marking = null; marks = []; placeAll(); panel(); return true; }
       if (e.key === 'Escape' && drawKind) { drawKind = null; panel(); return true; }
       if (e.key === 'Escape' && marking) { marking = null; marks = []; placeAll(); panel(); return true; }
       if (e.key === 'Escape' && ed && ed.pick) { ed.pick = null; placeAll(); panel(); return true; }
       return false;
     },
-    mousedown(e) { if (!(drawKind || marking) || e.button !== 0) return; e.preventDefault(); e.stopPropagation(); drawStart = pt(e); },
+    mousedown(e) {
+      if (e.button !== 0 || !(drawKind || marking || BLK)) return;
+      e.preventDefault(); e.stopPropagation(); drawStart = pt(e);
+    },
     mousemove(e) {
       if (!drawStart) return; const q = pt(e);
       const r = [Math.min(drawStart[0], q[0]), Math.min(drawStart[1], q[1]), Math.max(drawStart[0], q[0]), Math.max(drawStart[1], q[1])];
@@ -2736,7 +2972,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     mouseup() {
       if (!drawStart) return;
       const b = drawBox; drawStart = null; drawBox = null;
-      if (b) { b.remove(); if (marking) { marks.push(b._r); placeAll(); panel(); } else create(b._r); }
+      if (b) { b.remove(); if (marking) { marks.push(b._r); placeAll(); panel(); } else if (BLK) blockDraw(b._r); else create(b._r); }
     },
   };
 }

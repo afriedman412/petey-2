@@ -147,7 +147,10 @@ def listing(bid: str, bp: dict) -> list[dict]:
     def at(g):                                  # top, then left: new ids are given in reading order
         rs = [r for r in (_rect(bp, c["name"]) for c in g) if r]
         return (g[0]["page"], min((r[1] for r in rs), default=0), min((r[0] for r in rs), default=0))
-    for g in sorted(found(bp), key=at):
+    # block groups are gone (Andrew, 2026-10-21: "we can basically ditch the entire block group concept now"): the
+    # finder's are not recorded or listed (`found` still keeps the grids inside them out of the listing), and kept ones
+    # in old records are passed over; block types (block_types.py) carry what they did
+    for g in sorted((g for g in found(bp) if not g[0].get("block")), key=at):
         page, kind = g[0]["page"], "block" if g[0].get("block") else "table"
         codes = [code.get(c["name"], c["name"]) for c in g]
         e = next((e for e in rec["grids"] if e["source"] == "finder" and e["page"] == page and id(e) not in claimed
@@ -165,7 +168,7 @@ def listing(bid: str, bp: dict) -> list[dict]:
         out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts")},
                     "grid": [dict(c) for c in g]})
     for e in rec["grids"]:
-        if e["source"] == "finder":
+        if e["source"] == "finder" or e.get("kind") == "block":
             continue
         cells = [{"name": name[c], "page": e["page"], "row": r, "col": k, **({"block": True} if e["kind"] == "block" else {})}
                  for c, r, k in e["cells"] if c in name]

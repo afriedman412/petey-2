@@ -561,6 +561,24 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
 
 ## Later
 
+- **Auto-merge consecutive text lines** (Andrew, 2026-10-21; part of the associations idea): boxes stacked one per
+  printed line that hold one answer (a paragraph over numbered lines, `summary_txt_1` .. `_6`; an address written
+  over two or three lines) found and proposed as one value without dragging them together by hand. Two existing
+  pieces to build on: `eval/associate.py`'s `lines` compound value kind (the rule pass already reads them from the
+  names, on copies only), and the Groups tab's combined text field (teal boxes dragged together by hand: one field
+  over the boxes, the filler splitting the text). Open: detection from the page (same width, stacked, no caption
+  between) rather than the names, and whether the result is a combined field or an association that keeps the
+  boxes.
+
+- **IRS 941-X page 2 as a grid** (Andrew, 2026-10-21: "leave it for now, come back to it"). Two causes found: (1)
+  each cell carries two printed numbers, the line (6-17) and the column (1-4), `line_7_col_1_amt_dollars`; the
+  labelled-rows reading wants a numbered run to start at 1, so it falls to the numbered reading, which takes the
+  column number as the iteration and reads the grid sideways ("column 1 has 11 patterns"). Fix: a run on `line_` /
+  `item_` (printed line numbers) may start anywhere, as printed line numbers are already locked elsewhere. (2) The
+  dollars / cents boxes are named two ways: `col_1_amt` + `col_1_cents_txt` on some rows, `col_1_amt_dollars` +
+  `col_1_amt_cents` (the money split) on the rest; rename the first to the second. All three of the page's grids
+  (p2-T1, p2-T2 and the drawn p2-T3) were set aside on 2026-10-21 13:55.
+
 - Registry lifecycle states and the review list (STRATEGY_v1 §5 step 5) — unchanged.
 
 - **Gemini for the remaining model slots** (parked 2026-10-06, Andrew: costs some money, not quality). Switched so
