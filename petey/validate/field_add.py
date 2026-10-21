@@ -341,8 +341,20 @@ def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, take
     if not opts:
         opts.append({"name": f"p{p['page']}_{kind}_{int(p['rect'][0])}_{int(p['rect'][1])}", "source": "placeholder"})
     for o in opts:
-        if o["source"].startswith("twin") and ctx is not None:
-            spec = (ctx.bp.get("fields") or {}).get(o["name"]) or {}
+        spec = ((ctx.bp.get("fields") or {}).get(o["name"]) or {}) if o["source"].startswith("twin") and ctx else {}
+        if spec.get("widgets") and kind != "group":
+            # one box beside an option group's (HUD 92800-5B p5 repeats p3's Existing / Proposed, paths Existing-1
+            # beside Existing-0): one option, named for the group and its option, typed as one box (Andrew,
+            # 2026-10-21: copied as the group's category it was neither a group nor a loose option on Groups)
+            stem = path_stem((p.get("widget") or {}).get("path"))
+            key = next((k for k, w in spec["widgets"].items() if stem and path_stem(w.get("path")) == stem), None)
+            o["twin"] = o["name"]
+            if kind == "option":
+                o["name"] = f"{o['name']}_{key}_ind" if key else f"{o['name']}_ind"
+                o["types"] = {"type": "boolean", "semantic_type": "indicator"}
+            else:
+                o["types"] = enrich_field(o["name"], "text")
+        elif spec:
             o["types"] = {k: spec[k] for k in ("type", "semantic_type", "pattern") if spec.get(k)}
             o["twin"] = o["name"]
         elif kind == "text":

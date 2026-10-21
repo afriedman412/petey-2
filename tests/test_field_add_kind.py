@@ -1,5 +1,7 @@
 """Add / remove: a proposal made a checkbox or a text box by hand (field_add.switch_kind, 2026-10-20)."""
-from petey.validate.field_add import switch_kind
+import types
+
+from petey.validate.field_add import _named, switch_kind
 
 
 def text_proposal(**kw):
@@ -49,3 +51,15 @@ def test_a_placeholder_name_says_its_kind():
     q = switch_kind(p, "option")
     assert q["name"] == "p1_option_30_1000_ind"
     assert switch_kind(q, "text")["name"] == "p1_text_30_1000"
+
+
+def test_one_box_beside_an_option_group_is_one_option_not_the_group():
+    # HUD 92800-5B p5 (2026-10-21): Existing-1 beside p3's group property_type (Existing-0 / Proposed-0) came in as
+    # the group's category, and the Groups tab showed it neither as a group nor as a loose option
+    bp = {"fields": {"property_type": {"type": "category", "widgets": {
+        "existing": {"page": 3, "rect": [306, 321, 320, 336], "path": "Existing-0"},
+        "proposed": {"page": 3, "rect": [361, 321, 376, 336], "path": "Proposed-0"}}}}}
+    p = {"kind": "option", "page": 5, "rect": [308, 340, 323, 355],
+         "widget": {"page": 5, "rect": [308, 340, 323, 355], "widget_type": "checkbox", "path": "Proposed-1"}}
+    _named(p, [("property_type", "twin: sibling path")], "option", set(bp["fields"]), types.SimpleNamespace(bp=bp))
+    assert (p["name"], p["type"], p["semantic_type"]) == ("property_type_proposed_ind", "boolean", "indicator")
