@@ -2316,7 +2316,7 @@ MODE.add = (() => {
       <label class="help"><input type="checkbox" id="aFields" ${showFields ? 'checked' : ''}> fields</label>
       <label class="help"><input type="checkbox" id="aSug" ${showSug ? 'checked' : ''}> suggestions</label>
       <label class="help"><input type="checkbox" id="aCopies" ${copies ? 'checked' : ''}> repeated copies</label>`,
-    help: {keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['Enter', 'add what is proposed'], ['x', 'not a field'],
+    help: {keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['a / Enter', 'add what is proposed'], ['x', 'not a field'],
                   ['d', 'remove the clicked field / keep it'], ['Esc', 'cancel'], ['f', 'fields on / off'], ['s', 'suggestions on / off']],
            tips: ['Drag over an area of the page, or click a box, to propose a field.', 'Click a purple field (one the blueprint has) to remove it.']},
     bindBar() {
@@ -2356,7 +2356,7 @@ MODE.add = (() => {
     key(e) {
       if (e.key === 'n') gotoSuggestion(1);
       else if (e.key === 'p') gotoSuggestion(-1);
-      else if (e.key === 'Enter' && props.length) addProps(props.map((_, i) => i));
+      else if ((e.key === 'Enter' || e.key === 'a') && props.length) addProps(props.map((_, i) => i));   // a: as Review's accept
       else if (e.key === 'x' && curSid) notAField();
       else if (e.key === 'Escape') cancel();
       else if (e.key === 'd' && picked) toggleRemove();
