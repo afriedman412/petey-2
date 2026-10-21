@@ -2107,14 +2107,24 @@ MODE.add = (() => {
     const gone = new Set(dismissed.map(d => d.sid));
     return BP.suggestions.filter(s => !gone.has(s.sid) && (!s.copy || copies) && !covered(s));
   }
+  // the next suggestion after the one in hand, in reading order; one just added or set aside has left the list, so
+  // the next is found from where it was (Andrew, 2026-10-20: adding a field on a later page jumped back to page 1)
+  let curAt = null;
+  const at = s => [s.page, Math.round(s.rect[1]), s.rect[0]];
+  const before = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
   async function gotoSuggestion(step) {
     const list = remaining(); if (!list.length) { notes = ['no suggestions left']; panel(); return; }
     let i = list.findIndex(s => s.sid === curSid);
-    i = i < 0 ? (step > 0 ? 0 : list.length - 1) : (i + step + list.length) % list.length;
+    if (i >= 0) i = (i + step + list.length) % list.length;
+    else {              // from where the last one was, or with none in hand from this page (its first, or its last)
+      const k = curAt ? at(curAt) : [page, step > 0 ? -Infinity : Infinity, 0], by = [...list].sort((x, y) => before(at(x), at(y)));
+      const t = step > 0 ? by.find(s => before(at(s), k) > 0) || by[0] : [...by].reverse().find(s => before(at(s), k) < 0) || by[by.length - 1];
+      i = list.indexOf(t);
+    }
     await proposeSid(list[i]);
   }
   async function proposeSid(s) {
-    curSid = s.sid;
+    curSid = s.sid; curAt = s;
     if (s.page !== page) { page = s.page; renderPages(); await showPage(); }
     await propose({page: s.page, sid: s.sid});
     const el = document.querySelector('.ov.sug.cur'); if (el) el.scrollIntoView({block: 'center', inline: 'center', behavior: 'smooth'});
@@ -2307,7 +2317,7 @@ MODE.add = (() => {
   return {
     async load() {
       BP = await j(mapi('add'));
-      added = BP.added; dismissed = BP.dismissed; removed = BP.removed || []; props = []; notes = []; curSid = null; picked = null; PLAN = BP.plan;
+      added = BP.added; dismissed = BP.dismissed; removed = BP.removed || []; props = []; notes = []; curSid = null; curAt = null; picked = null; PLAN = BP.plan;
     },
     pages: () => BP ? BP.pages : [],
     startPage: () => (remaining()[0] || {}).page || 1,
@@ -2347,11 +2357,11 @@ MODE.add = (() => {
     async mouseup() {
       if (!drawStart) return;
       const s = drawStart, b = drawBox, t = drawTarget; drawStart = null; drawBox = null; drawTarget = null;
-      if (b) { b.remove(); curSid = null; picked = null; return propose({page, rect: b._r}); }
+      if (b) { b.remove(); curSid = null; curAt = null; picked = null; return propose({page, rect: b._r}); }
       if (t && t.dataset && t.dataset.sid) { const sg = BP.suggestions.find(x => x.sid === t.dataset.sid); if (sg) return proposeSid(sg); }
-      if (t && t.dataset && t.dataset.field) { props = []; curSid = null; notes = []; picked = t.dataset.field; placeAll(); return panel(); }
+      if (t && t.dataset && t.dataset.field) { props = []; curSid = null; curAt = null; notes = []; picked = t.dataset.field; placeAll(); return panel(); }
       if (t && t.dataset && t.dataset.added !== undefined) { notes = [`${added[+t.dataset.added].name} is recorded to be added (remove it from the list below)`]; return panel(); }
-      curSid = null; propose({page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1]});
+      curSid = null; curAt = null; propose({page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1]});
     },
     key(e) {
       if (e.key === 'n') gotoSuggestion(1);
