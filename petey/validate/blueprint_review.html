@@ -2531,7 +2531,8 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       ${blk && selected === t.id ? layoutHtml(t) : ''}
       ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
       <button class="btn ${done(t) ? '' : 'primary'}" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : done(t) ? 'validated ✓ · check again' : 'check & validate'}</button>
-      <button class="btn" data-notgrid="${esc(t.id)}" title="not a grid or block: hidden and kept out of 'check all'; one the finder found is recorded as its mistake, a combined one gives its parts back; restore below">cancel</button>
+      ${b ? `<button class="btn" data-stop="${esc(t.id)}" title="stop this check: nothing is written after it, and a call to Opus under way is given up">cancel</button>` : ''}
+      <button class="btn" data-notgrid="${esc(t.id)}" title="not a grid or block: hidden and kept out of 'check all'; one the finder found is recorded as its mistake, a combined one gives its parts back; restore below">${blk ? 'not a block group' : 'not a grid'}</button>
       ${res ? `<div class="help">last run: <b>${esc(res.status)}</b>${res.status === 'proposed' ? ' · the proposals are in the chat' : ''}${!done(t) && ['validated', 'fixed'].includes(res.status) ? ' · some cells keep an earlier verdict (flagged?)' : ''}</div>
         <ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
     </div>`;
@@ -2548,13 +2549,14 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       ${drawKind ? `<p class="help"><b>Drag a box on the page</b> around the ${BLK ? 'blocks of the group' : 'table'}: the fields whose middle is inside become a new ${NOUN}. Drawing stays on for the next one; d or Esc to stop.</p>` : ''}
       ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
         `<p class="help">No ${BLK ? 'block group' : 'numbered table'} on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
-      ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Cancelled (${BLK ? 'not a block group' : 'not a grid'}): ${asidePage(page).map(t =>
+      ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Set aside (${BLK ? 'not a block group' : 'not a grid'}): ${asidePage(page).map(t =>
         `<span><b>${esc(t.id)}</b> ${esc(t.title || t.kind)} (${t.rows} x ${t.cols}, ${esc(prov(t))}) <a href="#" data-restore="${esc(t.id)}">restore</a></span>`).join(' · ')}</div>` : ''}`;
     a.querySelectorAll('[data-tick]').forEach(b => { b.onclick = e => e.stopPropagation(); b.onchange = () => {
       b.checked ? ticked.add(b.dataset.tick) : ticked.delete(b.dataset.tick); panel(); }; });
     $('#gtDraw').onclick = () => { drawKind = drawKind ? null : KIND; panel(); };
     if ($('#gtComb')) $('#gtComb').onclick = combineTicked;
     a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
+    a.querySelectorAll('[data-stop]').forEach(b => b.onclick = e => { e.stopPropagation(); stop(b.dataset.stop); });
     a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = e => { e.stopPropagation(); setAside(b.dataset.notgrid, true); });
     a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
     a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected === c.dataset.t) return; selected = c.dataset.t; placeAll(); panel(); });
@@ -2563,7 +2565,10 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
     if ($('#gtAll')) $('#gtAll').onclick = async () => {        // stops if you open another form
       const form = bid;
-      for (const t of onPage(page)) { if (bid !== form) break; await run(t.id); }
+      for (const t of onPage(page)) {                         // ... or when a check is cancelled
+        if (bid !== form) break;
+        const out = await run(t.id); if (out && out.status === 'cancelled') break;
+      }
     };
     if (BLK) bindLayout(a);
   }
@@ -2582,7 +2587,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     try { out = await send('POST', mapi(API, '/combine'), {tables: ids}); }
     catch (e) { alert('Could not combine: ' + e.message); return; }
     ticked.clear(); selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`Combined into ${out.id} (cancel it to get the parts back).${leftNote(out)}`);
+    toast(`Combined into ${out.id} ('${BLK ? 'not a block group' : 'not a grid'}' on it gives the parts back).${leftNote(out)}`);
   }
   // a field is in one table and one block group at most (2026-10-20): what it left when it joined this one
   const leftNote = out => (out.left || []).length ? ' ' + out.left.join('; ') + '.' : '';
@@ -2593,7 +2598,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     if (on && selected === tid) selected = null;
     const keep = results; await loadMode(); results = keep;
     ticked.delete(tid);
-    toast((on ? `${tid} cancelled (not a grid or block).` : `${tid} restored.`) + leftNote(out));
+    toast((on ? `${tid} set aside (${BLK ? 'not a block group' : 'not a grid'}).` : `${tid} restored.`) + leftNote(out));
   }
   // the table's reference, as a field's: <blueprint file stem>_<id> (acord_90_ny_p1-T13); the id on the card and on
   // the page copies it (Andrew, 2026-10-19: "grids should have IDs like fields, click to copy in the same way")
@@ -2617,12 +2622,27 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
   // a check runs on while you go to another tab or page; its result brings this tab back up at the table's page, the
   // tabs, page buttons and address with it (Andrew, 2026-10-20: the sidebar came up but the tabs still said Review)
   const showing = () => mode === API;
+  // cancel stops a check under way (Andrew, 2026-10-21): the card is free at once, the server writes nothing after it
+  // and gives up a call to Opus under way; the answer that still comes back is dropped
+  const runs = {};
+  async function stop(tid) {
+    if (!busy.has(tid)) return;
+    runs[tid] = null; busy.delete(tid);
+    results[tid] = {status: 'cancelled', steps: ['cancelled: nothing written after the cancel']};
+    panel();
+    try { await send('POST', mapi(API, '/cancel'), {table: tid}); } catch (e) {}
+    toast(`${BLK ? 'Block group' : 'Table'} ${tid}: check cancelled.`);
+  }
   async function run(tid) {
-    const form = bid, pg = page; busy.add(tid); if (showing()) panel();
+    const form = bid, pg = page, token = {}; runs[tid] = token; busy.add(tid); if (showing()) panel();
     let out;
     try { out = await send('POST', mapi(API, '/check'), {table: tid}); }
     catch (e) { out = {status: 'error', steps: ['the check failed: ' + e.message]}; }
-    busy.delete(tid); if (bid !== form) return;
+    if (runs[tid] !== token) {                 // cancelled meanwhile
+      if (out.entry && bid === form) updateEntry(out.entry);
+      return {status: 'cancelled'};
+    }
+    runs[tid] = null; busy.delete(tid); if (bid !== form) return out;
     results[tid] = out; if (out.entry) updateEntry(out.entry);
     if (out.proposals) {                       // Opus: its proposals go to the chat, ticked, nothing applied
       const st = chatState(), p = out.proposals;
@@ -2636,6 +2656,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     const t = live().find(x => x.id === tid);
     if (t && t.page !== page) await gotoPage(t.page); else { placeAll(); panel(); }
     toast(`${BLK ? 'Block group' : 'Table'} ${tid}: ${out.status}.`);
+    return out;
   }
   return {
     async load() { GD = await j(mapi(API)); if (selected && !GD.tables.some(t => t.id === selected)) selected = null; },

@@ -62,6 +62,28 @@ class Audit:
         return {"why": hand_review._focus().get("why"), "rows": run_audit.batch(forms, self.app.paths, self.app.review._index)}
 
 
+class Cancelled(Exception):
+    """A grid / block check stopped by its cancel button."""
+
+
+def until(fn, stopped, every: float = 0.2):
+    """fn() on a thread, given up as soon as stopped() is true (its answer, when it comes, is dropped)."""
+    import concurrent.futures as cf
+    if stopped():
+        raise Cancelled
+    ex = cf.ThreadPoolExecutor(1)
+    fut = ex.submit(fn)
+    try:
+        while True:
+            try:
+                return fut.result(timeout=every)
+            except cf.TimeoutError:
+                if stopped():
+                    raise Cancelled
+    finally:
+        ex.shutdown(wait=False)
+
+
 class Grids:
     """Grids and blocks (`grid_check`): every numbered table and repeated block of the form, and one click to check
     and validate one."""
@@ -69,6 +91,8 @@ class Grids:
     def __init__(self, app: "App", kind: str = "table") -> None:
         self.app = app
         self.kind = kind                 # "table" (the Grids tab) or "block" (the Blocks tab: block groups), 2026-10-18
+        self.running: set[tuple] = set()             # (bid, tid) of each check under way
+        self.stop: set[tuple] = set()                # ... and the ones cancelled
 
     def detail(self, bid: str) -> dict:
         from petey.validate import grid_check
@@ -146,10 +170,35 @@ class Grids:
         def ask_opus(page):
             req = form_chat.grid_request(bid, page)
             return {"request": req, **form_chat.ask(bid, [{"role": "user", "content": req}], only_pages=[page])}
-        out = grid_check.check(bid, tid, accept=lambda page, names: self.app.accept_grid(bid, page, set(names)),
-                               apply=apply, ask_opus=ask_opus)
+        key = (bid, tid)
+        self.stop.discard(key)
+        self.running.add(key)
+        stopped = lambda: key in self.stop             # noqa: E731
+
+        def before(fn):          # a write is not started once the check is cancelled (one started runs to its end)
+            def go(*a):
+                if stopped():
+                    raise Cancelled
+                return fn(*a)
+            return go
+        try:
+            out = grid_check.check(bid, tid, accept=before(lambda page, names: self.app.accept_grid(bid, page, set(names))),
+                                   apply=before(apply), ask_opus=lambda *a: until(lambda: ask_opus(*a), stopped))
+        except Cancelled:
+            out = {"status": "cancelled", "steps": ["cancelled: nothing written after the cancel"]}
+        finally:
+            self.running.discard(key)
+            self.stop.discard(key)
         self.app.refresh()
         return {**out, "entry": self.app.entry(bid)}
+
+    def cancel(self, bid: str, tid: str) -> dict:
+        """Stop the check under way on one table or block group (Andrew, 2026-10-21: "can the cancel button cancel the
+        validation query"): nothing is written after it, and a call to Opus under way is given up."""
+        key = (bid, tid)
+        if key in self.running:
+            self.stop.add(key)
+        return {"cancelled": key in self.stop}
 
 
 class App:
@@ -605,7 +654,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
-        if mode in ("grids", "blocks") and what in ("check", "dismiss", "create", "combine", "standardize", "layout", "cells"):
+        if mode in ("grids", "blocks") and what in ("check", "cancel", "dismiss", "create", "combine", "standardize", "layout",
+                                                    "cells"):
             tab = getattr(APP, mode)                     # Grids / Blocks
             if what == "layout":                         # the blocks marked on the page
                 return self._route(lambda: tab.layout(bid, body["table"], list(body.get("blocks") or [])), bid)
@@ -613,9 +663,11 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 return self._route(lambda: tab.cells(bid, body["table"], list(body.get("cells") or [])), bid)
             if what == "check":                          # check and validate one
                 return self._route(lambda: tab.check(bid, body["table"]), bid)
+            if what == "cancel":                         # stop the check under way on one
+                return self._route(lambda: tab.cancel(bid, body["table"]), bid)
             if what == "standardize":                    # a column, every inconsistent column, or a row
                 return self._route(lambda: tab.standardize(bid, body["table"], body.get("pos"), body.get("line")), bid)
-            if what == "dismiss":                        # cancel ("not a grid or block"), or restore
+            if what == "dismiss":                        # "not a grid" / "not a block group", or restore
                 return self._route(lambda: tab.dismiss(bid, body["table"], bool(body.get("on", True))), bid)
             if what == "create":                         # drawn on the page
                 return self._route(lambda: tab.create(bid, int(body["page"]), body["rect"], body.get("kind")), bid)
