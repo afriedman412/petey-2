@@ -123,3 +123,29 @@ def test_blocks_side_by_side():
     assert {c["row"] for c in cells} == {0, 1} and len({c["col"] for c in cells}) == 6
     assert all(c["name"].startswith(f"transfer_{c['row'] + 1}_") for c in cells)
     assert G.on_pattern(cells)[0]
+
+
+def test_labelled_rows_with_a_numbered_run_are_on_pattern():
+    """IRS 433-F p2-T4 (2026-10-21): expense rows named by their printed labels, three blank "Other" rows numbered
+    1-3 and a totals row; ACORD 125's first_named_insured beside other_named_insured_1, _2; VA 21P-534EZ's item
+    letters. A run that does not count from 1, or every row numbered (the number check's), is not labelled."""
+    def grid(keys, cols=("actual", "irs_allowed")):
+        return [{"name": f"{k}_{col}_amt", "page": 2, "row": r, "col": c}
+                for r, k in enumerate(keys) for c, col in enumerate(cols)]
+    labels = ["health_insurance", "union_dues", "student_loans"]
+    assert G.on_pattern(grid(labels + ["other_expenses_1", "other_expenses_2", "other_expenses_3", "other_total"])) \
+        == (True, "rows named by role or kind")
+    assert G.keyed(grid(["first_named_insured", "other_named_insured_1", "other_named_insured_2"]))
+    assert G.keyed(grid(["veteran", "care_10c", "care_10d"]))
+    assert not G.keyed(grid(labels + ["other_expenses_2", "other_expenses_3"]))
+    assert not G.keyed(grid([f"other_expenses_{i}" for i in range(1, 4)]))
+
+
+def test_a_labelled_table_needs_one_wording_per_column():
+    """I-730 p5-T1 (2026-10-21): prior_spouse_1_middle_2_nm beside prior_spouse_2_middle_nm shares only its last word
+    with its column. Still a table to the finder (loose), off pattern to the naming check (strict)."""
+    g = [{"name": n, "page": 5, "row": r, "col": c} for r, row in enumerate([
+        ["prior_spouse_1_last_nm", "prior_spouse_1_first_nm", "prior_spouse_1_middle_2_nm"],
+        ["prior_spouse_2_last_nm", "prior_spouse_2_first_nm", "prior_spouse_2_middle_nm"],
+        ["beneficiary_last_nm", "beneficiary_first_nm", "beneficiary_middle_nm"]]) for c, n in enumerate(row)]
+    assert G.keyed(g) and not G.keyed(g, strict=True) and not G.on_pattern(g)[0]

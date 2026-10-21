@@ -579,11 +579,13 @@ def iterated(grid: list[dict]) -> bool:
     return sum(_number(c["name"]) is not None for c in grid) > 0.5 * len(grid)
 
 
-def keyed(grid: list[dict]) -> bool:
+def keyed(grid: list[dict], strict: bool = False) -> bool:
     """Lines named by role or kind, not number (IMM 5645 Section A: applicant_nm, spouse_nm, mother_nm, father_nm;
     CH-100 item 6, other court cases: civil_harassment_case_nbr, domestic_violence_case_nbr ...): each column's names
     share an ending (case_nbr, filed_in_txt), the rest is the line's key; a line's cells share the start of their keys
-    and every line's is its own. On pattern as it is: roles and kinds are not renumbered."""
+    and every line's is its own. On pattern as it is: roles and kinds are not renumbered. `strict` (the naming check,
+    `on_pattern`): every cell is its line's key and then its column's one wording; the loose reading is the finder's
+    (what is a table), so a table named off its pattern is still found and checked."""
     by_col, keys = collections.defaultdict(list), collections.defaultdict(list)
     for c in grid:
         by_col[c["col"]].append(c)
@@ -610,7 +612,40 @@ def keyed(grid: list[dict]) -> bool:
         if not common:
             return False
         line[r] = "_".join(common)
-    return len(set(line.values())) == len(line) and not any(LINE.match(v.split("_")[-1]) for v in line.values())
+    if len(set(line.values())) != len(line):
+        return False
+    # every cell its line's key and then its column's one wording (2026-10-21: a shared last word was not enough, I-730
+    # p5-T1's prior_spouse_1_middle_2_nm beside prior_spouse_2_middle_nm passed, and I-130's item-numbered
+    # physical_address_1_12b_unit_type beside mailing_unit_type)
+    if strict:
+        wording = collections.defaultdict(set)
+        for c in grid:
+            k = line.get(c["row"])
+            if k is None or not c["name"].startswith(k + "_"):
+                return False
+            wording[c["col"]].add(c["name"][len(k) + 1:])
+        if any(len(w) > 1 for w in wording.values()):
+            return False
+    # labelled lines with runs of numbered ones among them (Andrew, 2026-10-21, "grids should be resilient to mixed
+    # label/number row labeling": IRS 433-F p2-T4's expense rows named by their printed labels and three blank
+    # "Other (specify)" rows other_expenses_row_1 .. _3; ACORD 125's first_named_insured beside other_named_insured_1,
+    # _2): fine while one line at least is labelled and each run, one stem, counts down the table by steps of 1, from
+    # 1, or by the printed item letters (VA 21P-534EZ's care_10c, care_10d). All numbered is the number check's
+    runs = collections.defaultdict(list)
+    for r in sorted(line):
+        stem, _, last = line[r].rpartition("_")
+        if LINE.match(last):
+            runs[stem].append(last)
+    if not runs:
+        return True
+    if sum(len(v) for v in runs.values()) == len(line) or not all(runs):
+        return False
+
+    def counts(seq):
+        if all(s.isdigit() for s in seq):
+            return seq[0] == "1" and all(_next(a, b) for a, b in zip(seq, seq[1:]))
+        return len({_core(s) for s in seq}) == 1 and all(_next(a[-1], b[-1]) for a, b in zip(seq, seq[1:]))
+    return all(counts(seq) for seq in runs.values())
 
 def _pattern(name: str) -> str | None:
     """The name with its iteration (the last one) as N; any other number in it stays (sched_2_line_N_amt)."""
@@ -634,9 +669,9 @@ def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     when, read by columns (or the transpose): every cell carries an iteration, every column one pattern its cells
     differ from only in that iteration, every row one number, the rows numbered top to bottom by steps of 1. A last
     row of totals is left out. The naming standard's shape is not checked here: it is its own step."""
-    if keyed(grid):
+    if keyed(grid, strict=True):
         return True, "rows named by role or kind"
-    if sum(_number(c["name"]) is not None for c in grid) < 0.5 * len(grid) and keyed(transposed(grid)):
+    if sum(_number(c["name"]) is not None for c in grid) < 0.5 * len(grid) and keyed(transposed(grid), strict=True):
         return True, "columns named by role or kind"     # labelled both ways, the column's label first
     grid = body(grid)
     for c in grid:

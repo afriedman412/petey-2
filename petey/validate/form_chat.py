@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import base64
 import json
+import re
 import time
 from pathlib import Path
 from typing import Optional
@@ -178,9 +179,7 @@ def grid_request(bid: str, page: int) -> str:
     sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
     import grid_naming as G
     bp = h._load(h.working_path(bid))
-    text = SKILL.read_text(encoding="utf-8") if SKILL.exists() else ""
-    a, b = text.find("3. **Decide the names**"), text.find("4. **Apply**")
-    rules = text[a:b].strip() if a >= 0 and b > a else ""
+    rules = _grid_rules()
     found, done = [], []
     from petey.validate import grid_check
     for g in [t["grid"] for t in grid_check.listing(bid, bp) if t["status"] == "active"]:
@@ -211,6 +210,70 @@ def grid_request(bid: str, page: int) -> str:
              "confirm nothing for them): " + "; ".join(done) if done else "") +
             ("\n\nIts mechanical renames (a hint, not an order): " + "; ".join(f"{o} -> {n}" for o, n in on_page.items())
              if on_page else ""))
+
+
+def _grid_rules() -> str:
+    text = SKILL.read_text(encoding="utf-8") if SKILL.exists() else ""
+    a, b = text.find("3. **Decide the names**"), text.find("4. **Apply**")
+    return text[a:b].strip() if a >= 0 and b > a else ""
+
+
+YES_NO = re.compile(r"\b(y\s*/\s*n|yes\s*/\s*no)\b", re.I)
+
+
+def table_request(bid: str, tid: str, stopped: list[str]) -> str:
+    """One table's "check & validate" when the code could not settle it (Andrew, 2026-10-21: the page's whole grid job
+    went with every table, so the reply covered other tables, the signature line and Y / N columns): this table only,
+    each column (or block field) with its wordings and printed caption, why the code stopped, the names it must not
+    take (fields outside it on its patterns), and the Y / N line only when a caption is printed Y / N."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+    import grid_naming as G
+    from petey.validate import grid_check
+    bp = h._load(h.working_path(bid))
+    t = next((x for x in grid_check.tables(bp, bid) if x["id"] == tid), None)
+    if t is None:
+        return f"Table {tid} is no longer found; say so and propose nothing."
+    g = [dict(c, page=t["page"]) for c in t["cells"]]
+    noun, line = ("block group", "block") if t["kind"] == "block" else ("table", "row")
+    nr, nc = max(c["row"] for c in g) + 1, max(c["col"] for c in g) + 1
+    cells = {(c["row"], c["col"]): c["name"] for c in g}
+    grid = "\n".join(" | ".join(cells.get((r, c), "-") for c in range(nc)) for r in range(nr))
+    pos = "\n".join(f"- {p['pos']}: {' / '.join(p['wordings'])}" + (f" (printed: {p['caption']!r})" if p.get("caption") else "")
+                     for p in t.get("positions") or [])
+    pats = {G._pattern(c["name"]) for c in g} - {None}
+    mine = {c["name"] for c in g}
+    by_pat: dict = {}                          # fields outside it on its patterns, one line per pattern
+    for n, spec in (bp.get("fields") or {}).items():
+        if n not in mine and G._pattern(n) in pats:
+            w = (spec or {}).get("widget") or next(iter(((spec or {}).get("widgets") or {}).values()), {})
+            by_pat.setdefault(G._pattern(n), []).append((G._number(n), w.get("page")))
+    def spans(nums):                           # 1, 2, 3, 7 -> 1-3, 7
+        ds = sorted(int(x) for x in nums if str(x).isdigit())
+        out, i = [], 0
+        while i < len(ds):
+            j = i
+            while j + 1 < len(ds) and ds[j + 1] == ds[j] + 1:
+                j += 1
+            out.append(f"{ds[i]}-{ds[j]}" if j > i else str(ds[i]))
+            i = j + 1
+        return ", ".join(out + sorted(str(x) for x in nums if not str(x).isdigit()))
+    held = [f"{pt.replace('N', '#')} for # in {spans({x for x, _ in v})}"
+            f" (page {', '.join(sorted({str(pg) for _, pg in v if pg}))})" for pt, v in sorted(by_pat.items())]
+    yn = any(YES_NO.search(p.get("caption") or "") for p in t.get("positions") or [])
+    aside = "; ".join(f"{line} {a['row']} set aside ({a['why']})" for a in t.get("aside") or [])
+    return (f"Check {noun} {tid} on page {t['page']} only, against the grid rule below, and propose the renames that put "
+            f"it on one pattern" + (", and the ^[YN]$ pattern for a column printed Y / N" if yn else "") + ". Propose "
+            f"nothing outside it. In `confirmed`, list every cell of {tid} whose name is right as it stands (checked "
+            f"against its column and {line} headers on the page), and none you propose to change.\n\n"
+            f"The rule: each column one kind of value with one wording, each {line} one iteration number or one label "
+            f"(or the transpose), names in the naming standard's shape.\n{_grid_rules()}\n\n"
+            f"{tid}, {nr} {line}s x {nc} {'positions' if t['kind'] == 'block' else 'columns'} ({line} by {line}):\n{grid}"
+            + (f"\n\n{'Positions' if t['kind'] == 'block' else 'Columns'}, their wordings and printed captions:\n{pos}" if pos else "")
+            + (f"\n\n{aside}." if aside else "")
+            + ("\n\nWhy the code stopped:\n" + "\n".join(f"- {x}" for x in stopped) if stopped else "")
+            + ("\n\nNames held by fields outside it on the same patterns (do not take these):\n" + "\n".join(
+                f"- {x}" for x in held) if held else ""))
 
 
 def ask(bid: str, history: list[dict], *, model: str = MODEL, client=None, only_pages: Optional[list[int]] = None) -> dict:

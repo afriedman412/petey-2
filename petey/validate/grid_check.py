@@ -887,7 +887,8 @@ def jev_choose(bp: dict, page: int, unsure: dict) -> Optional[str]:
 
 def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
     """One click on a table: {status, steps, applied, accepted, proposals}. `accept(page, names)` accepts cells,
-    `apply(edits)` writes renames (form_chat.apply's result), `ask_opus(page)` returns the chat's proposal."""
+    `apply(edits)` writes renames (form_chat.apply's result), `ask_opus(page, tid, steps)` returns the chat's proposal
+    for this table."""
     bp = h._load(h.working_path(bid))
     t, g = _grid(bp, tid, bid)
     if not g:
@@ -921,6 +922,6 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
         steps.append(f"{len(out.get('changes') or [])} rename(s) applied; {len(acc)} cell(s) accepted")
         return {"status": "fixed" if r["renames"] else "validated", "steps": steps,
                 "applied": out.get("changes") or [], "accepted": acc}
-    prop = ask_opus(page)
-    steps.append("Opus (this page only): " + (prop.get("reply") or "no proposal"))
+    prop = ask_opus(page, tid, list(steps))
+    steps.append(f"Opus ({tid} only): " + (prop.get("reply") or "no proposal"))
     return {"status": "proposed", "steps": steps, "proposals": prop}

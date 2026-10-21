@@ -167,8 +167,8 @@ class Grids:
         from petey.validate import form_chat, grid_check
         apply = self._apply(bid)
 
-        def ask_opus(page):
-            req = form_chat.grid_request(bid, page)
+        def ask_opus(page, tid, steps):                 # this table only (form_chat.table_request, 2026-10-21)
+            req = form_chat.table_request(bid, tid, steps)
             return {"request": req, **form_chat.ask(bid, [{"role": "user", "content": req}], only_pages=[page])}
         key = (bid, tid)
         self.stop.discard(key)
