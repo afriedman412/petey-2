@@ -2389,13 +2389,15 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
   const BLK = KIND === 'block', NOUN = BLK ? 'block group' : 'table';
   let GD = null, selected = null, results = {}, busy = new Set();
   let ticked = new Set(), drawKind = null, drawStart = null, drawBox = null;    // combine; draw a new one (2026-10-17)
+  let desigType = null;               // drawKind 'designate': the block type the areas drawn are checked against
   // a block group's layout (2026-10-19): `marking` the group whose blocks are being marked on the page (`marks` the
   // boxes so far, in order); `ed` the layout being edited on the card ({tid, cells: [[code, block, position]], pick:
   // a code, or {b, k} an empty place}), saved in one go
   let marking = null, marks = [], ed = null;
   const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
   const prov = t => t.source === 'person' ? 'drawn by you' : t.source === 'combined' ? `combined from ${(t.from || []).join(' + ')}`
-    : t.source === 'edited' ? `edited from ${(t.from || []).join(' + ')}` : 'found by the finder';
+    : t.source === 'edited' ? `edited from ${(t.from || []).join(' + ')}` : t.source === 'type' ? `block type ${t.type}`
+    : 'found by the finder';
   const live = () => GD ? GD.tables.filter(t => !t.dismissed) : [];     // set aside as "not a grid or block": hidden
   const onPage = p => live().filter(t => t.page === p);
   const asidePage = p => GD ? GD.tables.filter(t => t.dismissed && t.page === p) : [];
@@ -2420,6 +2422,12 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       for (const x of t.cells) if (x.rect) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : '')).style.setProperty('--c', c);
     }
     marks.forEach((r, i) => { const d = put('lblk', r); d.style.setProperty('--c', 'var(--accent)'); d.innerHTML = `<span>block ${i + 1}</span>`; });
+    for (const y of (BLK && GD && GD.types) || []) {      // block types: each block outlined, numbered in the type's order
+      for (const b of y.blocks.filter(b => b.page === page)) {
+        const pad = 3, d = put('lblk', [b.bbox[0] - pad, b.bbox[1] - pad, b.bbox[2] + pad, b.bbox[3] + pad], `${y.id} block ${b.n}`);
+        d.style.setProperty('--c', 'var(--accent)'); d.innerHTML = `<span>${esc(y.id)} · ${b.n}${b.template ? ' (template)' : ''}</span>`;
+      }
+    }
   }
   // the selected block group: its blocks outlined, every box with its position (same color for a position in every
   // block, so a box in the wrong place shows); an empty place picked: the page's other boxes can be clicked in
@@ -2543,17 +2551,26 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     a.innerHTML = `<div class="help">${BLK ? 'Block groups: a set of fields repeated (one block per repeat), outlined in dots on the page' : 'Tables (grids) the layout code finds, outlined in dots on the page'}. One click runs
       the lightest check that settles a table: the code, then the name-check model, then Jev, and Opus only when it is still unclear.</div>
       <div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn ${drawKind ? 'primary' : ''}" id="gtDraw" title="${BLK ? 'then drag a box around every block of the group' : 'then drag a box around the fields on the page'} (d)">draw a ${NOUN}</button>
+        <button class="btn ${drawKind && drawKind !== 'type' ? 'primary' : ''}" id="gtDraw" title="${BLK ? 'then drag a box around every block of the group' : 'then drag a box around the fields on the page'} (d)">draw a ${NOUN}</button>
+        ${BLK ? `<button class="btn ${drawKind === 'type' ? 'primary' : ''}" id="gtType" title="then drag a box around ONE block: its fields become the template of a new block type (t)">define a block type</button>` : ''}
         ${ticked.size >= 2 ? `<button class="btn primary" id="gtComb">combine ticked (${ticked.size})</button>` : ''}
       </div>
-      ${drawKind ? `<p class="help"><b>Drag a box on the page</b> around the ${BLK ? 'blocks of the group' : 'table'}: the fields whose middle is inside become a new ${NOUN}. Drawing stays on for the next one; d or Esc to stop.</p>` : ''}
+      ${drawKind === 'designate' ? `<p class="help"><b>Drag a box around a block of ${esc(desigType)}</b>: checked against its template; an exact copy becomes one of its blocks. Stays on for the next one; Esc to stop.</p>`
+        : drawKind === 'type' ? `<p class="help"><b>Drag a box around one block</b>: the fields inside become the template of a new block type (nothing else is selected). t or Esc to stop.</p>`
+        : drawKind ? `<p class="help"><b>Drag a box on the page</b> around the ${BLK ? 'blocks of the group' : 'table'}: the fields whose middle is inside become a new ${NOUN}. Drawing stays on for the next one; d or Esc to stop.</p>` : ''}
+      ${BLK && (GD.types || []).length ? `<div class="help" style="margin:6px 0">Block types: ${GD.types.map(y =>
+        `<span><b>${esc(y.id)}</b> ${y.boxes} boxes, ${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} <button class="btn mini ${drawKind === 'designate' && desigType === y.id ? 'primary' : ''}" data-desig="${esc(y.id)}" title="then drag a box around another block: it is checked against ${esc(y.id)}'s template (same boxes, sizes and spacing) and, when it is an exact copy, becomes one of its blocks; stays on for the next one">designate blocks</button></span>`).join(' · ')}</div>` : ''}
       ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
         `<p class="help">No ${BLK ? 'block group' : 'numbered table'} on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
       ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Set aside (${BLK ? 'not a block group' : 'not a grid'}): ${asidePage(page).map(t =>
         `<span><b>${esc(t.id)}</b> ${esc(t.title || t.kind)} (${t.rows} x ${t.cols}, ${esc(prov(t))}) <a href="#" data-restore="${esc(t.id)}">restore</a></span>`).join(' · ')}</div>` : ''}`;
     a.querySelectorAll('[data-tick]').forEach(b => { b.onclick = e => e.stopPropagation(); b.onchange = () => {
       b.checked ? ticked.add(b.dataset.tick) : ticked.delete(b.dataset.tick); panel(); }; });
-    $('#gtDraw').onclick = () => { drawKind = drawKind ? null : KIND; panel(); };
+    $('#gtDraw').onclick = () => { drawKind = drawKind && drawKind !== 'type' ? null : KIND; panel(); };
+    if ($('#gtType')) $('#gtType').onclick = () => { drawKind = drawKind === 'type' ? null : 'type'; marking = null; marks = []; panel(); };
+    a.querySelectorAll('[data-desig]').forEach(b => b.onclick = e => { e.stopPropagation();
+      const on = drawKind === 'designate' && desigType === b.dataset.desig;
+      drawKind = on ? null : 'designate'; desigType = on ? null : b.dataset.desig; marking = null; marks = []; panel(); });
     if ($('#gtComb')) $('#gtComb').onclick = combineTicked;
     a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
     a.querySelectorAll('[data-stop]').forEach(b => b.onclick = e => { e.stopPropagation(); stop(b.dataset.stop); });
@@ -2572,7 +2589,26 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     };
     if (BLK) bindLayout(a);
   }
+  // a block type (Andrew, 2026-10-21): one block drawn, its fields kept as the template; nothing else selected
+  async function defineType(rect) {
+    drawKind = null;
+    let out;
+    try { out = await send('POST', mapi(API, '/type'), {page, rect}); }
+    catch (e) { panel(); alert('Could not make a block type: ' + e.message); return; }
+    const keep = results; await loadMode(); results = keep;
+    toast(`Block type ${out.id}: ${out.boxes} boxes, outlined on the page.`);
+  }
+  async function designateBlock(rect) {          // drawing stays on for the next block
+    let out;
+    try { out = await send('POST', mapi(API, '/designate'), {type: desigType, page, rect}); }
+    catch (e) { alert(e.message); return; }
+    if (out.group) selected = out.group;
+    const keep = results; await loadMode(); results = keep;
+    toast(`${out.id}: block ${out.block} of ${out.of}${out.group ? ` (block group ${out.group})` : ''}.${leftNote(out)}`);
+  }
   async function create(rect) {
+    if (drawKind === 'type') return defineType(rect);
+    if (drawKind === 'designate') return designateBlock(rect);
     const kind = drawKind;           // drawing stays on for the next one (Andrew, 2026-10-20); d or Esc stops it
     let out;
     try { out = await send('POST', mapi(API, '/create'), {page, rect, kind}); }
@@ -2665,7 +2701,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     pageLabel(p) { const n = onPage(p).length; return `p${p}${n ? ` (${n})` : ''}`; },
     bar: () => `<span class="progress" id="progress"></span>`,
     bindBar() { if (GD) this.progress(); },
-    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table'], ['d', 'draw on / off (stays on after each one drawn)']],
+    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table'], ['d', 'draw on / off (stays on after each one drawn)'], ['t', 'Blocks: define a block type (drag around one block)']],
            tips: ['Dotted outlines are tables and repeated blocks; dashed ones (in Review and Groups) are option groups.',
                   'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.']},
     place, panel,
@@ -2681,7 +2717,8 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
         selected = t.id; if (t.page !== page) gotoPage(t.page); else { placeAll(); panel(); } return true;
       }
       if (e.key === 'Enter' && selected) { run(selected); return true; }
-      if (e.key === 'd') { drawKind = drawKind ? null : KIND; marking = null; marks = []; placeAll(); panel(); return true; }
+      if (e.key === 'd') { drawKind = drawKind && drawKind !== 'type' ? null : KIND; marking = null; marks = []; placeAll(); panel(); return true; }
+      if (e.key === 't' && BLK) { drawKind = drawKind === 'type' ? null : 'type'; marking = null; marks = []; placeAll(); panel(); return true; }
       if (e.key === 'Escape' && drawKind) { drawKind = null; panel(); return true; }
       if (e.key === 'Escape' && marking) { marking = null; marks = []; placeAll(); panel(); return true; }
       if (e.key === 'Escape' && ed && ed.pick) { ed.pick = null; placeAll(); panel(); return true; }

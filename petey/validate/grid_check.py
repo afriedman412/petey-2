@@ -170,7 +170,7 @@ def listing(bid: str, bp: dict) -> list[dict]:
         cells = [{"name": name[c], "page": e["page"], "row": r, "col": k, **({"block": True} if e["kind"] == "block" else {})}
                  for c, r, k in e["cells"] if c in name]
         if cells:
-            out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts")},
+            out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts", "type")},
                         "grid": cells})
     mine = [set(c["name"] for c in t["grid"]) for t in out if t["source"] != "finder" and t["status"] == "active"]
     # what the person made, drew, combined or edited holds its fields against the finder (one table and one block
@@ -765,7 +765,7 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
             positions.append({"pos": k + 1, "wordings": wordings, "off": off, "caption": G.position_caption(bp, pcs, how, page_text)})
         bbox = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
         out.append({"id": e["id"], "page": page, "kind": "block" if g[0].get("block") else "grid",
-                    **{k: e.get(k) for k in ("source", "status", "from", "into", "blocks", "parts")},
+                    **{k: e.get(k) for k in ("source", "status", "from", "into", "blocks", "parts", "type")},
                     "lines": len({c[num_axis] for c in body}), "positions": positions, "reading": reading,
                     "rows_info": rows_info(g, body, pos_axis, num_axis), "keyed": G.keyed(g),
                     "aside": [{"row": r + 1, "why": why} for r, why in sorted(G.aside(g).items())],

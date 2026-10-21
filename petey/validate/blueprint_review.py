@@ -117,6 +117,8 @@ class Grids:
         out = {"id": bid, "path": str(self.app.paths[bid]), "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
         if self.kind == "block":        # what a block can take in, clicked on the page (the layout editor, 2026-10-19)
             out["fields"] = {pg["page"]: grid_check.page_fields(bp, pg["page"]) for pg in pages}
+            from petey.validate import block_types
+            out["types"] = block_types.listing(bp, grid_check.load_set(bid))         # block types (2026-10-21)
         return out
 
     def dismiss(self, bid: str, tid: str, on: bool) -> dict:
@@ -155,6 +157,16 @@ class Grids:
             draft.log(bid, "claude", out.get("changes") or [])
             return out
         return apply
+
+    def define_type(self, bid: str, page: int, rect) -> dict:
+        """A block type from an area drawn on the page: its fields kept as the template, nothing else (2026-10-21)."""
+        from petey.validate import block_types
+        return block_types.define(bid, hand_review._load(self.app.working(bid)), page, rect)
+
+    def designate(self, bid: str, tid: str, page: int, rect) -> dict:
+        """An area designated a block of a block type, checked against its template (2026-10-21)."""
+        from petey.validate import block_types
+        return block_types.designate(bid, hand_review._load(self.app.working(bid)), tid, page, rect)
 
     def standardize(self, bid: str, tid: str, pos=None, line=None) -> dict:
         """One column, every inconsistent column, or one row of a table to one wording / its number (2026-10-19)."""
@@ -654,6 +666,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 out["accepted"] = accepted
                 return out
             return self._route(grid, bid)
+        if (mode, what) == ("blocks", "type"):          # an area drawn as a block type (block_types.py, 2026-10-21)
+            return self._route(lambda: APP.blocks.define_type(bid, int(body["page"]), body["rect"]), bid)
+        if (mode, what) == ("blocks", "designate"):     # an area designated a block of a type, checked against it
+            return self._route(lambda: APP.blocks.designate(bid, body["type"], int(body["page"]), body["rect"]), bid)
         if mode in ("grids", "blocks") and what in ("check", "cancel", "dismiss", "create", "combine", "standardize", "layout",
                                                     "cells"):
             tab = getattr(APP, mode)                     # Grids / Blocks
