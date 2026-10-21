@@ -556,9 +556,12 @@ def breaks(grid: list[dict]) -> tuple[str, list[str]]:
         for c in grid:
             by[c[axis]][_shape(c["name"])] += 1
         return sum(v.most_common(1)[0][1] for v in by.values()) / len(grid)
-    if uniform("col") >= uniform("row"):        # each column one kind, the row numbers it
-        return "columns", score("col", "row")
-    return "rows", score("row", "col")          # each row one kind, the column numbers it
+    one_row = len({c["row"] for c in grid}) == 1
+    if uniform("col") > uniform("row") or (uniform("col") == uniform("row") and not one_row):
+        return "columns", score("col", "row")   # each column one kind, the row numbers it
+    # each row one kind, the column numbers it; a single row of one kind too (UK MR01's company number boxes,
+    # 2026-10-20: read as columns, every box took the row's number 1)
+    return "rows", score("row", "col")
 
 
 def iterated(grid: list[dict]) -> bool:
@@ -618,20 +621,6 @@ def _pattern(name: str) -> str | None:
     return "_".join(toks)
 
 
-def _varying(names: list[str]):
-    """The token position of a column's iteration: the number that changes down the column while the rest of the
-    name stays (ACORD 130: loc_1_address_line_2_txt, loc_2_address_line_2_txt -> the location, not the line); None
-    (the last number, as before) when no one position does."""
-    toks = [n.split("_") for n in names]
-    if len(names) < 2 or len({len(t) for t in toks}) > 1:
-        return None
-    for i in reversed(range(len(toks[0]))):
-        if all(LINE.match(t[i]) or (len(t[i]) == 1 and t[i].isalpha() and i > 0) for t in toks) and \
-                len({t[i] for t in toks}) == len(toks) and len({"_".join(t[:i] + t[i + 1:]) for t in toks}) == 1:
-            return i
-    return None
-
-
 def _next(a: str, b: str) -> bool:
     """b is the iteration after a: 3 then 4, b then c."""
     if a.isdigit() and b.isdigit():
@@ -647,6 +636,8 @@ def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     row of totals is left out. The naming standard's shape is not checked here: it is its own step."""
     if keyed(grid):
         return True, "rows named by role or kind"
+    if sum(_number(c["name"]) is not None for c in grid) < 0.5 * len(grid) and keyed(transposed(grid)):
+        return True, "columns named by role or kind"     # labelled both ways, the column's label first
     grid = body(grid)
     for c in grid:
         if _pattern(c["name"]) is None:
@@ -662,7 +653,8 @@ def on_pattern(grid: list[dict]) -> tuple[bool, str]:
         for c in grid:
             i = vary[c[pat_axis]]
             pats[c[pat_axis]].add(_pattern_at(c["name"], i))
-            nums[c[num_axis]].add(c["name"].split("_")[i] if i is not None else _number(c["name"]))
+            # an item-lettered line number's letter is the column's (I-130, N-600: item_3a_page, item_3b_part)
+            nums[c[num_axis]].add(_core(c["name"].split("_")[i] if i is not None else _number(c["name"])))
         bad = next((f"{line} {k + 1} has {len(v)} patterns ({', '.join(sorted(v))})"
                     for k, v in sorted(pats.items()) if len(v) > 1), None) or \
             next((f"{other} {k + 1} has {len(v)} numbers ({', '.join(sorted(v))})"
@@ -980,20 +972,27 @@ def _continues(bp: dict, grid_names: set, pats: list[str], start: int) -> bool:
 
 def _varying(names: list[str]):
     """The token position of the number that changes from line to line in a position's names (CMS-855A
-    final_adverse_legal_action_1_txt_3: the 1 changes, the 3 does not); None to take the last as usual."""
+    final_adverse_legal_action_1_txt_3: the 1 changes, the 3 does not); a lone letter counts (1065-X Part II,
+    2026-10-20: col_a_net_section_1231_gain_loss_amt, col_b_..., col_c_...: the letter changes, so 1231 is wording,
+    not the line's number). None to take the last as usual."""
     toks = [n.split("_") for n in names]
     if len({len(t) for t in toks}) != 1:
         return None
     for i in reversed(range(len(toks[0]))):
         vals = {t[i] for t in toks}
-        if len(vals) > 1 and all(LINE.match(v) for v in vals):
+        if len(vals) > 1 and all(_iter_tok(v, i) for v in vals):
             return i
     return None
 
 
+def _iter_tok(t: str, i: int) -> bool:
+    """An iteration token at position i: a number or line number (2, 12, 4a), or a lone letter not first."""
+    return bool(LINE.match(t)) or (len(t) == 1 and t.isalpha() and i > 0)
+
+
 def _pattern_at(name: str, i):
     toks = name.split("_")
-    if i is None or i >= len(toks) or not LINE.match(toks[i]):
+    if i is None or i >= len(toks) or not _iter_tok(toks[i], i):
         return _pattern(name)
     toks[i] = "N"
     return "_".join(toks)
@@ -1026,6 +1025,13 @@ def _norm_tok(t: str) -> str:
     type suffixes (txt / nbr / cd / nm) as one."""
     t = SAME_WORD.get(t, t)
     return "~" if t in LOOSE_SUFFIX else _stem(t)
+
+
+def transposed(grid: list[dict]) -> list[dict]:
+    """The grid with rows and columns swapped. A table labelled both ways reads either way round: GSE 1076 p3
+    (2026-10-20) has the column's label first, entire_project_total_units_cnt / subject_legal_phase_total_units_cnt,
+    where `keyed` expects the line's label first and the column's last."""
+    return [dict(c, row=c["col"], col=c["row"]) for c in grid]
 
 
 def keyed_split(grid: list[dict], norm: bool = False):
@@ -1083,6 +1089,9 @@ def resolve_labelled(bp: dict, g: list[dict]):
     (different labels are left to the ladder)."""
     cells = body(g)
     split = keyed_split(cells, norm=True)
+    if split is None:                    # the labels the other way: the column's at the start (GSE 1076 p3)
+        cells = body(transposed(g))
+        split = keyed_split(cells, norm=True)
     if split is None:
         return None
     fields = bp.get("fields") or {}
@@ -1246,8 +1255,10 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
     # a rename that changes what a cell says (different words, not a variant) is a judgment: Jev, not code
     reworded = [o for o, n in ren.items() if not _variant(_pattern(o) or o, _pattern(n) or n)
                 and not equivalent(_pattern(o) or o, _pattern(n) or n, common)]
-    swaps = [o for o, n in ren.items() if ren.get(n) == o]
-    if swaps:                                  # two cells exchanging names: the rows' order is a judgment (FL-100)
+    # two cells exchanging names: the rows' order is a judgment (FL-100); not in a table of one position, where the
+    # numbers only follow the boxes' order (MR01's company number, 2026-10-20: "should be easy to just renumber")
+    swaps = [o for o, n in ren.items() if ren.get(n) == o] if len(positions) > 1 else []
+    if swaps:
         return {"status": "unsure", "renames": {}, "unsure": [{"pos": None, "caption": None, "cells": swaps,
                 "candidates": sorted(swaps)}], "why": f"would swap {swaps[0]} and {ren[swaps[0]]}"}
     if reworded:

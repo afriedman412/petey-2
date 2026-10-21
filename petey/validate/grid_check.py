@@ -308,7 +308,10 @@ def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
         if c is None:
             cols.append([r[0], r[2]])
     cols.sort()
-    col_of = lambda r: max(range(len(cols)), key=lambda i: min(cols[i][1], r[2]) - max(cols[i][0], r[0]))
+    # the column it overlaps most; a wide box overlapping several alike (N-600 p14's additional information box over
+    # the page, part and item columns, 60 pt each, the winner set by float noise, 2026-10-20): the one its left edge is at
+    col_of = lambda r: max(range(len(cols)), key=lambda i: (round(min(cols[i][1], r[2]) - max(cols[i][0], r[0])),  # noqa: E731
+                                                            -abs(cols[i][0] - r[0])))
     placed = []                                  # (line, column, rank on that line and column, name, box)
     for li, ln in enumerate(lines):
         seen: dict = {}
@@ -318,8 +321,20 @@ def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
             seen[ci] = seen.get(ci, 0) + 1
     row_of, slot_of = {}, {}
     if kind == "block" and len(lines) > 1:
-        sig = [{(ci, round((r[3] - r[1]) / 4)) for li2, ci, _k, _n, r in placed if li2 == li} for li in range(len(lines))]
+        # a line's boxes as (column, height); heights alike within 2 pt or a quarter (a bucket of 4 pt split I-526
+        # p18's 54 pt boxes, 53.99997 against 54.0; N-600 p14's text boxes are 72 pt in two blocks, 90 in two, 2026-10-20)
+        sig = [[(ci, r[3] - r[1]) for li2, ci, _k, _n, r in placed if li2 == li] for li in range(len(lines))]
         tops = [ln["y0"] for ln in lines]
+
+        def alike(i, j, loose=True):
+            left, hit = list(sig[j]), 0
+            for ci, hh in sig[i]:
+                m = next((x for x in left if x[0] == ci
+                          and abs(x[1] - hh) <= (max(2, 0.25 * max(x[1], hh)) if loose else 2)), None)
+                if m:
+                    left.remove(m)
+                    hit += 1
+            return hit >= 0.8 * (len(sig[i]) + len(sig[j]) - hit)
 
         def score(step):                         # the share of lines that come again one step lower, alike
             ok = tried = 0
@@ -328,14 +343,23 @@ def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
                     continue
                 tried += 1
                 j = min(range(len(tops)), key=lambda j: abs(tops[j] - (t + step)))
-                ok += abs(tops[j] - (t + step)) <= 3 and len(sig[i] & sig[j]) >= 0.8 * len(sig[i] | sig[j])
+                ok += abs(tops[j] - (t + step)) <= 3 and alike(i, j, loose=False)
             return ok / tried if tried else 0
-        steps = sorted({round(b - a, 1) for i, a in enumerate(tops) for b in tops[i + 1:] if b - a > 3})
-        step = next((st for st in steps if score(st) >= 0.8), None)
-        if step:
-            for li, ln in enumerate(lines):
-                row_of[li] = int((ln["y0"] - tops[0] + 3) // step)
-                slot_of[li] = round((ln["y0"] - tops[0] - row_of[li] * step) / 3)
+        # the lines come again every p lines, alike, however far apart the repeats sit (I-526 p18, 2026-10-20:
+        # four blocks 102 pt apart, the fifth 108; the even step below took one pair of lines for a repeat)
+        p = next((p for p in range(2, len(lines) // 2 + 1) if len(lines) % p == 0
+                  and all(alike(i, i + p) for i in range(len(lines) - p))
+                  and not all(alike(i, i + 1) for i in range(p - 1))), None)
+        if p:
+            row_of = {li: li // p for li in range(len(lines))}
+            slot_of = {li: li % p for li in range(len(lines))}
+        else:                                    # a repeat with a line missing: an even step down the page
+            steps = sorted({round(b - a, 1) for i, a in enumerate(tops) for b in tops[i + 1:] if b - a > 3})
+            step = next((st for st in steps if score(st) >= 0.8), None)
+            if step:
+                for li, ln in enumerate(lines):
+                    row_of[li] = int((ln["y0"] - tops[0] + 3) // step)
+                    slot_of[li] = round((ln["y0"] - tops[0] - row_of[li] * step) / 3)
     if not row_of:                               # a table (or a block with no repeat found): a line is a row
         row_of = {li: li for li in range(len(lines))}
         slot_of = {li: 0 for li in range(len(lines))}
