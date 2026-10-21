@@ -570,6 +570,12 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   between) rather than the names, and whether the result is a combined field or an association that keeps the
   boxes.
 
+- **Suggested block types from the block-group finder** (parked 2026-10-21, Andrew: "park that and we can integrate
+  it later"). Since block groups went, `eval/block_groups.find` only feeds structure-first labeling and keeps grids
+  inside repeated blocks out of the Grids listing. Idea: on the Blocks tab, each group it finds proposed as a block
+  type (its first block the template, the others its copies), dashed on the page, accepted or dismissed by hand. On
+  2026-10-21, 192 of 368 found block groups had every block match the first as a copy (`block_types.copies_in`).
+
 - **IRS 941-X page 2 as a grid** (Andrew, 2026-10-21: "leave it for now, come back to it"). Two causes found: (1)
   each cell carries two printed numbers, the line (6-17) and the column (1-4), `line_7_col_1_amt_dollars`; the
   labelled-rows reading wants a numbered run to start at 1, so it falls to the numbered reading, which takes the
