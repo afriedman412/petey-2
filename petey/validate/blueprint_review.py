@@ -99,7 +99,7 @@ class Grids:
         """Cancel ("not a grid or block") a grid or block, the finder's or the person's, or restore it (2026-10-17: one
         button, the provenance tells them apart)."""
         from petey.validate import grid_check
-        return grid_check.set_status(bid, tid, on)
+        return grid_check.set_status(bid, tid, on, hand_review._load(self.app.working(bid)))
 
     def create(self, bid: str, page: int, rect, kind: str) -> dict:
         """A grid or block drawn on the page: the fields inside, arranged into rows and columns."""

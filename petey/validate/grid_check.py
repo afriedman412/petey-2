@@ -182,8 +182,9 @@ def listing(bid: str, bp: dict) -> list[dict]:
     return out
 
 
-def set_status(bid: str, gid: str, cancel: bool) -> dict:
-    """Cancel a grid or block (not a grid or block), or restore it. Cancelling a combined one gives its parts back."""
+def set_status(bid: str, gid: str, cancel: bool, bp: Optional[dict] = None) -> dict:
+    """Cancel a grid or block (not a grid or block), or restore it. Cancelling a combined one gives its parts back.
+    With `bp`, what comes back takes its fields from the others of its kind (`exclusive`)."""
     import time
     rec = load_set(bid)
     e = next((e for e in rec["grids"] if e["id"] == gid), None)
@@ -191,12 +192,88 @@ def set_status(bid: str, gid: str, cancel: bool) -> dict:
         raise ValueError(f"no grid {gid}")
     e["status"] = "cancelled" if cancel else "active"
     e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    back = [] if cancel else [gid]
     if e["source"] in ("combined", "edited"):
         for x in rec["grids"]:
             if x["id"] in (e.get("from") or []) and x.get("into") == gid:
                 x["status"] = "active" if cancel else "combined"
+                back += [x["id"]] if cancel else []
+    if cancel:
+        _give_back(rec, gid)
     _save_set(bid, rec)
-    return {"id": gid, "status": e["status"]}
+    return {"id": gid, "status": e["status"], "left": exclusive(bid, bp, back) if bp is not None and back else []}
+
+
+def _give_back(rec: dict, gid: str) -> None:
+    """Cancelling one that took fields from others (`exclusive`) gives them back: each table or block group it took
+    from as it was, if it has not changed since and the fields are in no other one now."""
+    held = {c[0] for e in rec["grids"] if e["status"] == "active" and e["id"] != gid for c in e.get("cells") or []}
+    for x in rec["grids"]:
+        u = x.get("undo") or {}
+        if u.get("by") != gid or x.get("cells") != u.get("after"):
+            continue
+        if u.get("drop"):                        # the finder's, whole again; the copy without the fields goes
+            orig = next((o for o in rec["grids"] if o["id"] in (x.get("from") or []) and o.get("into") == x["id"]), None)
+            if orig is None or x["status"] != "active":
+                continue
+            x["status"] = "undone"
+            orig["status"] = "active"
+            orig.pop("into", None)
+        else:
+            if {c[0] for c in u["cells"]} - {c[0] for c in x["cells"]} & held:
+                continue
+            x["cells"], x["status"] = u["cells"], "active"
+            x.pop("into", None)
+        x.pop("undo", None)
+
+
+def exclusive(bid: str, bp: dict, winners: list[str]) -> list[str]:
+    """A field is in one table and one block group at most (Andrew, 2026-10-20: "if you drag it into a group, it should
+    join that one and leave the other one"): the fields of `winners` (what was just drawn, combined, laid out or
+    restored) leave every other table, or block group, shown on the form. One the finder found becomes an edited copy
+    without them; one left with fewer than two fields, or a block group with fewer than two blocks, is emptied.
+    Cancelling the winner gives them back (`_give_back`). A table inside a block group is one of its parts, not a second membership,
+    so tables and block groups are kept apart. What left where, for the page to say."""
+    import time
+    shown = {t["id"] for t in listing(bid, bp) if t["status"] == "active"}     # also records any new finder ids
+    rec = load_set(bid)
+    by = {e["id"]: e for e in rec["grids"]}
+    said, changed = [], False
+    for w in winners:
+        we = by.get(w)
+        if we is None or we["status"] != "active":
+            continue
+        mine = {c[0] for c in we.get("cells") or []}
+        for e in list(rec["grids"]):
+            if e["id"] == w or e["kind"] != we["kind"] or e["id"] not in shown or e["status"] != "active":
+                continue
+            left = [list(c) for c in e.get("cells") or [] if c[0] not in mine]
+            n = len(e.get("cells") or []) - len(left)
+            if not n:
+                continue
+            small = len(left) < 2 or (e["kind"] == "block" and len({c[1] for c in left}) < 2)
+            if small:
+                e["undo"] = {"by": w, "cells": e.get("cells"), "after": e.get("cells")}
+                e["status"], e["into"] = "emptied", w
+                said.append(f"{e['id']} emptied ({n} field{'s' if n != 1 else ''} to {w})")
+            elif e["source"] == "finder":
+                c = {"id": _new_id(rec, e["page"], e["kind"]), "kind": e["kind"], "page": e["page"], "source": "edited",
+                     "status": "active", "cells": _compact(left), "from": [e["id"]], "when": time.strftime("%Y-%m-%d %H:%M:%S")}
+                c["undo"] = {"by": w, "drop": True, "after": c["cells"]}
+                e["status"], e["into"] = "combined", c["id"]
+                rec["grids"].append(c)
+                by[c["id"]] = c
+                shown.add(c["id"])
+                said.append(f"{n} field{'s' if n != 1 else ''} left {e['id']} (now {c['id']})")
+            else:
+                e["undo"] = {"by": w, "cells": e.get("cells"), "after": _compact(left)}
+                e["cells"] = e["undo"]["after"]
+                e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
+                said.append(f"{n} field{'s' if n != 1 else ''} left {e['id']}")
+            changed = True
+    if changed:
+        _save_set(bid, rec)
+    return said
 
 
 def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
@@ -297,7 +374,8 @@ def create(bid: str, bp: dict, page: int, rect, kind: str) -> dict:
     if len(names) < 2:
         raise ValueError("fewer than two fields in that area")
     cells = arrange(bp, names, kind)
-    return _add(bid, bp, page, kind, cells, "person", [])
+    out = _add(bid, bp, page, kind, cells, "person", [])
+    return {**out, "left": exclusive(bid, bp, [out["id"]])}
 
 
 def combine(bid: str, bp: dict, gids: list[str]) -> dict:
@@ -319,7 +397,7 @@ def combine(bid: str, bp: dict, gids: list[str]) -> dict:
         if e["id"] in gids:
             e["status"], e["into"] = "combined", out["id"]
     _save_set(bid, rec)
-    return out
+    return {**out, "left": exclusive(bid, bp, [out["id"]])}
 
 
 def _add(bid: str, bp: dict, page: int, kind: str, cells: list[dict], source: str, parts: list[str]) -> dict:
@@ -467,7 +545,8 @@ def layout(bid: str, bp: dict, gid: str, blocks: list) -> dict:
     e["parts"] = parts
     e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
     _save_set(bid, rec)
-    return {"id": e["id"], "cells": len(cells), "blocks": len(blocks), "positions": len({c[2] for c in e["cells"]})}
+    return {"id": e["id"], "cells": len(cells), "blocks": len(blocks), "positions": len({c[2] for c in e["cells"]}),
+            "left": exclusive(bid, bp, [e["id"]])}
 
 
 def _compact(cells: list) -> list:
@@ -497,7 +576,7 @@ def set_cells(bid: str, bp: dict, gid: str, cells: list) -> dict:
     e["cells"] = _compact(cells)
     e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
     _save_set(bid, rec)
-    return {"id": e["id"], "cells": len(cells)}
+    return {"id": e["id"], "cells": len(cells), "left": exclusive(bid, bp, [e["id"]])}
 
 
 def page_fields(bp: dict, page: int) -> list[dict]:

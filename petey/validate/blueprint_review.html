@@ -835,9 +835,14 @@ async function checkFresh() {
   } catch (e) {} finally { checking = false; }
 }
 async function loadMode() {
+  // a tab opened while this one was loading takes over: the rest is that tab's own loadMode (2026-10-20: a check
+  // finishing just as Review was opened went on with Review's sidebar before Review had loaded, and threw)
+  const m = mode, form = bid;
   try { await M().load(); }
-  catch (e) { $('#panel').innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  catch (e) { if (mode === m && bid === form) $('#panel').innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  if (mode !== m || bid !== form) return;
   await syncSha(); renderDraft();
+  if (mode !== m || bid !== form) return;
   const pages = M().pages();
   if (!pages.some(p => p.page === page) || !M().pageLabel(page)) page = M().startPage() || (pages[0] || {}).page || 1;
   renderModebar(); renderPages(); await showPage(); M().panel(); M().progress();
@@ -1683,12 +1688,28 @@ MODE.groups = (() => {
     } else if (target.tray) {
       if (!isGroup(src)) return;
       snapshot(); detach(id);
-      const it = item(id), own = it.key === null;
-      const u = {uid: nextUid++, name: own ? it.field : uniqueName(`${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
-                 type: 'boolean', items: [id], origin: own ? it.field : null, confirmed: false};
+      const u = looseOf(src, id);
       units.push(u); selected = units.includes(src) ? src.uid : u.uid;
     }
     afterEdit();
+  }
+  // a box taken out of group `src`: a loose box of its own, under its field's name or the group's name and its key
+  function looseOf(src, id) {
+    const it = item(id), own = it.key === null;
+    return {uid: nextUid++, name: own ? it.field : uniqueName(`${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
+            type: 'boolean', items: [id], origin: own ? it.field : null, confirmed: false};
+  }
+  // u (Andrew, 2026-10-20): the selected group's boxes all loose; a combined text field separated again
+  function ungroup() {
+    const u = unitByUid(selected);
+    if (!u || !isGroup(u)) return note('Select a group first.');
+    if (u.locked) return note(`${u.name} is locked: ${u.locked}`);
+    if (isText(u)) return separate(u);
+    snapshot();
+    const loose = [];
+    for (const id of [...u.items]) { detach(id); const x = looseOf(u, id); units.push(x); loose.push(x); }
+    selected = loose[0].uid;
+    afterEdit(); note(`${u.name} ungrouped: ${loose.length} loose boxes (z to undo)`);      // afterEdit clears the notes
   }
   function moveUnit(uid, target) {
     const s = unitByUid(uid); if (!s || s.locked) return;
@@ -2027,7 +2048,7 @@ MODE.groups = (() => {
       <button class="btn" id="gUndo" ${undoStack.length ? '' : 'disabled'}>undo</button>
       <button class="btn" id="gGroup" ${picked.size > 1 ? '' : 'disabled'} title="make the selected boxes one group (g)">group selected (${picked.size})</button>`,
     help: {keys: [['g', 'group the selected boxes'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
-                  ['u', 'unconfirmed only on / off'], ['t', 'text fields on / off']],
+                  ['u', 'ungroup the selected group'], ['Shift+U', 'unconfirmed only on / off'], ['t', 'text fields on / off']],
            tips: ['Select boxes with Shift-click (or Cmd-click), or drag across an area of the page (Shift+drag adds an area); g or "group selected" makes them one group; Esc clears the selection.',
                   'Drag a box onto a group, onto another loose box, or onto the tray.', 'Teal text boxes combine the same way.']},
     bindBar() {
@@ -2066,7 +2087,8 @@ MODE.groups = (() => {
       else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
       else if (e.key === 'p' || e.key === 'ArrowLeft') next(-1);
       else if (e.key === 'z') undo();
-      else if (e.key === 'u') { unconfOnly = !unconfOnly; $('#gUnconf').checked = unconfOnly; panel(); }
+      else if (e.key === 'u') ungroup();
+      else if (e.key === 'U') { unconfOnly = !unconfOnly; $('#gUnconf').checked = unconfOnly; panel(); }
       else if (e.key === 't') { showText = !showText; $('#gText').checked = showText; store('gr_text', showText ? '1' : '0'); renderPages(); placeAll(); panel(); }
       else return false;
       return true;
@@ -2457,7 +2479,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     try { out = await send('POST', mapi(API, '/layout'), {table: tid, blocks}); }
     catch (e) { alert('Could not pair them: ' + e.message); placeAll(); panel(); return; }
     ed = null; selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`${out.id}: ${out.blocks} blocks, ${out.positions} positions.`);
+    toast(`${out.id}: ${out.blocks} blocks, ${out.positions} positions.${leftNote(out)}`);
   }
   async function saveLayout() {
     const tid = ed.tid;
@@ -2465,7 +2487,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     try { out = await send('POST', mapi(API, '/cells'), {table: tid, cells: ed.cells}); }
     catch (e) { alert('Could not save: ' + e.message); return; }
     ed = null; selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`${out.id}: layout saved.`);
+    toast(`${out.id}: layout saved.${leftNote(out)}`);
   }
   function card(t) {
     const res = results[t.id], b = busy.has(t.id);
@@ -2500,10 +2522,10 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     a.innerHTML = `<div class="help">${BLK ? 'Block groups: a set of fields repeated (one block per repeat), outlined in dots on the page' : 'Tables (grids) the layout code finds, outlined in dots on the page'}. One click runs
       the lightest check that settles a table: the code, then the name-check model, then Jev, and Opus only when it is still unclear.</div>
       <div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn ${drawKind ? 'primary' : ''}" id="gtDraw" title="${BLK ? 'then drag a box around every block of the group' : 'then drag a box around the fields on the page'}">draw a ${NOUN}</button>
+        <button class="btn ${drawKind ? 'primary' : ''}" id="gtDraw" title="${BLK ? 'then drag a box around every block of the group' : 'then drag a box around the fields on the page'} (d)">draw a ${NOUN}</button>
         ${ticked.size >= 2 ? `<button class="btn primary" id="gtComb">combine ticked (${ticked.size})</button>` : ''}
       </div>
-      ${drawKind ? `<p class="help"><b>Drag a box on the page</b> around the ${BLK ? 'blocks of the group' : 'table'}: the fields whose middle is inside become a new ${NOUN}. Esc to stop.</p>` : ''}
+      ${drawKind ? `<p class="help"><b>Drag a box on the page</b> around the ${BLK ? 'blocks of the group' : 'table'}: the fields whose middle is inside become a new ${NOUN}. Drawing stays on for the next one; d or Esc to stop.</p>` : ''}
       ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
         `<p class="help">No ${BLK ? 'block group' : 'numbered table'} on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
       ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Cancelled (${BLK ? 'not a block group' : 'not a grid'}): ${asidePage(page).map(t =>
@@ -2519,16 +2541,19 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     a.querySelectorAll('[data-copy]').forEach(el => el.onclick = e => { e.stopPropagation(); copyTableRef(el.dataset.copy); });
     a.querySelectorAll('[data-std]').forEach(bt => bt.onclick = e => { e.stopPropagation(); standardize(bt.dataset.std, bt.dataset.pos, bt.dataset.line); });
     a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
-    if ($('#gtAll')) $('#gtAll').onclick = async () => { for (const t of onPage(page)) await run(t.id); };
+    if ($('#gtAll')) $('#gtAll').onclick = async () => {        // stops if you open another form
+      const form = bid;
+      for (const t of onPage(page)) { if (bid !== form) break; await run(t.id); }
+    };
     if (BLK) bindLayout(a);
   }
   async function create(rect) {
-    const kind = drawKind; drawKind = null;
+    const kind = drawKind;           // drawing stays on for the next one (Andrew, 2026-10-20); d or Esc stops it
     let out;
     try { out = await send('POST', mapi(API, '/create'), {page, rect, kind}); }
     catch (e) { panel(); alert('Could not make it: ' + e.message); return; }
     selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`New ${NOUN} ${out.id}: ${out.cells} fields.`);
+    toast(`New ${NOUN} ${out.id}: ${out.cells} fields.${leftNote(out)}`);
   }
   async function combineTicked() {
     const ids = [...ticked], kinds = new Set(ids.map(i => (GD.tables.find(t => t.id === i) || {}).kind));
@@ -2537,15 +2562,18 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     try { out = await send('POST', mapi(API, '/combine'), {tables: ids}); }
     catch (e) { alert('Could not combine: ' + e.message); return; }
     ticked.clear(); selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`Combined into ${out.id} (cancel it to get the parts back).`);
+    toast(`Combined into ${out.id} (cancel it to get the parts back).${leftNote(out)}`);
   }
+  // a field is in one table and one block group at most (2026-10-20): what it left when it joined this one
+  const leftNote = out => (out.left || []).length ? ' ' + out.left.join('; ') + '.' : '';
   async function setAside(tid, on) {
-    try { await send('POST', mapi(API, '/dismiss'), {table: tid, on}); }
+    let out;
+    try { out = await send('POST', mapi(API, '/dismiss'), {table: tid, on}); }
     catch (e) { alert('Could not save: ' + e.message); return; }
     if (on && selected === tid) selected = null;
     const keep = results; await loadMode(); results = keep;
     ticked.delete(tid);
-    toast(on ? `${tid} cancelled (not a grid or block).` : `${tid} restored.`);
+    toast((on ? `${tid} cancelled (not a grid or block).` : `${tid} restored.`) + leftNote(out));
   }
   // the table's reference, as a field's: <blueprint file stem>_<id> (acord_90_ny_p1-T13); the id on the card and on
   // the page copies it (Andrew, 2026-10-19: "grids should have IDs like fields, click to copy in the same way")
@@ -2566,8 +2594,11 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     const keep = results; await loadMode(); results = keep;
     toast(`${tid}: ${out.status}${out.applied ? `, ${out.applied.length} renamed` : ''}.`);
   }
+  // a check runs on while you go to another tab or page; its result brings this tab back up at the table's page, the
+  // tabs, page buttons and address with it (Andrew, 2026-10-20: the sidebar came up but the tabs still said Review)
+  const showing = () => mode === API;
   async function run(tid) {
-    const form = bid; busy.add(tid); panel();
+    const form = bid, pg = page; busy.add(tid); if (showing()) panel();
     let out;
     try { out = await send('POST', mapi(API, '/check'), {table: tid}); }
     catch (e) { out = {status: 'error', steps: ['the check failed: ' + e.message]}; }
@@ -2576,11 +2607,15 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     if (out.proposals) {                       // Opus: its proposals go to the chat, ticked, nothing applied
       const st = chatState(), p = out.proposals;
       st.history.push({role: 'user', content: p.request}, {role: 'assistant', content: p.raw});
-      st.turns.push({req: `grids & blocks: table ${tid} (Opus)`, gridPage: page, out: p, picked: new Set(chatItems(p).map(it => it.k))});
+      st.turns.push({req: `grids & blocks: table ${tid} (Opus)`, gridPage: pg, out: p, picked: new Set(chatItems(p).map(it => it.k))});
       toggleChat(true); renderChat();
     }
-    const keep = results; await loadMode(); results = keep;
-    toast(`Table ${tid}: ${out.status}.`);
+    const keep = results;
+    if (showing()) await loadMode(); else await setMode(API);
+    results = keep; selected = tid;
+    const t = live().find(x => x.id === tid);
+    if (t && t.page !== page) await gotoPage(t.page); else { placeAll(); panel(); }
+    toast(`${BLK ? 'Block group' : 'Table'} ${tid}: ${out.status}.`);
   }
   return {
     async load() { GD = await j(mapi(API)); if (selected && !GD.tables.some(t => t.id === selected)) selected = null; },
@@ -2589,7 +2624,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     pageLabel(p) { const n = onPage(p).length; return `p${p}${n ? ` (${n})` : ''}`; },
     bar: () => `<span class="progress" id="progress"></span>`,
     bindBar() { if (GD) this.progress(); },
-    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table']],
+    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table'], ['d', 'draw on / off (stays on after each one drawn)']],
            tips: ['Dotted outlines are tables and repeated blocks; dashed ones (in Review and Groups) are option groups.',
                   'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.']},
     place, panel,
@@ -2605,6 +2640,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
         selected = t.id; if (t.page !== page) gotoPage(t.page); else { placeAll(); panel(); } return true;
       }
       if (e.key === 'Enter' && selected) { run(selected); return true; }
+      if (e.key === 'd') { drawKind = drawKind ? null : KIND; marking = null; marks = []; placeAll(); panel(); return true; }
       if (e.key === 'Escape' && drawKind) { drawKind = null; panel(); return true; }
       if (e.key === 'Escape' && marking) { marking = null; marks = []; placeAll(); panel(); return true; }
       if (e.key === 'Escape' && ed && ed.pick) { ed.pick = null; placeAll(); panel(); return true; }
