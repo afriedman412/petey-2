@@ -105,3 +105,21 @@ def test_a_table_labelled_with_the_column_first_is_on_pattern():
          for r, k in enumerate(kinds) for c, col in enumerate(["entire_project", "subject_legal_phase"])]
     assert G.on_pattern(g) == (True, "columns named by role or kind")
     assert G.resolve({"fields": {c["name"]: {} for c in g}}, g, {})["status"] == "ok"
+
+
+def test_blocks_side_by_side():
+    """CBP 7512 p2 (2026-10-20): two certificates of transfer side by side, each box of the second 225 pt right of
+    its twin; two blocks of the same fields, not lines down the page."""
+    from petey.validate.grid_check import arrange
+    left = {"reason_txt": [100, 352, 233, 364], "to_nm": [36, 371, 234, 384], "dt": [34, 389, 146, 402],
+            "at_txt": [169, 389, 234, 402], "sealed_with_txt": [87, 407, 196, 420], "seal_nbr": [44, 425, 189, 438]}
+    fields = {}
+    for b in (1, 2):
+        for k, r in left.items():
+            d = 225 * (b - 1) + (0.6 if b == 2 else 0)
+            fields[f"transfer_{b}_{k}"] = {"type": "string", "widget": {
+                "page": 2, "widget_type": "text", "rect": [r[0] + d, r[1] + 0.3, r[2] + d, r[3] + 0.3]}}
+    cells = arrange({"fields": fields}, list(fields), "block")
+    assert {c["row"] for c in cells} == {0, 1} and len({c["col"] for c in cells}) == 6
+    assert all(c["name"].startswith(f"transfer_{c['row'] + 1}_") for c in cells)
+    assert G.on_pattern(cells)[0]

@@ -353,6 +353,13 @@ def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
         if p:
             row_of = {li: li // p for li in range(len(lines))}
             slot_of = {li: li % p for li in range(len(lines))}
+        elif (side := _side_by_side(boxes)):     # repeats across the page, not down it (CBP 7512 p2's transfers)
+            out = []
+            for n, (blk, pos) in side.items():
+                spec = bp["fields"][n]
+                w = spec.get("widget") or next(iter((spec.get("widgets") or {}).values()), {})
+                out.append({"name": n, "page": w.get("page"), "row": blk, "col": pos, "block": True})
+            return sorted(out, key=lambda c: (c["row"], c["col"]))
         else:                                    # a repeat with a line missing: an even step down the page
             steps = sorted({round(b - a, 1) for i, a in enumerate(tops) for b in tops[i + 1:] if b - a > 3})
             step = next((st for st in steps if score(st) >= 0.8), None)
@@ -375,6 +382,46 @@ def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
             cell["block"] = True
         out.append(cell)
     return out
+
+
+def _side_by_side(boxes: list[tuple]) -> Optional[dict]:
+    """{name: (block, position)} when the boxes are two or more copies of one block set side by side (CBP 7512 page 2,
+    2026-10-20: the two certificates of transfer, every box of the second 225 pt right of its twin in the first), else
+    None. Each box's twin one step right sits on its line (3 pt), is its size (2 pt high, a tenth wide) and the step
+    is the same for all (4 pt); the twins chain left to right, every chain as long, and every box in one. A chain is
+    a position, numbered by where its first box is (top, then left); a box's place in its chain is its block."""
+    if len(boxes) < 4:
+        return None
+
+    def twin(a, b, d):
+        return (abs(b[1] - a[1]) <= 3 and abs((b[3] - b[1]) - (a[3] - a[1])) <= 2
+                and abs((b[2] - b[0]) - (a[2] - a[0])) <= max(3, 0.1 * (a[2] - a[0])) and abs(b[0] - a[0] - d) <= 4)
+    steps = sorted({round(rb[0] - ra[0]) for _a, ra in boxes for _b, rb in boxes
+                    if rb[0] - ra[0] > 20 and abs(rb[1] - ra[1]) <= 3})
+    for d in steps:
+        nxt = {}
+        for a, ra in boxes:
+            m = [b for b, rb in boxes if b != a and twin(ra, rb, d)]
+            if len(m) > 1:
+                break
+            if m:
+                nxt[a] = m[0]
+        else:
+            if not nxt or len(set(nxt.values())) < len(nxt):
+                continue
+            starts = [a for a, _r in boxes if a not in set(nxt.values())]
+            chains = []
+            for a in starts:
+                ch = [a]
+                while ch[-1] in nxt:
+                    ch.append(nxt[ch[-1]])
+                chains.append(ch)
+            if len({len(c) for c in chains}) != 1 or len(chains[0]) < 2 or sum(map(len, chains)) != len(boxes):
+                continue
+            rect = dict(boxes)
+            chains.sort(key=lambda c: (round(rect[c[0]][1] / 3), rect[c[0]][0]))
+            return {n: (blk, pos) for pos, c in enumerate(chains) for blk, n in enumerate(c)}
+    return None
 
 
 def _in_area(bp: dict, page: int, rect) -> list[str]:
