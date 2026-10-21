@@ -181,7 +181,8 @@ def part_sets(fields: dict) -> dict[str, tuple[str, str, str]]:
                     if b[0] - a[2] > max(2.5 * h_, 18) or _base(nb) != base:
                         break
                     j += 1
-                run = [n for _, n in row[i:j]]
+                seg = row[i:j]
+                run = [n for _, n in seg]
                 i = j
                 if len(run) < 2:
                     continue
@@ -191,6 +192,9 @@ def part_sets(fields: dict) -> dict[str, tuple[str, str, str]]:
                 kind = next((k for k, (cue, shapes, _) in KINDS.items() if len(run) in shapes and (toks & cue)), None)
                 if kind == "date" and not any(re.search(r"_(month|mm|mo|day|dd|year|yyyy|yr|yy)$", n) for n in run):
                     kind = None                                 # dt in several boxes needs a date part word
+                if kind == "money" and (w := [r[2] - r[0] for r, _ in seg]) and w[1] > 0.5 * w[0]:
+                    kind = None     # a cents box is narrow (940 / 941 / 720: 21 pt beside 70-90); two boxes alike
+                    # are two amounts (Andrew, 2026-10-20, T2 p6 / p7: a subtotal carried right to the lettered amount)
                 if kind:
                     # a part word in the name wins (treating_dentist_phone_area_cd + _prefix: area, prefix); the
                     # rest take the kind's parts in reading order

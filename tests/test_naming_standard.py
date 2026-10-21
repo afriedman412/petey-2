@@ -2,7 +2,7 @@
 decided with Andrew 2026-10-14/15, applied on copies by the clearing passes."""
 import pytest
 
-from standardize_names import has_suffix, number_firsts, standard, zero_based
+from standardize_names import has_suffix, number_firsts, part_sets, standard, zero_based
 
 
 @pytest.mark.parametrize("name, spec, want", [
@@ -52,3 +52,18 @@ def test_zero_based_duplicates_shift_up():
                                         ("veteran_ssn_1", True), ("gross_rents", False)])
 def test_has_suffix(name, want):
     assert has_suffix(name) is want
+
+
+def _box(x0, x1, page=1):
+    return {"type": "number", "widget": {"page": page, "rect": [x0, 0, x1, 10]}}
+
+
+def test_dollars_and_cents_need_a_narrow_cents_box():
+    # 940 / 941: a 21 pt cents box against the dollars box is one amount
+    assert part_sets({"line_3_amt_1": _box(480, 552), "line_3_amt_2": _box(554, 575)}) == {
+        "line_3_amt_1": ("line_3_amt", "money", "dollars"), "line_3_amt_2": ("line_3_amt", "money", "cents")}
+
+
+def test_two_amount_boxes_alike_are_two_amounts():
+    # T2 p6 (2026-10-20): a subtotal carried right to amount J, two 77 pt boxes 22 pt apart, not dollars / cents
+    assert part_sets({"amount_j_amt_1": _box(264, 341), "amount_j_amt_2": _box(363, 440)}) == {}
