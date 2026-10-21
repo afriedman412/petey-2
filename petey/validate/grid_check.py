@@ -173,10 +173,22 @@ def listing(bid: str, bp: dict) -> list[dict]:
             out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts")},
                         "grid": cells})
     mine = [set(c["name"] for c in t["grid"]) for t in out if t["source"] != "finder" and t["status"] == "active"]
-    for t in out:                   # a finder grid mostly inside one the person made or combined is shown as that one
-        if t["source"] == "finder" and t["status"] == "active" and any(
-                len(set(c["name"] for c in t["grid"]) & m) >= 0.5 * len(t["grid"]) for m in mine):
+    # what the person made, drew, combined or edited holds its fields against the finder (one table and one block
+    # group per field, `exclusive`): a finder grid mostly inside one of them, or mostly inside those of its kind
+    # together (je__uk_ch_psc01 p1-T7, 2026-10-20: the finder's 30 cells over the four tables drawn in its place), is
+    # shown as them; one that only shares a few is shown without those
+    held = {k: set().union(*[set(c["name"] for c in t["grid"]) for t in out if t["source"] != "finder"
+                             and t["status"] == "active" and t["kind"] == k]) for k in ("table", "block")}
+    for t in out:
+        if t["source"] != "finder" or t["status"] != "active":
+            continue
+        names = {c["name"] for c in t["grid"]}
+        if any(len(names & m) >= 0.5 * len(names) for m in mine) or len(names & held[t["kind"]]) >= 0.5 * len(names):
             t["status"] = "replaced"
+        elif names & held[t["kind"]]:
+            t["grid"] = [c for c in t["grid"] if c["name"] not in held[t["kind"]]]
+            if len(t["grid"]) < 2:
+                t["status"] = "replaced"
     if changed:
         _save_set(bid, rec)
     return out
