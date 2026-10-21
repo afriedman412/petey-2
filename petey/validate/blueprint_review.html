@@ -2157,6 +2157,8 @@ MODE.add = (() => {
       <div class="achips">${p.name_options.map((o, k) => `<span class="achip ${o.name === p.name ? 'on' : ''}" data-name="${i}:${k}">${esc(o.name)}<span class="src">${esc(o.source)}</span></span>`).join('')}
         <span class="achip" data-labeler="${i}" title="one call to ${esc(BP.label_model)} with this page's words">ask the labeler</span></div>
       <div class="grid">
+        ${p.kind !== 'group' ? `<label>box</label><select data-boxkind="${i}" title="what the page shows: what was under the box decides, and can be wrong">
+          <option value="text" ${p.kind === 'text' ? 'selected' : ''}>text box</option><option value="option" ${p.kind === 'option' ? 'selected' : ''}>checkbox</option></select>` : ''}
         <label>type</label><select data-i="${i}" data-k="type">${types.map(t => `<option ${t === p.type ? 'selected' : ''}>${t}</option>`).join('')}</select>
         ${p.kind === 'text' ? `<label>semantic</label><select data-i="${i}" data-k="semantic_type">${sem.map(t => `<option value="${t}" ${t === (p.semantic_type || '') ? 'selected' : ''}>${t || '(none)'}</option>`).join('')}</select>
         <label>pattern</label><input type="text" data-i="${i}" data-k="pattern" value="${esc(p.pattern || '')}" ${p.type !== 'string' ? 'disabled' : ''}>` : ''}
@@ -2225,12 +2227,20 @@ MODE.add = (() => {
       panel();
     });
     document.querySelectorAll('[data-labeler]').forEach(el => el.onclick = () => askLabeler(+el.dataset.labeler, el));
+    document.querySelectorAll('[data-boxkind]').forEach(el => el.onchange = () => switchKind(+el.dataset.boxkind, el.value));
     document.querySelectorAll('[data-add]').forEach(el => el.onclick = () => addProps([+el.dataset.add]));
     document.querySelectorAll('[data-skip]').forEach(el => el.onclick = () => { props.splice(+el.dataset.skip, 1); placeAll(); panel(); });
     document.querySelectorAll('[data-del]').forEach(el => el.onclick = e => { e.stopPropagation(); added.splice(+el.dataset.del, 1); save(); });
     document.querySelectorAll('[data-undismiss]').forEach(el => el.onclick = e => { e.stopPropagation(); dismissed.splice(+el.dataset.undismiss, 1); save(); });
     document.querySelectorAll('[data-goto]').forEach(el => el.onclick = () => { const x = added[+el.dataset.goto]; if (x.page !== page) gotoPage(x.page); });
     document.querySelectorAll('[data-dgoto]').forEach(el => el.onclick = () => { const x = dismissed[+el.dataset.dgoto]; if (x.page !== page) gotoPage(x.page); });
+  }
+  // a text box made a checkbox, or back (2026-10-20): renamed (_ind) and typed again on the server
+  async function switchKind(i, kind) {
+    const taken = [...added.map(a => a.name), ...props.filter((_, k) => k !== i).map(q => q.name)];
+    try { props[i] = (await send('POST', mapi('add', '/kind'), {proposal: props[i], kind, taken})).proposal; }
+    catch (e) { notes = ['could not change the box: ' + e.message]; }
+    placeAll(); panel();
   }
   async function askLabeler(i, el) {
     el.textContent = 'asking…';

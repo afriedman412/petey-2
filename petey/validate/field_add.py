@@ -362,6 +362,58 @@ def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, take
         p["twin"] = opts[0]["twin"]
 
 
+def switch_kind(p: dict, kind: str, taken: set[str] = frozenset()) -> dict:
+    """A one-box proposal made a text box or a checkbox by hand (Andrew, 2026-10-20: "we need a way to designate a
+    field a checkbox and not a textfield"; what is under the drawn box decides, and sometimes wrongly). Its name
+    options are typed again for the new kind (`_named`: a checkbox is a boolean `indicator` named ..._ind; a text
+    box is typed from its name); a name typed by hand stays. A text widget made a checkbox loses its form path, as
+    eval/split_yes_no.py does: the page shows a checkbox, the form layer a text box, and extraction reads the page
+    (memory: page over metadata); a checkbox made a text box gets its path back."""
+    if p.get("kind") not in ("text", "option") or kind not in ("text", "option") or p["kind"] == kind:
+        return p
+    q = {**p, "kind": kind, "widget": dict(p["widget"]), "evidence": list(p.get("evidence") or [])}
+    w = q["widget"]
+    if kind == "option":
+        if w.get("path") and w.get("widget_type") == "text":
+            q["text_path"] = w["path"]
+            w["path"] = None
+            q["evidence"].append(f"made a checkbox by hand: the form's text widget {q['text_path']} is left out "
+                                 "(the page shows a checkbox)")
+        else:
+            q["evidence"].append("made a checkbox by hand")
+        w["widget_type"] = "checkbox"
+    else:
+        w["widget_type"] = "text"
+        if q.get("text_path"):
+            w["path"] = q.pop("text_path")
+        w.pop("on_state", None)
+        q["evidence"].append("made a text box by hand")
+    def renamed(n: str) -> str:
+        base = n[:-4] if n.endswith("_ind") else n
+        base = re.sub(r"^(p\d+)_(text|option)_(\d+_\d+)$", rf"\1_{kind}_\3", base)    # a placeholder says its kind
+        return base + "_ind" if kind == "option" else base
+
+    def typed(n: str) -> dict:
+        return {"type": "boolean", "semantic_type": "indicator"} if kind == "option" else enrich_field(n, "text")
+    opts, seen, now = [], set(), {}
+    for o in p.get("name_options") or [{"name": p["name"], "source": p.get("name_source") or "hand"}]:
+        n = renamed(o["name"])
+        base, k = n, 2
+        while n in taken:
+            n, k = f"{base}_{k}", k + 1
+        now[o["name"]] = n
+        if n not in seen:
+            seen.add(n)
+            opts.append({"name": n, "source": o["source"], "types": typed(n)})
+    q["name_options"] = opts
+    for k in ("type", "semantic_type", "pattern", "twin"):
+        q.pop(k, None)
+    # a name typed by hand stays as typed; else the current name, made for the new kind
+    q["name"] = p["name"] if p.get("name_source") == "hand" else now.get(p["name"], renamed(p["name"]))
+    q.update(typed(q["name"]))
+    return q
+
+
 def _twins(ctx: Context, cands: list[dict], evidence: list[str]) -> list[tuple[str, str]]:
     """Fields the blueprint already has for the same thing: a widget with the same publisher tooltip (a header
     repeated on a later page), or a sibling widget (the other part of a split number, the same row in another
