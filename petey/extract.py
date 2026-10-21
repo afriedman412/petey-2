@@ -33,6 +33,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import datetime
 import difflib
 import io
 import json
@@ -367,10 +368,28 @@ def _parse_leading_number(s: str) -> Optional[float]:
         return None
 
 
+def _iso_datetime(raw: Any) -> Optional[str]:
+    """A date and time as ISO (`2026-10-21T14:30`, seconds when shown); the day alone when no time is written (a
+    time is never made up); None when it is not a whole date (a time alone, a day with no year). `10/21/2026 2:30 PM`, `Oct 21, 2026 at 14:30` read alike."""
+    from dateutil import parser as _date_parser
+    s = re.sub(r"\s+at\s+", " ", str(raw).strip(), flags=re.I)
+    try:
+        a = _date_parser.parse(s, default=datetime.datetime(2000, 1, 1, 0, 0, 0))
+        b = _date_parser.parse(s, default=datetime.datetime(1999, 2, 2, 1, 1, 1))
+    except (ValueError, TypeError, OverflowError):
+        return None
+    if a.date() != b.date():                   # a time, or a day with no year: not a date
+        return None
+    if a.hour != b.hour:                       # no hour on the page: the day only
+        return a.date().isoformat()
+    return a.strftime("%Y-%m-%dT%H:%M") + (a.strftime(":%S") if a.second == b.second and a.second else "")
+
+
 def _coerce_typed(
     raw: Any, type_hint: str,
     allowed_values: Optional[list] = None,
     widget_type: Optional[str] = None,
+    semantic_type: Optional[str] = None,
 ) -> Any:
     """Best-effort coerce a raw string to the declared bpt type.
 
@@ -388,6 +407,8 @@ def _coerce_typed(
     """
     if raw is None or raw == "":
         return None
+    if semantic_type == "datetime" and type_hint == "string":
+        return _iso_datetime(raw)
     if type_hint == "boolean":
         # A yes/no answer typed into a text box (ACORD's Y / N columns): an explicit negative is False. Without this,
         # "N" fell through to the radio-button rule (any other export value is a selection) and read as True
@@ -698,6 +719,7 @@ def extract(blueprint: dict, pdf_path: Path, blank_pdf: Optional[Path] = None) -
                 raw, field.get("type", "string"),
                 allowed_values=field.get("values"),
                 widget_type=w_block.get("widget_type"),
+                semantic_type=field.get("semantic_type"),
             )
     finally:
         if ocr_api is not None:

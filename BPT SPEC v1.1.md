@@ -406,6 +406,7 @@ The following values are registered in v1.1. The `type` column gives the `type` 
 | `iso_date` | `date` | `^\d{4}-\d{2}-\d{2}$` |
 | `birth_date` | `date` | `^\d{4}-\d{2}-\d{2}$` |
 | `service_date` | `date` | `^\d{4}-\d{2}-\d{2}$` |
+| `datetime` | `string` | `^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$` |
 | `year` | `string` | `^\d{4}$` |
 | `phone` | `string` | `^\d{3}-\d{3}-\d{4}$` |
 | `email` | `string` | `^[^@\s]+@[^@\s]+\.[^@\s]+$` |
@@ -965,7 +966,7 @@ Additive MINOR revision. Every v1.0 blueprint is a valid v1.1 blueprint unchange
 | Addition | Section |
 | -------- | ------- |
 | `semantic_type` on a field, advisory, valid on every type | §5.8 |
-| 33 registered `semantic_type` values with paired `type` and canonical `pattern` | §5.8.1 |
+| 34 registered `semantic_type` values with paired `type` and canonical `pattern` | §5.8.1 |
 | `indicator` semantics: `null` and `false` equivalent | §5.9.4 |
 
 **Changed**

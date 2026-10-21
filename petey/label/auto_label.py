@@ -424,7 +424,7 @@ def _simple_system() -> str:
              "license or reference number, a class or rating code; a caption with \"#\" or \"number\" in it, "
              "LOC #, VEH #, DRIVER NUMBER, is an identifier); \"money\" for a sum of money, \"count\" only for a "
              "box that asks how many of something (a number of units, years, days), \"indicator\" for a box answered yes or no "
-             "(Y / N), \"percent\" for a percentage, \"iso_date\" for a full date, \"year\" for a "
+             "(Y / N), \"percent\" for a percentage, \"iso_date\" for a full date, \"datetime\" for a date and a time of day in one box, \"year\" for a "
              "year alone, \"phone\", \"email\", \"ssn\", \"ein\", \"zip\", \"state_abbr\" as their names say. "
              "Outside the US: \"ca_postal_code\" for a Canadian postal code (A1A 1A1), \"uk_postcode\" for a UK "
              "postcode (SW1A 1AA), another country's postal code is \"text\"; \"phone\" is a US or Canadian "

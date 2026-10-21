@@ -93,7 +93,7 @@ SEMANTIC_TO_CLASS: dict[str, str] = {
     "id_part": "id_part", "ssn": "ssn", "ein": "ein", "itin": "itin", "npi": "other_id",
     "routing_number": "other_id", "account_number": "other_id", "naics": "other_id",
     "tin": "ssn", "money_whole_dollar": "money", "money": "money", "percent": "percent",
-    "count": "count", "birth_date": "birth_date", "service_date": "date", "iso_date": "date",
+    "count": "count", "birth_date": "birth_date", "service_date": "date", "iso_date": "date", "datetime": "date",
     "year": "year", "phone": "phone", "email": "email", "state_abbr": "state", "zip": "zip",
     "city": "city", "country_code": "country", "country": "country",
     "street_address": "street", "name_and_address": "address_block", "entity_name": "business_name",

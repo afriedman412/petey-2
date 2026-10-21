@@ -237,6 +237,7 @@ EXPECTED: dict[str, set[str]] = {
     "iso_date": {"DATE"},
     "birth_date": {"DATE"},
     "service_date": {"DATE"},
+    "datetime": {"DATE", "TEXT"},           # the classes have no date-with-time; the day alone is a DATE
     "year": {"YEAR", "NUMBER", "DATE", "COUNT", "DIGITS"},
     "phone": {"PHONE", "DIGITS", "NUMBER"},
     "email": {"EMAIL"},

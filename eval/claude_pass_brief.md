@@ -32,7 +32,7 @@ Reading order and position matter. Neighbouring lines tell you which block of th
    - Counts are `integer` with semantic type `count`.
    - Dates are `date`. A month/day/year split into separate boxes uses `date_month` / `date_day` / `date_year`.
    - An option group must be `category` or `multi_category`.
-4. **Semantic types**: valid values are `account_number birth_date business_name city count country country_code date_day date_month date_year description ein email entity_name first_name id_part indicator iso_date itin last_name money money_whole_dollar naics npi percent phone routing_number service_date ssn state_abbr street_address text tin year zip`, or `none` to clear one. Fix ones that are wrong (an SSN typed `phone`, a county typed `city`). Do not use `person_name`; it is being removed, and the apply step clears it everywhere.
+4. **Semantic types**: valid values are `account_number birth_date business_name city count country country_code date_day date_month date_year description ein email entity_name first_name id_part datetime indicator iso_date itin last_name money money_whole_dollar naics npi percent phone routing_number service_date ssn state_abbr street_address text tin year zip`, or `none` to clear one. Fix ones that are wrong (an SSN typed `phone`, a county typed `city`). Do not use `person_name`; it is being removed, and the apply step clears it everywhere.
 5. **Option captions** that do not match the printed text at each box (not LOCKED ones). Give the caption as printed.
 6. **Missing boxes**: UNCLAIMED widget lines, as above.
 7. **Not fields**: a field on something nobody fills in, such as a heading or a printed instruction box. Remove only when you are sure; otherwise mark it not sure.

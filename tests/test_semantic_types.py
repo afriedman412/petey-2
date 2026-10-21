@@ -138,3 +138,26 @@ def test_names_are_not_typed_by_the_new_kinds():
     # no slug matcher: the standard scheme's name inference is unchanged
     assert enrich_field("mailing_postal_code", "text")["semantic_type"] == "zip"
     assert enrich_field("home_phone", "text")["semantic_type"] == "phone"
+
+
+class TestDatetime:
+    """A date and time in one box (2026-10-21): a string with an ISO pattern; extraction writes ISO, never makes up
+    a time or a date."""
+
+    def test_named_and_offered(self):
+        assert enrich_field("hearing_date_time", "text")["semantic_type"] == "datetime"
+        assert enrich_field("hearing_dt", "text")["semantic_type"] == "iso_date"
+        assert "datetime" in json.loads(prompt_vocabulary())
+
+    @pytest.mark.parametrize("raw, want", [
+        ("10/21/2026 2:30 PM", "2026-10-21T14:30"), ("Oct 21, 2026 at 14:30", "2026-10-21T14:30"),
+        ("2026-10-21T14:30:15", "2026-10-21T14:30:15"), ("10/21/2026", "2026-10-21"),
+        ("9:30 AM", None), ("Oct 21 2:30 PM", None), ("garbage", None)])
+    def test_extraction_reads_iso(self, raw, want):
+        from petey.extract import _coerce_typed
+        assert _coerce_typed(raw, "string", semantic_type="datetime") == want
+
+    def test_iso_output_fits_the_pattern(self):
+        from petey.extract import _iso_datetime
+        rx = re.compile(pattern_for("datetime"))
+        assert all(rx.fullmatch(_iso_datetime(v)) for v in ("10/21/2026 2:30 PM", "10/21/2026", "2026-10-21 09:05:07"))

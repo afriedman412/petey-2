@@ -148,6 +148,14 @@ REGISTRY: tuple[SemanticType, ...] = (
         pattern=r"^\d{4}-\d{2}-\d{2}$",
         ocr_whitelist="0123456789-/",
     ),
+    # a date with its time of day in one box (Andrew, 2026-10-21; a hearing's DATE AND TIME, AO 88's testimony):
+    # a string, as the `date` type keeps the day only; extraction writes it as ISO, the time when one is shown
+    SemanticType(
+        name="datetime",
+        matches=("_datetime", "_date_time", "_dt_time"),
+        pattern=r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?$",
+        ocr_whitelist="0123456789-/:. APMapm",
+    ),
     SemanticType(
         name="iso_date",
         matches=("_dt", "_date"),
