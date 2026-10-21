@@ -218,14 +218,8 @@ class Grids:
         t = next((x for x in grid_check.load_set(bid).get("types") or [] if x["id"] == tid), None)
         if t is None:
             raise ValueError(f"no block type {tid}")
-        edits = []
-        for b in t["blocks"]:
-            res = block_types.validate_block(bid, bp, b[0])
-            edits += [{"field": d["name"], "edit": {"name": d["want"]}, "why": f"block type {tid}: the type's wording"}
-                      for d in res["differs"]]
-        out = self._apply(bid)(edits) if edits else {"changes": [], "errors": []}
-        self.app.refresh()
-        return {"renamed": len(out.get("changes") or []), "errors": out.get("errors") or [], "entry": self.app.entry(bid)}
+        r = block_types.type_renames(bid, bp, tid)
+        return self._renames(bid, tid, r["renames"], r["held"], r["same"])
 
     def block_keep(self, bid: str, code: str, pos: int, on: bool) -> dict:
         """A suggested rename cancelled (the name kept as it is), or the cancel undone."""
@@ -256,14 +250,21 @@ class Grids:
         return {"type": tid, "validated": ok, "off": off, "accepted": len(acc), "entry": self.app.entry(bid)}
 
     def block_fix(self, bid: str, code: str) -> dict:
-        """A block's names put to its type's wordings (its own start kept), as Claude's renames; nothing accepted."""
+        """A block's names put to its type's wordings (its own start kept), as Claude's renames; nothing accepted. The
+        other blocks whose names it moves onto move with it, in one batch (a swap); renames onto a name a field
+        keeps are left and said."""
         from petey.validate import block_types
-        res = block_types.validate_block(bid, hand_review._load(self.app.working(bid)), code)
-        edits = [{"field": d["name"], "edit": {"name": d["want"]}, "why": f"block type {res['type']}: the type's wording"}
-                 for d in res["differs"]]
+        r = block_types.block_renames(bid, hand_review._load(self.app.working(bid)), code)
+        return self._renames(bid, r["type"], r["renames"], r["held"], r["same_as"])
+
+    def _renames(self, bid: str, tid: str, renames: list, held: list, same: list) -> dict:
+        edits = [{"field": d["name"], "edit": {"name": d["want"]}, "why": f"block type {tid}: the type's wording"}
+                 for d in renames]
         out = self._apply(bid)(edits) if edits else {"changes": [], "errors": []}
         self.app.refresh()
-        return {"renamed": len(out.get("changes") or []), "errors": out.get("errors") or [], "entry": self.app.entry(bid)}
+        return {"renamed": len(out.get("changes") or []), "errors": out.get("errors") or [],
+                "held": [f"{d['name']} -> {d['want']} (held by {d['held']})" for d in held], "same": same,
+                "entry": self.app.entry(bid)}
 
     def block_out(self, bid: str, code: str, whole: bool = True) -> dict:
         """A block that is no longer one."""

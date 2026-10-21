@@ -452,15 +452,16 @@ def listing(bp: dict, rec: dict, verdicts: Optional[dict] = None) -> list[dict]:
     out = []
     for t in rec.get("types") or []:
         blocks, words, parts = [], wordings(bp, t), block_parts(bp, t)
+        checks = type_checks(bp, t, rec)
         for i, b in enumerate(t["blocks"], 1):
             bs = [boxes[c] for c in b if c in boxes]
             if bs:
-                chk = check_block(bp, t, b, words, parts)
+                chk = checks[_bid(b)]
                 acc = sum((verdicts or {}).get(names.get(c), {}).get("verdict") == "accept" for c in b)
                 blocks.append({"n": i, "code": _bid(b), "page": bs[0]["page"], 
                                "names": [names.get(c, c) if c else None for c in b], "differs": chk["differs"], "start": chk["start"],
                                "kept": chk["kept"], "prefix": chk["prefix"], "iteration": chk["iteration"],
-                               "parts_set": parts[_bid(b)]["set"],
+                               "parts_set": parts[_bid(b)]["set"], "same_as": chk.get("same_as") or [],
                                "cells": [{"name": names.get(c, c), "rect": boxes[c]["rect"],
                                           "accepted": (verdicts or {}).get(names.get(c), {}).get("verdict") == "accept"}
                                          if c in boxes else None for c in b],
@@ -737,6 +738,61 @@ def keep_name(bid: str, code: str, pos: int, on: bool = True) -> dict:
     return {"type": t["id"], "kept": sorted(keep)}
 
 
+def type_checks(bp: dict, t: dict, rec: Optional[dict] = None) -> dict[str, dict]:
+    """{block id: check_block's result} for every block of the type, read together (Andrew, 2026-10-21, VA 21-686c
+    BT7-5 / BT7-6: "what's the best way to automate name clashes when using blocks?"):
+      - two blocks that come to one start (prefix and iteration) get `same_as` (the other blocks' ids) and no renames
+        until it is settled: each would take the other's names;
+      - a rename onto a name some field keeps and will not give up (a field outside the type, or a block whose renames
+        are held back) gets `held`: the block that holds it (BT3-2) or "no block"; the renames skip it.
+    A rename onto a name another block of the type is giving up (a swap: child_5 / child_6) is fine: the blocks are
+    renamed together (`chain`)."""
+    words, parts = wordings(bp, t), block_parts(bp, t)
+    res = {_bid(b): check_block(bp, t, b, words, parts) for b in t["blocks"]}
+    num = {_bid(b): f"{t['id']}-{i}" for i, b in enumerate(t["blocks"], 1)}
+    by_start = collections.defaultdict(list)
+    for b in t["blocks"]:
+        by_start[res[_bid(b)]["start"]].append(_bid(b))
+    for start, ids in by_start.items():
+        if start and len(ids) > 1:
+            for i in ids:
+                res[i]["same_as"] = [num[j] for j in ids if j != i]
+                res[i]["differs"], res[i]["ok"] = [], False
+    names = _names(bp)
+    owner = {}                                     # a name -> the block holding it, in any type
+    for x in (rec or {}).get("types") or [t]:
+        for i, b in enumerate(x["blocks"], 1):
+            for c in b:
+                if c and names.get(c):
+                    owner[names[c]] = f"{x['id']}-{i}"
+    leaving = {d["name"] for r in res.values() for d in r["differs"]}
+    fields = bp.get("fields") or {}
+    for r in res.values():
+        for d in r["differs"]:
+            if d["want"] in fields and d["want"] not in leaving:
+                d["held"] = owner.get(d["want"]) or "no block"
+    return res
+
+
+def chain(res: dict[str, dict], start: str) -> list[dict]:
+    """The renames a block needs, with every other block's whose names it moves onto (a swap, a shift down the
+    line), so they go in one batch; held ones left out."""
+    want_from = {d["name"]: i for i, r in res.items() for d in r["differs"]}
+    todo, done, out = [start], set(), []
+    while todo:
+        i = todo.pop()
+        if i in done:
+            continue
+        done.add(i)
+        for d in res[i]["differs"]:
+            if d.get("held"):
+                continue
+            out.append(d)
+            if d["want"] in want_from:             # its new name is another block's now: that block moves too
+                todo.append(want_from[d["want"]])
+    return out
+
+
 def validate_block(bid: str, bp: dict, code: str) -> dict:
     """Check & validate one block against its confirmed type (Andrew, 2026-10-21: "we need the ability to validate a
     block ... of a confirmed type even if it isn't in a group with other blocks"):
@@ -745,9 +801,31 @@ def validate_block(bid: str, bp: dict, code: str) -> dict:
     t, b = _block_by_code(rec, code)
     if not t.get("confirmed"):
         raise ValueError(f"confirm {t['id']}'s wordings first")
-    res = check_block(bp, t, b)
+    res = type_checks(bp, t, rec)[_bid(b)]
     names = _names(bp)
     return {**res, "type": t["id"], "names": [names.get(c) for c in b if names.get(c)]}
+
+
+def block_renames(bid: str, bp: dict, code: str) -> dict:
+    """The renames that put one block to its type, with the other blocks' that must move with it (`chain`)."""
+    rec = gc.load_set(bid)
+    t, b = _block_by_code(rec, code)
+    res = type_checks(bp, t, rec)
+    return {"type": t["id"], "renames": chain(res, _bid(b)),
+            "held": [d for d in res[_bid(b)]["differs"] if d.get("held")], "same_as": res[_bid(b)].get("same_as") or []}
+
+
+def type_renames(bid: str, bp: dict, tid: str) -> dict:
+    """Every block's renames, held ones left out, and the blocks that come to one name."""
+    rec = gc.load_set(bid)
+    t = next((x for x in rec.get("types") or [] if x["id"] == tid), None)
+    if t is None:
+        raise ValueError(f"no block type {tid}")
+    res = type_checks(bp, t, rec)
+    num = {_bid(b): f"{tid}-{i}" for i, b in enumerate(t["blocks"], 1)}
+    return {"type": tid, "renames": [d for r in res.values() for d in r["differs"] if not d.get("held")],
+            "held": [d for r in res.values() for d in r["differs"] if d.get("held")],
+            "same": sorted({num[i] for i, r in res.items() if r.get("same_as")})}
 
 
 def names_from_type(bid: str, bp: dict, tid: str) -> tuple[dict[str, str], list[str]]:

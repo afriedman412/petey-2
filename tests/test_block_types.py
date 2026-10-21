@@ -231,3 +231,27 @@ def test_a_block_that_is_no_longer_one(monkeypatch, tmp_path):
     assert bt.remove_block("t13", bp, "1_4")["said"] == ["no longer a block of BT1"]
     assert "dropped" in bt.remove_block("t13", bp, "1_1")["said"][-1]
     assert gc.load_set("t13")["types"] == []
+
+
+def test_block_name_clashes(monkeypatch, tmp_path):
+    """VA 21-686c BT7-5 / BT7-6 (2026-10-21): blocks whose names are swapped rename together; two blocks coming to one
+    name get no renames until settled; a rename onto a name a field outside keeps is held."""
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([["child_2_first_nm", "child_2_last_nm", "child_2_ind"],      # the first block carries the 2nd's
+                    ["child_1_first_nm", "child_1_last_nm", "child_1_ind"]])     # names, and the 2nd the 1st's
+    for b in range(2):
+        bt.draw("t14", bp, 1, area(b))
+    bt.confirm("t14", bp, "BT1", ["first_nm", "last_nm", "ind"])
+    bt.set_label("t14", "BT1", "child")
+    bt.set_auto("t14", "BT1", True)
+    r = bt.block_renames("t14", bp, "1_1")
+    assert {(d["name"], d["want"]) for d in r["renames"]} >= {("child_2_first_nm", "child_1_first_nm"),
+                                                               ("child_1_first_nm", "child_2_first_nm")}   # the swap
+    bt.set_parts("t14", "1_4", None, "1")                                       # both now come to child_1
+    t = bt.type_renames("t14", bp, "BT1")
+    assert t["same"] == ["BT1-1", "BT1-2"] and t["renames"] == []
+    bt.set_parts("t14", "1_4", None, "3")
+    bp["fields"]["child_3_ind"] = {"type": "boolean", "x_petey_id": "1_99", "widget": {"page": 1, "widget_type": "checkbox",
+                                                                                     "rect": [500, 700, 510, 710]}}
+    held = bt.type_renames("t14", bp, "BT1")["held"]
+    assert [(d["name"], d["want"], d["held"]) for d in held] == [("child_1_ind", "child_3_ind", "no block")]

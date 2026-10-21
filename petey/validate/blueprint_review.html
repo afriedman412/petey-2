@@ -2664,10 +2664,10 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
           <ol>${b.names.map((n, k) => { const d = b.differs.find(x => x.pos === k + 1), kept = (b.kept || []).includes(k + 1);
             const ok = ((b.cells || [])[k] || {}).accepted;
             if (n == null) return `<li class="help">(no box: ${esc(y.wordings[k] || '')})</li>`;
-            return `<li><code${ok ? ' class="accd" title="accepted"' : ' title="not accepted yet"'}>${esc(n)}</code>${ok ? ' ✓' : ''}${d ? ` <span class="stale">→ ${esc(d.want)}</span> <a href="#" class="x" data-bkeep="${esc(b.code)}" data-pos="${k + 1}" title="cancel this rename: the name stays as it is and no longer counts as off ${esc(y.id)}">×</a>`
+            return `<li><code${ok ? ' class="accd" title="accepted"' : ' title="not accepted yet"'}>${esc(n)}</code>${ok ? ' ✓' : ''}${d ? ` <span class="stale">→ ${esc(d.want)}</span>${d.held ? ` <span class="help" title="another field already has that name and keeps it: ${d.held === 'no block' ? 'a field in no block (the block\'s own box left out? re-fit)' : 'a box of ' + esc(d.held)}">held by ${d.held === 'no block' ? 'a field in no block' : esc(d.held)}</span>` : ''} <a href="#" class="x" data-bkeep="${esc(b.code)}" data-pos="${k + 1}" title="cancel this rename: the name stays as it is and no longer counts as off ${esc(y.id)}">×</a>`
               : kept ? ` <span class="help">kept as is · <a href="#" data-bunkeep="${esc(b.code)}" data-pos="${k + 1}">undo</a></span>` : ''}</li>`; }).join('')}</ol>
           <div class="row" style="margin-bottom:4px">${b.validated ? '<span class="pill validated">validated</span>' : ''}${y.confirmed ? `<button class="btn mini ${b.validated ? '' : 'primary'}" data-bval="${esc(b.code)}" ${bBusy.has(b.code) ? 'disabled' : ''} title="every name this block's start (${esc(b.start)}) and then ${esc(y.id)}'s wording: its cells accepted">${bBusy.has(b.code) ? 'checking…' : b.validated ? 'validated ✓ · check again' : `check & validate against ${esc(y.id)}`}</button>
-            ${b.differs.length ? `<button class="btn mini" data-bfix="${esc(b.code)}" title="the ${b.differs.length} name(s) marked → put to ${esc(y.id)}'s wordings, as Claude's renames; nothing accepted">rename to the type's wording (${b.differs.length})</button>` : ''}`
+            ${b.differs.some(d => !d.held) ? `<button class="btn mini" data-bfix="${esc(b.code)}" title="the names marked → put to ${esc(y.id)}'s wordings, as Claude's renames; nothing accepted. Blocks whose names this one moves onto move with it, in one go (a swap); names another field keeps are left">rename to the type's wording (${b.differs.filter(d => !d.held).length})</button>` : ''}`
             : `<span class="help">confirm ${esc(y.id)}'s wordings (Block types, above) to validate its blocks</span>`}</div>
           <div class="row"><button class="btn mini" data-blkdel="${esc(b.code)}" title="this area is not a block: its fields leave ${esc(y.id)}">not a block</button>
             ${b.names.some(n => n == null) ? `<button class="btn mini" data-refit="${esc(b.code)}" title="${b.names.filter(n => n == null).length} of ${esc(y.id)}'s boxes have no box in this block: fitted again from the boxes in and round it (place, size and label)">re-fit to ${esc(y.id)}</button>` : ''}
@@ -2680,7 +2680,9 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
   const blockState = (y, b) => {
     const acc = (b.cells || []).filter(x => x && x.accepted).length, n = (b.cells || []).filter(Boolean).length;
     if (b.validated) return 'validated ✓';
-    const st = !y.confirmed ? 'type not confirmed' : b.differs.length ? `${b.differs.length} name${b.differs.length === 1 ? '' : 's'} off the type` : 'matches the type';
+    const held = b.differs.filter(d => d.held).length, off = b.differs.length;
+    const st = (b.same_as || []).length ? `same names as ${b.same_as.join(', ')}: set one's iteration` : !y.confirmed ? 'type not confirmed'
+      : off ? `${off} name${off === 1 ? '' : 's'} off the type${held ? ` (${held} held by another field)` : ''}` : 'matches the type';
     return `${st} · ${acc} of ${n} accepted`;
   };
   // block types (Andrew, 2026-10-21: "what happened to block types?"): each type, its wordings (editable until
@@ -2705,7 +2707,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       </details>`;
     }).join('')}</div>`;
   }
-  const typeOff = y => y.blocks.reduce((n, b) => n + (b.differs || []).length, 0);
+  const typeOff = y => y.blocks.reduce((n, b) => n + (b.differs || []).filter(d => !d.held).length, 0);
   const tBusy = new Set();
   async function typeValidate(tid) {
     let out;
@@ -2724,7 +2726,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     catch (e) { alert(e.message); return; }
     if (out.entry) updateEntry(out.entry);
     const keep = results; await loadMode(); results = keep;
-    toast(`${tid}: ${out.renamed} rename(s) applied as Claude's.` + (out.errors.length ? ' Not applied: ' + out.errors.join('; ') : ''));
+    toast(renameNote(tid, out));
   }
   async function blockParts(code, body) {
     try { await send('POST', mapi(API, '/bparts'), {block: code, ...body}); }
@@ -2744,6 +2746,11 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     catch (e) { alert(e.message); return; }
     y.label = label.trim(); placeAll(); panel();
   }
+  // what a rename did, with what it left: blocks coming to one name, names another field keeps
+  const renameNote = (tid, out) => `${tid ? tid + ': ' : ''}${out.renamed} rename(s) applied as Claude's.`
+    + ((out.same || []).length ? ` Not renamed, same names: ${out.same.join(', ')} (set one's iteration).` : '')
+    + ((out.held || []).length ? ` Left, the name is another field's: ${out.held.slice(0, 3).join('; ')}${out.held.length > 3 ? ` and ${out.held.length - 3} more` : ''}.` : '')
+    + (out.errors.length ? ' Not applied: ' + out.errors.join('; ') : '');
   async function typeConfirm(tid) {
     const words = [...document.querySelectorAll(`[data-tw="${CSS.escape(tid)}"]`)].sort((a, b) => a.dataset.k - b.dataset.k).map(i => i.value.trim());
     let out;
@@ -2777,7 +2784,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     catch (e) { alert(e.message); return; }
     if (out.entry) updateEntry(out.entry);
     const keep = results; await loadMode(); results = keep;
-    toast(`${out.renamed} rename(s) applied as Claude's.` + (out.errors.length ? ' Not applied: ' + out.errors.join('; ') : ''));
+    toast(renameNote('', out));
   }
   async function blockDetect() {
     let out;
