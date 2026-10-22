@@ -435,8 +435,32 @@ def _side_by_side(boxes: list[tuple]) -> Optional[dict]:
                 continue
             rect = dict(boxes)
             chains.sort(key=lambda c: (round(rect[c[0]][1] / 3), rect[c[0]][0]))
-            return {n: (blk, pos) for pos, c in enumerate(chains) for blk, n in enumerate(c)}
+            out = {n: (blk, pos) for pos, c in enumerate(chains) for blk, n in enumerate(c)}
+            return _rows_within(out, rect, chains) or out
     return None
+
+
+def _rows_within(out: dict, rect: dict, chains: list) -> Optional[dict]:
+    """A side-by-side copy that is itself rows of one set of boxes (SF 3107 p6, 2026-10-21: dependent children 1-4 on
+    the left half, 5-8 on the right, each row name / birth date / disabled): each row its own block, down the first
+    copy, then down the next; positions the boxes of one row. None when a copy is not rows alike (a block of several
+    different lines stays one block)."""
+    first = sorted(((rect[c[0]], k) for k, c in enumerate(chains)), key=lambda t: (t[0][1], t[0][0]))   # top first
+    lines: list[list] = []
+    for r, k in first:
+        ln = next((ln for ln in lines if abs(rect[chains[ln[0]][0]][1] - r[1]) <= 4), None)
+        (ln.append(k) if ln is not None else lines.append([k]))
+    if len(lines) < 2:
+        return None
+    lines = sorted((sorted(ln, key=lambda k: rect[chains[k][0]][0]) for ln in lines),
+                   key=lambda ln: min(rect[chains[k][0]][1] for k in ln))
+    shape = lambda k: (rect[chains[k][0]][0], rect[chains[k][0]][2] - rect[chains[k][0]][0],      # noqa: E731
+                       rect[chains[k][0]][3] - rect[chains[k][0]][1])
+    if len({len(ln) for ln in lines}) != 1 or not all(
+            all(abs(a - b) <= 4 for a, b in zip(shape(k), shape(k0))) for ln in lines for k, k0 in zip(ln, lines[0])):
+        return None
+    where = {k: (li, pos) for li, ln in enumerate(lines) for pos, k in enumerate(ln)}
+    return {n: (blk * len(lines) + where[k][0], where[k][1]) for n, (blk, k) in out.items()}
 
 
 def _in_area(bp: dict, page: int, rect) -> list[str]:

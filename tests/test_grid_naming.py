@@ -149,3 +149,20 @@ def test_a_labelled_table_needs_one_wording_per_column():
         ["prior_spouse_2_last_nm", "prior_spouse_2_first_nm", "prior_spouse_2_middle_nm"],
         ["beneficiary_last_nm", "beneficiary_first_nm", "beneficiary_middle_nm"]]) for c, n in enumerate(row)]
     assert G.keyed(g) and not G.keyed(g, strict=True) and not G.on_pattern(g)[0]
+
+
+def test_a_table_in_two_halves_side_by_side():
+    """SF 3107 p6 (2026-10-21): dependent children 1-4 down the left half, 5-8 down the right, each row name / birth
+    date / disabled (a checkbox), the rows a few tenths of a point uneven. Eight blocks of three, numbered down the
+    left half then the right."""
+    from petey.validate.grid_check import arrange
+    fields = {}
+    for half, x in ((0, 17), (1, 306)):
+        for row in range(4):
+            n, y = half * 4 + row + 1, 669 + 22.6 * row + (0.4 if half else 0)
+            for k, (dx, w, h) in (("nm", (0, 171, 17)), ("birth_dt", (173, 71, 17)), ("disabled_ind", (260, 12, 12))):
+                fields[f"dependent_child_{n}_{k}"] = {"type": "string", "widget": {
+                    "page": 6, "widget_type": "text", "rect": [x + dx, y, x + dx + w, y + h]}}
+    cells = arrange({"fields": fields}, list(fields), "block")
+    assert all(c["row"] == int(c["name"].split("_")[2]) - 1 for c in cells)
+    assert len({c["col"] for c in cells}) == 3 and G.on_pattern(cells)[0]
