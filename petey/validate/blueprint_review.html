@@ -118,7 +118,8 @@
   .btmore code.accd { color:var(--accept); }
   .btmore ol, .bttype ol { margin:4px 0 6px 18px; padding:0; font-size:11px; } .btmore .row, .bttype .row { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
   .bttype .btlabel { width:95%; font:12px inherit; }
-  .btparts input { width:55%; font:11px var(--mono, monospace); } .btparts input.btit { width:3.5em; }
+  .btparts input[type=text] { width:55%; font:11px var(--mono, monospace); } .btparts input.btit { width:3.5em; }
+  .btby label { white-space:nowrap; margin-left:6px; } .btby input { margin:0 3px 0 0; vertical-align:middle; }
   .bttype { margin:4px 0; padding:4px 6px; border:1px solid var(--line, rgba(127,127,127,.3)); border-radius:4px; } .bttype input { width:95%; font:11px var(--mono, monospace); }
   .btb span { cursor:copy; position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--accent); background:var(--bg); padding:1px 3px; white-space:nowrap; }
   .lblk span { position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--c); background:var(--bg); padding:1px 3px; }
@@ -2608,8 +2609,13 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
         const code = i.dataset.bpre || i.dataset.bit, b = blocksHere().map(x => x.b).find(x => x.code === code); if (!b) return;
         const pre = a.querySelector(`[data-bpre="${CSS.escape(code)}"]`).value.trim(), it = a.querySelector(`[data-bit="${CSS.escape(code)}"]`).value.trim();
         if (pre === (b.prefix || '') && it === (b.iteration || '')) return;
-        blockParts(code, {prefix: pre, iteration: it});
+        blockParts(code, {prefix: pre, iteration: it, by: b.by});
       }); });
+    // told apart by number or by its prefix (2026-10-21, a block's own choice): the prefix kept, the iteration cleared
+    a.querySelectorAll('[data-bby]').forEach(r => { r.onclick = e => e.stopPropagation(); r.onchange = () => {
+      if (!r.checked) return;
+      const code = r.dataset.bby, b = blocksHere().map(x => x.b).find(x => x.code === code); if (!b) return;
+      blockParts(code, {prefix: b.prefix || '', iteration: '', by: r.value}); }; });     // the number follows the choice
     a.querySelectorAll('[data-bpreset]').forEach(x => x.onclick = e => { e.preventDefault(); e.stopPropagation(); blockParts(x.dataset.bpreset, {}); });
     a.querySelectorAll('[data-tauto]').forEach(c => { c.onclick = e => e.stopPropagation(); c.onchange = () => typeAuto(c.dataset.tauto, c.checked); });
     a.querySelectorAll('[data-tlabel]').forEach(i => { i.onclick = e => e.stopPropagation();
@@ -2658,8 +2664,10 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       const open = b.code === selBlock;
       return `<div class="btrow${open ? ' sel' : ''}" data-blk="${esc(b.code)}"><b class="gtidc" data-copy="${esc(y.id)}-${b.n}" title="click to copy the reference (file_id)">${esc(y.id)}-${b.n}</b> <span class="help">${y.label ? esc(y.label) + ' · ' : ''}${b.template ? 'the type\'s template · ' : ''}${blockState(y, b)}</span>
         ${open ? `<div class="btmore"><div class="row btparts">prefix <input type="text" data-bpre="${esc(b.code)}" value="${esc(b.prefix || '')}" title="the block's own start: every name is [prefix]_[iteration]_[wording]">
-            iteration <input type="text" class="btit" data-bit="${esc(b.code)}" value="${esc(b.iteration || '')}" placeholder="next free" title="the block's number among the type's blocks with this prefix; left empty, the next number free; - for none">
+            iteration <input type="text" class="btit" data-bit="${esc(b.code)}" value="${esc(b.iteration || '')}" placeholder="${b.by === 'prefix' ? 'none' : 'next free'}" title="${b.by === 'prefix' ? 'told apart by its prefix: a number only when another block of the type has this prefix, or you type one' : "the block's number among the type's blocks with this prefix; left empty, the next number free; - for none"}">
+
             ${b.parts_set ? `<a href="#" data-bpreset="${esc(b.code)}" title="back to the prefix and iteration read from the names">reset</a>` : ''}</div>
+          <div class="row help btby" title="number: [prefix]_[iteration]_[wording], a block alone with its prefix numbered 1 (child_1_). prefix: the prefix tells this block apart, preparer_address; numbered only if another block shares the prefix (preparer_1_, preparer_2_)">told apart by <label><input type="radio" name="bby-${esc(b.code)}" data-bby="${esc(b.code)}" value="number" ${b.by !== 'prefix' ? 'checked' : ''}> number</label> <label><input type="radio" name="bby-${esc(b.code)}" data-bby="${esc(b.code)}" value="prefix" ${b.by === 'prefix' ? 'checked' : ''}> prefix</label></div>
           <div class="help">${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} of ${esc(y.id)}, ${y.boxes} boxes each, named ${esc(b.prefix || '')}${b.iteration ? '_' + esc(b.iteration) : ''}_[wording]:</div>
           <ol>${b.names.map((n, k) => { const d = b.differs.find(x => x.pos === k + 1), kept = (b.kept || []).includes(k + 1);
             const ok = ((b.cells || [])[k] || {}).accepted;
@@ -2696,7 +2704,7 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       return `<details class="bttype" ${edit || mine ? 'open' : ''}><summary><b class="gtidc" data-copy="${esc(y.id)}" title="click to copy the reference (file_id)">${esc(y.id)}</b>${y.label ? ` ${esc(y.label)}` : ''} <span class="help">${y.boxes} boxes · ${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} · ${y.confirmed ? 'confirmed' : 'not confirmed'}</span></summary>
         <div class="row" style="margin:2px 0 4px"><input type="text" class="btlabel" data-tlabel="${esc(y.id)}" value="${esc(y.label || '')}" placeholder="label (e.g. US address)" title="your name for ${esc(y.id)}; Enter or leaving the box saves it"></div>
         <label class="help" title="every block's prefix the label as a name and its iteration its number in ${esc(y.id)} (1 to ${y.blocks.length}, the PDF's order); a block's own prefix or iteration, set by hand, still wins"><input type="checkbox" data-tauto="${esc(y.id)}" ${y.auto ? 'checked' : ''} ${y.label ? '' : 'disabled'}> name its blocks ${y.label ? `${esc(y.label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''))}_1, _2, …` : 'from the label (give it one first)'}</label>
-        <div class="help">Names: [block prefix]_[block iteration]_[wording]; an empty iteration takes the next number free (- for none). Wordings, one per position:</div>
+        <div class="help">Names: [block prefix]_[block iteration]_[wording]; an empty iteration takes the next number free (- for none); a block told apart by its prefix has no number unless another block shares the prefix. Wordings, one per position:</div>
         <ol>${y.wordings.map((w, k) => `<li>${edit ? `<input type="text" data-tw="${esc(y.id)}" data-k="${k}" value="${esc(w)}">` : `<code>${esc(w)}</code>`}</li>`).join('')}</ol>
         <div class="row">${edit ? `<button class="btn mini primary" data-tconf="${esc(y.id)}">confirm ${esc(y.id)}</button>` : `<a href="#" data-tedit="${esc(y.id)}">edit wordings</a>`}
           ${y.confirmed ? `<button class="btn mini ${y.blocks.every(b => b.validated) ? '' : 'primary'}" data-tval="${esc(y.id)}" ${tBusy.has(y.id) ? 'disabled' : ''} title="check & validate every block of ${esc(y.id)}: the cells of each block that follows these wordings accepted; the others said, nothing of theirs accepted">${tBusy.has(y.id) ? 'checking…' : y.blocks.every(b => b.validated) ? 'all validated ✓ · check again' : `validate all ${y.blocks.length}`}</button>` : ''}
@@ -2809,7 +2817,11 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     catch (e) { alert(e.message); return; }
     const keep = results; await loadMode(); results = keep;
     toast((out.refit ? `${out.type}-${out.block} fitted again.` : `Now ${out.type}-${out.block} (was a block of ${out.was}).`) + (out.missing.length ? ` It has no box for ${out.type}'s position${out.missing.length === 1 ? '' : 's'} ${out.missing.join(', ')}.` : '')
-      + (out.extra.length ? ` Left out (no place in ${out.type}): ${out.extra.join(', ')}.` : ''));
+      + (out.extra.length ? ` Left out (no place in ${out.type}): ${out.extra.join(', ')}.` : '')
+      + (out.renamed ? ` ${out.renamed} name${out.renamed === 1 ? '' : 's'} put to ${out.type}'s wordings.` : '')
+      + ((out.held || []).length ? ` Not renamed, another field has the name: ${out.held.join('; ')}.` : '')
+      + ((out.same || []).length ? ` Not renamed, same names as ${out.same.join(', ')}: set one's iteration.` : '')
+      + ((out.rename_errors || []).length ? ` Rename errors: ${out.rename_errors.join('; ')}` : ''));
   }
   async function blockOut(code) {
     let out;

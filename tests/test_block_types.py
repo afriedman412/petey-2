@@ -146,7 +146,7 @@ def test_a_page_is_searched_for_block_types_and_a_block_reassigned(monkeypatch, 
     near = bt.draw("t8", bp, 1, area(3))
     assert near["new"] and near["type"] == "BT2"
     moved = bt.assign("t8", bp, "1_10", "BT1")
-    assert moved == {"type": "BT1", "block": 4, "of": 4, "was": "BT2", "missing": [], "extra": []}
+    assert moved == {"type": "BT1", "block": 4, "of": 4, "was": "BT2", "code": "1_10", "missing": [], "extra": []}
     assert [t["id"] for t in gc.load_set("t8")["types"]] == ["BT1"]      # BT2 left with no blocks: dropped
 
 
@@ -255,3 +255,75 @@ def test_block_name_clashes(monkeypatch, tmp_path):
                                                                                      "rect": [500, 700, 510, 710]}}
     held = bt.type_renames("t14", bp, "BT1")["held"]
     assert [(d["name"], d["want"], d["held"]) for d in held] == [("child_1_ind", "child_3_ind", "no block")]
+
+
+def test_a_block_told_apart_by_its_prefix(monkeypatch, tmp_path):
+    """Andrew (2026-10-21): "provide a prefix instead of an iteration ... you want preparer_address and preparer is the
+    defining aspect (not iteration)"; "we do want preparer_address_1 and _2 available"; "this should be a block-level
+    decision". A block told apart by its prefix has no number while it is alone with the prefix; blocks sharing it
+    are numbered; a block by number keeps its number; two blocks both set to none clash."""
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([["preparer_nm", "preparer_signature_dt", "preparer_ind"],
+                    ["interpreter_nm", "interpreter_signature_dt", "interpreter_ind"],
+                    ["child_nm", "child_signature_dt", "child_ind"]])
+    for b in range(3):
+        bt.draw("t20", bp, 1, area(b))
+    bt.confirm("t20", bp, "BT1", ["nm", "signature_dt", "ind"])
+    res = bt.validate_block("t20", bp, "1_4")             # by number: alone with its prefix -> 1
+    assert res["iteration"] == "1" and res["differs"][0]["want"] == "interpreter_1_nm"
+    for code in ("1_1", "1_4"):
+        bt.set_parts("t20", code, None, None, "prefix")
+        res = bt.validate_block("t20", bp, code)
+        assert res["ok"] and res["iteration"] is None
+    assert bt.validate_block("t20", bp, "1_7")["differs"][0]["want"] == "child_1_nm"     # still by number
+    bt.set_parts("t20", "1_4", "preparer", "", "prefix")   # two blocks on one prefix: numbered, in the type's order
+    assert bt.validate_block("t20", bp, "1_1")["differs"][0]["want"] == "preparer_1_nm"
+    assert bt.validate_block("t20", bp, "1_4")["differs"][0]["want"] == "preparer_2_nm"
+    bt.set_parts("t20", "1_4", "preparer", "-", "prefix")  # ... both set to none: they clash, flagged
+    bt.set_parts("t20", "1_1", None, "-", "prefix")
+    rec = gc.load_set("t20")
+    assert bt.type_checks(bp, rec["types"][0], rec)["1_4"]["same_as"]
+    bt.set_parts("t20", "1_1", None, None, None)          # back to the default: by number
+    assert bt.validate_block("t20", bp, "1_1")["iteration"] == "1"
+    lst = bt.listing(bp, gc.load_set("t20"))[0]["blocks"]
+    assert [b["by"] for b in lst] == ["number", "prefix", "number"]
+
+
+def test_names_that_say_nothing_leave_place_and_size_to_decide(monkeypatch, tmp_path):
+    """VA 21-686c BT35 (2026-10-21): a date's three boxes named school_3_dt, school_2_dt, school_1_dt (the labeler
+    numbered the parts as dates), spaced a little wider than the date type's, became a type of their own and could
+    not be assigned to the date type (month, day, yr): the names share no word with any wording, so they say
+    nothing, and the boxes pair by place and size."""
+    use_tmp_records(monkeypatch, tmp_path)
+    def date(codes, y, names, xs):
+        return {n: {"type": "string", "x_petey_id": c, "widget": {"page": 1, "widget_type": "text",
+                "rect": [x, y, x + w, y + 16]}} for n, c, x, w in zip(names, codes, xs, (33, 33, 67))}
+    bp = {"fields": {**date(["1_1", "1_2", "1_3"], 100, ["dob_month", "dob_day", "dob_yr"], (50, 99, 145)),
+                     **date(["1_4", "1_5", "1_6"], 300, ["school_3_dt", "school_2_dt", "school_1_dt"], (50, 113, 164))}}
+    bt.draw("t21", bp, 1, [45, 95, 215, 120])
+    bt.confirm("t21", bp, "BT1", ["month", "day", "yr"])
+    assert bt.draw("t21", bp, 1, [45, 295, 235, 320])["new"]           # a type of its own, as on the form
+    out = bt.assign("t21", bp, "1_4", "BT1")
+    assert out["missing"] == [] and out["extra"] == []
+    t = next(x for x in gc.load_set("t21")["types"] if x["id"] == "BT1")
+    assert t["blocks"][1] == ["1_4", "1_5", "1_6"]                      # month, day, yr: left to right
+
+
+def test_assign_pairs_by_location_not_by_name(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "assigning a block to a type should just overwrite the labels using the type info, by
+    location". A block whose day and month boxes carry each other's names pairs by where they sit: the left box is
+    the month, whatever it is called."""
+    use_tmp_records(monkeypatch, tmp_path)
+    def date(codes, y, names, xs):
+        return {n: {"type": "string", "x_petey_id": c, "widget": {"page": 1, "widget_type": "text",
+                "rect": [x, y, x + w, y + 16]}} for n, c, x, w in zip(names, codes, xs, (33, 33, 67))}
+    bp = {"fields": {**date(["1_1", "1_2", "1_3"], 100, ["dob_month", "dob_day", "dob_yr"], (50, 99, 145)),
+                     **date(["1_4", "1_5", "1_6"], 300, ["hired_day", "hired_month", "hired_yr"], (50, 113, 164))}}
+    bt.draw("t22", bp, 1, [45, 95, 215, 120])
+    bt.confirm("t22", bp, "BT1", ["month", "day", "yr"])
+    bt.draw("t22", bp, 1, [45, 295, 235, 320])
+    bt.assign("t22", bp, "1_4", "BT1")
+    t = next(x for x in gc.load_set("t22")["types"] if x["id"] == "BT1")
+    assert t["blocks"][1] == ["1_4", "1_5", "1_6"]
+    res = bt.validate_block("t22", bp, "1_4")
+    assert [d["want"] for d in res["differs"]] == ["hired_1_month", "hired_1_day", "hired_1_yr"]

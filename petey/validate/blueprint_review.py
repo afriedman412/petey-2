@@ -184,10 +184,10 @@ class Grids:
         self.app.refresh()
         return {**res, "accepted": acc, "entry": self.app.entry(bid)}
 
-    def block_parts(self, bid: str, code: str, prefix, iteration) -> dict:
-        """A block's prefix and iteration, set by the person."""
+    def block_parts(self, bid: str, code: str, prefix, iteration, by=None) -> dict:
+        """A block's prefix and iteration, set by the person, and whether a number or its prefix tells it apart."""
         from petey.validate import block_types
-        return block_types.set_parts(bid, code, prefix, iteration)
+        return block_types.set_parts(bid, code, prefix, iteration, by)
 
     def type_auto(self, bid: str, tid: str, on: bool) -> dict:
         """A block type's blocks named from its label and numbered, or not."""
@@ -205,9 +205,13 @@ class Grids:
         return block_types.detect(bid, hand_review._load(self.app.working(bid)), page)
 
     def block_assign(self, bid: str, code: str, tid: str) -> dict:
-        """A block given another block type by hand."""
+        """A block given another block type by hand, its boxes paired by place, and its names put to the type's
+        wordings at once, as Claude's renames (Andrew, 2026-10-22: "assigning a block to a type should just overwrite
+        the labels using the type info, by location"); held renames and same-name blocks said, nothing accepted."""
         from petey.validate import block_types
-        return block_types.assign(bid, hand_review._load(self.app.working(bid)), code, tid)
+        out = block_types.assign(bid, hand_review._load(self.app.working(bid)), code, tid)
+        fix = self.block_fix(bid, out["code"])
+        return {**out, "renamed": fix["renamed"], "rename_errors": fix["errors"], "held": fix["held"], "same": fix["same"]}
 
     def type_fix(self, bid: str, tid: str) -> dict:
         """Every block of a block type put to its wordings (each block's own start kept, cancelled renames left), as
@@ -778,7 +782,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("blocks", "bvalidate"):     # one block checked against its type, its cells accepted
             return self._route(lambda: APP.blocks.block_validate(bid, body["block"]), bid)
         if (mode, what) == ("blocks", "bparts"):        # a block's prefix and iteration
-            return self._route(lambda: APP.blocks.block_parts(bid, body["block"], body.get("prefix"), body.get("iteration")), bid)
+            return self._route(lambda: APP.blocks.block_parts(bid, body["block"], body.get("prefix"), body.get("iteration"),
+                                                              body.get("by")), bid)
         if (mode, what) == ("blocks", "tauto"):         # a block type's blocks named from its label, numbered
             return self._route(lambda: APP.blocks.type_auto(bid, body["type"], bool(body.get("on"))), bid)
         if (mode, what) == ("blocks", "tlabel"):        # a block type's label

@@ -354,21 +354,32 @@ ENDINGS = {"txt", "nm", "nbr", "cd", "amt", "dt", "ind", "qty", "cnt", "pct", "y
                                # and years_with_current_employer_qty agreed on years and qty, and were paired)
 
 
-def fit(bp: dict, t: dict, bs: list[dict]) -> tuple[list[Optional[str]], list[str]]:
+def fit(bp: dict, t: dict, bs: list[dict], labels: bool = False) -> tuple[list[Optional[str]], list[str]]:
     """The block's boxes `bs` ({code, kind, rect}) paired with the type's template boxes by best fit (Andrew,
-    2026-10-21: "cross-check box sizes or locations or labels to find a best fit"): boxes of one kind only, each
+    2026-10-22: "assigning a block to a type should just overwrite the labels using the type info, by location":
+    place and size only, the names not consulted; with `labels`, 2026-10-21's "cross-check box sizes or locations or
+    labels to find a best fit" as it was): boxes of one kind only, each
     pair scored by place within the block and size (in units of 4 x the type's tolerance) and, twice over, by label
     (0 when the box's name ends with the position's wording, else the share of the wording's words, type endings left
-    out, it lacks); the pairing with the
+    out, it lacks; a name sharing no word with any wording is not counted); the pairing with the
     least total, a pair above `FIT_MAX` dropped. ([code or None per template position], [codes left out])."""
     from scipy.optimize import linear_sum_assignment
     want, rw, T = t["boxes"], _rel(t["boxes"]), tol(t["boxes"])
     words, names = wordings(bp, t), _names(bp)
     x0, y0 = min(b["rect"][0] for b in bs), min(b["rect"][1] for b in bs)
     big = 1e6
+    def content(k: int) -> list[str]:
+        return [x for x in words[k].split("_") if x and x not in ENDINGS and x not in STOP] if k < len(words) else []
+
+    def label(n: str, k: int) -> float:
+        wt, nt = content(k), n.split("_")
+        return 0.0 if not wt or n.endswith("_" + words[k]) else 1 - sum(any(_same_word(x, y) for y in nt) for x in wt) / len(wt)
     cost = []
     for b in bs:
         n = names.get(b["code"]) or ""
+        # a name that shares no word with any of the type's wordings says nothing: place and size decide (VA 21-686c
+        # BT35, 2026-10-21: a date's month / day / year boxes named school_3_dt, _2_dt, _1_dt against day, month, yr)
+        says = labels and any(label(n, k) < 1 for k in range(len(want)) if b["kind"] == want[k]["kind"] and content(k))
         row = []
         for k, w in enumerate(want):
             if b["kind"] != w["kind"]:
@@ -376,12 +387,10 @@ def fit(bp: dict, t: dict, bs: list[dict]) -> tuple[list[Optional[str]], list[st
                 continue
             place = (abs(b["rect"][0] - x0 - rw[k][0]) + abs(b["rect"][1] - y0 - rw[k][1])) / (4 * T)
             size = (abs(b["rect"][2] - b["rect"][0] - w["w"]) + abs(b["rect"][3] - b["rect"][1] - w["h"])) / (4 * T)
-            wt = [x for x in words[k].split("_") if x and x not in ENDINGS and x not in STOP] if k < len(words) else []
-            nt = n.split("_")
-            label = 0.0 if not wt or n.endswith("_" + words[k]) else 1 - sum(any(_same_word(x, y) for y in nt) for x in wt) / len(wt)
+            lab = label(n, k) if says else 0.0
             # sharing less than half the wording is another field, however well it lines up (ACORD 80: the
             # co-applicant's years_with_current_employer_qty where the applicant has years_at_previous_address_qty)
-            row.append(big if label > 0.5 else place + size + 2 * label)
+            row.append(big if lab > 0.5 else place + size + 2 * lab)
         cost.append(row)
     codes: list[Optional[str]] = [None] * len(want)
     used = set()
@@ -422,7 +431,7 @@ def assign(bid: str, bp: dict, code: str, tid: str) -> dict:
                 t[key][_bid(codes)] = t[key].pop(_bid(b))
         gc._save_set(bid, rec)
         names = _names(bp)
-        return {"type": tid, "block": i + 1, "of": len(t["blocks"]), "was": tid, "refit": True,
+        return {"type": tid, "block": i + 1, "of": len(t["blocks"]), "was": tid, "refit": True, "code": _bid(codes),
                 "missing": [k + 1 for k, c in enumerate(codes) if not c], "extra": [names.get(c) for c in extra
                                                                                    if c not in set(b)]}
     _drop_blocks(rec, bp, set(b))                    # out of its old type
@@ -431,7 +440,8 @@ def assign(bid: str, bp: dict, code: str, tid: str) -> dict:
     gc._save_set(bid, rec)
     names = _names(bp)
     return {"type": tid, "block": t["blocks"].index(codes) + 1, "of": len(t["blocks"]), "was": old["id"],
-            "missing": [k + 1 for k, c in enumerate(codes) if not c], "extra": [names.get(c) for c in extra]}
+            "code": _bid(codes), "missing": [k + 1 for k, c in enumerate(codes) if not c],
+            "extra": [names.get(c) for c in extra]}
 
 
 def _block(rec: dict, code: str):
@@ -461,7 +471,8 @@ def listing(bp: dict, rec: dict, verdicts: Optional[dict] = None) -> list[dict]:
                 blocks.append({"n": i, "code": _bid(b), "page": bs[0]["page"], 
                                "names": [names.get(c, c) if c else None for c in b], "differs": chk["differs"], "start": chk["start"],
                                "kept": chk["kept"], "prefix": chk["prefix"], "iteration": chk["iteration"],
-                               "parts_set": parts[_bid(b)]["set"], "same_as": chk.get("same_as") or [],
+                               "parts_set": parts[_bid(b)]["set"], "by": parts[_bid(b)]["by"],
+                               "same_as": chk.get("same_as") or [],
                                "cells": [{"name": names.get(c, c), "rect": boxes[c]["rect"],
                                           "accepted": (verdicts or {}).get(names.get(c), {}).get("verdict") == "accept"}
                                          if c in boxes else None for c in b],
@@ -588,8 +599,15 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
             pre, it = auto, str(n)
         mine = set_.get(_bid(b)) or {}
         own = mine.get("iteration") or None          # '' (the box left empty) is the next number free; '-' is none
-        out[_bid(b)] = {"prefix": mine.get("prefix", pre), "iteration": own if own else it, "set": bool(mine)}
+        by = mine.get("by") or "number"
+        if by == "prefix":               # told apart by its prefix: a number only where the prefix repeats (set_parts)
+            out[_bid(b)] = {"prefix": mine.get("prefix", pre), "iteration": own, "by": by, "set": True}
+            continue
+        out[_bid(b)] = {"prefix": mine.get("prefix", pre), "iteration": own if own else it, "by": by, "set": bool(mine)}
     if auto:
+        for c in out:
+            if out[c]["iteration"] == "-":
+                out[c]["iteration"] = None
         return out
     by_prefix = collections.defaultdict(list)
     for b in t["blocks"]:
@@ -597,6 +615,8 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
     # an empty iteration takes the next number free among the blocks with its prefix, in the type's order (Andrew,
     # 2026-10-21: "if an iteration is empty, give it the next number available"); '-' set by hand is none
     for pre, codes in by_prefix.items():
+        if len(codes) == 1 and out[codes[0]]["by"] == "prefix":    # alone with its prefix: no number (Andrew:
+            continue                                  # "we do want preparer_address_1 and _2 available" when it repeats)
         taken = {out[c]["iteration"] for c in codes if out[c]["iteration"] and out[c]["iteration"] != "-"}
         n = 1
         for c in codes:
@@ -637,8 +657,13 @@ def check_block(bp: dict, t: dict, block: list[str], words: Optional[list[str]] 
             "differs": differs_, "kept": sorted(keep)}
 
 
-def set_parts(bid: str, code: str, prefix: Optional[str], iteration: Optional[str]) -> dict:
-    """A block's prefix and iteration as the person set them (None: back to the default)."""
+def set_parts(bid: str, code: str, prefix: Optional[str], iteration: Optional[str], by: Optional[str] = None) -> dict:
+    """A block's prefix and iteration as the person set them (None: back to the default), and how the block is told
+    apart from the type's others (Andrew, 2026-10-21: "provide a prefix instead of an iteration ... preparer_address";
+    "this should be a block-level decision"): "number", the default ([prefix]_[iteration]_[wording], an empty iteration
+    the next number free, a block alone with its prefix 1), or "prefix" (its prefix tells it apart: preparer_address,
+    no number unless another block of the type has the prefix, preparer_1_address / preparer_2_address, or one is
+    set here)."""
     rec = gc.load_set(bid)
     t, b = _block_by_code(rec, code)
     mine = {}
@@ -652,6 +677,10 @@ def set_parts(bid: str, code: str, prefix: Optional[str], iteration: Optional[st
         if iteration and not re.fullmatch(r"[0-9]+[a-z]?|[a-z]|-", iteration):
             raise ValueError("an iteration is a number (or a letter), - for none, or empty for the next number free")
         mine["iteration"] = iteration
+    if by not in (None, "number", "prefix"):
+        raise ValueError("a block is told apart by number or by prefix")
+    if by == "prefix":
+        mine["by"] = "prefix"
     if mine:
         t.setdefault("parts", {})[_bid(b)] = mine
     else:
