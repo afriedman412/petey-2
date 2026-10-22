@@ -576,6 +576,15 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   type (its first block the template, the others its copies), dashed on the page, accepted or dismissed by hand. On
   2026-10-21, 192 of 368 found block groups had every block match the first as a copy (`block_types.copies_in`).
 
+- **Remove the old blocks from the blueprints** (Andrew, 2026-10-22: "eventually we should remove the old blocks from
+  the blueprints"). The kept block groups were converted to block types on 2026-10-22 (220 active groups on 111
+  forms -> 208 types, 598 blocks; cancelled groups left out; the 52 blocks already in a drawn type left there; each
+  converted type carries `from`, the old group's id). What the blueprints still carry from the old groups:
+  `x_petey_identifiers` with an `iteration` read from block-group membership (229 fields on 15 forms, plan step 1-3
+  fill). To clear once names are printed from block types. Also open from the conversion: 17 converted types hold
+  one block (an old group mixed block shapes; I-589 p3 child_4 beside child_2 / child_3): "assign to type" puts
+  each with its siblings.
+
 - **IRS 941-X page 2 as a grid** (Andrew, 2026-10-21: "leave it for now, come back to it"). Two causes found: (1)
   each cell carries two printed numbers, the line (6-17) and the column (1-4), `line_7_col_1_amt_dollars`; the
   labelled-rows reading wants a numbered run to start at 1, so it falls to the numbered reading, which takes the
