@@ -1,0 +1,935 @@
+bpt_version: '1.1'
+name: ircc_imm_5409
+form_version: null
+source_pdf: imm5409e.pdf
+source_pdf_hash: 4f81d98ae864c487220324651bf559afb17e3b3f
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:25:59'
+fields:
+  country_cd:
+    x_petey_id: '1_1'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 23.040000915527344
+      - 113.03997802734375
+      - 304.55999755859375
+      - 124.55999755859375
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].Jurisdiction[0].Country[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: country
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: country_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: country -> country_cd'
+  province_state_territory_cd:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 307.44000244140625
+      - 113.03997802734375
+      - 588.9600219726562
+      - 124.55999755859375
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].Jurisdiction[0].Province[0]
+    description: Province/State/Territory
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=282
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:19'
+      from:
+        name: province_state_territory
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: province_state_territory_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+  declarant_nm:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 46.08000183105469
+      - 145.44000244140625
+      - 291.6000061035156
+      - 159.4119873046875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].FirstName[0]
+    description: (full name of declarant as shown on passport/travel document)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:18'
+      from:
+        name: declarant_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: declarant_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  partner_nm:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 321.8399963378906
+      - 145.44000244140625
+      - 567.3599853515625
+      - 159.4119873046875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].SecondName[0]
+    description: (full name of declarant's partner as shown on passport/travel document)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:18'
+      from:
+        name: partner_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: partner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  city_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 26.639999389648438
+      - 170.6400146484375
+      - 180.0
+      - 184.61199951171875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].City[0]
+    description: (name of city, town, village)
+    x_petey_description_source: tooltip
+    label_source: llm
+  declarant_county_nm:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 226.4459991455078
+      - 170.6400146484375
+      - 345.96600341796875
+      - 184.61199951171875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].County[0]
+    description: County of the declarant (if applicable)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: declarant_county_nm
+      reason: The caption directly below the box reads '(if applicable)' and it sits
+        in the declarant's address block after 'county of', so a filer writes the
+        county name for the declarant's location; 'declarant_county_nm' better scopes
+        this to the declarant's context than the bare 'county_nm'.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - name
+      reason: Box holds a county name, not a person's name, so person_name is wrong.
+        The bare name 'county_nm' also cannot be told apart from the administering
+        official's county box (admin_county_nm); the caption here belongs to the declarant's
+        block, so qualify it.
+      before:
+        type: string
+        semantic_type: person_name
+        description: (if applicable)
+      old_name: county_nm
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
+  province_state_territory_nm:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 366.84600830078125
+      - 170.6400146484375
+      - 522.3660278320312
+      - 184.61199951171875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].Province[0]
+    description: (name of province, state, territory)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=156
+  country_nm:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 26.639999389648438
+      - 195.84002685546875
+      - 180.0
+      - 209.81201171875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].Country[0]
+    description: (name of country)
+    x_petey_description_source: tooltip
+    label_source: llm
+  cohabitation_years_cnt:
+    x_petey_id: '1_9'
+    type: number
+    semantic_type: count
+    widget:
+      page: 1
+      rect:
+      - 444.2340087890625
+      - 195.84002685546875
+      - 491.7539978027344
+      - 209.81201171875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].YearsTogether[0]
+    description: (number of years)
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    label_source: llm
+  cohabitation_start_dt:
+    x_petey_id: '1_10'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 26.639999389648438
+      - 221.03997802734375
+      - 180.0
+      - 236.4520263671875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].startDate[0]
+    description: Enter the date as YYYY-MM-DD, or click the down arrow to open the
+      calendar.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{YYYY-MM-DD}
+        validate:
+        - date{YYYY-MM-DD}
+        ui:
+        - date{YYYY-MM-DD}
+      message: Enter the date as YYYY-MM-DD, or click the down arrow to open the calendar.
+    label_source: llm
+  cohabitation_end_dt:
+    x_petey_id: '1_11'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 199.4340057373047
+      - 221.03997802734375
+      - 354.9540100097656
+      - 236.4520263671875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Info[0].endDate[0]
+    description: Enter the date as YYYY-MM-DD, or click the down arrow to open the
+      calendar.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{YYYY-MM-DD}
+        validate:
+        - date{YYYY-MM-DD}
+        ui:
+        - date{YYYY-MM-DD}
+      message: Enter the date as YYYY-MM-DD, or click the down arrow to open the calendar.
+    label_source: llm
+  joint_residential_lease_ind:
+    x_petey_id: '1_12'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 55.39500045776367
+        - 313.239990234375
+        - 65.3949966430664
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[0].yesno[0]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 102.19499969482422
+        - 313.239990234375
+        - 112.19499969482422
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[0].yesno[0]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+  joint_own_property_ind:
+    x_petey_id: '1_13'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 197.9550018310547
+        - 313.239990234375
+        - 207.9550018310547
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[1].yesno[0]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 244.7550048828125
+        - 313.239990234375
+        - 254.7550048828125
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[1].yesno[0]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+  joint_bank_accounts_ind:
+    x_petey_id: '1_14'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 339.7950134277344
+        - 313.239990234375
+        - 349.7950134277344
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[2].yesno[0]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 386.5950012207031
+        - 313.239990234375
+        - 396.5950012207031
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[2].yesno[0]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+  joint_tax_return_ind:
+    x_petey_id: '1_15'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 481.635009765625
+        - 313.239990234375
+        - 491.635009765625
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[3].yesno[0]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 528.4349975585938
+        - 313.239990234375
+        - 538.4349975585938
+        - 323.239990234375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section1[0].Options[0].Sec[3].yesno[0]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+  declarant_life_insurance_ind:
+    x_petey_id: '1_16'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 197.85000610351562
+        - 342.06298828125
+        - 207.85000610351562
+        - 352.06298828125
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section2[0].yesno[0]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 244.64999389648438
+        - 342.06298828125
+        - 254.64999389648438
+        - 352.06298828125
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section2[0].yesno[0]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+  partner_life_insurance_ind:
+    x_petey_id: '1_17'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 481.635009765625
+        - 342.06298828125
+        - 491.635009765625
+        - 352.06298828125
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section3[0].yesno[0]
+        on_state: '0'
+        caption: 'Yes'
+      '1':
+        page: 1
+        rect:
+        - 528.4349975585938
+        - 342.06298828125
+        - 538.4349975585938
+        - 352.06298828125
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section3[0].yesno[0]
+        on_state: '1'
+        caption: 'No'
+    description: 'One of: 0 = Yes; 1 = No'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'Yes'
+        '1': 'No'
+  other_documentary_evidence_txt:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 33.84000015258789
+      - 372.302001953125
+      - 578.1599731445312
+      - 464.4620056152344
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section4[0].TextField2[0]
+    description: If none of the above sections applies, what other documentary evidence
+      do you have that would indicate your relationship as common-law partners?
+    x_petey_description_source: tooltip
+    label_source: llm
+  declarant_signature_nm:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 23.040000915527344
+      - 503.2799987792969
+      - 304.55999755859375
+      - 516.9599609375
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].NameDecl[0]
+    description: Name of declarant (as shown on passport/travel document)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: declarant_nm
+      reason: The caption directly above the box reads 'Name of declarant (as shown
+        on passport/travel document)', so a filer writes their name here; 'declarant_nm'
+        fits, while 'declarant_signature_nm' points to the signature field.
+      model: claude-sonnet-4-6
+      contested: a witness says this widget's text belongs to another field
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:18'
+      from:
+        name: declarant_signature_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: declarant_signature_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  declarant_signature:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 307.44000244140625
+      - 503.2799987792969
+      - 588.9600219726562
+      - 516.9599609375
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].SignatureDecl[0]
+    description: Signature of declarant
+    x_petey_description_source: tooltip
+    label_source: llm
+  partner_signature_nm:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 23.040000915527344
+      - 528.47998046875
+      - 304.55999755859375
+      - 542.1600341796875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].NamePartner[0]
+    description: Name of declarant's partner (as shown on passport/travel document)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:18'
+      from:
+        name: partner_signature_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: partner_signature_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  partner_signature:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 307.44000244140625
+      - 528.47998046875
+      - 588.9600219726562
+      - 542.1600341796875
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].SignaturePartner[0]
+    description: Signature of declarant's partner
+    x_petey_description_source: tooltip
+    label_source: llm
+  admin_city_nm:
+    x_petey_id: '1_23'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 23.040000915527344
+      - 553.6799926757812
+      - 304.55999755859375
+      - 567.3599853515625
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].City[0]
+    description: Declared before me at (City, Town, Village)
+    x_petey_description_source: tooltip
+    label_source: llm
+  administrator_nm:
+    x_petey_id: '1_24'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 307.44000244140625
+      - 553.6799926757812
+      - 588.9600219726562
+      - 567.3599853515625
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].AdminDecl[0]
+    description: Name of the person who administered the declaration
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:24:18'
+      from:
+        name: administrator_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: administrator_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  admin_county_nm:
+    x_petey_id: '1_25'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 23.040000915527344
+      - 578.8800048828125
+      - 304.55999755859375
+      - 592.5599975585938
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].County[0]
+    description: county of (if applicable)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption and tooltip read 'county of (if applicable)' in the 'Declared
+        before me at' block, so the name is right but person_name is wrong for a county/location
+        value.
+      before:
+        type: string
+        semantic_type: person_name
+        description: county of (if applicable)
+      judged: 'kept: 2 -> 2'
+  admin_province_state_territory_nm:
+    x_petey_id: '1_27'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 23.040000915527344
+      - 604.0800170898438
+      - 212.39999389648438
+      - 617.760009765625
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].Province[0]
+    description: in the province/state/territory of
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=189
+  admin_country_nm:
+    x_petey_id: '1_28'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 215.27999877929688
+      - 604.0800170898438
+      - 304.55999755859375
+      - 617.760009765625
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].Country[0]
+    description: in (country)
+    x_petey_description_source: tooltip
+    label_source: llm
+  administrator_title:
+    x_petey_id: '1_26'
+    type: category
+    values:
+    - '0'
+    - '1'
+    - '2'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 330.43499755859375
+        - 582.2449951171875
+        - 340.43499755859375
+        - 592.2449951171875
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section5[0].Title[0]
+        on_state: '0'
+        caption: Notary Public
+      '1':
+        page: 1
+        rect:
+        - 330.43499755859375
+        - 594.4849853515625
+        - 340.43499755859375
+        - 604.4849853515625
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section5[0].Title[0]
+        on_state: '1'
+        caption: Commissioner of Oaths
+      '2':
+        page: 1
+        rect:
+        - 330.43499755859375
+        - 606.7249755859375
+        - 340.43499755859375
+        - 616.7249755859375
+        widget_type: radiobutton
+        path: IMM_5409[0].Page1[0].Section5[0].Title[0]
+        on_state: '2'
+        caption: Commissioner of Taking Affidavits
+    description: 'One of: 0 = Notary Public; 1 = Commissioner of Oaths; 2 = Commissioner
+      of Taking Affidavits'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': Notary Public
+        '1': Commissioner of Oaths
+        '2': Commissioner of Taking Affidavits
+  declaration_day:
+    x_petey_id: '1_29'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 23.040000915527344
+      - 629.280029296875
+      - 115.91999816894531
+      - 642.9600219726562
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].Day[0]
+    label_source: llm
+  declaration_month:
+    x_petey_id: '1_30'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 118.80000305175781
+      - 629.280029296875
+      - 212.39999389648438
+      - 642.9600219726562
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].Month[0]
+    description: day of (month)
+    x_petey_description_source: tooltip
+    label_source: llm
+  declaration_yr:
+    x_petey_id: '1_31'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 215.27999877929688
+      - 629.280029296875
+      - 304.55999755859375
+      - 642.9600219726562
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].Year[0]
+    label_source: llm
+  administrator_signature:
+    x_petey_id: '1_32'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 307.44000244140625
+      - 629.280029296875
+      - 588.9600219726562
+      - 642.9600219726562
+      widget_type: text
+      path: IMM_5409[0].Page1[0].Section5[0].SignatureAdminDecl[0]
+    description: Signature of the person who administered the declaration
+    x_petey_description_source: tooltip
+    label_source: llm
+x_petey_dropped_widgets:
+  count: 9
+  widgets:
+  - path: IMM_5409[0].master[0].frontPage[0].SaveButton1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Save
+  - path: IMM_5409[0].master[0].frontPage[0].ResetButton1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Reset Form
+  - path: IMM_5409[0].master[0].frontPage[0].PrintButton1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Print Form
+  - path: IMM_5409[0].master[0].frontPage[0].ValidateButton1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Validate
+  - path: IMM_5409[0].Page1[0].Section2[0].link[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: link
+  - path: IMM_5409[0].Page1[0].Section5[0].link[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: link
+  - path: IMM_5409[0].Page1[0].Section5[0].link[1]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: link
+  - path: IMM_5409[0].Page1[0].Section5[0].link[2]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: link
+  - path: IMM_5409[0].Page1[0].Privacy[0].link[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Link to the Office of the Privacy Commissioner of Canada
+x_petey_xfa_log:
+  joined: 32
+  type: 1
+  description: 7
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 3
+x_petey_page_check:
+  when: '2026-10-16 13:26:40'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 32
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/ircc_imm_5409__10e5e0__9f2d442a.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ircc_imm_5409_20261006_212742
+  blueprint: /home/user/petey-2/runs/judge_eval/work/ircc_imm_5409.bpt
+  when: '2026-10-06 21:27:55'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ircc_imm_5409.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-06 21:27:56'

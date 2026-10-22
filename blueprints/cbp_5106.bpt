@@ -1,0 +1,4453 @@
+bpt_version: '1.1'
+name: cbp_5106
+form_version: null
+source_pdf: cbp_form_5106.pdf
+source_pdf_hash: f2bbda7bb20cca9c31b4fe57c1918feca706e4c6
+source_pages:
+- 1
+- 2
+- 3
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:57:49'
+fields:
+  selected_number_irs_ein:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: ein
+    pattern: ^.{2}\-.{7}$
+    widget:
+      page: 1
+      rect:
+      - 249.00100708007812
+      - 227.9990234375
+      - 369.00299072265625
+      - 240.1309814453125
+      widget_type: text
+      path: topmostSubform[0].#subform[0].IRS[0]
+    description: 1B. Selected Number Type. I R S Number. Enter 9 to 11 digit number
+      with a dash after first two digits.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{XX-XXXXXXX}
+      pictures:
+        format:
+        - text{XX-XXXXXXX}
+        ui:
+        - text{XXXXXXXXX}|text{XX-XXXXXXX}|text{XX XXXXXXX}
+      message: Invalid IRS Number. Enter 9 -11 digit number with a dash after first
+        two digits.
+    label_source: llm
+  selected_number_ssn:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 249.00100708007812
+      - 241.9990234375
+      - 369.00299072265625
+      - 254.1309814453125
+      widget_type: text
+      path: topmostSubform[0].#subform[0].SSN[0]
+    description: 1B. Selected Number Type. Social Security Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999-99-9999}
+      pictures:
+        format: &id001
+        - text{999-99-9999}
+        validate: &id002
+        - text{999-99-9999}
+        ui: &id003
+        - text{999-99-9999}
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+  selected_number_cbp_assigned_nbr:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 249.00100708007812
+      - 256.0
+      - 369.00299072265625
+      - 267.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[0].CBPAsssigned[0]
+    description: 1B. Selected Number Type. C B P Assigned Number. Enter at least an
+      8 digit number.
+    x_petey_description_source: tooltip
+    pattern: ^(?:\d{4}\-\d{4}|\d{5}\-\d{5}|\d{5}\-\d{4})$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{9999-9999}|text{99999-99999}|text{99999-9999}
+      pictures:
+        format:
+        - text{9999-9999}|text{99999-99999}|text{99999-9999}
+        ui:
+        - text{9999-9999}|text{99999-99999}|text{99999-9999}
+      message: Invalid CBP Number. Enter at least an 8 digit number.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: selected_number_cbp_assigned_number
+        type: string
+        semantic_type: null
+        pattern: ^(?:\d{4}\-\d{4}|\d{5}\-\d{5}|\d{5}\-\d{4})$
+      to:
+        name: selected_number_cbp_assigned_nbr
+        type: string
+        semantic_type: null
+        pattern: ^(?:\d{4}\-\d{4}|\d{5}\-\d{5}|\d{5}\-\d{4})$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  request_cbp_assigned_number_ind:
+    x_petey_id: '1_9'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 66.0
+      - 302.2040100097656
+      - 76.0
+      - 312.2040100097656
+      widget_type: checkbox
+      path: topmostSubform[0].#subform[0].ONE_E[0]
+    description: '* 1E [Elements designated with an asterisk are required data fields].
+      I wish to be assigned a CBP Number. Check here if requesting a CBP-assigned
+      number and indicate reason(s). Check all reasons that apply.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  importer_business_private_party_nm:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 42.000999450683594
+      - 186.0009765625
+      - 569.9990234375
+      - 197.5009765625
+      widget_type: text
+      path: topmostSubform[0].#subform[0].Importer[0]
+    description: All the data elements with a red asterisk are required. 1. NAME AND
+      IDENTIFICATION NUMBER. * 1. A. [Elements designated with an asterisk are required
+      data fields]. Importer / Business / Private Party Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption '1A. Importer/Business/Private Party Name' covers businesses;
+        person_name is the wrong semantic type.
+      before:
+        type: string
+        semantic_type: person_name
+        description: All the data elements with a red asterisk are required. 1. NAME
+          AND IDENTIFICATION NUMBER. * 1. A. [Elements designated with an asterisk
+          are required data fields]. Importer / Business / Private Party Name.
+      judged: 'kept: 1 -> 0'
+  mailing_address_line_1_txt:
+    x_petey_id: '1_20'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 42.000999450683594
+      - 569.2030029296875
+      - 276.0010070800781
+      - 581.2020263671875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].Address[0]
+    description: 2. ADDRESS INFORMATION. 2 A. MAILING ADDRESS (Each street address
+      line can be no more than 32 characters). *Street Address 1. [Elements designated
+      with an asterisk are required data fields].
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_city_nm:
+    x_petey_id: '1_21'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 569.2030029296875
+      - 450.0
+      - 581.2020263671875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].City[0]
+    description: '*2 A. [Elements designated with an asterisk are required data fields].
+      City.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_zip_cd:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(?:\-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 593.2009887695312
+      - 450.0
+      - 605.2000122070312
+      widget_type: text
+      path: topmostSubform[0].#subform[0].Zip[0]
+    description: 2 A. Zip Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+        ui:
+        - text{99999-9999}
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      reason: Caption is simply 'Zip Code'; a plain 5-digit ZIP is valid, so the pattern
+        must allow ZIP and ZIP+4.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+        description: 2 A. Zip Code.
+      judged: 'kept: 1 -> 0'
+  mailing_state_province_nm:
+    x_petey_id: '1_22'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 461.9989929199219
+      - 569.2030029296875
+      - 569.9990234375
+      - 581.2020263671875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].State[0]
+    description: '*2 A. [Elements designated with an asterisk are required data fields].
+      State / Province.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_country_iso_cd:
+    x_petey_id: '1_25'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 461.9989929199219
+      - 593.2009887695312
+      - 569.9990234375
+      - 605.2000122070312
+      widget_type: text
+      path: topmostSubform[0].#subform[0].CountryISOCode[0]
+    description: 2 A. Country I S O Code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_address_line_2_txt:
+    x_petey_id: '1_23'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 42.000999450683594
+      - 593.2009887695312
+      - 276.0010070800781
+      - 605.2000122070312
+      widget_type: text
+      path: topmostSubform[0].#subform[0].Address[1]
+    description: 2 A. Street Address 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cbp_assigned_nbr:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 155.99899291992188
+      - 360.7030029296875
+      - 306.0
+      - 377.7019958496094
+      widget_type: text
+      path: topmostSubform[0].#subform[0].CBPNumber[0]
+    description: 1F. C B P - Assigned Number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: cbp_assigned_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: cbp_assigned_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  program_1_cd:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 42.000999450683594
+      - 515.2049560546875
+      - 162.0
+      - 527.2039794921875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].ProgramCode1[0]
+    description: 1J. Program Code 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: program_cd_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: program_1_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  program_2_cd:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 173.99899291992188
+      - 515.2049560546875
+      - 293.99798583984375
+      - 527.2039794921875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].ProgramCode2[0]
+    description: 1K. Program Code 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: program_cd_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: program_2_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  program_3_cd:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 306.0
+      - 515.2049560546875
+      - 425.9989929199219
+      - 527.2039794921875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].ProgramCode3[0]
+    description: 1L. Program Code 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: program_cd_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: program_3_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  program_4_cd:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 438.0010070800781
+      - 515.2049560546875
+      - 558.0
+      - 527.2039794921875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].ProgramCode4[0]
+    description: 1M. Program Code 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: program_cd_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: program_4_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  div_aka_dba_nm:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 306.0
+      - 282.7019958496094
+      - 569.9990234375
+      - 299.2019958496094
+      widget_type: text
+      path: topmostSubform[0].#subform[0].DIVName[0]
+    description: 1D. D I V / A. K A. / D B A. Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: 1D. DIV/AKA/DBA Name is a business/trade name, not a person name; the
+        name itself matches the caption so only the semantic type changes.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 1D. D I V / A. K A. / D B A. Name.
+      judged: 'kept: 1 -> 0'
+  id_utilization_other_description_txt:
+    x_petey_id: '1_15'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 216.0
+      - 486.2040100097656
+      - 461.9989929199219
+      - 498.2030029296875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].SpecifyOther[0]
+    description: Specify other.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: id_utilization_other_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: id_utilization_other_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  mailing_address_type_other_description_txt:
+    x_petey_id: '1_27'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 438.0010070800781
+      - 630.2009887695312
+      - 569.9990234375
+      - 642.2030029296875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].SpecifyOther[1]
+    description: Specify other.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: mailing_address_type_other_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: mailing_address_type_other_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  physical_address_type_other_description_txt:
+    x_petey_id: '1_35'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 144.0
+      - 744.2020263671875
+      - 330.0010070800781
+      - 756.2009887695312
+      widget_type: text
+      path: topmostSubform[0].#subform[0].SpecifyOther[2]
+    description: Specify other.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: physical_address_type_other_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: physical_address_type_other_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  physical_address_line_2_txt:
+    x_petey_id: '1_31'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 42.000999450683594
+      - 707.2020263671875
+      - 276.0010070800781
+      - 719.2009887695312
+      widget_type: text
+      path: topmostSubform[0].#subform[0].Address[2]
+    description: 2B. Street Address 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+  physical_country_iso_cd:
+    x_petey_id: '1_33'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 461.9989929199219
+      - 707.2020263671875
+      - 569.9990234375
+      - 719.2009887695312
+      widget_type: text
+      path: topmostSubform[0].#subform[0].CountryISOCode[1]
+    description: 2B. Country I S O Code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  physical_state_province_nm:
+    x_petey_id: '1_30'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 461.9989929199219
+      - 683.2030029296875
+      - 569.9990234375
+      - 695.2020263671875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].State[1]
+    description: '*2B [Elements designated with an asterisk are required data fields].
+      State / Province.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  physical_zip_cd:
+    x_petey_id: '1_32'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(?:\-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 707.2020263671875
+      - 450.0
+      - 719.2009887695312
+      widget_type: text
+      path: topmostSubform[0].#subform[0].Zip[1]
+    description: 2B. Zip Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+        ui:
+        - text{99999-9999}
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      reason: Caption '2B. Zip Code' permits a 5-digit ZIP; pattern was too strict.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+        description: 2B. Zip Code.
+      judged: 'kept: 1 -> 0'
+  physical_city_nm:
+    x_petey_id: '1_29'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 683.2030029296875
+      - 450.0
+      - 695.2020263671875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].City[1]
+    description: '*2B [Elements designated with an asterisk are required data fields].
+      City.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  physical_address_line_1_txt:
+    x_petey_id: '1_28'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 42.000999450683594
+      - 683.2030029296875
+      - 276.0010070800781
+      - 695.2020263671875
+      widget_type: text
+      path: topmostSubform[0].#subform[0].Address[3]
+    description: 2B. PHYSICAL LOCATION ADDRESS (if different than mailing address.
+      Each street address line can be no more than 32 characters). [Elements designated
+      with an asterisk are required data fields]. *Street Address 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+  business_description_txt:
+    x_petey_id: '2_6'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 209.99899291992188
+      - 125.99700927734375
+      - 569.9990234375
+      - 137.9959716796875
+      widget_type: text
+      path: topmostSubform[0].#subform[1].BusinessDescription[0]
+    description: 3. COMPANY INFORMATION. 3 A. Provide a brief business description.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: business_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: business_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  duns_nbr:
+    x_petey_id: '2_8'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 245.99899291992188
+      - 161.99700927734375
+      - 420.0010070800781
+      - 173.9959716796875
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DUNSNumber[0]
+    description: 3C. Provide the D-U-N-S Number for the Importer.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: duns_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: duns_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  filer_cd:
+    x_petey_id: '2_9'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 492.0010070800781
+      - 180.0
+      - 570.0020141601562
+      - 191.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].FilerCode[0]
+    description: 3D. If you are also a broker / self-filer, supply the filer code
+      that will be used when conducting business with C B P.
+    x_petey_description_source: tooltip
+    label_source: llm
+  naics_cd:
+    x_petey_id: '2_7'
+    type: string
+    semantic_type: naics
+    pattern: ^\d{6}$
+    widget:
+      page: 2
+      rect:
+      - 450.0
+      - 143.99700927734375
+      - 569.9990234375
+      - 155.9959716796875
+      widget_type: text
+      path: topmostSubform[0].#subform[1].NAICSCode[0]
+    description: 3B. Provide the 6-digit North American Industry Classification System
+      (N A. I C S) code for this business.
+    x_petey_description_source: tooltip
+    label_source: llm
+  year_established_txt:
+    x_petey_id: '2_10'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 132.00100708007812
+      - 198.0
+      - 198.0
+      - 209.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Year[0]
+    description: 3E. Year established.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: year_established
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      to:
+        name: year_established_txt
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  primary_bank_nm:
+    x_petey_id: '2_20'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 2
+      rect:
+      - 174.2740020751953
+      - 335.9989929199219
+      - 564.6019897460938
+      - 347.99798583984375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[0]
+    description: 3G. Primary Banking Institution. Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: 3G. Primary Banking Institution (Name) is an institution name, not a
+        person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 3G. Primary Banking Institution. Name.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: primary_bank_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: primary_bank_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  related_business_1_nm:
+    x_petey_id: '2_11'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 2
+      rect:
+      - 168.00100708007812
+      - 259.9990234375
+      - 371.9989929199219
+      - 280.00299072265625
+      widget_type: text
+      path: topmostSubform[0].#subform[1].NameofBusiness[0]
+    description: 3F. Name of Business Entities.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'Name of Business Entities' is a business name, not a person
+        name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 3F. Name of Business Entities.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: related_business_1_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: related_business_1_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  related_business_1_id_nbr:
+    x_petey_id: '2_13'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 384.0010070800781
+      - 263.9990234375
+      - 569.9990234375
+      - 279.99798583984375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].AssignedNumber[0]
+    description: 3F. I R S / S S N / C B P Assigned Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: related_business_1_id_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: related_business_1_id_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  related_business_2_nm:
+    x_petey_id: '2_14'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 2
+      rect:
+      - 168.00100708007812
+      - 284.0
+      - 371.9989929199219
+      - 304.0409851074219
+      widget_type: text
+      path: topmostSubform[0].#subform[1].NameofBusiness[1]
+    description: 3F. Name of Business Entities.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: '''Name of Business Entities'' row 2 holds a business name, not a person
+        name.'
+      before:
+        type: string
+        semantic_type: person_name
+        description: 3F. Name of Business Entities.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: related_business_2_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: related_business_2_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  related_business_3_id_nbr:
+    x_petey_id: '2_19'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 384.0010070800781
+      - 312.0010070800781
+      - 569.9990234375
+      - 328.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].AssignedNumber[1]
+    description: 3F. I R S / S S N / C B P Assigned Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: related_business_3_id_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: related_business_3_id_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  related_business_3_nm:
+    x_petey_id: '2_17'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 2
+      rect:
+      - 168.00100708007812
+      - 307.99798583984375
+      - 371.9989929199219
+      - 328.03900146484375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].NameofBusiness[2]
+    description: 3F. Name of Business Entities.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: '''Name of Business Entities'' row 3 holds a business name, not a person
+        name.'
+      before:
+        type: string
+        semantic_type: person_name
+        description: 3F. Name of Business Entities.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: related_business_3_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: related_business_3_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  primary_bank_routing_nbr:
+    x_petey_id: '2_21'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 42.000999450683594
+      - 366.0010070800781
+      - 186.00100708007812
+      - 378.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].BankRoutingNumber[0]
+    description: 3G. Primary Banking Institution. Bank Routing Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: primary_bank_routing_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: primary_bank_routing_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  articles_of_incorporation_locator_nbr:
+    x_petey_id: '2_25'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 276.0010070800781
+      - 402.0010070800781
+      - 420.0010070800781
+      - 414.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].LocatorID[0]
+    description: 3H. Certificate or Articles of Incorporation - (Locater I. D.).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: articles_of_incorporation_locator_id
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: articles_of_incorporation_locator_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: id -> nbr'
+  articles_of_incorporation_reference_nbr:
+    x_petey_id: '2_26'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 299.9989929199219
+      - 426.00201416015625
+      - 443.9989929199219
+      - 438.0010070800781
+      widget_type: text
+      path: topmostSubform[0].#subform[1].ReferenceNumber[0]
+    description: 3I. Certificate or Articles of Incorporation – (Reference Number).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: articles_of_incorporation_reference_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: articles_of_incorporation_reference_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  primary_bank_city_nm:
+    x_petey_id: '2_22'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 191.99899291992188
+      - 366.0010070800781
+      - 335.9989929199219
+      - 378.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].City[2]
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+  primary_bank_state_cd:
+    x_petey_id: '2_23'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 2
+      rect:
+      - 342.0
+      - 366.0010070800781
+      - 455.989990234375
+      - 378.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].State[2]
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+  primary_bank_country_cd:
+    x_petey_id: '2_24'
+    type: string
+    semantic_type: country_code
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 2
+      rect:
+      - 461.9989929199219
+      - 366.0010070800781
+      - 564.0009765625
+      - 378.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].ISOCode[0]
+    description: 3G. Country I S O Code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  related_business_2_id_nbr:
+    x_petey_id: '2_16'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 384.0010070800781
+      - 288.0
+      - 569.9990234375
+      - 303.9989929199219
+      widget_type: text
+      path: topmostSubform[0].#subform[1].AssignedNumber[2]
+    description: 3F. I R S / S S N / C B P Assigned Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: related_business_2_id_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: related_business_2_id_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  officer_2_passport_expiration_dt:
+    x_petey_id: '2_49'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 468.0
+      - 635.0
+      - 540.0
+      - 646.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].ExpirationDate[0]
+    description: 3J. Passport Expiration Date. Enter 2 digit month, 2 digit day and
+      4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format: &id006
+        - MM/DD/YYYY
+        validate: &id007
+        - MM/DD/YYYY
+        ui: &id008
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  officer_2_ssn:
+    x_petey_id: '2_46'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\d{2}\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 635.0
+      - 126.0
+      - 646.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].SSN[1]
+    description: 3J. Social Security Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        validate:
+        - 999-99-9999
+        ui:
+        - text{999999999}|text{999-99-9999}|text{999 99 9999}
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+  officer_2_passport_nbr:
+    x_petey_id: '2_47'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 167.9980010986328
+      - 635.0
+      - 281.85699462890625
+      - 646.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].PassportNumber[0]
+    description: 3J. Passport Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_passport_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: officer_2_passport_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  officer_2_title_txt:
+    x_petey_id: '2_39'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 586.9979858398438
+      - 203.9980010986328
+      - 598.9970092773438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].CompanyPosition[0]
+    description: 3J. Company Position Title. Entry 2 of 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: officer_2_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  officer_2_email_address_txt:
+    x_petey_id: '2_45'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 2
+      rect:
+      - 324.0
+      - 610.9990234375
+      - 569.9990234375
+      - 622.9979858398438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectEmail[0]
+    description: Direct Email.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: officer_2_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  officer_2_passport_country_of_issuance_cd:
+    x_petey_id: '2_48'
+    type: string
+    semantic_type: country
+    widget:
+      page: 2
+      rect:
+      - 294.0010070800781
+      - 635.0
+      - 456.0010070800781
+      - 646.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].CountryofIssuance[0]
+    description: 3J. Country of Issuance.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_passport_country_of_issuance
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: officer_2_passport_country_of_issuance_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+  officer_2_phone_nbr:
+    x_petey_id: '2_43'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 610.9990234375
+      - 203.9980010986328
+      - 622.9979858398438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectPhoneNumber[0]
+    description: 3J. Direct Phone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format: &id009
+        - text{'('999')' 999-9999}
+        ui: &id010
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: officer_2_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  officer_1_phone_nbr:
+    x_petey_id: '2_31'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 520.9940185546875
+      - 203.9980010986328
+      - 532.9930419921875
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectPhoneNumber[1]
+    description: 3J. Direct Phone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: officer_1_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  officer_1_passport_country_of_issuance_cd:
+    x_petey_id: '2_36'
+    type: string
+    semantic_type: country
+    widget:
+      page: 2
+      rect:
+      - 293.99798583984375
+      - 545.0
+      - 455.99798583984375
+      - 556.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].CountryofIssuance[1]
+    description: 3J. Country of Issuance.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_passport_country_of_issuance
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: officer_1_passport_country_of_issuance_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+  officer_1_email_address_txt:
+    x_petey_id: '2_33'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 2
+      rect:
+      - 324.0
+      - 520.9940185546875
+      - 569.9990234375
+      - 532.9930419921875
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectEmail[1]
+    description: Direct Email
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: officer_1_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  officer_1_title_txt:
+    x_petey_id: '2_27'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 496.99798583984375
+      - 203.9980010986328
+      - 508.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].CompanyPosition[1]
+    description: 3J. Business Structure / Beneficial Owner / Company Officers - The
+      officers listed in this section must have importing and financial business knowledge
+      of the company listed in section 1 of this form and must have legal authority
+      to make decisions on behalf of the company listed in section 1. Company Position
+      Title. Entry 1 of 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: officer_1_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  officer_1_passport_nbr:
+    x_petey_id: '2_35'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 167.9980010986328
+      - 545.0
+      - 281.85699462890625
+      - 556.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].PassportNumber[1]
+    description: 3J. Passport Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_passport_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: officer_1_passport_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  officer_1_ssn:
+    x_petey_id: '2_34'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\d{2}\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 545.0
+      - 126.0
+      - 556.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].SSN[2]
+    description: 3J. Social Security Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        validate:
+        - 999-99-9999
+        ui:
+        - text{999999999}|text{999-99-9999}|text{999 99 9999}
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+  officer_1_passport_expiration_dt:
+    x_petey_id: '2_37'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 468.0
+      - 545.0
+      - 540.0
+      - 556.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].ExpirationDate[1]
+    description: 3J. Passport Expiration Date. Enter 2 digit month, 2 digit day and
+      4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  officer_1_phone_ext_txt:
+    x_petey_id: '2_32'
+    type: string
+    pattern: ^\d{1,6}$
+    widget:
+      page: 2
+      rect:
+      - 216.0
+      - 520.9940185546875
+      - 311.99798583984375
+      - 532.9930419921875
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectExtension[0]
+    description: 3J. Extension.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - -semantic_type
+      reason: Caption 'Extension:' holds a short internal extension, not a full phone
+        number.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+        description: 3J. Extension.
+      judged: 'kept: 1 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_phone_ext
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      to:
+        name: officer_1_phone_ext_txt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  officer_2_phone_ext_txt:
+    x_petey_id: '2_44'
+    type: string
+    pattern: ^\d{1,6}$
+    widget:
+      page: 2
+      rect:
+      - 216.0
+      - 610.9990234375
+      - 311.99798583984375
+      - 622.9979858398438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectExtension[1]
+    description: 3J. Extension.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - -semantic_type
+      reason: Caption 'Extension:' holds a short extension; the phone semantic type
+        and 10-digit pattern are wrong.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+        description: 3J. Extension.
+      judged: 'kept: 1 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_phone_ext
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      to:
+        name: officer_2_phone_ext_txt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  officer_3_phone_nbr:
+    x_petey_id: '2_55'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 700.9990234375
+      - 203.9980010986328
+      - 712.9979858398438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectPhoneNumber[2]
+    description: 3J. Direct Phone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: officer_3_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  officer_3_passport_country_of_issuance_cd:
+    x_petey_id: '2_60'
+    type: string
+    semantic_type: country
+    widget:
+      page: 2
+      rect:
+      - 293.99798583984375
+      - 725.0
+      - 455.99798583984375
+      - 736.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].CountryofIssuance[2]
+    description: 3J. Country of Issuance.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_passport_country_of_issuance
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: officer_3_passport_country_of_issuance_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+  officer_3_last_nm:
+    x_petey_id: '2_52'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 2
+      rect:
+      - 216.0
+      - 676.9979858398438
+      - 384.0010070800781
+      - 688.9970092773438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[1]
+    description: 3J. Name (Last, First, Middle Initial). Last Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: officer_3_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  officer_3_email_address_txt:
+    x_petey_id: '2_57'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 2
+      rect:
+      - 324.0
+      - 700.9990234375
+      - 569.9990234375
+      - 712.9979858398438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectEmail[2]
+    description: Direct Email
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: officer_3_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  officer_3_title_txt:
+    x_petey_id: '2_51'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 676.9979858398438
+      - 203.9980010986328
+      - 688.9970092773438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].CompanyPosition[2]
+    description: 3J. Company Position Title. Entry 3 of 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: officer_3_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  officer_3_passport_nbr:
+    x_petey_id: '2_59'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 167.9980010986328
+      - 725.0
+      - 281.85699462890625
+      - 736.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].PassportNumber[2]
+    description: 3J. Passport Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_passport_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: officer_3_passport_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  officer_3_ssn:
+    x_petey_id: '2_58'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\d{2}\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 54.0
+      - 725.0
+      - 126.0
+      - 736.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].SSN[3]
+    description: 3J. Social Security Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999-99-9999}
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+  officer_3_passport_expiration_dt:
+    x_petey_id: '2_61'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 468.0
+      - 725.0
+      - 540.0
+      - 736.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].ExpirationDate[2]
+    description: 3J. Passport Expiration Date. Enter 2 digit month, 2 digit day and
+      4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  officer_3_phone_ext_txt:
+    x_petey_id: '2_56'
+    type: string
+    pattern: ^\d{1,6}$
+    widget:
+      page: 2
+      rect:
+      - 216.0
+      - 700.9990234375
+      - 311.99798583984375
+      - 712.9979858398438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].DirectExtension[2]
+    description: 3J. Extension.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - -semantic_type
+      reason: Caption 'Extension:' holds an extension, not a full phone number.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+        description: 3J. Extension.
+      judged: 'kept: 1 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_phone_ext
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      to:
+        name: officer_3_phone_ext_txt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  officer_3_first_nm:
+    x_petey_id: '2_53'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 2
+      rect:
+      - 389.9989929199219
+      - 676.9979858398438
+      - 546.0009765625
+      - 688.9970092773438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[2]
+    description: 3J. First Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_3_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: officer_3_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  officer_3_middle_initial:
+    x_petey_id: '2_54'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 549.9979858398438
+      - 676.9979858398438
+      - 573.9990234375
+      - 689.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[3]
+    description: 3J. Middle Initial.
+    x_petey_description_source: tooltip
+    label_source: llm
+  officer_1_middle_initial:
+    x_petey_id: '2_30'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 549.9979858398438
+      - 496.99798583984375
+      - 573.9990234375
+      - 509.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[4]
+    description: 3J. Middle Initial.
+    x_petey_description_source: tooltip
+    label_source: llm
+  officer_1_first_nm:
+    x_petey_id: '2_29'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 2
+      rect:
+      - 389.9989929199219
+      - 496.99798583984375
+      - 546.0009765625
+      - 508.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[5]
+    description: 3J. First Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: officer_1_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  officer_1_last_nm:
+    x_petey_id: '2_28'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 2
+      rect:
+      - 216.0
+      - 496.99798583984375
+      - 384.0010070800781
+      - 508.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[6]
+    description: 3J. Name (Last, First, Middle Initial). Last Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_1_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: officer_1_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  officer_2_middle_initial:
+    x_petey_id: '2_42'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 549.9979858398438
+      - 586.9979858398438
+      - 573.9990234375
+      - 599.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[7]
+    description: 3J. Middle Initial.
+    x_petey_description_source: tooltip
+    label_source: llm
+  officer_2_first_nm:
+    x_petey_id: '2_41'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 2
+      rect:
+      - 389.9989929199219
+      - 586.9979858398438
+      - 546.0009765625
+      - 598.9970092773438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[8]
+    description: 3J. First Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: officer_2_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  officer_2_last_nm:
+    x_petey_id: '2_40'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 2
+      rect:
+      - 216.0
+      - 586.9979858398438
+      - 384.0010070800781
+      - 598.9970092773438
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Name[9]
+    description: 3J. Name (Last, First, Middle Initial). Last Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: officer_2_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: officer_2_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  phone_nbr:
+    x_petey_id: '2_1'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 41.50199890136719
+      - 64.99798583984375
+      - 155.5
+      - 76.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].PhoneNumber[0]
+    description: '*2C. Phone number [Elements designated with an asterisk are required
+      data fields].'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format: &id004
+        - text{'('999')' 999-9999}
+        ui: &id005
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  email_address_txt:
+    x_petey_id: '2_4'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 2
+      rect:
+      - 41.50199890136719
+      - 90.0
+      - 275.50201416015625
+      - 101.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Email[0]
+    description: '*2E. Email address [Elements designated with an asterisk are required
+      data fields].'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  website_address_txt:
+    x_petey_id: '2_5'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 287.5010070800781
+      - 90.0
+      - 569.5
+      - 101.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Website[0]
+    description: 2F. Website.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: website_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: website_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  fax_nbr:
+    x_petey_id: '2_3'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 287.5010070800781
+      - 65.0009765625
+      - 443.5
+      - 77.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].FaxNumber[0]
+    description: 2D. Fax number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: fax_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  phone_ext_txt:
+    x_petey_id: '2_2'
+    type: string
+    pattern: ^\d{1,6}$
+    widget:
+      page: 2
+      rect:
+      - 167.5019989013672
+      - 65.0009765625
+      - 275.50201416015625
+      - 77.0
+      widget_type: text
+      path: topmostSubform[0].#subform[1].Extension[0]
+    description: 2C. Extension.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - -semantic_type
+      reason: The caption is 'Extension:' — this box holds only the extension digits,
+        not a full phone number, so the phone semantic type and full phone pattern
+        are wrong.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+        description: 2C. Extension.
+      judged: 'kept: 1 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: phone_ext
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      to:
+        name: phone_ext_txt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  certifier_last_nm:
+    x_petey_id: '3_13'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 3
+      rect:
+      - 42.000999450683594
+      - 232.9990234375
+      - 162.0
+      - 244.99798583984375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].PrintedName[0]
+    description: 4. CERTIFICATION. By my signature below, I certify that, to the best
+      of my knowledge and belief, all of the information included in this document
+      is true, correct, and provided in good faith. I understand that if I make an
+      intentional false statement, or commit deception or fraud in this 5106 document,
+      I may be fined or imprisoned (18 U. S. C. § 1001). *Printed or Typed Full Name.
+      [Elements designated with an asterisk are required data fields]. Last Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: certifier_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: certifier_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  broker_1_nm:
+    x_petey_id: '3_20'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 3
+      rect:
+      - 248.0
+      - 279.99798583984375
+      - 338.0
+      - 291.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].Broker[0]
+    description: 4. Broker Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: '''Broker Name:'' is the name of a customs broker firm, a business name
+        rather than a person name.'
+      before:
+        type: string
+        semantic_type: person_name
+        description: 4. Broker Name.
+      judged: 'kept: 2 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: broker_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: broker_1_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+  certifier_phone_nbr:
+    x_petey_id: '3_18'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 42.000999450683594
+      - 279.99798583984375
+      - 137.99899291992188
+      - 291.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].PhoneNumber[1]
+    description: 4. Telephone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: certifier_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: certifier_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  broker_phone_nbr:
+    x_petey_id: '3_23'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 474.0010070800781
+      - 279.99798583984375
+      - 569.9990234375
+      - 291.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].PhoneNumber[2]
+    description: 4. Telephone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format: *id004
+        ui: *id005
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: broker_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: broker_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  certification_dt:
+    x_petey_id: '3_19'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 150.00100708007812
+      - 279.99798583984375
+      - 222.00100708007812
+      - 291.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].Date[0]
+    description: '*4. Date. [Elements designated with an asterisk are required data
+      fields]. Enter 2 digit month, 2 digit day and 4 digit year.'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  entry_4_passport_expiration_dt:
+    x_petey_id: '3_11'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 468.0
+      - 113.0
+      - 540.0
+      - 124.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].ExpirationDate[3]
+    description: 3J. Passport Expiration Date. Enter 2 digit month, 2 digit day and
+      4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      join: shape
+      pictures:
+        format: *id006
+        validate: *id007
+        ui: *id008
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_passport_expiration_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: entry_4_passport_expiration_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+  entry_4_ssn:
+    x_petey_id: '3_8'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\d{2}\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 54.0
+      - 113.0
+      - 126.0
+      - 124.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].SSN[4]
+    description: 3J. Social Security Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{999-99-9999}
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\d{2}\d{4}$
+      to:
+        name: entry_4_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\d{2}\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+  entry_4_passport_nbr:
+    x_petey_id: '3_9'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 167.9980010986328
+      - 113.0
+      - 281.85699462890625
+      - 124.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].PassportNumber[3]
+    description: 3J. Passport Number.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_passport_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: entry_4_passport_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  entry_4_company_position_title_txt:
+    x_petey_id: '3_1'
+    type: string
+    semantic_type: job_title
+    widget:
+      page: 3
+      rect:
+      - 54.0
+      - 64.99798583984375
+      - 203.9980010986328
+      - 76.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].CompanyPosition[3]
+    description: 3J. Company Position Title. Entry 4 of 4.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'Company Position Title:' holds the officer's job title, not
+        a business name.
+      before:
+        type: string
+        semantic_type: business_name
+        description: 3J. Company Position Title. Entry 4 of 4.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_company_position_title
+        type: string
+        semantic_type: job_title
+        pattern: null
+      to:
+        name: entry_4_company_position_title_txt
+        type: string
+        semantic_type: job_title
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+  entry_4_direct_email_txt:
+    x_petey_id: '3_7'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 3
+      rect:
+      - 324.0
+      - 88.9940185546875
+      - 569.9990234375
+      - 100.99298095703125
+      widget_type: text
+      path: topmostSubform[0].#subform[2].DirectEmail[3]
+    description: Direct Email.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_direct_email
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: entry_4_direct_email_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+  entry_4_last_nm:
+    x_petey_id: '3_2'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 3
+      rect:
+      - 216.0
+      - 64.99798583984375
+      - 384.0010070800781
+      - 76.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].Name[10]
+    description: 3J. Name (Last, First, Middle Initial). Last Name.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_last_name
+        type: string
+        semantic_type: last_name
+        pattern: null
+      to:
+        name: entry_4_last_nm
+        type: string
+        semantic_type: last_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  entry_4_passport_country_of_issuance_cd:
+    x_petey_id: '3_10'
+    type: string
+    semantic_type: country
+    widget:
+      page: 3
+      rect:
+      - 294.0010070800781
+      - 113.0
+      - 456.0010070800781
+      - 124.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].CountryofIssuance[3]
+    description: 3J. Country of Issuance.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_passport_country_of_issuance
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: entry_4_passport_country_of_issuance_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_cd (type)'
+  entry_4_direct_phone_nbr:
+    x_petey_id: '3_5'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 54.0
+      - 88.9940185546875
+      - 203.9980010986328
+      - 100.99298095703125
+      widget_type: text
+      path: topmostSubform[0].#subform[2].DirectPhoneNumber[3]
+    description: 3J. Direct Phone Number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      join: shape
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format: *id009
+        ui: *id010
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_direct_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: entry_4_direct_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  entry_4_phone_extension_txt:
+    x_petey_id: '3_6'
+    type: string
+    pattern: ^\d{1,6}$
+    widget:
+      page: 3
+      rect:
+      - 216.0
+      - 88.9940185546875
+      - 311.99798583984375
+      - 100.99298095703125
+      widget_type: text
+      path: topmostSubform[0].#subform[2].DirectExtension[3]
+    description: 3J. Extension.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - -semantic_type
+      reason: 'Caption ''Extension:'' and publisher name DirectExtension: this box
+        holds extension digits only, not a full phone number.'
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+        description: 3J. Extension.
+      judged: 'kept: 1 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_phone_extension
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      to:
+        name: entry_4_phone_extension_txt
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,6}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_txt (type)'
+  certifier_signature:
+    x_petey_id: '3_16'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 312.5010070800781
+      - 234.5
+      - 569.4990234375
+      - 269.5
+      widget_type: text
+      path: topmostSubform[0].#subform[2].SignatureField1[0]
+    description: '*4. Signature. [Elements designated with an asterisk are required
+      data fields]. This is a digital signature field.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  certifier_first_nm:
+    x_petey_id: '3_14'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 3
+      rect:
+      - 168.00100708007812
+      - 232.9990234375
+      - 276.0010070800781
+      - 244.99798583984375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].PrintedName[1]
+    description: '*4. First Name.'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: certifier_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: certifier_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  certifier_middle_initial:
+    x_petey_id: '3_15'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 280.99798583984375
+      - 232.9990234375
+      - 304.9989929199219
+      - 244.99798583984375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].PrintedName[2]
+    description: '*4. Middle Initial.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  certifier_title_txt:
+    x_petey_id: '3_17'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 42.000999450683594
+      - 257.0
+      - 299.9989929199219
+      - 268.9990234375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].PrintedName[3]
+    description: '*4. Title. [Elements designated with an asterisk are required data
+      fields].'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: certifier_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: certifier_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  entry_4_first_nm:
+    x_petey_id: '3_3'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 3
+      rect:
+      - 389.9989929199219
+      - 64.99798583984375
+      - 546.0009765625
+      - 76.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].Name[11]
+    description: 3J. First Name.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_first_name
+        type: string
+        semantic_type: first_name
+        pattern: null
+      to:
+        name: entry_4_first_nm
+        type: string
+        semantic_type: first_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  entry_4_middle_initial:
+    x_petey_id: '3_4'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 549.9979858398438
+      - 64.99798583984375
+      - 573.9990234375
+      - 76.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].Name[12]
+    description: 3J. Middle Initial.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: text
+      join: shape
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_middle_initial
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: entry_4_middle_initial
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+  broker_2_nm:
+    x_petey_id: '3_21'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 342.0
+      - 279.99798583984375
+      - 432.0
+      - 291.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].Broker[1]
+    description: 4. Broker Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: broker_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: broker_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  broker_3_nm:
+    x_petey_id: '3_22'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 437.0
+      - 279.99798583984375
+      - 466.9989929199219
+      - 291.99700927734375
+      widget_type: text
+      path: topmostSubform[0].#subform[2].Broker[2]
+    description: 4. Broker Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: broker_name_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: broker_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  number_type:
+    x_petey_id: '1_3'
+    type: category
+    values:
+    - cbp_assigned_number
+    - irs_ein
+    - requesting_cbp_assigned_number
+    - ssn
+    widgets:
+      irs_ein:
+        page: 1
+        rect:
+        - 48.000999450683594
+        - 229.06500244140625
+        - 58.000999450683594
+        - 239.06500244140625
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].CheckIRS[0]
+        on_state: '1'
+        caption: IRS Employer Identification Number (EIN)
+        x_petey_caption_source: page_text
+      ssn:
+        page: 1
+        rect:
+        - 48.000999450683594
+        - 243.06500244140625
+        - 58.000999450683594
+        - 253.06500244140625
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].CheckSSN[0]
+        on_state: '1'
+        caption: Social Security Number (SSN)
+        x_petey_caption_source: page_text
+      cbp_assigned_number:
+        page: 1
+        rect:
+        - 48.000999450683594
+        - 257.06597900390625
+        - 58.000999450683594
+        - 267.06597900390625
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].CheckCBP[0]
+        on_state: '1'
+        caption: CBP-Assigned Number
+        x_petey_caption_source: page_text
+      requesting_cbp_assigned_number:
+        page: 1
+        rect:
+        - 48.000999450683594
+        - 271.06597900390625
+        - 58.000999450683594
+        - 281.0660095214844
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].CBPReq[0]
+        on_state: '1'
+        caption: Requesting a CBP-Assigned Number
+        x_petey_caption_source: page_text
+    description: '*1B. Number Type: select the type of identification number (IRS
+      Employer Identification Number, Social Security Number, CBP-assigned number,
+      or request for a CBP-assigned number).'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: The printed caption at this box is '*1B. Number Type' and the publisher
+        name is CheckIRS, so the name and values fit; only the description, copied
+        from item 1I, is wrong.
+      before:
+        type: category
+        values:
+        - cbp_assigned_number
+        - irs_ein
+        - requesting_cbp_assigned_number
+        - ssn
+        description: 1I. How will the identification number be utilized? Select all
+          options that will apply. Importer of Record.
+      judged: 'kept: 1 -> 1'
+  type_of_action:
+    x_petey_id: '1_1'
+    type: category
+    values:
+    - change_of_address
+    - change_of_name
+    - notification_of_identification_number
+    widgets:
+      change_of_address:
+        page: 1
+        rect:
+        - 480.0
+        - 123.9990234375
+        - 490.0
+        - 133.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].ActionType[0]
+        on_state: '1'
+        caption: Change of Address
+        x_petey_caption_source: page_text
+      notification_of_identification_number:
+        page: 1
+        rect:
+        - 215.9980010986328
+        - 123.9990234375
+        - 225.9980010986328
+        - 133.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].ActionType[1]
+        on_state: '1'
+        caption: Notification of Identification Number
+        x_petey_caption_source: page_text
+      change_of_name:
+        page: 1
+        rect:
+        - 383.9989929199219
+        - 123.9990234375
+        - 393.9989929199219
+        - 133.9990234375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].ActionType[2]
+        on_state: '1'
+        caption: Change of Name
+        x_petey_caption_source: page_text
+    description: Change of address
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  company_type:
+    x_petey_id: '1_12'
+    type: category
+    values:
+    - corporation
+    - foreign_government
+    - individual
+    - llc
+    - partnership
+    - sole_proprietorship
+    - state_local_government
+    - us_government
+    widgets:
+      partnership:
+        page: 1
+        rect:
+        - 167.99899291992188
+        - 391.2040100097656
+        - 177.99899291992188
+        - 401.2040100097656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[0]
+        on_state: '2'
+        caption: Partnership
+        x_petey_caption_source: page_text
+      llc:
+        page: 1
+        rect:
+        - 293.9989929199219
+        - 391.2040100097656
+        - 303.9989929199219
+        - 401.2040100097656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[1]
+        on_state: '3'
+        caption: LLC
+        x_petey_caption_source: page_text
+      sole_proprietorship:
+        page: 1
+        rect:
+        - 372.0
+        - 391.2040100097656
+        - 382.0
+        - 401.2040100097656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[2]
+        on_state: '4'
+        caption: Sole Proprietorship
+        x_petey_caption_source: page_text
+      us_government:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 403.20599365234375
+        - 63.99800109863281
+        - 413.20599365234375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[3]
+        on_state: '6'
+        caption: U.S. Government
+        x_petey_caption_source: page_text
+      corporation:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 391.20098876953125
+        - 63.99800109863281
+        - 401.20098876953125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[4]
+        on_state: '1'
+        caption: Corporation
+        x_petey_caption_source: page_text
+      state_local_government:
+        page: 1
+        rect:
+        - 167.99899291992188
+        - 403.20599365234375
+        - 177.99899291992188
+        - 413.20599365234375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[5]
+        on_state: '7'
+        caption: State/Local Government
+        x_petey_caption_source: page_text
+      foreign_government:
+        page: 1
+        rect:
+        - 372.0
+        - 403.20599365234375
+        - 382.0
+        - 413.20599365234375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[6]
+        on_state: '8'
+        caption: Foreign Government
+        x_petey_caption_source: page_text
+      individual:
+        page: 1
+        rect:
+        - 509.9989929199219
+        - 391.2040100097656
+        - 519.9990234375
+        - 401.2040100097656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Company[7]
+        on_state: '5'
+        caption: Individual
+        x_petey_caption_source: page_text
+    description: 1G. Type of Company. Partnership.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  annual_entries:
+    x_petey_id: '1_13'
+    type: category
+    values:
+    - 1_4_per_year
+    - 5_24_per_year
+    - 25_or_more_per_year
+    - infrequent_personal_shipments
+    - do_not_intend_to_import
+    widgets:
+      1_4_per_year:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 433.2049865722656
+        - 63.99800109863281
+        - 443.2049865722656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Entries[0]
+        on_state: '1'
+        caption: 1-4 per year
+        x_petey_caption_source: page_text
+      5_24_per_year:
+        page: 1
+        rect:
+        - 167.99899291992188
+        - 433.2049865722656
+        - 177.99899291992188
+        - 443.2049865722656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Entries[1]
+        on_state: '2'
+        caption: 5-24 per year
+        x_petey_caption_source: page_text
+      25_or_more_per_year:
+        page: 1
+        rect:
+        - 293.9989929199219
+        - 433.2049865722656
+        - 303.9989929199219
+        - 443.2049865722656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Entries[2]
+        on_state: '3'
+        caption: 25 or more per year
+        x_petey_caption_source: page_choice
+      infrequent_personal_shipments:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 445.2070007324219
+        - 63.99800109863281
+        - 455.2070007324219
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Entries[3]
+        on_state: '4'
+        caption: infrequent personal shipments
+        x_petey_caption_source: page_text
+      do_not_intend_to_import:
+        page: 1
+        rect:
+        - 293.9989929199219
+        - 445.2040100097656
+        - 303.9989929199219
+        - 455.2040100097656
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Entries[4]
+        on_state: '5'
+        caption: I do not intend to import.
+        x_petey_caption_source: page_choice
+    description: 1H. If you are an importer, how many entries do you plan on filing
+      in a year? Select from the following. 1-4 per year
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:19:35'
+      from:
+      - annual_entries::1_4_per_year
+      - annual_entries::5_24_per_year
+      - annual_entries::25_or_more_per_year
+      - annual_entries::infrequent_personal_shipments
+      - annual_entries::do_not_intend_to_import
+  mailing_address_type:
+    x_petey_id: '1_26'
+    type: category
+    values:
+    - residence
+    - corporate_office
+    - warehouse
+    - office_building
+    - business_service_center
+    - post_office_box
+    - other
+    - retail_location
+    widgets:
+      residence:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 619.2000122070312
+        - 63.99800109863281
+        - 629.2000122070312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[0]
+        on_state: '1'
+        caption: Residence
+        x_petey_caption_source: page_text
+      corporate_office:
+        page: 1
+        rect:
+        - 143.9980010986328
+        - 619.2000122070312
+        - 153.9980010986328
+        - 629.2000122070312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[1]
+        on_state: '2'
+        caption: Corporate Office
+        x_petey_caption_source: page_text
+      warehouse:
+        page: 1
+        rect:
+        - 257.9989929199219
+        - 619.2000122070312
+        - 267.9989929199219
+        - 629.2000122070312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[2]
+        on_state: '3'
+        caption: Warehouse
+        x_petey_caption_source: page_text
+      office_building:
+        page: 1
+        rect:
+        - 462.0
+        - 619.2000122070312
+        - 472.0
+        - 629.2000122070312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[3]
+        on_state: '5'
+        caption: Office Building
+        x_petey_caption_source: page_text
+      business_service_center:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 631.2020263671875
+        - 63.99800109863281
+        - 641.2020263671875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[4]
+        on_state: '6'
+        caption: Business Service Center
+        x_petey_caption_source: page_text
+      post_office_box:
+        page: 1
+        rect:
+        - 197.9980010986328
+        - 631.2020263671875
+        - 207.9980010986328
+        - 641.2020263671875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[5]
+        on_state: '7'
+        caption: Post Office Box
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 354.0
+        - 631.2020263671875
+        - 364.0
+        - 641.2020263671875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[6]
+        on_state: '8'
+        caption: 'Other - Explain:'
+        x_petey_caption_source: page_choice
+      retail_location:
+        page: 1
+        rect:
+        - 354.0
+        - 619.2000122070312
+        - 364.0
+        - 629.2000122070312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence[7]
+        on_state: '4'
+        caption: Retail Location
+        x_petey_caption_source: page_text
+    description: '*Is the address in 2 A., a [Elements designated with an asterisk
+      are required data fields]. Residence.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:19:35'
+      from:
+      - mailing_address_type::residence
+      - mailing_address_type::corporate_office
+      - mailing_address_type::warehouse
+      - mailing_address_type::office_building
+      - mailing_address_type::business_service_center
+      - mailing_address_type::post_office_box
+      - mailing_address_type::other
+      - mailing_address_type::retail_location
+  id_utilization:
+    x_petey_id: '1_14'
+    type: category
+    values:
+    - consignee_ultimate_consignee
+    - drawback_claimant
+    - importer_of_record
+    - other
+    - refunds_bills
+    widgets:
+      consignee_ultimate_consignee:
+        page: 1
+        rect:
+        - 167.99899291992188
+        - 475.2030029296875
+        - 177.99899291992188
+        - 485.2030029296875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Utilized[0]
+        on_state: '1'
+        caption: Consignee/Ultimate Consignee
+        x_petey_caption_source: page_text
+      drawback_claimant:
+        page: 1
+        rect:
+        - 359.99798583984375
+        - 475.2030029296875
+        - 369.99798583984375
+        - 485.2030029296875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Utilized[1]
+        on_state: '1'
+        caption: Drawback Claimant
+        x_petey_caption_source: page_text
+      refunds_bills:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 487.2019958496094
+        - 63.99800109863281
+        - 497.2019958496094
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Utilized[2]
+        on_state: '1'
+        caption: Refunds/Bills
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 167.99899291992188
+        - 487.2019958496094
+        - 177.99899291992188
+        - 497.2019958496094
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Utilized[3]
+        on_state: '1'
+        caption: Other
+        x_petey_caption_source: page_text
+      importer_of_record:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 475.2030029296875
+        - 63.99800109863281
+        - 485.2030029296875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Utilized[4]
+        on_state: '1'
+        caption: Importer of Record
+        x_petey_caption_source: page_text
+    description: 1I. Consignee / Ultimate Consignee.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  name_type:
+    x_petey_id: '1_8'
+    type: category
+    values:
+    - dba
+    - div
+    - aka
+    widgets:
+      dba:
+        page: 1
+        rect:
+        - 149.99899291992188
+        - 286.10699462890625
+        - 159.99899291992188
+        - 296.10699462890625
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].ONE_C[0]
+        on_state: '3'
+        caption: DBA
+        x_petey_caption_source: page_choice
+      div:
+        page: 1
+        rect:
+        - 66.0
+        - 286.10699462890625
+        - 76.0
+        - 296.10699462890625
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].ONE_C[1]
+        on_state: '1'
+        caption: DIV
+        x_petey_caption_source: page_text
+      aka:
+        page: 1
+        rect:
+        - 107.99800109863281
+        - 286.10699462890625
+        - 117.99800109863281
+        - 296.10699462890625
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].ONE_C[2]
+        on_state: '2'
+        caption: AKA
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:19:35'
+      from:
+      - name_type::dba
+      - name_type::div
+      - name_type::aka
+  cbp_number_reason:
+    x_petey_id: '1_10'
+    type: category
+    values:
+    - no_ssn
+    - not_us_resident
+    - have_ssn_wish_cbp_number
+    - not_applied_irs_or_ssn
+    - no_irs_number
+    widgets:
+      no_ssn:
+        page: 1
+        rect:
+        - 228.0
+        - 331.20001220703125
+        - 238.0
+        - 341.20001220703125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Assigned[0]
+        on_state: '1'
+        caption: I have no Social Security Number
+        x_petey_caption_source: page_choice
+      not_us_resident:
+        page: 1
+        rect:
+        - 479.99700927734375
+        - 331.20001220703125
+        - 489.99700927734375
+        - 341.20001220703125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Assigned[1]
+        on_state: '1'
+        caption: I am not a U.S. Resident
+        x_petey_caption_source: page_choice
+      have_ssn_wish_cbp_number:
+        page: 1
+        rect:
+        - 84.0
+        - 331.20001220703125
+        - 94.0
+        - 341.20001220703125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Assigned[2]
+        on_state: '1'
+        caption: I have a SSN, but wish to use a CBP-Assigned Number on all my entry
+          documents
+        x_petey_caption_source: page_choice
+      not_applied_irs_or_ssn:
+        page: 1
+        rect:
+        - 377.99798583984375
+        - 331.20001220703125
+        - 387.99798583984375
+        - 341.20001220703125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Assigned[3]
+        on_state: '1'
+        caption: I have not applied for an IRS number or SSN
+        x_petey_caption_source: page_choice
+      no_irs_number:
+        page: 1
+        rect:
+        - 311.9989929199219
+        - 331.20001220703125
+        - 321.9989929199219
+        - 341.20001220703125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].Assigned[4]
+        on_state: '1'
+        caption: I have no IRS Number
+        x_petey_caption_source: page_choice
+    description: '*1E. I have no Social Security Number.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:19:35'
+      from:
+      - cbp_number_reason::no_ssn
+      - cbp_number_reason::not_us_resident
+      - cbp_number_reason::have_ssn_wish_cbp_number
+      - cbp_number_reason::not_applied_irs_or_ssn
+      - cbp_number_reason::no_irs_number
+  physical_address_type:
+    x_petey_id: '1_34'
+    type: category
+    values:
+    - retail_location
+    - other
+    - office_building
+    - warehouse
+    - corporate_office
+    - residence
+    widgets:
+      retail_location:
+        page: 1
+        rect:
+        - 354.0
+        - 733.2009887695312
+        - 364.0
+        - 743.2009887695312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence2[0]
+        on_state: '4'
+        caption: Retail Location
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 745.2000122070312
+        - 63.99800109863281
+        - 755.2000122070312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence2[1]
+        on_state: '8'
+        caption: 'Other - Explain:'
+        x_petey_caption_source: page_choice
+      office_building:
+        page: 1
+        rect:
+        - 462.0
+        - 733.2009887695312
+        - 472.0
+        - 743.2009887695312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence2[2]
+        on_state: '5'
+        caption: Office Building
+        x_petey_caption_source: page_text
+      warehouse:
+        page: 1
+        rect:
+        - 257.9989929199219
+        - 733.2009887695312
+        - 267.9989929199219
+        - 743.2009887695312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence2[3]
+        on_state: '3'
+        caption: Warehouse
+        x_petey_caption_source: page_text
+      corporate_office:
+        page: 1
+        rect:
+        - 143.9980010986328
+        - 733.2009887695312
+        - 153.9980010986328
+        - 743.2009887695312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence2[4]
+        on_state: '2'
+        caption: Corporate Office
+        x_petey_caption_source: page_text
+      residence:
+        page: 1
+        rect:
+        - 53.99800109863281
+        - 733.2009887695312
+        - 63.99800109863281
+        - 743.2009887695312
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[0].TypeofResidence2[5]
+        on_state: '1'
+        caption: Residence
+        x_petey_caption_source: page_text
+    description: '*Is the address in 2B, a. Retail Location.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:19:35'
+      from:
+      - physical_address_type::retail_location
+      - physical_address_type::other
+      - physical_address_type::office_building
+      - physical_address_type::warehouse
+      - physical_address_type::corporate_office
+      - physical_address_type::residence
+  related_business_2_status:
+    x_petey_id: '2_15'
+    type: category
+    values:
+    - current
+    - previous
+    widgets:
+      previous:
+        page: 2
+        rect:
+        - 102.0
+        - 288.99798583984375
+        - 112.0
+        - 298.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].RelatedBusiness2[0]
+        on_state: '2'
+        caption: Previous
+        x_petey_caption_source: page_text
+      current:
+        page: 2
+        rect:
+        - 41.999000549316406
+        - 288.99798583984375
+        - 51.999000549316406
+        - 298.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].RelatedBusiness2[1]
+        on_state: '1'
+        caption: Current
+        x_petey_caption_source: page_text
+    description: 3F. Related Business. Previous.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  related_business_3_status:
+    x_petey_id: '2_18'
+    type: category
+    values:
+    - current
+    - previous
+    widgets:
+      current:
+        page: 2
+        rect:
+        - 41.999000549316406
+        - 312.9989929199219
+        - 51.999000549316406
+        - 322.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].RelatedBusiness3[0]
+        on_state: '1'
+        caption: Current
+        x_petey_caption_source: page_text
+      previous:
+        page: 2
+        rect:
+        - 102.0
+        - 312.9989929199219
+        - 112.0
+        - 322.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].RelatedBusiness3[1]
+        on_state: '2'
+        caption: Previous
+        x_petey_caption_source: page_text
+    description: 3F. Related Business. Current.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  related_business_1_status:
+    x_petey_id: '2_12'
+    type: category
+    values:
+    - current
+    - previous
+    widgets:
+      current:
+        page: 2
+        rect:
+        - 41.999000549316406
+        - 264.99700927734375
+        - 51.999000549316406
+        - 274.99700927734375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].RelatedBusiness[0]
+        on_state: '1'
+        caption: Current
+        x_petey_caption_source: page_text
+      previous:
+        page: 2
+        rect:
+        - 102.0
+        - 264.99700927734375
+        - 112.0
+        - 274.99700927734375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].RelatedBusiness[1]
+        on_state: '2'
+        caption: Previous
+        x_petey_caption_source: page_text
+    description: 3F. List the names and Internal Revenue Service (I R S) Employer
+      Identification Number (E I N), Social Security Number (S S N), or C B P - assigned
+      numbers for current or previous related business entities. Related Business.
+      Current.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  officer_2_passport_type:
+    x_petey_id: '2_50'
+    type: category
+    values:
+    - diplomatic
+    - official
+    - passport_card
+    - regular
+    widgets:
+      regular:
+        page: 2
+        rect:
+        - 125.99800109863281
+        - 651.572021484375
+        - 135.9980010986328
+        - 661.572021484375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType2[0]
+        on_state: '1'
+        caption: Regular
+        x_petey_caption_source: page_text
+      official:
+        page: 2
+        rect:
+        - 192.0
+        - 651.5889892578125
+        - 202.0
+        - 661.5889892578125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType2[1]
+        on_state: '2'
+        caption: Official
+        x_petey_caption_source: page_text
+      diplomatic:
+        page: 2
+        rect:
+        - 251.9980010986328
+        - 651.5919799804688
+        - 261.99798583984375
+        - 661.5919799804688
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType2[2]
+        on_state: '3'
+        caption: Diplomatic
+        x_petey_caption_source: page_text
+      passport_card:
+        page: 2
+        rect:
+        - 329.9989929199219
+        - 651.5889892578125
+        - 339.9989929199219
+        - 661.5889892578125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType2[3]
+        on_state: '4'
+        caption: Passport Card
+        x_petey_caption_source: page_text
+    description: 3J. Passport Type. Regular.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  officer_1_passport_type:
+    x_petey_id: '2_38'
+    type: category
+    values:
+    - diplomatic
+    - official
+    - passport_card
+    - regular
+    widgets:
+      regular:
+        page: 2
+        rect:
+        - 125.99800109863281
+        - 561.572021484375
+        - 135.9980010986328
+        - 571.572021484375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType1[0]
+        on_state: '1'
+        caption: Regular
+        x_petey_caption_source: page_text
+      official:
+        page: 2
+        rect:
+        - 192.0
+        - 561.5889892578125
+        - 202.0
+        - 571.5889892578125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType1[1]
+        on_state: '2'
+        caption: Official
+        x_petey_caption_source: page_text
+      diplomatic:
+        page: 2
+        rect:
+        - 251.9980010986328
+        - 561.5919799804688
+        - 261.99798583984375
+        - 571.5919799804688
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType1[2]
+        on_state: '3'
+        caption: Diplomatic
+        x_petey_caption_source: page_text
+      passport_card:
+        page: 2
+        rect:
+        - 329.9989929199219
+        - 561.5889892578125
+        - 339.9989929199219
+        - 571.5889892578125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType1[3]
+        on_state: '4'
+        caption: Passport Card
+        x_petey_caption_source: page_text
+    description: 3J. Passport Type. Regular.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  officer_3_passport_type:
+    x_petey_id: '2_62'
+    type: category
+    values:
+    - diplomatic
+    - official
+    - passport_card
+    - regular
+    widgets:
+      regular:
+        page: 2
+        rect:
+        - 125.99800109863281
+        - 741.572021484375
+        - 135.9980010986328
+        - 751.572021484375
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType3[0]
+        on_state: '1'
+        caption: Regular
+        x_petey_caption_source: page_text
+      official:
+        page: 2
+        rect:
+        - 192.0
+        - 741.5889892578125
+        - 202.0
+        - 751.5889892578125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType3[1]
+        on_state: '2'
+        caption: Official
+        x_petey_caption_source: page_text
+      diplomatic:
+        page: 2
+        rect:
+        - 251.9980010986328
+        - 741.5919799804688
+        - 261.99798583984375
+        - 751.5919799804688
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType3[2]
+        on_state: '3'
+        caption: Diplomatic
+        x_petey_caption_source: page_text
+      passport_card:
+        page: 2
+        rect:
+        - 329.9989929199219
+        - 741.5889892578125
+        - 339.9989929199219
+        - 751.5889892578125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[1].PassportType3[3]
+        on_state: '4'
+        caption: Passport Card
+        x_petey_caption_source: page_text
+    description: 3J. Passport Type. Regular.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  entry_4_passport_type:
+    x_petey_id: '3_12'
+    type: category
+    values:
+    - diplomatic
+    - official
+    - passport_card
+    - regular
+    widgets:
+      regular:
+        page: 3
+        rect:
+        - 125.99800109863281
+        - 129.57501220703125
+        - 135.9980010986328
+        - 139.57501220703125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[2].PassportType4[0]
+        on_state: '1'
+        caption: Regular
+        x_petey_caption_source: page_text
+      official:
+        page: 3
+        rect:
+        - 192.0
+        - 129.59197998046875
+        - 202.0
+        - 139.59197998046875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[2].PassportType4[1]
+        on_state: '2'
+        caption: Official
+        x_petey_caption_source: page_text
+      diplomatic:
+        page: 3
+        rect:
+        - 251.9980010986328
+        - 129.594970703125
+        - 261.99798583984375
+        - 139.594970703125
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[2].PassportType4[2]
+        on_state: '3'
+        caption: Diplomatic
+        x_petey_caption_source: page_text
+      passport_card:
+        page: 3
+        rect:
+        - 329.9989929199219
+        - 129.59197998046875
+        - 339.9989929199219
+        - 139.59197998046875
+        widget_type: checkbox
+        path: topmostSubform[0].#subform[2].PassportType4[3]
+        on_state: '4'
+        caption: Passport Card
+        x_petey_caption_source: page_text
+    description: 3J. Passport Type. Regular.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: entry4_passport_type
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: entry_4_passport_type
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 2
+  collisions:
+  - original_label: broker_name
+    assigned_label: broker_name_2
+    page: 3
+    rect:
+    - 342.0
+    - 279.99798583984375
+    - 432.0
+    - 291.99700927734375
+  - original_label: broker_name
+    assigned_label: broker_name_3
+    page: 3
+    rect:
+    - 437.0
+    - 279.99798583984375
+    - 466.9989929199219
+    - 291.99700927734375
+x_petey_xfa_log:
+  joined: 104
+  pattern: 17
+x_petey_emit_fixes:
+  separators_dropped_by_maxlen: 4
+  description_from_tooltip: 15
+x_petey_page_check:
+  when: '2026-10-16 12:22:47'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  - 3
+  fields: 120
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/cbp_5106__7a87e0__baa48d47.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cbp_5106_20261006_230521
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cbp_5106.bpt
+  when: '2026-10-06 23:05:55'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cbp_5106.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 23:06:00'

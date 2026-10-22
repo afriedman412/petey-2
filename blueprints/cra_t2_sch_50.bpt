@@ -1,0 +1,2342 @@
+bpt_version: '1.1'
+name: cra_t2_sch_50
+form_version: null
+source_pdf: t2sch50-fill-19e.pdf
+source_pdf_hash: eceb793c78b45ce78b1ffb4cf62b459a68c10aa6
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:23:44'
+fields:
+  corporation_nm:
+    x_petey_id: '1_1'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 28.0
+      - 87.0009765625
+      - 422.0
+      - 101.00201416015625
+      widget_type: text
+      path: form1[0].Page1[0].Ident_bar[0].Corp_name[0]
+    description: Corporation's name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption and tooltip both say "Corporation's name"; the value is a business
+        entity name, so person_name is wrong. Name is correct.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Corporation's name.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: corporation_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: corporation_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  business_nbr:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 424.0
+      - 87.0009765625
+      - 644.0009765625
+      - 101.00201416015625
+      widget_type: text
+      path: form1[0].Page1[0].Ident_bar[0].BN[0]
+    description: Business number. 9 digits, 2 letters, and 4 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{9}[A-Za-z]{2}\d{4}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999999999 AA 9999}
+      pictures:
+        format:
+        - text{999999999 AA 9999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:15
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      reason: Name, type and description match the box (CRA business number, XFA picture
+        999999999 AA 9999, maxlen 15). The declared pattern's character class [AZaz]
+        only allowed the four literal letters A,Z,a,z; corrected to a proper letter
+        range.
+      before:
+        type: string
+        pattern: ^\d{9}[AZaz]{2}\d{4}$
+        description: Business number. 9 digits, 2 letters, and 4 digits.
+      judged: 'kept: 1 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: business_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}[A-Za-z]{2}\d{4}$
+      to:
+        name: business_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{9}[A-Za-z]{2}\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  tax_year_end_dt:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 646.0009765625
+      - 87.0009765625
+      - 763.9940185546875
+      - 101.00201416015625
+      widget_type: text
+      path: form1[0].Page1[0].Ident_bar[0].Tax_y-e[0].DateYYYYMMDD_Comb[0]
+    description: Tax year-end. Year 4 digits. Month 2 digits. Day 2 digits.
+    x_petey_description_source: tooltip
+    pattern: ^\d{8}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999999}
+      pictures:
+        format:
+        - text{99999999}
+    label_source: llm
+  row_1_shareholder_nm:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 229.43899536132812
+      - 319.55999755859375
+      - 256.5580139160156
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row1[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row1_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_1_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_1_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 229.43899536132812
+      - 451.55999755859375
+      - 256.5580139160156
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row1[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row1_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_1_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_1_social_insurance_nbr:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 229.43899536132812
+      - 532.5599975585938
+      - 256.5580139160156
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row1[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 1.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row1_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_1_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_1_trust_nbr:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 229.43899536132812
+      - 613.5599975585938
+      - 256.5580139160156
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row1[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row1_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_1_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_1_percentage_common_shares_pct:
+    x_petey_id: '1_8'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 229.43899536132812
+      - 688.5599975585938
+      - 256.5580139160156
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row1[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 1.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row1_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_1_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_1_percentage_preferred_shares_pct:
+    x_petey_id: '1_9'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 229.43899536132812
+      - 763.5599975585938
+      - 256.5580139160156
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row1[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 1.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row1_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_1_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_2_shareholder_nm:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 259.43798828125
+      - 319.55999755859375
+      - 286.5570068359375
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row2[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row2_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_2_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_2_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 259.43798828125
+      - 451.55999755859375
+      - 286.5570068359375
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row2[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row2_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_2_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_2_social_insurance_nbr:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 259.43798828125
+      - 532.5599975585938
+      - 286.5570068359375
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row2[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 2.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row2_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_2_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_2_trust_nbr:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 259.43798828125
+      - 613.5599975585938
+      - 286.5570068359375
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row2[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row2_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_2_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_2_percentage_common_shares_pct:
+    x_petey_id: '1_14'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 259.43798828125
+      - 688.5599975585938
+      - 286.5570068359375
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row2[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row2_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_2_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_2_percentage_preferred_shares_pct:
+    x_petey_id: '1_15'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 259.43798828125
+      - 763.5599975585938
+      - 286.5570068359375
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row2[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 2.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row2_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_2_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_3_shareholder_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 289.43701171875
+      - 319.55999755859375
+      - 316.5559997558594
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row3[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row3_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_3_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_3_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_17'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 289.43701171875
+      - 451.55999755859375
+      - 316.5559997558594
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row3[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row3_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_3_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_3_social_insurance_nbr:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 289.43701171875
+      - 532.5599975585938
+      - 316.5559997558594
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row3[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 3.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row3_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_3_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_3_trust_nbr:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 289.43701171875
+      - 613.5599975585938
+      - 316.5559997558594
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row3[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row3_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_3_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_3_percentage_common_shares_pct:
+    x_petey_id: '1_20'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 289.43701171875
+      - 688.5599975585938
+      - 316.5559997558594
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row3[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 3.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row3_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_3_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_3_percentage_preferred_shares_pct:
+    x_petey_id: '1_21'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 289.43701171875
+      - 763.5599975585938
+      - 316.5559997558594
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row3[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 3.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row3_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_3_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_4_shareholder_nm:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 319.4360046386719
+      - 319.55999755859375
+      - 346.55499267578125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row4[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row4_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_4_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_4_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_23'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 319.4360046386719
+      - 451.55999755859375
+      - 346.55499267578125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row4[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row4_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_4_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_4_social_insurance_nbr:
+    x_petey_id: '1_24'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 319.4360046386719
+      - 532.5599975585938
+      - 346.55499267578125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row4[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 4.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row4_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_4_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_4_trust_nbr:
+    x_petey_id: '1_25'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 319.4360046386719
+      - 613.5599975585938
+      - 346.55499267578125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row4[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 4.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row4_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_4_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_4_percentage_common_shares_pct:
+    x_petey_id: '1_26'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 319.4360046386719
+      - 688.5599975585938
+      - 346.55499267578125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row4[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 4.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row4_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_4_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_4_percentage_preferred_shares_pct:
+    x_petey_id: '1_27'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 319.4360046386719
+      - 763.5599975585938
+      - 346.55499267578125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row4[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 4.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row4_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_4_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_5_shareholder_nm:
+    x_petey_id: '1_28'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 349.43499755859375
+      - 319.55999755859375
+      - 376.55401611328125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row5[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row5_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_5_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_5_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_29'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 349.43499755859375
+      - 451.55999755859375
+      - 376.55401611328125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row5[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row5_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_5_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_5_social_insurance_nbr:
+    x_petey_id: '1_30'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 349.43499755859375
+      - 532.5599975585938
+      - 376.55401611328125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row5[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 5.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row5_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_5_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_5_trust_nbr:
+    x_petey_id: '1_31'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 349.43499755859375
+      - 613.5599975585938
+      - 376.55401611328125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row5[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row5_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_5_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_5_percentage_common_shares_pct:
+    x_petey_id: '1_32'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 349.43499755859375
+      - 688.5599975585938
+      - 376.55401611328125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row5[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 5.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row5_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_5_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_5_percentage_preferred_shares_pct:
+    x_petey_id: '1_33'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 349.43499755859375
+      - 763.5599975585938
+      - 376.55401611328125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row5[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 5.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row5_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_5_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_6_shareholder_nm:
+    x_petey_id: '1_34'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 379.43402099609375
+      - 319.55999755859375
+      - 406.552978515625
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row6[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 6.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row6_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_6_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_6_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_35'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 379.43402099609375
+      - 451.55999755859375
+      - 406.552978515625
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row6[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 6.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row6_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_6_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_6_social_insurance_nbr:
+    x_petey_id: '1_36'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 379.43402099609375
+      - 532.5599975585938
+      - 406.552978515625
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row6[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 6.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row6_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_6_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_6_trust_nbr:
+    x_petey_id: '1_37'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 379.43402099609375
+      - 613.5599975585938
+      - 406.552978515625
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row6[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 6.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row6_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_6_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_6_percentage_common_shares_pct:
+    x_petey_id: '1_38'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 379.43402099609375
+      - 688.5599975585938
+      - 406.552978515625
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row6[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 6.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row6_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_6_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_6_percentage_preferred_shares_pct:
+    x_petey_id: '1_39'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 379.43402099609375
+      - 763.5599975585938
+      - 406.552978515625
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row6[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 6.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row6_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_6_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_7_shareholder_nm:
+    x_petey_id: '1_40'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 409.4329833984375
+      - 319.55999755859375
+      - 436.552001953125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row7[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 7.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row7_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_7_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_7_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_41'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 409.4329833984375
+      - 451.55999755859375
+      - 436.552001953125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row7[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 7.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row7_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_7_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_7_social_insurance_nbr:
+    x_petey_id: '1_42'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 409.4329833984375
+      - 532.5599975585938
+      - 436.552001953125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row7[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 7.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row7_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_7_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_7_trust_nbr:
+    x_petey_id: '1_43'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 409.4329833984375
+      - 613.5599975585938
+      - 436.552001953125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row7[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 7.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row7_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_7_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_7_percentage_common_shares_pct:
+    x_petey_id: '1_44'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 409.4329833984375
+      - 688.5599975585938
+      - 436.552001953125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row7[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 7.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row7_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_7_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_7_percentage_preferred_shares_pct:
+    x_petey_id: '1_45'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 409.4329833984375
+      - 763.5599975585938
+      - 436.552001953125
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row7[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 7.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row7_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_7_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_8_shareholder_nm:
+    x_petey_id: '1_46'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 439.4320068359375
+      - 319.55999755859375
+      - 466.5509948730469
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row8[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 8.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row8_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_8_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_8_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_47'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 439.4320068359375
+      - 451.55999755859375
+      - 466.5509948730469
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row8[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 8.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row8_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_8_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_8_social_insurance_nbr:
+    x_petey_id: '1_48'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 439.4320068359375
+      - 532.5599975585938
+      - 466.5509948730469
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row8[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 8.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row8_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_8_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_8_trust_nbr:
+    x_petey_id: '1_49'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 439.4320068359375
+      - 613.5599975585938
+      - 466.5509948730469
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row8[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 8.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row8_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_8_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_8_percentage_common_shares_pct:
+    x_petey_id: '1_50'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 439.4320068359375
+      - 688.5599975585938
+      - 466.5509948730469
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row8[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 8.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row8_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_8_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_8_percentage_preferred_shares_pct:
+    x_petey_id: '1_51'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 439.4320068359375
+      - 763.5599975585938
+      - 466.5509948730469
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row8[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 8.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row8_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_8_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_9_shareholder_nm:
+    x_petey_id: '1_52'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 469.4309997558594
+      - 319.55999755859375
+      - 496.54998779296875
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row9[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row9_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_9_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_9_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_53'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 469.4309997558594
+      - 451.55999755859375
+      - 496.54998779296875
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row9[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row9_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_9_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_9_social_insurance_nbr:
+    x_petey_id: '1_54'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 469.4309997558594
+      - 532.5599975585938
+      - 496.54998779296875
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row9[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 9.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row9_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_9_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_9_trust_nbr:
+    x_petey_id: '1_55'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 469.4309997558594
+      - 613.5599975585938
+      - 496.54998779296875
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row9[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row9_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_9_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_9_percentage_common_shares_pct:
+    x_petey_id: '1_56'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 469.4309997558594
+      - 688.5599975585938
+      - 496.54998779296875
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row9[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 9.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row9_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_9_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_9_percentage_preferred_shares_pct:
+    x_petey_id: '1_57'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 469.4309997558594
+      - 763.5599975585938
+      - 496.54998779296875
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row9[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 9.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row9_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_9_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_10_shareholder_nm:
+    x_petey_id: '1_58'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 28.440000534057617
+      - 499.42999267578125
+      - 319.55999755859375
+      - 526.5490112304688
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row10[0].Cell1[0]
+    description: Line 100. Name of shareholder. After name, indicate in brackets if
+      the shareholder is a corporation, partnership, individual, or trust. Row 10.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row10_shareholder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_10_shareholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; name -> nm'
+  row_10_business_number_or_partnership_account_nbr:
+    x_petey_id: '1_59'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 322.44000244140625
+      - 499.42999267578125
+      - 451.55999755859375
+      - 526.5490112304688
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row10[0].Cell2[0]
+    description: Line 200. Business number or partnership account number. 9 digits,
+      2 letters, and 4 digits. If not registered, enter NR. Row 10.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row10_business_number_or_partnership_account_number
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: row_10_business_number_or_partnership_account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_10_social_insurance_nbr:
+    x_petey_id: '1_60'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 454.44000244140625
+      - 499.42999267578125
+      - 532.5599975585938
+      - 526.5490112304688
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row10[0].Cell3[0]
+    description: Line 300. Social insurance number. 9 digits. Row 10.
+    x_petey_description_source: tooltip
+    pattern: ^\d{3}\d{3}\d{3}$
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999 999 999}
+      pictures:
+        format:
+        - text{999 999 999}
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:9
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row10_social_insurance_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      to:
+        name: row_10_social_insurance_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{3}\d{3}\d{3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_10_trust_nbr:
+    x_petey_id: '1_61'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 535.4400024414062
+      - 499.42999267578125
+      - 613.5599975585938
+      - 526.5490112304688
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row10[0].Cell4[0]
+    description: Line 350. Trust number. T followed by 8 digits. Row 10.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row10_trust_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: row_10_trust_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; number -> nbr'
+  row_10_percentage_common_shares_pct:
+    x_petey_id: '1_62'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 616.4400024414062
+      - 499.42999267578125
+      - 688.5599975585938
+      - 526.5490112304688
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row10[0].Cell5[0]
+    description: Line 400. Percentage common shares. Row 10.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row10_percentage_common_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_10_percentage_common_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+  row_10_percentage_preferred_shares_pct:
+    x_petey_id: '1_63'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 691.4400024414062
+      - 499.42999267578125
+      - 763.5599975585938
+      - 526.5490112304688
+      widget_type: text
+      path: form1[0].Page1[0].Table[0].Row10[0].Cell6[0]
+    description: Line 500. Percentage preferred shares. Row 10.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz9.99'%'}
+        ui:
+        - num.decimal{}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:17'
+      from:
+        name: row10_percentage_preferred_shares
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: row_10_percentage_preferred_shares_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off; +_pct (type)'
+x_petey_dropped_widgets:
+  count: 1
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].ClearData_EN[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear Data
+x_petey_xfa_log:
+  joined: 63
+  pattern: 12
+  type: 1
+x_petey_emit_fixes:
+  separators_dropped_by_maxlen: 11
+x_petey_page_check:
+  when: '2026-10-16 13:22:50'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 63
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/cra_t2_sch_50__27aad2__ab87d363.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cra_t2_sch_50_20261006_212520
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cra_t2_sch_50.bpt
+  when: '2026-10-06 21:25:42'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cra_t2_sch_50.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:25:43'

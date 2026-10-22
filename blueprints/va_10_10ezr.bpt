@@ -1,0 +1,3290 @@
+bpt_version: '1.1'
+name: va_10_10ezr
+form_version: null
+source_pdf: VA_Form_10-10EZR.pdf
+source_pdf_hash: 1116c4bdc0a7cae46a976a8d650ccaf93e413e7d
+source_pages:
+- 3
+- 4
+- 5
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 23:05:33'
+fields:
+  veteran_1_nm:
+    x_petey_id: '3_1'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 30.069000244140625
+      - 138.00201416015625
+      - 330.0419921875
+      - 149.90802001953125
+      widget_type: text
+      path: F[0].P3[0].VeteransName[0]
+    description: SECTION 1 - GENERAL INFORMATION. Federal law provides criminal penalties,
+      including a fine and / or imprisonment, for any materially false, fictitious,
+      or fraudulent statement or representation. (See 18 U.S.C. 287 and 1001). 1.
+      A. VETERAN'S NAME (Last, First, Middle Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: veteran_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: veteran_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+  preferred_nm:
+    x_petey_id: '3_4'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 30.069000244140625
+      - 161.906005859375
+      - 330.0419921875
+      - 173.81201171875
+      widget_type: text
+      path: F[0].P3[0].VeteransPreferredName[0]
+    description: 1B. PREFERRED NAME.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: preferred_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: preferred_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  veteran_1_ssn:
+    x_petey_id: '3_3'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 341.9989929199219
+      - 150.0
+      - 449.99798583984375
+      - 172.9990234375
+      widget_type: text
+      path: F[0].P3[0].VeteranSSN[0]
+    description: 2. SOCIAL SECURITY NUMBER. Enter 9 digit social security number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        validate:
+        - 999-99-9999
+        ui:
+        - text{999999999}|text{999-99-9999}|text{999 99 9999}
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: veteran_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      to:
+        name: veteran_1_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+  sex:
+    x_petey_id: '3_2'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 3
+        rect:
+        - 512.8359985351562
+        - 139.49798583984375
+        - 521.8359985351562
+        - 148.49798583984375
+        widget_type: radiobutton
+        path: F[0].P3[0].Sex[0]
+        on_state: '0'
+        caption: FEMALE
+      '1':
+        page: 3
+        rect:
+        - 464.8340148925781
+        - 139.5040283203125
+        - 473.8340148925781
+        - 148.5040283203125
+        widget_type: radiobutton
+        path: F[0].P3[0].Sex[0]
+        on_state: '1'
+        caption: MALE
+    description: 'One of: 0 = FEMALE; 1 = MALE'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': FEMALE
+        '1': MALE
+  birth_dt:
+    x_petey_id: '3_5'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 3
+      rect:
+      - 462.0010070800781
+      - 161.99798583984375
+      - 581.9990234375
+      - 173.9990234375
+      widget_type: text
+      path: F[0].P3[0].DateofBirth[0]
+    description: 4. DATE OF BIRTH. Enter 2 digit month, 2 digit day and 4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  home_phone_nbr:
+    x_petey_id: '3_6'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 197.9990234375
+      - 300.0
+      - 208.9990234375
+      widget_type: text
+      path: F[0].P3[0].HomePhone[0]
+    description: 5. A. HOME TELEPHONE NUMBER (Include area code) (optional). Please
+      use digits formatted as (999) 999-9999.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: home_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: home_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  mobile_phone_nbr:
+    x_petey_id: '3_7'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 312.0
+      - 197.9990234375
+      - 581.9990234375
+      - 208.9990234375
+      widget_type: text
+      path: F[0].P3[0].MobilePhone[0]
+    description: 5B. MOBILE TELEPHONE NUMBER (Include area code) (optional). Please
+      use digits formatted as (999) 999-9999.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: mobile_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: mobile_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  mailing_address_line_1_txt:
+    x_petey_id: '3_8'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 221.99798583984375
+      - 360.0010070800781
+      - 233.99700927734375
+      widget_type: text
+      path: F[0].P3[0].MailingAddress_Street[0]
+    description: 6. A. MAILING ADDRESS. STREET.
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_address_city_nm:
+    x_petey_id: '3_9'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 372.0010070800781
+      - 221.99798583984375
+      - 581.9990234375
+      - 233.99700927734375
+      widget_type: text
+      path: F[0].P3[0].MailingAddress_City[0]
+    label_source: llm
+  mailing_address_state_cd:
+    x_petey_id: '3_10'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 245.9990234375
+      - 72.0009994506836
+      - 257.99798583984375
+      widget_type: text
+      path: F[0].P3[0].MailingAddress_State[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: mailing_address_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: mailing_address_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  mailing_address_zip_cd:
+    x_petey_id: '3_11'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 84.0009994506836
+      - 245.9990234375
+      - 180.00100708007812
+      - 257.99798583984375
+      widget_type: text
+      path: F[0].P3[0].MailingAddress_ZipCode[0]
+    description: 6D. ZIP CODE.
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_address_county_nm:
+    x_petey_id: '3_12'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 192.00100708007812
+      - 246.00201416015625
+      - 581.9990234375
+      - 258.0009765625
+      widget_type: text
+      path: F[0].P3[0].MailingAddress_County[0]
+    label_source: llm
+    description: 6E. COUNTY. County of the mailing address.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Caption '6E. COUNTY' asks for a county/jurisdiction name; semantic_type
+        person_name is wrong and should be dropped. Name already says county.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 0 -> 0'
+  home_address_line_1_txt:
+    x_petey_id: '3_13'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 270.0
+      - 360.0010070800781
+      - 281.9989929199219
+      widget_type: text
+      path: F[0].P3[0].Street[0]
+    description: 7. A. HOME ADDRESS. STREET.
+    x_petey_description_source: tooltip
+    label_source: llm
+  home_address_city_nm:
+    x_petey_id: '3_14'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 372.0010070800781
+      - 270.0
+      - 582.0020141601562
+      - 281.9989929199219
+      widget_type: text
+      path: F[0].P3[0].City[0]
+    label_source: llm
+  home_address_state_cd:
+    x_petey_id: '3_15'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 293.99798583984375
+      - 72.0009994506836
+      - 305.99700927734375
+      widget_type: text
+      path: F[0].P3[0].State[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: home_address_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: home_address_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  home_address_zip_cd:
+    x_petey_id: '3_16'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 84.0009994506836
+      - 293.99798583984375
+      - 180.00100708007812
+      - 305.99700927734375
+      widget_type: text
+      path: F[0].P3[0].ZipCode[0]
+    description: 7D. ZIP CODE.
+    x_petey_description_source: tooltip
+    label_source: llm
+  home_address_county_nm:
+    x_petey_id: '3_17'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 192.00100708007812
+      - 294.0010070800781
+      - 581.9990234375
+      - 306.0
+      widget_type: text
+      path: F[0].P3[0].County[0]
+    label_source: llm
+    description: 7E. COUNTY. County of the home address.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Caption '7E. COUNTY' is a jurisdiction, not a person's name; drop the
+        incorrect person_name semantic type. Name is accurate.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 0 -> 0'
+  email_address_txt:
+    x_petey_id: '3_18'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 318.0
+      - 354.0
+      - 346.99798583984375
+      widget_type: text
+      path: F[0].P3[0].Email[0]
+    description: 8. E-MAIL ADDRESS (optional).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  marital_status:
+    x_petey_id: '3_19'
+    type: category
+    values:
+    - '0'
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    widgets:
+      '0':
+        page: 3
+        rect:
+        - 368.83599853515625
+        - 319.49798583984375
+        - 377.83599853515625
+        - 328.49798583984375
+        widget_type: radiobutton
+        path: F[0].P3[0].MaritalStatus[0]
+        on_state: '0'
+        caption: MARRIED
+      '1':
+        page: 3
+        rect:
+        - 428.8340148925781
+        - 319.49798583984375
+        - 437.8340148925781
+        - 328.49798583984375
+        widget_type: radiobutton
+        path: F[0].P3[0].MaritalStatus[0]
+        on_state: '1'
+        caption: NEVER MARRIED
+      '2':
+        page: 3
+        rect:
+        - 518.833984375
+        - 319.49798583984375
+        - 527.833984375
+        - 328.49798583984375
+        widget_type: radiobutton
+        path: F[0].P3[0].MaritalStatus[0]
+        on_state: '2'
+        caption: SEPARATED
+      '3':
+        page: 3
+        rect:
+        - 368.83599853515625
+        - 331.49700927734375
+        - 377.83599853515625
+        - 340.49700927734375
+        widget_type: radiobutton
+        path: F[0].P3[0].MaritalStatus[0]
+        on_state: '3'
+        caption: WIDOWED
+      '4':
+        page: 3
+        rect:
+        - 428.8340148925781
+        - 331.49700927734375
+        - 437.8340148925781
+        - 340.49700927734375
+        widget_type: radiobutton
+        path: F[0].P3[0].MaritalStatus[0]
+        on_state: '4'
+        caption: DIVORCED
+    description: 'One of: 0 = MARRIED; 1 = NEVER MARRIED; 2 = SEPARATED; 3 = WIDOWED;
+      4 = DIVORCED'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': MARRIED
+        '1': NEVER MARRIED
+        '2': SEPARATED
+        '3': WIDOWED
+        '4': DIVORCED
+  next_of_kin_nm:
+    x_petey_id: '3_20'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 359.99798583984375
+      - 270.0010070800781
+      - 382.99798583984375
+      widget_type: text
+      path: F[0].P3[0].KinName[0]
+    description: 10. A. NEXT OF KIN NAME (Last, First, Middle Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: next_of_kin_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: next_of_kin_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  next_of_kin_address_txt:
+    x_petey_id: '3_21'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 282.0010070800781
+      - 359.99700927734375
+      - 581.9990234375
+      - 382.99798583984375
+      widget_type: text
+      path: F[0].P3[0].KinAddress[0]
+    description: 10B. NEXT OF KIN ADDRESS.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: next_of_kin_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: next_of_kin_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  next_of_kin_relationship_txt:
+    x_petey_id: '3_22'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 395.99700927734375
+      - 270.0010070800781
+      - 407.9989929199219
+      widget_type: text
+      path: F[0].P3[0].KinRelationship[0]
+    description: 10C. NEXT OF KIN RELATIONSHIP.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: next_of_kin_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: next_of_kin_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+  next_of_kin_phone_nbr:
+    x_petey_id: '3_23'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 282.0010070800781
+      - 395.99798583984375
+      - 581.9990234375
+      - 407.9989929199219
+      widget_type: text
+      path: F[0].P3[0].KinPhone[0]
+    description: 10D. NEXT OF KIN TELEPHONE NUMBER. Please use digits formatted as
+      (999) 999-9999.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: next_of_kin_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: next_of_kin_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  emergency_contact_nm:
+    x_petey_id: '3_24'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 420.0010070800781
+      - 270.0010070800781
+      - 432.0
+      widget_type: text
+      path: F[0].P3[0].ECName[0]
+    description: 11. A. EMERGENCY CONTACT NAME.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: emergency_contact_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: emergency_contact_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  emergency_contact_phone_nbr:
+    x_petey_id: '3_25'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 282.0010070800781
+      - 419.9989929199219
+      - 581.9990234375
+      - 432.0
+      widget_type: text
+      path: F[0].P3[0].ECPhone[0]
+    description: 11B. EMERGENCY CONTACT TELEPHONE NUMBER (Include area code). Please
+      use digits formatted as (999) 999-9999.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{'('999')' 999-9999}
+        ui:
+        - text{9999999999}|text{(999) 999-9999}|text{(999)999-9999}|text{(999)9999999}
+      message: Invalid phone number. Please use digits formatted as (999) 999-9999.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: emergency_contact_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: emergency_contact_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  health_insurance_company_info_txt:
+    x_petey_id: '3_26'
+    type: string
+    semantic_type: address_block
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 462.00201416015625
+      - 581.9990234375
+      - 509.99798583984375
+      widget_type: text
+      path: F[0].P3[0].HealthInsurance[0]
+    description: SECTION 2 - INSURANCE INFORMATION (Use a separate sheet for additional
+      information). 1. ENTER YOUR HEALTH INSURANCE COMPANY NAME, ADDRESS AND TELEPHONE
+      NUMBER (include coverage through spouse or other person).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption asks for company NAME, ADDRESS AND TELEPHONE NUMBER in one wide
+        box; business_name is too narrow, an address block covers the combined entry.
+      before:
+        type: string
+        semantic_type: business_name
+        description: SECTION 2 - INSURANCE INFORMATION (Use a separate sheet for additional
+          information). 1. ENTER YOUR HEALTH INSURANCE COMPANY NAME, ADDRESS AND TELEPHONE
+          NUMBER (include coverage through spouse or other person).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: health_insurance_company_info
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: health_insurance_company_info_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: info -> info_txt'
+  policy_holder_nm:
+    x_petey_id: '3_27'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 30.000999450683594
+      - 522.0009765625
+      - 185.99899291992188
+      - 545.0009765625
+      widget_type: text
+      path: F[0].P3[0].NamePolicyHolder[0]
+    description: 2. NAME OF POLICY HOLDER.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: policy_holder_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_holder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  policy_nbr:
+    x_petey_id: '3_28'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 197.99899291992188
+      - 522.0009765625
+      - 318.0
+      - 545.0009765625
+      widget_type: text
+      path: F[0].P3[0].PolicyNo[0]
+    description: 3. POLICY NUMBER.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: policy_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  group_cd:
+    x_petey_id: '3_29'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 330.0
+      - 522.0009765625
+      - 408.0
+      - 545.0009765625
+      widget_type: text
+      path: F[0].P3[0].GroupCode[0]
+    description: 4. GROUP CODE.
+    x_petey_description_source: tooltip
+    label_source: llm
+  eligible_for_medicaid_ind:
+    x_petey_id: '3_30'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 3
+        rect:
+        - 422.83599853515625
+        - 535.4979858398438
+        - 431.83599853515625
+        - 544.4979858398438
+        widget_type: radiobutton
+        path: F[0].P3[0].EligibleForMedicaid[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 3
+        rect:
+        - 464.8370056152344
+        - 535.4979858398438
+        - 473.8370056152344
+        - 544.4979858398438
+        widget_type: radiobutton
+        path: F[0].P3[0].EligibleForMedicaid[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  enrolled_in_medicare_part_a_ind:
+    x_petey_id: '3_31'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 3
+        rect:
+        - 284.8340148925781
+        - 550.4539794921875
+        - 293.8340148925781
+        - 559.4539794921875
+        widget_type: radiobutton
+        path: F[0].P3[0].EnrolledInMedicareHospitalInsurance[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 3
+        rect:
+        - 326.8349914550781
+        - 550.4539794921875
+        - 335.8349914550781
+        - 559.4539794921875
+        widget_type: radiobutton
+        path: F[0].P3[0].EnrolledInMedicareHospitalInsurance[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  medicare_part_a_effective_dt:
+    x_petey_id: '3_32'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 564.0009765625
+      - 228.0
+      - 582.0009765625
+      widget_type: text
+      path: F[0].P3[0].EffectiveDate[0]
+    description: 6B. EFFECTIVE DATE. Enter 2 digit month, 2 digit day and 4 digit
+      year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  medicare_nbr:
+    x_petey_id: '3_33'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 330.0
+      - 564.0009765625
+      - 581.9990234375
+      - 582.0009765625
+      widget_type: text
+      path: F[0].P3[0].MedicareClaimNumber[0]
+    description: 6C. MEDICARE NUMBER.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: medicare_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: medicare_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  veteran_2_nm:
+    x_petey_id: '4_1'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 258.0
+      - 42.0009765625
+      - 462.0
+      - 64.9990234375
+      widget_type: text
+      path: F[0].P4[0].VeteransName[0]
+    description: VETERAN'S NAME (Last, First, Middle Name). This is a read only field.
+      It is pre-filled from Page 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: veteran_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: veteran_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  veteran_2_ssn:
+    x_petey_id: '4_2'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 4
+      rect:
+      - 474.0
+      - 53.9990234375
+      - 581.9990234375
+      - 65.9990234375
+      widget_type: text
+      path: F[0].P4[0].VeteranSSN[0]
+    description: SOCIAL SECURITY NUMBER. This is a read only field. It is pre-filled
+      from Page 3.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        validate:
+        - 999-99-9999
+        ui:
+        - text{999999999}|text{999-99-9999}|text{999 99 9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: veteran_ssn_2
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      to:
+        name: veteran_2_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  last_branch_of_service_txt:
+    x_petey_id: '4_3'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 30.000999450683594
+      - 95.99798583984375
+      - 138.0
+      - 107.97698974609375
+      widget_type: text
+      path: F[0].P4[0].LastBranchOfService[0]
+    description: SECTION 3 - MILITARY SERVICE INFORMATION. 1. A. LAST BRANCH OF SERVICE.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: last_branch_of_service
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: last_branch_of_service_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  last_entry_dt:
+    x_petey_id: '4_4'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 95.99798583984375
+      - 273.0010070800781
+      - 108.0
+      widget_type: text
+      path: F[0].P4[0].LastEntryDate[0]
+    description: 1B. LAST ENTRY DATE. Enter 2 digit month, 2 digit day, and 4 digit
+      year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  future_discharge_dt:
+    x_petey_id: '4_5'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 282.0010070800781
+      - 95.99798583984375
+      - 435.0010070800781
+      - 108.0
+      widget_type: text
+      path: F[0].P4[0].FutureDischargeDate[0]
+    description: 1C. FUTURE DISCHARGE DATE. Enter 2 digit month, 2 digit day, and
+      4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  last_discharge_dt:
+    x_petey_id: '4_6'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 444.0010070800781
+      - 95.99798583984375
+      - 585.0020141601562
+      - 108.0
+      widget_type: text
+      path: F[0].P4[0].LastDischargeDate[0]
+    description: 1D. LAST DISCHARGE DATE. Enter 2 digit month, 2 digit day, and 4
+      digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/DD/YYYY}
+        validate:
+        - date{MM/DD/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  discharge_type_txt:
+    x_petey_id: '4_7'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 30.000999450683594
+      - 119.9990234375
+      - 396.0010070800781
+      - 132.0009765625
+      widget_type: text
+      path: F[0].P4[0].DischargeType[0]
+    description: 1E. DISCHARGE TYPE.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: discharge_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: discharge_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  military_service_nbr:
+    x_petey_id: '4_8'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 408.0010070800781
+      - 119.9990234375
+      - 581.9990234375
+      - 132.0009765625
+      widget_type: text
+      path: F[0].P4[0].MilitaryServiceNumber[0]
+    description: 1F. MILITARY SERVICE NUMBER.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: military_service_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: military_service_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  purple_heart_award_recipient_ind:
+    x_petey_id: '4_9'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 277.49798583984375
+        - 150.96197509765625
+        - 287.49798583984375
+        - 160.96197509765625
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2A[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 301.5010070800781
+        - 150.96197509765625
+        - 311.5010070800781
+        - 160.96197509765625
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2A[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  prisoner_of_war_ind:
+    x_petey_id: '4_11'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 277.49798583984375
+        - 174.8809814453125
+        - 287.49798583984375
+        - 184.8809814453125
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2B[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 301.5010070800781
+        - 174.8809814453125
+        - 311.5010070800781
+        - 184.8809814453125
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2B[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  combat_theater_service_after_1998_ind:
+    x_petey_id: '4_13'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 277.49798583984375
+        - 199.01800537109375
+        - 287.49798583984375
+        - 209.01800537109375
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2C[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 301.5010070800781
+        - 199.01800537109375
+        - 311.5010070800781
+        - 209.01800537109375
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2C[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  military_disability_discharge_ind:
+    x_petey_id: '4_10'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 547.4979858398438
+        - 150.9990234375
+        - 557.4979858398438
+        - 160.9990234375
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2D[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 571.5009765625
+        - 150.9990234375
+        - 581.5009765625
+        - 160.9990234375
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2D[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  sw_asia_gulf_war_service_ind:
+    x_petey_id: '4_12'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 547.4979858398438
+        - 175.0
+        - 557.4979858398438
+        - 185.0
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2E[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 571.5009765625
+        - 175.0
+        - 581.5009765625
+        - 185.0
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2E[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  va_service_connected_rating_ind:
+    x_petey_id: '4_14'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 547.4979858398438
+        - 199.03497314453125
+        - 557.4979858398438
+        - 209.03497314453125
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2F[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 571.5009765625
+        - 199.03497314453125
+        - 581.5009765625
+        - 209.03497314453125
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_2F[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  ionizing_radiation_service_ind:
+    x_petey_id: '4_15'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 253.5030059814453
+        - 255.9229736328125
+        - 263.50299072265625
+        - 265.9229736328125
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3A[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 277.5060119628906
+        - 255.9229736328125
+        - 287.5060119628906
+        - 265.9229736328125
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3A[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  gulf_war_hazard_service_ind:
+    x_petey_id: '4_17'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 253.4969940185547
+        - 334.0320129394531
+        - 263.49700927734375
+        - 344.0320129394531
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3B[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 277.5
+        - 334.0320129394531
+        - 287.5
+        - 344.0320129394531
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3B[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  gulf_war_hazard_served_from_dt:
+    x_petey_id: '4_20'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 66.00199890136719
+      - 371.9989929199219
+      - 126.00299835205078
+      - 384.0010070800781
+      widget_type: text
+      path: F[0].P4[0].FromDate_3B[0]
+    description: 3B. WHEN DID YOU SERVE IN THESE LOCATIONS? FROM (approximate month
+      and year, MM/YYYY).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/YYYY}
+        validate:
+        - date{MM/YYYY}
+        ui:
+        - date{MM/YYYY}|date{M/YYYY}|date{MM-YYYY}|date{M-YYYY}|date{M/YY}|date{M-YY}|date{MM/YY}|date{MMYYYY}|date{MMYY}
+      message: Invalid Date. Enter 2 digit month and 4 digit year.
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])\/\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: 'The witness match to an unrelated indicator field is spurious; the
+        name fits the printed ''FROM:'' under the Gulf War locations question. But
+        the box holds only month and year (XFA date{MM/YYYY}), so iso_date is wrong:
+        it is a partial date string.'
+      before:
+        type: date
+        semantic_type: iso_date
+        description: '3B. WHEN DID YOU SERVE IN THESE LOCATIONS? NOTE: Please provide
+          an approximate time-frame. FROM. Enter 2 digit month and 4 digit year.'
+      judged: 'kept: 0 -> 0'
+  gulf_war_hazard_served_to_dt:
+    x_petey_id: '4_21'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 156.0019989013672
+      - 371.9989929199219
+      - 216.0030059814453
+      - 384.0010070800781
+      widget_type: text
+      path: F[0].P4[0].ToDate_3B[0]
+    description: '3B. TO. Approximate end of service in these locations: 2 digit month
+      and 4 digit year (mm/yyyy).'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/YYYY}
+        validate:
+        - date{MM/YYYY}
+        ui:
+        - date{MM/YYYY}|date{M/YYYY}|date{MM-YYYY}|date{M-YYYY}|date{M/YY}|date{M-YY}|date{MM/YY}|date{MMYYYY}|date{MMYY}
+      message: Invalid Date. Enter 2 digit month and 4 digit year.
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Tooltip, XFA picture date{MM/YYYY} and printed caption all call for
+        mm/yyyy only, not a full ISO date; partial date is a string with a digit pattern.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: 3B. TO. Enter 2 digit month and 4 digit year.
+      judged: 'kept: 0 -> 0'
+  deployed_in_support_of_operations_ind:
+    x_petey_id: '4_23'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 253.5030059814453
+        - 396.9410095214844
+        - 263.50299072265625
+        - 406.9410095214844
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3B[1]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 277.5060119628906
+        - 397.1400146484375
+        - 287.5060119628906
+        - 407.1400146484375
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3B[1]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  herbicide_service_ind:
+    x_petey_id: '4_16'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 547.4949951171875
+        - 285.9729919433594
+        - 557.4949951171875
+        - 295.9729919433594
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3C[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 571.4979858398438
+        - 285.9729919433594
+        - 581.4979858398438
+        - 295.9729919433594
+        widget_type: radiobutton
+        path: F[0].P4[0].Section3_3C[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  herbicide_served_from_dt:
+    x_petey_id: '4_18'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 330.0090026855469
+      - 342.0090026855469
+      - 390.010009765625
+      - 354.00799560546875
+      widget_type: text
+      path: F[0].P4[0].FromDate_3C[0]
+    description: 3D. WHEN DID YOU SERVE IN THESE LOCATIONS? FROM (approximate month
+      and year, MM/YYYY).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/YYYY}
+        validate:
+        - date{MM/YYYY}
+        ui:
+        - date{MM/YYYY}|date{M/YYYY}|date{MM-YYYY}|date{M-YYYY}|date{M/YY}|date{M-YY}|date{MM/YY}|date{MMYYYY}|date{MMYY}
+      message: Invalid Date. Enter 2 digit month and 4 digit year.
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])\/\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Witness flag points at an unrelated checkbox and is spurious; name matches
+        the herbicide-exposure FROM box. Publisher mask is MM/YYYY, so the value is
+        a month-year string, not an ISO date.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: '3D. WHEN DID YOU SERVE IN THESE LOCATIONS? NOTE: Please provide
+          an approximate time-frame. FROM. Enter 2 digit month and 4 digit year.'
+      judged: 'kept: 0 -> 0'
+  herbicide_served_to_dt:
+    x_petey_id: '4_19'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 420.0010070800781
+      - 342.0
+      - 480.00201416015625
+      - 354.00201416015625
+      widget_type: text
+      path: F[0].P4[0].ToDate_3C[0]
+    description: '3D. TO. Approximate end of service in these locations: 2 digit month
+      and 4 digit year (mm/yyyy).'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/YYYY}
+        validate:
+        - date{MM/YYYY}
+        ui:
+        - date{MM/YYYY}|date{M/YYYY}|date{MM-YYYY}|date{M-YYYY}|date{M/YY}|date{M-YY}|date{MM/YY}|date{MMYYYY}|date{MMYY}
+      message: Invalid Date. Enter 2 digit month and 4 digit year.
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: XFA format date{MM/YYYY} and caption 'approximate time-frame (mm/yyyy)'
+        confirm month/year only, so iso_date typing is wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: 3D. TO. Enter 2 digit month and 4 digit year.
+      judged: 'kept: 0 -> 0'
+  military_exposure_other_specify_txt:
+    x_petey_id: '4_24'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 378.00299072265625
+      - 468.00299072265625
+      - 582.0009765625
+      - 480.00201416015625
+      widget_type: text
+      path: F[0].P4[0].SpecifyOther[0]
+    description: 3E. Specify Other.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: military_exposure_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: military_exposure_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  military_exposure_from_dt:
+    x_petey_id: '4_25'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 330.0010070800781
+      - 504.00299072265625
+      - 390.00201416015625
+      - 516.0050048828125
+      widget_type: text
+      path: F[0].P4[0].FromDate_3D[0]
+    description: 3E. WHEN WERE YOU EXPOSED? FROM (approximate month and year, MM/YYYY).
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/YYYY}
+        validate:
+        - date{MM/YYYY}
+        ui:
+        - date{MM/YYYY}|date{M/YYYY}|date{MM-YYYY}|date{M-YYYY}|date{M/YY}|date{M-YY}|date{MM/YY}|date{MMYYYY}|date{MMYY}
+      message: Invalid Date. Enter 2 digit month and 4 digit year.
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])\/\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Witness match is spurious; the name fits the 'WHEN WERE YOU EXPOSED?
+        FROM:' box. XFA format MM/YYYY makes it a month-year string rather than an
+        iso_date.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: '3E. WHEN WERE YOU EXPOSED? NOTE: Please provide an approximate
+          time-frame. Enter 2 digit month and 4 digit year.'
+      judged: 'kept: 0 -> 0'
+  military_exposure_to_dt:
+    x_petey_id: '4_26'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 420.0010070800781
+      - 504.00299072265625
+      - 480.00201416015625
+      - 516.0050048828125
+      widget_type: text
+      path: F[0].P4[0].ToDate_3D[0]
+    description: '3E. TO. Approximate end of the exposure period: 2 digit month and
+      4 digit year (mm/yyyy).'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MM/YYYY}
+        validate:
+        - date{MM/YYYY}
+        ui:
+        - date{MM/YYYY}|date{M/YYYY}|date{MM-YYYY}|date{M-YYYY}|date{M/YY}|date{M-YY}|date{MM/YY}|date{MMYYYY}|date{MMYY}
+      message: Invalid Date. Enter 2 digit month and 4 digit year.
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Caption 'WHEN WERE YOU EXPOSED? ... (mm/yyyy)' and XFA date{MM/YYYY}
+        show a month/year partial value, not a full ISO date.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: 3E. TO. Enter 2 digit month and 4 digit year.
+      judged: 'kept: 0 -> 0'
+  spouse_nm:
+    x_petey_id: '4_27'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 30.000999450683594
+      - 545.9990234375
+      - 228.0
+      - 563.0009765625
+      widget_type: text
+      path: F[0].P4[0].SpouseName[0]
+    description: SECTION 4 - DEPENDENT INFORMATION (Use a separate sheet for additional
+      dependents). 1. SPOUSE'S NAME (Last, First, Middle Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: spouse_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: spouse_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  spouse_ssn:
+    x_petey_id: '4_29'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 4
+      rect:
+      - 240.0
+      - 551.9990234375
+      - 359.99798583984375
+      - 564.0009765625
+      widget_type: text
+      path: F[0].P4[0].SpouseSSN[0]
+    description: 2. SPOUSE'S SOCIAL SECURITY NUMBER. Enter 9 digit social security
+      number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        validate:
+        - 999-99-9999
+        ui:
+        - text{999999999}|text{999-99-9999}|text{999 99 9999}
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+  spouse_birth_dt:
+    x_petey_id: '4_30'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 4
+      rect:
+      - 372.0010070800781
+      - 551.9990234375
+      - 473.9960021972656
+      - 564.0009765625
+      widget_type: text
+      path: F[0].P4[0].SpouseDateofBirth[0]
+    description: 3. SPOUSE'S DATE OF BIRTH. Enter 2 digit month, 2 digit day and 4
+      digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  spouse_sex:
+    x_petey_id: '4_28'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 488.8349914550781
+        - 547.5
+        - 497.8349914550781
+        - 556.5
+        widget_type: radiobutton
+        path: F[0].P4[0].Sex[0]
+        on_state: '0'
+        caption: MALE
+      '1':
+        page: 4
+        rect:
+        - 530.8359985351562
+        - 547.5
+        - 539.8359985351562
+        - 556.5
+        widget_type: radiobutton
+        path: F[0].P4[0].Sex[0]
+        on_state: '1'
+        caption: FEMALE
+    description: 'One of: 0 = MALE; 1 = FEMALE'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': MALE
+        '1': FEMALE
+  marriage_dt:
+    x_petey_id: '4_31'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 30.000999450683594
+      - 576.0
+      - 156.0
+      - 611.0
+      widget_type: text
+      path: F[0].P4[0].DateofMarriage[0]
+    description: 5. DATE OF MARRIAGE. Enter 2 digit month, 2 digit day and 4 digit
+      year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  spouse_address_and_telephone_nbr:
+    x_petey_id: '4_32'
+    type: string
+    semantic_type: address_block
+    widget:
+      page: 4
+      rect:
+      - 168.0
+      - 576.0009765625
+      - 581.9990234375
+      - 611.0
+      widget_type: text
+      path: F[0].P4[0].SpouseAddress[0]
+    description: 6. SPOUSE'S ADDRESS AND TELEPHONE NUMBER (Street, City, State, ZIP
+      - if different from Veteran's).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - -pattern
+      reason: Caption asks for street, city, state, ZIP and telephone in one wide
+        box; the phone semantic type and phone-only regex cannot hold that. Name already
+        describes the box.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+        description: 6. SPOUSE'S ADDRESS AND TELEPHONE NUMBER (Street, City, State,
+          ZIP - if different from Veteran's).
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: spouse_address_and_telephone_number
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: spouse_address_and_telephone_nbr
+        type: string
+        semantic_type: address_block
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  child_nm:
+    x_petey_id: '4_33'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 30.000999450683594
+      - 624.0
+      - 306.0010070800781
+      - 636.0009765625
+      widget_type: text
+      path: F[0].P4[0].ChildName[0]
+    description: 7. CHILD'S NAME (Last, First, Middle Name).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: child_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  child_birth_dt:
+    x_petey_id: '4_35'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 4
+      rect:
+      - 30.000999450683594
+      - 654.0009765625
+      - 162.00100708007812
+      - 666.0
+      widget_type: text
+      path: F[0].P4[0].ChildDateofBirth[0]
+    description: 8. CHILD'S DATE OF BIRTH. Enter 2 digit month, 2 digit day and 4
+      digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  child_ssn:
+    x_petey_id: '4_36'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 4
+      rect:
+      - 174.00100708007812
+      - 654.0009765625
+      - 306.0010070800781
+      - 666.0
+      widget_type: text
+      path: F[0].P4[0].ChildSSN[0]
+    description: 9. CHILD'S SOCIAL SECURITY NUMBER. Enter 9 digit social security
+      number.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        validate:
+        - 999-99-9999
+        ui:
+        - text{999999999}|text{999-99-9999}|text{999 99 9999}
+      message: Invalid Social Security Number. Enter 9 digit social security number.
+    label_source: llm
+  child_became_dependent_dt:
+    x_petey_id: '4_38'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 4
+      rect:
+      - 30.000999450683594
+      - 677.9990234375
+      - 306.0010070800781
+      - 690.0009765625
+      widget_type: text
+      path: F[0].P4[0].DateDependent[0]
+    description: 10. DATE CHILD BECAME YOUR DEPENDENT. Enter 2 digit month, 2 digit
+      day and 4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  child_relationship:
+    x_petey_id: '4_39'
+    type: category
+    values:
+    - '0'
+    - '1'
+    - '2'
+    - '3'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 200.83799743652344
+        - 703.4990234375
+        - 209.83799743652344
+        - 712.4990234375
+        widget_type: radiobutton
+        path: F[0].P4[0].Relationship[0]
+        on_state: '0'
+        caption: STEPDAUGHTER
+      '1':
+        page: 4
+        rect:
+        - 140.83700561523438
+        - 703.4990234375
+        - 149.83700561523438
+        - 712.4990234375
+        widget_type: radiobutton
+        path: F[0].P4[0].Relationship[0]
+        on_state: '1'
+        caption: STEPSON
+      '2':
+        page: 4
+        rect:
+        - 74.83799743652344
+        - 703.4990234375
+        - 83.83799743652344
+        - 712.4990234375
+        widget_type: radiobutton
+        path: F[0].P4[0].Relationship[0]
+        on_state: '2'
+        caption: DAUGHTER
+      '3':
+        page: 4
+        rect:
+        - 32.83700180053711
+        - 703.4990234375
+        - 41.83700180053711
+        - 712.4990234375
+        widget_type: radiobutton
+        path: F[0].P4[0].Relationship[0]
+        on_state: '3'
+        caption: SON
+    description: 'One of: 0 = STEPDAUGHTER; 1 = STEPSON; 2 = DAUGHTER; 3 = SON'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': STEPDAUGHTER
+        '1': STEPSON
+        '2': DAUGHTER
+        '3': SON
+  child_permanently_and_totally_disabled_ind:
+    x_petey_id: '4_34'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 320.8370056152344
+        - 625.4979858398438
+        - 329.8370056152344
+        - 634.4979858398438
+        widget_type: radiobutton
+        path: F[0].P4[0].YesNo3[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 362.8380126953125
+        - 625.4979858398438
+        - 371.8380126953125
+        - 634.4979858398438
+        widget_type: radiobutton
+        path: F[0].P4[0].YesNo3[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  child_attended_school_last_calendar_year_ind:
+    x_petey_id: '4_37'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 320.8370056152344
+        - 661.5
+        - 329.8370056152344
+        - 670.5
+        widget_type: radiobutton
+        path: F[0].P4[0].YesNo4[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 362.8380126953125
+        - 661.5
+        - 371.8380126953125
+        - 670.5
+        widget_type: radiobutton
+        path: F[0].P4[0].YesNo4[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  child_education_training_expenses_amt:
+    x_petey_id: '4_40'
+    type: number
+    semantic_type: money
+    widget:
+      page: 4
+      rect:
+      - 318.0010070800781
+      - 708.0009765625
+      - 581.9990234375
+      - 720.0
+      widget_type: text
+      path: F[0].P4[0].TextField22[0]
+    description: 14. EXPENSES PAID BY YOUR DEPENDENT CHILD WITH REPORTABLE INCOME
+      FOR COLLEGE, VOCATIONAL REHABILITATION OR TRAINING (e.g., tuition, books, materials).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+  provided_support_if_not_living_with_you_ind:
+    x_petey_id: '4_41'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 4
+        rect:
+        - 428.8399963378906
+        - 724.6589965820312
+        - 437.8399963378906
+        - 733.6589965820312
+        widget_type: radiobutton
+        path: F[0].P4[0].YesNo5[0]
+        on_state: '0'
+        caption: 'YES'
+      '1':
+        page: 4
+        rect:
+        - 470.95098876953125
+        - 724.6589965820312
+        - 479.95098876953125
+        - 733.6589965820312
+        widget_type: radiobutton
+        path: F[0].P4[0].YesNo5[0]
+        on_state: '1'
+        caption: 'NO'
+    description: 'One of: 0 = YES; 1 = NO'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': 'YES'
+        '1': 'NO'
+  veteran_3_nm:
+    x_petey_id: '5_1'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 258.0
+      - 42.0009765625
+      - 462.0
+      - 64.9990234375
+      widget_type: text
+      path: F[0].P5[0].VeteransName[0]
+    description: VETERAN'S NAME (Last, First, Middle Name). This is a read only field.
+      It is pre-filled from Page 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: veteran_name_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: veteran_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  veteran_3_ssn:
+    x_petey_id: '5_2'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 5
+      rect:
+      - 474.0
+      - 53.9990234375
+      - 581.9990234375
+      - 65.9990234375
+      widget_type: text
+      path: F[0].P5[0].VeteranSSN[0]
+    description: SOCIAL SECURITY NUMBER. This is a read only field. It is pre-filled
+      from Page 3.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: 999-99-9999
+      pictures:
+        format:
+        - 999-99-9999
+        validate:
+        - 999-99-9999
+        ui:
+        - text{999999999}|text{999-99-9999}|text{999 99 9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: veteran_ssn_3
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      to:
+        name: veteran_3_ssn
+        type: string
+        semantic_type: ssn
+        pattern: ^\d{3}\-\d{2}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  veteran_gross_employment_income_amt:
+    x_petey_id: '5_3'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 287.9989929199219
+      - 101.9990234375
+      - 378.0010070800781
+      - 131.0009765625
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[1].Amount[0]
+    description: SECTION 5 - PREVIOUS CALENDAR YEAR GROSS ANNUAL INCOME OF VETERAN,
+      SPOUSE AND DEPENDENT CHILDREN (Use a separate sheet for additional dependents).
+      1. GROSS ANNUAL INCOME FROM EMPLOYMENT (wages, bonuses, tips, etc.) EXCLUDING
+      INCOME FROM YOUR FARM, RANCH, PROPERTY OR BUSINESS. VETERAN GROSS ANNUAL INCOME.
+      Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format: &id001
+        - num{$zz,zzz,zz9.99}
+        validate: &id002
+        - num{zz,zzz,zz9.99}
+        ui: &id003
+        - num{zz,zzz,zz9}|num{zzzzzzz9}|num{zz,zzz,zz9.99}|num{zzzzzzz9.99}
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  spouse_gross_employment_income_amt:
+    x_petey_id: '5_4'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 390.0010070800781
+      - 101.9990234375
+      - 480.00299072265625
+      - 131.0009765625
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[1].Amount[1]
+    description: 1. SPOUSE GROSS ANNUAL INCOME. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{$zz,zzz,zz9.99}
+        validate:
+        - num{zz,zzz,zz9.99}
+        ui:
+        - num{zz,zzz,zz9}|num{zzzzzzz9}|num{zz,zzz,zz9.99}|num{zzzzzzz9.99}
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  child_1_gross_employment_income_amt:
+    x_petey_id: '5_5'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 492.00299072265625
+      - 101.9990234375
+      - 582.0050048828125
+      - 131.0009765625
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[1].Amount[2]
+    description: 1. CHILD 1 GROSS ANNUAL INCOME. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{$zz,zzz,zz9.99}
+        validate:
+        - num{zz,zzz,zz9.99}
+        ui:
+        - num{zz,zzz,zz9}|num{zzzzzzz9}|num{zz,zzz,zz9.99}|num{zzzzzzz9.99}
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: child1_gross_employment_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: child_1_gross_employment_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+  veteran_farm_business_net_income_amt:
+    x_petey_id: '5_6'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 287.9989929199219
+      - 132.0009765625
+      - 378.0010070800781
+      - 150.0009765625
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[2].Amount[3]
+    description: 2. NET INCOME FROM YOUR FARM, RANCH, PROPERTY OR BUSINESS. VETERAN
+      NET INCOME. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      join: shape
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  spouse_farm_business_net_income_amt:
+    x_petey_id: '5_7'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 390.0010070800781
+      - 132.0009765625
+      - 480.00299072265625
+      - 150.0009765625
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[2].Amount[4]
+    description: 2. SPOUSE NET INCOME. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      join: shape
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  child_1_farm_business_net_income_amt:
+    x_petey_id: '5_8'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 492.00299072265625
+      - 132.0009765625
+      - 582.0050048828125
+      - 150.0009765625
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[2].Amount[5]
+    description: 2. CHILD 1 NET INCOME. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      join: shape
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: child1_farm_business_net_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: child_1_farm_business_net_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+  veteran_other_income_amt:
+    x_petey_id: '5_9'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 287.9989929199219
+      - 150.0009765625
+      - 378.0010070800781
+      - 173.9990234375
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[3].Amount[6]
+    description: 3. LIST OTHER INCOME AMOUNTS (e.g., Social Security, compensation,
+      pension, interest, dividends) EXCLUDING WELFARE. VETERAN OTHER INCOME. Enter
+      dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      join: shape
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  spouse_other_income_amt:
+    x_petey_id: '5_10'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 390.0010070800781
+      - 150.0009765625
+      - 480.00299072265625
+      - 173.9990234375
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[3].Amount[7]
+    description: 3. SPOUSE OTHER INCOME. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      join: shape
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  child_1_other_income_amt:
+    x_petey_id: '5_11'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 492.00299072265625
+      - 150.0009765625
+      - 582.0050048828125
+      - 173.9990234375
+      widget_type: text
+      path: F[0].P5[0].Table1[0].#subform[3].Amount[8]
+    description: 3. CHILD 1 OTHER INCOME. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      join: shape
+      pictures:
+        format: *id001
+        validate: *id002
+        ui: *id003
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:33'
+      from:
+        name: child1_other_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: child_1_other_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number split off'
+  non_reimbursed_medical_expenses_amt:
+    x_petey_id: '5_12'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 492.0
+      - 191.99298095703125
+      - 581.9990234375
+      - 215.9940185546875
+      widget_type: text
+      path: F[0].P5[0].Amount[0]
+    description: SECTION 6 - PREVIOUS CALENDAR YEAR DEDUCTIBLE EXPENSES. 1. TOTAL
+      NON-REIMBURSED MEDICAL EXPENSES PAID BY YOU OR YOUR SPOUSE (e.g., payments for
+      doctors, dentists, medications, Medicare, health insurance, hospital and nursing
+      home) V. A. will calculate a deductible and the net medical expenses you may
+      claim. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{$zz,zzz,zz9.99}
+        validate:
+        - num{zz,zzz,zz9.99}
+        ui:
+        - num{zz,zzz,zz9}|num{zzzzzzz9}|num{zz,zzz,zz9.99}|num{zzzzzzz9.99}
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  funeral_and_burial_expenses_amt:
+    x_petey_id: '5_13'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 492.0
+      - 215.9940185546875
+      - 581.9990234375
+      - 239.99200439453125
+      widget_type: text
+      path: F[0].P5[0].Amount[1]
+    description: 2. AMOUNT YOU PAID LAST CALENDAR YEAR FOR FUNERAL AND BURIAL EXPENSES
+      (INCLUDING PREPAID BURIAL EXPENSES) FOR YOUR DECEASED SPOUSE OR DEPENDENT CHILD
+      (Also enter spouse or child's information in Section 3). Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{$zz,zzz,zz9.99}
+        validate:
+        - num{zz,zzz,zz9.99}
+        ui:
+        - num{zz,zzz,zz9}|num{zzzzzzz9}|num{zz,zzz,zz9.99}|num{zzzzzzz9.99}
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  educational_expenses_amt:
+    x_petey_id: '5_14'
+    type: number
+    semantic_type: money
+    widget:
+      page: 5
+      rect:
+      - 492.0
+      - 239.99200439453125
+      - 581.9990234375
+      - 263.99298095703125
+      widget_type: text
+      path: F[0].P5[0].Amount[2]
+    description: 3. AMOUNT YOU PAID LAST CALENDAR YEAR FOR YOUR COLLEGE OR VOCATIONAL
+      EDUCATIONAL EXPENSES (e.g., tuition, books, fees, materials) DO NOT LIST YOUR
+      DEPENDENTS' EDUCATIONAL EXPENSES. Enter dollar amount.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{$zz,zzz,zz9.99}
+        validate:
+        - num{zz,zzz,zz9.99}
+        ui:
+        - num{zz,zzz,zz9}|num{zzzzzzz9}|num{zz,zzz,zz9.99}|num{zzzzzzz9.99}
+      message: Value cannot exceed 99,999,999.99
+    label_source: llm
+    x_petey_retype:
+    - money
+  applicant_signature:
+    x_petey_id: '5_15'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 162.0
+      - 551.9929809570312
+      - 414.0
+      - 575.9940185546875
+      widget_type: text
+      path: F[0].P5[0].SignatureOfAppliant[0]
+    description: See information under SECTION 7 - CONSENT TO COPAYS AND TO RECEIVE
+      COMMUNICATIONS. See information under ASSIGNMENT OF BENEFITS. SECTION 8 - SUBMITTING
+      YOUR UPDATE. Important information and declaration above. SIGNATURE OF APPLICANT
+      (Sign in ink). This signature field can not be signed with a digital signature
+      and the signee's name can not be typewritten into this space. This is a protected
+      field. Please print the document and sign in ink.
+    x_petey_description_source: tooltip
+    label_source: llm
+  signature_dt:
+    x_petey_id: '5_16'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 5
+      rect:
+      - 504.00299072265625
+      - 563.9949951171875
+      - 582.0009765625
+      - 575.9940185546875
+      widget_type: text
+      path: F[0].P5[0].DateSigned[0]
+    description: DATE OF SIGNATURE. Enter 2 digit month, 2 digit day and 4 digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
+    label_source: llm
+  military_exposure_air_pollutants_ind:
+    x_petey_id: '4_22'
+    type: category
+    widgets:
+      air_pollutants:
+        page: 4
+        rect:
+        - 300.00201416015625
+        - 384.9989929199219
+        - 310.00201416015625
+        - 394.9989929199219
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[0]
+        on_state: '1'
+        caption: AIR POLLUTANTS (burn pits, sand, oil well/sulfur fires)
+        x_petey_caption_source: page_choice
+      chemicals:
+        page: 4
+        rect:
+        - 300.0010070800781
+        - 397.0010070800781
+        - 310.0010070800781
+        - 407.0010070800781
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[1]
+        on_state: '2'
+        caption: CHEMICALS (pesticides, herbicides, contaminated water)
+        x_petey_caption_source: page_text
+      contaminated_water_camp_lejeune:
+        page: 4
+        rect:
+        - 300.00201416015625
+        - 409.0
+        - 310.00201416015625
+        - 419.0
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[2]
+        on_state: '6'
+        caption: CONTAMINATED WATER AT CAMP LEJEUNE
+        x_petey_caption_source: page_text
+      radiation:
+        page: 4
+        rect:
+        - 300.0010070800781
+        - 421.00201416015625
+        - 310.0010070800781
+        - 431.00201416015625
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[3]
+        on_state: '3'
+        caption: RADIATION
+        x_petey_caption_source: page_text
+      shad:
+        page: 4
+        rect:
+        - 372.00201416015625
+        - 420.9989929199219
+        - 382.00201416015625
+        - 430.9989929199219
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[4]
+        on_state: '4'
+        caption: SHAD (Shipboard Hazard and Defense)
+        x_petey_caption_source: page_text
+      occupational_hazards:
+        page: 4
+        rect:
+        - 300.0329895019531
+        - 433.0010070800781
+        - 310.0329895019531
+        - 443.0010070800781
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[5]
+        on_state: '5'
+        caption: OCCUPATIONAL HAZARDS (jet fuel, industrial solvents, lead, firefighting
+          foams)
+        x_petey_caption_source: page_choice
+      asbestos:
+        page: 4
+        rect:
+        - 299.9989929199219
+        - 445.0
+        - 309.9989929199219
+        - 455.0
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[6]
+        on_state: '5'
+        caption: ASBESTOS
+        x_petey_caption_source: page_text
+      mustard_gas:
+        page: 4
+        rect:
+        - 371.9989929199219
+        - 445.0
+        - 381.9989929199219
+        - 455.0
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[7]
+        on_state: '5'
+        caption: MUSTARD GAS
+        x_petey_caption_source: page_text
+      warfare_agents:
+        page: 4
+        rect:
+        - 300.0329895019531
+        - 457.00201416015625
+        - 310.0329895019531
+        - 467.00201416015625
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[8]
+        on_state: '2'
+        caption: WARFARE AGENTS (nerve agents, chemical and biological weapons)
+        x_petey_caption_source: page_choice
+      other:
+        page: 4
+        rect:
+        - 300.0010070800781
+        - 469.0010070800781
+        - 310.0010070800781
+        - 479.0010070800781
+        widget_type: checkbox
+        path: F[0].P4[0].ExposedToTheFollowing[9]
+        on_state: '7'
+        caption: OTHER (Specify)
+        x_petey_caption_source: page_text
+    description: 3E. HAVE YOU BEEN EXPOSED TO ANY OF THE FOLLOWING? (Check all that
+      apply) - AIR POLLUTANTS (burn pits, sand, oil well / sulfur fires).
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: military_exposure_air_pollutants_ind
+      reason: The outlined box is a checkbox next to 'AIR POLLUTANTS (burn pits, sand,
+        oil well/sulfur fires)' in the check-all-that-apply list; it holds a boolean
+        indicator, which the proposed name 'military_exposure_air_pollutants_ind'
+        correctly identifies, while the generic 'military_exposure' cannot distingui
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -values
+      - name
+      reason: The widget is a single 10pt checkbox and the tooltip ends at 'AIR POLLUTANTS',
+        so this box is one checkbox of the check-all-that-apply list, not the whole
+        category; it is a boolean indicator and the generic name cannot tell it from
+        the other exposure boxes.
+      before:
+        type: category
+        values:
+        - air_pollutants
+        - asbestos
+        - chemicals
+        - contaminated_water_camp_lejeune
+        - mustard_gas
+        - occupational_hazards
+        - other
+        - radiation
+        - shad
+        - warfare_agents
+        description: '3E. HAVE YOU BEEN EXPOSED TO ANY OF THE FOLLOWING? (Check all
+          that apply). Veterans can locate additional military exposure categories
+          on V. A.''s Public Health website at: https://www.publichealth.va.gov/exposures/.
+          AIR POLLUTANTS (burn pits, sand, oil well / sulfur fires).'
+      old_name: military_exposure
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
+    values:
+    - air_pollutants
+    - chemicals
+    - contaminated_water_camp_lejeune
+    - radiation
+    - shad
+    - occupational_hazards
+    - asbestos
+    - mustard_gas
+    - warfare_agents
+    - other
+    x_petey_hand_edit:
+      when: '2026-10-16 12:24:31'
+      from:
+        name: military_exposure_air_pollutants_ind
+        type: boolean
+        semantic_type: null
+        pattern: null
+      to:
+        name: military_exposure_air_pollutants_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 10 options is one of (category), not boolean
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:26:59'
+      from:
+      - military_exposure_air_pollutants_ind::air_pollutants
+      - military_exposure_air_pollutants_ind::chemicals
+      - military_exposure_air_pollutants_ind::contaminated_water_camp_lejeune
+      - military_exposure_air_pollutants_ind::radiation
+      - military_exposure_air_pollutants_ind::shad
+      - military_exposure_air_pollutants_ind::occupational_hazards
+      - military_exposure_air_pollutants_ind::asbestos
+      - military_exposure_air_pollutants_ind::mustard_gas
+      - military_exposure_air_pollutants_ind::warfare_agents
+      - military_exposure_air_pollutants_ind::other
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 4
+  collisions:
+  - original_label: veteran_name
+    assigned_label: veteran_name_2
+    page: 4
+    rect:
+    - 258.0
+    - 42.0009765625
+    - 462.0
+    - 64.9990234375
+  - original_label: veteran_ssn
+    assigned_label: veteran_ssn_2
+    page: 4
+    rect:
+    - 474.0
+    - 53.9990234375
+    - 581.9990234375
+    - 65.9990234375
+  - original_label: veteran_name
+    assigned_label: veteran_name_3
+    page: 5
+    rect:
+    - 258.0
+    - 42.0009765625
+    - 462.0
+    - 64.9990234375
+  - original_label: veteran_ssn
+    assigned_label: veteran_ssn_3
+    page: 5
+    rect:
+    - 474.0
+    - 53.9990234375
+    - 581.9990234375
+    - 65.9990234375
+x_petey_xfa_log:
+  joined: 89
+  pattern: 9
+  description: 19
+x_petey_emit_fixes:
+  description_from_tooltip: 1
+x_petey_page_check:
+  when: '2026-10-16 12:28:03'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 3
+  - 4
+  - 5
+  fields: 90
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/va_10_10ezr__9875a3__1bb10f68.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: va_10_10ezr_20261006_231019
+  blueprint: /home/user/petey-2/runs/judge_eval/work/va_10_10ezr.bpt
+  when: '2026-10-06 23:10:49'
+x_petey_run:
+  record: runs/judge_eval/form_runs/va_10_10ezr.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-06 23:10:52'

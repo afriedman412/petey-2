@@ -1,0 +1,2117 @@
+bpt_version: '1.1'
+name: acord_36
+form_version: null
+source_pdf: acord_36.pdf
+source_pdf_hash: 6ff8758167dcd6f847e45c5abb1815b02adc5b4d
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:22:17'
+fields:
+  form_dt:
+    x_petey_id: '1_1'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 507.74200439453125
+      - 36.0
+      - 593.2630004882812
+      - 49.67999267578125
+      widget_type: text
+      path: F[0].P1[0].Date1[0]
+    description: Month/day/year (MM/DD/YYYY) on which the form is completed.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+  new_agency_name_and_address_txt:
+    x_petey_id: '1_5'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.764999389648438
+      - 75.0050048828125
+      - 243.01400756835938
+      - 126.0
+      widget_type: text
+      path: F[0].P1[0].Producer[0]
+    description: Name and address of the Agency represented by the producer named
+      in the authorization form as the exclusive representative.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'NEW AGENCY' and tooltip describe an agency name and address,
+        not a person; semantic_type person_name is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Name and address of the Agency represented by the producer named
+          in the authorization form as the exclusive representative.
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: new_agency_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: new_agency_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+  new_agency_phone_nbr:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 110.23899841308594
+      - 50.25799560546875
+      - 243.01400756835938
+      - 63.93798828125
+      widget_type: text
+      path: F[0].P1[0].PHONE[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: new_agency_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: new_agency_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  new_agency_fax_nbr:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 98.24899291992188
+      - 62.2490234375
+      - 243.01400756835938
+      - 75.92901611328125
+      widget_type: text
+      path: F[0].P1[0].FAX[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: new_agency_fax_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: new_agency_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  new_agency_email_address_txt:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 53.55099105834961
+      - 126.73699951171875
+      - 242.56500244140625
+      - 140.4169921875
+      widget_type: text
+      path: F[0].P1[0].EMAIL[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: new_agency_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: new_agency_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  new_agency_cd:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 43.11098861694336
+      - 139.1259765625
+      - 123.03101348876953
+      - 152.8060302734375
+      widget_type: text
+      path: F[0].P1[0].Code[0]
+    description: Identification code assigned to the agency or brokerage firm by the
+      insurance company receiving this form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  new_agency_subcode_txt:
+    x_petey_id: '1_8'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 167.55999755859375
+      - 139.1259765625
+      - 239.55999755859375
+      - 152.8060302734375
+      widget_type: text
+      path: F[0].P1[0].Subcode[0]
+    description: If the agency or brokerage uses a sub-code identification system
+      with the company, enter the appropriate code.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: new_agency_subcode
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: new_agency_subcode_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  agency_customer_nbr:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 66.25
+      - 150.7459716796875
+      - 239.55999755859375
+      - 168.7459716796875
+      widget_type: text
+      path: F[0].P1[0].AgencyID[0]
+    description: Customer's identification number assigned by the agency or brokerage.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: agency_customer_id
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: agency_customer_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: id -> nbr'
+  insurance_company_nm:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 246.0959930419922
+      - 58.50701904296875
+      - 590.9949951171875
+      - 137.989990234375
+      widget_type: text
+      path: F[0].P1[0].InsCo[0]
+    description: Name of the insurance company that will receive the authorization
+      form. Do not use group names, use the actual name of the company within the
+      group that issued the policy.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: insurance_company_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: insurance_company_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  current_agency_nm:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 244.80499267578125
+      - 147.0040283203125
+      - 415.791015625
+      - 165.0040283203125
+      widget_type: text
+      path: F[0].P1[0].CurrAgency[0]
+    description: Indicate the name of the current insurance agency.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'CURRENT AGENCY' and tooltip say an insurance agency name; it
+        is a business name, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Indicate the name of the current insurance agency.
+      judged: 'kept: 4 -> 3'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: current_agency_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: current_agency_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  current_producer_nm:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 417.2929992675781
+      - 147.0040283203125
+      - 589.8099975585938
+      - 165.0040283203125
+      widget_type: text
+      path: F[0].P1[0].CurrProd[0]
+    description: Indicate the name of the current producer.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: current_producer_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: current_producer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  named_insured_1_nm:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.764999389648438
+      - 196.49798583984375
+      - 176.25799560546875
+      - 210.177978515625
+      widget_type: text
+      path: F[0].P1[0].Name1[0]
+    description: Indicate the named insured exactly as it appears on the policy.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: named_insured_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: named_insured_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+  policy_1_nbr:
+    x_petey_id: '1_13'
+    type: date
+    widget:
+      page: 1
+      rect:
+      - 181.5019989013672
+      - 196.5050048828125
+      - 310.66400146484375
+      - 210.18499755859375
+      widget_type: text
+      path: F[0].P1[0].Policy1[0]
+    description: The number assigned by the insurance company for the policy. In general,
+      policy numbers will not appear on new business applications since they are not
+      known at that point in time.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_num
+        type: date
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_1_nbr
+        type: date
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr; first of a numbered set gets 1'
+  policy_effective_1_dt:
+    x_petey_id: '1_14'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 314.2769775390625
+      - 196.5050048828125
+      - 372.01898193359375
+      - 210.18499755859375
+      widget_type: text
+      path: F[0].P1[0].Eff1[0]
+    description: Date (MM/DD/YYYY) on which the terms and conditions of the policy
+      will commence.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_effective_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_effective_1_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+  policy_expiration_1_dt:
+    x_petey_id: '1_15'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 374.2720031738281
+      - 196.5050048828125
+      - 432.0140075683594
+      - 210.18499755859375
+      widget_type: text
+      path: F[0].P1[0].Exp1[0]
+    description: Date (MM/DD/YYYY) on which the terms and conditions of the policy
+      will terminate unless renewed.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_expiration_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_expiration_1_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+  line_of_business_1_txt:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 438.0090026855469
+      - 196.5050048828125
+      - 589.9290161132812
+      - 210.18499755859375
+      widget_type: text
+      path: F[0].P1[0].LOB1[0]
+    description: Line of business covered by the policy.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: line_of_business_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: line_of_business_1_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+  named_insured_2_nm:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.77499008178711
+      - 221.12200927734375
+      - 176.23899841308594
+      - 234.802001953125
+      widget_type: text
+      path: F[0].P1[0].Name2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: named_insured_nm_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: named_insured_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_2_nbr:
+    x_petey_id: '1_18'
+    type: date
+    widget:
+      page: 1
+      rect:
+      - 181.48599243164062
+      - 221.1290283203125
+      - 310.5670166015625
+      - 234.80902099609375
+      widget_type: text
+      path: F[0].P1[0].Policy2[0]
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_num_2
+        type: date
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_2_nbr
+        type: date
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr; number moved before the suffix'
+  policy_effective_2_dt:
+    x_petey_id: '1_19'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 314.26300048828125
+      - 221.1290283203125
+      - 372.00701904296875
+      - 234.80902099609375
+      widget_type: text
+      path: F[0].P1[0].Eff2[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_effective_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_effective_2_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_expiration_2_dt:
+    x_petey_id: '1_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 374.25799560546875
+      - 221.1290283203125
+      - 432.00201416015625
+      - 234.80902099609375
+      widget_type: text
+      path: F[0].P1[0].Exp2[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_expiration_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_expiration_2_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  line_of_business_2_txt:
+    x_petey_id: '1_21'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 438.031005859375
+      - 221.1290283203125
+      - 589.9509887695312
+      - 234.80902099609375
+      widget_type: text
+      path: F[0].P1[0].LOB2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: line_of_business_txt_2
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: line_of_business_2_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  named_insured_3_nm:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.77499008178711
+      - 244.593994140625
+      - 176.23899841308594
+      - 258.27398681640625
+      widget_type: text
+      path: F[0].P1[0].Name3[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: named_insured_nm_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: named_insured_3_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_3_nbr:
+    x_petey_id: '1_23'
+    type: date
+    widget:
+      page: 1
+      rect:
+      - 181.48599243164062
+      - 244.60101318359375
+      - 310.5670166015625
+      - 258.281005859375
+      widget_type: text
+      path: F[0].P1[0].Policy3[0]
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_num_3
+        type: date
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_3_nbr
+        type: date
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr; number moved before the suffix'
+  policy_effective_3_dt:
+    x_petey_id: '1_24'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 314.26300048828125
+      - 244.60101318359375
+      - 372.00701904296875
+      - 258.281005859375
+      widget_type: text
+      path: F[0].P1[0].Eff3[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_effective_dt_3
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_effective_3_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_expiration_3_dt:
+    x_petey_id: '1_25'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 374.25799560546875
+      - 244.60101318359375
+      - 432.00201416015625
+      - 258.281005859375
+      widget_type: text
+      path: F[0].P1[0].Exp3[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_expiration_dt_3
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_expiration_3_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  line_of_business_3_txt:
+    x_petey_id: '1_26'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 438.031005859375
+      - 244.60101318359375
+      - 589.9509887695312
+      - 258.281005859375
+      widget_type: text
+      path: F[0].P1[0].LOB3[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: line_of_business_txt_3
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: line_of_business_3_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  named_insured_4_nm:
+    x_petey_id: '1_27'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.77499008178711
+      - 269.073974609375
+      - 176.23899841308594
+      - 282.7539978027344
+      widget_type: text
+      path: F[0].P1[0].Name4[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: named_insured_nm_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: named_insured_4_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_4_nbr:
+    x_petey_id: '1_28'
+    type: date
+    widget:
+      page: 1
+      rect:
+      - 181.48599243164062
+      - 269.08099365234375
+      - 310.5670166015625
+      - 282.760986328125
+      widget_type: text
+      path: F[0].P1[0].Policy4[0]
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_num_4
+        type: date
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_4_nbr
+        type: date
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr; number moved before the suffix'
+  policy_effective_4_dt:
+    x_petey_id: '1_29'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 314.26300048828125
+      - 269.08099365234375
+      - 372.00701904296875
+      - 282.760986328125
+      widget_type: text
+      path: F[0].P1[0].Eff4[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_effective_dt_4
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_effective_4_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_expiration_4_dt:
+    x_petey_id: '1_30'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 374.25799560546875
+      - 269.08099365234375
+      - 432.00201416015625
+      - 282.760986328125
+      widget_type: text
+      path: F[0].P1[0].Exp4[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_expiration_dt_4
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_expiration_4_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  line_of_business_4_txt:
+    x_petey_id: '1_31'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 438.031005859375
+      - 269.08099365234375
+      - 589.9509887695312
+      - 282.760986328125
+      widget_type: text
+      path: F[0].P1[0].LOB4[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: line_of_business_txt_4
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: line_of_business_4_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  named_insured_5_nm:
+    x_petey_id: '1_32'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.77499008178711
+      - 293.04998779296875
+      - 176.23899841308594
+      - 306.72998046875
+      widget_type: text
+      path: F[0].P1[0].Name5[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: named_insured_nm_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: named_insured_5_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_5_nbr:
+    x_petey_id: '1_33'
+    type: date
+    widget:
+      page: 1
+      rect:
+      - 181.48599243164062
+      - 293.0570068359375
+      - 310.5670166015625
+      - 306.73699951171875
+      widget_type: text
+      path: F[0].P1[0].Policy5[0]
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_num_5
+        type: date
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_5_nbr
+        type: date
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr; number moved before the suffix'
+  policy_effective_5_dt:
+    x_petey_id: '1_34'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 314.26300048828125
+      - 293.0570068359375
+      - 372.00701904296875
+      - 306.73699951171875
+      widget_type: text
+      path: F[0].P1[0].Eff5[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_effective_dt_5
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_effective_5_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_expiration_5_dt:
+    x_petey_id: '1_35'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 374.25799560546875
+      - 293.0570068359375
+      - 432.00201416015625
+      - 306.73699951171875
+      widget_type: text
+      path: F[0].P1[0].Exp5[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_expiration_dt_5
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_expiration_5_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  line_of_business_5_txt:
+    x_petey_id: '1_36'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 438.031005859375
+      - 293.0570068359375
+      - 589.9509887695312
+      - 306.73699951171875
+      widget_type: text
+      path: F[0].P1[0].LOB5[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: line_of_business_txt_5
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: line_of_business_5_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  named_insured_6_nm:
+    x_petey_id: '1_37'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.77499008178711
+      - 317.0260009765625
+      - 176.23899841308594
+      - 330.70599365234375
+      widget_type: text
+      path: F[0].P1[0].Name6[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: named_insured_nm_6
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: named_insured_6_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_6_nbr:
+    x_petey_id: '1_38'
+    type: date
+    widget:
+      page: 1
+      rect:
+      - 181.48599243164062
+      - 317.03302001953125
+      - 310.5670166015625
+      - 330.7130126953125
+      widget_type: text
+      path: F[0].P1[0].Policy6[0]
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_num_6
+        type: date
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_6_nbr
+        type: date
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr; number moved before the suffix'
+  policy_effective_6_dt:
+    x_petey_id: '1_39'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 314.26300048828125
+      - 317.03302001953125
+      - 372.00701904296875
+      - 330.7130126953125
+      widget_type: text
+      path: F[0].P1[0].Eff6[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_effective_dt_6
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_effective_6_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_expiration_6_dt:
+    x_petey_id: '1_40'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 374.25799560546875
+      - 317.03302001953125
+      - 432.00201416015625
+      - 330.7130126953125
+      widget_type: text
+      path: F[0].P1[0].Exp6[0]
+    description: Date (MM/DD/YYYY) on which the terms and conditions of the policy
+      in row 6 will terminate unless renewed.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Name and box (Exp6) are correct; the description was only the XFA validation
+        message, replaced with what the box holds.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: Please enter date as MM/DD/YYYY.
+      judged: 'kept: 3 -> 3'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_expiration_dt_6
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_expiration_6_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  line_of_business_6_txt:
+    x_petey_id: '1_41'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 438.031005859375
+      - 317.03302001953125
+      - 589.9509887695312
+      - 330.7130126953125
+      widget_type: text
+      path: F[0].P1[0].LOB6[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: line_of_business_txt_6
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: line_of_business_6_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  named_insured_7_nm:
+    x_petey_id: '1_42'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 18.77499008178711
+      - 340.92999267578125
+      - 176.23899841308594
+      - 354.6099853515625
+      widget_type: text
+      path: F[0].P1[0].Name7[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: named_insured_nm_7
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: named_insured_7_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_7_nbr:
+    x_petey_id: '1_43'
+    type: date
+    widget:
+      page: 1
+      rect:
+      - 181.48599243164062
+      - 340.93701171875
+      - 310.5670166015625
+      - 354.61700439453125
+      widget_type: text
+      path: F[0].P1[0].Policy7[0]
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_num_7
+        type: date
+        semantic_type: null
+        pattern: null
+      to:
+        name: policy_7_nbr
+        type: date
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr; number moved before the suffix'
+  policy_effective_7_dt:
+    x_petey_id: '1_44'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 314.26300048828125
+      - 340.93701171875
+      - 372.00701904296875
+      - 354.61700439453125
+      widget_type: text
+      path: F[0].P1[0].Eff7[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_effective_dt_7
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_effective_7_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  policy_expiration_7_dt:
+    x_petey_id: '1_45'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 374.25799560546875
+      - 340.93701171875
+      - 432.00201416015625
+      - 354.61700439453125
+      widget_type: text
+      path: F[0].P1[0].Exp7[0]
+    description: Please enter date as MM/DD/YYYY.
+    x_petey_description_source: xfa_message
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: policy_expiration_dt_7
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: policy_expiration_7_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  line_of_business_7_txt:
+    x_petey_id: '1_46'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 438.031005859375
+      - 340.93701171875
+      - 589.9509887695312
+      - 354.61700439453125
+      widget_type: text
+      path: F[0].P1[0].LOB7[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: line_of_business_txt_7
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: line_of_business_7_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  designated_producer_nm:
+    x_petey_id: '1_47'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 334.4880065917969
+      - 371.791015625
+      - 549.7509765625
+      - 385.47100830078125
+      widget_type: text
+      path: F[0].P1[0].Producer2[0]
+    description: Name of the producer designated as the exclusive representative of
+      the insured.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: designated_producer_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: designated_producer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  producer_cd:
+    x_petey_id: '1_48'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 59.24399948120117
+      - 395.7669982910156
+      - 152.10699462890625
+      - 409.447021484375
+      widget_type: text
+      path: F[0].P1[0].CodeNumb[0]
+    description: Identification code assigned to the producer by the agency.
+    x_petey_description_source: tooltip
+    label_source: llm
+  authorization_effective_dt:
+    x_petey_id: '1_49'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 449.26300048828125
+      - 396.14398193359375
+      - 550.489013671875
+      - 409.8240051269531
+      widget_type: text
+      path: F[0].P1[0].Date2[0]
+    description: Date (MM/DD/YYYY) on which this authorization will take effect.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+  insured_signature_dt:
+    x_petey_id: '1_50'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 412.5260009765625
+      - 577.5020141601562
+      - 500.25799560546875
+      - 591.1820068359375
+      widget_type: text
+      path: F[0].P1[0].Date3[0]
+    description: The date the insured signed the authorization form.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - MM/DD/YYYY
+      message: Please enter date as MM/DD/YYYY.
+    label_source: llm
+  insured_title_txt:
+    x_petey_id: '1_51'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 110.26801300048828
+      - 613.573974609375
+      - 497.25299072265625
+      - 627.2540283203125
+      widget_type: text
+      path: F[0].P1[0].Title[0]
+    description: If the insured is acting as an authorized representative of another
+      entity, list the insured's title.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: insured_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: insured_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  insured_company_nm:
+    x_petey_id: '1_52'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 110.26801300048828
+      - 649.7120361328125
+      - 497.25299072265625
+      - 663.3919677734375
+      widget_type: text
+      path: F[0].P1[0].CompanyName[0]
+    description: If the insured is acting as an authorized representative of another
+      entity, list the company name of that entity.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: insured_company_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: insured_company_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  insured_address_line_1_txt:
+    x_petey_id: '1_53'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 108.0
+      - 677.990966796875
+      - 495.7510070800781
+      - 691.6710205078125
+      widget_type: text
+      path: F[0].P1[0].Street[0]
+    description: Indicate the street address of the insured.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_city_nm:
+    x_petey_id: '1_54'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 106.49800109863281
+      - 708.7459716796875
+      - 300.7559814453125
+      - 722.4259643554688
+      widget_type: text
+      path: F[0].P1[0].City[0]
+    description: Indicate the city of the insured.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_state_cd:
+    x_petey_id: '1_55'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 309.0050048828125
+      - 710.2490234375
+      - 402.74700927734375
+      - 723.9290161132812
+      widget_type: text
+      path: F[0].P1[0].State[0]
+    description: Indicate the state of the insured.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_zip_cd:
+    x_petey_id: '1_56'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 408.7559814453125
+      - 708.009033203125
+      - 502.49798583984375
+      - 721.6890258789062
+      widget_type: text
+      path: F[0].P1[0].Zip[0]
+    description: Indicate the zip code of the insured.
+    x_petey_description_source: tooltip
+    label_source: llm
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 30
+  collisions:
+  - original_label: named_insured_nm
+    assigned_label: named_insured_nm_2
+    page: 1
+    rect:
+    - 18.77499008178711
+    - 221.12200927734375
+    - 176.23899841308594
+    - 234.802001953125
+  - original_label: policy_num
+    assigned_label: policy_num_2
+    page: 1
+    rect:
+    - 181.48599243164062
+    - 221.1290283203125
+    - 310.5670166015625
+    - 234.80902099609375
+  - original_label: policy_effective_dt
+    assigned_label: policy_effective_dt_2
+    page: 1
+    rect:
+    - 314.26300048828125
+    - 221.1290283203125
+    - 372.00701904296875
+    - 234.80902099609375
+  - original_label: policy_expiration_dt
+    assigned_label: policy_expiration_dt_2
+    page: 1
+    rect:
+    - 374.25799560546875
+    - 221.1290283203125
+    - 432.00201416015625
+    - 234.80902099609375
+  - original_label: line_of_business_txt
+    assigned_label: line_of_business_txt_2
+    page: 1
+    rect:
+    - 438.031005859375
+    - 221.1290283203125
+    - 589.9509887695312
+    - 234.80902099609375
+  - original_label: named_insured_nm
+    assigned_label: named_insured_nm_3
+    page: 1
+    rect:
+    - 18.77499008178711
+    - 244.593994140625
+    - 176.23899841308594
+    - 258.27398681640625
+  - original_label: policy_num
+    assigned_label: policy_num_3
+    page: 1
+    rect:
+    - 181.48599243164062
+    - 244.60101318359375
+    - 310.5670166015625
+    - 258.281005859375
+  - original_label: policy_effective_dt
+    assigned_label: policy_effective_dt_3
+    page: 1
+    rect:
+    - 314.26300048828125
+    - 244.60101318359375
+    - 372.00701904296875
+    - 258.281005859375
+  - original_label: policy_expiration_dt
+    assigned_label: policy_expiration_dt_3
+    page: 1
+    rect:
+    - 374.25799560546875
+    - 244.60101318359375
+    - 432.00201416015625
+    - 258.281005859375
+  - original_label: line_of_business_txt
+    assigned_label: line_of_business_txt_3
+    page: 1
+    rect:
+    - 438.031005859375
+    - 244.60101318359375
+    - 589.9509887695312
+    - 258.281005859375
+  - original_label: named_insured_nm
+    assigned_label: named_insured_nm_4
+    page: 1
+    rect:
+    - 18.77499008178711
+    - 269.073974609375
+    - 176.23899841308594
+    - 282.7539978027344
+  - original_label: policy_num
+    assigned_label: policy_num_4
+    page: 1
+    rect:
+    - 181.48599243164062
+    - 269.08099365234375
+    - 310.5670166015625
+    - 282.760986328125
+  - original_label: policy_effective_dt
+    assigned_label: policy_effective_dt_4
+    page: 1
+    rect:
+    - 314.26300048828125
+    - 269.08099365234375
+    - 372.00701904296875
+    - 282.760986328125
+  - original_label: policy_expiration_dt
+    assigned_label: policy_expiration_dt_4
+    page: 1
+    rect:
+    - 374.25799560546875
+    - 269.08099365234375
+    - 432.00201416015625
+    - 282.760986328125
+  - original_label: line_of_business_txt
+    assigned_label: line_of_business_txt_4
+    page: 1
+    rect:
+    - 438.031005859375
+    - 269.08099365234375
+    - 589.9509887695312
+    - 282.760986328125
+  - original_label: named_insured_nm
+    assigned_label: named_insured_nm_5
+    page: 1
+    rect:
+    - 18.77499008178711
+    - 293.04998779296875
+    - 176.23899841308594
+    - 306.72998046875
+  - original_label: policy_num
+    assigned_label: policy_num_5
+    page: 1
+    rect:
+    - 181.48599243164062
+    - 293.0570068359375
+    - 310.5670166015625
+    - 306.73699951171875
+  - original_label: policy_effective_dt
+    assigned_label: policy_effective_dt_5
+    page: 1
+    rect:
+    - 314.26300048828125
+    - 293.0570068359375
+    - 372.00701904296875
+    - 306.73699951171875
+  - original_label: policy_expiration_dt
+    assigned_label: policy_expiration_dt_5
+    page: 1
+    rect:
+    - 374.25799560546875
+    - 293.0570068359375
+    - 432.00201416015625
+    - 306.73699951171875
+  - original_label: line_of_business_txt
+    assigned_label: line_of_business_txt_5
+    page: 1
+    rect:
+    - 438.031005859375
+    - 293.0570068359375
+    - 589.9509887695312
+    - 306.73699951171875
+  - original_label: named_insured_nm
+    assigned_label: named_insured_nm_6
+    page: 1
+    rect:
+    - 18.77499008178711
+    - 317.0260009765625
+    - 176.23899841308594
+    - 330.70599365234375
+  - original_label: policy_num
+    assigned_label: policy_num_6
+    page: 1
+    rect:
+    - 181.48599243164062
+    - 317.03302001953125
+    - 310.5670166015625
+    - 330.7130126953125
+  - original_label: policy_effective_dt
+    assigned_label: policy_effective_dt_6
+    page: 1
+    rect:
+    - 314.26300048828125
+    - 317.03302001953125
+    - 372.00701904296875
+    - 330.7130126953125
+  - original_label: policy_expiration_dt
+    assigned_label: policy_expiration_dt_6
+    page: 1
+    rect:
+    - 374.25799560546875
+    - 317.03302001953125
+    - 432.00201416015625
+    - 330.7130126953125
+  - original_label: line_of_business_txt
+    assigned_label: line_of_business_txt_6
+    page: 1
+    rect:
+    - 438.031005859375
+    - 317.03302001953125
+    - 589.9509887695312
+    - 330.7130126953125
+  - original_label: named_insured_nm
+    assigned_label: named_insured_nm_7
+    page: 1
+    rect:
+    - 18.77499008178711
+    - 340.92999267578125
+    - 176.23899841308594
+    - 354.6099853515625
+  - original_label: policy_num
+    assigned_label: policy_num_7
+    page: 1
+    rect:
+    - 181.48599243164062
+    - 340.93701171875
+    - 310.5670166015625
+    - 354.61700439453125
+  - original_label: policy_effective_dt
+    assigned_label: policy_effective_dt_7
+    page: 1
+    rect:
+    - 314.26300048828125
+    - 340.93701171875
+    - 372.00701904296875
+    - 354.61700439453125
+  - original_label: policy_expiration_dt
+    assigned_label: policy_expiration_dt_7
+    page: 1
+    rect:
+    - 374.25799560546875
+    - 340.93701171875
+    - 432.00201416015625
+    - 354.61700439453125
+  - original_label: line_of_business_txt
+    assigned_label: line_of_business_txt_7
+    page: 1
+    rect:
+    - 438.031005859375
+    - 340.93701171875
+    - 589.9509887695312
+    - 354.61700439453125
+x_petey_dropped_widgets:
+  count: 1
+  widgets:
+  - path: F[0].P1[0].ClearAll[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear All
+x_petey_xfa_log:
+  joined: 56
+  type: 7
+  description: 12
+x_petey_page_check:
+  when: '2026-10-16 13:13:32'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 56
+  flagged: 7
+  unanswered: 0
+  record: runs/page_check/acord_36__555b9b__be344e5f.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: acord_36_20261006_212420
+  blueprint: /home/user/petey-2/runs/judge_eval/work/acord_36.bpt
+  when: '2026-10-06 21:24:38'
+x_petey_run:
+  record: runs/judge_eval/form_runs/acord_36.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 1
+  when: '2026-10-06 21:24:39'

@@ -1,0 +1,6985 @@
+bpt_version: '1.1'
+name: fmcsa_boc_3
+form_version: null
+source_pdf: boc-3.pdf
+source_pdf_hash: b3a33fb96da16ecfdb28b45cb76f259166eb33d6
+source_pages:
+- 1
+- 2
+- 3
+- 4
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 19:23:31'
+fields:
+  date_received_dt:
+    x_petey_id: '1_2'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 530.25
+      - 39.5
+      - 590.25
+      - 49.5
+      widget_type: text
+      path: dateReceive
+    description: For FMCSA use only.
+    x_petey_description_source: tooltip
+    label_source: llm
+  carrier_broker_freight_forwarder_nm:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 84.24629974365234
+      - 339.0
+      - 594.0
+      - 352.0
+      widget_type: text
+      path: Full Name
+    description: FULL AND CORRECT NAME OF CARRIER, BROKER, OR FREIGHT FORWARDER. NOMBRE
+      COMPLETO Y CORRECTO DEL TRANSPORTISTA, AGENTE, O EL DESTINATARIO DEL FLETE.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption and tooltip both say the box holds the name of a carrier, broker
+        or freight forwarder, i.e. a business name; the person_name semantic type
+        is wrong. Name and description already match.
+      before:
+        type: string
+        semantic_type: person_name
+        description: FULL AND CORRECT NAME OF CARRIER, BROKER, OR FREIGHT FORWARDER.
+          NOMBRE COMPLETO Y CORRECTO DEL TRANSPORTISTA, AGENTE, O EL DESTINATARIO
+          DEL FLETE.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: carrier_broker_freight_forwarder_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: carrier_broker_freight_forwarder_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  carrier_address_line_1_txt:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 84.0
+      - 392.0
+      - 207.0
+      - 405.0
+      widget_type: text
+      path: Street Address
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  carrier_city_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 213.0
+      - 392.0
+      - 281.0
+      - 405.0
+      widget_type: text
+      path: City Address
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  carrier_state_cd:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 287.0
+      - 392.0
+      - 360.0
+      - 405.0
+      widget_type: text
+      path: State Address
+    description: Please enter state or province address here. Por favor, introduzca
+      estado o provincia dirección aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: carrier_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: carrier_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  carrier_zip_cd:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 366.0
+      - 392.0
+      - 426.0
+      - 405.0
+      widget_type: text
+      path: Zip Address
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  carrier_colonia_txt:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 432.0
+      - 392.0
+      - 513.0
+      - 405.0
+      widget_type: text
+      path: Colonia Address
+    description: If business is located in Mexico, please enter principal colonia
+      address here, if there is one. Si el negocio se encuentra en México, introduzca
+      la dirección principal colonia aquí, si es que existe.
+    x_petey_description_source: tooltip
+    label_source: llm
+  carrier_foreign_country_nm:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: country_name
+    widget:
+      page: 1
+      rect:
+      - 519.0
+      - 390.0
+      - 594.0
+      - 403.0
+      widget_type: text
+      path: Foreign Address
+    description: If business is located in a country other than the U.S., please enter
+      that country here. Si el negocio se encuentra en un país distinto de los EE.UU.,
+      por favor, entrar en ese país aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - -pattern
+      - name
+      reason: Tooltip and printed caption 'FOREIGN COUNTRY' ask the filer to enter
+        the country itself, not a two-letter code; the _cd name and ^[A-Z]{2}$ pattern
+        contradict what is written there.
+      before:
+        type: string
+        semantic_type: country_code
+        pattern: ^[A-Z]{2}$
+        description: If business is located in a country other than the U.S., please
+          enter that country here. Si el negocio se encuentra en un país distinto
+          de los EE.UU., por favor, entrar en ese país aquí.
+      old_name: carrier_foreign_country_cd
+      judged: 'kept: 1 -> 0'
+  authorized_person_title_txt:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 84.0
+      - 462.0
+      - 336.0
+      - 472.8659973144531
+      widget_type: text
+      path: Title Authorized
+    description: Please enter the title of the authorized person here. Por favor,
+      introduzca el título de la persona autorizada aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: authorized_person_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: authorized_person_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  authorized_person_nm:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 342.0
+      - 462.0
+      - 594.0
+      - 472.8659973144531
+      widget_type: text
+      path: Name Authorized
+    description: Please print the name of the authorized person here. Por favor, escriba
+      el nombre de la persona autorizada aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:10'
+      from:
+        name: authorized_person_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: authorized_person_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  authorized_person_phone_nbr:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 342.0
+      - 491.885009765625
+      - 594.0
+      - 502.7510070800781
+      widget_type: text
+      path: Telephone Authorized
+    description: Please enter the authorized person's telephone number here. Por favor,
+      introduzca el número de teléfono de la persona autorizada aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: authorized_person_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: authorized_person_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  authorized_person_signature:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 84.0
+      - 491.885009765625
+      - 336.0
+      - 502.7510070800781
+      widget_type: text
+      path: Signature Authorized
+    description: Authorized person should sign here. Persona autorizada debe firmar
+      aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    semantic_type: signature
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: The caption 'SIGNATURE OF AUTHORIZED PERSON' confirms the name; the
+        widget is a text box so the string type stays, but the value is a signature
+        and should carry that semantic type.
+      before:
+        type: string
+        description: Authorized person should sign here. Persona autorizada debe firmar
+          aquí.
+      judged: 'kept: 0 -> 0'
+  usdot_nbr:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 405.0
+      - 39.5
+      - 459.0
+      - 49.5
+      widget_type: text
+      path: dotNumber
+    description: For FMCSA use only.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: usdot_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: usdot_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  alabama_operations_ind:
+    x_petey_id: '2_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 160.0
+      - 40.5
+      - 168.5
+      widget_type: checkbox
+      path: State Checkbox 1
+    description: Check if company has operations in Alabama.
+    x_petey_description_source: tooltip
+    label_source: llm
+  alabama_agent_nm:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 154.37799072265625
+      - 309.0
+      - 167.37799072265625
+      widget_type: text
+      path: Agent Name 1
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: alabama_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: alabama_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  alabama_address_line_1_txt:
+    x_petey_id: '2_2'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 154.37799072265625
+      - 438.0
+      - 167.37799072265625
+      widget_type: text
+      path: Agent Street 1
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  alabama_city_nm:
+    x_petey_id: '2_3'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 154.37799072265625
+      - 528.0
+      - 167.37799072265625
+      widget_type: text
+      path: Agent City 1
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  alabama_zip_cd:
+    x_petey_id: '2_4'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 154.37799072265625
+      - 594.0
+      - 167.37799072265625
+      widget_type: text
+      path: Agent Zip 1
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  alaska_operations_ind:
+    x_petey_id: '2_10'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 194.0
+      - 40.5
+      - 202.5
+      widget_type: checkbox
+      path: State Checkbox 2
+    description: Check if company has operations in Alaska.
+    x_petey_description_source: tooltip
+    label_source: llm
+  alaska_agent_nm:
+    x_petey_id: '2_6'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 188.37799072265625
+      - 309.0
+      - 201.37799072265625
+      widget_type: text
+      path: Agent Name 2
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: alaska_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: alaska_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  alaska_address_line_1_txt:
+    x_petey_id: '2_7'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 188.37799072265625
+      - 438.0
+      - 201.37799072265625
+      widget_type: text
+      path: Agent Street 2
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  alaska_city_nm:
+    x_petey_id: '2_8'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 188.37799072265625
+      - 528.0
+      - 201.37799072265625
+      widget_type: text
+      path: Agent City 2
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  alaska_zip_cd:
+    x_petey_id: '2_9'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 188.37799072265625
+      - 594.0
+      - 201.37799072265625
+      widget_type: text
+      path: Agent Zip 2
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arizona_operations_ind:
+    x_petey_id: '2_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 228.0
+      - 40.5
+      - 236.5
+      widget_type: checkbox
+      path: State Checkbox 3
+    description: Check if company has operations in Arizona.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arizona_agent_nm:
+    x_petey_id: '2_11'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 222.37799072265625
+      - 309.0
+      - 235.37799072265625
+      widget_type: text
+      path: Agent Name 3
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: arizona_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: arizona_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  arizona_address_line_1_txt:
+    x_petey_id: '2_12'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 222.37799072265625
+      - 438.0
+      - 235.37799072265625
+      widget_type: text
+      path: Agent Street 3
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arizona_city_nm:
+    x_petey_id: '2_13'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 222.37799072265625
+      - 528.0
+      - 235.37799072265625
+      widget_type: text
+      path: Agent City 3
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arizona_zip_cd:
+    x_petey_id: '2_14'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 222.37799072265625
+      - 594.0
+      - 235.37799072265625
+      widget_type: text
+      path: Agent Zip 3
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arkansas_operations_ind:
+    x_petey_id: '2_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 262.0
+      - 40.5
+      - 270.5
+      widget_type: checkbox
+      path: State Checkbox 4
+    description: Check if company has operations in Arkansas.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arkansas_agent_nm:
+    x_petey_id: '2_16'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 256.37799072265625
+      - 309.0
+      - 269.37799072265625
+      widget_type: text
+      path: Agent Name 4
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: arkansas_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: arkansas_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  arkansas_address_line_1_txt:
+    x_petey_id: '2_17'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 256.37799072265625
+      - 438.0
+      - 269.37799072265625
+      widget_type: text
+      path: Agent Street 4
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arkansas_city_nm:
+    x_petey_id: '2_18'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 256.37799072265625
+      - 528.0
+      - 269.37799072265625
+      widget_type: text
+      path: Agent City 4
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  arkansas_zip_cd:
+    x_petey_id: '2_19'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 256.37799072265625
+      - 594.0
+      - 269.37799072265625
+      widget_type: text
+      path: Agent Zip 4
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  california_operations_ind:
+    x_petey_id: '2_25'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 296.0
+      - 40.5
+      - 304.5
+      widget_type: checkbox
+      path: State Checkbox 5
+    description: Check if company has operations in California.
+    x_petey_description_source: tooltip
+    label_source: llm
+  california_agent_nm:
+    x_petey_id: '2_21'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 290.37799072265625
+      - 309.0
+      - 303.37799072265625
+      widget_type: text
+      path: Agent Name 5
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: california_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: california_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  california_address_line_1_txt:
+    x_petey_id: '2_22'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 290.37799072265625
+      - 438.0
+      - 303.37799072265625
+      widget_type: text
+      path: Agent Street 5
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  california_city_nm:
+    x_petey_id: '2_23'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 290.37799072265625
+      - 528.0
+      - 303.37799072265625
+      widget_type: text
+      path: Agent City 5
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  california_zip_cd:
+    x_petey_id: '2_24'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 290.37799072265625
+      - 594.0
+      - 303.37799072265625
+      widget_type: text
+      path: Agent Zip 5
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  colorado_operations_ind:
+    x_petey_id: '2_30'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 330.0
+      - 40.5
+      - 338.5
+      widget_type: checkbox
+      path: State Checkbox 6
+    description: Check if company has operations in Colorado.
+    x_petey_description_source: tooltip
+    label_source: llm
+  colorado_agent_nm:
+    x_petey_id: '2_26'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 324.37799072265625
+      - 309.0
+      - 337.37799072265625
+      widget_type: text
+      path: Agent Name 6
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: colorado_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: colorado_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  colorado_address_line_1_txt:
+    x_petey_id: '2_27'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 324.37799072265625
+      - 438.0
+      - 337.37799072265625
+      widget_type: text
+      path: Agent Street 6
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  colorado_city_nm:
+    x_petey_id: '2_28'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 324.37799072265625
+      - 528.0
+      - 337.37799072265625
+      widget_type: text
+      path: Agent City 6
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  colorado_zip_cd:
+    x_petey_id: '2_29'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 324.37799072265625
+      - 594.0
+      - 337.37799072265625
+      widget_type: text
+      path: Agent Zip 6
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  connecticut_operations_ind:
+    x_petey_id: '2_35'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 364.0
+      - 40.5
+      - 372.5
+      widget_type: checkbox
+      path: State Checkbox 7
+    description: Check if company has operations in Connecticut.
+    x_petey_description_source: tooltip
+    label_source: llm
+  connecticut_agent_nm:
+    x_petey_id: '2_31'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 358.37799072265625
+      - 309.0
+      - 371.37799072265625
+      widget_type: text
+      path: Agent Name 7
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: connecticut_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: connecticut_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  connecticut_address_line_1_txt:
+    x_petey_id: '2_32'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 358.37799072265625
+      - 438.0
+      - 371.37799072265625
+      widget_type: text
+      path: Agent Street 7
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  connecticut_city_nm:
+    x_petey_id: '2_33'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 358.37799072265625
+      - 528.0
+      - 371.37799072265625
+      widget_type: text
+      path: Agent City 7
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  connecticut_zip_cd:
+    x_petey_id: '2_34'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 358.37799072265625
+      - 594.0
+      - 371.37799072265625
+      widget_type: text
+      path: Agent Zip 7
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  delaware_operations_ind:
+    x_petey_id: '2_40'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 398.0
+      - 40.5
+      - 406.5
+      widget_type: checkbox
+      path: State Checkbox 8
+    description: Check if company has operations in Delaware.
+    x_petey_description_source: tooltip
+    label_source: llm
+  delaware_agent_nm:
+    x_petey_id: '2_36'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 392.37799072265625
+      - 309.0
+      - 405.37799072265625
+      widget_type: text
+      path: Agent Name 8
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: delaware_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: delaware_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  delaware_address_line_1_txt:
+    x_petey_id: '2_37'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 392.37799072265625
+      - 438.0
+      - 405.37799072265625
+      widget_type: text
+      path: Agent Street 8
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  delaware_city_nm:
+    x_petey_id: '2_38'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 392.37799072265625
+      - 528.0
+      - 405.37799072265625
+      widget_type: text
+      path: Agent City 8
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  delaware_zip_cd:
+    x_petey_id: '2_39'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 392.37799072265625
+      - 594.0
+      - 405.37799072265625
+      widget_type: text
+      path: Agent Zip 8
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  district_of_columbia_operations_ind:
+    x_petey_id: '2_45'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 432.0
+      - 40.5
+      - 440.5
+      widget_type: checkbox
+      path: State Checkbox 9
+    description: Check if company has operations in the District of Columbia.
+    x_petey_description_source: tooltip
+    label_source: llm
+  district_of_columbia_agent_nm:
+    x_petey_id: '2_41'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 426.37799072265625
+      - 309.0
+      - 439.37799072265625
+      widget_type: text
+      path: Agent Name 9
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: district_of_columbia_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: district_of_columbia_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  district_of_columbia_address_line_1_txt:
+    x_petey_id: '2_42'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 426.37799072265625
+      - 438.0
+      - 439.37799072265625
+      widget_type: text
+      path: Agent Street 9
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  district_of_columbia_city_nm:
+    x_petey_id: '2_43'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 426.37799072265625
+      - 528.0
+      - 439.37799072265625
+      widget_type: text
+      path: Agent City 9
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  district_of_columbia_zip_cd:
+    x_petey_id: '2_44'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 426.37799072265625
+      - 594.0
+      - 439.37799072265625
+      widget_type: text
+      path: Agent Zip 9
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  florida_operations_ind:
+    x_petey_id: '2_50'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 466.0
+      - 40.5
+      - 474.5
+      widget_type: checkbox
+      path: State Checkbox 10
+    description: Check if company has operations in Florida.
+    x_petey_description_source: tooltip
+    label_source: llm
+  florida_agent_nm:
+    x_petey_id: '2_46'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 460.37799072265625
+      - 309.0
+      - 473.37799072265625
+      widget_type: text
+      path: Agent Name 10
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: florida_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: florida_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  florida_address_line_1_txt:
+    x_petey_id: '2_47'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 460.37799072265625
+      - 438.0
+      - 473.37799072265625
+      widget_type: text
+      path: Agent Street 10
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  florida_city_nm:
+    x_petey_id: '2_48'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 460.37799072265625
+      - 528.0
+      - 473.37799072265625
+      widget_type: text
+      path: Agent City 10
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  florida_zip_cd:
+    x_petey_id: '2_49'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 460.37799072265625
+      - 594.0
+      - 473.37799072265625
+      widget_type: text
+      path: Agent Zip 10
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  georgia_operations_ind:
+    x_petey_id: '2_55'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 500.0
+      - 40.5
+      - 508.5
+      widget_type: checkbox
+      path: State Checkbox 11
+    description: Check if company has operations in Georgia.
+    x_petey_description_source: tooltip
+    label_source: llm
+  georgia_agent_nm:
+    x_petey_id: '2_51'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 494.37799072265625
+      - 309.0
+      - 507.37799072265625
+      widget_type: text
+      path: Agent Name 11
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: georgia_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: georgia_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  georgia_address_line_1_txt:
+    x_petey_id: '2_52'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 494.37799072265625
+      - 438.0
+      - 507.37799072265625
+      widget_type: text
+      path: Agent Street 11
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  georgia_city_nm:
+    x_petey_id: '2_53'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 494.37799072265625
+      - 528.0
+      - 507.37799072265625
+      widget_type: text
+      path: Agent City 11
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  georgia_zip_cd:
+    x_petey_id: '2_54'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 494.37799072265625
+      - 594.0
+      - 507.37799072265625
+      widget_type: text
+      path: Agent Zip 11
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  hawaii_operations_ind:
+    x_petey_id: '2_60'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 534.0
+      - 40.5
+      - 542.5
+      widget_type: checkbox
+      path: State Checkbox 12
+    description: Check if company has operations in Hawaii.
+    x_petey_description_source: tooltip
+    label_source: llm
+  hawaii_agent_nm:
+    x_petey_id: '2_56'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 528.3779907226562
+      - 309.0
+      - 541.3779907226562
+      widget_type: text
+      path: Agent Name 12
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: hawaii_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: hawaii_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  hawaii_address_line_1_txt:
+    x_petey_id: '2_57'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 528.3779907226562
+      - 438.0
+      - 541.3779907226562
+      widget_type: text
+      path: Agent Street 12
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  hawaii_city_nm:
+    x_petey_id: '2_58'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 528.3779907226562
+      - 528.0
+      - 541.3779907226562
+      widget_type: text
+      path: Agent City 12
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  hawaii_zip_cd:
+    x_petey_id: '2_59'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 528.3779907226562
+      - 594.0
+      - 541.3779907226562
+      widget_type: text
+      path: Agent Zip 12
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  idaho_operations_ind:
+    x_petey_id: '2_65'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 568.0
+      - 40.5
+      - 576.5
+      widget_type: checkbox
+      path: State Checkbox 13
+    description: Check if company has operations in Idaho.
+    x_petey_description_source: tooltip
+    label_source: llm
+  idaho_agent_nm:
+    x_petey_id: '2_61'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 562.3779907226562
+      - 309.0
+      - 575.3779907226562
+      widget_type: text
+      path: Agent Name 13
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: idaho_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: idaho_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  idaho_address_line_1_txt:
+    x_petey_id: '2_62'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 562.3779907226562
+      - 438.0
+      - 575.3779907226562
+      widget_type: text
+      path: Agent Street 13
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  idaho_city_nm:
+    x_petey_id: '2_63'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 562.3779907226562
+      - 528.0
+      - 575.3779907226562
+      widget_type: text
+      path: Agent City 13
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  idaho_zip_cd:
+    x_petey_id: '2_64'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 562.3779907226562
+      - 594.0
+      - 575.3779907226562
+      widget_type: text
+      path: Agent Zip 13
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  illinois_operations_ind:
+    x_petey_id: '2_70'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 602.0
+      - 40.5
+      - 610.5
+      widget_type: checkbox
+      path: State Checkbox 14
+    description: Check if company has operations in Illinois.
+    x_petey_description_source: tooltip
+    label_source: llm
+  illinois_agent_nm:
+    x_petey_id: '2_66'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 596.3779907226562
+      - 309.0
+      - 609.3779907226562
+      widget_type: text
+      path: Agent Name 14
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: illinois_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: illinois_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  illinois_address_line_1_txt:
+    x_petey_id: '2_67'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 596.3779907226562
+      - 438.0
+      - 609.3779907226562
+      widget_type: text
+      path: Agent Street 14
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  illinois_city_nm:
+    x_petey_id: '2_68'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 596.3779907226562
+      - 528.0
+      - 609.3779907226562
+      widget_type: text
+      path: Agent City 14
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  illinois_zip_cd:
+    x_petey_id: '2_69'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 596.3779907226562
+      - 594.0
+      - 609.3779907226562
+      widget_type: text
+      path: Agent Zip 14
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  indiana_operations_ind:
+    x_petey_id: '2_75'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 636.0
+      - 40.5
+      - 644.5
+      widget_type: checkbox
+      path: State Checkbox 15
+    description: Check if company has operations in Indiana.
+    x_petey_description_source: tooltip
+    label_source: llm
+  indiana_agent_nm:
+    x_petey_id: '2_71'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 630.3779907226562
+      - 309.0
+      - 643.3779907226562
+      widget_type: text
+      path: Agent Name 15
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: indiana_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: indiana_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  indiana_address_line_1_txt:
+    x_petey_id: '2_72'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 630.3779907226562
+      - 438.0
+      - 643.3779907226562
+      widget_type: text
+      path: Agent Street 15
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  indiana_city_nm:
+    x_petey_id: '2_73'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 630.3779907226562
+      - 528.0
+      - 643.3779907226562
+      widget_type: text
+      path: Agent City 15
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  indiana_zip_cd:
+    x_petey_id: '2_74'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 630.3779907226562
+      - 594.0
+      - 643.3779907226562
+      widget_type: text
+      path: Agent Zip 15
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  iowa_operations_ind:
+    x_petey_id: '2_80'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 670.0
+      - 40.5
+      - 678.5
+      widget_type: checkbox
+      path: State Checkbox 16
+    description: Check if company has operations in Iowa.
+    x_petey_description_source: tooltip
+    label_source: llm
+  iowa_agent_nm:
+    x_petey_id: '2_76'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 664.3779907226562
+      - 309.0
+      - 677.3779907226562
+      widget_type: text
+      path: Agent Name 16
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: iowa_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: iowa_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  iowa_address_line_1_txt:
+    x_petey_id: '2_77'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 664.3779907226562
+      - 438.0
+      - 677.3779907226562
+      widget_type: text
+      path: Agent Street 16
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  iowa_city_nm:
+    x_petey_id: '2_78'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 664.3779907226562
+      - 528.0
+      - 677.3779907226562
+      widget_type: text
+      path: Agent City 16
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  iowa_zip_cd:
+    x_petey_id: '2_79'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 664.3779907226562
+      - 594.0
+      - 677.3779907226562
+      widget_type: text
+      path: Agent Zip 16
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  kansas_operations_ind:
+    x_petey_id: '2_85'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 32.0
+      - 704.0
+      - 40.5
+      - 712.5
+      widget_type: checkbox
+      path: State Checkbox 17
+    description: Check if company has operations in Kansas.
+    x_petey_description_source: tooltip
+    label_source: llm
+  kansas_agent_nm:
+    x_petey_id: '2_81'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 150.0
+      - 698.3775024414062
+      - 309.0
+      - 711.3775024414062
+      widget_type: text
+      path: Agent Name 17
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: kansas_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: kansas_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  kansas_address_line_1_txt:
+    x_petey_id: '2_82'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 315.0
+      - 698.3775024414062
+      - 438.0
+      - 711.3775024414062
+      widget_type: text
+      path: Agent Street 17
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  kansas_city_nm:
+    x_petey_id: '2_83'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 444.0
+      - 698.3775024414062
+      - 528.0
+      - 711.3775024414062
+      widget_type: text
+      path: Agent City 17
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  kansas_zip_cd:
+    x_petey_id: '2_84'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 534.0
+      - 698.3775024414062
+      - 594.0
+      - 711.3775024414062
+      widget_type: text
+      path: Agent Zip 17
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+  kentucky_operations_ind:
+    x_petey_id: '3_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 53.62200927734375
+      - 40.5
+      - 62.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 18
+    description: Check if company has operations in Kentucky.
+    x_petey_description_source: tooltip
+    label_source: llm
+  kentucky_agent_nm:
+    x_petey_id: '3_1'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 48.0
+      - 309.0
+      - 61.0
+      widget_type: text
+      path: Agent Name 18
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: kentucky_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: kentucky_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  kentucky_street_address_txt:
+    x_petey_id: '3_2'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 48.0
+      - 438.0
+      - 61.0
+      widget_type: text
+      path: Agent Street 18
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: kentucky_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: kentucky_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  kentucky_city_nm:
+    x_petey_id: '3_3'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 48.0
+      - 528.0
+      - 61.0
+      widget_type: text
+      path: Agent City 18
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: kentucky_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: kentucky_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  kentucky_zip_cd:
+    x_petey_id: '3_4'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 48.0
+      - 594.0
+      - 61.0
+      widget_type: text
+      path: Agent Zip 18
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: kentucky_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: kentucky_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  louisiana_operations_ind:
+    x_petey_id: '3_10'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 87.62200927734375
+      - 40.5
+      - 96.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 19
+    description: Check if company has operations in Louisiana.
+    x_petey_description_source: tooltip
+    label_source: llm
+  louisiana_agent_nm:
+    x_petey_id: '3_6'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 82.0
+      - 309.0
+      - 95.0
+      widget_type: text
+      path: Agent Name 19
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: louisiana_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: louisiana_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  louisiana_street_address_txt:
+    x_petey_id: '3_7'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 82.0
+      - 438.0
+      - 95.0
+      widget_type: text
+      path: Agent Street 19
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: louisiana_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: louisiana_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  louisiana_city_nm:
+    x_petey_id: '3_8'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 82.0
+      - 528.0
+      - 95.0
+      widget_type: text
+      path: Agent City 19
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: louisiana_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: louisiana_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  louisiana_zip_cd:
+    x_petey_id: '3_9'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 82.0
+      - 594.0
+      - 95.0
+      widget_type: text
+      path: Agent Zip 19
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: louisiana_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: louisiana_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  maine_operations_ind:
+    x_petey_id: '3_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 121.62200927734375
+      - 40.5
+      - 130.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 20
+    description: Check if company has operations in Maine.
+    x_petey_description_source: tooltip
+    label_source: llm
+  maine_agent_nm:
+    x_petey_id: '3_11'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 116.0
+      - 309.0
+      - 129.0
+      widget_type: text
+      path: Agent Name 20
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maine_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: maine_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  maine_street_address_txt:
+    x_petey_id: '3_12'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 116.0
+      - 438.0
+      - 129.0
+      widget_type: text
+      path: Agent Street 20
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maine_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: maine_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  maine_city_nm:
+    x_petey_id: '3_13'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 116.0
+      - 528.0
+      - 129.0
+      widget_type: text
+      path: Agent City 20
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maine_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: maine_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  maine_zip_cd:
+    x_petey_id: '3_14'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 116.0
+      - 594.0
+      - 129.0
+      widget_type: text
+      path: Agent Zip 20
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maine_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: maine_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  maryland_operations_ind:
+    x_petey_id: '3_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 155.62200927734375
+      - 40.5
+      - 164.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 21
+    description: Check if company has operations in Maryland.
+    x_petey_description_source: tooltip
+    label_source: llm
+  maryland_agent_nm:
+    x_petey_id: '3_16'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 150.0
+      - 309.0
+      - 163.0
+      widget_type: text
+      path: Agent Name 21
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maryland_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: maryland_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  maryland_street_address_txt:
+    x_petey_id: '3_17'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 150.0
+      - 438.0
+      - 163.0
+      widget_type: text
+      path: Agent Street 21
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maryland_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: maryland_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  maryland_city_nm:
+    x_petey_id: '3_18'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 150.0
+      - 528.0
+      - 163.0
+      widget_type: text
+      path: Agent City 21
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maryland_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: maryland_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  maryland_zip_cd:
+    x_petey_id: '3_19'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 150.0
+      - 594.0
+      - 163.0
+      widget_type: text
+      path: Agent Zip 21
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: maryland_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: maryland_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  massachusetts_operations_ind:
+    x_petey_id: '3_25'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 189.62200927734375
+      - 40.5
+      - 198.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 22
+    description: Check if company has operations in Massachusetts.
+    x_petey_description_source: tooltip
+    label_source: llm
+  massachusetts_agent_nm:
+    x_petey_id: '3_21'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 184.0
+      - 309.0
+      - 197.0
+      widget_type: text
+      path: Agent Name 22
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: massachusetts_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: massachusetts_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  massachusetts_street_address_txt:
+    x_petey_id: '3_22'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 184.0
+      - 438.0
+      - 197.0
+      widget_type: text
+      path: Agent Street 22
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: massachusetts_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: massachusetts_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  massachusetts_city_nm:
+    x_petey_id: '3_23'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 184.0
+      - 528.0
+      - 197.0
+      widget_type: text
+      path: Agent City 22
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: massachusetts_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: massachusetts_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  massachusetts_zip_cd:
+    x_petey_id: '3_24'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 184.0
+      - 594.0
+      - 197.0
+      widget_type: text
+      path: Agent Zip 22
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: massachusetts_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: massachusetts_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  michigan_operations_ind:
+    x_petey_id: '3_30'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 223.62200927734375
+      - 40.5
+      - 232.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 23
+    description: Check if company has operations in Michigan.
+    x_petey_description_source: tooltip
+    label_source: llm
+  michigan_agent_nm:
+    x_petey_id: '3_26'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 218.0
+      - 309.0
+      - 231.0
+      widget_type: text
+      path: Agent Name 23
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: michigan_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: michigan_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  michigan_street_address_txt:
+    x_petey_id: '3_27'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 218.0
+      - 438.0
+      - 231.0
+      widget_type: text
+      path: Agent Street 23
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: michigan_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: michigan_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  michigan_city_nm:
+    x_petey_id: '3_28'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 218.0
+      - 528.0
+      - 231.0
+      widget_type: text
+      path: Agent City 23
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: michigan_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: michigan_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  michigan_zip_cd:
+    x_petey_id: '3_29'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 218.0
+      - 594.0
+      - 231.0
+      widget_type: text
+      path: Agent Zip 23
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: michigan_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: michigan_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  minnesota_operations_ind:
+    x_petey_id: '3_35'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 257.62200927734375
+      - 40.5
+      - 266.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 24
+    description: Check if company has operations in Minnesota.
+    x_petey_description_source: tooltip
+    label_source: llm
+  minnesota_agent_nm:
+    x_petey_id: '3_31'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 252.0
+      - 309.0
+      - 265.0
+      widget_type: text
+      path: Agent Name 24
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: minnesota_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: minnesota_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  minnesota_street_address_txt:
+    x_petey_id: '3_32'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 252.0
+      - 438.0
+      - 265.0
+      widget_type: text
+      path: Agent Street 24
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: minnesota_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: minnesota_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  minnesota_city_nm:
+    x_petey_id: '3_33'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 252.0
+      - 528.0
+      - 265.0
+      widget_type: text
+      path: Agent City 24
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: minnesota_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: minnesota_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  minnesota_zip_cd:
+    x_petey_id: '3_34'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 252.0
+      - 594.0
+      - 265.0
+      widget_type: text
+      path: Agent Zip 24
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: minnesota_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: minnesota_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  mississippi_operations_ind:
+    x_petey_id: '3_40'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 291.62200927734375
+      - 40.5
+      - 300.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 25
+    description: Check if company has operations in Mississippi.
+    x_petey_description_source: tooltip
+    label_source: llm
+  mississippi_agent_nm:
+    x_petey_id: '3_36'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 286.0
+      - 309.0
+      - 299.0
+      widget_type: text
+      path: Agent Name 25
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: mississippi_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: mississippi_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  mississippi_street_address_txt:
+    x_petey_id: '3_37'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 286.0
+      - 438.0
+      - 299.0
+      widget_type: text
+      path: Agent Street 25
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: mississippi_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: mississippi_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  mississippi_city_nm:
+    x_petey_id: '3_38'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 286.0
+      - 528.0
+      - 299.0
+      widget_type: text
+      path: Agent City 25
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: mississippi_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: mississippi_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  mississippi_zip_cd:
+    x_petey_id: '3_39'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 286.0
+      - 594.0
+      - 299.0
+      widget_type: text
+      path: Agent Zip 25
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: mississippi_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: mississippi_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  missouri_operations_ind:
+    x_petey_id: '3_45'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 325.62200927734375
+      - 40.5
+      - 334.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 26
+    description: Check if company has operations in Missouri.
+    x_petey_description_source: tooltip
+    label_source: llm
+  missouri_agent_nm:
+    x_petey_id: '3_41'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 320.0
+      - 309.0
+      - 333.0
+      widget_type: text
+      path: Agent Name 26
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: missouri_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: missouri_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  missouri_street_address_txt:
+    x_petey_id: '3_42'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 320.0
+      - 438.0
+      - 333.0
+      widget_type: text
+      path: Agent Street 26
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: missouri_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: missouri_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  missouri_city_nm:
+    x_petey_id: '3_43'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 320.0
+      - 528.0
+      - 333.0
+      widget_type: text
+      path: Agent City 26
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: missouri_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: missouri_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  missouri_zip_cd:
+    x_petey_id: '3_44'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 320.0
+      - 594.0
+      - 333.0
+      widget_type: text
+      path: Agent Zip 26
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: missouri_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: missouri_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  montana_operations_ind:
+    x_petey_id: '3_50'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 359.62200927734375
+      - 40.5
+      - 368.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 27
+    description: Check if company has operations in Montana.
+    x_petey_description_source: tooltip
+    label_source: llm
+  montana_agent_nm:
+    x_petey_id: '3_46'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 354.0
+      - 309.0
+      - 367.0
+      widget_type: text
+      path: Agent Name 27
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: montana_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: montana_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  montana_street_address_txt:
+    x_petey_id: '3_47'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 354.0
+      - 438.0
+      - 367.0
+      widget_type: text
+      path: Agent Street 27
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: montana_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: montana_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  montana_city_nm:
+    x_petey_id: '3_48'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 354.0
+      - 528.0
+      - 367.0
+      widget_type: text
+      path: Agent City 27
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: montana_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: montana_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  montana_zip_cd:
+    x_petey_id: '3_49'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 354.0
+      - 594.0
+      - 367.0
+      widget_type: text
+      path: Agent Zip 27
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: montana_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: montana_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  nebraska_operations_ind:
+    x_petey_id: '3_55'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 393.62200927734375
+      - 40.5
+      - 402.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 28
+    description: Check if company has operations in Nebraska.
+    x_petey_description_source: tooltip
+    label_source: llm
+  nebraska_agent_nm:
+    x_petey_id: '3_51'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 388.0
+      - 309.0
+      - 401.0
+      widget_type: text
+      path: Agent Name 28
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nebraska_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: nebraska_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  nebraska_street_address_txt:
+    x_petey_id: '3_52'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 388.0
+      - 438.0
+      - 401.0
+      widget_type: text
+      path: Agent Street 28
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nebraska_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: nebraska_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  nebraska_city_nm:
+    x_petey_id: '3_53'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 388.0
+      - 528.0
+      - 401.0
+      widget_type: text
+      path: Agent City 28
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nebraska_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: nebraska_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  nebraska_zip_cd:
+    x_petey_id: '3_54'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 388.0
+      - 594.0
+      - 401.0
+      widget_type: text
+      path: Agent Zip 28
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nebraska_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: nebraska_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  nevada_operations_ind:
+    x_petey_id: '3_60'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 427.62200927734375
+      - 40.5
+      - 436.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 29
+    description: Check if company has operations in Nefvada.
+    x_petey_description_source: tooltip
+    label_source: llm
+  nevada_agent_nm:
+    x_petey_id: '3_56'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 422.0
+      - 309.0
+      - 435.0
+      widget_type: text
+      path: Agent Name 29
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nevada_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: nevada_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  nevada_street_address_txt:
+    x_petey_id: '3_57'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 422.0
+      - 438.0
+      - 435.0
+      widget_type: text
+      path: Agent Street 29
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nevada_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: nevada_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  nevada_city_nm:
+    x_petey_id: '3_58'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 422.0
+      - 528.0
+      - 435.0
+      widget_type: text
+      path: Agent City 29
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nevada_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: nevada_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  nevada_zip_cd:
+    x_petey_id: '3_59'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 422.0
+      - 594.0
+      - 435.0
+      widget_type: text
+      path: Agent Zip 29
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: nevada_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: nevada_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  new_hampshire_operations_ind:
+    x_petey_id: '3_65'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 461.62200927734375
+      - 40.5
+      - 470.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 30
+    description: Check if company has operations in New Hampshire.
+    x_petey_description_source: tooltip
+    label_source: llm
+  new_hampshire_agent_nm:
+    x_petey_id: '3_61'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 456.0
+      - 309.0
+      - 469.0
+      widget_type: text
+      path: Agent Name 30
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_hampshire_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: new_hampshire_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  new_hampshire_street_address_txt:
+    x_petey_id: '3_62'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 456.0
+      - 438.0
+      - 469.0
+      widget_type: text
+      path: Agent Street 30
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_hampshire_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: new_hampshire_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  new_hampshire_city_nm:
+    x_petey_id: '3_63'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 456.0
+      - 528.0
+      - 469.0
+      widget_type: text
+      path: Agent City 30
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_hampshire_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: new_hampshire_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  new_hampshire_zip_cd:
+    x_petey_id: '3_64'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 456.0
+      - 594.0
+      - 469.0
+      widget_type: text
+      path: Agent Zip 30
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_hampshire_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: new_hampshire_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  new_jersey_operations_ind:
+    x_petey_id: '3_70'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 495.62200927734375
+      - 40.5
+      - 504.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 31
+    description: Check if company has operations in Jersey.
+    x_petey_description_source: tooltip
+    label_source: llm
+  new_jersey_agent_nm:
+    x_petey_id: '3_66'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 490.0
+      - 309.0
+      - 503.0
+      widget_type: text
+      path: Agent Name 31
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_jersey_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: new_jersey_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  new_jersey_street_address_txt:
+    x_petey_id: '3_67'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 490.0
+      - 438.0
+      - 503.0
+      widget_type: text
+      path: Agent Street 31
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_jersey_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: new_jersey_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  new_jersey_city_nm:
+    x_petey_id: '3_68'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 490.0
+      - 528.0
+      - 503.0
+      widget_type: text
+      path: Agent City 31
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_jersey_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: new_jersey_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  new_jersey_zip_cd:
+    x_petey_id: '3_69'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 490.0
+      - 594.0
+      - 503.0
+      widget_type: text
+      path: Agent Zip 31
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_jersey_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: new_jersey_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  new_mexico_operations_ind:
+    x_petey_id: '3_75'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 529.6220092773438
+      - 40.5
+      - 538.1220092773438
+      widget_type: checkbox
+      path: State Checkbox 32
+    description: Check if company has operations in New Mexico.
+    x_petey_description_source: tooltip
+    label_source: llm
+  new_mexico_agent_nm:
+    x_petey_id: '3_71'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 524.0
+      - 309.0
+      - 537.0
+      widget_type: text
+      path: Agent Name 32
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_mexico_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: new_mexico_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  new_mexico_street_address_txt:
+    x_petey_id: '3_72'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 524.0
+      - 438.0
+      - 537.0
+      widget_type: text
+      path: Agent Street 32
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_mexico_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: new_mexico_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  new_mexico_city_nm:
+    x_petey_id: '3_73'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 524.0
+      - 528.0
+      - 537.0
+      widget_type: text
+      path: Agent City 32
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_mexico_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: new_mexico_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  new_mexico_zip_cd:
+    x_petey_id: '3_74'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 524.0
+      - 594.0
+      - 537.0
+      widget_type: text
+      path: Agent Zip 32
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_mexico_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: new_mexico_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  new_york_operations_ind:
+    x_petey_id: '3_80'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 563.6220092773438
+      - 40.5
+      - 572.1220092773438
+      widget_type: checkbox
+      path: State Checkbox 33
+    description: Check if company has operations in New York.
+    x_petey_description_source: tooltip
+    label_source: llm
+  new_york_agent_nm:
+    x_petey_id: '3_76'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 558.0
+      - 309.0
+      - 571.0
+      widget_type: text
+      path: Agent Name 33
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_york_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: new_york_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  new_york_street_address_txt:
+    x_petey_id: '3_77'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 558.0
+      - 438.0
+      - 571.0
+      widget_type: text
+      path: Agent Street 33
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_york_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: new_york_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  new_york_city_nm:
+    x_petey_id: '3_78'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 558.0
+      - 528.0
+      - 571.0
+      widget_type: text
+      path: Agent City 33
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_york_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: new_york_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  new_york_zip_cd:
+    x_petey_id: '3_79'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 558.0
+      - 594.0
+      - 571.0
+      widget_type: text
+      path: Agent Zip 33
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: new_york_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: new_york_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  north_carolina_operations_ind:
+    x_petey_id: '3_85'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 597.6220092773438
+      - 40.5
+      - 606.1220092773438
+      widget_type: checkbox
+      path: State Checkbox 34
+    description: Check if company has operations in North Carolina.
+    x_petey_description_source: tooltip
+    label_source: llm
+  north_carolina_agent_nm:
+    x_petey_id: '3_81'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 592.0
+      - 309.0
+      - 605.0
+      widget_type: text
+      path: Agent Name 34
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_carolina_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: north_carolina_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  north_carolina_street_address_txt:
+    x_petey_id: '3_82'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 592.0
+      - 438.0
+      - 605.0
+      widget_type: text
+      path: Agent Street 34
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_carolina_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: north_carolina_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  north_carolina_city_nm:
+    x_petey_id: '3_83'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 592.0
+      - 528.0
+      - 605.0
+      widget_type: text
+      path: Agent City 34
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_carolina_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: north_carolina_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  north_carolina_zip_cd:
+    x_petey_id: '3_84'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 592.0
+      - 594.0
+      - 605.0
+      widget_type: text
+      path: Agent Zip 34
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_carolina_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: north_carolina_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  north_dakota_operations_ind:
+    x_petey_id: '3_90'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 631.6220092773438
+      - 40.5
+      - 640.1220092773438
+      widget_type: checkbox
+      path: State Checkbox 35
+    description: Check if company has operations in North Dakota.
+    x_petey_description_source: tooltip
+    label_source: llm
+  north_dakota_agent_nm:
+    x_petey_id: '3_86'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 626.0
+      - 309.0
+      - 639.0
+      widget_type: text
+      path: Agent Name 35
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_dakota_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: north_dakota_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  north_dakota_street_address_txt:
+    x_petey_id: '3_87'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 626.0
+      - 438.0
+      - 639.0
+      widget_type: text
+      path: Agent Street 35
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_dakota_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: north_dakota_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  north_dakota_city_nm:
+    x_petey_id: '3_88'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 626.0
+      - 528.0
+      - 639.0
+      widget_type: text
+      path: Agent City 35
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_dakota_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: north_dakota_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  north_dakota_zip_cd:
+    x_petey_id: '3_89'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 626.0
+      - 594.0
+      - 639.0
+      widget_type: text
+      path: Agent Zip 35
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: north_dakota_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: north_dakota_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  ohio_operations_ind:
+    x_petey_id: '3_95'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 665.6220092773438
+      - 40.5
+      - 674.1220092773438
+      widget_type: checkbox
+      path: State Checkbox 36
+    description: Check if company has operations in Ohio.
+    x_petey_description_source: tooltip
+    label_source: llm
+  ohio_agent_nm:
+    x_petey_id: '3_91'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 660.0
+      - 309.0
+      - 673.0
+      widget_type: text
+      path: Agent Name 36
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ohio_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ohio_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  ohio_street_address_txt:
+    x_petey_id: '3_92'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 660.0
+      - 438.0
+      - 673.0
+      widget_type: text
+      path: Agent Street 36
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ohio_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: ohio_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  ohio_city_nm:
+    x_petey_id: '3_93'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 660.0
+      - 528.0
+      - 673.0
+      widget_type: text
+      path: Agent City 36
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ohio_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: ohio_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  ohio_zip_cd:
+    x_petey_id: '3_94'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 660.0
+      - 594.0
+      - 673.0
+      widget_type: text
+      path: Agent Zip 36
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ohio_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: ohio_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  oklahoma_operations_ind:
+    x_petey_id: '3_100'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 32.0
+      - 699.6224975585938
+      - 40.5
+      - 708.1224975585938
+      widget_type: checkbox
+      path: State Checkbox 37
+    description: Check if company has operations in Oklahoma.
+    x_petey_description_source: tooltip
+    label_source: llm
+  oklahoma_agent_nm:
+    x_petey_id: '3_96'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 150.0
+      - 694.0
+      - 309.0
+      - 707.0
+      widget_type: text
+      path: Agent Name 37
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: oklahoma_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: oklahoma_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  oklahoma_street_address_txt:
+    x_petey_id: '3_97'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 315.0
+      - 694.0
+      - 438.0
+      - 707.0
+      widget_type: text
+      path: Agent Street 37
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: oklahoma_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: oklahoma_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  oklahoma_city_nm:
+    x_petey_id: '3_98'
+    type: string
+    semantic_type: city
+    widget:
+      page: 3
+      rect:
+      - 444.0
+      - 694.0
+      - 528.0
+      - 707.0
+      widget_type: text
+      path: Agent City 37
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: oklahoma_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: oklahoma_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  oklahoma_zip_cd:
+    x_petey_id: '3_99'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 534.0
+      - 694.0
+      - 594.0
+      - 707.0
+      widget_type: text
+      path: Agent Zip 37
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: oklahoma_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: oklahoma_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  or_operations_ind:
+    x_petey_id: '4_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 53.62200927734375
+      - 40.5
+      - 62.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 38
+    description: Check if company has operations in Oregon.
+    x_petey_description_source: tooltip
+    label_source: llm
+  or_agent_nm:
+    x_petey_id: '4_1'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 48.0
+      - 309.0
+      - 61.0
+      widget_type: text
+      path: Agent Name 38
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: or_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: or_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  or_agent_street_address_txt:
+    x_petey_id: '4_2'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 48.0
+      - 438.0
+      - 61.0
+      widget_type: text
+      path: Agent Street 38
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: or_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: or_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  or_agent_city_nm:
+    x_petey_id: '4_3'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 48.0
+      - 528.0
+      - 61.0
+      widget_type: text
+      path: Agent City 38
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: or_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: or_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  or_agent_zip_cd:
+    x_petey_id: '4_4'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 48.0
+      - 594.0
+      - 61.0
+      widget_type: text
+      path: Agent Zip 38
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: or_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: or_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  pa_operations_ind:
+    x_petey_id: '4_10'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 87.62200927734375
+      - 40.5
+      - 96.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 39
+    description: Check if company has operations in Pennsylvania.
+    x_petey_description_source: tooltip
+    label_source: llm
+  pa_agent_nm:
+    x_petey_id: '4_6'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 82.0
+      - 309.0
+      - 95.0
+      widget_type: text
+      path: Agent Name 39
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: pa_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: pa_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  pa_agent_street_address_txt:
+    x_petey_id: '4_7'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 82.0
+      - 438.0
+      - 95.0
+      widget_type: text
+      path: Agent Street 39
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: pa_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: pa_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  pa_agent_city_nm:
+    x_petey_id: '4_8'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 82.0
+      - 528.0
+      - 95.0
+      widget_type: text
+      path: Agent City 39
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: pa_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: pa_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  pa_agent_zip_cd:
+    x_petey_id: '4_9'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 82.0
+      - 594.0
+      - 95.0
+      widget_type: text
+      path: Agent Zip 39
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: pa_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: pa_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  ri_operations_ind:
+    x_petey_id: '4_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 121.62200927734375
+      - 40.5
+      - 130.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 40
+    description: Check if company has operations in Rhode Island.
+    x_petey_description_source: tooltip
+    label_source: llm
+  ri_agent_nm:
+    x_petey_id: '4_11'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 116.0
+      - 309.0
+      - 129.0
+      widget_type: text
+      path: Agent Name 40
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ri_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ri_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  ri_agent_street_address_txt:
+    x_petey_id: '4_12'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 116.0
+      - 438.0
+      - 129.0
+      widget_type: text
+      path: Agent Street 40
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ri_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: ri_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  ri_agent_city_nm:
+    x_petey_id: '4_13'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 116.0
+      - 528.0
+      - 129.0
+      widget_type: text
+      path: Agent City 40
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ri_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: ri_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  ri_agent_zip_cd:
+    x_petey_id: '4_14'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 116.0
+      - 594.0
+      - 129.0
+      widget_type: text
+      path: Agent Zip 40
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ri_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: ri_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  sc_operations_ind:
+    x_petey_id: '4_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 155.62200927734375
+      - 40.5
+      - 164.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 41
+    description: Check if company has operations in South Carolina.
+    x_petey_description_source: tooltip
+    label_source: llm
+  sc_agent_nm:
+    x_petey_id: '4_16'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 150.0
+      - 309.0
+      - 163.0
+      widget_type: text
+      path: Agent Name 41
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sc_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: sc_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  sc_agent_street_address_txt:
+    x_petey_id: '4_17'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 150.0
+      - 438.0
+      - 163.0
+      widget_type: text
+      path: Agent Street 41
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sc_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: sc_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  sc_agent_city_nm:
+    x_petey_id: '4_18'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 150.0
+      - 528.0
+      - 163.0
+      widget_type: text
+      path: Agent City 41
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sc_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: sc_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  sc_agent_zip_cd:
+    x_petey_id: '4_19'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 150.0
+      - 594.0
+      - 163.0
+      widget_type: text
+      path: Agent Zip 41
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sc_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: sc_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  sd_operations_ind:
+    x_petey_id: '4_25'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 189.62200927734375
+      - 40.5
+      - 198.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 42
+    description: Check if company has operations in South Dakota.
+    x_petey_description_source: tooltip
+    label_source: llm
+  sd_agent_nm:
+    x_petey_id: '4_21'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 184.0
+      - 309.0
+      - 197.0
+      widget_type: text
+      path: Agent Name 42
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sd_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: sd_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  sd_agent_street_address_txt:
+    x_petey_id: '4_22'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 184.0
+      - 438.0
+      - 197.0
+      widget_type: text
+      path: Agent Street 42
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sd_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: sd_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  sd_agent_city_nm:
+    x_petey_id: '4_23'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 184.0
+      - 528.0
+      - 197.0
+      widget_type: text
+      path: Agent City 42
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sd_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: sd_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  sd_agent_zip_cd:
+    x_petey_id: '4_24'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 184.0
+      - 594.0
+      - 197.0
+      widget_type: text
+      path: Agent Zip 42
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: sd_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: sd_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  tn_operations_ind:
+    x_petey_id: '4_30'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 223.62200927734375
+      - 40.5
+      - 232.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 43
+    description: Check if company has operations in Tennessee.
+    x_petey_description_source: tooltip
+    label_source: llm
+  tn_agent_nm:
+    x_petey_id: '4_26'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 218.0
+      - 309.0
+      - 231.0
+      widget_type: text
+      path: Agent Name 43
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tn_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: tn_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  tn_agent_street_address_txt:
+    x_petey_id: '4_27'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 218.0
+      - 438.0
+      - 231.0
+      widget_type: text
+      path: Agent Street 43
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tn_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: tn_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  tn_agent_city_nm:
+    x_petey_id: '4_28'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 218.0
+      - 528.0
+      - 231.0
+      widget_type: text
+      path: Agent City 43
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tn_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: tn_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  tn_agent_zip_cd:
+    x_petey_id: '4_29'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 218.0
+      - 594.0
+      - 231.0
+      widget_type: text
+      path: Agent Zip 43
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tn_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: tn_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  tx_operations_ind:
+    x_petey_id: '4_35'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 257.62200927734375
+      - 40.5
+      - 266.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 44
+    description: Check if company has operations in Texas.
+    x_petey_description_source: tooltip
+    label_source: llm
+  tx_agent_nm:
+    x_petey_id: '4_31'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 252.0
+      - 309.0
+      - 265.0
+      widget_type: text
+      path: Agent Name 44
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tx_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: tx_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  tx_agent_street_address_txt:
+    x_petey_id: '4_32'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 252.0
+      - 438.0
+      - 265.0
+      widget_type: text
+      path: Agent Street 44
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tx_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: tx_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  tx_agent_city_nm:
+    x_petey_id: '4_33'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 252.0
+      - 528.0
+      - 265.0
+      widget_type: text
+      path: Agent City 44
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tx_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: tx_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  tx_agent_zip_cd:
+    x_petey_id: '4_34'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 252.0
+      - 594.0
+      - 265.0
+      widget_type: text
+      path: Agent Zip 44
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: tx_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: tx_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  ut_operations_ind:
+    x_petey_id: '4_40'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 291.62200927734375
+      - 40.5
+      - 300.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 45
+    description: Check if company has operations in Utah.
+    x_petey_description_source: tooltip
+    label_source: llm
+  ut_agent_nm:
+    x_petey_id: '4_36'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 286.0
+      - 309.0
+      - 299.0
+      widget_type: text
+      path: Agent Name 45
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ut_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ut_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  ut_agent_street_address_txt:
+    x_petey_id: '4_37'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 286.0
+      - 438.0
+      - 299.0
+      widget_type: text
+      path: Agent Street 45
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ut_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: ut_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  ut_agent_city_nm:
+    x_petey_id: '4_38'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 286.0
+      - 528.0
+      - 299.0
+      widget_type: text
+      path: Agent City 45
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ut_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: ut_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  ut_agent_zip_cd:
+    x_petey_id: '4_39'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 286.0
+      - 594.0
+      - 299.0
+      widget_type: text
+      path: Agent Zip 45
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: ut_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: ut_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  vt_operations_ind:
+    x_petey_id: '4_45'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 325.62200927734375
+      - 40.5
+      - 334.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 46
+    description: Check if company has operations in Vermont.
+    x_petey_description_source: tooltip
+    label_source: llm
+  vt_agent_nm:
+    x_petey_id: '4_41'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 320.0
+      - 309.0
+      - 333.0
+      widget_type: text
+      path: Agent Name 46
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: vt_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: vt_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  vt_agent_street_address_txt:
+    x_petey_id: '4_42'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 320.0
+      - 438.0
+      - 333.0
+      widget_type: text
+      path: Agent Street 46
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: vt_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: vt_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  vt_agent_city_nm:
+    x_petey_id: '4_43'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 320.0
+      - 528.0
+      - 333.0
+      widget_type: text
+      path: Agent City 46
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: vt_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: vt_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  vt_agent_zip_cd:
+    x_petey_id: '4_44'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 320.0
+      - 594.0
+      - 333.0
+      widget_type: text
+      path: Agent Zip 46
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: vt_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: vt_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  va_operations_ind:
+    x_petey_id: '4_50'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 359.62200927734375
+      - 40.5
+      - 368.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 47
+    description: Check if company has operations in Virginia.
+    x_petey_description_source: tooltip
+    label_source: llm
+  va_agent_nm:
+    x_petey_id: '4_46'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 354.0
+      - 309.0
+      - 367.0
+      widget_type: text
+      path: Agent Name 47
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: va_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: va_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  va_agent_street_address_txt:
+    x_petey_id: '4_47'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 354.0
+      - 438.0
+      - 367.0
+      widget_type: text
+      path: Agent Street 47
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: va_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: va_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  va_agent_city_nm:
+    x_petey_id: '4_48'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 354.0
+      - 528.0
+      - 367.0
+      widget_type: text
+      path: Agent City 47
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: va_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: va_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  va_agent_zip_cd:
+    x_petey_id: '4_49'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 354.0
+      - 594.0
+      - 367.0
+      widget_type: text
+      path: Agent Zip 47
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: va_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: va_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  wa_operations_ind:
+    x_petey_id: '4_55'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 393.62200927734375
+      - 40.5
+      - 402.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 48
+    description: Check if company has operations in Washington.
+    x_petey_description_source: tooltip
+    label_source: llm
+  wa_agent_nm:
+    x_petey_id: '4_51'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 388.0
+      - 309.0
+      - 401.0
+      widget_type: text
+      path: Agent Name 48
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wa_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: wa_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  wa_agent_street_address_txt:
+    x_petey_id: '4_52'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 388.0
+      - 438.0
+      - 401.0
+      widget_type: text
+      path: Agent Street 48
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wa_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: wa_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  wa_agent_city_nm:
+    x_petey_id: '4_53'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 388.0
+      - 528.0
+      - 401.0
+      widget_type: text
+      path: Agent City 48
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wa_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: wa_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  wa_agent_zip_cd:
+    x_petey_id: '4_54'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 388.0
+      - 594.0
+      - 401.0
+      widget_type: text
+      path: Agent Zip 48
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wa_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: wa_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  wv_operations_ind:
+    x_petey_id: '4_60'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 427.62200927734375
+      - 40.5
+      - 436.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 49
+    description: Check if company has operations in West Virginia.
+    x_petey_description_source: tooltip
+    label_source: llm
+  wv_agent_nm:
+    x_petey_id: '4_56'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 422.0
+      - 309.0
+      - 435.0
+      widget_type: text
+      path: Agent Name 49
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wv_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: wv_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  wv_agent_street_address_txt:
+    x_petey_id: '4_57'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 422.0
+      - 438.0
+      - 435.0
+      widget_type: text
+      path: Agent Street 49
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wv_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: wv_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  wv_agent_city_nm:
+    x_petey_id: '4_58'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 422.0
+      - 528.0
+      - 435.0
+      widget_type: text
+      path: Agent City 49
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wv_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: wv_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  wv_agent_zip_cd:
+    x_petey_id: '4_59'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 422.0
+      - 594.0
+      - 435.0
+      widget_type: text
+      path: Agent Zip 49
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wv_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: wv_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  wi_operations_ind:
+    x_petey_id: '4_65'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 461.62200927734375
+      - 40.5
+      - 470.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 50
+    description: Check if company has operations in Wisconsin.
+    x_petey_description_source: tooltip
+    label_source: llm
+  wi_agent_nm:
+    x_petey_id: '4_61'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 456.0
+      - 309.0
+      - 469.0
+      widget_type: text
+      path: Agent Name 50
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wi_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: wi_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  wi_agent_street_address_txt:
+    x_petey_id: '4_62'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 456.0
+      - 438.0
+      - 469.0
+      widget_type: text
+      path: Agent Street 50
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wi_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: wi_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  wi_agent_city_nm:
+    x_petey_id: '4_63'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 456.0
+      - 528.0
+      - 469.0
+      widget_type: text
+      path: Agent City 50
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wi_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: wi_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  wi_agent_zip_cd:
+    x_petey_id: '4_64'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 456.0
+      - 594.0
+      - 469.0
+      widget_type: text
+      path: Agent Zip 50
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wi_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: wi_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  wy_operations_ind:
+    x_petey_id: '4_70'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 495.62200927734375
+      - 40.5
+      - 504.12200927734375
+      widget_type: checkbox
+      path: State Checkbox 51
+    description: Check if company has operations in Wyoming.
+    x_petey_description_source: tooltip
+    label_source: llm
+  wy_agent_nm:
+    x_petey_id: '4_66'
+    type: string
+    widget:
+      page: 4
+      rect:
+      - 150.0
+      - 490.0
+      - 309.0
+      - 503.0
+      widget_type: text
+      path: Agent Name 51
+    description: Por favor, ingrese el nombre del agente aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wy_agent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: wy_agent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  wy_agent_street_address_txt:
+    x_petey_id: '4_67'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 4
+      rect:
+      - 315.0
+      - 490.0
+      - 438.0
+      - 503.0
+      widget_type: text
+      path: Agent Street 51
+    description: Por favor, introduzca la dirección de la calle aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wy_agent_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: wy_agent_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  wy_agent_city_nm:
+    x_petey_id: '4_68'
+    type: string
+    semantic_type: city
+    widget:
+      page: 4
+      rect:
+      - 444.0
+      - 490.0
+      - 528.0
+      - 503.0
+      widget_type: text
+      path: Agent City 51
+    description: Por favor, introduzca la dirección de la ciudad aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wy_agent_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: wy_agent_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  wy_agent_zip_cd:
+    x_petey_id: '4_69'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 4
+      rect:
+      - 534.0
+      - 490.0
+      - 594.0
+      - 503.0
+      widget_type: text
+      path: Agent Zip 51
+    description: Por favor, introduzca el código postal de 9 dígitos aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: wy_agent_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: wy_agent_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  blanket_designation_association_or_corporation_nm:
+    x_petey_id: '4_71'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 4
+      rect:
+      - 32.0
+      - 594.7550048828125
+      - 584.0
+      - 607.7550048828125
+      widget_type: text
+      path: Blanket Designation
+    description: Please enter the name of the association or corporation here. Por
+      favor, introduce el nombre de la asociación o corporación aquí.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Printed instruction 'insert the association or corporation name here'
+        confirms the name; only the person_name semantic type is wrong and should
+        be organization_name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Please enter the name of the association or corporation here.
+          Por favor, introduce el nombre de la asociación o corporación aquí.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: blanket_designation_association_or_corporation_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: blanket_designation_association_or_corporation_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+x_petey_page_check:
+  when: '2026-10-15 11:06:31'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  - 2
+  - 3
+  - 4
+  fields: 269
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/fmcsa_boc_3__10d0df__fe800e70.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: fmcsa_boc_3_20261006_192903
+  blueprint: /home/user/petey-2/runs/judge_eval/work/fmcsa_boc_3.bpt
+  when: '2026-10-06 19:30:13'
+x_petey_run:
+  record: runs/judge_eval/form_runs/fmcsa_boc_3.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 19:30:19'

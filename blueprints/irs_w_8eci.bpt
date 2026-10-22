@@ -1,0 +1,728 @@
+bpt_version: '1.1'
+name: irs_w_8eci
+form_version: null
+source_pdf: fw8eci.pdf
+source_pdf_hash: 93a868717aac33a1945fcb596b3af9a1e93362b3
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:28:59'
+fields:
+  beneficial_owner_nm:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 252.0
+      - 402.45001220703125
+      - 263.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:33'
+      from:
+        name: beneficial_owner_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: beneficial_owner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  country_of_incorporation_or_organization_cd:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 404.20001220703125
+      - 252.0
+      - 576.0
+      - 263.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:36'
+      from:
+        name: country_of_incorporation_or_organization
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: country_of_incorporation_or_organization_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+  disregarded_entity_nm:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: entity_name
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 276.0009765625
+      - 576.0
+      - 288.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_3[0]
+    label_source: llm
+  permanent_residence_address_line_1_txt:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 360.0
+      - 576.0
+      - 371.9989929199219
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_4[0]
+    label_source: llm
+  permanent_residence_city_state_province_postal_cd:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 384.0010070800781
+      - 446.3999938964844
+      - 396.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_5[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=410
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:36'
+      from:
+        name: permanent_residence_city_state_province_postal_code_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: permanent_residence_city_state_province_postal_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: postal_code_txt -> postal_cd'
+  permanent_residence_country_nm:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 447.3999938964844
+      - 384.0010070800781
+      - 576.0
+      - 396.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_6[0]
+    label_source: llm
+  us_business_address_line_1_txt:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 407.9989929199219
+      - 576.0
+      - 419.99798583984375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_7[0]
+    label_source: llm
+  us_business_city_state_zip_cd:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 432.0
+      - 576.0
+      - 443.9989929199219
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_8[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=540
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:36'
+      from:
+        name: us_business_city_state_zip_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: us_business_city_state_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_txt -> zip_cd'
+  us_tin:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 396.0
+      - 443.9989929199219
+      - 576.0
+      - 455.99798583984375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_9[0]
+    label_source: llm
+  foreign_tin:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 468.0
+      - 273.6000061035156
+      - 479.9989929199219
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_10[0]
+    label_source: llm
+    description: Foreign tax identifying number (FTIN) issued by the beneficial owner's
+      country of residence; free-form, no U.S. TIN format.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: The caption is 'Foreign tax identifying number (FTIN)'. A foreign TIN
+        has no U.S. format, so the U.S.-style tin semantic_type and the dd-ddddddd
+        pattern are wrong and must be dropped; the name itself correctly describes
+        the box.
+      before:
+        type: string
+        semantic_type: tin
+        pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+      judged: 'kept: 3 -> 0'
+  ftin_not_legally_required_ind:
+    x_petey_id: '1_12'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 564.7999877929688
+      - 464.0010070800781
+      - 572.7999877929688
+      - 472.0010070800781
+      widget_type: checkbox
+      path: topmostSubform[0].Page1[0].c1_3[0]
+    label_source: llm
+  reference_numbers_txt:
+    x_petey_id: '1_14'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 492.0010070800781
+      - 273.6000061035156
+      - 504.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_11[0]
+    label_source: llm
+  birth_dt:
+    x_petey_id: '1_15'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 273.6000061035156
+      - 492.0010070800781
+      - 576.0
+      - 504.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_12[0]
+    label_source: llm
+  effectively_connected_income_items_1_txt:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 516.001953125
+      - 576.0
+      - 528.0009765625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_13[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:36'
+      from:
+        name: effectively_connected_income_items_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: effectively_connected_income_items_1_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: first of a numbered set gets 1'
+  effectively_connected_income_items_2_txt:
+    x_petey_id: '1_17'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 64.80000305175781
+      - 528.0009765625
+      - 576.0
+      - 540.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_14[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:36'
+      from:
+        name: effectively_connected_income_items_txt_2
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: effectively_connected_income_items_2_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  effectively_connected_income_items_3_txt:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 64.80000305175781
+      - 540.0
+      - 576.0
+      - 551.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_15[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:36'
+      from:
+        name: effectively_connected_income_items_txt_3
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: effectively_connected_income_items_3_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number moved before the suffix'
+  ptp_dealer_transferor_exception_cert_ind:
+    x_petey_id: '1_19'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 564.7999877929688
+      - 577.9990234375
+      - 572.7999877929688
+      - 585.9990234375
+      widget_type: checkbox
+      path: topmostSubform[0].Page1[0].c1_4[0]
+    label_source: llm
+  capacity_to_sign_cert_ind:
+    x_petey_id: '1_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 95.0
+      - 710.0
+      - 103.0
+      - 718.0
+      widget_type: checkbox
+      path: topmostSubform[0].Page1[0].c1_5[0]
+    label_source: llm
+  signature:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 93.5999984741211
+      - 720.0
+      - 367.20001220703125
+      - 744.0009765625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].SignatureBeneficialOwner[0]
+    label_source: llm
+  signer_printed_nm:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 374.3999938964844
+      - 731.9990234375
+      - 489.6000061035156
+      - 744.0009765625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_16[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:33'
+      from:
+        name: signer_printed_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: signer_printed_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  signature_dt:
+    x_petey_id: '1_23'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 496.79998779296875
+      - 731.9990234375
+      - 576.0
+      - 744.0009765625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_17[0]
+    label_source: llm
+  entity_type:
+    x_petey_id: '1_4'
+    type: category
+    values:
+    - partnership
+    - foreign_government_controlled_entity
+    - foreign_government_integral_part
+    - private_foundation
+    - simple_trust
+    - grantor_trust
+    - international_organization
+    - individual
+    - complex_trust
+    - central_bank_of_issue
+    - corporation
+    - estate
+    - tax_exempt_organization
+    widgets:
+      partnership:
+        page: 1
+        rect:
+        - 67.19999694824219
+        - 301.99798583984375
+        - 75.19999694824219
+        - 309.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[0]
+        on_state: '1'
+        caption: Partnership
+        x_petey_caption_source: page_text
+      foreign_government_controlled_entity:
+        page: 1
+        rect:
+        - 67.19999694824219
+        - 314.0
+        - 75.19999694824219
+        - 322.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[1]
+        on_state: '2'
+        caption: Foreign Government - Controlled Entity
+        x_petey_caption_source: page_text
+      foreign_government_integral_part:
+        page: 1
+        rect:
+        - 67.19999694824219
+        - 325.9989929199219
+        - 75.19999694824219
+        - 333.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[2]
+        on_state: '3'
+        caption: Foreign Government - Integral Part
+        x_petey_caption_source: page_text
+      private_foundation:
+        page: 1
+        rect:
+        - 67.19999694824219
+        - 337.99798583984375
+        - 75.19999694824219
+        - 345.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[3]
+        on_state: '4'
+        caption: Private foundation
+        x_petey_caption_source: page_text
+      simple_trust:
+        page: 1
+        rect:
+        - 240.0
+        - 301.99798583984375
+        - 248.0
+        - 309.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[4]
+        on_state: '5'
+        caption: Simple trust
+        x_petey_caption_source: page_text
+      grantor_trust:
+        page: 1
+        rect:
+        - 240.0
+        - 314.0
+        - 248.0
+        - 322.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[5]
+        on_state: '6'
+        caption: Grantor trust
+        x_petey_caption_source: page_text
+      international_organization:
+        page: 1
+        rect:
+        - 240.0
+        - 325.9989929199219
+        - 248.0
+        - 333.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[6]
+        on_state: '7'
+        caption: International organization
+        x_petey_caption_source: page_text
+      individual:
+        page: 1
+        rect:
+        - 240.0
+        - 337.99798583984375
+        - 248.0
+        - 345.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[7]
+        on_state: '8'
+        caption: Individual
+        x_petey_caption_source: page_text
+      complex_trust:
+        page: 1
+        rect:
+        - 362.3999938964844
+        - 301.99798583984375
+        - 370.3999938964844
+        - 309.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[8]
+        on_state: '9'
+        caption: Complex trust
+        x_petey_caption_source: page_text
+      central_bank_of_issue:
+        page: 1
+        rect:
+        - 362.3999938964844
+        - 314.0
+        - 370.3999938964844
+        - 322.0
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[9]
+        on_state: '10'
+        caption: Central bank of issue
+        x_petey_caption_source: page_text
+      corporation:
+        page: 1
+        rect:
+        - 362.3999938964844
+        - 325.9989929199219
+        - 370.3999938964844
+        - 333.9989929199219
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[10]
+        on_state: '11'
+        caption: Corporation
+        x_petey_caption_source: page_text
+      estate:
+        page: 1
+        rect:
+        - 362.3999938964844
+        - 337.99798583984375
+        - 370.3999938964844
+        - 345.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[11]
+        on_state: Check7
+        caption: Estate
+        x_petey_caption_source: page_choice
+      tax_exempt_organization:
+        page: 1
+        rect:
+        - 470.3999938964844
+        - 301.99798583984375
+        - 478.3999938964844
+        - 309.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_1[12]
+        on_state: '13'
+        caption: Tax-exempt organization
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:27:53'
+      from:
+      - entity_type::partnership
+      - entity_type::foreign_government_controlled_entity
+      - entity_type::foreign_government_integral_part
+      - entity_type::private_foundation
+      - entity_type::simple_trust
+      - entity_type::grantor_trust
+      - entity_type::international_organization
+      - entity_type::individual
+      - entity_type::complex_trust
+      - entity_type::central_bank_of_issue
+      - entity_type::corporation
+      - entity_type::estate
+      - entity_type::tax_exempt_organization
+  us_tin_type:
+    x_petey_id: '1_10'
+    type: category
+    values:
+    - ein
+    - ssn_or_itin
+    widgets:
+      ssn_or_itin:
+        page: 1
+        rect:
+        - 298.3999938964844
+        - 445.99798583984375
+        - 306.3999938964844
+        - 453.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[0]
+        on_state: '1'
+        caption: SSN or ITIN
+        x_petey_caption_source: page_text
+      ein:
+        page: 1
+        rect:
+        - 363.20001220703125
+        - 445.99798583984375
+        - 371.20001220703125
+        - 453.99798583984375
+        widget_type: checkbox
+        path: topmostSubform[0].Page1[0].c1_2[1]
+        on_state: '2'
+        caption: EIN
+        x_petey_caption_source: page_text
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 2
+  collisions:
+  - original_label: effectively_connected_income_items_txt
+    assigned_label: effectively_connected_income_items_txt_2
+    page: 1
+    rect:
+    - 64.80000305175781
+    - 528.0009765625
+    - 576.0
+    - 540.0
+  - original_label: effectively_connected_income_items_txt
+    assigned_label: effectively_connected_income_items_txt_3
+    page: 1
+    rect:
+    - 64.80000305175781
+    - 540.0
+    - 576.0
+    - 551.9990234375
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 2
+x_petey_page_check:
+  when: '2026-10-16 13:28:33'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 23
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/irs_w_8eci__cde993__010b341b.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: irs_w_8eci_20261006_213022
+  blueprint: /home/user/petey-2/runs/judge_eval/work/irs_w_8eci.bpt
+  when: '2026-10-06 21:30:29'
+x_petey_run:
+  record: runs/judge_eval/form_runs/irs_w_8eci.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:30:30'

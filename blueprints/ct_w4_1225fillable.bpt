@@ -1,0 +1,432 @@
+bpt_version: '1.1'
+name: ct_w4_1225fillable
+form_version: null
+source_pdf: ct-w4_1225fillable.pdf
+source_pdf_hash: 2fed280c1a25b86968b33b77edd8907cfe25ab36
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+fields:
+  withholding_cd:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 353.0400085449219
+      - 430.6919860839844
+      - 449.1600036621094
+      - 445.32000732421875
+      widget_type: text
+      path: '1'
+    label_source: llm
+  additional_withholding_amt:
+    x_petey_id: '1_3'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 355.0799865722656
+      - 447.71600341796875
+      - 448.55999755859375
+      - 463.9200134277344
+      widget_type: text
+      path: '2'
+    label_source: llm
+    x_petey_retype:
+    - money
+  reduced_withholding_amt:
+    x_petey_id: '1_4'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 355.0799865722656
+      - 466.7669982910156
+      - 449.6400146484375
+      - 481.9200134277344
+      widget_type: text
+      path: '3'
+    label_source: llm
+    x_petey_retype:
+    - money
+  msrra_exemption_ind:
+    x_petey_id: '1_2'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 462.7550048828125
+      - 434.77099609375
+      - 480.7550048828125
+      - 452.77099609375
+      widget_type: checkbox
+      path: Check Box1
+    label_source: llm
+  legal_residence_domicile_state_cd:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 481.5889892578125
+      - 472.96600341796875
+      - 574.948974609375
+      - 484.96600341796875
+      widget_type: text
+      path: residencedomicile
+    description: residence/domicile
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: legal_residence_domicile_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: legal_residence_domicile_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  employee_nm:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.48550033569336
+      - 499.9200134277344
+      - 393.5260009765625
+      - 516.47998046875
+      widget_type: text
+      path: First name Ml Last name
+    description: First name Ml Last name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:16'
+      from:
+        name: employee_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: employee_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  employee_ssn:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}-\d{2}-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 398.97698974609375
+      - 498.5920104980469
+      - 574.7999877929688
+      - 516.47998046875
+      widget_type: text
+      path: SSN
+    description: Social Security Number
+    x_petey_description_source: tooltip
+    label_source: llm
+  home_address_line_1_txt:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 38.02479934692383
+      - 523.64404296875
+      - 574.7999877929688
+      - 540.47998046875
+      widget_type: text
+      path: Home address number and street apartment number suite number PO Box
+    description: Home address (number and street, apartment number, suite number,
+      PO Box)
+    x_petey_description_source: tooltip
+    label_source: llm
+  home_city_state_zip_cd:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.832401275634766
+      - 548.0490112304688
+      - 575.3259887695312
+      - 565.0800170898438
+      widget_type: text
+      path: Citytown State ZIP code
+    description: City/town State ZIP code
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=538
+  employee_signature_dt:
+    x_petey_id: '1_10'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 419.16900634765625
+      - 597.4559936523438
+      - 574.7999877929688
+      - 617.6400146484375
+      widget_type: text
+      path: Date
+    label_source: llm
+  new_or_rehired_employee:
+    x_petey_id: '1_12'
+    type: category
+    values:
+    - new_or_rehired_employee_no_ind
+    - new_or_rehired_employee_yes_ind
+    widgets:
+      new_or_rehired_employee_no_ind:
+        page: 1
+        rect:
+        - 196.84800720214844
+        - 637.0659790039062
+        - 209.5749969482422
+        - 649.3880004882812
+        widget_type: checkbox
+        path: Check Box2
+        on_state: 'Yes'
+      new_or_rehired_employee_yes_ind:
+        page: 1
+        rect:
+        - 245.77499389648438
+        - 637.1500244140625
+        - 258.50299072265625
+        - 649.4719848632812
+        widget_type: checkbox
+        path: Check Box3
+        on_state: 'Yes'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-05 23:10:57'
+      from:
+      - new_or_rehired_employee_no_ind
+      - new_or_rehired_employee_yes_ind
+  date_hired_dt:
+    x_petey_id: '1_11'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 365.0400085449219
+      - 631.240966796875
+      - 449.6400146484375
+      - 646.9199829101562
+      widget_type: text
+      path: Yes  Enter date hired
+    description: Yes Enter date hired
+    x_petey_description_source: tooltip
+    label_source: llm
+  employer_business_nm:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 137.6929931640625
+      - 662.8890380859375
+      - 388.5979919433594
+      - 684.8889770507812
+      widget_type: text
+      path: Text3
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: employer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: employer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  employer_ein:
+    x_petey_id: '1_14'
+    type: string
+    semantic_type: ein
+    pattern: ^\d{2}-\d{7}$
+    widget:
+      page: 1
+      rect:
+      - 395.5610046386719
+      - 668.8460083007812
+      - 545.5609741210938
+      - 686.291015625
+      widget_type: text
+      path: Text4
+    label_source: llm
+  employer_address_line_1_txt:
+    x_petey_id: '1_15'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 144.0
+      - 686.4000244140625
+      - 574.7999877929688
+      - 709.3200073242188
+      widget_type: text
+      path: Employers business address
+    description: Employer’s business address
+    x_petey_description_source: tooltip
+    label_source: llm
+  employer_city_state_zip_cd:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.40629959106445
+      - 716.0057983398438
+      - 449.3699951171875
+      - 732.9697265625
+      widget_type: text
+      path: Citytown State ZIP code_2
+    description: City/town State ZIP code
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=412
+  contact_person_nm:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 93.83999633789062
+      - 738.1339721679688
+      - 392.8800048828125
+      - 755.760009765625
+      widget_type: text
+      path: Contact person
+    description: Contact person
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:16'
+      from:
+        name: contact_person_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: contact_person_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  telephone_nbr:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 453.3890075683594
+      - 740.4989013671875
+      - 575.6209716796875
+      - 755.059326171875
+      widget_type: text
+      path: Telephone number
+    description: Telephone number – –
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: telephone_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+x_petey_dropped_widgets:
+  count: 2
+  widgets:
+  - path: Print Form
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: null
+  - path: Clear Fields
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: null
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 2
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ct_w4_1225fillable_20261001_192649
+  blueprint: runs/judge_eval/blueprints/ct_w4_1225fillable.bpt
+  when: '2026-10-01 19:27:02'
+x_petey_page_check:
+  when: '2026-10-15 11:06:55'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 18
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/ct_w4_1225fillable__4f9b1a__730d20f5.json

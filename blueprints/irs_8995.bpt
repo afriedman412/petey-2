@@ -1,0 +1,867 @@
+bpt_version: '1.1'
+name: irs_8995
+form_version: null
+source_pdf: f8995.pdf
+source_pdf_hash: 285653c1cb0604b454ffb4148e6876b7132d2bec
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:28:04'
+fields:
+  taxpayer_nm:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 106.00103759765625
+      - 438.45001220703125
+      - 120.00201416015625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_01[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:35'
+      from:
+        name: taxpayer_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  taxpayer_identification_nbr:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 440.20001220703125
+      - 106.00103759765625
+      - 576.0
+      - 120.00201416015625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_02[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:35'
+      from:
+        name: taxpayer_identification_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identification_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  trade_business_aggregation_1_nm:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 65.80000305175781
+      - 216.0
+      - 395.25
+      - 240.00103759765625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1i[0].f1_03[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption '(a) Trade, business, or aggregation name' holds a business/aggregation
+        name, not a person name; name is correct, semantic_type corrected.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: trade_business_aggregation_name_1i_txt
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: trade_business_aggregation_1_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (a) of the line 1 table, row i renumbered 1; name suffix _nm for
+        a name.
+  taxpayer_identification_1_nbr:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 396.75
+      - 228.0
+      - 481.6499938964844
+      - 240.00103759765625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1i[0].f1_04[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: taxpayer_identification_number_1i_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identification_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (b) wording, row 1, identifier suffix _nbr.
+  qualified_business_income_or_loss_1_amt:
+    x_petey_id: '1_5'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 482.3999938964844
+      - 228.0
+      - 576.0
+      - 240.00103759765625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1i[0].f1_05[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: qualified_business_income_or_loss_amt_1i_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: qualified_business_income_or_loss_1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (c) wording, row 1, single _amt suffix.
+  trade_business_aggregation_2_nm:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 65.80000305175781
+      - 240.00103759765625
+      - 395.25
+      - 264.00201416015625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1ii[0].f1_06[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Row ii of column (a); holds a trade/business name, so person_name is
+        wrong.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: trade_business_aggregation_name_1ii_txt
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: trade_business_aggregation_2_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (a), row ii renumbered 2.
+  taxpayer_identification_2_nbr:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 396.75
+      - 252.00103759765625
+      - 481.6499938964844
+      - 264.00201416015625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1ii[0].f1_07[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: taxpayer_identification_number_1ii_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identification_2_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (b), row 2.
+  qualified_business_income_or_loss_2_amt:
+    x_petey_id: '1_8'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 482.3999938964844
+      - 252.00103759765625
+      - 576.0
+      - 264.00201416015625
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1ii[0].f1_08[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: qualified_business_income_or_loss_amt_1ii_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: qualified_business_income_or_loss_2_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (c), row 2.
+  trade_business_aggregation_3_nm:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 65.80000305175781
+      - 264.00201416015625
+      - 395.25
+      - 288.0030212402344
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1iii[0].f1_09[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Row iii of column (a) holds a business/aggregation name; person_name
+        is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: trade_business_aggregation_name_1iii_txt
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: trade_business_aggregation_3_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (a), row iii renumbered 3.
+  taxpayer_identification_3_nbr:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 396.75
+      - 276.00201416015625
+      - 481.6499938964844
+      - 288.0030212402344
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1iii[0].f1_10[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: taxpayer_identification_number_1iii_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identification_3_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (b), row 3.
+  qualified_business_income_or_loss_3_amt:
+    x_petey_id: '1_11'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 482.3999938964844
+      - 276.00201416015625
+      - 576.0
+      - 288.0030212402344
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1iii[0].f1_11[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: qualified_business_income_or_loss_amt_1iii_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: qualified_business_income_or_loss_3_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (c), row 3.
+  trade_business_aggregation_4_nm:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 65.80000305175781
+      - 288.0030212402344
+      - 395.25
+      - 312.0040283203125
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1iv[0].f1_12[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Row iv of column (a) holds a business/aggregation name; person_name
+        is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: trade_business_aggregation_name_1iv_txt
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: trade_business_aggregation_4_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (a), row iv renumbered 4.
+  taxpayer_identification_4_nbr:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 396.75
+      - 300.0030212402344
+      - 481.6499938964844
+      - 312.0040283203125
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1iv[0].f1_13[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: taxpayer_identification_number_1iv_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identification_4_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (b), row 4.
+  qualified_business_income_or_loss_4_amt:
+    x_petey_id: '1_14'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 482.3999938964844
+      - 300.0030212402344
+      - 576.0
+      - 312.0040283203125
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1iv[0].f1_14[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: qualified_business_income_or_loss_amt_1iv_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: qualified_business_income_or_loss_4_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (c), row 4.
+  trade_business_aggregation_5_nm:
+    x_petey_id: '1_15'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 65.80000305175781
+      - 312.0040283203125
+      - 395.25
+      - 336.0050048828125
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1v[0].f1_15[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Row v of column (a) holds a business/aggregation name; person_name is
+        wrong.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: trade_business_aggregation_name_1v_txt
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: trade_business_aggregation_5_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (a), row v renumbered 5.
+  taxpayer_identification_5_nbr:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 396.75
+      - 324.0040283203125
+      - 481.6499938964844
+      - 336.0050048828125
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1v[0].f1_16[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: taxpayer_identification_number_1v_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identification_5_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (b), row 5.
+  qualified_business_income_or_loss_5_amt:
+    x_petey_id: '1_17'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 482.3999938964844
+      - 324.0040283203125
+      - 576.0
+      - 336.0050048828125
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Table[0].Row1v[0].f1_17[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_hand_edit:
+      when: '2026-10-20 21:04:15'
+      from:
+        name: qualified_business_income_or_loss_amt_1v_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: qualified_business_income_or_loss_5_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Column (c), row 5.
+  total_qualified_business_income_or_loss_amt:
+    x_petey_id: '1_18'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 410.3999938964844
+      - 348.0010070800781
+      - 481.6499938964844
+      - 360.0000305175781
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Line2_ReadOrder[0].f1_18[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  qualified_business_net_loss_carryforward_prior_year_amt:
+    x_petey_id: '1_19'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 413.3999938964844
+      - 360.0000305175781
+      - 479.3999938964844
+      - 371.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_19[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  total_qualified_business_income_amt:
+    x_petey_id: '1_20'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 410.3999938964844
+      - 371.9990234375
+      - 481.6499938964844
+      - 383.9980163574219
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_20[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  qualified_business_income_component_amt:
+    x_petey_id: '1_21'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 384.0010070800781
+      - 576.0
+      - 396.0000305175781
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_21[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  qualified_reit_dividends_and_ptp_income_or_loss_amt:
+    x_petey_id: '1_22'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 410.3999938964844
+      - 407.9990234375
+      - 481.6499938964844
+      - 419.9980163574219
+      widget_type: text
+      path: topmostSubform[0].Page1[0].Line6_ReadOrder[0].f1_22[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  qualified_reit_dividends_ptp_loss_carryforward_prior_year_amt:
+    x_petey_id: '1_23'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 413.3999938964844
+      - 432.0000305175781
+      - 479.3999938964844
+      - 443.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_23[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  total_qualified_reit_dividends_and_ptp_income_amt:
+    x_petey_id: '1_24'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 410.3999938964844
+      - 456.0010070800781
+      - 481.6499938964844
+      - 468.0000305175781
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_24[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  reit_and_ptp_component_amt:
+    x_petey_id: '1_25'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 468.0000305175781
+      - 576.0
+      - 479.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_25[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  qualified_business_income_deduction_before_income_limitation_amt:
+    x_petey_id: '1_26'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 479.9990234375
+      - 576.0
+      - 491.9980163574219
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_26[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  taxable_income_before_qbi_deduction_amt:
+    x_petey_id: '1_27'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 410.3999938964844
+      - 492.0010070800781
+      - 481.6499938964844
+      - 504.0000305175781
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_27[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  net_capital_gain_and_qualified_dividends_amt:
+    x_petey_id: '1_28'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 410.3999938964844
+      - 515.9990234375
+      - 481.6499938964844
+      - 527.998046875
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_28[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  taxable_income_less_capital_gain_amt:
+    x_petey_id: '1_29'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 410.3999938964844
+      - 528.0009765625
+      - 481.6499938964844
+      - 540.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_29[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  income_limitation_amt:
+    x_petey_id: '1_30'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 540.0
+      - 576.0
+      - 551.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_30[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  qualified_business_income_deduction_amt:
+    x_petey_id: '1_31'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 564.0010375976562
+      - 576.0
+      - 576.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_31[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  total_qualified_business_loss_carryforward_amt:
+    x_petey_id: '1_32'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 507.0
+      - 576.0
+      - 573.0
+      - 587.9990234375
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_32[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  total_qualified_reit_dividends_and_ptp_loss_carryforward_amt:
+    x_petey_id: '1_33'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 507.0
+      - 600.0010375976562
+      - 573.0
+      - 612.0
+      widget_type: text
+      path: topmostSubform[0].Page1[0].f1_33[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+x_petey_page_check:
+  when: '2026-10-16 13:28:18'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 33
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/irs_8995__ae718e__506cae97.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: irs_8995_20261006_213019
+  blueprint: /home/user/petey-2/runs/judge_eval/work/irs_8995.bpt
+  when: '2026-10-06 21:30:49'
+x_petey_run:
+  record: runs/judge_eval/form_runs/irs_8995.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:30:50'

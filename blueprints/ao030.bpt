@@ -1,0 +1,333 @@
+bpt_version: '1.1'
+name: ao030
+form_version: null
+source_pdf: ao030.pdf
+source_pdf_hash: 825901b05089fc041005b5622f79706108659ccd
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 10:57:30'
+fields:
+  district_information_txt:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 209.83099365234375
+      - 88.76397705078125
+      - 398.5069885253906
+      - 109.88299560546875
+      widget_type: combobox
+      path: District Information
+    description: District Information
+    x_petey_description_source: tooltip
+    label_source: llm
+    values:
+    - __________ District of __________
+    - Middle District of Alabama
+    - Northern District of Alabama
+    - Southern District of Alabama
+    - District of Alaska
+    - District of Arizona
+    - Eastern District of Arkansas
+    - Western District of Arkansas
+    - Central District of California
+    - Eastern District of California
+    - Northern District of California
+    - Southern District of California
+    - District of Colorado
+    - District of Connecticut
+    - District of Columbia
+    - District of Delaware
+    - Middle District of Florida
+    - Northern District of Florida
+    - Southern District of Florida
+    - Middle District of Georgia
+    - Northern District of Georgia
+    - Southern District of Georgia
+    - District of Guam
+    - District of Hawaii
+    - District of Idaho
+    - Central District of Illinois
+    - Northern District of Illinois
+    - Southern District of Illinois
+    - Northern District of Indiana
+    - Southern District of Indiana
+    - Northern District of Iowa
+    - Southern District of Iowa
+    - District of Kansas
+    - Eastern District of Kentucky
+    - Western District of Kentucky
+    - Eastern District of Louisiana
+    - Middle District of Louisiana
+    - Western District of Louisiana
+    - District of Maine
+    - District of Maryland
+    - District of Massachusetts
+    - Eastern District of Michigan
+    - Western District of Michigan
+    - District of Minnesota
+    - Northern District of Mississippi
+    - Southern District of Mississippi
+    - Eastern District of Missouri
+    - Western District of Missouri
+    - District of Montana
+    - District of Nebraska
+    - District of Nevada
+    - District of New Hampshire
+    - District of New Jersey
+    - District of New Mexico
+    - Eastern District of New York
+    - Northern District of New York
+    - Southern District of New York
+    - Western District of New York
+    - Eastern District of North Carolina
+    - Middle District of North Carolina
+    - Western District of North Carolina
+    - District of North Dakota
+    - District of the Northern Mariana Islands
+    - Northern District of Ohio
+    - Southern District of Ohio
+    - Eastern District of Oklahoma
+    - Northern District of Oklahoma
+    - Western District of Oklahoma
+    - District of Oregon
+    - Eastern District of Pennsylvania
+    - Middle District of Pennsylvania
+    - Western District of Pennsylvania
+    - District of Puerto Rico
+    - District of Rhode Island
+    - District of South Carolina
+    - District of South Dakota
+    - Eastern District of Tennessee
+    - Middle District of Tennessee
+    - Western District of Tennessee
+    - Eastern District of Texas
+    - Northern District of Texas
+    - Southern District of Texas
+    - Western District of Texas
+    - District of Utah
+    - District of Vermont
+    - District of the Virgin Islands
+    - Eastern District of Virginia
+    - Western District of Virginia
+    - Eastern District of Washington
+    - Western District of Washington
+    - Northern District of West Virginia
+    - Southern District of West Virginia
+    - Eastern District of Wisconsin
+    - Western District of Wisconsin
+    - District of Wyoming
+    x_petey_retype:
+    - dropdown
+    x_petey_hand_edit:
+      when: '2026-10-15 11:29:05'
+      from:
+        name: district_information
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: district_information_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  clerk_nm:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 84.02140045166016
+      - 141.0250244140625
+      - 322.7279968261719
+      - 160.3800048828125
+      widget_type: text
+      path: Clerk.Name
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:29:04'
+      from:
+        name: clerk_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: clerk_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  main_body_txt:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 36.31990051269531
+      - 172.489990234375
+      - 578.25
+      - 537.739990234375
+      widget_type: text
+      path: Text
+    description: Main body of descriptive text
+    x_petey_description_source: tooltip
+    label_source: llm
+  city_nm:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.31990051269531
+      - 608.70703125
+      - 324.5849914550781
+      - 628.06103515625
+      widget_type: text
+      path: Clerk.City
+    description: City where the Court is located, named in the testimony clause
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: city_nm
+      reason: The caption directly below the outlined box reads "City", indicating
+        a filer writes the city name here; proposed name city_nm matches this, while
+        current name clerk_signature does not.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - name
+      reason: Caption printed for this box is "City" and publisher field name is Clerk.City;
+        the box holds the city, not a signature.
+      before:
+        type: string
+        description: Clerk signature - signature field
+      old_name: clerk_signature
+      adjudicated: proposed
+      judged: 'kept: 3 -> 0'
+  signature_dt:
+    x_petey_id: '1_5'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 410.5400085449219
+      - 608.70703125
+      - 577.4420166015625
+      - 628.06103515625
+      widget_type: text
+      path: Date
+    description: Signature date
+    x_petey_description_source: tooltip
+    label_source: llm
+  clerk_signature_by_deputy_txt:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.31990051269531
+      - 687.0239868164062
+      - 310.3070068359375
+      - 706.3782958984375
+      widget_type: text
+      path: Clerk SIG
+    description: Signature of the Clerk of Court
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: clerk_signature
+      reason: Caption directly below the outlined box reads 'Clerk', indicating this
+        is the Clerk's signature field, not the Deputy Clerk's; 'clerk_signature'
+        fits while 'clerk_signature_by_deputy' does not.
+      model: claude-sonnet-4-6
+      contested: a witness says this widget's text belongs to another field
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Caption under this box is "Clerk" and publisher name is "Clerk SIG";
+        the deputy line is a separate box. Name freed by renaming the other field
+        to city_nm.
+      before:
+        type: string
+        description: Clerk signature - signature field
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:29:05'
+      from:
+        name: clerk_signature_by_deputy
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: clerk_signature_by_deputy_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+x_petey_dropped_widgets:
+  count: 3
+  widgets:
+  - path: Button.Print1
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Opens Print Menu
+  - path: Button.SaveAs
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Allows you to give the file a new name when saving
+  - path: Button.Reset
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Resets the entire form
+x_petey_page_check:
+  when: '2026-10-15 11:29:15'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 6
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/ao030__ebe4fa__a488967f.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ao030_20261006_105811
+  blueprint: runs/judge_eval/blueprints/ao030.bpt
+  when: '2026-10-06 10:58:18'

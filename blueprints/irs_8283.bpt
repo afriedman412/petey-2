@@ -1,0 +1,2610 @@
+bpt_version: '1.1'
+name: irs_8283
+form_version: null
+source_pdf: f8283.pdf
+source_pdf_hash: af6ead827e27add79b08b5d4fff3f368d57e07cc
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:56:08'
+fields:
+  taxpayer_1_nm:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 93.9990234375
+      - 460.04998779296875
+      - 108.0
+      widget_type: text
+      path: Form8283[0].Page1[0].f1_1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: taxpayer_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+  taxpayer_identifying_1_nbr:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 460.79998779296875
+      - 93.9990234375
+      - 576.0
+      - 108.0
+      widget_type: text
+      path: Form8283[0].Page1[0].f1_2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: taxpayer_identifying_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identifying_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+  originally_reported_entity_nm:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: entity_name
+    widget:
+      page: 1
+      rect:
+      - 64.80000305175781
+      - 132.00103759765625
+      - 360.0
+      - 144.0
+      widget_type: text
+      path: Form8283[0].Page1[0].f1_3[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: originally_reported_entity_name
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      to:
+        name: originally_reported_entity_nm
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  originally_reported_identifying_nbr:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 453.6000061035156
+      - 132.00103759765625
+      - 576.0
+      - 144.0
+      widget_type: text
+      path: Form8283[0].Page1[0].f1_4[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: originally_reported_identifying_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: originally_reported_identifying_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  family_pass_through_entity_contribution_ind:
+    x_petey_id: '1_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 564.0
+      - 145.9990234375
+      - 572.0
+      - 153.9990234375
+      widget_type: checkbox
+      path: Form8283[0].Page1[0].c1_1[0]
+    label_source: llm
+  section_a_row_a_donee_name_and_address_txt:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 263.9990234375
+      - 229.64999389648438
+      - 288.0000305175781
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1A[0].f1_5[0]
+    label_source: llm
+    description: Name and address of the donee organization for item A in Section
+      A.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Box holds an organization name plus its address, not a person name;
+        the person_name semantic type is wrong and no single semantic type fits a
+        combined name/address block.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: section_a_row_a_donee_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_a_donee_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+  section_a_row_a_vehicle_ind:
+    x_petey_id: '1_7'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 312.7980041503906
+      - 265.998046875
+      - 320.7980041503906
+      - 273.998046875
+      widget_type: checkbox
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1A[0].ColB[0].c1_2[0]
+    label_source: llm
+  section_a_row_a_vin_txt:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 230.39999389648438
+      - 275.998046875
+      - 403.20001220703125
+      - 287.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1A[0].ColB[0].f1_6[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_a_vin
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_a_vin_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_a_property_description_and_condition_txt:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 403.95001220703125
+      - 263.9990234375
+      - 576.0
+      - 288.0000305175781
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1A[0].f1_7[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_a_property_description_and_condition
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: section_a_row_a_property_description_and_condition_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_b_donee_name_and_address_txt:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 288.0000305175781
+      - 229.64999389648438
+      - 312.0010070800781
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1B[0].f1_8[0]
+    label_source: llm
+    description: Name and address of the donee organization for item B in Section
+      A.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Caption '(a) Name and address of the donee organization' shows a combined
+        organization name/address, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: section_a_row_b_donee_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_b_donee_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+  section_a_row_b_vehicle_ind:
+    x_petey_id: '1_11'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 312.7980041503906
+      - 289.9990234375
+      - 320.7980041503906
+      - 297.9990234375
+      widget_type: checkbox
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1B[0].ColB[0].c1_3[0]
+    label_source: llm
+  section_a_row_b_vin_txt:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 230.39999389648438
+      - 299.9990234375
+      - 403.20001220703125
+      - 311.9980163574219
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1B[0].ColB[0].f1_9[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_b_vin
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_b_vin_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_b_property_description_and_condition_txt:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 403.95001220703125
+      - 288.0000305175781
+      - 576.0
+      - 312.0010070800781
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1B[0].f1_10[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_b_property_description_and_condition
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: section_a_row_b_property_description_and_condition_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_c_donee_name_and_address_txt:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 312.0010070800781
+      - 229.64999389648438
+      - 336.00201416015625
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1C[0].f1_11[0]
+    label_source: llm
+    description: Name and address of the donee organization for item C in Section
+      A.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Caption shows organization name and address; person_name semantic type
+        is incorrect.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: section_a_row_c_donee_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_c_donee_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+  section_a_row_c_vehicle_ind:
+    x_petey_id: '1_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 312.7980041503906
+      - 314.0000305175781
+      - 320.7980041503906
+      - 322.0000305175781
+      widget_type: checkbox
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1C[0].ColB[0].c1_4[0]
+    label_source: llm
+  section_a_row_c_vin_txt:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 230.39999389648438
+      - 323.99700927734375
+      - 403.20001220703125
+      - 335.99603271484375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1C[0].ColB[0].f1_12[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_c_vin
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_c_vin_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_c_property_description_and_condition_txt:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 403.95001220703125
+      - 312.0010070800781
+      - 576.0
+      - 336.00201416015625
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1C[0].f1_13[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_c_property_description_and_condition
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: section_a_row_c_property_description_and_condition_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_d_donee_name_and_address_txt:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 336.00201416015625
+      - 229.64999389648438
+      - 360.0030212402344
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1D[0].f1_14[0]
+    label_source: llm
+    description: Name and address of the donee organization for item D in Section
+      A.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Caption shows organization name and address; person_name semantic type
+        is incorrect.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: section_a_row_d_donee_name_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_d_donee_name_and_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    semantic_type: name_and_address
+  section_a_row_d_vehicle_ind:
+    x_petey_id: '1_19'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 312.7980041503906
+      - 338.0010070800781
+      - 320.7980041503906
+      - 346.0010070800781
+      widget_type: checkbox
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1D[0].ColB[0].c1_5[0]
+    label_source: llm
+  section_a_row_d_vin_txt:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 230.39999389648438
+      - 347.9980163574219
+      - 403.20001220703125
+      - 359.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1D[0].ColB[0].f1_15[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_d_vin
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_a_row_d_vin_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_d_property_description_and_condition_txt:
+    x_petey_id: '1_20'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 403.95001220703125
+      - 336.00201416015625
+      - 576.0
+      - 360.0030212402344
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsA-C[0].Row1D[0].f1_16[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_a_row_d_property_description_and_condition
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: section_a_row_d_property_description_and_condition_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_a_row_a_contribution_dt:
+    x_petey_id: '1_22'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 396.0000305175781
+      - 121.6500015258789
+      - 407.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1A[0].f1_17[0]
+    label_source: llm
+  section_a_row_a_acquired_dt:
+    x_petey_id: '1_23'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 123.1500015258789
+      - 396.0000305175781
+      - 186.4499969482422
+      - 407.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1A[0].f1_18[0]
+    label_source: llm
+  section_a_row_a_how_acquired_txt:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 188.1999969482422
+      - 396.0000305175781
+      - 280.04998779296875
+      - 407.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1A[0].f1_19[0]
+    label_source: llm
+  section_a_row_a_cost_or_adjusted_basis_amt:
+    x_petey_id: '1_25'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 280.79998779296875
+      - 396.0000305175781
+      - 352.04998779296875
+      - 407.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1A[0].f1_20[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_a_fair_market_value_amt:
+    x_petey_id: '1_26'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 352.79998779296875
+      - 396.0000305175781
+      - 424.04998779296875
+      - 407.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1A[0].f1_21[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_a_method_used_determine_fmv_txt:
+    x_petey_id: '1_27'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 425.79998779296875
+      - 396.0000305175781
+      - 576.0
+      - 407.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1A[0].f1_22[0]
+    label_source: llm
+  section_a_row_b_contribution_dt:
+    x_petey_id: '1_28'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 407.9990234375
+      - 121.6500015258789
+      - 419.9980163574219
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1B[0].f1_23[0]
+    label_source: llm
+  section_a_row_b_acquired_dt:
+    x_petey_id: '1_29'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 123.1500015258789
+      - 407.9990234375
+      - 186.4499969482422
+      - 419.9980163574219
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1B[0].f1_24[0]
+    label_source: llm
+  section_a_row_b_how_acquired_txt:
+    x_petey_id: '1_30'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 188.1999969482422
+      - 407.9990234375
+      - 280.04998779296875
+      - 419.9980163574219
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1B[0].f1_25[0]
+    label_source: llm
+  section_a_row_b_cost_or_adjusted_basis_amt:
+    x_petey_id: '1_31'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 280.79998779296875
+      - 407.9990234375
+      - 352.04998779296875
+      - 419.9980163574219
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1B[0].f1_26[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_b_fair_market_value_amt:
+    x_petey_id: '1_32'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 352.79998779296875
+      - 407.9990234375
+      - 424.04998779296875
+      - 419.9980163574219
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1B[0].f1_27[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_b_method_used_determine_fmv_txt:
+    x_petey_id: '1_33'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 425.79998779296875
+      - 407.9990234375
+      - 576.0
+      - 419.9980163574219
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1B[0].f1_28[0]
+    label_source: llm
+  section_a_row_c_contribution_dt:
+    x_petey_id: '1_34'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 419.9980163574219
+      - 121.6500015258789
+      - 431.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1C[0].f1_29[0]
+    label_source: llm
+  section_a_row_c_acquired_dt:
+    x_petey_id: '1_35'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 123.1500015258789
+      - 419.9980163574219
+      - 186.4499969482422
+      - 431.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1C[0].f1_30[0]
+    label_source: llm
+  section_a_row_c_how_acquired_txt:
+    x_petey_id: '1_36'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 188.1999969482422
+      - 419.9980163574219
+      - 280.04998779296875
+      - 431.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1C[0].f1_31[0]
+    label_source: llm
+  section_a_row_c_cost_or_adjusted_basis_amt:
+    x_petey_id: '1_37'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 280.79998779296875
+      - 419.9980163574219
+      - 352.04998779296875
+      - 431.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1C[0].f1_32[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_c_fair_market_value_amt:
+    x_petey_id: '1_38'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 352.79998779296875
+      - 419.9980163574219
+      - 424.04998779296875
+      - 431.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1C[0].f1_33[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_c_method_used_determine_fmv_txt:
+    x_petey_id: '1_39'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 425.79998779296875
+      - 419.9980163574219
+      - 576.0
+      - 431.99700927734375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1C[0].f1_34[0]
+    label_source: llm
+  section_a_row_d_contribution_dt:
+    x_petey_id: '1_40'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 58.349998474121094
+      - 431.99700927734375
+      - 121.6500015258789
+      - 443.99603271484375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1D[0].f1_35[0]
+    label_source: llm
+  section_a_row_d_acquired_dt:
+    x_petey_id: '1_41'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 123.1500015258789
+      - 431.99700927734375
+      - 186.4499969482422
+      - 443.99603271484375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1D[0].f1_36[0]
+    label_source: llm
+  section_a_row_d_how_acquired_txt:
+    x_petey_id: '1_42'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 188.1999969482422
+      - 431.99700927734375
+      - 280.04998779296875
+      - 443.99603271484375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1D[0].f1_37[0]
+    label_source: llm
+  section_a_row_d_cost_or_adjusted_basis_amt:
+    x_petey_id: '1_43'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 280.79998779296875
+      - 431.99700927734375
+      - 352.04998779296875
+      - 443.99603271484375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1D[0].f1_38[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_d_fair_market_value_amt:
+    x_petey_id: '1_44'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 352.79998779296875
+      - 431.99700927734375
+      - 424.04998779296875
+      - 443.99603271484375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1D[0].f1_39[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_a_row_d_method_used_determine_fmv_txt:
+    x_petey_id: '1_45'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 425.79998779296875
+      - 431.99700927734375
+      - 576.0
+      - 443.99603271484375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line1_ColsD-I[0].Row1D[0].f1_40[0]
+    label_source: llm
+  nps_nbr:
+    x_petey_id: '1_47'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 122.4000015258789
+      - 564.0010375976562
+      - 244.8000030517578
+      - 576.0
+      widget_type: text
+      path: Form8283[0].Page1[0].Lines2a-c[0].f1_41[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: nps_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: nps_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  section_b_row_a_property_description_txt:
+    x_petey_id: '1_48'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 58.599998474121094
+      - 618.0010375976562
+      - 258.45001220703125
+      - 630.0
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Row3A[0].f1_42[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_b_row_a_property_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: section_b_row_a_property_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  section_b_row_a_physical_condition_summary_txt:
+    x_petey_id: '1_49'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 260.20001220703125
+      - 618.0010375976562
+      - 503.25
+      - 630.0
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Row3A[0].f1_43[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_b_row_a_physical_condition_summary
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_b_row_a_physical_condition_summary_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_b_row_a_appraised_fair_market_value_amt:
+    x_petey_id: '1_50'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 618.0010375976562
+      - 576.0
+      - 630.0
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Row3A[0].f1_44[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_b_property_description_txt:
+    x_petey_id: '1_51'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 58.599998474121094
+      - 630.0
+      - 258.45001220703125
+      - 641.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Line3B[0].f1_45[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_b_row_b_property_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: section_b_row_b_property_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  section_b_row_b_physical_condition_summary_txt:
+    x_petey_id: '1_52'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 260.20001220703125
+      - 630.0
+      - 503.25
+      - 641.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Line3B[0].f1_46[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_b_row_b_physical_condition_summary
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_b_row_b_physical_condition_summary_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_b_row_b_appraised_fair_market_value_amt:
+    x_petey_id: '1_53'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 630.0
+      - 576.0
+      - 641.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Line3B[0].f1_47[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_c_property_description_txt:
+    x_petey_id: '1_54'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 58.599998474121094
+      - 641.9990234375
+      - 258.45001220703125
+      - 653.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Line3C[0].f1_48[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_b_row_c_property_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: section_b_row_c_property_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  section_b_row_c_physical_condition_summary_txt:
+    x_petey_id: '1_55'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 260.20001220703125
+      - 641.9990234375
+      - 503.25
+      - 653.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Line3C[0].f1_49[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: section_b_row_c_physical_condition_summary
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: section_b_row_c_physical_condition_summary_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  section_b_row_c_appraised_fair_market_value_amt:
+    x_petey_id: '1_56'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 641.9990234375
+      - 576.0
+      - 653.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsA-C[0].Line3C[0].f1_50[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_a_acquired_dt:
+    x_petey_id: '1_57'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 57.599998474121094
+      - 702.0
+      - 129.60000610351562
+      - 713.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3A[0].f1_51[0]
+    label_source: llm
+  section_b_row_a_how_acquired_txt:
+    x_petey_id: '1_58'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 130.60000610351562
+      - 702.0
+      - 287.25
+      - 713.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3A[0].f1_52[0]
+    label_source: llm
+  section_b_row_a_cost_or_adjusted_basis_amt:
+    x_petey_id: '1_59'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 702.0
+      - 359.25
+      - 713.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3A[0].f1_53[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_a_bargain_sales_amount_received_amt:
+    x_petey_id: '1_60'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 360.0
+      - 702.0
+      - 431.25
+      - 713.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3A[0].f1_54[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_a_conservation_relevant_basis_amt:
+    x_petey_id: '1_61'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 432.0
+      - 702.0
+      - 503.25
+      - 713.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3A[0].f1_55[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_a_claimed_deduction_amt:
+    x_petey_id: '1_62'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 702.0
+      - 576.0
+      - 713.9990234375
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3A[0].f1_56[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_b_acquired_dt:
+    x_petey_id: '1_63'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 57.599998474121094
+      - 713.9990234375
+      - 129.60000610351562
+      - 725.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3B[0].f1_57[0]
+    label_source: llm
+  section_b_row_b_how_acquired_txt:
+    x_petey_id: '1_64'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 130.60000610351562
+      - 713.9990234375
+      - 287.25
+      - 725.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3B[0].f1_58[0]
+    label_source: llm
+  section_b_row_b_cost_or_adjusted_basis_amt:
+    x_petey_id: '1_65'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 713.9990234375
+      - 359.25
+      - 725.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3B[0].f1_59[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_b_bargain_sales_amount_received_amt:
+    x_petey_id: '1_66'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 360.0
+      - 713.9990234375
+      - 431.25
+      - 725.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3B[0].f1_60[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_b_conservation_relevant_basis_amt:
+    x_petey_id: '1_67'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 432.0
+      - 713.9990234375
+      - 503.25
+      - 725.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3B[0].f1_61[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_b_claimed_deduction_amt:
+    x_petey_id: '1_68'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 713.9990234375
+      - 576.0
+      - 725.998046875
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3B[0].f1_62[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_c_acquired_dt:
+    x_petey_id: '1_69'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 57.599998474121094
+      - 725.998046875
+      - 129.60000610351562
+      - 737.9970092773438
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3C[0].f1_63[0]
+    label_source: llm
+  section_b_row_c_how_acquired_txt:
+    x_petey_id: '1_70'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 130.60000610351562
+      - 725.998046875
+      - 287.25
+      - 737.9970092773438
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3C[0].f1_64[0]
+    label_source: llm
+  section_b_row_c_cost_or_adjusted_basis_amt:
+    x_petey_id: '1_71'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 288.0
+      - 725.998046875
+      - 359.25
+      - 737.9970092773438
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3C[0].f1_65[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_c_bargain_sales_amount_received_amt:
+    x_petey_id: '1_72'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 360.0
+      - 725.998046875
+      - 431.25
+      - 737.9970092773438
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3C[0].f1_66[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_c_conservation_relevant_basis_amt:
+    x_petey_id: '1_73'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 432.0
+      - 725.998046875
+      - 503.25
+      - 737.9970092773438
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3C[0].f1_67[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  section_b_row_c_claimed_deduction_amt:
+    x_petey_id: '1_74'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 725.998046875
+      - 576.0
+      - 737.9970092773438
+      widget_type: text
+      path: Form8283[0].Page1[0].Table_Line3_ColsD-I[0].Row3C[0].f1_68[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  taxpayer_2_nm:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 57.9990234375
+      - 460.04998779296875
+      - 72.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: taxpayer_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  taxpayer_identifying_2_nbr:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 460.79998779296875
+      - 57.9990234375
+      - 576.0
+      - 72.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: taxpayer_identifying_number_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: taxpayer_identifying_2_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+  partial_interest_property_letter_txt:
+    x_petey_id: '2_3'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 511.20001220703125
+      - 114.00103759765625
+      - 576.0
+      - 126.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_3[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: partial_interest_property_letter
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: partial_interest_property_letter_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  partial_interest_deduction_current_year_amt:
+    x_petey_id: '2_4'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 499.20001220703125
+      - 137.9990234375
+      - 576.0
+      - 149.998046875
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_4[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  partial_interest_deduction_prior_years_amt:
+    x_petey_id: '2_5'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 499.20001220703125
+      - 150.00103759765625
+      - 576.0
+      - 162.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_5[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  prior_donee_nm:
+    x_petey_id: '2_6'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 2
+      rect:
+      - 64.80000305175781
+      - 198.0
+      - 576.0
+      - 210.00201416015625
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_6[0]
+    label_source: llm
+    description: Name of the charitable organization (donee) to which a contribution
+      of this property was made in a prior year.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Caption reads 'Name of charitable organization (donee)', so the value
+        is an organization name, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: prior_donee_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: prior_donee_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  prior_donee_street_address_txt:
+    x_petey_id: '2_7'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 64.80000305175781
+      - 221.998046875
+      - 330.45001220703125
+      - 234.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_7[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: prior_donee_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: prior_donee_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  prior_donee_city_state_zip_cd:
+    x_petey_id: '2_8'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 332.20001220703125
+      - 221.998046875
+      - 576.0
+      - 234.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_8[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=244
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: prior_donee_city_state_zip
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: prior_donee_city_state_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip -> zip_cd'
+  tangible_property_location_txt:
+    x_petey_id: '2_9'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 367.20001220703125
+      - 234.0
+      - 576.0
+      - 245.9990234375
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_9[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: tangible_property_location
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: tangible_property_location_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  person_possessing_property_1_nm:
+    x_petey_id: '2_10'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 460.79998779296875
+      - 245.9990234375
+      - 576.0
+      - 257.998046875
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_10[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: person_possessing_property_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: person_possessing_property_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+  person_possessing_property_2_nm:
+    x_petey_id: '2_11'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 64.80000305175781
+      - 258.00103759765625
+      - 576.0
+      - 270.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_11[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: person_possessing_property_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: person_possessing_property_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  items_valued_500_or_less_statement_txt:
+    x_petey_id: '2_15'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 396.0000305175781
+      - 576.0
+      - 407.9990234375
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_12[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: items_valued_500_or_less_statement
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: items_valued_500_or_less_statement_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  appraiser_nm:
+    x_petey_id: '2_16'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 129.60000610351562
+      - 546.0010375976562
+      - 352.04998779296875
+      - 558.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_13[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: appraiser_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: appraiser_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  appraiser_title_txt:
+    x_petey_id: '2_17'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 374.3999938964844
+      - 546.0010375976562
+      - 576.0
+      - 558.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_14[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: appraiser_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: appraiser_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  appraiser_street_address_txt:
+    x_petey_id: '2_18'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 569.9990234375
+      - 460.04998779296875
+      - 582.0010375976562
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_15[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: appraiser_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: appraiser_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  appraiser_identifying_nbr:
+    x_petey_id: '2_19'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 460.79998779296875
+      - 569.9990234375
+      - 576.0
+      - 582.0010375976562
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_16[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: appraiser_identifying_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: appraiser_identifying_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  appraiser_city_state_zip_cd:
+    x_petey_id: '2_20'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 594.0
+      - 576.0
+      - 606.0020141601562
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_17[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=540
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: appraiser_city_state_zip
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: appraiser_city_state_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip -> zip_cd'
+  donee_received_dt:
+    x_petey_id: '2_21'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 324.0
+      - 630.0
+      - 554.4000244140625
+      - 641.9990234375
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_18[0]
+    label_source: llm
+  donee_organization_nm:
+    x_petey_id: '2_23'
+    type: string
+    semantic_type: entity_name
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 695.9990234375
+      - 316.04998779296875
+      - 708.0010375976562
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_19[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: donee_organization_name
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      to:
+        name: donee_organization_nm
+        type: string
+        semantic_type: entity_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  donee_ein:
+    x_petey_id: '2_24'
+    type: string
+    semantic_type: ein
+    pattern: ^\d{2}-\d{7}$
+    widget:
+      page: 2
+      rect:
+      - 316.79998779296875
+      - 695.9990234375
+      - 576.0
+      - 708.0010375976562
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_20[0]
+    label_source: llm
+  donee_street_address_txt:
+    x_petey_id: '2_25'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 720.0
+      - 316.04998779296875
+      - 732.0020141601562
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_21[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: donee_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: donee_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  donee_city_state_zip_cd:
+    x_petey_id: '2_26'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 317.79998779296875
+      - 720.0
+      - 576.0
+      - 732.0020141601562
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_22[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=258
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: donee_city_state_zip
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: donee_city_state_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip -> zip_cd'
+  donee_authorized_signatory_title_txt:
+    x_petey_id: '2_27'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 317.79998779296875
+      - 743.998046875
+      - 460.04998779296875
+      - 756.0
+      widget_type: text
+      path: Form8283[0].Page2[0].f2_23[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:38'
+      from:
+        name: donee_authorized_signatory_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: donee_authorized_signatory_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  donated_property_type:
+    x_petey_id: '1_46'
+    type: category
+    values:
+    - art_contribution_20000_or_more
+    - other_real_estate
+    - vehicles
+    - qualified_conservation_contribution
+    - equipment
+    - clothing_and_household_items
+    - certified_historic_structure
+    - securities
+    - digital_assets
+    - collectibles
+    - other
+    - art_contribution_less_than_20000
+    - intellectual_property
+    widgets:
+      art_contribution_20000_or_more:
+        page: 1
+        rect:
+        - 79.19999694824219
+        - 530.0
+        - 87.19999694824219
+        - 538.0
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2a-c[0].c1_6[0]
+        on_state: '1'
+        caption: Art (contribution of $20,000 or more)
+        x_petey_caption_source: page_text
+      other_real_estate:
+        page: 1
+        rect:
+        - 280.79998779296875
+        - 530.0
+        - 288.79998779296875
+        - 538.0
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2d-h[0].c1_6[0]
+        on_state: '4'
+        caption: Other real estate
+        x_petey_caption_source: page_text
+      vehicles:
+        page: 1
+        rect:
+        - 424.79998779296875
+        - 530.0
+        - 432.79998779296875
+        - 538.0
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2i-l[0].c1_6[0]
+        on_state: '9'
+        caption: Vehicles
+        x_petey_caption_source: page_text
+      qualified_conservation_contribution:
+        page: 1
+        rect:
+        - 79.19999694824219
+        - 541.9990234375
+        - 87.19999694824219
+        - 549.9990234375
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2a-c[0].c1_6[1]
+        on_state: '2'
+        caption: Qualified conservation contribution
+        x_petey_caption_source: page_text
+      equipment:
+        page: 1
+        rect:
+        - 280.79998779296875
+        - 541.9990234375
+        - 288.79998779296875
+        - 549.9990234375
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2d-h[0].c1_6[1]
+        on_state: '5'
+        caption: Equipment
+        x_petey_caption_source: page_text
+      clothing_and_household_items:
+        page: 1
+        rect:
+        - 424.79998779296875
+        - 541.9990234375
+        - 432.79998779296875
+        - 549.9990234375
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2i-l[0].c1_6[1]
+        on_state: '10'
+        caption: Clothing and household items
+        x_petey_caption_source: page_text
+      certified_historic_structure:
+        page: 1
+        rect:
+        - 93.5999984741211
+        - 553.998046875
+        - 101.5999984741211
+        - 561.998046875
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2a-c[0].c1_7[0]
+        on_state: '1'
+        caption: Certified historic structure
+        x_petey_caption_source: page_text
+      securities:
+        page: 1
+        rect:
+        - 280.79998779296875
+        - 553.998046875
+        - 288.79998779296875
+        - 561.998046875
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2d-h[0].c1_6[2]
+        on_state: '6'
+        caption: Securities
+        x_petey_caption_source: page_text
+      digital_assets:
+        page: 1
+        rect:
+        - 424.79998779296875
+        - 553.998046875
+        - 432.79998779296875
+        - 561.998046875
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2i-l[0].c1_6[2]
+        on_state: '11'
+        caption: Digital assets
+        x_petey_caption_source: page_text
+      collectibles:
+        page: 1
+        rect:
+        - 280.79998779296875
+        - 566.0
+        - 288.79998779296875
+        - 574.0
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2d-h[0].c1_6[3]
+        on_state: '7'
+        caption: Collectibles
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 424.79998779296875
+        - 566.0
+        - 432.79998779296875
+        - 574.0
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2i-l[0].c1_6[3]
+        on_state: '12'
+        caption: Other
+        x_petey_caption_source: page_text
+      art_contribution_less_than_20000:
+        page: 1
+        rect:
+        - 79.19999694824219
+        - 577.9990234375
+        - 87.19999694824219
+        - 585.9990234375
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2a-c[0].c1_6[2]
+        on_state: '3'
+        caption: Art (contribution of less than $20,000)
+        x_petey_caption_source: page_text
+      intellectual_property:
+        page: 1
+        rect:
+        - 280.79998779296875
+        - 577.9990234375
+        - 288.79998779296875
+        - 585.9990234375
+        widget_type: checkbox
+        path: Form8283[0].Page1[0].Lines2d-h[0].c1_6[4]
+        on_state: '8'
+        caption: Intellectual property
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 23:19:27'
+      from:
+      - property_type::art_contribution_20000_or_more
+      - property_type::other_real_estate
+      - property_type::vehicles
+      - property_type::qualified_conservation_contribution
+      - property_type::equipment
+      - property_type::clothing_and_household_items
+      - property_type::certified_historic_structure
+      - property_type::securities
+      - property_type::digital_assets
+      - property_type::collectibles
+      - property_type::other
+      - property_type::art_contribution_less_than_20000
+      - property_type::intellectual_property
+      renamed_from: property_type
+      name_from: labeler
+  restriction_on_donees_rights_ind:
+    x_petey_id: '2_12'
+    type: category
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 538.0999755859375
+        - 282.4980163574219
+        - 549.0999755859375
+        - 293.4980163574219
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_1[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 559.7000122070312
+        - 282.4980163574219
+        - 570.7000122070312
+        - 293.4980163574219
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_1[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    description: Check if there is a restriction, either temporary or permanent, on
+      the donee's right to use or dispose of the donated property.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -values
+      reason: Single checkbox widget cannot carry a two-value yes/no category; the
+        _ind name and checkbox widget call for boolean.
+      before:
+        type: category
+        values:
+        - 'no'
+        - 'yes'
+      judged: 'kept: 0 -> 0'
+    values:
+    - 'yes'
+    - 'no'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:27'
+      from:
+        name: restriction_on_donees_rights_ind
+        type: boolean
+        semantic_type: null
+        pattern: null
+      to:
+        name: restriction_on_donees_rights_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 2 options is one of (category), not boolean
+  rights_given_to_another_ind:
+    x_petey_id: '2_13'
+    type: category
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 538.0999755859375
+        - 324.4990234375
+        - 549.0999755859375
+        - 335.4990234375
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_2[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 559.7000122070312
+        - 324.4990234375
+        - 570.7000122070312
+        - 335.4990234375
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_2[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    description: Check if anyone other than the donee organization was given rights
+      to the income from or possession of the donated property.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -values
+      reason: Single checkbox widget; yes/no category has no second box, so the field
+        is a boolean indicator.
+      before:
+        type: category
+        values:
+        - 'no'
+        - 'yes'
+      judged: 'kept: 0 -> 0'
+    values:
+    - 'yes'
+    - 'no'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:27'
+      from:
+        name: rights_given_to_another_ind
+        type: boolean
+        semantic_type: null
+        pattern: null
+      to:
+        name: rights_given_to_another_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 2 options is one of (category), not boolean
+  restriction_limiting_particular_use_ind:
+    x_petey_id: '2_14'
+    type: category
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 538.0999755859375
+        - 336.4980163574219
+        - 549.0999755859375
+        - 347.4980163574219
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_3[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 559.7000122070312
+        - 336.4980163574219
+        - 570.7000122070312
+        - 347.4980163574219
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_3[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    description: Check if there is a restriction limiting the donated property to
+      a particular use.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -values
+      reason: Single checkbox widget; the yes/no category lacks a box for one option,
+        so the field should be a boolean indicator.
+      before:
+        type: category
+        values:
+        - 'no'
+        - 'yes'
+      judged: 'kept: 0 -> 0'
+    values:
+    - 'yes'
+    - 'no'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:08:27'
+      from:
+        name: restriction_limiting_particular_use_ind
+        type: boolean
+        semantic_type: null
+        pattern: null
+      to:
+        name: restriction_limiting_particular_use_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 2 options is one of (category), not boolean
+  unrelated_use_intended_ind:
+    x_petey_id: '2_22'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 511.20001220703125
+        - 674.0
+        - 519.2000122070312
+        - 682.0
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_4[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 547.2000122070312
+        - 674.0
+        - 555.2000122070312
+        - 682.0
+        widget_type: checkbox
+        path: Form8283[0].Page2[0].c2_4[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 3
+  collisions:
+  - original_label: taxpayer_name
+    assigned_label: taxpayer_name_2
+    page: 2
+    rect:
+    - 36.0
+    - 57.9990234375
+    - 460.04998779296875
+    - 72.0
+  - original_label: taxpayer_identifying_number
+    assigned_label: taxpayer_identifying_number_2
+    page: 2
+    rect:
+    - 460.79998779296875
+    - 57.9990234375
+    - 576.0
+    - 72.0
+  - original_label: person_possessing_property_name
+    assigned_label: person_possessing_property_name_2
+    page: 2
+    rect:
+    - 64.80000305175781
+    - 258.00103759765625
+    - 576.0
+    - 270.0
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 3
+x_petey_page_check:
+  when: '2026-10-16 12:11:28'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  fields: 101
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/irs_8283__1f084a__f2e9f24a.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: irs_8283_20261006_220115
+  blueprint: /home/user/petey-2/runs/judge_eval/work/irs_8283.bpt
+  when: '2026-10-06 22:01:53'
+x_petey_run:
+  record: runs/judge_eval/form_runs/irs_8283.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 22:01:55'

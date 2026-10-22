@@ -1,0 +1,3857 @@
+bpt_version: '1.1'
+name: ca_courts_pld_pi_001
+form_version: null
+source_pdf: pldpi001.pdf
+source_pdf_hash: 0633a367881477dfab662af6a78f7ecdcb3de699
+source_pages:
+- 1
+- 2
+- 3
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:11:10'
+fields:
+  case_1_nbr:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 400.0050048828125
+      - 254.75
+      - 572.8049926757812
+      - 269.13897705078125
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+  court_county_nm:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.71299743652344
+      - 145.375
+      - 393.9930114746094
+      - 154.375
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].CourtInfo[0].CrtCounty[0]
+    description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds a county name, not a person's name; drop the wrong semantic_type.
+        Name and type already fit the printed caption.
+      before:
+        type: string
+        semantic_type: person_name
+        description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: court_county_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  court_street_address_txt:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 156.31402587890625
+      - 393.9930114746094
+      - 165.31402587890625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].CourtInfo[0].CrtStreet[0]
+    description: STREET ADDRESS
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: court_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: court_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  court_mailing_address_txt:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 167.25201416015625
+      - 393.9930114746094
+      - 176.25201416015625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].CourtInfo[0].CrtMailingAdd[0]
+    description: MAILING ADDRESS
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: court_mailing_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_mailing_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  court_city_zip_cd:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98899841308594
+      - 178.5150146484375
+      - 393.9809875488281
+      - 187.5150146484375
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].CourtInfo[0].CrtCityZip[0]
+    description: CITY AND ZIP CODE
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      - -pattern
+      reason: Caption 'CITY AND ZIP CODE' means the box holds city text plus a zip;
+        a strict zip semantic_type/pattern cannot hold it. Name stays, it names the
+        caption.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: CITY AND ZIP CODE
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: court_city_zip_code
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_city_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  court_branch_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 189.86700439453125
+      - 393.9930114746094
+      - 198.86700439453125
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].CourtInfo[0].CrtBranch[0]
+    label_source: llm
+    description: BRANCH NAME
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Tooltip and caption say BRANCH NAME (a court branch), not a person;
+        drop person_name. The witness flag points at an unrelated plaintiff box.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: court_branch_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_branch_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  attorney_state_bar_nbr:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 308.8269958496094
+      - 49.4019775390625
+      - 393.9930114746094
+      - 58.4019775390625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].AttyBarNo[0]
+    description: 'STATE BAR NUMBER:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    pattern: ^\d{1,12}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - -semantic_type
+      reason: Caption 'STATE BAR NUMBER:' is an identifier of digits, not a state
+        abbreviation and not a quantity; typed as a digit string.
+      before:
+        type: number
+        semantic_type: state_abbr
+        description: 'STATE BAR NUMBER:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      to:
+        name: attorney_state_bar_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  attorney_nm:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 57.553001403808594
+      - 60.969970703125
+      - 393.9930114746094
+      - 69.969970703125
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].Name[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  attorney_firm_nm:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 73.6709976196289
+      - 72.541015625
+      - 393.9930114746094
+      - 81.541015625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].AttyFirm[0]
+    label_source: llm
+    description: FIRM NAME
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: '''FIRM NAME:'' holds an organization name; person_name is wrong. Name
+        and type are correct.'
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_firm_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_firm_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  attorney_street_address_txt:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 95.55999755859375
+      - 84.1099853515625
+      - 393.9930114746094
+      - 93.1099853515625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].Street[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: attorney_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  attorney_city_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 54.3380012512207
+      - 95.677978515625
+      - 240.40899658203125
+      - 104.677978515625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].City[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_city_name
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: attorney_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  attorney_state_cd:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 263.5190124511719
+      - 95.677978515625
+      - 293.6719970703125
+      - 104.677978515625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].State[0]
+    label_source: llm
+  attorney_zip_cd:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 326.75299072265625
+      - 95.677978515625
+      - 393.9930114746094
+      - 104.677978515625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].Zip[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+    label_source: llm
+  attorney_telephone_nbr:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 89.76499938964844
+      - 107.2459716796875
+      - 216.8300018310547
+      - 116.2459716796875
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].Phone[0]
+    description: 'TELEPHONE NUMBER:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_telephone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  attorney_fax_nbr:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 266.114013671875
+      - 107.2459716796875
+      - 393.9930114746094
+      - 116.2459716796875
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].Fax[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_fax_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  attorney_email_address_txt:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 91.05599975585938
+      - 118.8170166015625
+      - 393.9930114746094
+      - 127.8170166015625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].Email[0]
+    description: 'EMAIL ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: attorney_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  attorney_for_nm:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 107.80699920654297
+      - 130.385009765625
+      - 393.9930114746094
+      - 139.385009765625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].Set1[0].AttyPartyInfo[0].AttyFor[0]
+    description: 'ATTORNEY FOR (name):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: attorney_for_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_for_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  plaintiff_nm:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 89.65399932861328
+      - 204.68701171875
+      - 394.3420104980469
+      - 213.68701171875
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].TitlePartyName[0].Party1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  defendant_nm:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 89.48100280761719
+      - 217.9420166015625
+      - 394.3420104980469
+      - 227.239990234375
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].TitlePartyName[0].Party2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  does_ind:
+    x_petey_id: '1_19'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 42.361000061035156
+      - 232.1920166015625
+      - 51.361000061035156
+      - 241.1920166015625
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].TitlePartyName[0].CheckBox45[0]
+    label_source: llm
+  does_to_nbr:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 112.98200225830078
+      - 232.39300537109375
+      - 161.48199462890625
+      - 241.6619873046875
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].TitlePartyName[0].To[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: does_to_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: does_to_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  does_inclusive_txt:
+    x_petey_id: '1_21'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 166.46200561523438
+      - 232.35302734375
+      - 394.1319885253906
+      - 241.6619873046875
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].TitlePartyName[0].FillText200[0]
+    label_source: llm
+  is_amended_complaint_ind:
+    x_petey_id: '1_23'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 45.9900016784668
+      - 262.12298583984375
+      - 54.9900016784668
+      - 271.12298583984375
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].CheckBox51[0]
+    label_source: llm
+  amended_complaint_nbr:
+    x_petey_id: '1_24'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 168.34500122070312
+      - 261.5989990234375
+      - 393.1600036621094
+      - 271.5999755859375
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Number[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: amended_complaint_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: amended_complaint_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  action_type_other_specify_txt:
+    x_petey_id: '1_26'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 256.85400390625
+      - 285.1860046386719
+      - 393.7179870605469
+      - 296.18701171875
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].specify[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: action_type_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: action_type_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  damages_other_specify_txt:
+    x_petey_id: '1_28'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 299.39300537109375
+      - 309.0509948730469
+      - 394.7950134277344
+      - 320.052001953125
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].specify2[0]
+    description: specify other damages
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: damages_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: damages_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  jurisdiction:
+    x_petey_id: '1_68'
+    type: multi_category
+    values:
+    - action_is_limited_civil_case_ind
+    - action_is_unlimited_civil_case_ind
+    - action_is_reclassified_ind
+    widgets:
+      action_is_limited_civil_case_ind:
+        page: 1
+        rect:
+        - 42.87699890136719
+        - 335.7359924316406
+        - 51.87699890136719
+        - 344.7359924316406
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Jurisdiction[0].Limited1[0]
+        on_state: '1'
+      action_is_unlimited_civil_case_ind:
+        page: 1
+        rect:
+        - 42.87699890136719
+        - 369.15899658203125
+        - 51.87699890136719
+        - 378.15899658203125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Jurisdiction[0].Limited1[1]
+        on_state: '2'
+      action_is_reclassified_ind:
+        page: 1
+        rect:
+        - 42.87699890136719
+        - 380.4410095214844
+        - 51.87699890136719
+        - 389.4410095214844
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Jurisdiction[0].Action2[0]
+        on_state: '1'
+        caption: ACTION IS RECLASSIFIED by this amended complaint
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:38:11'
+      from:
+      - action_is_limited_civil_case_ind
+      - action_is_unlimited_civil_case_ind
+      - action_is_reclassified_ind
+      name_from: labeler
+  plaintiff_names_txt:
+    x_petey_id: '1_34'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 160.73500061035156
+      - 418.3290100097656
+      - 574.2340087890625
+      - 428.35198974609375
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List1[0].item1[0].FillText1[0]
+    description: 'Plaintiff (name or names):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  defendant_names_txt:
+    x_petey_id: '1_35'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 50.70899963378906
+      - 442.6820068359375
+      - 574.2340087890625
+      - 454.7229919433594
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List1[0].item1[0].FillText2[0]
+    description: 'alleges causes of action against defendant (name or names):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  pleading_page_count_cnt:
+    x_petey_id: '1_36'
+    type: integer
+    semantic_type: count
+    widget:
+      page: 1
+      rect:
+      - 422.9519958496094
+      - 459.4110107421875
+      - 516.2000122070312
+      - 469.4339904785156
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List2[0].item2[0].FillText3[0]
+    description: 'This pleading, including attachments and exhibits, consists of the
+      following number of pages:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: pleading_page_count
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pleading_page_count_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cnt (type)'
+  plaintiff_a_except_ind:
+    x_petey_id: '1_37'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.54000091552734
+      - 486.8380126953125
+      - 79.54000091552734
+      - 495.8380126953125
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].limited1[0]
+    description: except plaintiff
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_a_nm:
+    x_petey_id: '1_38'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 184.19900512695312
+      - 485.8389892578125
+      - 573.1370239257812
+      - 496.8399963378906
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].TextField4[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_a_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_a_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  plaintiff_a_corporation_ind:
+    x_petey_id: '1_39'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 108.87000274658203
+      - 502.0329895019531
+      - 117.87000274658203
+      - 511.0329895019531
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li1[0].limited2[0]
+    description: a corporation qualified to do business in California
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_a_unincorporated_entity_ind:
+    x_petey_id: '1_40'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 108.87000274658203
+      - 515.6190185546875
+      - 117.87000274658203
+      - 524.6190185546875
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li2[0].unlimited22[0]
+    description: an unincorporated entity
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_a_unincorporated_entity_describe_txt:
+    x_petey_id: '1_41'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 270.9580078125
+      - 514.8740234375
+      - 573.1370239257812
+      - 525.875
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li2[0].TextField5[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_a_unincorporated_entity_describe
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_a_unincorporated_entity_describe_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  plaintiff_a_public_entity_ind:
+    x_petey_id: '1_42'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 108.87300109863281
+      - 528.9549560546875
+      - 117.87300109863281
+      - 537.9550170898438
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li3[0].limited4[0]
+    description: a public entity
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_a_public_entity_describe_txt:
+    x_petey_id: '1_43'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 229.75999450683594
+      - 527.9559936523438
+      - 573.1370239257812
+      - 538.95703125
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li3[0].TextField6[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_a_public_entity_describe
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_a_public_entity_describe_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  plaintiff_a:
+    x_petey_id: '1_66'
+    type: category
+    values:
+    - plaintiff_a_minor_ind
+    - plaintiff_a_adult_ind
+    widgets:
+      plaintiff_a_minor_ind:
+        page: 1
+        rect:
+        - 108.85299682617188
+        - 542.5130004882812
+        - 117.85299682617188
+        - 551.5130004882812
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li4[0].unlimited10[0]
+        on_state: '1'
+        caption: a minor
+        x_petey_caption_source: page_text
+      plaintiff_a_adult_ind:
+        page: 1
+        rect:
+        - 176.7740020751953
+        - 542.5130004882812
+        - 185.7740020751953
+        - 551.5130004882812
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li4[0].unlimited10[1]
+        on_state: '2'
+        caption: an adult
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:16:42'
+      from:
+      - plaintiff_a_minor_ind
+      - plaintiff_a_adult_ind
+  plaintiff_a_minor_or_adult_representation:
+    x_petey_id: '1_69'
+    type: category
+    values:
+    - plaintiff_a_guardian_appointed_ind
+    - plaintiff_a_guardian_other_ind
+    widgets:
+      plaintiff_a_guardian_appointed_ind:
+        page: 1
+        rect:
+        - 146.4429931640625
+        - 556.666015625
+        - 155.4429931640625
+        - 565.666015625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li4[0].Subitem4[0].Liia[0].unlimited4[0]
+        on_state: '1'
+        caption: (a)
+        x_petey_caption_source: page_text
+      plaintiff_a_guardian_other_ind:
+        page: 1
+        rect:
+        - 146.4429931640625
+        - 569.3289794921875
+        - 155.4429931640625
+        - 578.3289794921875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li4[0].Subitem4[0].Liib[0].unlimited4[0]
+        on_state: '2'
+        caption: other (specify)
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:38:11'
+      from:
+      - plaintiff_a_guardian_appointed_ind
+      - plaintiff_a_guardian_other_ind
+      name_from: labeler
+  plaintiff_a_guardian_other_specify_txt:
+    x_petey_id: '1_48'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.5279998779297
+      - 568.1090087890625
+      - 573.6749877929688
+      - 579.1099853515625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li4[0].Subitem4[0].Liib[0].TextField8[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_a_guardian_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_a_guardian_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  plaintiff_a_other_ind:
+    x_petey_id: '1_50'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 108.85299682617188
+      - 586.093017578125
+      - 117.85299682617188
+      - 595.093017578125
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li5[0].Ch1[0]
+    label_source: llm
+  plaintiff_a_other_specify_txt:
+    x_petey_id: '1_49'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 190.13699340820312
+      - 584.8729858398438
+      - 572.2020263671875
+      - 595.8740234375
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lia[0].SubLista[0].Li5[0].TextField9[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_a_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_a_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  plaintiff_b_except_ind:
+    x_petey_id: '1_51'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.77300262451172
+      - 600.8729858398438
+      - 79.77300262451172
+      - 609.8729858398438
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].Ch2[0]
+    description: except plaintiff
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_b_nm:
+    x_petey_id: '1_52'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 184.4320068359375
+      - 599.593017578125
+      - 573.3699951171875
+      - 610.593994140625
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].TextField10[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_b_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_b_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  plaintiff_b_corporation_ind:
+    x_petey_id: '1_53'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 109.10299682617188
+      - 613.1199951171875
+      - 118.10299682617188
+      - 622.1199951171875
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii1[0].Ch3[0]
+    description: a corporation qualified to do business in California
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_b_unincorporated_entity_ind:
+    x_petey_id: '1_54'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 109.10299682617188
+      - 626.7059936523438
+      - 118.10299682617188
+      - 635.7059936523438
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii2[0].Ch4[0]
+    description: an unincorporated entity
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_b_unincorporated_entity_describe_txt:
+    x_petey_id: '1_55'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 271.1910095214844
+      - 625.9609985351562
+      - 573.3699951171875
+      - 636.9620361328125
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii2[0].TextField11[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_b_unincorporated_entity_describe
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_b_unincorporated_entity_describe_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  plaintiff_b_public_entity_ind:
+    x_petey_id: '1_56'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 109.10600280761719
+      - 640.0419921875
+      - 118.10600280761719
+      - 649.0419921875
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii3[0].Ch5[0]
+    description: a public entity
+    x_petey_description_source: tooltip
+    label_source: llm
+  plaintiff_b_public_entity_describe_txt:
+    x_petey_id: '1_57'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 229.9929962158203
+      - 639.04296875
+      - 573.3699951171875
+      - 650.0440063476562
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii3[0].TextField12[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_b_public_entity_describe
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_b_public_entity_describe_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  plaintiff_b:
+    x_petey_id: '1_67'
+    type: category
+    values:
+    - plaintiff_b_minor_ind
+    - plaintiff_b_adult_ind
+    widgets:
+      plaintiff_b_minor_ind:
+        page: 1
+        rect:
+        - 109.08599853515625
+        - 653.5999755859375
+        - 118.08599853515625
+        - 662.5999755859375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii4[0].unlimited15[0]
+        on_state: '1'
+        caption: a minor
+        x_petey_caption_source: page_text
+      plaintiff_b_adult_ind:
+        page: 1
+        rect:
+        - 177.0070037841797
+        - 653.5999755859375
+        - 186.0070037841797
+        - 662.5999755859375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii4[0].unlimited15[1]
+        on_state: '2'
+        caption: an adult
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:16:42'
+      from:
+      - plaintiff_b_minor_ind
+      - plaintiff_b_adult_ind
+  plaintiff_b_minor_or_adult_representation:
+    x_petey_id: '1_70'
+    type: category
+    values:
+    - plaintiff_b_guardian_appointed_ind
+    - plaintiff_b_guardian_other_ind
+    widgets:
+      plaintiff_b_guardian_appointed_ind:
+        page: 1
+        rect:
+        - 146.67599487304688
+        - 667.7529907226562
+        - 155.67599487304688
+        - 676.7529907226562
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii4[0].SubItem4[0].Liia[0].ch6[0]
+        on_state: '1'
+        caption: (a)
+        x_petey_caption_source: page_text
+      plaintiff_b_guardian_other_ind:
+        page: 1
+        rect:
+        - 146.67599487304688
+        - 680.416015625
+        - 155.67599487304688
+        - 689.416015625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii4[0].SubItem4[0].Liib[0].ch6[0]
+        on_state: '2'
+        caption: other (specify)
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:38:11'
+      from:
+      - plaintiff_b_guardian_appointed_ind
+      - plaintiff_b_guardian_other_ind
+      name_from: labeler
+  plaintiff_b_guardian_other_specify_txt:
+    x_petey_id: '1_62'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.76100158691406
+      - 679.1959838867188
+      - 573.9080200195312
+      - 690.197021484375
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Lii4[0].SubItem4[0].Liib[0].TextField13[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_b_guardian_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_b_guardian_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  plaintiff_b_other_ind:
+    x_petey_id: '1_63'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 109.08599853515625
+      - 697.1799926757812
+      - 118.08599853515625
+      - 706.1799926757812
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Li5[0].Ch7[0]
+    label_source: llm
+  plaintiff_b_other_specify_txt:
+    x_petey_id: '1_64'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 190.3699951171875
+      - 695.9600219726562
+      - 572.4349975585938
+      - 706.9609985351562
+      widget_type: text
+      path: PLD-PI-001[0].Page1[0].List3[0].Lib[0].SubListb[0].Li5[0].TextField14[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_b_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_b_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  attachment_3_additional_plaintiffs_ind:
+    x_petey_id: '1_65'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 43.58000183105469
+      - 711.93701171875
+      - 52.58000183105469
+      - 720.93701171875
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page1[0].List3[0].unlimited[0]
+    description: Information about additional plaintiffs who are not competent adults
+      is shown in Attachment 3.
+    x_petey_description_source: tooltip
+    label_source: llm
+  short_title_1_txt:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 37.93600082397461
+      - 62.46197509765625
+      - 394.1319885253906
+      - 73.98199462890625
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].PxCaption[0].TitlePartyName[0].Party10[0]
+    description: 'SHORT TITLE:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: short_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: short_title_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); first of a numbered set gets 1'
+  case_2_nbr:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 400.0050048828125
+      - 58.87298583984375
+      - 572.8049926757812
+      - 73.26202392578125
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].PxCaption[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: case_number_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_2_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+  plaintiff_fictitious_business_name_ind:
+    x_petey_id: '2_3'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 55.78300094604492
+      - 87.041015625
+      - 64.78299713134766
+      - 96.041015625
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List4[0].item4[0].RB2Choices1[0]
+    label_source: llm
+  plaintiff_fictitious_business_name_plaintiff_nm:
+    x_petey_id: '2_4'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 2
+      rect:
+      - 142.44900512695312
+      - 87.24798583984375
+      - 572.5780029296875
+      - 96.24798583984375
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List4[0].item4[0].FillText25[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_fictitious_business_name_plaintiff_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: plaintiff_fictitious_business_name_plaintiff_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  plaintiff_fictitious_business_nm:
+    x_petey_id: '2_5'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 2
+      rect:
+      - 74.58499908447266
+      - 108.176025390625
+      - 571.8410034179688
+      - 120.21697998046875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List4[0].item4[0].FillText24[0]
+    description: 'is doing business under the fictitious name (specify):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: plaintiff_fictitious_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: plaintiff_fictitious_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  defendant_a_except_ind:
+    x_petey_id: '2_8'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 63.77899932861328
+      - 147.91302490234375
+      - 72.77899932861328
+      - 156.91302490234375
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].Ch15[0]
+    description: except defendant
+    x_petey_description_source: tooltip
+    label_source: llm
+  defendant_a_nm:
+    x_petey_id: '2_6'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 188.4929962158203
+      - 146.63299560546875
+      - 308.18798828125
+      - 157.63397216796875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].TextField26[0]
+    description: defendant name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_a_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_a_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  defendant_a_unincorporated_entity_description_txt:
+    x_petey_id: '2_12'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 109.68099975585938
+      - 197.4219970703125
+      - 312.2080078125
+      - 209.5770263671875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii3[0].TextField27[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_a_unincorporated_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_a_unincorporated_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_a_public_entity_description_txt:
+    x_petey_id: '2_14'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 109.40599822998047
+      - 223.08099365234375
+      - 311.9330139160156
+      - 235.23602294921875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii4[0].TextField28[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_a_public_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_a_public_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_a_other_specify_txt:
+    x_petey_id: '2_16'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 109.58499908447266
+      - 248.89202880859375
+      - 312.11199951171875
+      - 284.4960021972656
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii5[0].TextField29[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_a_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_a_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  defendant_b_except_ind:
+    x_petey_id: '2_18'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 64.21299743652344
+      - 289.71099853515625
+      - 73.21299743652344
+      - 298.71099853515625
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].Ch21[0]
+    description: except defendant
+    x_petey_description_source: tooltip
+    label_source: llm
+  defendant_b_nm:
+    x_petey_id: '2_19'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 188.927001953125
+      - 288.4309997558594
+      - 308.62200927734375
+      - 299.4320068359375
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].TextField30[0]
+    description: defendant name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_b_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_b_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  defendant_b_unincorporated_entity_description_txt:
+    x_petey_id: '2_24'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 110.11499786376953
+      - 341.4309997558594
+      - 312.6419982910156
+      - 353.58599853515625
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii3[0].TextField31[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_b_unincorporated_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_b_unincorporated_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_b_public_entity_description_txt:
+    x_petey_id: '2_26'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 109.83999633789062
+      - 367.0899963378906
+      - 312.36700439453125
+      - 379.2449951171875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii4[0].TextField32[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_b_public_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_b_public_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_b_other_specify_txt:
+    x_petey_id: '2_28'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 110.01899719238281
+      - 396.093994140625
+      - 312.5459899902344
+      - 406.72900390625
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii5[0].TextField33[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_b_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_b_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  defendant_c_except_ind:
+    x_petey_id: '2_9'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 331.2569885253906
+      - 147.91302490234375
+      - 340.2569885253906
+      - 156.91302490234375
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].Ch27[0]
+    description: except defendant
+    x_petey_description_source: tooltip
+    label_source: llm
+  defendant_c_nm:
+    x_petey_id: '2_7'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 455.97100830078125
+      - 146.63299560546875
+      - 573.1370239257812
+      - 157.63397216796875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].TextField39[0]
+    description: defendant name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_c_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_c_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  defendant_c_unincorporated_entity_description_txt:
+    x_petey_id: '2_13'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 372.0
+      - 197.4219970703125
+      - 574.5269775390625
+      - 209.5770263671875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii3[0].TextField34[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_c_unincorporated_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_c_unincorporated_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_c_public_entity_description_txt:
+    x_petey_id: '2_15'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 371.7250061035156
+      - 223.08099365234375
+      - 574.2520141601562
+      - 235.23602294921875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii4[0].TextField35[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_c_public_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_c_public_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_c_other_specify_txt:
+    x_petey_id: '2_17'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 371.90399169921875
+      - 249.13702392578125
+      - 574.4310302734375
+      - 284.4960021972656
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii5[0].TextField36[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_c_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_c_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  defendant_d_except_ind:
+    x_petey_id: '2_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 331.69000244140625
+      - 289.71099853515625
+      - 340.69000244140625
+      - 298.71099853515625
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].Ch33[0]
+    description: except defendant
+    x_petey_description_source: tooltip
+    label_source: llm
+  defendant_d_nm:
+    x_petey_id: '2_21'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 456.40399169921875
+      - 288.4309997558594
+      - 573.5700073242188
+      - 299.4320068359375
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].TextField37[0]
+    description: defendant name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_d_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_d_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  defendant_d_unincorporated_entity_description_txt:
+    x_petey_id: '2_25'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 372.4330139160156
+      - 341.4309997558594
+      - 574.9600219726562
+      - 353.58599853515625
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii3[0].TextField38[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_d_unincorporated_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_d_unincorporated_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_d_public_entity_description_txt:
+    x_petey_id: '2_27'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 372.1579895019531
+      - 367.0899963378906
+      - 574.6849975585938
+      - 379.2449951171875
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii4[0].TextField39[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_d_public_entity_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: defendant_d_public_entity_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  defendant_d_other_specify_txt:
+    x_petey_id: '2_29'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 372.3370056152344
+      - 396.093994140625
+      - 574.864013671875
+      - 407.2650146484375
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii5[0].TextField40[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendant_d_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_d_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  additional_defendants_attachment_5_ind:
+    x_petey_id: '2_30'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 56.03799819946289
+      - 412.80499267578125
+      - 65.03800201416016
+      - 421.80499267578125
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List5[0].Ch39[0]
+    description: Information about additional defendants who are not natural persons
+      is contained in Attachment 5.
+    x_petey_description_source: tooltip
+    label_source: llm
+  doe_defendants:
+    x_petey_id: '2_42'
+    type: category
+    values:
+    - doe_defendants_agents_employees_ind
+    - doe_defendants_unknown_capacities_ind
+    widgets:
+      doe_defendants_agents_employees_ind:
+        page: 2
+        rect:
+        - 70.23400115966797
+        - 441.3080139160156
+        - 79.23400115966797
+        - 450.3080139160156
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List6[0].Lia[0].Che1[0]
+        on_state: '1'
+        caption: Doe defendants
+        x_petey_caption_source: tooltip
+      doe_defendants_unknown_capacities_ind:
+        page: 2
+        rect:
+        - 69.78099822998047
+        - 468.22900390625
+        - 78.78099822998047
+        - 477.22900390625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List6[0].Lib[0].Che2[0]
+        on_state: '1'
+        caption: Doe defendants
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:35:46'
+      from:
+      - doe_defendants_agents_employees_ind
+      - doe_defendants_unknown_capacities_ind
+  doe_defendants_agents_employees_numbers_txt:
+    x_petey_id: '2_32'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 250.71400451660156
+      - 441.125
+      - 385.89801025390625
+      - 452.1260070800781
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List6[0].Lia[0].TextField41[0]
+    description: '(specify Doe numbers):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: doe_defendants_agents_employees_numbers
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: doe_defendants_agents_employees_numbers_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  doe_defendants_unknown_capacities_numbers_txt:
+    x_petey_id: '2_34'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 250.25999450683594
+      - 468.0459899902344
+      - 385.4440002441406
+      - 479.0469970703125
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List6[0].Lib[0].TextField42[0]
+    description: '(specify Doe numbers):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: doe_defendants_unknown_capacities_numbers
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: doe_defendants_unknown_capacities_numbers_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  defendants_joined_ccp_382_ind:
+    x_petey_id: '2_35'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 54.91899871826172
+      - 492.9620056152344
+      - 63.91899871826172
+      - 501.9620056152344
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List7[0].item7[0].RB2Choices2[0]
+    description: Defendants who are joined under Code of Civil Procedure section 382
+      are
+    x_petey_description_source: tooltip
+    label_source: llm
+  defendants_joined_ccp_382_names_txt:
+    x_petey_id: '2_36'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 70.49500274658203
+      - 502.3479919433594
+      - 573.7440185546875
+      - 537.2000122070312
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List7[0].item7[0].FillText44[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: defendants_joined_ccp_382_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendants_joined_ccp_382_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  proper_court_other_specify_txt:
+    x_petey_id: '2_38'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 87.9260025024414
+      - 604.0490112304688
+      - 572.041015625
+      - 642.698974609375
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List8[0].Lid[0].TextField46[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: proper_court_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: proper_court_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  claims_statute_compliance_required_ind:
+    x_petey_id: '2_39'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 55.52799987792969
+      - 646.3820190429688
+      - 64.52799987792969
+      - 655.3820190429688
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page2[0].List9[0].RB2Choices3[0]
+    description: Plaintiff is required to comply with a claims statute, and
+    x_petey_description_source: tooltip
+    label_source: llm
+  claims_statute_excused_reason_txt:
+    x_petey_id: '2_41'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 88.28199768066406
+      - 683.3909912109375
+      - 572.39697265625
+      - 722.041015625
+      widget_type: text
+      path: PLD-PI-001[0].Page2[0].List9[0].Lib[0].TextField51[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: claims_statute_excused_reason
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: claims_statute_excused_reason_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: reason -> reason_txt'
+  short_title_2_txt:
+    x_petey_id: '3_1'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 37.93600082397461
+      - 62.46197509765625
+      - 394.1319885253906
+      - 73.98199462890625
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].PxCaption[0].TitlePartyName[0].Party10[0]
+    description: 'SHORT TITLE:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: short_title_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: short_title_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+  case_3_nbr:
+    x_petey_id: '3_2'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 400.0050048828125
+      - 58.87298583984375
+      - 572.8049926757812
+      - 73.26202392578125
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].PxCaption[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: case_number_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_3_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+  cause_of_action:
+    x_petey_id: '3_32'
+    type: category
+    values:
+    - cause_of_action_motor_vehicle_ind
+    - cause_of_action_general_negligence_ind
+    - cause_of_action_intentional_tort_ind
+    - cause_of_action_products_liability_ind
+    - cause_of_action_premises_liability_ind
+    - cause_of_action_other_ind
+    widgets:
+      cause_of_action_motor_vehicle_ind:
+        page: 3
+        rect:
+        - 70.80899810791016
+        - 106.77197265625
+        - 79.80899810791016
+        - 115.77197265625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List10[0].Lia[0].CheckBox1[0]
+        on_state: '1'
+        caption: Motor Vehicle
+        x_petey_caption_source: page_text
+      cause_of_action_general_negligence_ind:
+        page: 3
+        rect:
+        - 70.80899810791016
+        - 121.5050048828125
+        - 79.80899810791016
+        - 130.5050048828125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List10[0].Lib[0].CheckBox2[0]
+        on_state: '1'
+        caption: General Negligence
+        x_petey_caption_source: tooltip
+      cause_of_action_intentional_tort_ind:
+        page: 3
+        rect:
+        - 70.80899810791016
+        - 136.7559814453125
+        - 79.80899810791016
+        - 145.7559814453125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List10[0].Lic[0].CheckBox3[0]
+        on_state: '1'
+        caption: Intentional Tort
+        x_petey_caption_source: tooltip
+      cause_of_action_products_liability_ind:
+        page: 3
+        rect:
+        - 70.80899810791016
+        - 150.31500244140625
+        - 79.80899810791016
+        - 159.31500244140625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List10[0].Lid[0].CheckBox4[0]
+        on_state: '1'
+        caption: Products Liability
+        x_petey_caption_source: tooltip
+      cause_of_action_premises_liability_ind:
+        page: 3
+        rect:
+        - 70.80899810791016
+        - 165.2550048828125
+        - 79.80899810791016
+        - 174.2550048828125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List10[0].Lie[0].CheckBox5[0]
+        on_state: '1'
+        caption: Premises Liability
+        x_petey_caption_source: tooltip
+      cause_of_action_other_ind:
+        page: 3
+        rect:
+        - 70.80899810791016
+        - 180.51702880859375
+        - 79.80899810791016
+        - 189.51702880859375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List10[0].Lif[0].CheckBox6[0]
+        on_state: '3'
+        caption: Other (specify)
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:36:43'
+      from:
+      - cause_of_action_motor_vehicle_ind
+      - cause_of_action_general_negligence_ind
+      - cause_of_action_intentional_tort_ind
+      - cause_of_action_products_liability_ind
+      - cause_of_action_premises_liability_ind
+      - cause_of_action_other_ind
+  cause_of_action_other_txt:
+    x_petey_id: '3_9'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 91.37699890136719
+      - 189.38299560546875
+      - 573.2160034179688
+      - 227.52801513671875
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].List10[0].Lif[0].TextField110[0]
+    label_source: llm
+  damages:
+    x_petey_id: '3_33'
+    type: category
+    values:
+    - damages_wage_loss_ind
+    - damages_loss_of_use_of_property_ind
+    - damages_hospital_medical_expenses_ind
+    - damages_general_damage_ind
+    - damages_property_damage_ind
+    - damages_loss_of_earning_capacity_ind
+    - damages_other_damage_ind
+    widgets:
+      damages_wage_loss_ind:
+        page: 3
+        rect:
+        - 70.2509994506836
+        - 244.3289794921875
+        - 79.2509994506836
+        - 253.3289794921875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List11[0].Lia[0].CheckBox7[0]
+        on_state: '1'
+        caption: Plaintiff has suffered Wage loss
+        x_petey_caption_source: tooltip
+      damages_loss_of_use_of_property_ind:
+        page: 3
+        rect:
+        - 70.2509994506836
+        - 259.06201171875
+        - 79.2509994506836
+        - 268.06201171875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List11[0].Lib[0].CheckBox8[0]
+        on_state: '1'
+        caption: loss of use of property
+        x_petey_caption_source: tooltip
+      damages_hospital_medical_expenses_ind:
+        page: 3
+        rect:
+        - 70.2509994506836
+        - 274.31298828125
+        - 79.2509994506836
+        - 283.31298828125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List11[0].Lic[0].CheckBox9[0]
+        on_state: '1'
+        caption: hospital and medical expenses
+        x_petey_caption_source: tooltip
+      damages_general_damage_ind:
+        page: 3
+        rect:
+        - 70.2509994506836
+        - 287.87200927734375
+        - 79.2509994506836
+        - 296.87200927734375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List11[0].Lid[0].CheckBox10[0]
+        on_state: '1'
+        caption: general damage
+        x_petey_caption_source: tooltip
+      damages_property_damage_ind:
+        page: 3
+        rect:
+        - 70.2509994506836
+        - 302.81201171875
+        - 79.2509994506836
+        - 311.81201171875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List11[0].Lie[0].CheckBox11[0]
+        on_state: '1'
+        caption: property damage
+        x_petey_caption_source: tooltip
+      damages_loss_of_earning_capacity_ind:
+        page: 3
+        rect:
+        - 70.2509994506836
+        - 316.8039855957031
+        - 79.2509994506836
+        - 325.8039855957031
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List11[0].Lif[0].CheckBox12[0]
+        on_state: '1'
+        caption: loss of earning capacity
+        x_petey_caption_source: tooltip
+      damages_other_damage_ind:
+        page: 3
+        rect:
+        - 70.2509994506836
+        - 330.6029968261719
+        - 79.2509994506836
+        - 339.6029968261719
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List11[0].Lig[0].CheckBox13[0]
+        on_state: '3'
+        caption: Other damage
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:36:43'
+      from:
+      - damages_wage_loss_ind
+      - damages_loss_of_use_of_property_ind
+      - damages_hospital_medical_expenses_ind
+      - damages_general_damage_ind
+      - damages_property_damage_ind
+      - damages_loss_of_earning_capacity_ind
+      - damages_other_damage_ind
+  damages_other_damage_txt:
+    x_petey_id: '3_17'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 89.34500122070312
+      - 340.20599365234375
+      - 574.2960205078125
+      - 378.35101318359375
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].List11[0].Lig[0].TextField121[0]
+    label_source: llm
+  wrongful_death_damages_claimed_ind:
+    x_petey_id: '3_18'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 56.21099853515625
+      - 380.4330139160156
+      - 65.21099853515625
+      - 389.4330139160156
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page3[0].List12[0].CheckBox14[0]
+    description: The damages claimed for wrongful death and the relationships of plaintiff
+      to the deceased are
+    x_petey_description_source: tooltip
+    label_source: llm
+  wrongful_death_damages:
+    x_petey_id: '3_34'
+    type: category
+    values:
+    - wrongful_death_damages_attachment_12_ind
+    - wrongful_death_damages_as_follows_ind
+    widgets:
+      wrongful_death_damages_attachment_12_ind:
+        page: 3
+        rect:
+        - 70.45800018310547
+        - 393.76800537109375
+        - 79.45800018310547
+        - 402.76800537109375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List12[0].Lia[0].limi1[0]
+        on_state: '1'
+        caption: listed in Attachment 12.
+        x_petey_caption_source: tooltip
+      wrongful_death_damages_as_follows_ind:
+        page: 3
+        rect:
+        - 70.45800018310547
+        - 407.8389892578125
+        - 79.45800018310547
+        - 416.8389892578125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List12[0].Lib[0].limi1[0]
+        on_state: '2'
+        caption: as follows
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:36:43'
+      from:
+      - wrongful_death_damages_attachment_12_ind
+      - wrongful_death_damages_as_follows_ind
+  wrongful_death_damages_as_follows_txt:
+    x_petey_id: '3_21'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 88.677001953125
+      - 418.57000732421875
+      - 572.7919921875
+      - 481.57000732421875
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].List12[0].Lib[0].TextField154[0]
+    description: as follows enter details
+    x_petey_description_source: tooltip
+    label_source: llm
+  relief_sought_jurisdiction_txt:
+    x_petey_id: '3_22'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 51.45399856567383
+      - 494.2099914550781
+      - 572.0399780273438
+      - 538.3389892578125
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].List13[0].item13[0].TextField178[0]
+    description: The relief sought in this complaint is within the jurisdiction of
+      this court.
+    x_petey_description_source: tooltip
+    label_source: llm
+  relief_sought_damages_type:
+    x_petey_id: '3_35'
+    type: category
+    values:
+    - prayer_compensatory_damages_ind
+    - prayer_punitive_damages_ind
+    widgets:
+      prayer_compensatory_damages_ind:
+        page: 3
+        rect:
+        - 88.91799926757812
+        - 556.208984375
+        - 97.91799926757812
+        - 565.208984375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List14[0].Lia[0].SubLista[0].Lii1[0].CheckBox20[0]
+        on_state: '1'
+        caption: compensatory damages
+        x_petey_caption_source: page_text
+      prayer_punitive_damages_ind:
+        page: 3
+        rect:
+        - 88.91699981689453
+        - 569.7949829101562
+        - 97.91699981689453
+        - 578.7949829101562
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List14[0].Lia[0].SubLista[0].Lii2[0].CheckBox21[0]
+        on_state: '2'
+        caption: punitive damages
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:36:43'
+      from:
+      - prayer_compensatory_damages_ind
+      - prayer_punitive_damages_ind
+      name_from: labeler
+  damages_amount_type:
+    x_petey_id: '3_36'
+    type: category
+    values:
+    - prayer_damages_according_to_proof_ind
+    - prayer_damages_amount_ind
+    widgets:
+      prayer_damages_according_to_proof_ind:
+        page: 3
+        rect:
+        - 88.93399810791016
+        - 595.5369873046875
+        - 97.93399810791016
+        - 604.5369873046875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List14[0].Lib[0].SubListb[0].Lii1[0].CheckBox22[0]
+        on_state: '1'
+        caption: according to proof
+        x_petey_caption_source: page_text
+      prayer_damages_amount_ind:
+        page: 3
+        rect:
+        - 88.93399810791016
+        - 609.1229858398438
+        - 97.93399810791016
+        - 618.1229858398438
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page3[0].List14[0].Lib[0].SubListb[0].Lii2[0].CheckBox23[0]
+        on_state: '2'
+        caption: 'in the amount of:'
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:36:43'
+      from:
+      - prayer_damages_according_to_proof_ind
+      - prayer_damages_amount_ind
+      name_from: labeler
+  prayer_damages_amt:
+    x_petey_id: '3_26'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 186.4250030517578
+      - 608.6610107421875
+      - 345.2489929199219
+      - 618.740966796875
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].List14[0].Lib[0].SubListb[0].Lii2[0].DecimalField12[0]
+    description: Dollar Amount
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz,zzz,zz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+  alleged_on_information_and_belief_ind:
+    x_petey_id: '3_28'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 55.65599822998047
+      - 623.6729736328125
+      - 64.65599822998047
+      - 632.6729736328125
+      widget_type: checkbox
+      path: PLD-PI-001[0].Page3[0].List15[0].item15[0].RB2Choices41[0]
+    description: The paragraphs of this complaint alleged on information and belief
+      are as follows
+    x_petey_description_source: tooltip
+    label_source: llm
+  alleged_on_information_and_belief_paragraphs_txt:
+    x_petey_id: '3_29'
+    type: string
+    semantic_type: text
+    widget:
+      page: 3
+      rect:
+      - 71.23200225830078
+      - 633.0590209960938
+      - 574.4810180664062
+      - 660.4129638671875
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].List15[0].item15[0].FillText109[0]
+    description: '(specify paragraph numbers):'
+    x_petey_description_source: tooltip
+    label_source: llm
+  signature_dt:
+    x_petey_id: '3_30'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 61.20000076293945
+      - 670.2830200195312
+      - 169.1999969482422
+      - 680.2839965820312
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].Sign[0].SigDate[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+  signer_printed_nm:
+    x_petey_id: '3_31'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 36.0
+      - 686.4010009765625
+      - 275.8760070800781
+      - 700.5120239257812
+      widget_type: text
+      path: PLD-PI-001[0].Page3[0].Sign[0].SigName[0]
+    description: Type or Print Name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:49'
+      from:
+        name: signer_printed_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: signer_printed_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  type_motor_vehicle_ind:
+    x_petey_id: '1_25'
+    type: category
+    widgets:
+      motor_vehicle:
+        page: 1
+        rect:
+        - 42.32699966430664
+        - 286.4419860839844
+        - 51.32699966430664
+        - 295.4419860839844
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].No[0]
+        on_state: '1'
+        caption: MOTOR VEHICLE
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 161.7050018310547
+        - 286.18499755859375
+        - 170.7050018310547
+        - 295.18499755859375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].No[1]
+        on_state: '1'
+        caption: 'OTHER (specify):'
+        x_petey_caption_source: page_choice
+    description: 'MOTOR VEHICLE (Type: check all that apply)'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: type_motor_vehicle_ind
+      reason: The outlined box is a checkbox beside the 'MOTOR VEHICLE' caption in
+        the 'Type (check all that apply)' group; a filer marks it true/false, making
+        it a boolean indicator best described by type_motor_vehicle_ind rather than
+        a generic action_type category.
+      model: claude-sonnet-4-6
+      contested: no caption could be verified at the widget
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - semantic_type
+      - description
+      - -values
+      - name
+      reason: The widget is one 9pt checkbox whose tooltip/caption is 'MOTOR VEHICLE'
+        in a 'check all that apply' group of six separate boxes, not a two-way category.
+        It holds only whether the motor vehicle box is ticked, so it is a boolean
+        indicator and the name must say which option it is.
+      before:
+        type: category
+        values:
+        - motor_vehicle
+        - other
+        description: MOTOR VEHICLE
+      old_name: action_type
+      adjudicated: proposed
+      judged: 'kept: 1 -> 0'
+    values:
+    - motor_vehicle
+    - other
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:42'
+      from:
+        name: type_motor_vehicle_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: type_motor_vehicle_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 2 options is one of (category), not boolean
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:18:15'
+      from:
+      - type_motor_vehicle_ind::motor_vehicle
+      - type_motor_vehicle_ind::other
+  type_property_damage_ind:
+    x_petey_id: '1_27'
+    type: category
+    widgets:
+      property_damage:
+        page: 1
+        rect:
+        - 63.624000549316406
+        - 298.1029968261719
+        - 72.6240005493164
+        - 307.1029968261719
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Chb1[0]
+        on_state: '1'
+        caption: Property Damage
+        x_petey_caption_source: page_text
+      personal_injury:
+        page: 1
+        rect:
+        - 63.34000015258789
+        - 310.12799072265625
+        - 72.33999633789062
+        - 319.12799072265625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Chb2[0]
+        on_state: '1'
+        caption: Personal Injury
+        x_petey_caption_source: page_text
+      wrongful_death:
+        page: 1
+        rect:
+        - 170.26300048828125
+        - 298.1029968261719
+        - 179.26300048828125
+        - 307.1029968261719
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Chb3[0]
+        on_state: '2'
+        caption: Wrongful Death
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 169.97999572753906
+        - 310.12799072265625
+        - 178.97999572753906
+        - 319.12799072265625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Chb4[0]
+        on_state: '2'
+        caption: Other Damages (specify)
+        x_petey_caption_source: page_text
+    description: 'Property Damage (Type: check all that apply)'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: type_property_damage_ind
+      reason: The caption directly beside the box is 'Property Damage' under the Motor
+        Vehicle type options; a filer checks or leaves it blank, making it a boolean
+        indicator — type_property_damage_ind fits; 'damages' does not.
+      model: claude-sonnet-4-6
+      contested: no caption could be verified at the widget
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - semantic_type
+      - description
+      - -values
+      - name
+      reason: This is a single 9pt checkbox for the 'Property Damage' option of the
+        six-box 'check all that apply' Type question; it cannot carry four category
+        values. The bare name 'damages' also fails to identify the box, so it becomes
+        a boolean indicator named for its option.
+      before:
+        type: category
+        values:
+        - other
+        - personal_injury
+        - property_damage
+        - wrongful_death
+        description: Property Damage
+      old_name: damages
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
+    values:
+    - property_damage
+    - personal_injury
+    - wrongful_death
+    - other
+    x_petey_hand_edit:
+      when: '2026-10-16 12:16:42'
+      from:
+        name: type_property_damage_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: type_property_damage_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 4 options is one of (category), not boolean
+  amount_demanded:
+    x_petey_id: '1_30'
+    type: category
+    values:
+    - does_not_exceed_10000
+    - exceeds_10000
+    widgets:
+      does_not_exceed_10000:
+        page: 1
+        rect:
+        - 151.22300720214844
+        - 347.29901123046875
+        - 160.22300720214844
+        - 356.29901123046875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Jurisdiction[0].exceeds[0]
+        on_state: '1'
+        caption: does not exceed $10,000
+        x_petey_caption_source: page_text
+      exceeds_10000:
+        page: 1
+        rect:
+        - 151.22300720214844
+        - 357.98199462890625
+        - 160.22300720214844
+        - 366.98199462890625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Jurisdiction[0].exceeds[1]
+        on_state: '2'
+        caption: exceeds $10,000
+        x_petey_caption_source: page_text
+    description: does not exceed 10,000 dollars
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  reclassification:
+    x_petey_id: '1_33'
+    type: category
+    values:
+    - from_limited_to_unlimited
+    - from_unlimited_to_limited
+    widgets:
+      from_limited_to_unlimited:
+        page: 1
+        rect:
+        - 65.9540023803711
+        - 391.7149963378906
+        - 74.9540023803711
+        - 400.7149963378906
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Jurisdiction[0].limit1[0]
+        on_state: '1'
+        caption: from limited to unlimited
+        x_petey_caption_source: page_text
+      from_unlimited_to_limited:
+        page: 1
+        rect:
+        - 66.15499877929688
+        - 403.875
+        - 75.15499877929688
+        - 412.875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page1[0].P1Caption[0].FormTitle[0].Jurisdiction[0].limit1[1]
+        on_state: '2'
+        caption: from unlimited to limited
+        x_petey_caption_source: page_text
+    description: from limited to unlimited
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  defendant_a_entity_type:
+    x_petey_id: '2_10'
+    type: category
+    values:
+    - business_organization
+    - corporation
+    - unincorporated_entity
+    - public_entity
+    - other
+    widgets:
+      business_organization:
+        page: 2
+        rect:
+        - 91.79100036621094
+        - 160.89697265625
+        - 100.79100036621094
+        - 169.89697265625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii1[0].Ch16[0]
+        on_state: '1'
+        caption: a business organization, form unknown.
+        x_petey_caption_source: page_choice
+      corporation:
+        page: 2
+        rect:
+        - 91.79100036621094
+        - 174.48297119140625
+        - 100.79100036621094
+        - 183.48297119140625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii2[0].Ch17[0]
+        on_state: '2'
+        caption: a corporation.
+        x_petey_caption_source: page_choice
+      unincorporated_entity:
+        page: 2
+        rect:
+        - 91.79399871826172
+        - 187.8189697265625
+        - 100.79399871826172
+        - 196.8189697265625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii3[0].Ch18[0]
+        on_state: '3'
+        caption: 'an unincorporated entity (describe):'
+        x_petey_caption_source: page_choice
+      public_entity:
+        page: 2
+        rect:
+        - 91.51899719238281
+        - 213.47802734375
+        - 100.51899719238281
+        - 222.47802734375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii4[0].Ch19[0]
+        on_state: '3'
+        caption: 'a public entity (describe):'
+        x_petey_caption_source: page_choice
+      other:
+        page: 2
+        rect:
+        - 91.697998046875
+        - 239.53399658203125
+        - 100.697998046875
+        - 248.53399658203125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lia[0].SubLista[0].Lii5[0].Ch20[0]
+        on_state: '3'
+        caption: 'other (specify):'
+        x_petey_caption_source: page_choice
+    description: a business organization, form unknown
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:18:15'
+      from:
+      - defendant_a_entity_type::business_organization
+      - defendant_a_entity_type::corporation
+      - defendant_a_entity_type::unincorporated_entity
+      - defendant_a_entity_type::public_entity
+      - defendant_a_entity_type::other
+  defendant_b_entity_type:
+    x_petey_id: '2_22'
+    type: category
+    values:
+    - business_organization
+    - corporation
+    - unincorporated_entity
+    - public_entity
+    - other
+    widgets:
+      business_organization:
+        page: 2
+        rect:
+        - 92.2249984741211
+        - 304.906005859375
+        - 101.2249984741211
+        - 313.906005859375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii1[0].Ch22[0]
+        on_state: '1'
+        caption: a business organization, form unknown.
+        x_petey_caption_source: page_choice
+      corporation:
+        page: 2
+        rect:
+        - 92.2249984741211
+        - 318.49200439453125
+        - 101.2249984741211
+        - 327.49200439453125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii2[0].Ch23[0]
+        on_state: '2'
+        caption: a corporation.
+        x_petey_caption_source: page_choice
+      unincorporated_entity:
+        page: 2
+        rect:
+        - 92.22799682617188
+        - 331.8280029296875
+        - 101.22799682617188
+        - 340.8280029296875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii3[0].Ch24[0]
+        on_state: '3'
+        caption: 'an unincorporated entity (describe):'
+        x_petey_caption_source: page_choice
+      public_entity:
+        page: 2
+        rect:
+        - 91.9530029296875
+        - 357.48699951171875
+        - 100.9530029296875
+        - 366.48699951171875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii4[0].Ch25[0]
+        on_state: '3'
+        caption: 'a public entity (describe):'
+        x_petey_caption_source: page_choice
+      other:
+        page: 2
+        rect:
+        - 92.13200378417969
+        - 386.4909973144531
+        - 101.13200378417969
+        - 395.4909973144531
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lib[0].SubListb[0].Lii5[0].Ch26[0]
+        on_state: '3'
+        caption: 'other (specify):'
+        x_petey_caption_source: page_choice
+    description: a business organization, form unknown
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:18:15'
+      from:
+      - defendant_b_entity_type::business_organization
+      - defendant_b_entity_type::corporation
+      - defendant_b_entity_type::unincorporated_entity
+      - defendant_b_entity_type::public_entity
+      - defendant_b_entity_type::other
+  defendant_c_entity_type:
+    x_petey_id: '2_11'
+    type: category
+    values:
+    - business_organization
+    - corporation
+    - unincorporated_entity
+    - public_entity
+    - other
+    widgets:
+      business_organization:
+        page: 2
+        rect:
+        - 354.1099853515625
+        - 160.89697265625
+        - 363.1099853515625
+        - 169.89697265625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii1[0].Ch28[0]
+        on_state: '1'
+        caption: a business organization, form unknown.
+        x_petey_caption_source: page_choice
+      corporation:
+        page: 2
+        rect:
+        - 354.1099853515625
+        - 174.48297119140625
+        - 363.1099853515625
+        - 183.48297119140625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii2[0].Ch29[0]
+        on_state: '2'
+        caption: a corporation.
+        x_petey_caption_source: page_choice
+      unincorporated_entity:
+        page: 2
+        rect:
+        - 354.1130065917969
+        - 187.8189697265625
+        - 363.1130065917969
+        - 196.8189697265625
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii3[0].Ch30[0]
+        on_state: '3'
+        caption: 'an unincorporated entity (describe):'
+        x_petey_caption_source: page_choice
+      public_entity:
+        page: 2
+        rect:
+        - 353.8380126953125
+        - 213.47802734375
+        - 362.8380126953125
+        - 222.47802734375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii4[0].Ch31[0]
+        on_state: '3'
+        caption: 'a public entity (describe):'
+        x_petey_caption_source: page_choice
+      other:
+        page: 2
+        rect:
+        - 354.0169982910156
+        - 239.53399658203125
+        - 363.0169982910156
+        - 248.53399658203125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii5[0].Ch32[0]
+        on_state: '3'
+        caption: 'other (specify):'
+        x_petey_caption_source: page_choice
+    description: a business organization, form unknown
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:18:15'
+      from:
+      - defendant_c_entity_type::business_organization
+      - defendant_c_entity_type::corporation
+      - defendant_c_entity_type::unincorporated_entity
+      - defendant_c_entity_type::public_entity
+      - defendant_c_entity_type::other
+  defendant_d_entity_type:
+    x_petey_id: '2_23'
+    type: category
+    values:
+    - business_organization
+    - corporation
+    - unincorporated_entity
+    - public_entity
+    - other
+    widgets:
+      business_organization:
+        page: 2
+        rect:
+        - 354.5429992675781
+        - 304.906005859375
+        - 363.5429992675781
+        - 313.906005859375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii1[0].Ch34[0]
+        on_state: '1'
+        caption: a business organization, form unknown.
+        x_petey_caption_source: page_choice
+      corporation:
+        page: 2
+        rect:
+        - 354.5429992675781
+        - 318.49200439453125
+        - 363.5429992675781
+        - 327.49200439453125
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii2[0].Ch35[0]
+        on_state: '2'
+        caption: a corporation.
+        x_petey_caption_source: page_choice
+      unincorporated_entity:
+        page: 2
+        rect:
+        - 354.5459899902344
+        - 331.8280029296875
+        - 363.5459899902344
+        - 340.8280029296875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii3[0].Ch36[0]
+        on_state: '3'
+        caption: 'an unincorporated entity (describe):'
+        x_petey_caption_source: page_choice
+      public_entity:
+        page: 2
+        rect:
+        - 354.27099609375
+        - 357.48699951171875
+        - 363.27099609375
+        - 366.48699951171875
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii4[0].Ch37[0]
+        on_state: '3'
+        caption: 'a public entity (describe):'
+        x_petey_caption_source: page_choice
+      other:
+        page: 2
+        rect:
+        - 354.45001220703125
+        - 386.4909973144531
+        - 363.45001220703125
+        - 395.4909973144531
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List5[0].Lid[0].SubListd[0].Lii5[0].Ch38[0]
+        on_state: '3'
+        caption: 'other (specify):'
+        x_petey_caption_source: page_choice
+    description: a business organization, form unknown
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:18:15'
+      from:
+      - defendant_d_entity_type::business_organization
+      - defendant_d_entity_type::corporation
+      - defendant_d_entity_type::unincorporated_entity
+      - defendant_d_entity_type::public_entity
+      - defendant_d_entity_type::other
+  proper_court_reason:
+    x_petey_id: '2_37'
+    type: category
+    values:
+    - defendant_resides
+    - principal_place_of_business
+    - injury_or_damage
+    - other
+    widgets:
+      defendant_resides:
+        page: 2
+        rect:
+        - 69.9540023803711
+        - 554.9190063476562
+        - 78.9540023803711
+        - 563.9190063476562
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List8[0].Lia[0].Che4[0]
+        on_state: '1'
+        caption: at least one defendant now resides in its jurisdictional area.
+        x_petey_caption_source: page_choice
+      principal_place_of_business:
+        page: 2
+        rect:
+        - 69.9540023803711
+        - 567.8060302734375
+        - 78.9540023803711
+        - 576.8060302734375
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List8[0].Lib[0].Che5[0]
+        on_state: '2'
+        caption: the principal place of business of a defendant corporation or unincorporated
+          association is in its jurisdictional area.
+        x_petey_caption_source: page_choice
+      injury_or_damage:
+        page: 2
+        rect:
+        - 69.95700073242188
+        - 581.0499877929688
+        - 78.95700073242188
+        - 590.0499877929688
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List8[0].Lic[0].Che6[0]
+        on_state: '3'
+        caption: injury to person or damage to personal property occurred in its jurisdictional
+          area.
+        x_petey_caption_source: page_choice
+      other:
+        page: 2
+        rect:
+        - 70.03900146484375
+        - 594.4459838867188
+        - 79.03900146484375
+        - 603.4459838867188
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List8[0].Lid[0].Che7[0]
+        on_state: '3'
+        caption: other (specify)
+        x_petey_caption_source: page_text
+    description: at least one defendant now resides in its jurisdictional area.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:18:15'
+      from:
+      - proper_court_reason::defendant_resides
+      - proper_court_reason::principal_place_of_business
+      - proper_court_reason::injury_or_damage
+      - proper_court_reason::other
+  claims_statute_status:
+    x_petey_id: '2_40'
+    type: category
+    values:
+    - complied
+    - excused
+    widgets:
+      complied:
+        page: 2
+        rect:
+        - 70.51200103759766
+        - 659.7169799804688
+        - 79.51200103759766
+        - 668.7169799804688
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List9[0].Lia[0].lim1[0]
+        on_state: '1'
+        caption: has complied with applicable claims statutes, or
+        x_petey_caption_source: page_choice
+      excused:
+        page: 2
+        rect:
+        - 70.3949966430664
+        - 673.7880249023438
+        - 79.3949966430664
+        - 682.7880249023438
+        widget_type: checkbox
+        path: PLD-PI-001[0].Page2[0].List9[0].Lib[0].lim1[0]
+        on_state: '2'
+        caption: is excused from complying because (specify)
+        x_petey_caption_source: page_text
+    description: has complied with applicable claims statutes, or
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:18:15'
+      from:
+      - claims_statute_status::complied
+      - claims_statute_status::excused
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 3
+  collisions:
+  - original_label: case_number
+    assigned_label: case_number_2
+    page: 2
+    rect:
+    - 400.0050048828125
+    - 58.87298583984375
+    - 572.8049926757812
+    - 73.26202392578125
+  - original_label: short_title
+    assigned_label: short_title_2
+    page: 3
+    rect:
+    - 37.93600082397461
+    - 62.46197509765625
+    - 394.1319885253906
+    - 73.98199462890625
+  - original_label: case_number
+    assigned_label: case_number_3
+    page: 3
+    rect:
+    - 400.0050048828125
+    - 58.87298583984375
+    - 572.8049926757812
+    - 73.26202392578125
+x_petey_dropped_widgets:
+  count: 4
+  widgets:
+  - path: PLD-PI-001[0].#pageSet[0].LastPage[0].PXFooter3[0].FooterButtons[0].Print[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: Print this form
+  - path: PLD-PI-001[0].#pageSet[0].LastPage[0].PXFooter3[0].FooterButtons[0].Save[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: Save this form
+  - path: PLD-PI-001[0].#pageSet[0].LastPage[0].PXFooter3[0].FooterButtons[0].Reset[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear this form
+  - path: PLD-PI-001[0].#pageSet[0].LastPage[0].PXFooter3[0].FooterButtons[0].Warning[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: For your protection and privacy, please press the Clear This Form button
+      after you have printed the form.
+x_petey_xfa_log:
+  joined: 127
+  type: 1
+  pattern: 4
+x_petey_emit_fixes:
+  description_from_tooltip: 10
+x_petey_page_check:
+  when: '2026-10-16 12:22:49'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  - 3
+  fields: 135
+  flagged: 2
+  unanswered: 0
+  record: runs/page_check/ca_courts_pld_pi_001__646213__e7ce0061.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ca_courts_pld_pi_001_20261006_221739
+  blueprint: /home/user/petey-2/runs/judge_eval/work/ca_courts_pld_pi_001.bpt
+  when: '2026-10-06 22:18:07'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ca_courts_pld_pi_001.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 3
+  review_rounds: 2
+  when: '2026-10-06 22:18:18'

@@ -1,0 +1,720 @@
+bpt_version: '1.1'
+name: '1098'
+form_version: null
+source_pdf: f1098.pdf
+source_pdf_hash: 316d708c7b35d09c12d85d77eab2dd62eb6eeed5
+source_pages:
+- 2
+- 3
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+fields:
+  calendar_yr:
+    x_petey_id: '2_2'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 410.3999938964844
+      - 96.0009765625
+      - 446.3999938964844
+      - 105.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]
+    label_source: llm
+  lender_business_name_address_txt:
+    x_petey_id: '2_1'
+    type: string
+    semantic_type: name_and_address
+    widget:
+      page: 2
+      rect:
+      - 52.400001525878906
+      - 60.0009765625
+      - 294.45001220703125
+      - 132.0009765625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]
+    label_source: llm
+    description: Recipient's/lender's name, street address, city or town, state or
+      province, country, ZIP or foreign postal code, and telephone number (Copy A).
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Caption shows the box holds a full name-and-address block, not just
+        a business name; semantic_type corrected. Name already describes name+address,
+        so it stays.
+      before:
+        type: string
+        semantic_type: business_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: lender_business_name_address_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: lender_business_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+  lender_tin:
+    x_petey_id: '2_6'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 50.400001525878906
+      - 156.0009765625
+      - 172.8000030517578
+      - 180.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]
+    label_source: llm
+  borrower_tin:
+    x_petey_id: '2_7'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 2
+      rect:
+      - 172.8000030517578
+      - 156.0009765625
+      - 295.20001220703125
+      - 180.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]
+    label_source: llm
+  borrower_nm:
+    x_petey_id: '2_10'
+    type: string
+    semantic_type: person_name
+    widget:
+      page: 2
+      rect:
+      - 52.400001525878906
+      - 191.9990234375
+      - 294.45001220703125
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]
+    label_source: llm
+  borrower_address_line_1_txt:
+    x_petey_id: '2_12'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 2
+      rect:
+      - 52.400001525878906
+      - 227.9990234375
+      - 294.45001220703125
+      - 252.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]
+    label_source: llm
+  borrower_city_state_zip_txt:
+    x_petey_id: '2_13'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 52.400001525878906
+      - 263.9990234375
+      - 294.45001220703125
+      - 288.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=242
+  account_number_txt:
+    x_petey_id: '2_17'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 2
+      rect:
+      - 50.400001525878906
+      - 335.9989929199219
+      - 295.20001220703125
+      - 360.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_10[0]
+    label_source: llm
+  mortgage_interest_received_amt:
+    x_petey_id: '2_3'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 309.6000061035156
+      - 119.9990234375
+      - 495.79998779296875
+      - 131.99798583984375
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_11[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  outstanding_mortgage_principal_amt:
+    x_petey_id: '2_5'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 309.6000061035156
+      - 150.0009765625
+      - 395.0
+      - 162.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_12[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  mortgage_origination_dt:
+    x_petey_id: '2_4'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 396.0
+      - 144.0009765625
+      - 496.79998779296875
+      - 162.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_13[0]
+    label_source: llm
+  refund_overpaid_interest_amt:
+    x_petey_id: '2_8'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 309.6000061035156
+      - 180.0
+      - 395.0
+      - 191.9990234375
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_14[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  mortgage_insurance_premiums_amt:
+    x_petey_id: '2_9'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 410.3999938964844
+      - 180.0
+      - 495.79998779296875
+      - 191.9990234375
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_15[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  points_paid_on_principal_residence_amt:
+    x_petey_id: '2_11'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 309.6000061035156
+      - 204.0009765625
+      - 495.79998779296875
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_16[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  property_address_or_description_txt:
+    x_petey_id: '2_14'
+    type: string
+    semantic_type: description
+    widget:
+      page: 2
+      rect:
+      - 297.20001220703125
+      - 276.0009765625
+      - 496.04998779296875
+      - 360.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_17[0]
+    label_source: llm
+  mortgage_acquisition_dt:
+    x_petey_id: '2_18'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 496.79998779296875
+      - 348.0010070800781
+      - 576.0
+      - 360.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_18[0]
+    label_source: llm
+  number_of_properties_securing_mortgage:
+    x_petey_id: '2_16'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 50.400001525878906
+      - 312.0010070800781
+      - 172.8000030517578
+      - 324.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].TagCorrectingSubform[0].f1_8[0]
+    label_source: llm
+  box10_other_txt:
+    x_petey_id: '2_15'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 172.8000030517578
+      - 299.9989929199219
+      - 294.20001220703125
+      - 324.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].TagCorrectingSubform[0].f1_9[0]
+    label_source: llm
+    description: 'Box 10, Other: free-text information reported by the lender.'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -semantic_type
+      - name
+      reason: Box 10 'Other' on Form 1098 holds free text, not a dollar amount; the
+        _amt name and money semantic_type contradict the caption.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+      old_name: other_amt
+      judged: 'kept: 2 -> 0'
+  calendar_yr_2:
+    x_petey_id: '3_3'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 3
+      rect:
+      - 410.3999938964844
+      - 96.0009765625
+      - 446.3999938964844
+      - 105.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].CopyHeader[0].CalendarYear[0].f2_1[0]
+    label_source: llm
+  corrected_ind:
+    x_petey_id: '3_1'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 244.8000030517578
+      - 25.0
+      - 253.8000030517578
+      - 34.0
+      widget_type: checkbox
+      path: topmostSubform[0].CopyB[0].c2_1[0]
+    label_source: llm
+  lender_business_name_address_2:
+    x_petey_id: '3_2'
+    type: string
+    semantic_type: name_and_address
+    widget:
+      page: 3
+      rect:
+      - 52.400001525878906
+      - 60.0009765625
+      - 294.45001220703125
+      - 132.0009765625
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]
+    label_source: llm
+    description: Recipient's/lender's name, street address, city or town, state or
+      province, country, ZIP or foreign postal code, and telephone number (page 3
+      copy).
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      - name
+      reason: Box holds a name-and-address block, not a business name; also renamed
+        with the _2 copy suffix used by the other page 3 fields so it is distinguishable
+        from the page 2 copy.
+      before:
+        type: string
+        semantic_type: business_name
+      old_name: lender_business_name_address
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: lender_business_name_address_2
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: lender_business_name_address_2
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+  lender_tin_2:
+    x_petey_id: '3_5'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 50.400001525878906
+      - 144.0
+      - 172.8000030517578
+      - 180.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]
+    label_source: llm
+  borrower_tin_2:
+    x_petey_id: '3_6'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 3
+      rect:
+      - 172.8000030517578
+      - 144.0
+      - 295.20001220703125
+      - 180.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]
+    label_source: llm
+  borrower_nm_2:
+    x_petey_id: '3_11'
+    type: string
+    semantic_type: person_name
+    widget:
+      page: 3
+      rect:
+      - 52.400001525878906
+      - 191.9990234375
+      - 294.45001220703125
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]
+    label_source: llm
+  borrower_address_line_1_txt_2:
+    x_petey_id: '3_14'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 3
+      rect:
+      - 52.400001525878906
+      - 227.9990234375
+      - 294.45001220703125
+      - 252.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]
+    label_source: llm
+  borrower_city_state_zip_cd:
+    x_petey_id: '3_15'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 52.400001525878906
+      - 263.9990234375
+      - 294.45001220703125
+      - 288.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=242
+  account_number:
+    x_petey_id: '3_19'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 3
+      rect:
+      - 50.400001525878906
+      - 335.9989929199219
+      - 295.20001220703125
+      - 360.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_10[0]
+    label_source: llm
+  box1_mortgage_interest_received_amt:
+    x_petey_id: '3_4'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 309.6000061035156
+      - 119.9990234375
+      - 495.79998779296875
+      - 131.99798583984375
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_11[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  box2_outstanding_mortgage_principal_amt:
+    x_petey_id: '3_8'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 309.6000061035156
+      - 150.0009765625
+      - 395.0
+      - 162.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_12[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  box3_mortgage_origination_dt:
+    x_petey_id: '3_7'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 396.0
+      - 144.0009765625
+      - 496.79998779296875
+      - 162.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_13[0]
+    label_source: llm
+  box4_refund_of_overpaid_interest_amt:
+    x_petey_id: '3_9'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 309.6000061035156
+      - 180.0
+      - 395.0
+      - 191.9990234375
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_14[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  box5_mortgage_insurance_premiums_amt:
+    x_petey_id: '3_10'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 410.3999938964844
+      - 180.0
+      - 495.79998779296875
+      - 191.9990234375
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_15[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  box6_points_paid_amt:
+    x_petey_id: '3_12'
+    type: number
+    semantic_type: money
+    widget:
+      page: 3
+      rect:
+      - 309.6000061035156
+      - 204.0009765625
+      - 495.79998779296875
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_16[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+  box7_property_address_same_as_borrower_ind:
+    x_petey_id: '3_13'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
+      rect:
+      - 307.9989929199219
+      - 217.9990234375
+      - 315.9989929199219
+      - 225.9990234375
+      widget_type: checkbox
+      path: topmostSubform[0].CopyB[0].RightCol[0].c2_3[0]
+    label_source: llm
+  box8_property_address_description_txt:
+    x_petey_id: '3_16'
+    type: string
+    semantic_type: description
+    widget:
+      page: 3
+      rect:
+      - 297.20001220703125
+      - 276.0009765625
+      - 496.04998779296875
+      - 360.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_17[0]
+    label_source: llm
+  box9_number_of_properties:
+    x_petey_id: '3_18'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 50.400001525878906
+      - 312.0010070800781
+      - 172.8000030517578
+      - 324.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].TagCorrectingSubform[0].f2_8[0]
+    label_source: llm
+  box10_other:
+    x_petey_id: '3_17'
+    type: string
+    widget:
+      page: 3
+      rect:
+      - 172.8000030517578
+      - 299.9989929199219
+      - 294.45001220703125
+      - 324.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].TagCorrectingSubform[0].f2_9[0]
+    label_source: llm
+  box11_mortgage_acquisition_dt:
+    x_petey_id: '3_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 3
+      rect:
+      - 496.79998779296875
+      - 348.0010070800781
+      - 576.0
+      - 360.0
+      widget_type: text
+      path: topmostSubform[0].CopyB[0].RightCol[0].f2_18[0]
+    label_source: llm
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 5
+  collisions:
+  - original_label: calendar_yr
+    assigned_label: calendar_yr_2
+    page: 3
+    rect:
+    - 410.3999938964844
+    - 96.0009765625
+    - 446.3999938964844
+    - 105.0
+  - original_label: lender_tin
+    assigned_label: lender_tin_2
+    page: 3
+    rect:
+    - 50.400001525878906
+    - 144.0
+    - 172.8000030517578
+    - 180.0
+  - original_label: borrower_tin
+    assigned_label: borrower_tin_2
+    page: 3
+    rect:
+    - 172.8000030517578
+    - 144.0
+    - 295.20001220703125
+    - 180.0
+  - original_label: borrower_nm
+    assigned_label: borrower_nm_2
+    page: 3
+    rect:
+    - 52.400001525878906
+    - 191.9990234375
+    - 294.45001220703125
+    - 216.0
+  - original_label: borrower_address_line_1_txt
+    assigned_label: borrower_address_line_1_txt_2
+    page: 3
+    rect:
+    - 52.400001525878906
+    - 227.9990234375
+    - 294.45001220703125
+    - 252.0
+x_petey_dropped_widgets:
+  count: 3
+  widgets:
+  - path: topmostSubform[0].CopyA[0].c1_1[0]
+    page: 2
+    reason: caption
+    field_type: CheckBox
+    tooltip: null
+    caption: 'Off'
+  - path: topmostSubform[0].CopyA[0].c1_1[1]
+    page: 2
+    reason: caption
+    field_type: CheckBox
+    tooltip: null
+    caption: 'Off'
+  - path: topmostSubform[0].CopyA[0].RightCol[0].c1_3[0]
+    page: 2
+    reason: caption
+    field_type: CheckBox
+    tooltip: null
+    caption: 'Off'
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 2

@@ -1,0 +1,602 @@
+bpt_version: '1.1'
+name: cms_20027
+form_version: null
+source_pdf: cms20027.pdf
+source_pdf_hash: 857bf226edc2db72772947ba91d2e10783490c0e
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:22:28'
+fields:
+  beneficiary_nm:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.1781005859375
+      - 89.5419921875
+      - 575.9979858398438
+      - 107.344970703125
+      widget_type: text
+      path: Beneficiary's name
+    description: Beneficiary's name(First, Middle, Last)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: beneficiary_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  medicare_nbr:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.599998474121094
+      - 116.4000244140625
+      - 269.8800048828125
+      - 135.47998046875
+      widget_type: text
+      path: Medicare number
+    description: Medicare number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: medicare_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: medicare_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  service_received_dt:
+    x_petey_id: '1_4'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 36.599998474121094
+      - 144.719970703125
+      - 269.8800048828125
+      - 165.0
+      widget_type: text
+      path: Date the service or item was received
+    description: Date the service or item was received (mm/dd/yyyy)
+    x_petey_description_source: tooltip
+    label_source: llm
+  initial_determination_notice_dt:
+    x_petey_id: '1_5'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 363.6000061035156
+      - 147.19598388671875
+      - 575.760009765625
+      - 165.0
+      widget_type: text
+      path: Date of the initial determination notice
+    description: Date of the redetermination notice (mm/dd/yyyy)
+    x_petey_description_source: tooltip
+    label_source: llm
+  late_filing_reason_txt:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 36.65439987182617
+      - 176.98797607421875
+      - 576.52197265625
+      - 251.344970703125
+      widget_type: text
+      path: Reason for late filing
+    description: Reason for late filing
+    x_petey_description_source: tooltip
+    label_source: llm
+  medicare_contractor_nm:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 36.599998474121094
+      - 266.94000244140625
+      - 395.8800048828125
+      - 292.79998779296875
+      widget_type: text
+      path: Name of the Medicare contractor that made the determination
+    description: Name of the Medicare contractor that made the determination (not
+      required)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Caption and tooltip ask for the contractor/organization that made the
+        determination, not a person; the person_name semantic type is wrong. Name
+        already fits, so only the semantic type and description wording change.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Name of the Medicare contractor that made the redetermination(not
+          required)
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: medicare_contractor_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: medicare_contractor_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  appeal_involves_overpayment_ind:
+    x_petey_id: '1_8'
+    type: category
+    values:
+    - Does this appeal involve an overpayment (for providers and suppliers only) Yes
+    - Does this appeal involve an overpayment (for providers and suppliers only) ?
+      No
+    widgets:
+      Does this appeal involve an overpayment (for providers and suppliers only) Yes:
+        page: 1
+        rect:
+        - 400.32000732421875
+        - 278.15997314453125
+        - 408.0
+        - 285.8399963378906
+        widget_type: radiobutton
+        path: Does this appeal involve an overpayment
+        on_state: Does this appeal involve an overpayment (for providers and suppliers
+          only) Yes
+        caption: 'Yes'
+        x_petey_caption_source: page_choice
+      Does this appeal involve an overpayment (for providers and suppliers only) ? No:
+        page: 1
+        rect:
+        - 430.0799865722656
+        - 278.15997314453125
+        - 437.760009765625
+        - 285.8399963378906
+        widget_type: radiobutton
+        path: Does this appeal involve an overpayment
+        on_state: Does this appeal involve an overpayment (for providers and suppliers
+          only) ? No
+        caption: 'No'
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:19:44'
+      from:
+      - appeal_involves_overpayment_ind::Does this appeal involve an overpayment (for
+        providers and suppliers only) Yes
+      - appeal_involves_overpayment_ind::Does this appeal involve an overpayment (for
+        providers and suppliers only) ? No
+  reason_for_disagreement_txt:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 304.32000732421875
+      - 576.1199951171875
+      - 378.74200439453125
+      widget_type: text
+      path: I do not agree with the determination decision on my claim
+    description: 'I do not agree with the redetermination decision on my claim because
+      :'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: reason_for_disagreement
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: reason_for_disagreement_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  additional_information_txt:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 36.13079833984375
+      - 393.25
+      - 576.52197265625
+      - 467.0820007324219
+      widget_type: text
+      path: Additional information Medicare should consider
+    description: Additional information Medicare should consider
+    x_petey_description_source: tooltip
+    label_source: llm
+  has_evidence_to_submit_ind:
+    x_petey_id: '1_11'
+    type: category
+    values:
+    - I have evidence to submit
+    - I do not have evidence to submit
+    widgets:
+      I have evidence to submit:
+        page: 1
+        rect:
+        - 39.796199798583984
+        - 472.3179931640625
+        - 47.650699615478516
+        - 479.64898681640625
+        widget_type: radiobutton
+        path: Evidence to submit
+        on_state: I have evidence to submit
+        caption: I have evidence to submit.
+        x_petey_caption_source: page_choice
+      I do not have evidence to submit:
+        page: 1
+        rect:
+        - 400.0570068359375
+        - 472.3179931640625
+        - 408.43499755859375
+        - 480.1730041503906
+        widget_type: radiobutton
+        path: Evidence to submit
+        on_state: I do not have evidence to submit
+        caption: I do not have evidence to submit.
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:19:44'
+      from:
+      - has_evidence_to_submit_ind::I have evidence to submit
+      - has_evidence_to_submit_ind::I do not have evidence to submit
+  person_appealing:
+    x_petey_id: '1_13'
+    type: category
+    values:
+    - Person appealing - Beneficiary
+    - Person appealing - Provider/Supplier
+    - Person appealing - Representative
+    widgets:
+      Person appealing - Beneficiary:
+        page: 1
+        rect:
+        - 38.22529983520508
+        - 526.7760009765625
+        - 47.12710189819336
+        - 535.1539916992188
+        widget_type: radiobutton
+        path: Person appealing
+        on_state: Person appealing - Beneficiary
+        caption: Beneficiary
+        x_petey_caption_source: page_choice
+      Person appealing - Provider/Supplier:
+        page: 1
+        rect:
+        - 104.72699737548828
+        - 527.2999877929688
+        - 113.1050033569336
+        - 534.6309814453125
+        widget_type: radiobutton
+        path: Person appealing
+        on_state: Person appealing - Provider/Supplier
+        caption: Provider/Supplier
+        x_petey_caption_source: page_choice
+      Person appealing - Representative:
+        page: 1
+        rect:
+        - 194.79200744628906
+        - 527.2999877929688
+        - 204.2169952392578
+        - 535.1539916992188
+        widget_type: radiobutton
+        path: Person appealing
+        on_state: Person appealing - Representative
+        caption: Representative
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:19:44'
+      from:
+      - person_appealing::Person appealing - Beneficiary
+      - person_appealing::Person appealing - Provider/Supplier
+      - person_appealing::Person appealing - Representative
+  person_appealing_email_txt:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 271.67999267578125
+      - 523.3200073242188
+      - 576.239990234375
+      - 542.8800048828125
+      widget_type: text
+      path: Email of person appealing (optional)
+    description: Email of person appealing (optional)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: person_appealing_email
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: person_appealing_email_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  person_appealing_nm:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 35.60710144042969
+      - 551.9110107421875
+      - 576.52197265625
+      - 570.761962890625
+      widget_type: text
+      path: Name of person appealing
+    description: Name of person appealing(First,Middle, Last)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: person_appealing_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: person_appealing_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  person_appealing_address_line_1_txt:
+    x_petey_id: '1_15'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 36.720001220703125
+      - 582.2839965820312
+      - 576.8400268554688
+      - 600.676025390625
+      widget_type: text
+      path: Street address of person appealing
+    description: Street address of person appealing
+    x_petey_description_source: tooltip
+    label_source: llm
+  city_nm:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 36.599998474121094
+      - 611.52001953125
+      - 400.9200134277344
+      - 632.1600341796875
+      widget_type: text
+      path: City
+    label_source: llm
+  state_cd:
+    x_petey_id: '1_17'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 402.7200012207031
+      - 611.52001953125
+      - 468.6000061035156
+      - 632.1600341796875
+      widget_type: text
+      path: State
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  zip_cd:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 470.3999938964844
+      - 611.52001953125
+      - 576.239990234375
+      - 632.1600341796875
+      widget_type: text
+      path: Zip code
+    label_source: llm
+  person_appealing_phone_nbr:
+    x_petey_id: '1_19'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 36.599998474121094
+      - 641.4000244140625
+      - 305.1600036621094
+      - 662.1600341796875
+      widget_type: text
+      path: Telephone number of person appealing (include area code)
+    description: Telephone number of person appealing (include area code)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: person_appealing_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: person_appealing_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  appeal_dt:
+    x_petey_id: '1_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 306.9599914550781
+      - 641.4000244140625
+      - 575.52001953125
+      - 662.1600341796875
+      widget_type: text
+      path: Date of appeal (optional)
+    description: Date of appeal - mm/dd/yyyy(optional)
+    x_petey_description_source: tooltip
+    label_source: llm
+  item_or_service_appealed_txt:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 271.67999267578125
+      - 116.4000244140625
+      - 575.52001953125
+      - 135.47998046875
+      widget_type: text
+      path: Item or service you wish to appeal
+    description: Item or service you wish to appeal
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: item_or_service_appealed
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: item_or_service_appealed_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+x_petey_page_check:
+  when: '2026-10-16 13:20:40'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 20
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/cms_20027__75f3ce__36d09cca.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cms_20027_20261006_212320
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cms_20027.bpt
+  when: '2026-10-06 21:23:27'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cms_20027.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:23:28'

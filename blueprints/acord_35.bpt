@@ -1,0 +1,2018 @@
+bpt_version: '1.1'
+name: acord_35
+form_version: null
+source_pdf: acord_35.pdf
+source_pdf_hash: c5073dc7ff80fd2e1cd89ec6baa081852207bb43
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:22:50'
+fields:
+  form_dt:
+    x_petey_id: '1_1'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 511.0
+      - 42.0
+      - 590.0
+      - 54.0
+      widget_type: text
+      path: F[0].P1[0].Form_CompletionDate_A[0]
+    description: The date on which the form is completed. (MM/DD/YYYY)
+    x_petey_description_source: tooltip
+    label_source: llm
+  producer_nm:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 22.0
+      - 72.0
+      - 302.0
+      - 84.0
+      widget_type: text
+      path: F[0].P1[0].Producer_FullName_A[0]
+    description: The full name of the producer / agency. As used here, this is the
+      producer of record whose policy is being cancelled.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: 'The box holds the producer/agency''s full name (publisher: Producer_FullName_A),
+        which is an agency, not a person; the PRODUCER block''s address lines are
+        separate fields, so only the semantic_type is wrong.'
+      before:
+        type: string
+        semantic_type: person_name
+        description: The full name of the producer / agency. As used here, this is
+          the producer of record whose policy is being cancelled.
+      judged: 'kept: 1 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: producer_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: producer_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  producer_address_line_1_txt:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 22.0
+      - 84.0
+      - 302.0
+      - 96.0
+      widget_type: text
+      path: F[0].P1[0].Producer_MailingAddress_LineOne_A[0]
+    description: The mailing address line one of the producer / agency.
+    x_petey_description_source: tooltip
+    label_source: llm
+  producer_address_line_2_txt:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 22.0
+      - 96.0
+      - 302.0
+      - 108.0
+      widget_type: text
+      path: F[0].P1[0].Producer_MailingAddress_LineTwo_A[0]
+    description: The mailing address line two of the producer / agency.
+    x_petey_description_source: tooltip
+    label_source: llm
+  producer_city_nm:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 22.0
+      - 108.0
+      - 238.0
+      - 120.0
+      widget_type: text
+      path: F[0].P1[0].Producer_MailingAddress_CityName_A[0]
+    description: The mailing address city name of the producer / agency.
+    x_petey_description_source: tooltip
+    label_source: llm
+  producer_state_cd:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 238.0
+      - 108.0
+      - 256.0
+      - 120.0
+      widget_type: text
+      path: F[0].P1[0].Producer_MailingAddress_StateOrProvinceCode_A[0]
+    description: The mailing address state or province code of the producer / agency.
+    x_petey_description_source: tooltip
+    label_source: llm
+  producer_zip_cd:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 256.0
+      - 108.0
+      - 302.0
+      - 120.0
+      widget_type: text
+      path: F[0].P1[0].Producer_MailingAddress_PostalCode_A[0]
+    description: The mailing address postal code of the producer / agency.
+    x_petey_description_source: tooltip
+    label_source: llm
+  producer_phone_nbr:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 173.0
+      - 54.0
+      - 302.0
+      - 66.0
+      widget_type: text
+      path: F[0].P1[0].Producer_ContactPerson_PhoneNumber_A[0]
+    description: The phone number of the individual at the producer's establishment
+      that is the primary contact. If applicable, include the area code and extension.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: producer_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: producer_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  producer_cd:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 43.0
+      - 120.0
+      - 158.0
+      - 132.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_ProducerIdentifier_A[0]
+    description: The identification code assigned to the producer (e.g., agency or
+      brokerage firm) by the insurer.
+    x_petey_description_source: tooltip
+    label_source: llm
+  sub_producer_cd:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 202.0
+      - 120.0
+      - 302.0
+      - 132.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_SubProducerIdentifier_A[0]
+    description: The identification code assigned by the insurer to the sub-producer
+      (e.g., individual) within a producer's office (e.g., agency or brokerage).
+    x_petey_description_source: tooltip
+    label_source: llm
+  agency_customer_nbr:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 68.0
+      - 132.0
+      - 302.0
+      - 144.0
+      widget_type: text
+      path: F[0].P1[0].Producer_CustomerIdentifier_A[0]
+    description: The customer's identification number assigned by the producer (e.g.,
+      agency or brokerage).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: agency_customer_id
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: agency_customer_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: id -> nbr'
+  insurer_company_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 310.0
+      - 72.0
+      - 590.0
+      - 84.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_FullName_A[0]
+    description: The insurer's full legal company name(s) as found in the file copy
+      of the policy. Use the actual name of the company within the group to which
+      the policy has been issued. This is not the insurer's group name or trade name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: insurer_company_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: insurer_company_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  insurer_address_line_1_txt:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 310.0
+      - 84.0
+      - 590.0
+      - 96.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_MailingAddress_AddressLineOne_A[0]
+    description: The first line of the insurer's mailing address.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insurer_address_line_2_txt:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 310.0
+      - 96.0
+      - 590.0
+      - 108.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_MailingAddress_AddressLineTwo_A[0]
+    description: The second line of the insurer's mailing address.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insurer_city_nm:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 310.0
+      - 108.0
+      - 526.0
+      - 120.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_MailingAddress_CityName_A[0]
+    description: The city of the insurer's mailing address.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insurer_state_cd:
+    x_petey_id: '1_14'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 526.0
+      - 108.0
+      - 544.0
+      - 120.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_MailingAddress_StateOrProvinceCode_A[0]
+    description: The state or province code of the insurer's mailing address.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insurer_zip_cd:
+    x_petey_id: '1_15'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 544.0
+      - 108.0
+      - 590.0
+      - 120.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_MailingAddress_PostalCode_A[0]
+    description: The postal code of the insurer's mailing address.
+    x_petey_description_source: tooltip
+    label_source: llm
+  naic_cd:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 493.0
+      - 54.0
+      - 590.0
+      - 66.0
+      widget_type: text
+      path: F[0].P1[0].Insurer_NAICCode_A[0]
+    description: The identification code assigned to the insurer by the National Association
+      of Insurance Commissioners (NAIC).
+    x_petey_description_source: tooltip
+    label_source: llm
+  policy_type_txt:
+    x_petey_id: '1_19'
+    type: string
+    semantic_type: text
+    widget:
+      page: 1
+      rect:
+      - 310.0
+      - 132.0
+      - 590.0
+      - 144.0
+      widget_type: text
+      path: F[0].P1[0].Policy_TypeDescription_A[0]
+    description: The type of policy issued to the insured (e. g., personal auto, truckers,
+      garage liability, commercial property, builders risk, etc.).
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_nm:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 162.0
+      - 302.0
+      - 174.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_FullName_A[0]
+    description: The named insured(s) as it / they will appear on the policy declarations
+      page.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: insured_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: insured_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  insured_address_line_1_txt:
+    x_petey_id: '1_22'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 174.0
+      - 302.0
+      - 186.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_MailingAddress_LineOne_A[0]
+    description: The named insured's mailing address line one.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_address_line_2_txt:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 186.0
+      - 302.0
+      - 198.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_MailingAddress_LineTwo_A[0]
+    description: The named insured's mailing address line two.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_city_nm:
+    x_petey_id: '1_27'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 198.0
+      - 238.0
+      - 210.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_MailingAddress_CityName_A[0]
+    description: The named insured's mailing address city name.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_state_cd:
+    x_petey_id: '1_28'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 238.0
+      - 198.0
+      - 256.0
+      - 210.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_MailingAddress_StateOrProvinceCode_A[0]
+    description: The named insured's mailing address state or province code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  insured_zip_cd:
+    x_petey_id: '1_29'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 256.0
+      - 198.0
+      - 302.0
+      - 210.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_MailingAddress_PostalCode_A[0]
+    description: The named insured's mailing address postal code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cancelled_policy_nbr:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 310.0
+      - 168.0
+      - 590.0
+      - 180.0
+      widget_type: text
+      path: F[0].P1[0].Policy_PolicyNumberIdentifier_A[0]
+    description: The identifier assigned by the insurer to the policy, or submission,
+      being referenced exactly as it appears on the policy, including prefix and suffix
+      symbols. If required for self-insurance, the self-insured license or contract
+      number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: cancelled_policy_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: cancelled_policy_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  cancellation_effective_dt:
+    x_petey_id: '1_25'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 425.0
+      - 192.0
+      - 504.0
+      - 204.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_CancelNonRenewDate_A[0]
+    description: The effective date of the cancellation or non renewal.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cancellation_effective_time:
+    x_petey_id: '1_26'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 511.0
+      - 192.0
+      - 558.0
+      - 204.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_CancelNonRenewTime_A[0]
+    description: The effective time of the cancellation or non renewal.
+    x_petey_description_source: tooltip
+    label_source: llm
+  policy_term_effective_dt:
+    x_petey_id: '1_30'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 425.0
+      - 216.0
+      - 504.0
+      - 228.0
+      widget_type: text
+      path: F[0].P1[0].Policy_EffectiveDate_A[0]
+    description: The effective date of the policy. The date that the terms and conditions
+      of the policy commence. (MM/DD/YYYY)
+    x_petey_description_source: tooltip
+    label_source: llm
+  policy_term_expiration_dt:
+    x_petey_id: '1_31'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 511.0
+      - 216.0
+      - 590.0
+      - 228.0
+      widget_type: text
+      path: F[0].P1[0].Policy_ExpirationDate_A[0]
+    description: The date on which the terms and conditions of the policy will expire.
+      (MM/DD/YYYY)
+    x_petey_description_source: tooltip
+    label_source: llm
+  witness_1_signature:
+    x_petey_id: '1_33'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 25.0
+      - 336.0
+      - 241.0
+      - 348.0
+      widget_type: text
+      path: F[0].P1[0].Form_Witness_Signature_A[0]
+    description: 'Sign here: The signature of the witness to the form. As used here,
+      when this document is used as a Policy Release, an insured should have a witness
+      sign and date the form before returning it to the agent.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  witness_1_dt:
+    x_petey_id: '1_34'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 248.0
+      - 336.0
+      - 306.0
+      - 348.0
+      widget_type: text
+      path: F[0].P1[0].Form_Witness_SignatureDate_A[0]
+    description: The date the witness signed the form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  named_insured_1_signature:
+    x_petey_id: '1_35'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 320.0
+      - 336.0
+      - 522.0
+      - 348.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_Signature_A[0]
+    description: 'Sign here: Accommodates the signature of the applicant or named
+      insured. As used here, the first named insured must sign and date this form
+      when used as either a Cancellation Request or Policy Release.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  named_insured_1_dt:
+    x_petey_id: '1_36'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 529.0
+      - 336.0
+      - 587.0
+      - 348.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_SignatureDate_A[0]
+    description: The date the form was signed by the applicant or named insured. (MM/DD/YYYY)
+    x_petey_description_source: tooltip
+    label_source: llm
+  witness_2_signature:
+    x_petey_id: '1_37'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 25.0
+      - 360.0
+      - 241.0
+      - 372.0
+      widget_type: text
+      path: F[0].P1[0].Form_Witness_Signature_B[0]
+    description: 'Sign here: The signature of the witness to the form.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  witness_2_dt:
+    x_petey_id: '1_38'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 248.0
+      - 360.0
+      - 306.0
+      - 372.0
+      widget_type: text
+      path: F[0].P1[0].Form_Witness_SignatureDate_B[0]
+    description: The date the witness signed the form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  named_insured_2_signature:
+    x_petey_id: '1_39'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 320.0
+      - 360.0
+      - 522.0
+      - 372.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_Signature_B[0]
+    description: 'Sign here: Accommodates the signature of the applicant or named
+      insured.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  named_insured_2_dt:
+    x_petey_id: '1_40'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 529.0
+      - 360.0
+      - 587.0
+      - 372.0
+      widget_type: text
+      path: F[0].P1[0].NamedInsured_SignatureDate_B[0]
+    description: The date the form was signed by the applicant or named insured. (MM/DD/YYYY)
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_1_nm:
+    x_petey_id: '1_41'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 29.0
+      - 384.0
+      - 302.0
+      - 396.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_FullName_A[0]
+    description: The additional interest's full name. As used here, provide the name
+      and address of any Lien Holder, Mortgagee or Loss Payee. Identify this entity
+      by marking "X" in the appropriate box. The signature and title of an authorized
+      representative of any additional interest indicated in the contract must be
+      obtained if the document is used as a Policy Release. Space is provided for
+      the corresponding signature date.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: additional_interest_1_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_interest_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  additional_interest_1_address_line_1_txt:
+    x_petey_id: '1_42'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 29.0
+      - 396.0
+      - 144.0
+      - 408.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_LineOne_A[0]
+    description: The additional interest's mailing address line one.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_1_city_nm:
+    x_petey_id: '1_43'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 144.0
+      - 396.0
+      - 238.0
+      - 408.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_CityName_A[0]
+    description: The additional interest's mailing address city name.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_1_state_cd:
+    x_petey_id: '1_44'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 238.0
+      - 396.0
+      - 256.0
+      - 408.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_StateOrProvinceCode_A[0]
+    description: The additional interest's mailing address state or province code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_1_zip_cd:
+    x_petey_id: '1_45'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 256.0
+      - 396.0
+      - 302.0
+      - 408.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_PostalCode_A[0]
+    description: The additional interest's mailing address postal code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_1_signature:
+    x_petey_id: '1_46'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 320.0
+      - 396.0
+      - 482.0
+      - 408.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_Signature_A[0]
+    description: 'Sign here: Accommodates the signature of the additional interest
+      or authorized representative.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_1_title_txt:
+    x_petey_id: '1_47'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 486.0
+      - 396.0
+      - 526.0
+      - 408.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_AuthorizedRepresentativeTitle_A[0]
+    description: The title of the additional interest's authorized representative.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: additional_interest_1_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_interest_1_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  additional_interest_1_dt:
+    x_petey_id: '1_48'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 529.0
+      - 396.0
+      - 587.0
+      - 408.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_SignatureDate_A[0]
+    description: The date the form was signed by the additional interest.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_2_nm:
+    x_petey_id: '1_50'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 29.0
+      - 420.0
+      - 302.0
+      - 432.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_FullName_B[0]
+    description: The additional interest's full name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: additional_interest_2_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_interest_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  additional_interest_2_address_line_1_txt:
+    x_petey_id: '1_51'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 29.0
+      - 432.0
+      - 144.0
+      - 444.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_LineOne_B[0]
+    description: The additional interest's mailing address line one.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_2_city_nm:
+    x_petey_id: '1_52'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 144.0
+      - 432.0
+      - 238.0
+      - 444.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_CityName_B[0]
+    description: The additional interest's mailing address city name.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_2_state_cd:
+    x_petey_id: '1_53'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 238.0
+      - 432.0
+      - 256.0
+      - 444.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_StateOrProvinceCode_B[0]
+    description: The additional interest's mailing address state or province code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_2_zip_cd:
+    x_petey_id: '1_54'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 256.0
+      - 432.0
+      - 302.0
+      - 444.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_MailingAddress_PostalCode_B[0]
+    description: The additional interest's mailing address postal code.
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_2_signature:
+    x_petey_id: '1_55'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 320.0
+      - 432.0
+      - 482.0
+      - 444.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_Signature_B[0]
+    description: 'Sign here: Accommodates the signature of the additional interest
+      or authorized representative.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  additional_interest_2_title_txt:
+    x_petey_id: '1_56'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 486.0
+      - 432.0
+      - 526.0
+      - 444.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_AuthorizedRepresentativeTitle_B[0]
+    description: The title of the additional interest's authorized representative.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: additional_interest_2_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: additional_interest_2_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  additional_interest_2_dt:
+    x_petey_id: '1_57'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 529.0
+      - 432.0
+      - 587.0
+      - 444.0
+      widget_type: text
+      path: F[0].P1[0].AdditionalInterest_SignatureDate_B[0]
+    description: The date the form was signed by the additional interest.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cancellation_reason_other_description_txt:
+    x_petey_id: '1_61'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 126.0
+      - 522.0
+      - 299.0
+      - 534.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_OtherDescription_A[0]
+    description: The description of why the policy is being cancelled or terminated.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: cancellation_reason_other_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: cancellation_reason_other_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  rewritten_company_nm:
+    x_petey_id: '1_64'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 22.0
+      - 552.0
+      - 299.0
+      - 564.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_NewInsurer_FullName_A[0]
+    description: The full name of the new insurer when the policy is being cancelled
+      because the insured found other insurance. As used here, the name of the company
+      that the rewritten policy has been placed with.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: rewritten_company_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: rewritten_company_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  rewritten_policy_nbr:
+    x_petey_id: '1_66'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.0
+      - 576.0
+      - 234.0
+      - 588.0
+      widget_type: text
+      path: F[0].P1[0].Policy_PolicyNumberIdentifier_B[0]
+    description: The identifier assigned by the insurer to the policy, or submission,
+      being referenced exactly as it appears on the policy, including prefix and suffix
+      symbols. If required for self-insurance, the self-insured license or contract
+      number. As used here, the new policy number for the rewritten policy.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: rewritten_policy_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: rewritten_policy_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  rewritten_effective_dt:
+    x_petey_id: '1_67'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 241.0
+      - 576.0
+      - 299.0
+      - 588.0
+      widget_type: text
+      path: F[0].P1[0].Policy_EffectiveDate_B[0]
+    description: The effective date of the policy. The date that the terms and conditions
+      of the policy commence. (MM/DD/YYYY) As used here, the effective date of the
+      rewritten policy.
+    x_petey_description_source: tooltip
+    label_source: llm
+  subject_to_audit_ind:
+    x_petey_id: '1_68'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 302.0
+      - 576.0
+      - 317.0
+      - 588.0
+      widget_type: checkbox
+      path: F[0].P1[0].CancelNonRenew_PremiumCalculation_SubjectToAuditIndicator_A[0]
+    description: 'Check the box (if applicable): Indicates the premium calculation
+      is subject to audit.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  full_term_premium_amt:
+    x_petey_id: '1_62'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 518.0
+      - 522.0
+      - 590.0
+      - 534.0
+      widget_type: text
+      path: F[0].P1[0].Policy_Payment_FullTermPremiumAmount_A[0]
+    description: The premium for the full term (six months, annual, etc.) of the policy,
+      including endorsements.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+  unearned_factor_pct:
+    x_petey_id: '1_63'
+    type: number
+    semantic_type: percent
+    widget:
+      page: 1
+      rect:
+      - 518.0
+      - 546.0
+      - 590.0
+      - 558.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_PremiumCalculation_UnearnedFactor_A[0]
+    description: The unearned factor from either the short rate or pro-rata tables
+      for the unearned period of time; from date of cancellation to date of policy
+      expiration.
+    x_petey_description_source: tooltip
+    label_source: llm
+  return_premium_amt:
+    x_petey_id: '1_65'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 518.0
+      - 570.0
+      - 590.0
+      - 582.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_PremiumCalculation_ReturnPremiumAmount_A[0]
+    description: The gross return premium equals the unearned factor multiplied by
+      the full term premium.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - money
+  remarks_txt:
+    x_petey_id: '1_69'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 22.0
+      - 600.0
+      - 590.0
+      - 612.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_RemarkText_A[0]
+    description: The remarks associated with the cancellation or non-renewal. As used
+      here, list any additional comments regarding the cancellation. Explanations
+      should be made regarding back-dated cancellations or why premium is listed as
+      being pro-rated instead of short-rated.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: remarks
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: remarks_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: remarks -> remarks_txt'
+  distribution_recipient_nm:
+    x_petey_id: '1_71'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 684.0
+      - 299.0
+      - 696.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_Distribution_FullName_A[0]
+    description: The full name of the party receiving a copy of the cancellation request
+      / policy release form. As used here, use these sections to list any additional
+      distributions for this form, including the new agent of record, if any. Check
+      the appropriate box for the corresponding address. The line within the name
+      and address field is a margin setting used for window envelopes.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: distribution_recipient_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: distribution_recipient_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  distribution_recipient_address_line_1_txt:
+    x_petey_id: '1_72'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 696.0
+      - 299.0
+      - 708.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_DistributionMailingAddress_LineOne_A[0]
+    description: The first address line of the party receiving a copy of the cancellation
+      request / policy release form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  distribution_recipient_address_line_2_txt:
+    x_petey_id: '1_73'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 708.0
+      - 299.0
+      - 720.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_DistributionMailingAddress_LineTwo_A[0]
+    description: The second address line of the party receiving a copy of the cancellation
+      request / policy release form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  distribution_recipient_city_nm:
+    x_petey_id: '1_76'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 72.0
+      - 720.0
+      - 234.0
+      - 732.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_DistributionMailingAddress_CityName_A[0]
+    description: The city of the party receiving a copy of the cancellation request
+      / policy release form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  distribution_recipient_state_cd:
+    x_petey_id: '1_77'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 234.0
+      - 720.0
+      - 252.0
+      - 732.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_DistributionMailingAddress_StateOrProvinceCode_A[0]
+    description: The state or province code of the party receiving a copy of the cancellation
+      request / policy release form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  distribution_recipient_zip_cd:
+    x_petey_id: '1_78'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 252.0
+      - 720.0
+      - 299.0
+      - 732.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_DistributionMailingAddress_PostalCode_A[0]
+    description: The postal code of the party receiving a copy of the cancellation
+      request / policy release form.
+    x_petey_description_source: tooltip
+    label_source: llm
+  distribution_recipient_other_1_description_txt:
+    x_petey_id: '1_74'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 320.0
+      - 708.0
+      - 378.0
+      - 720.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_Distribution_OtherDescription_A[0]
+    description: The description of the party that should receive a copy of the cancellation
+      request / policy release statement.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: distribution_recipient_other_1_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: distribution_recipient_other_1_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  distribution_recipient_other_2_description_txt:
+    x_petey_id: '1_75'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 400.0
+      - 708.0
+      - 590.0
+      - 720.0
+      widget_type: text
+      path: F[0].P1[0].CancelNonRenew_Distribution_OtherDescription_B[0]
+    description: The description of the party that should receive a copy of the cancellation
+      request / policy release statement.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:58:44'
+      from:
+        name: distribution_recipient_other_2_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: distribution_recipient_other_2_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+  producer_signature:
+    x_petey_id: '1_79'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 306.0
+      - 732.0
+      - 518.0
+      - 744.0
+      widget_type: text
+      path: F[0].P1[0].Producer_Cancellation_Signature_A[0]
+    description: 'Sign here: Accommodates the signature of the authorized representative
+      (e.g. producer, agent, broker, etc.) completing this form.'
+    x_petey_description_source: tooltip
+    label_source: llm
+  producer_signature_dt:
+    x_petey_id: '1_80'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 526.0
+      - 732.0
+      - 590.0
+      - 744.0
+      widget_type: text
+      path: F[0].P1[0].Producer_AuthorizedRepresentative_SignatureDate_A[0]
+    description: The date the producer signed the form. (MM/DD/YYYY)
+    x_petey_description_source: tooltip
+    label_source: llm
+  cancellation_effective_time_period:
+    x_petey_id: '1_23'
+    type: category
+    values:
+    - am
+    - pm
+    widgets:
+      am:
+        page: 1
+        rect:
+        - 562.0
+        - 180.0
+        - 576.0
+        - 192.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_CancelNonRenewTimeMorningIndicator_A[0]
+        on_state: '1'
+        caption: AM
+        x_petey_caption_source: page_text
+      pm:
+        page: 1
+        rect:
+        - 562.0
+        - 192.0
+        - 576.0
+        - 204.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_CancelNonRenewTimeAfternoonOrEveningIndicator_A[0]
+        on_state: '1'
+        caption: PM
+        x_petey_caption_source: page_text
+    description: 'Check the box (if applicable): Indicates the effective time of the
+      cancellation is in the morning (AM).'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  request_type:
+    x_petey_id: '1_32'
+    type: category
+    values:
+    - cancellation_request
+    - policy_release
+    widgets:
+      cancellation_request:
+        page: 1
+        rect:
+        - 25.0
+        - 234.0
+        - 40.0
+        - 246.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_CancellationRequestIndicator_A[0]
+        on_state: '1'
+        caption: CANCELLATION REQUEST (Policy attached)
+        x_petey_caption_source: page_choice
+      policy_release:
+        page: 1
+        rect:
+        - 180.0
+        - 234.0
+        - 194.0
+        - 246.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_PolicyReleaseIndicator_A[0]
+        on_state: '1'
+        caption: POLICY RELEASE (Complete SIGNATURES section below)
+        x_petey_caption_source: page_text
+    description: 'Check the box (if applicable): Indicates this is a cancellation
+      request.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:04:36'
+      from:
+      - request_type::cancellation_request
+      - request_type::policy_release
+  additional_interest_1_type:
+    x_petey_id: '1_49'
+    type: category
+    values:
+    - lienholder
+    - mortgagee
+    - loss_payee
+    - lenders_loss_payable
+    widgets:
+      lienholder:
+        page: 1
+        rect:
+        - 29.0
+        - 408.0
+        - 43.0
+        - 420.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_LienholderIndicator_A[0]
+        on_state: '1'
+        caption: LIENHOLDER
+        x_petey_caption_source: page_text
+      mortgagee:
+        page: 1
+        rect:
+        - 90.0
+        - 408.0
+        - 104.0
+        - 420.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_MortgageeIndicator_A[0]
+        on_state: '1'
+        caption: MORTGAGEE
+        x_petey_caption_source: page_text
+      loss_payee:
+        page: 1
+        rect:
+        - 151.0
+        - 408.0
+        - 166.0
+        - 420.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_LossPayeeIndicator_A[0]
+        on_state: '1'
+        caption: LOSS PAYEE
+        x_petey_caption_source: page_choice
+      lenders_loss_payable:
+        page: 1
+        rect:
+        - 212.0
+        - 408.0
+        - 227.0
+        - 420.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_LendersLossPayableIndicator_A[0]
+        on_state: '1'
+        caption: LENDER'S LOSS PAYABLE
+        x_petey_caption_source: page_choice
+    description: 'Check the box (if applicable): Indicates the additional interest
+      type is a lien holder.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:04:36'
+      from:
+      - additional_interest_1_type::lienholder
+      - additional_interest_1_type::mortgagee
+      - additional_interest_1_type::loss_payee
+      - additional_interest_1_type::lenders_loss_payable
+  additional_interest_2_type:
+    x_petey_id: '1_58'
+    type: category
+    values:
+    - lienholder
+    - mortgagee
+    - loss_payee
+    - lenders_loss_payable
+    widgets:
+      lienholder:
+        page: 1
+        rect:
+        - 29.0
+        - 444.0
+        - 43.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_LienholderIndicator_B[0]
+        on_state: '1'
+        caption: LIENHOLDER
+        x_petey_caption_source: page_text
+      mortgagee:
+        page: 1
+        rect:
+        - 90.0
+        - 444.0
+        - 104.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_MortgageeIndicator_B[0]
+        on_state: '1'
+        caption: MORTGAGEE
+        x_petey_caption_source: page_text
+      loss_payee:
+        page: 1
+        rect:
+        - 151.0
+        - 444.0
+        - 166.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_LossPayeeIndicator_B[0]
+        on_state: '1'
+        caption: LOSS PAYEE
+        x_petey_caption_source: page_choice
+      lenders_loss_payable:
+        page: 1
+        rect:
+        - 212.0
+        - 444.0
+        - 227.0
+        - 456.0
+        widget_type: checkbox
+        path: F[0].P1[0].AdditionalInterest_Interest_LendersLossPayableIndicator_B[0]
+        on_state: '1'
+        caption: LENDER'S LOSS PAYABLE
+        x_petey_caption_source: page_choice
+    description: 'Check the box (if applicable): Indicates the additional interest
+      type is a lien holder.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:04:36'
+      from:
+      - additional_interest_2_type::lienholder
+      - additional_interest_2_type::mortgagee
+      - additional_interest_2_type::loss_payee
+      - additional_interest_2_type::lenders_loss_payable
+  cancellation_reason:
+    x_petey_id: '1_59'
+    type: category
+    values:
+    - not_taken
+    - other
+    - requested_by_insured
+    - rewritten
+    widgets:
+      not_taken:
+        page: 1
+        rect:
+        - 18.0
+        - 504.0
+        - 32.0
+        - 516.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_NotTakenIndicator_A[0]
+        on_state: '1'
+        caption: NOT TAKEN
+        x_petey_caption_source: page_text
+      requested_by_insured:
+        page: 1
+        rect:
+        - 18.0
+        - 516.0
+        - 32.0
+        - 528.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_InsuredRequestIndicator_A[0]
+        on_state: '1'
+        caption: REQUESTED BY INSURED
+        x_petey_caption_source: page_text
+      rewritten:
+        page: 1
+        rect:
+        - 18.0
+        - 528.0
+        - 32.0
+        - 540.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_RewrittenIndicator_A[0]
+        on_state: '1'
+        caption: REWRITTEN (Complete below)
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 122.0
+        - 504.0
+        - 137.0
+        - 516.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_OtherIndicator_A[0]
+        on_state: '1'
+        caption: OTHER (Identify)
+        x_petey_caption_source: page_text
+    description: 'Check the box (if applicable): Indicates the policy is being cancelled
+      because it was not taken.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  cancellation_method:
+    x_petey_id: '1_60'
+    type: category
+    values:
+    - flat
+    - short_rate
+    - pro_rata
+    widgets:
+      flat:
+        page: 1
+        rect:
+        - 302.0
+        - 516.0
+        - 317.0
+        - 528.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_PremiumCalculation_FlatIndicator_A[0]
+        on_state: '1'
+        caption: FLAT
+        x_petey_caption_source: page_text
+      short_rate:
+        page: 1
+        rect:
+        - 302.0
+        - 528.0
+        - 317.0
+        - 540.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_PremiumCalculation_ShortRateIndicator_A[0]
+        on_state: '1'
+        caption: SHORT RATE
+        x_petey_caption_source: page_choice
+      pro_rata:
+        page: 1
+        rect:
+        - 302.0
+        - 540.0
+        - 317.0
+        - 552.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_PremiumCalculation_ProRataIndicator_A[0]
+        on_state: '1'
+        caption: PRO RATA
+        x_petey_caption_source: page_text
+    description: 'Check the box (if applicable): Indicates the cancellation method
+      being used is flat. Note: Individual companies may have specific requirements
+      for additional information, particularly in situations of rewritten or pro-rata
+      cancellations. The method of cancellation and all calculations should be confirmed
+      with the company before final settlement of the account with the insured.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:04:36'
+      from:
+      - cancellation_method::flat
+      - cancellation_method::short_rate
+      - cancellation_method::pro_rata
+  distribution_recipient_type:
+    x_petey_id: '1_70'
+    type: category
+    values:
+    - company
+    - finance_company
+    - insured
+    - lenders_loss_payable
+    - lienholder
+    - loss_payee
+    - mortgagee
+    - other_1
+    - other_2
+    widgets:
+      insured:
+        page: 1
+        rect:
+        - 302.0
+        - 672.0
+        - 317.0
+        - 684.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_InsuredIndicator_A[0]
+        on_state: '1'
+        caption: INSURED
+        x_petey_caption_source: page_text
+      loss_payee:
+        page: 1
+        rect:
+        - 382.0
+        - 672.0
+        - 396.0
+        - 684.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_LossPayeeIndicator_A[0]
+        on_state: '1'
+        caption: LOSS PAYEE
+        x_petey_caption_source: page_text
+      lenders_loss_payable:
+        page: 1
+        rect:
+        - 468.0
+        - 672.0
+        - 482.0
+        - 684.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_LendersLossPayable_A[0]
+        on_state: '1'
+        caption: LENDER'S LOSS PAYABLE
+        x_petey_caption_source: page_text
+      mortgagee:
+        page: 1
+        rect:
+        - 302.0
+        - 684.0
+        - 317.0
+        - 696.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_MortgageeIndicator_A[0]
+        on_state: '1'
+        caption: MORTGAGEE
+        x_petey_caption_source: page_text
+      lienholder:
+        page: 1
+        rect:
+        - 382.0
+        - 684.0
+        - 396.0
+        - 696.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_LienholderIndicator_A[0]
+        on_state: '1'
+        caption: LIENHOLDER
+        x_petey_caption_source: page_text
+      company:
+        page: 1
+        rect:
+        - 302.0
+        - 696.0
+        - 317.0
+        - 708.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_CompanyIndicator_A[0]
+        on_state: '1'
+        caption: COMPANY
+        x_petey_caption_source: page_text
+      finance_company:
+        page: 1
+        rect:
+        - 382.0
+        - 696.0
+        - 396.0
+        - 708.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_FinanceCompanyIndicator_A[0]
+        on_state: '1'
+        caption: FINANCE COMPANY
+        x_petey_caption_source: page_text
+      other_1:
+        page: 1
+        rect:
+        - 302.0
+        - 708.0
+        - 317.0
+        - 720.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_OtherIndicator_A[0]
+        on_state: '1'
+        caption: REQUEST
+        x_petey_caption_source: page_text
+      other_2:
+        page: 1
+        rect:
+        - 382.0
+        - 708.0
+        - 396.0
+        - 720.0
+        widget_type: checkbox
+        path: F[0].P1[0].CancelNonRenew_Distribution_OtherIndicator_B[0]
+        on_state: '1'
+        caption: RELEASE
+        x_petey_caption_source: page_text
+    description: 'Check the box (if applicable): Indicates a copy of the cancellation
+      request / policy release should be sent to the insured.'
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+x_petey_emit_fixes:
+  description_from_tooltip: 7
+x_petey_page_check:
+  when: '2026-10-16 13:13:42'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 80
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/acord_35__03f2a0__5e3f1ae1.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: acord_35_20261006_212509
+  blueprint: /home/user/petey-2/runs/judge_eval/work/acord_35.bpt
+  when: '2026-10-06 21:25:35'
+x_petey_run:
+  record: runs/judge_eval/form_runs/acord_35.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:25:38'

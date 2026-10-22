@@ -1,0 +1,1808 @@
+bpt_version: '1.1'
+name: fmcsa_op_1
+form_version: null
+source_pdf: op-1.pdf
+source_pdf_hash: 1fa9dadc7d1ddd653f1bc5fa12521fe9f9529dc2
+source_pages:
+- 11
+- 12
+- 13
+- 14
+- 15
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-07 01:36:07'
+fields:
+  legal_business_nm:
+    x_petey_id: '11_7'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 11
+      rect:
+      - 193.0
+      - 472.0
+      - 594.0
+      - 485.0
+      widget_type: text
+      path: 2bizName
+    description: 2. Please enter legal business name here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: legal_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: legal_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  dba_nm:
+    x_petey_id: '11_8'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 11
+      rect:
+      - 339.0
+      - 494.0
+      - 594.0
+      - 507.0
+      widget_type: text
+      path: 3dbaName
+    description: 3. Please enter doing business as name here, if it is different from
+      the legal business name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption '3. DOING BUSINESS AS NAME (if different from Legal Business
+        Name)' asks for a trade name, not a person's name; name is right, semantic_type
+        corrected.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 3. Please enter doing business as name here, if it is different
+          from the legal business name.
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: dba_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: dba_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  principal_address_line_1_txt:
+    x_petey_id: '11_9'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 11
+      rect:
+      - 84.0
+      - 531.0
+      - 216.0
+      - 544.0
+      widget_type: text
+      path: 4principalStreet
+    description: 4. Please enter principal street address or route number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  principal_city_nm:
+    x_petey_id: '11_10'
+    type: string
+    semantic_type: city
+    widget:
+      page: 11
+      rect:
+      - 222.0
+      - 531.0
+      - 306.0
+      - 544.0
+      widget_type: text
+      path: 5principalCity
+    description: 5. Please enter principal city address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  principal_state_cd:
+    x_petey_id: '11_11'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 11
+      rect:
+      - 312.0
+      - 531.0
+      - 396.0
+      - 544.0
+      widget_type: text
+      path: 6principalState
+    description: 6. Please enter principal state or province address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: principal_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: principal_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  principal_zip_cd:
+    x_petey_id: '11_12'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 11
+      rect:
+      - 402.0
+      - 531.0
+      - 450.0
+      - 544.0
+      widget_type: text
+      path: 7principalZip
+    description: 7. Please enter principal zip code here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  principal_phone_nbr:
+    x_petey_id: '11_13'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 11
+      rect:
+      - 456.0
+      - 531.0
+      - 522.0
+      - 544.0
+      widget_type: text
+      path: 8principalTelephone
+    description: 8. Please enter principal telephone number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: principal_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: principal_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  mailing_address_line_1_txt:
+    x_petey_id: '11_16'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 11
+      rect:
+      - 84.0
+      - 576.0
+      - 216.0
+      - 589.0
+      widget_type: text
+      path: 10mailStreet
+    description: 10. Please enter mailing street address or route number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_city_nm:
+    x_petey_id: '11_17'
+    type: string
+    semantic_type: city
+    widget:
+      page: 11
+      rect:
+      - 222.0
+      - 576.0
+      - 306.0
+      - 589.0
+      widget_type: text
+      path: 11mailCity
+    description: 11. Please enter mailing city address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_state_cd:
+    x_petey_id: '11_18'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 11
+      rect:
+      - 312.0
+      - 576.0
+      - 396.0
+      - 589.0
+      widget_type: text
+      path: 12mailState
+    description: 12. Please enter mailing state or province address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: mailing_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: mailing_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  mailing_zip_cd:
+    x_petey_id: '11_19'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 11
+      rect:
+      - 402.0
+      - 576.0
+      - 450.0
+      - 589.0
+      widget_type: text
+      path: 13mailZip
+    description: 13. Please enter mailing zip code here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  mailing_phone_nbr:
+    x_petey_id: '11_20'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 11
+      rect:
+      - 456.0
+      - 576.0
+      - 522.0
+      - 589.0
+      widget_type: text
+      path: 14mailTelephone
+    description: 14. Please enter mailing telephone number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: mailing_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: mailing_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  mailing_address_same_as_principal_ind:
+    x_petey_id: '11_15'
+    type: category
+    values:
+    - Same as Principal Address
+    - Please enter mailing address below.
+    widgets:
+      Same as Principal Address:
+        page: 11
+        rect:
+        - 201.0
+        - 564.25
+        - 210.0
+        - 573.25
+        widget_type: radiobutton
+        path: Mailing Button
+        on_state: Same as Principal Address
+        caption: Same as Principal Address
+      Please enter mailing address below.:
+        page: 11
+        rect:
+        - 309.0
+        - 564.25
+        - 318.0
+        - 573.25
+        widget_type: radiobutton
+        path: Mailing Button
+        on_state: Please enter mailing address below.
+        caption: 'Mailing address below:'
+        x_petey_caption_source: page_choice
+    description: Please check one.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:05'
+      from:
+      - mailing_address_same_as_principal_ind::Same as Principal Address
+      - mailing_address_same_as_principal_ind::Please enter mailing address below.
+  representative_nm:
+    x_petey_id: '11_22'
+    type: string
+    widget:
+      page: 11
+      rect:
+      - 84.0
+      - 621.0
+      - 306.0
+      - 634.0
+      widget_type: text
+      path: 16representativeName
+    description: 16. Please enter the name of the applicant's representative who can
+      respond to inquiries here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:12'
+      from:
+        name: representative_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: representative_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  representative_title_or_relationship_txt:
+    x_petey_id: '11_23'
+    type: string
+    widget:
+      page: 11
+      rect:
+      - 312.0
+      - 621.0
+      - 534.0
+      - 634.0
+      widget_type: text
+      path: 17relationApplicant
+    description: 17. Please enter the representative's title, position, or relationship
+      to the applicant here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: representative_title_or_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: representative_title_or_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+  representative_address_line_1_txt:
+    x_petey_id: '11_24'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 11
+      rect:
+      - 84.0
+      - 644.0
+      - 216.0
+      - 657.0
+      widget_type: text
+      path: 18representativeAddress
+    description: 18. Please enter representative's street address or route number
+      here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  representative_city_nm:
+    x_petey_id: '11_25'
+    type: string
+    semantic_type: city
+    widget:
+      page: 11
+      rect:
+      - 222.0
+      - 644.0
+      - 306.0
+      - 657.0
+      widget_type: text
+      path: 19representativeCity
+    description: 19. Please enter representative's city address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  representative_state_cd:
+    x_petey_id: '11_26'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 11
+      rect:
+      - 312.0
+      - 644.0
+      - 396.0
+      - 657.0
+      widget_type: text
+      path: 20representativeState
+    description: 20. Please enter representative's state address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: representative_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: representative_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  representative_zip_cd:
+    x_petey_id: '11_27'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 11
+      rect:
+      - 402.0
+      - 644.0
+      - 450.0
+      - 657.0
+      widget_type: text
+      path: 21representativeZip
+    description: 21. Please enter representative's zip code here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  fmcsa_filed_dt:
+    x_petey_id: '11_3'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 11
+      rect:
+      - 361.0
+      - 110.75
+      - 436.0
+      - 119.75
+      widget_type: text
+      path: FMCSA Filed
+    description: For FMCSA use only.
+    x_petey_description_source: tooltip
+    label_source: llm
+  fmcsa_cc_approval_nbr:
+    x_petey_id: '11_4'
+    type: string
+    widget:
+      page: 11
+      rect:
+      - 513.0
+      - 110.75
+      - 588.0
+      - 119.75
+      widget_type: text
+      path: FMCSA Approval
+    description: For FMCSA use only.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: fmcsa_cc_approval_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fmcsa_cc_approval_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+  fmcsa_docket_no_mc_txt:
+    x_petey_id: '11_1'
+    type: string
+    widget:
+      page: 11
+      rect:
+      - 361.0
+      - 96.75
+      - 436.0
+      - 105.75
+      widget_type: text
+      path: FMCSA Docket
+    description: For FMCSA use only.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: fmcsa_docket_no_mc
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fmcsa_docket_no_mc_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  fmcsa_fee_nbr:
+    x_petey_id: '11_2'
+    type: string
+    widget:
+      page: 11
+      rect:
+      - 513.0
+      - 96.75
+      - 588.0
+      - 105.75
+      widget_type: text
+      path: FMCSA Fee
+    description: For FMCSA use only.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: fmcsa_fee_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fmcsa_fee_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+  has_existing_authority_ind:
+    x_petey_id: '11_5'
+    type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 11
+        rect:
+        - 349.0
+        - 436.0
+        - 358.0
+        - 445.0
+        widget_type: radiobutton
+        path: Authority Button
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 11
+        rect:
+        - 378.0
+        - 436.0
+        - 387.0
+        - 445.0
+        widget_type: radiobutton
+        path: Authority Button
+        on_state: 'No'
+        caption: 'No'
+    description: Please check one.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+  existing_mc_ff_nbr:
+    x_petey_id: '11_6'
+    type: string
+    widget:
+      page: 11
+      rect:
+      - 408.0
+      - 447.0
+      - 594.0
+      - 460.0
+      widget_type: text
+      path: authorityNumber
+    description: If yes, identify the MC/FF Number (or lead docket number) here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: existing_mc_ff_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: existing_mc_ff_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  principal_fax_nbr:
+    x_petey_id: '11_14'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 11
+      rect:
+      - 528.0
+      - 531.0
+      - 594.0
+      - 544.0
+      widget_type: text
+      path: 9principalFax
+    description: 9. Please enter principal fax number here, if there is one.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: principal_fax_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: principal_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  mailing_fax_nbr:
+    x_petey_id: '11_21'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 11
+      rect:
+      - 528.0
+      - 576.0
+      - 594.0
+      - 589.0
+      widget_type: text
+      path: 15mailFax
+    description: 15. Please enter mailing fax number here, if there is one.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: mailing_fax_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: mailing_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  representative_fax_nbr:
+    x_petey_id: '11_29'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 11
+      rect:
+      - 528.0
+      - 644.0
+      - 594.0
+      - 657.0
+      widget_type: text
+      path: 23representativeFax
+    description: 23. Please enter representative's fax number here, if there is one.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: representative_fax_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: representative_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  representative_phone_nbr:
+    x_petey_id: '11_28'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 11
+      rect:
+      - 456.0
+      - 644.0
+      - 522.0
+      - 657.0
+      widget_type: text
+      path: 22representativePhone
+    description: 22. Please enter representative's telephone number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: representative_phone_number
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: representative_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  usdot_nbr:
+    x_petey_id: '12_1'
+    type: string
+    widget:
+      page: 12
+      rect:
+      - 291.0
+      - 49.0
+      - 483.0
+      - 62.0
+      widget_type: text
+      path: 24usdotNumber
+    description: 24. Please enter USDOT Number here (if available; if not, see instructions).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: usdot_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: usdot_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  form_of_business:
+    x_petey_id: '12_3'
+    type: category
+    values:
+    - 25. Corporation
+    - 26. Sole Proprietorship
+    - 27. Partnership
+    widgets:
+      25. Corporation:
+        page: 12
+        rect:
+        - 96.0
+        - 93.25
+        - 105.0
+        - 102.25
+        widget_type: radiobutton
+        path: Form Button
+        on_state: 25. Corporation
+        caption: CORPORATION
+        x_petey_caption_source: page_choice
+      26. Sole Proprietorship:
+        page: 12
+        rect:
+        - 96.0
+        - 108.25
+        - 105.0
+        - 117.25
+        widget_type: radiobutton
+        path: Form Button
+        on_state: 26. Sole Proprietorship
+        caption: SOLE PROPRIETORSHIP
+        x_petey_caption_source: page_choice
+      27. Partnership:
+        page: 12
+        rect:
+        - 96.0
+        - 123.25
+        - 105.0
+        - 132.25
+        widget_type: radiobutton
+        path: Form Button
+        on_state: 27. Partnership
+        caption: PARTNERSHIP
+        x_petey_caption_source: page_choice
+    description: Please check one.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:05'
+      from:
+      - form_of_business::25. Corporation
+      - form_of_business::26. Sole Proprietorship
+      - form_of_business::27. Partnership
+  incorporation_state_cd:
+    x_petey_id: '12_2'
+    type: string
+    widget:
+      page: 12
+      rect:
+      - 314.0
+      - 89.0
+      - 594.0
+      - 102.0
+      widget_type: text
+      path: 25corporation
+    description: Please enter the State in which the business is incorporated.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=280
+  owner_legal_nm:
+    x_petey_id: '12_4'
+    type: string
+    widget:
+      page: 12
+      rect:
+      - 314.0
+      - 104.0
+      - 594.0
+      - 117.0
+      widget_type: text
+      path: 26soleProp
+    description: Please enter the legal name of the business owner here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: owner_legal_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: owner_legal_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  partner_legal_names_txt:
+    x_petey_id: '12_5'
+    type: string
+    widget:
+      page: 12
+      rect:
+      - 314.0
+      - 119.0
+      - 594.0
+      - 132.0
+      widget_type: text
+      path: 27partnership
+    description: Please enter the legal name of each partner here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: partner_legal_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: partner_legal_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  certify_compliance_item_30_ind:
+    x_petey_id: '13_1'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 13
+      rect:
+      - 84.0
+      - 334.0
+      - 92.39630126953125
+      - 342.5
+      widget_type: checkbox
+      path: certifyBox 30
+    description: Check to certify compliance with the statements in item 30.
+    x_petey_description_source: tooltip
+    label_source: llm
+  certify_compliance_item_31_ind:
+    x_petey_id: '13_2'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 13
+      rect:
+      - 84.0
+      - 428.0
+      - 92.39630126953125
+      - 436.5
+      widget_type: checkbox
+      path: certifyBox 31
+    description: Check to certify compliance with the statements in item 31.
+    x_petey_description_source: tooltip
+    label_source: llm
+  affiliation_disclosures_txt:
+    x_petey_id: '13_3'
+    type: string
+    semantic_type: text
+    widget:
+      page: 13
+      rect:
+      - 87.0
+      - 591.0
+      - 579.0
+      - 711.0
+      widget_type: text
+      path: 32affiliationDisclose
+    description: 32. Please enter any affiliation disclosures as described above here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  item_33_certify_compliance_ind:
+    x_petey_id: '14_1'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 14
+      rect:
+      - 84.0
+      - 208.0
+      - 92.39630126953125
+      - 216.5
+      widget_type: checkbox
+      path: certifyBox 33
+    description: Check to certify compliance with the statements in item 33.
+    x_petey_description_source: tooltip
+    label_source: llm
+  item_34_certify_compliance_ind:
+    x_petey_id: '14_2'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 14
+      rect:
+      - 84.0
+      - 337.0
+      - 92.39630126953125
+      - 345.5
+      widget_type: checkbox
+      path: certifyBox 34
+    description: Check to certify compliance with the statements in item 34.
+    x_petey_description_source: tooltip
+    label_source: llm
+  item_35_certify_compliance_ind:
+    x_petey_id: '14_3'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 14
+      rect:
+      - 84.0
+      - 410.0
+      - 92.39630126953125
+      - 418.5
+      widget_type: checkbox
+      path: certifyBox 35
+    description: Check to certify compliance with the statements in item 35.
+    x_petey_description_source: tooltip
+    label_source: llm
+  item_36_distinct_needs_ind:
+    x_petey_id: '14_4'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 14
+      rect:
+      - 84.0
+      - 538.0
+      - 92.39630126953125
+      - 546.5
+      widget_type: checkbox
+      path: scopeBox 1
+    description: Check box if the following applies.
+    x_petey_description_source: tooltip
+    label_source: llm
+  item_36_distinct_needs_desc_txt:
+    x_petey_id: '14_5'
+    type: string
+    semantic_type: description
+    widget:
+      page: 14
+      rect:
+      - 87.0
+      - 569.5
+      - 579.0
+      - 600.5
+      widget_type: text
+      path: 36needBox
+    description: 36. Please enter any distinct needs as described above here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: item_36_distinct_needs_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: item_36_distinct_needs_desc_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: desc -> desc_txt'
+  item_37_assignment_vehicles_ind:
+    x_petey_id: '14_6'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 14
+      rect:
+      - 84.0
+      - 612.0
+      - 92.39630126953125
+      - 620.5
+      widget_type: checkbox
+      path: scopeBox 2
+    description: Check box if the following applies.
+    x_petey_description_source: tooltip
+    label_source: llm
+  applicant_nm:
+    x_petey_id: '15_1'
+    type: string
+    widget:
+      page: 15
+      rect:
+      - 90.0
+      - 147.0
+      - 237.0
+      - 160.0
+      widget_type: text
+      path: oathName
+    description: Please type or print applicant's name here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:12'
+      from:
+        name: applicant_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: applicant_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  applicant_signature:
+    x_petey_id: '15_2'
+    type: string
+    widget:
+      page: 15
+      rect:
+      - 132.0
+      - 317.0
+      - 281.0
+      - 330.0
+      widget_type: text
+      path: oathSign
+    description: Applicant should sign statement here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  applicant_title_txt:
+    x_petey_id: '15_3'
+    type: string
+    widget:
+      page: 15
+      rect:
+      - 320.0
+      - 317.0
+      - 434.0
+      - 330.0
+      widget_type: text
+      path: oathTitle
+    description: Please type or print applicant's title here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: applicant_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: applicant_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  applicant_signature_dt:
+    x_petey_id: '15_4'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 15
+      rect:
+      - 474.0
+      - 317.0
+      - 582.0
+      - 330.0
+      widget_type: text
+      path: oathDate
+    label_source: llm
+  credit_card_type:
+    x_petey_id: '15_5'
+    type: category
+    values:
+    - Visa
+    - MasterCard
+    widgets:
+      Visa:
+        page: 15
+        rect:
+        - 162.0
+        - 552.0
+        - 171.0
+        - 561.0
+        widget_type: radiobutton
+        path: Credit Button
+        on_state: Visa
+        caption: VISA
+        x_petey_caption_source: page_choice
+      MasterCard:
+        page: 15
+        rect:
+        - 198.0
+        - 552.0
+        - 207.0
+        - 561.0
+        widget_type: radiobutton
+        path: Credit Button
+        on_state: MasterCard
+        caption: MasterCard
+    description: Please check one.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:05'
+      from:
+      - credit_card_type::Visa
+      - credit_card_type::MasterCard
+  credit_card_nbr:
+    x_petey_id: '15_6'
+    type: string
+    widget:
+      page: 15
+      rect:
+      - 337.0
+      - 549.0
+      - 433.0
+      - 562.0
+      widget_type: text
+      path: cardNumber
+    description: Please enter the credit card number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: credit_card_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: credit_card_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+  credit_card_expiration_dt:
+    x_petey_id: '15_7'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 15
+      rect:
+      - 504.0
+      - 549.0
+      - 561.0
+      - 562.0
+      widget_type: text
+      path: expireDate
+    description: Please enter the expiration date here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cardholder_nm:
+    x_petey_id: '15_8'
+    type: string
+    widget:
+      page: 15
+      rect:
+      - 218.0
+      - 568.0
+      - 427.0
+      - 581.0
+      widget_type: text
+      path: cardName
+    description: Please enter the cardholder's name here (exactly as it appears on
+      the card).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:12'
+      from:
+        name: cardholder_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: cardholder_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+  cardholder_address_line_1_txt:
+    x_petey_id: '15_9'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 15
+      rect:
+      - 183.60299682617188
+      - 616.0
+      - 560.60302734375
+      - 629.0
+      widget_type: text
+      path: cardStreet
+    description: Please enter the cardholder's street address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cardholder_city_nm:
+    x_petey_id: '15_10'
+    type: string
+    semantic_type: city
+    widget:
+      page: 15
+      rect:
+      - 105.60299682617188
+      - 635.0
+      - 290.6029968261719
+      - 648.0
+      widget_type: text
+      path: cardCity
+    description: Please enter the cardholder's city address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cardholder_state_cd:
+    x_petey_id: '15_11'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 15
+      rect:
+      - 356.0
+      - 635.0
+      - 458.0
+      - 648.0
+      widget_type: text
+      path: cardState
+    description: Please enter the cardholder's state or province address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 12:51:26'
+      from:
+        name: cardholder_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: cardholder_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+  cardholder_zip_cd:
+    x_petey_id: '15_12'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 15
+      rect:
+      - 504.0
+      - 635.0
+      - 561.0
+      - 648.0
+      widget_type: text
+      path: cardZip
+    description: Please enter the cardholder's zip code here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  cardholder_signature:
+    x_petey_id: '15_13'
+    type: string
+    widget:
+      page: 15
+      rect:
+      - 125.0
+      - 654.0
+      - 392.0
+      - 667.0
+      widget_type: text
+      path: creditSignature
+    description: Cardholder should sign here.
+    x_petey_description_source: tooltip
+    label_source: llm
+  payment_dt:
+    x_petey_id: '15_14'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 15
+      rect:
+      - 459.0
+      - 654.0
+      - 561.0
+      - 667.0
+      widget_type: text
+      path: signDate
+    label_source: llm
+  motor_common_carrier_property_ind:
+    x_petey_id: '12_6'
+    type: multi_category
+    widgets:
+      motor_common_carrier_property:
+        page: 12
+        rect:
+        - 96.0
+        - 240.0
+        - 104.39600372314453
+        - 248.5
+        widget_type: checkbox
+        path: 28Box.1
+        on_state: 'Yes'
+        caption: Motor Common Carrier of Property (except Household Goods)
+        x_petey_caption_source: page_choice
+      motor_contract_carrier_property:
+        page: 12
+        rect:
+        - 96.0
+        - 255.0
+        - 104.39600372314453
+        - 263.5
+        widget_type: checkbox
+        path: 28Box.2
+        on_state: 'Yes'
+        caption: Motor Contract Carrier of Property (except Household Goods)
+        x_petey_caption_source: page_choice
+      motor_common_carrier_household_goods:
+        page: 12
+        rect:
+        - 96.0
+        - 270.0
+        - 104.39600372314453
+        - 278.5
+        widget_type: checkbox
+        path: 28Box.3
+        on_state: 'Yes'
+        caption: Motor Common Carrier of Household Goods
+        x_petey_caption_source: page_text
+      motor_contract_carrier_household_goods:
+        page: 12
+        rect:
+        - 96.0
+        - 285.0
+        - 104.39600372314453
+        - 293.5
+        widget_type: checkbox
+        path: 28Box.4
+        on_state: 'Yes'
+        caption: Motor Contract Carrier of Household Goods
+        x_petey_caption_source: page_text
+      broker_property:
+        page: 12
+        rect:
+        - 96.0
+        - 300.0
+        - 104.5
+        - 308.5
+        widget_type: checkbox
+        path: 28Box.5
+        on_state: 'Yes'
+        caption: Broker of Property (except Household Goods)
+        x_petey_caption_source: page_text
+      broker_household_goods:
+        page: 12
+        rect:
+        - 96.0
+        - 315.0
+        - 104.5
+        - 323.5
+        widget_type: checkbox
+        path: 28Box.6
+        on_state: 'Yes'
+        caption: Broker of Household Goods
+        x_petey_caption_source: page_text
+      enterprise_carrier_international_cargo:
+        page: 12
+        rect:
+        - 96.0
+        - 330.0
+        - 104.5
+        - 338.5
+        widget_type: checkbox
+        path: 28Box.7
+        on_state: 'Yes'
+        caption: United States-based Enterprise Carrier of International Cargo (except
+          Household Goods)
+        x_petey_caption_source: page_choice
+      enterprise_carrier_international_household_goods:
+        page: 12
+        rect:
+        - 96.0
+        - 345.0
+        - 104.5
+        - 353.5
+        widget_type: checkbox
+        path: 28Box.8
+        on_state: 'Yes'
+        caption: United States-based Enterprise Carrier of International Household
+          Goods
+        x_petey_caption_source: page_choice
+    description: 28. Check if applying for Motor Common Carrier of Property (except
+      Household Goods) operating authority.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: motor_common_carrier_property_ind
+      reason: The caption directly beside the outlined box reads 'Motor Common Carrier
+        of Property (except Household Goods)', indicating a single yes/no checkbox,
+        which motor_common_carrier_property_ind describes precisely; operating_authority
+        implies the whole category selection rather than this individual indic
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -values
+      - name
+      reason: This widget is one checkbox of a multi-select set (tooltip 'Motor Common
+        Carrier of Property (except Household Goods)'); it holds a single yes/no,
+        not the whole authority-type choice.
+      before:
+        type: category
+        values:
+        - broker_household_goods
+        - broker_property
+        - enterprise_carrier_international_cargo
+        - enterprise_carrier_international_household_goods
+        - motor_common_carrier_household_goods
+        - motor_common_carrier_property
+        - motor_contract_carrier_household_goods
+        - motor_contract_carrier_property
+        description: Motor Common Carrier of Property (except Household Goods)
+      old_name: operating_authority
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
+    values:
+    - motor_common_carrier_property
+    - motor_contract_carrier_property
+    - motor_common_carrier_household_goods
+    - motor_contract_carrier_household_goods
+    - broker_property
+    - broker_household_goods
+    - enterprise_carrier_international_cargo
+    - enterprise_carrier_international_household_goods
+    x_petey_hand_edit:
+      when: '2026-10-20 23:37:04'
+      from:
+        name: motor_common_carrier_property_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: motor_common_carrier_property_ind
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/je__fmcsa_op_1.json
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:05'
+      from:
+      - motor_common_carrier_property_ind::motor_common_carrier_property
+      - motor_common_carrier_property_ind::motor_contract_carrier_property
+      - motor_common_carrier_property_ind::motor_common_carrier_household_goods
+      - motor_common_carrier_property_ind::motor_contract_carrier_household_goods
+      - motor_common_carrier_property_ind::broker_property
+      - motor_common_carrier_property_ind::broker_household_goods
+      - motor_common_carrier_property_ind::enterprise_carrier_international_cargo
+      - motor_common_carrier_property_ind::enterprise_carrier_international_household_goods
+  transport_gvwr_10001_or_more:
+    x_petey_id: '12_7'
+    type: category
+    values:
+    - non_hazardous_commodities_750k
+    - hazardous_materials_1m
+    - hazardous_materials_5m
+    widgets:
+      non_hazardous_commodities_750k:
+        page: 12
+        rect:
+        - 96.0
+        - 532.0
+        - 104.39600372314453
+        - 540.5
+        widget_type: checkbox
+        path: 29aBox 1
+        on_state: 'Yes'
+        caption: Non-hazardous commodities ($750,000)
+        x_petey_caption_source: page_text
+      hazardous_materials_1m:
+        page: 12
+        rect:
+        - 96.0
+        - 547.0
+        - 104.39600372314453
+        - 555.5
+        widget_type: checkbox
+        path: 29aBox 2
+        on_state: 'Yes'
+        caption: Hazardous materials referenced in FMCSA's insurance regulations at
+          49 CFR 387.9 ($1,000,000)
+        x_petey_caption_source: page_choice
+      hazardous_materials_5m:
+        page: 12
+        rect:
+        - 96.0
+        - 562.0
+        - 104.39600372314453
+        - 570.5
+        widget_type: checkbox
+        path: 29aBox 3
+        on_state: 'Yes'
+        caption: Hazardous materials referenced in FMCSA's insurance regulations at
+          49 CFR 387.9 ($5,000,000)
+        x_petey_caption_source: page_choice
+    description: Check box if the following will be transported
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:05'
+      from:
+      - transport_gvwr_10001_or_more::non_hazardous_commodities_750k
+      - transport_gvwr_10001_or_more::hazardous_materials_1m
+      - transport_gvwr_10001_or_more::hazardous_materials_5m
+  transport_gvwr_under_10001:
+    x_petey_id: '12_8'
+    type: category
+    values:
+    - hazardous_materials_5m
+    - commodities_other_300k
+    widgets:
+      hazardous_materials_5m:
+        page: 12
+        rect:
+        - 96.0
+        - 616.2000122070312
+        - 104.39600372314453
+        - 624.7000122070312
+        widget_type: checkbox
+        path: 29bBox 1
+        on_state: 'Yes'
+        caption: Any quantity of Division 1.1, 1.2, or 1.3 material; any quantity
+          of Division 2.3, Hazard Zone A, or Division 6.1, Packing Group I, Hazard
+          Zone A material; or highway route controlled quantities of a Class 7 material
+          as defined in 49 CFR 173.403 ($5,000,000)
+        x_petey_caption_source: page_choice
+      commodities_other_300k:
+        page: 12
+        rect:
+        - 96.0
+        - 642.0
+        - 104.39600372314453
+        - 650.5
+        widget_type: checkbox
+        path: 29bBox 2
+        on_state: 'Yes'
+        caption: Commodities other than those listed above ($300,000)
+        x_petey_caption_source: page_choice
+    description: Check box if the following will be transported
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 12:52:05'
+      from:
+      - transport_gvwr_under_10001::hazardous_materials_5m
+      - transport_gvwr_under_10001::commodities_other_300k
+x_petey_dropped_widgets:
+  count: 4
+  widgets:
+  - path: attachAffiliate
+    page: 13
+    reason: pushbutton
+    field_type: Button
+    tooltip: Click here to attach additional affiliation information, if needed.
+  - path: numberBoxes
+    page: 15
+    reason: caption
+    field_type: Text
+    tooltip: The number of boxes checked in Section 2 will automatically be entered
+      here.
+    caption: '0'
+  - path: totalPayment
+    page: 15
+    reason: caption
+    field_type: Text
+    tooltip: The totsl payment due will be automatically calculated.
+    caption: '0'
+  - path: cardAmount
+    page: 15
+    reason: caption
+    field_type: Text
+    tooltip: The payment amount will be automatically entered to match the "Total
+      payment due" amount above.
+    caption: '0'
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 1
+  description_from_tooltip: 7
+x_petey_page_check:
+  when: '2026-10-16 13:01:50'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 11
+  - 12
+  - 13
+  - 14
+  - 15
+  fields: 60
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/fmcsa_op_1__603b74__9ff510a5.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: fmcsa_op_1_20261007_013943
+  blueprint: /home/user/petey-2/runs/judge_eval/work/fmcsa_op_1.bpt
+  when: '2026-10-07 01:39:59'
+x_petey_run:
+  record: runs/judge_eval/form_runs/fmcsa_op_1.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 3
+  review_rounds: 2
+  when: '2026-10-07 01:40:05'

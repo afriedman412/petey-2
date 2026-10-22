@@ -1,0 +1,1920 @@
+bpt_version: '1.1'
+name: ca_courts_fl_320
+form_version: null
+source_pdf: fl320.pdf
+source_pdf_hash: 992b325dbb7706bcddfad116877a0849342a937a
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:32:03'
+fields:
+  case_1_nbr:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 400.0050048828125
+      - 254.92901611328125
+      - 572.8049926757812
+      - 266.9530029296875
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].CaptionSub[0].CaseNumber[0].CaseNumber_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+  attorney_state_bar_nbr:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 308.62298583984375
+      - 48.81201171875
+      - 393.78900146484375
+      - 57.81201171875
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].BarNo_ft[0]
+    description: STATE BAR NUMBER
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    pattern: ^\d{1,12}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - -semantic_type
+      reason: Box holds a bar license identifier, not a state abbreviation; digits-only
+        identifier is best typed as a string with a digit pattern.
+      before:
+        type: number
+        semantic_type: state_abbr
+        description: STATE BAR NUMBER
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      to:
+        name: attorney_state_bar_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  attorney_nm:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 57.58100128173828
+      - 59.88702392578125
+      - 393.6700134277344
+      - 68.88702392578125
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].AttyName_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  attorney_firm_nm:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 76.27799987792969
+      - 71.5689697265625
+      - 393.9930114746094
+      - 80.5689697265625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].AttyFirm_ft[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption 'FIRM NAME:' holds an organization name, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_firm_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_firm_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  attorney_street_address_txt:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 93.58100128173828
+      - 82.75201416015625
+      - 393.9930114746094
+      - 91.75201416015625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].AttyStreet_ft[0]
+    description: STREET ADDRESS
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: attorney_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  attorney_city_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 53.59299850463867
+      - 94.18402099609375
+      - 240.40899658203125
+      - 103.18402099609375
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].AttyCity_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: attorney_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+  attorney_state_cd:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 264.260009765625
+      - 94.18402099609375
+      - 293.6719970703125
+      - 103.18402099609375
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].AttyState_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_state
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: attorney_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+  attorney_zip_cd:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 326.4729919433594
+      - 94.18402099609375
+      - 393.9930114746094
+      - 103.18402099609375
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].AttyZip_ft[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+      to:
+        name: attorney_zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  attorney_telephone_nbr:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 88.59200286865234
+      - 105.61602783203125
+      - 216.8300018310547
+      - 114.61602783203125
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].Phone_ft[0]
+    description: TELEPHONE NO.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_telephone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  attorney_fax_nbr:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 265.5570068359375
+      - 105.61602783203125
+      - 393.9930114746094
+      - 114.61602783203125
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].Fax_ft[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_fax_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+  attorney_email_address_txt:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 90.59500122070312
+      - 117.76800537109375
+      - 393.9930114746094
+      - 126.76800537109375
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].Email_ft[0]
+    description: E-MAIL ADDRESS
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: attorney_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  attorney_for_txt:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 107.58399963378906
+      - 129.91998291015625
+      - 393.9930114746094
+      - 138.91998291015625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].AttyInfo[0].AttyFor_ft[0]
+    description: ATTORNEY FOR (name)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_for
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_for_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  court_county_txt:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.71299743652344
+      - 144.708984375
+      - 393.9930114746094
+      - 153.708984375
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].CourtInfo[0].CrtCounty_ft[0]
+    description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  court_street_address_txt:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 97.01599884033203
+      - 155.64801025390625
+      - 393.9930114746094
+      - 164.64801025390625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].CourtInfo[0].Street_ft[0]
+    description: STREET ADDRESS
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: court_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  court_mailing_address_txt:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 97.01599884033203
+      - 166.58697509765625
+      - 393.9930114746094
+      - 175.58697509765625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].CourtInfo[0].MailingAdd_ft[0]
+    description: MAILING ADDRESS
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_mailing_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_mailing_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+  court_city_and_zip_cd:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 97.01399993896484
+      - 177.5250244140625
+      - 393.9930114746094
+      - 186.5250244140625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].CourtInfo[0].CityZip_ft[0]
+    description: CITY AND ZIP CODE
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      - -pattern
+      reason: Box holds city plus zip in one line; a 5-digit zip pattern and zip semantic
+        type do not fit.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: CITY AND ZIP CODE
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_city_and_zip_code
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_city_and_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+  court_branch_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 97.01599884033203
+      - 188.4639892578125
+      - 393.9930114746094
+      - 197.4639892578125
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].CourtInfo[0].Branch_ft[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Branch name is a court facility, not a person name.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_branch_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_branch_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+  petitioner_1_nm:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 144.36399841308594
+      - 204.97900390625
+      - 392.77398681640625
+      - 214.97998046875
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].TitlePartyName[0].Petitioner_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: petitioner_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: petitioner_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+  respondent_1_nm:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 144.36399841308594
+      - 217.05401611328125
+      - 392.77398681640625
+      - 227.05499267578125
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].TitlePartyName[0].Respondent_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: respondent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: respondent_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+  other_parent_party_1_nm:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 144.5850067138672
+      - 229.0050048828125
+      - 392.5039978027344
+      - 239.0059814453125
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].TitlePartyName[0].OtherParentParty_ft[0]
+    description: OTHER PARENT/PARTY
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: other_parent_party_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_parent_party_1_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; first of a numbered set gets 1'
+  hearing_dt:
+    x_petey_id: '1_21'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 39.61399841308594
+      - 270.281005859375
+      - 189.78500366210938
+      - 280.02301025390625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].FormTitle[0].HearingDate_dt[0]
+    description: HEARING DATE
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM DD, YYYY}
+    label_source: llm
+  hearing_time:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 201.9969940185547
+      - 269.60797119140625
+      - 271.3689880371094
+      - 280.02301025390625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].FormTitle[0].Time_ft[0]
+    label_source: llm
+  hearing_department_or_room_txt:
+    x_petey_id: '1_23'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 304.6990051269531
+      - 269.60797119140625
+      - 383.8900146484375
+      - 280.02301025390625
+      widget_type: text
+      path: FL-320[0].Page1[0].P1Caption_sf[0].FormTitle[0].DeptRoom_ft[0]
+    description: DEPARTMENT OR ROOM
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: hearing_department_or_room
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: hearing_department_or_room_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  restraining_order_information_ind:
+    x_petey_id: '1_24'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 55.49399948120117
+      - 310.64300537109375
+      - 64.49400329589844
+      - 319.64300537109375
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List1[0].ChildVisitation_cb[0]
+    description: RESTRAINING ORDER INFORMATION
+    x_petey_description_source: tooltip
+    label_source: llm
+  domestic_violence_restraining_orders_in_effect:
+    x_petey_id: '1_50'
+    type: category
+    values:
+    - no_dv_restraining_orders_in_effect_ind
+    - dv_restraining_orders_in_effect_ind
+    widgets:
+      no_dv_restraining_orders_in_effect_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 322.72100830078125
+        - 79.427001953125
+        - 331.72100830078125
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List1[0].LI1[0].ROrders_cb[0]
+        on_state: '1'
+        caption: No domestic violence restraining/protective orders are
+        x_petey_caption_source: page_text
+      dv_restraining_orders_in_effect_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 334.6499938964844
+        - 79.427001953125
+        - 343.6499938964844
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List1[0].LI2[0].ROrders_cb[0]
+        on_state: '2'
+        caption: b
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:28:53'
+      from:
+      - no_dv_restraining_orders_in_effect_ind
+      - dv_restraining_orders_in_effect_ind
+      name_from: labeler
+  child_custody_ind:
+    x_petey_id: '1_27'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 55.49399948120117
+      - 362.0610046386719
+      - 64.49400329589844
+      - 371.0610046386719
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List2[0].ChildCustody_cb[0]
+    description: CHILD CUSTODY
+    x_petey_description_source: tooltip
+    label_source: llm
+  visitation_parenting_time_ind:
+    x_petey_id: '1_28'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 55.49399948120117
+      - 373.8559875488281
+      - 64.49400329589844
+      - 382.8559875488281
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List2[0].ChildVisitation_cb[0]
+    description: VISITATION (PARENTING TIME)
+    x_petey_description_source: tooltip
+    label_source: llm
+  child_custody_visitation_consent:
+    x_petey_id: '1_51'
+    type: category
+    values:
+    - consent_child_custody_order_ind
+    - consent_visitation_order_ind
+    - do_not_consent_do_not_consent_order_ind
+    widgets:
+      consent_child_custody_order_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 386.6709899902344
+        - 79.427001953125
+        - 395.6709899902344
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List2[0].LI1[0].ConsentToOrderRequested_cb[0]
+        on_state: '1'
+        caption: a
+        x_petey_caption_source: page_text
+      consent_visitation_order_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 398.6000061035156
+        - 79.427001953125
+        - 407.6000061035156
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List2[0].LI2[0].ConsentToOrderRequested_cb[0]
+        on_state: '1'
+        caption: b
+        x_petey_caption_source: page_text
+      do_not_consent_do_not_consent_order_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 411.85699462890625
+        - 79.427001953125
+        - 420.85699462890625
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List2[0].LI3[0].ConsentToFollowingOrder_cb[0]
+        on_state: '1'
+        caption: c
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:28:53'
+      from:
+      - consent_child_custody_order_ind
+      - consent_visitation_order_ind
+      - do_not_consent_do_not_consent_order_ind
+      name_from: labeler
+  do_not_consent:
+    x_petey_id: '1_47'
+    type: category
+    values:
+    - do_not_consent_child_custody_ind
+    - do_not_consent_visitation_ind
+    widgets:
+      do_not_consent_child_custody_ind:
+        page: 1
+        rect:
+        - 294.7239990234375
+        - 411.85699462890625
+        - 303.7239990234375
+        - 420.85699462890625
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List2[0].LI3[0].ConsentToFollowingOrder_cb1[0]
+        on_state: '1'
+        caption: child custody
+        x_petey_caption_source: tooltip
+      do_not_consent_visitation_ind:
+        page: 1
+        rect:
+        - 384.3500061035156
+        - 411.85699462890625
+        - 393.3500061035156
+        - 420.85699462890625
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List2[0].LI3[0].ConsentToFollowingOrder_cb2[0]
+        on_state: '1'
+        caption: visitation (parenting time)
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:28:10'
+      from:
+      - do_not_consent::do_not_consent_child_custody_ind
+      - do_not_consent::do_not_consent_visitation_ind
+  custody_visitation_consent_following_order_ind:
+    x_petey_id: '1_34'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 95.47699737548828
+      - 424.2049865722656
+      - 104.47699737548828
+      - 433.2049865722656
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List2[0].LI3[0].ConsentToFollowingOrder_cb3[0]
+    description: 'but I consent to the following order:'
+    x_petey_description_source: tooltip
+    label_source: llm
+  custody_visitation_consent_following_order_specify_txt:
+    x_petey_id: '1_35'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 107.6709976196289
+      - 433.9590148925781
+      - 574.0549926757812
+      - 515.447021484375
+      widget_type: text
+      path: FL-320[0].Page1[0].List2[0].LI3[0].ChildCustodyVisitationConsent_ft[0]
+    description: 'but I consent to the following order: specify'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: custody_visitation_consent_following_order_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: custody_visitation_consent_following_order_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  child_support_ind:
+    x_petey_id: '1_36'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 56.319000244140625
+      - 525.8609619140625
+      - 65.31900024414062
+      - 534.8609619140625
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List3[0].ChildSupport_cb[0]
+    description: CHILD SUPPORT
+    x_petey_description_source: tooltip
+    label_source: llm
+  child_support_consent_status:
+    x_petey_id: '1_52'
+    type: category
+    values:
+    - child_support_consent_order_requested_ind
+    - child_support_consent_guideline_support_ind
+    - child_support_child_support_do_not_consent_order_requested_ind
+    widgets:
+      child_support_consent_order_requested_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 562.0059814453125
+        - 79.427001953125
+        - 571.0059814453125
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List3[0].LI2[0].ConsentToChildSupport_cb[0]
+        on_state: '1'
+        caption: I consent to the order requested.
+        x_petey_caption_source: tooltip
+      child_support_consent_guideline_support_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 574.4669799804688
+        - 79.427001953125
+        - 583.4669799804688
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List3[0].LI3[0].ConsentToGuideline_cb[0]
+        on_state: '1'
+        caption: I consent to guideline support.
+        x_petey_caption_source: tooltip
+      child_support_child_support_do_not_consent_order_requested_ind:
+        page: 1
+        rect:
+        - 70.427001953125
+        - 586.1790161132812
+        - 79.427001953125
+        - 595.1790161132812
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List3[0].LI4[0].CheckBox1[0]
+        on_state: '1'
+        caption: d
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:28:53'
+      from:
+      - child_support_consent_order_requested_ind
+      - child_support_consent_guideline_support_ind
+      - child_support_child_support_do_not_consent_order_requested_ind
+      name_from: labeler
+  child_support_child_support_consent_following_order_ind:
+    x_petey_id: '1_54'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 256.843994140625
+      - 586.33203125
+      - 265.843994140625
+      - 595.33203125
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List3[0].LI4[0].ConsentToFollowingOrder_cb[0]
+      on_state: '1'
+    description: 'but I consent to the following order:'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:30:05'
+      from:
+      - child_support::child_support_consent_following_order_ind
+  child_support_consent_following_order_specify_txt:
+    x_petey_id: '1_41'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.66500091552734
+      - 595.7860107421875
+      - 576.0230102539062
+      - 629.385009765625
+      widget_type: text
+      path: FL-320[0].Page1[0].List3[0].LI4[0].ChildSupportConsent_ft[0]
+    description: 'but I consent to the following order: specify'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: child_support_consent_following_order_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_support_consent_following_order_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  spousal_or_domestic_partner_support_ind:
+    x_petey_id: '1_42'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 56.50899887084961
+      - 634.6629638671875
+      - 65.50900268554688
+      - 643.6629638671875
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List4[0].SpousalPartnerSupport_cb[0]
+    description: SPOUSAL OR DOMESTIC PARTNER SUPPORT
+    x_petey_description_source: tooltip
+    label_source: llm
+  spousal_or_domestic_partner_support_order_consent:
+    x_petey_id: '1_53'
+    type: category
+    values:
+    - spousal_support_consent_order_requested_ind
+    - spousal_support_spousal_support_do_not_consent_order_requested_ind
+    widgets:
+      spousal_support_consent_order_requested_ind:
+        page: 1
+        rect:
+        - 70.69300079345703
+        - 662.72900390625
+        - 79.69300079345703
+        - 671.72900390625
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List4[0].LI2[0].SorDPSupport_cb[0]
+        on_state: '1'
+        caption: I consent to the order requested.
+        x_petey_caption_source: tooltip
+      spousal_support_spousal_support_do_not_consent_order_requested_ind:
+        page: 1
+        rect:
+        - 70.69300079345703
+        - 676.1539916992188
+        - 79.69300079345703
+        - 685.1539916992188
+        widget_type: checkbox
+        path: FL-320[0].Page1[0].List4[0].LI3[0].SorDPSupport_cb[0]
+        on_state: '2'
+        caption: c
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:28:53'
+      from:
+      - spousal_support_consent_order_requested_ind
+      - spousal_support_spousal_support_do_not_consent_order_requested_ind
+      name_from: labeler
+  spousal_support_spousal_support_consent_following_order_ind:
+    x_petey_id: '1_55'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 256.843994140625
+      - 676.1539916992188
+      - 265.843994140625
+      - 685.1539916992188
+      widget_type: checkbox
+      path: FL-320[0].Page1[0].List4[0].LI3[0].ConsentToFollowingOrder_cb[0]
+      on_state: '1'
+    description: 'but I consent to the following order:'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:30:05'
+      from:
+      - spousal_support::spousal_support_consent_following_order_ind
+  spousal_support_consent_following_order_specify_txt:
+    x_petey_id: '1_46'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 88.66200256347656
+      - 685.958984375
+      - 574.4660034179688
+      - 710.1270141601562
+      widget_type: text
+      path: FL-320[0].Page1[0].List4[0].LI3[0].SpousalSupportContent_ft[0]
+    description: 'but I consent to the following order: specify'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: spousal_support_consent_following_order_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: spousal_support_consent_following_order_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+  petitioner_2_nm:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 144.36399841308594
+      - 50.61297607421875
+      - 392.77398681640625
+      - 60.614013671875
+      widget_type: text
+      path: FL-320[0].Page2[0].TitlePartyName[0].Petitioner_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: petitioner_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: petitioner_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  respondent_2_nm:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 144.36399841308594
+      - 62.68798828125
+      - 392.77398681640625
+      - 72.68902587890625
+      widget_type: text
+      path: FL-320[0].Page2[0].TitlePartyName[0].Respondent_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: respondent_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: respondent_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  other_parent_party_2_nm:
+    x_petey_id: '2_4'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 144.5850067138672
+      - 74.63897705078125
+      - 392.5039978027344
+      - 84.6400146484375
+      widget_type: text
+      path: FL-320[0].Page2[0].TitlePartyName[0].OtherParentParty_ft[0]
+    description: OTHER PARENT/PARTY
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: other_parent_party_name_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_parent_party_2_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm; number moved before the suffix'
+  case_2_nbr:
+    x_petey_id: '2_3'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 400.0050048828125
+      - 60.85400390625
+      - 572.8049926757812
+      - 72.4539794921875
+      widget_type: text
+      path: FL-320[0].Page2[0].TitlePartyName[0].CaseNumber[0].CaseNumber_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: case_number_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_2_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+  property_control_ind:
+    x_petey_id: '2_5'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 56.3390007019043
+      - 91.81402587890625
+      - 65.33899688720703
+      - 100.81402587890625
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List5[0].PropertyRestraint_cb[0]
+    description: PROPERTY CONTROL
+    x_petey_description_source: tooltip
+    label_source: llm
+  property_control_consent_order:
+    x_petey_id: '2_30'
+    type: category
+    values:
+    - property_control_consent_ind
+    - property_control_do_not_consent_ind
+    widgets:
+      property_control_consent_ind:
+        page: 2
+        rect:
+        - 70.50299835205078
+        - 105.0040283203125
+        - 79.50299835205078
+        - 114.0040283203125
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List5[0].LI1[0].PropertyOrders_cb[0]
+        on_state: '1'
+        caption: I consent to the order requested.
+        x_petey_caption_source: tooltip
+      property_control_do_not_consent_ind:
+        page: 2
+        rect:
+        - 70.50299835205078
+        - 118.8900146484375
+        - 79.50299835205078
+        - 127.8900146484375
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List5[0].LI2[0].PropertyOrders_cb[0]
+        on_state: '2'
+        caption: I do not consent to the order requested
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - property_control_consent_ind
+      - property_control::property_control_do_not_consent_ind
+      name_from: labeler
+  property_control_property_control_consent_to_following_order_ind:
+    x_petey_id: '2_31'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 259.04400634765625
+      - 118.791015625
+      - 268.04400634765625
+      - 127.791015625
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List5[0].LI2[0].ConsentToFollowingOrder_cb[0]
+      on_state: '1'
+    description: 'but I consent to the following order:'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - property_control::property_control_consent_to_following_order_ind
+  property_control_order_specified_txt:
+    x_petey_id: '2_9'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 90.05400085449219
+      - 128.50201416015625
+      - 572.3489990234375
+      - 170.03497314453125
+      widget_type: text
+      path: FL-320[0].Page2[0].List5[0].LI2[0].PropertyConsent_ft[0]
+    description: 'but I consent to the following order: specify'
+    x_petey_description_source: tooltip
+    label_source: llm
+  attorney_fees_and_costs_ind:
+    x_petey_id: '2_10'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 56.3390007019043
+      - 174.72802734375
+      - 65.33899688720703
+      - 183.72802734375
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List6[0].AttorneysFeesCosts_cb[0]
+    description: ATTORNEY'S FEES AND COSTS
+    x_petey_description_source: tooltip
+    label_source: llm
+  attorney_fees:
+    x_petey_id: '2_32'
+    type: category
+    values:
+    - attorney_fees_consent_ind
+    - attorney_fees_do_not_consent_ind
+    widgets:
+      attorney_fees_consent_ind:
+        page: 2
+        rect:
+        - 70.50299835205078
+        - 224.822021484375
+        - 79.50299835205078
+        - 233.822021484375
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List6[0].LI3[0].AttorneysFees_cb[0]
+        on_state: '1'
+        caption: I consent to the order requested.
+        x_petey_caption_source: tooltip
+      attorney_fees_do_not_consent_ind:
+        page: 2
+        rect:
+        - 70.43499755859375
+        - 237.1510009765625
+        - 79.43499755859375
+        - 246.1510009765625
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List6[0].LI4[0].AttorneysFees_cb[0]
+        on_state: '2'
+        caption: I do not consent to the order requested
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - attorney_fees_consent_ind
+      - attorney_fees::attorney_fees_do_not_consent_ind
+  attorney_fees_attorney_fees_consent_to_following_order_ind:
+    x_petey_id: '2_33'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 278.6969909667969
+      - 237.1500244140625
+      - 287.6969909667969
+      - 246.1500244140625
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List6[0].LI4[0].ConsentToFollowingOrder_cb[0]
+      on_state: '1'
+    description: 'but I consent to the following order:'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - attorney_fees::attorney_fees_consent_to_following_order_ind
+  attorney_fees_order_specified_txt:
+    x_petey_id: '2_14'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 90.97200012207031
+      - 246.2979736328125
+      - 572.6119995117188
+      - 279.4439697265625
+      widget_type: text
+      path: FL-320[0].Page2[0].List6[0].LI4[0].AttorneyFeesConsent_ft[0]
+    description: 'but I consent to the following order: specify'
+    x_petey_description_source: tooltip
+    label_source: llm
+  other_orders_requested_ind:
+    x_petey_id: '2_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 56.492000579833984
+      - 296.5429992675781
+      - 65.49199676513672
+      - 305.5429992675781
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List7[0].OtherRelief_cb[0]
+    description: OTHER ORDERS REQUESTED
+    x_petey_description_source: tooltip
+    label_source: llm
+  other_orders_consent:
+    x_petey_id: '2_34'
+    type: category
+    values:
+    - other_orders_consent_ind
+    - other_orders_do_not_consent_ind
+    widgets:
+      other_orders_consent_ind:
+        page: 2
+        rect:
+        - 69.83399963378906
+        - 310.57501220703125
+        - 78.83399963378906
+        - 319.57501220703125
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List7[0].LI1[0].OtherOrders_cb[0]
+        on_state: '1'
+        caption: I consent to the order requested.
+        x_petey_caption_source: tooltip
+      other_orders_do_not_consent_ind:
+        page: 2
+        rect:
+        - 69.83399963378906
+        - 322.3869934082031
+        - 78.83399963378906
+        - 331.3869934082031
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List7[0].LI2[0].OtherOrders_cb[0]
+        on_state: '2'
+        caption: I do not consent to the order requested
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - other_orders_consent_ind
+      - other_orders::other_orders_do_not_consent_ind
+      name_from: labeler
+  other_orders_other_orders_consent_to_following_order_ind:
+    x_petey_id: '2_35'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 278.7650146484375
+      - 322.3869934082031
+      - 287.7650146484375
+      - 331.3869934082031
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List7[0].LI2[0].ConsentToFollowingOrder_cb[0]
+      on_state: '1'
+    description: 'but I consent to the following order:'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - other_orders::other_orders_consent_to_following_order_ind
+  other_orders_order_specified_txt:
+    x_petey_id: '2_19'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 91.04000091552734
+      - 332.8320007324219
+      - 573.7059936523438
+      - 380.25799560546875
+      widget_type: text
+      path: FL-320[0].Page2[0].List7[0].LI2[0].OtherReliefConsent_ft[0]
+    description: 'but I consent to the following order: specify'
+    x_petey_description_source: tooltip
+    label_source: llm
+  time_for_service_hearing_ind:
+    x_petey_id: '2_20'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 56.492000579833984
+      - 384.37799072265625
+      - 65.49199676513672
+      - 393.37799072265625
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List8[0].ChangeOrEndDVRO_cb[0]
+    description: TIME FOR SERVICE / TIME UNTIL HEARING
+    x_petey_description_source: tooltip
+    label_source: llm
+  time_for_service_hearing:
+    x_petey_id: '2_36'
+    type: category
+    values:
+    - time_for_service_hearing_consent_ind
+    - time_for_service_hearing_do_not_consent_ind
+    widgets:
+      time_for_service_hearing_consent_ind:
+        page: 2
+        rect:
+        - 70.06099700927734
+        - 398.1659851074219
+        - 79.06099700927734
+        - 407.1659851074219
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List8[0].LI1[0].TimeForService_cb[0]
+        on_state: '1'
+        caption: I consent to the order requested.
+        x_petey_caption_source: tooltip
+      time_for_service_hearing_do_not_consent_ind:
+        page: 2
+        rect:
+        - 70.06099700927734
+        - 412.0530090332031
+        - 79.06099700927734
+        - 421.0530090332031
+        widget_type: checkbox
+        path: FL-320[0].Page2[0].List8[0].LI2[0].TimeForService_cb[0]
+        on_state: '2'
+        caption: I do not consent to the order requested
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - time_for_service_hearing_consent_ind
+      - time_for_service_hearing::time_for_service_hearing_do_not_consent_ind
+  time_for_service_hearing_time_for_service_hearing_consent_to_following_order_ind:
+    x_petey_id: '2_37'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 278.7650146484375
+      - 412.1180114746094
+      - 287.7650146484375
+      - 421.1180114746094
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List8[0].LI2[0].ConsentToFollowingOrder_cb[0]
+      on_state: '1'
+    description: 'but I consent to the following order:'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 20:31:16'
+      from:
+      - time_for_service_hearing::time_for_service_hearing_consent_to_following_order_ind
+  time_for_service_hearing_order_specified_txt:
+    x_petey_id: '2_24'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 91.04000091552734
+      - 422.10699462890625
+      - 548.5969848632812
+      - 455.2359924316406
+      widget_type: text
+      path: FL-320[0].Page2[0].List8[0].LI2[0].ServiceTimeHearingTimeConsent_ft[0]
+    description: 'but I consent to the following order: specify'
+    x_petey_description_source: tooltip
+    label_source: llm
+  facts_to_support_attachment_9_ind:
+    x_petey_id: '2_26'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 484.7749938964844
+      - 468.5570068359375
+      - 494.7749938964844
+      - 478.5570068359375
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List9[0].Li1[0].attachment10_cb[0]
+    description: Attachment 9.
+    x_petey_description_source: tooltip
+    label_source: llm
+  facts_to_support_ind:
+    x_petey_id: '2_25'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 56.492000579833984
+      - 459.0790100097656
+      - 65.49199676513672
+      - 468.0790100097656
+      widget_type: checkbox
+      path: FL-320[0].Page2[0].List9[0].Li1[0].List10[0].LI1[0].CheckBox1[0]
+    description: FACTS TO SUPPORT my responsive declaration are listed below. The
+      facts that I write and attach to this form cannot be longer than 10 pages, unless
+      the court gives me permission.
+    x_petey_description_source: tooltip
+    label_source: llm
+  facts_to_support_txt:
+    x_petey_id: '2_27'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 76.62300109863281
+      - 482.4419860839844
+      - 574.3579711914062
+      - 651.615966796875
+      widget_type: text
+      path: FL-320[0].Page2[0].List9[0].Li1[0].List10[0].LI1[0].FactsToSupport_ft[0]
+    description: 'FACTS TO SUPPORT my responsive declaration are:'
+    x_petey_description_source: tooltip
+    label_source: llm
+  declaration_dt:
+    x_petey_id: '2_28'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 61.20000076293945
+      - 685.4710083007812
+      - 169.1999969482422
+      - 694.4710083007812
+      widget_type: text
+      path: FL-320[0].Page2[0].Sig_Sub[0].DateTimeField1[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+  declarant_nm:
+    x_petey_id: '2_29'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 704.177001953125
+      - 266.7829895019531
+      - 713.177001953125
+      widget_type: text
+      path: FL-320[0].Page2[0].Sig_Sub[0].YourName_ft[0]
+    description: (TYPE OR PRINT NAME)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: declarant_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: declarant_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 4
+  collisions:
+  - original_label: petitioner_name
+    assigned_label: petitioner_name_2
+    page: 2
+    rect:
+    - 144.36399841308594
+    - 50.61297607421875
+    - 392.77398681640625
+    - 60.614013671875
+  - original_label: respondent_name
+    assigned_label: respondent_name_2
+    page: 2
+    rect:
+    - 144.36399841308594
+    - 62.68798828125
+    - 392.77398681640625
+    - 72.68902587890625
+  - original_label: other_parent_party_name
+    assigned_label: other_parent_party_name_2
+    page: 2
+    rect:
+    - 144.5850067138672
+    - 74.63897705078125
+    - 392.5039978027344
+    - 84.6400146484375
+  - original_label: case_number
+    assigned_label: case_number_2
+    page: 2
+    rect:
+    - 400.0050048828125
+    - 60.85400390625
+    - 572.8049926757812
+    - 72.4539794921875
+x_petey_dropped_widgets:
+  count: 10
+  widgets:
+  - path: FL-320[0].Page1[0].Button1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: FL-320-INFO
+  - path: FL-320[0].Page1[0].List3[0].LI1[0].Button1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: form FL-150
+  - path: FL-320[0].Page1[0].List4[0].LI1[0].Button1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: FL-150
+  - path: FL-320[0].#pageSet[0].MPLast[0].Warning[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: For your protection and privacy, please press the Clear This Form button
+      after you have printed the form.
+  - path: FL-320[0].#pageSet[0].MPLast[0].Print[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Print this form
+  - path: FL-320[0].#pageSet[0].MPLast[0].Save[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Save this form
+  - path: FL-320[0].#pageSet[0].MPLast[0].Reset[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear this form
+  - path: FL-320[0].Page2[0].List6[0].LI1[0].Button1[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: FL-150
+  - path: FL-320[0].Page2[0].List6[0].LI2[0].Button1[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: FL-158
+  - path: FL-320[0].Page2[0].List9[0].Li1[0].Button1[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Attachment 9.
+x_petey_xfa_log:
+  joined: 75
+  type: 1
+  pattern: 4
+x_petey_page_check:
+  when: '2026-10-16 13:35:47'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  fields: 67
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/ca_courts_fl_320__de666e__015fa9c0.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ca_courts_fl_320_20261006_213442
+  blueprint: /home/user/petey-2/runs/judge_eval/work/ca_courts_fl_320.bpt
+  when: '2026-10-06 21:34:59'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ca_courts_fl_320.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:35:00'
