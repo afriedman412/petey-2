@@ -3167,8 +3167,11 @@ MODE.blocks = (() => {
     catch (e) { btn.disabled = false; btn.textContent = 'run finders'; alert(e.message); return; }
     btn.disabled = false; btn.textContent = 'run finders';
     await loadMode();
-    const g = out.grids || [], sup = out.superseded || [];
-    toast((g.length ? `Grids: ${g.length} (${g.slice(0, 6).join(', ')}${g.length > 6 ? ', …' : ''})${sup.length ? `, in place of blocks ${sup.slice(0, 6).join(', ')}${sup.length > 6 ? ', …' : ''}` : ''}. ` : 'No grids. ')
+    const g = out.grids || [], sup = out.superseded || [], pr = out.primed || {};
+    const fill = Object.values(pr.filled || {}).reduce((a, v) => a + v.length, 0), found = Object.values(pr.found || {}).reduce((a, v) => a + v.length, 0);
+    const grew = Object.entries(pr.grew || {}).map(([t, ns]) => `${t} +${ns.length} position${ns.length === 1 ? '' : 's'}`);
+    const prim = [fill ? `${fill} empty position${fill === 1 ? '' : 's'} filled` : '', grew.join(', '), found ? `${found} more cop${found === 1 ? 'y' : 'ies'} found` : ''].filter(Boolean);
+    toast((prim.length ? `Your blocks: ${prim.join('; ')}. ` : '') + (g.length ? `Grids: ${g.length} (${g.slice(0, 6).join(', ')}${g.length > 6 ? ', …' : ''})${sup.length ? `, in place of blocks ${sup.slice(0, 6).join(', ')}${sup.length > 6 ? ', …' : ''}` : ''}. ` : 'No grids. ')
       + (out.types.length ? `Blocks: ${out.types.length} new block type${out.types.length === 1 ? '' : 's'} (${out.types.join(', ')}), ${out.blocks} blocks, ${out.fields} fields.`
          : 'No new repeated blocks among the fields in no block or grid.'));
   }
