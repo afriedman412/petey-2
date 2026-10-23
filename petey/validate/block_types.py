@@ -759,6 +759,13 @@ def discover(bid: str, bp: dict) -> dict:
     rec = gc.load_set(bid)
     rec.setdefault("types", [])
     held = {c for t in rec["types"] for b in t["blocks"] for c in b if c}
+    # and the fields of the active grids: a grid supersedes the blocks inside it (grid_check.superseded), so SIA's
+    # blocks there would only be taken out again
+    code = {n: str(s.get("x_petey_id")) for n, s in (bp.get("fields") or {}).items()
+            if isinstance(s, dict) and s.get("x_petey_id") is not None}
+    held |= {code.get(c["name"]) for g in gc.listing(bid, bp) if g["status"] == "active" for c in g["grid"]} - {None}
+    rec = gc.load_set(bid)                        # as the listing left it
+    rec.setdefault("types", [])
     at = {b["code"]: b for b in _boxes(bp)}
     made, nb, nf = [], 0, 0
     now = time.strftime("%Y-%m-%d %H:%M:%S")

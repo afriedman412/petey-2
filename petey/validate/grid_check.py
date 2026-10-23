@@ -235,9 +235,41 @@ def listing(bid: str, bp: dict) -> list[dict]:
         why = aside_why(t["grid"], on_page)
         if why:
             t["status"], t["aside_why"] = "split", why
+    # a grid that is still active supersedes the blocks lying mostly inside it, two or more of them (Andrew,
+    # 2026-10-23: "form_1095_b_check_p3-G2 should supersede the blocks, we don't need both!"; the twelve
+    # covered-individual blocks on p3, one per row): the blocks leave their types, a type left with none goes.
+    # As labeling does (petey/label/structure.find). Names are left as they are
+    if superseded(rec, out, code):
+        changed = True
     if changed:
         _save_set(bid, rec)
     return out
+
+
+def superseded(rec: dict, grids: list[dict], code: dict) -> list[str]:
+    """Blocks taken out of their types by an active grid holding 2+ of them, each mostly inside it (see `listing`);
+    each such grid's entry says which (`supersedes`). What went, as "BT2-3"."""
+    types = rec.get("types") or []
+    gone: list[str] = []
+    for t in grids:
+        if t["status"] != "active":
+            continue
+        mine = {code.get(c["name"]) for c in t["grid"]} - {None}
+        over = [(y, b) for y in types for b in y["blocks"] if b and {c for c in b if c} & mine]
+        if len(over) < 2 or not all(len({c for c in b if c} & mine) >= 0.5 * sum(1 for c in b if c) for _, b in over):
+            continue
+        names = []
+        for y, b in over:
+            names.append(f"{y['id']}-{next(i for i, x in enumerate(y['blocks'], 1) if x is b)}")
+        for y, b in over:
+            y["blocks"] = [x for x in y["blocks"] if x is not b]
+        e = next((e for e in rec["grids"] if e.get("id") == t["id"]), None)
+        if e is not None:
+            e["supersedes"] = sorted(set(e.get("supersedes") or []) | set(names))
+        gone += names
+    if gone:
+        rec["types"] = [y for y in types if y["blocks"]]
+    return gone
 
 
 def fields_on_page(bp: dict) -> dict[int, list]:

@@ -419,10 +419,19 @@ def _emit(ident: dict, label: str) -> tuple[str, dict | None]:
     return print_name(ident), ident
 
 
-def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[dict[int, str], dict[int, dict], list[int]]:
+def print_cells(page_struct: dict | None, parsed: dict, ids: set[int],
+                why: dict | None = None) -> tuple[dict[int, str], dict[int, dict], list[int]]:
     """({widget id: printed name}, {widget id: identifiers}, [ids left for one-by-one labels]) from a bulk answer:
     each table's cells from its columns' labels and its rows' numbers or labels, each block group's from its
-    fields' labels and the block number."""
+    fields' labels and the block number. `why` collects, per structure id, why fields were left (2026-10-23: the
+    labeler declining SIA's blocks was not logged): {id: Counter(reason)}."""
+    import collections
+    if why is None:
+        why = {}
+
+    def leave(sid, cid, reason):
+        left.append(cid)
+        why.setdefault(sid, collections.Counter())[reason] += 1
     names: dict[int, str] = {}
     parts: dict[int, dict] = {}
     left: list[int] = []
@@ -466,12 +475,17 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
         ckind, cval = axis(ans.get("columns"), "col")
         rkind, rval = axis(ans.get("rows"), "row")
         if not ans or rkind == "unlike" or ckind == "unlike" or (ckind != "labels" and rkind != "labels"):
-            left += [c["id"] for c in cells]
+            reason = ("no answer" if not ans else "unlike" if "unlike" in (rkind, ckind)
+                      else "no row or column labels")
+            for c in cells:
+                leave(t["id"], c["id"], reason)
             continue
         # rows the labeler set aside (a header or totals line of another kind): labeled one by one
         aside = {int(x) - 1 for x in (ans.get("aside") or []) if str(x).isdigit()}
         if aside:
-            left += [c["id"] for c in cells if c["row"] in aside]
+            for c in cells:
+                if c["row"] in aside:
+                    leave(t["id"], c["id"], "row set aside")
             cells = [c for c in cells if c["row"] not in aside]
         # the same label on two columns (or rows): two panes side by side read as one table (ACORD 90 NY's
         # class / seat belt table: vehicles 1-2 left, 3-4 right); the printed names would collide, so those cells
@@ -481,7 +495,9 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 dup = {v for v in val.values() if v and list(val.values()).count(v) > 1}
                 if dup:
                     hit = {i for i, v in val.items() if v in dup}
-                    left += [c["id"] for c in cells if c[key] + 1 in hit]
+                    for c in cells:
+                        if c[key] + 1 in hit:
+                            leave(t["id"], c["id"], f"same {key} label twice")
                     cells = [c for c in cells if c[key] + 1 not in hit]
         # two boxes at one position: the finder gave two different boxes one column; a label cannot name both
         at: dict[tuple, int] = {}
@@ -496,7 +512,7 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
             return "iter", str(i + 1)
         for c in cells:
             if at.get((c["row"], c["col"]), 0) > 1:
-                left.append(c["id"])
+                leave(t["id"], c["id"], "two fields at one place")
                 continue
             ck, cv = tag(ckind, cval, c["col"])
             rk, rv = tag(rkind, rval, c["row"])
@@ -504,7 +520,7 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 names[c["id"]] = ""                         # a line no filer writes in: its cells are dropped
                 continue
             if (ck == "label" and not cv) or (rk == "label" and not rv):
-                left.append(c["id"])
+                leave(t["id"], c["id"], "row or column unlabeled")
                 continue
             base = lambda x: str(x).split(".", 1)[0]     # noqa: E731  a <group>.<value> label: the group names the cell
             if ck == "label" and rk == "label":          # both named: [row]_[column], the suffix from either side
@@ -518,7 +534,7 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 subject, suffix = _split(base(rv))
                 ident = {"subject": subject, "suffix": suffix, "iteration": cv}
             if ident.get("iteration") is None and "iteration" in ident:
-                left.append(c["id"])
+                leave(t["id"], c["id"], "no number for the line")
                 continue
             ident = {k: v for k, v in ident.items() if v}
             src = cv if ck == "label" else rv
@@ -535,7 +551,8 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
         slots = entries((ans or {}).get("fields"), "slot") if ans else {}
         entity = _slug((ans or {}).get("entity")) if ans else ""
         if not slots:
-            left += [c["id"] for c in cells]
+            for c in cells:
+                leave(b["id"], c["id"], "no answer" if not ans else "no field labels")
             continue
         for c in cells:
             lab = slots.get(c["slot"] + 1)
@@ -543,7 +560,7 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 names[c["id"]] = ""
                 continue
             if not lab:
-                left.append(c["id"])
+                leave(b["id"], c["id"], "position unlabeled")
                 continue
             subject, suffix = _split(lab.split(".", 1)[0])
             if entity:                   # [entity]_[block number]_[field] (Andrew, 2026-10-22: child_2_ssn_1)

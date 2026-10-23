@@ -88,3 +88,27 @@ def test_a_grid_half_inside_a_larger_block_leaves_it_to_the_block(monkeypatch, t
     _finders(monkeypatch, [cells], [block])
     st = S.find(tmp_path / "x.pdf", entries + more)
     assert st[1]["tables"] == [] and len(st[1]["blocks"]) == 1
+
+
+def test_option_groups_named_alike_in_block_copies_are_numbered_not_dropped():
+    """B 106D (2026-10-23): "who owes the debt" in every claim, named alike; each copy keeps its options."""
+    from petey.label.auto_label import _number_copies
+    w = lambda y: {"page": 1, "rect": [0, y, 10, y + 10]}                          # noqa: E731
+    got = _number_copies({("who_owes_debt", (2, "B1", 1)): {"debtor_1": w(1)},
+                          ("who_owes_debt", (1, "B1", 0)): {"debtor_1": w(2)},
+                          ("who_owes_debt", (2, "B1", 0)): {"debtor_1": w(3)},
+                          ("void", None): {"yes": w(4)}, ("lien", (1, "B1", 0)): {"other": w(5)}})
+    assert {k: v["debtor_1"]["rect"][1] for k, v in got.items() if k.startswith("who")} == \
+        {"who_owes_debt_1": 2, "who_owes_debt_2": 3, "who_owes_debt_3": 1}
+    assert "void" in got and "lien" in got                 # alone: no number
+
+
+def test_print_cells_says_why_it_left_fields():
+    """2026-10-23: 180 of 1095-B's fields went back one by one and nothing said why."""
+    st = {"tables": [], "blocks": [{"id": "B1", "cells": [{"id": i, "block": i // 2, "slot": i % 2} for i in range(4)]},
+                                   {"id": "B2", "cells": [{"id": 10 + i, "block": i // 2, "slot": i % 2} for i in range(4)]}]}
+    parsed = {"blocks": [{"id": "B2", "entity": "child", "fields": [{"slot": 1, "label": "name"}]}]}
+    why: dict = {}
+    _, _, left = S.print_cells(st, parsed, set(range(4)) | set(range(10, 14)), why)
+    assert sorted(left) == [0, 1, 2, 3, 11, 13]
+    assert dict(why["B1"]) == {"no answer": 4} and dict(why["B2"]) == {"position unlabeled": 2}

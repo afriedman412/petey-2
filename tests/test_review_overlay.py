@@ -7,7 +7,7 @@ from tests.test_block_types import area, blueprint, use_tmp_records
 
 def test_the_overlay_has_accepted_fields_grids_and_blocks(monkeypatch, tmp_path):
     use_tmp_records(monkeypatch, tmp_path)
-    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2)]
     bp = blueprint(rows)
     bt.draw("t0", bp, 1, area(0))
     bt.draw("t0", bp, 1, area(1))
@@ -15,8 +15,8 @@ def test_the_overlay_has_accepted_fields_grids_and_blocks(monkeypatch, tmp_path)
     assert {f["name"] for f in out["fields"] if f["accepted"]} == {"child_1_nm"}
     assert [b["id"] for b in out["blocks"]] == ["BT1-1", "BT1-2"] and not any(b["validated"] for b in out["blocks"])
     assert out["blocks"][0]["bbox"][1] == 100
-    # the three rows read as a grid by the finder; held back while two of them are a block type's blocks? Only a grid
-    # mostly inside one block is: this one spans three blocks, so it stays a grid
+    # the two rows read as a grid by the finder: 2 x 3, small, set aside, so the blocks stay (an active grid over
+    # them would supersede them: test_block_types)
     assert all(g["page"] == 1 for g in out["grids"])
 
 

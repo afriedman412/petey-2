@@ -559,11 +559,11 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
             results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
                                                                  guidance=S.guidance_bulk(structure, {w["id"] for w in b}),
                                                                  want_parsed=True), bs))
-        merged, left_ids = {}, []
+        merged, left_ids, why = {}, [], {}
         for b, (labels, parsed) in zip(bs, results):
             ids = {w["id"] for w in b}
             merged.update({i: l for i, l in labels.items() if i not in inside})
-            names, parts, left = S.print_cells(structure, parsed, ids)
+            names, parts, left = S.print_cells(structure, parsed, ids, why)
             merged.update(names)
             if parts_out is not None:
                 parts_out.update(parts)
@@ -574,10 +574,15 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
         if left_ids:                          # cells the bulk answer did not cover: labeled one by one, guided
             by_id = {w["id"]: w for w in widgets_on_page}
             rest = [by_id[i] for i in left_ids if i in by_id]
-            print(f"    [batch] {len(rest)} cells left by the bulk answer, labeled one by one")
-            for i in range(0, len(rest), LABEL_BATCH):
-                merged.update(_label_batch_via_llm(rest[i:i + LABEL_BATCH], words, model=model, think=think,
-                                                   guidance=S.guidance(structure, {w["id"] for w in rest[i:i + LABEL_BATCH]})))
+            print(f"    [batch] {len(rest)} cells left by the bulk answer, labeled one by one ("
+                  + "; ".join(f"{sid}: " + ", ".join(f"{n} {r}" for r, n in c.most_common()) for sid, c in why.items())
+                  + ")")
+            # the left cells' batches go out together, as the bulk batches do (2026-10-23: they went one after another)
+            parts_ = [rest[i:i + LABEL_BATCH] for i in range(0, len(rest), LABEL_BATCH)]
+            with ThreadPoolExecutor(max_workers=len(parts_)) as ex:
+                for r in ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
+                                                               guidance=S.guidance(structure, {w["id"] for w in b})), parts_):
+                    merged.update(r)
         printed = sum(1 for i in merged if i in inside and i not in left_ids)
         print(f"    [structure] {printed} cells printed from column / field labels, {len(left_ids)} labeled one by one")
         return merged
@@ -764,6 +769,22 @@ def _sha1(path: Path) -> str:
         for chunk in iter(lambda: f.read(1 << 16), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _number_copies(mutex_widgets: dict[tuple, dict]) -> dict[str, dict]:
+    """{group name: {option: widget}} from {(group, block copy or None): ...}: an option group named alike in two or
+    more copies of a block gets the copy's number, counted in reading order across pages, as a field's own number
+    (B 106D, 2026-10-23: claims 1-2 on p1, 3-5 on p2 -> who_owes_debt_1 .. _5)."""
+    copies: dict[str, list] = {}
+    for g, cp in mutex_widgets:
+        if cp is not None:
+            copies.setdefault(g, []).append(cp)
+    number = {(g, cp): k for g, cps in copies.items() if len(cps) > 1
+              for k, cp in enumerate(sorted(cps, key=lambda x: (x[0], str(x[1]), x[2])), 1)}
+    out: dict[str, dict] = {}
+    for (g, cp), opts in mutex_widgets.items():
+        out[f"{g}_{number[(g, cp)]}" if (g, cp) in number else g] = opts
+    return out
 
 
 def build_blueprint(
@@ -1004,7 +1025,17 @@ def build_blueprint(
         w["label"] = labels_by_id.get(w["id"], "")
 
     fields: dict[str, dict] = {}
-    mutex_widgets: dict[str, dict[str, dict]] = {}
+    mutex_widgets: dict[tuple, dict[str, dict]] = {}     # (group, block copy or None) -> {option: widget}
+    # the copy of a block each field sits in (the structure finder's): an option group the labeler names alike in
+    # every copy of a block is one group per copy, numbered by the copy (Andrew, 2026-10-23: "group after we label
+    # the boxes so the group just picks up the iteration"; B 106D p2's three claims each had "who owes the debt",
+    # and all but one copy's options were dropped as repeats). Grids are left as they were: a group can run
+    # across a grid's rows
+    copy_of: dict[int, tuple] = {}
+    for _pg, _st in page_structure.items():
+        for _b in _st.get("blocks") or []:
+            for _c in _b["cells"]:
+                copy_of[_c["id"]] = (_pg, _b.get("id"), _c["block"])
     page_captions: list[dict] = []
     dedup = DedupState()
     n_tooltip_descriptions = 0
@@ -1100,11 +1131,13 @@ def build_blueprint(
 
         if "." in label:
             group, value = label.split(".", 1)
-            if value in mutex_widgets.get(group, {}):
+            key = (group, copy_of.get(w["id"]))
+            if value in mutex_widgets.get(key, {}):
+                print(f"  [options] {group}.{value} named twice (p{w['page']}); the second option is left out")
                 continue
             if w.get("on_state"):
                 widget_block = dict(widget_block, on_state=w["on_state"])
-            mutex_widgets.setdefault(group, {})[value] = widget_block
+            mutex_widgets.setdefault(key, {})[value] = widget_block
             continue
         assigned = dedup.assign(
             label, page=w["page"], rect=w["rect"],
@@ -1130,7 +1163,7 @@ def build_blueprint(
             spec["x_petey_identifiers"] = {k: v for k, v in parts_by_id[w["id"]].items() if k != "kind"}
         fields[assigned] = _attach_audit(spec, w["id"])
 
-    for group, val_to_widget in mutex_widgets.items():
+    for group, val_to_widget in _number_copies(mutex_widgets).items():
         values = sorted(val_to_widget.keys())
         if len(values) <= 1:
             for v, w_block in val_to_widget.items():

@@ -506,9 +506,10 @@ def test_a_rescan_grows_a_type_to_the_fields_repeating_in_every_block(monkeypatc
 
 def test_a_grid_split_between_blocks_is_set_aside_unless_regular(monkeypatch, tmp_path):
     """Andrew, 2026-10-22: "grids that are split between blocks are probably not correct, unless they are very
-    uniformly shaped" ("both rows and columns can be inconsistently sized"): kept when a solid lattice, set aside when
-    another field sits inside it (VA 21P-534EZ p13: SSN boxes lined up through the children's blocks); restored by
-    hand, it stays."""
+    uniformly shaped" ("both rows and columns can be inconsistently sized"): set aside when another field sits inside
+    it (VA 21P-534EZ p13: SSN boxes lined up through the children's blocks), the blocks kept; restored by hand, it
+    stays. A grid that stays supersedes the blocks inside it (2026-10-23: "form_1095_b_check_p3-G2 should supersede
+    the blocks, we don't need both!")."""
     use_tmp_records(monkeypatch, tmp_path)
     rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
     bp = blueprint(rows)
@@ -517,14 +518,27 @@ def test_a_grid_split_between_blocks_is_set_aside_unless_regular(monkeypatch, tm
     g = [{"name": n, "page": 1, "row": r, "col": c} for r, row in enumerate(rows) for c, n in enumerate(row)]
     bp["fields"]["child_3_nm"]["widget"]["rect"][3] += 6                      # sizes may differ
     assert gc.uniform(bp, g)
-    assert all(t["status"] == "active" for t in gc.listing("t0", bp))
     bp["fields"]["note_txt"] = {"type": "string", "x_petey_id": "1_77",       # another field inside the grid
                                 "widget": {"page": 1, "widget_type": "text", "rect": [260, 140, 300, 150]}}
     assert not gc.uniform(bp, g)
     split = [t for t in gc.listing("t0", bp) if t["status"] == "split"]
     assert split and "BT1-1" in split[0]["aside_why"]
+    assert len(gc.load_set("t0")["types"][0]["blocks"]) == 3                 # set aside: the blocks stay
     gc.set_status("t0", split[0]["id"], False)                                # restored: a grid after all
     assert next(t for t in gc.listing("t0", bp) if t["id"] == split[0]["id"])["status"] == "active"
+    rec = gc.load_set("t0")
+    assert not rec["types"] and rec["grids"][0]["supersedes"] == ["BT1-1", "BT1-2", "BT1-3"]
+
+
+def test_a_regular_grid_supersedes_the_blocks_inside_it_and_run_finders_leaves_them(monkeypatch, tmp_path):
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
+    bp = blueprint(rows)
+    for b in range(3):
+        bt.draw("t1", bp, 1, area(b))
+    assert [t["status"] for t in gc.listing("t1", bp)] == ["active"]
+    assert not gc.load_set("t1")["types"]
+    assert bt.discover("t1", bp)["types"] == []                              # SIA does not rebuild them
 
 
 def test_an_empty_prefix_is_an_error_only_when_the_prefix_tells_the_block_apart(monkeypatch, tmp_path):

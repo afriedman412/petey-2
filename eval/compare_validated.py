@@ -2,7 +2,7 @@
 and score on comparison"). Boxes are matched by page and widget rect (both come from the same form layer):
 
   extraction   values filled into the blank and read back wrong, first and last loop round (the measure that counts)
-  coverage     validated boxes the run has, misses, and boxes the run adds that the validated blueprint does not
+  coverage     validated fields and options the run has, misses, and adds (matched by position)
   groups       validated option groups the run groups the same (same boxes), and how many it left split or merged
   names        exact name match, and subject agreement with the suffix left out (simple_names_bench.subject_class)
   types        type agreement on matched boxes; semantic types dropped or conflicting (not counted: the run being
@@ -99,7 +99,7 @@ def pct(a, b):
 def main() -> int:
     args = sys.argv[1:]
     paths = h.blueprint_paths()
-    print("| run | wrong read back (first, last round) | boxes found / missed / extra | groups same | names exact "
+    print("| run | wrong read back (first, last round) | fields and options found / missed / extra | groups same | names exact "
           "| subject ok / different | type ok | semantic dropped or off | round-0 flags |")
     print("|---|---|---|---|---|---|---|---|---|")
     for run, vid in zip(args[::2], args[1::2]):
