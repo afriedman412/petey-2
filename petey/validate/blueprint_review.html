@@ -128,7 +128,8 @@
   .gax { margin-top:8px; } .gax h4 { margin:0 0 3px; }
   .gax-i { padding:2px 0 2px 8px; border-left:3px solid transparent; font-size:12px; }
   .gax-i.ok { border-left-color:rgba(134,239,172,.35); } .gax-i.off { border-left-color:var(--amber); }
-  .gax-i code { font-size:11px; } .gax-act { margin:2px 0 3px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .gax-i code { font-size:11px; } .gax-i code.gedit { cursor:text; border-bottom:1px dashed var(--border); } .gax-i code.gedit:hover { border-bottom-color:var(--accent, #f97316); }
+  .gedit-in { font:11px ui-monospace, monospace; background:var(--surface-2); color:inherit; border:1px solid var(--border); border-radius:4px; padding:1px 4px; } .gax-act { margin:2px 0 3px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
   .gax-act .stale { font-size:11px; flex-basis:100%; } .good { color:var(--green); }
   .gtres { margin:6px 0; font-size:12px; } .gtbtns { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; } .gtbtns .btn { margin-top:0; }
   .gtab.dragging, .btb.dragging, .bfield.dragging { opacity:.4; }
@@ -2652,14 +2653,17 @@ MODE.grids = (() => {
     const list = items.map(x => {
       if (isPos) {
         const ok = !x.plan && x.wordings.length < 2;
-        return `<div class="gax-i ${ok ? 'ok' : 'off'}"><b>${word} ${x.pos}</b> ${x.wordings.map(([w, n]) => `<code>${esc(w)}</code>${x.wordings.length > 1 ? `<span class="help"> x${n}</span>` : ''}`).join(' · ')}
+        const code = w => pv.keyed ? `<code>${esc(w)}</code>`
+          : `<code class="gedit" data-epos="${esc(t.id)}" data-pos="${x.pos}" data-val="${esc(w)}" title="click to edit: every cell of this ${word} under the wording you type, _# where the number goes; Enter applies, Esc cancels">${esc(w)}</code>`;
+        return `<div class="gax-i ${ok ? 'ok' : 'off'}"><b>${word} ${x.pos}</b> ${x.wordings.map(([w, n]) => `${code(w)}${x.wordings.length > 1 ? `<span class="help"> x${n}</span>` : ''}`).join(' · ')}
           ${x.caption ? `<span class="help"> · printed "${esc(x.caption)}"</span>` : ''}${x.locked ? '<span class="help"> · printed line numbers, kept</span>' : ''}
           ${x.off ? `<span class="stale"> · ${x.off} cell${x.off === 1 ? '' : 's'} numbered off their ${axis === 'col' ? 'rows' : 'columns'}</span>` : ''}${ok ? ' <span class="good">✓</span>' : ''}
           ${planHtml(t.id, x.plan, 'standardize', `data-std="${esc(t.id)}" data-pos="${x.pos}"`, x.wordings.length > 1 && !pv.keyed
             ? `<select data-pick="${esc(t.id)}" data-pos="${x.pos}" title="every cell of ${word} ${x.pos} under the wording you pick, each numbered as its ${axis === 'col' ? 'row' : 'column'}"><option value="">or pick the wording…</option>${x.wordings.map(([w, n]) => `<option value="${esc(w)}">${esc(w)} (${n})</option>`).join('')}<option value="?">type another…</option></select>` : '')}</div>`;
       }
       const off = x.plan && (x.plan.renames.length || x.plan.left.length);
-      const lab = x.label != null ? `<code>${esc(x.label || '?')}</code>` : `number <code>${esc(x.number ?? '?')}</code>${(x.numbers || []).length > 1 ? ` <span class="stale">also ${esc(x.numbers.slice(1).join(', '))}</span>` : ''}${x.plan && x.plan.renames.length && x.expect != null && x.number != null && String(x.expect) !== String(x.number) ? ` <span class="stale">(should be ${esc(x.expect)})</span>` : ''}${x.note ? ` <span class="help">· ${esc(x.note)}</span>` : ''}`;
+      const ed = v => v ? `<code class="gedit" data-eline="${esc(t.id)}" data-line="${x.line}" data-val="${esc(v)}" title="click to edit: the ${word}'s ${x.label != null ? 'label' : 'number'} in each of its cells' names; Enter applies, Esc cancels">${esc(v)}</code>` : '<code>?</code>';
+      const lab = x.label != null ? ed(x.label) : `number ${ed(x.number)}${(x.numbers || []).length > 1 ? ` <span class="stale">also ${esc(x.numbers.slice(1).join(', '))}</span>` : ''}${x.plan && x.plan.renames.length && x.expect != null && x.number != null && String(x.expect) !== String(x.number) ? ` <span class="stale">(should be ${esc(x.expect)})</span>` : ''}${x.note ? ` <span class="help">· ${esc(x.note)}</span>` : ''}`;
       return `<div class="gax-i ${off ? 'off' : 'ok'}"><b>${word} ${x.line}</b> ${lab} <span class="help">· ${x.cells} cells</span>${off ? '' : ' <span class="good">✓</span>'}
         ${planHtml(t.id, x.plan, 'renumber', `data-std="${esc(t.id)}" data-line="${x.line}"`)}</div>`;
     }).join('');
@@ -2701,6 +2705,7 @@ MODE.grids = (() => {
     a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = () => setAside(b.dataset.notgrid, true));
     a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
     a.querySelectorAll('[data-std]').forEach(b => b.onclick = () => standardize(b.dataset.std, b.dataset.pos, b.dataset.line));
+    a.querySelectorAll('[data-epos], [data-eline]').forEach(el => el.onclick = e => { e.stopPropagation(); editLabel(el); });
     a.querySelectorAll('[data-pick]').forEach(sel => sel.onchange = () => {
       let w = sel.value; if (!w) return;
       if (w === '?') { w = (prompt('The wording for every cell, with _# where the number goes (e.g. vehicle_#_make_txt):') || '').trim(); if (!w) { sel.value = ''; return; } }
@@ -2712,6 +2717,33 @@ MODE.grids = (() => {
     };
   }
   async function reload() { const keep = results; await loadMode(); results = keep; }
+  // a column's wording or a row's label edited in place (Andrew, 2026-10-23: "can we add the ability to edit grid
+  // labels ... from the grid page"): the column through standardize with the wording typed, the row through relabel
+  function editLabel(el) {
+    const inp = document.createElement('input');
+    inp.className = 'gedit-in'; inp.value = el.dataset.val; inp.size = Math.max(8, el.dataset.val.length + 2);
+    el.replaceWith(inp); inp.focus(); inp.select();
+    let done = false;
+    const finish = v => {
+      if (done) return; done = true;
+      if (v == null || !v.trim() || v.trim() === el.dataset.val) { panel(); return; }
+      if (el.dataset.epos) standardize(el.dataset.epos, el.dataset.pos, null, v.trim());
+      else relabel(el.dataset.eline, el.dataset.line, v.trim());
+    };
+    inp.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') finish(inp.value); else if (e.key === 'Escape') finish(null); };
+    inp.onblur = () => finish(null);
+    inp.onclick = e => e.stopPropagation();
+  }
+  async function relabel(tid, line, label) {
+    const form = bid; busy.add(tid); panel();
+    let out;
+    try { out = await send('POST', mapi('grids', '/relabel'), {table: tid, line: +line, label}); }
+    catch (e) { out = {status: 'error', steps: ['relabel failed: ' + e.message]}; }
+    busy.delete(tid); if (bid !== form) return;
+    results[tid] = out; if (out.entry) updateEntry(out.entry);
+    await reload();
+    toast(`${tid}: ${out.status}.` + ((out.left || []).length ? ` ${out.left.length} left, see the card.` : ''));
+  }
   async function standardize(tid, pos, line, wording) {
     const form = bid; busy.add(tid); panel();
     let out;
@@ -2804,7 +2836,7 @@ MODE.grids = (() => {
     help: {keys: [['n / p', 'next / previous grid'], ['Enter', 'check & validate the selected grid'], ['Delete', 'the selected grid is not a grid'], ['Esc', 'deselect']],
            tips: ['Drag on an empty part of the page, or Shift+drag anywhere, to draw a grid: the fields whose middle is inside become one.',
                   'Drag a grid onto another on the same page to combine them; "not a grid" on the combined one gives them back.',
-                  'A selected grid lists its columns and rows. Each standardize or renumber button says how many renames it makes (hover for them); where there is nothing it can do, the reason is under it. A column whose cells split evenly between wordings has a picker: choose one, or type another.',
+                  'A selected grid lists its columns and rows. Click a column\'s wording, or a row\'s label or number, to edit it: Enter renames every cell of that column or row (as Claude\'s changes, nothing accepted). Each standardize or renumber button says how many renames it makes (hover for them); where there is nothing it can do, the reason is under it. A column whose cells split evenly between wordings has a picker: choose one, or type another.',
                   'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.']},
     place, panel,
     progress() {

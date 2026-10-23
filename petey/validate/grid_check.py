@@ -719,6 +719,59 @@ def standardize(bid: str, tid: str, *, apply, pos: Optional[int] = None, line: O
             "left": r["left"]}
 
 
+def relabel_line(bid: str, tid: str, line: int, label: str, *, apply) -> dict:
+    """A row's label (or number) edited on the Grids card (Andrew, 2026-10-23: "can we add the ability to edit grid
+    labels ... from the grid page"): in every cell of the line (1-based, as the card lists them) the label it carries
+    is put to `label`, word for word where it sits in the name (applicant_first_nm -> spouse_first_nm;
+    covered_individual_7_ssn -> covered_individual_19_ssn). A cell whose name does not carry the label, or whose new
+    name another field holds, is left and said. {status, steps, applied, left}; nothing accepted."""
+    import re
+    bp = h._load(h.working_path(bid))
+    t, g = _grid(bp, tid, bid)
+    if not g:
+        return {"status": "gone", "steps": ["the grid is no longer found on the page (renamed or moved?)"]}
+    new = re.sub(r"[^a-z0-9]+", "_", str(label or "").lower()).strip("_")
+    if not new:
+        return {"status": "nothing changed", "steps": ["no label given"], "applied": [], "left": []}
+    pv = preview(bid, tid)
+    x = next((x for x in pv["lines"] if x["line"] == line), None)
+    if x is None:
+        return {"status": "nothing changed", "steps": [f"no row {line}"], "applied": [], "left": []}
+    old = str(x.get("label") if x.get("label") is not None else x.get("number") or "")
+    num_axis = "row" if pv["pos_axis"] == "col" else "col"
+    what = f"{'row' if num_axis == 'row' else 'column'} {line}"
+    if not old:
+        return {"status": "nothing changed", "steps": [f"{what}: its cells carry no label or number to change"],
+                "applied": [], "left": []}
+    olds, news = old.split("_"), new.split("_")
+    fields = bp.get("fields") or {}
+    renames, left = {}, []
+    for c in G.body(g):
+        if c[num_axis] != line - 1:
+            continue
+        w = c["name"].split("_")
+        at = next((i for i in range(len(w) - len(olds) + 1) if w[i:i + len(olds)] == olds), None)
+        if at is None:
+            left.append(f"{c['name']}: does not carry {old!r}")
+            continue
+        n = "_".join(w[:at] + news + w[at + len(olds):])
+        if n != c["name"] and n in fields:
+            left.append(f"{c['name']}: {n} is already another field's name")
+            continue
+        if n != c["name"]:
+            renames[c["name"]] = n
+    steps = [f"{what}: {old} -> {new}"] + left
+    if not renames:
+        return {"status": "nothing changed", "steps": steps, "applied": [], "left": left}
+    out = apply([{"field": o, "edit": {"name": n}, "why": f"grids: {what} of {tid} relabeled {old} -> {new}"}
+                 for o, n in renames.items()])
+    if out.get("errors"):
+        steps.append("not all applied: " + "; ".join(out["errors"][:3]))
+    steps.append(f"{len(out.get('changes') or [])} renamed")
+    return {"status": f"{len(out.get('changes') or [])} renamed", "steps": steps, "applied": out.get("changes") or [],
+            "left": left}
+
+
 def _what(g: list[dict], pos: Optional[int], line: Optional[int]) -> str:
     """'column 3' / 'row 2' as the grid lies on the page (positions are columns unless the grid reads by rows)."""
     if not (pos or line):

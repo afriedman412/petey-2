@@ -150,6 +150,13 @@ class Grids:
         self.app.refresh()
         return {**out, "entry": self.app.entry(bid)}
 
+    def relabel(self, bid: str, tid: str, line, label: str) -> dict:
+        """A row's label or number edited on the card (2026-10-23)."""
+        from petey.validate import grid_check
+        out = grid_check.relabel_line(bid, tid, int(line), label, apply=self._apply(bid))
+        self.app.refresh()
+        return {**out, "entry": self.app.entry(bid)}
+
     def check(self, bid: str, tid: str) -> dict:
         from petey.validate import form_chat, grid_check
         apply = self._apply(bid)
@@ -921,7 +928,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.blocks.block_keep(bid, body["block"], body["pos"], bool(body.get("on", True))), bid)
         if (mode, what) == ("blocks", "bfix"):          # one block's names put to its type's wordings
             return self._route(lambda: APP.blocks.block_fix(bid, body["block"]), bid)
-        if mode == "grids" and what in ("check", "cancel", "dismiss", "create", "combine", "standardize", "preview"):
+        if mode == "grids" and what in ("check", "cancel", "dismiss", "create", "combine", "standardize", "preview",
+                                        "relabel"):
             tab = APP.grids
             if what == "preview":                        # what each standardize button would do, nothing written
                 return self._route(lambda: tab.preview(bid, body["table"]), bid)
@@ -932,6 +940,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             if what == "standardize":                    # a position (a wording picked, or not), all of them, or a line
                 return self._route(lambda: tab.standardize(bid, body["table"], body.get("pos"), body.get("line"),
                                                            body.get("wording")), bid)
+            if what == "relabel":                        # a row's label or number edited (2026-10-23)
+                return self._route(lambda: tab.relabel(bid, body["table"], body["line"], body.get("label") or ""), bid)
             if what == "dismiss":                        # "not a grid", or restore
                 return self._route(lambda: tab.dismiss(bid, body["table"], bool(body.get("on", True))), bid)
             if what == "create":                         # drawn on the page

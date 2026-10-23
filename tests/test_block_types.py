@@ -630,3 +630,19 @@ def test_a_group_in_every_block_becomes_one_position(monkeypatch, tmp_path):
     assert bt.wordings(bp, t)[2] == "status"
     bp["fields"]["child_2_state"] = bp["fields"].pop("child_2_status")      # renamed in Groups: the block sees it
     assert [(d["name"], d["want"]) for d in bt.check_block(bp, t, t["blocks"][1])["differs"]] == [("child_2_state", "child_2_status")]
+
+
+def test_a_grid_row_is_relabeled_in_each_of_its_cells(monkeypatch, tmp_path):
+    """Andrew (2026-10-23): "can we add the ability to edit grid labels ... from the grid page": a row's number (or
+    label) put to what was typed in each of its cells' names; a name another field holds is left."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
+    bp = blueprint(rows, {"child_7_ind": {"type": "boolean", "widget": {"page": 2, "widget_type": "checkbox",
+                                                                      "rect": [0, 0, 10, 10]}}})
+    monkeypatch.setattr(gc.h, "working_path", lambda bid, *a: tmp_path / "x.bpt")
+    monkeypatch.setattr(gc.h, "_load", lambda p: bp)
+    (g,) = [t for t in gc.listing("t2", bp) if t["status"] == "active"]
+    got = []
+    out = gc.relabel_line("t2", g["id"], 2, "7", apply=lambda edits: got.extend(edits) or {"changes": edits})
+    assert {e["field"]: e["edit"]["name"] for e in got} == {"child_2_nm": "child_7_nm", "child_2_birth_dt": "child_7_birth_dt"}
+    assert out["left"] == ["child_2_ind: child_7_ind is already another field's name"]
