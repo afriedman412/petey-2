@@ -1,4 +1,4 @@
-"""The cancel button on a grid / block check (petey/validate/blueprint_review.py, Andrew 2026-10-21: "can the cancel
+"""The cancel button on a grid check (petey/validate/blueprint_review.py, Andrew 2026-10-21: "can the cancel
 button cancel the validation query"): nothing written after it, a call to Opus under way given up."""
 import threading
 import time
@@ -25,7 +25,7 @@ def test_until_gives_up_a_call_under_way():
 def test_a_cancelled_check_writes_nothing_after_the_cancel(monkeypatch):
     wrote = []
     app = types.SimpleNamespace(refresh=lambda: None, entry=lambda bid: {}, accept_grid=lambda *a: wrote.append(a))
-    tab = br.Grids(app, "block")
+    tab = br.Grids(app)
     monkeypatch.setattr(br.Grids, "_apply", lambda self, bid: lambda edits: wrote.append(edits) or {"changes": edits})
 
     def slow_check(bid, tid, *, accept, apply, ask_opus):      # Jev for a while, then the renames
@@ -34,12 +34,58 @@ def test_a_cancelled_check_writes_nothing_after_the_cancel(monkeypatch):
         accept(1, ["b"])
         return {"status": "fixed", "steps": []}
     monkeypatch.setattr(grid_check, "check", slow_check)
-    threading.Timer(0.1, lambda: tab.cancel("je__x", "p1-BG1")).start()
-    out = tab.check("je__x", "p1-BG1")
+    threading.Timer(0.1, lambda: tab.cancel("je__x", "p1-T1")).start()
+    out = tab.check("je__x", "p1-T1")
     assert out["status"] == "cancelled" and wrote == []
     assert not tab.running and not tab.stop
 
 
 def test_cancel_with_no_check_under_way_leaves_no_flag():
-    tab = br.Grids(types.SimpleNamespace(), "table")
+    tab = br.Grids(types.SimpleNamespace())
     assert tab.cancel("je__x", "p1-T1") == {"cancelled": False} and not tab.stop
+
+
+def test_small_finder_grids_are_set_aside_and_ids_say_grid(tmp_path, monkeypatch):
+    """Andrew (2026-10-23): "i_829_check_p4-T1 is a frivolous grid" (3 x 2: two blocks side by side) and "we need to
+    rename these G1 G2 etc because they are grids". Under 3 x 3 and under 12 cells: set aside, restorable; 3 x 3
+    stays; ids are p1-G1."""
+    from petey.validate import grid_check as gc
+    monkeypatch.setattr(gc, "SETS", tmp_path)
+    monkeypatch.setattr(gc, "_set_path", lambda bid: tmp_path / f"{bid}.json")
+    monkeypatch.setattr(gc, "not_grids", lambda bid: [])
+
+    def lattice(rows, cols, y0):
+        return {f"r{y0}_{r}_{c}": {"type": "string", "x_petey_id": f"1_{y0}{r}{c}",
+                                   "widget": {"page": 1, "widget_type": "text",
+                                              "rect": [50 + 120 * c, y0 + 30 * r, 150 + 120 * c, y0 + 30 * r + 14]}}
+                for r in range(rows) for c in range(cols)}
+    bp = {"fields": {**lattice(3, 2, 100), **lattice(3, 3, 400)}}
+    out = {(len({c["row"] for c in t["grid"]}), len({c["col"] for c in t["grid"]})): t for t in gc.listing("t1", bp)}
+    assert all(t["id"].startswith("p1-G") for t in out.values())
+    if (3, 2) in out:
+        assert out[(3, 2)]["status"] == "split" and "small" in out[(3, 2)]["aside_why"]
+    if (3, 3) in out:
+        assert out[(3, 3)]["status"] == "active"
+
+
+def test_a_grid_over_as_many_other_fields_as_cells_is_set_aside(tmp_path, monkeypatch):
+    """Andrew (2026-10-23): a grid may hold a few other fields in its outline, "but if ... it contains 6 fields but
+    covers almost twice as many" it is no grid. A 3 x 3 lattice with 10 small boxes scattered between its rows."""
+    from petey.validate import grid_check as gc
+    monkeypatch.setattr(gc, "SETS", tmp_path)
+    monkeypatch.setattr(gc, "_set_path", lambda bid: tmp_path / f"{bid}.json")
+    monkeypatch.setattr(gc, "not_grids", lambda bid: [])
+    f = {f"a_{r}_{c}": {"type": "string", "x_petey_id": f"1_a{r}{c}",
+                        "widget": {"page": 1, "widget_type": "text", "rect": [50 + 160 * c, 100 + 30 * r, 150 + 160 * c, 114 + 30 * r]}}
+         for r in range(3) for c in range(3)}
+    def lattice_only(extra):
+        return [t for t in gc.listing("t2", {"fields": {**f, **extra}})
+                if {c["name"] for c in t["grid"]} >= {f"a_{r}_{c}" for r in range(3) for c in range(3)}]
+    few = {f"x_{i}": {"type": "boolean", "x_petey_id": f"1_x{i}",
+                      "widget": {"page": 1, "widget_type": "checkbox", "rect": [61 + 41 * i, 118 + 30 * (i % 2), 67 + 41 * i, 124 + 30 * (i % 2)]}}
+           for i in range(10)}
+    got = lattice_only(few)
+    assert got and all(t["status"] == "split" and "other fields" in t["aside_why"] for t in got)
+    (tmp_path / "t2.json").unlink()
+    got = lattice_only({k: few[k] for k in list(few)[:3]})          # 3 others to 9 cells: a grid
+    assert got and all(t["status"] == "active" for t in got)

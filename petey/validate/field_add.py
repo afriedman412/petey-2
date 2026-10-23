@@ -487,6 +487,23 @@ def _option_caption(ctx: Context, page: int, rect, others) -> Optional[str]:
         doc.close()
 
 
+def _option_units(opts: list[tuple[dict, str]]) -> list[list[tuple[dict, str]]]:
+    """The option boxes of a selection as proposals: each its own field (Andrew, 2026-10-22: selecting several fields
+    should not group them; grouping is the Groups tab's), except the radio buttons of one AcroForm field, which are
+    one field in the PDF and stay one group."""
+    units: list[list] = []
+    radios: dict[str, list] = {}
+    for c, s in opts:
+        if s == "widget" and c.get("widget_type") == "radiobutton" and c.get("path"):
+            if c["path"] not in radios:
+                radios[c["path"]] = []
+                units.append(radios[c["path"]])
+            radios[c["path"]].append((c, s))
+        else:
+            units.append([(c, s)])
+    return units
+
+
 def _options_proposal(ctx: Context, cands: list[tuple[dict, str]], sel, taken: set[str]) -> dict:
     page = cands[0][0]["page"]
     rects = [c["rect"] for c, _ in cands]
@@ -626,8 +643,8 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
         p = _text_proposal(ctx, c, s, sel, taken)
         taken.add(p["name"])
         out.append(p)
-    if opts:
-        p = _options_proposal(ctx, opts, sel, taken)
+    for unit in _option_units(opts):
+        p = _options_proposal(ctx, unit, sel, taken)
         taken.add(p["name"])
         out.append(p)
     for p in out:

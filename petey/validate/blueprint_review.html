@@ -37,7 +37,11 @@
   .brand .sub { font-size:.72rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); }
   .ctl { display:inline-flex; align-items:center; gap:6px; font-size:.68rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); }
   .spacer { flex:1; }
-  #modebar { border-bottom:1px solid var(--border); background:var(--surface); min-height:40px; }
+  /* the mode's own bar on the left, the tabs right-justified on the same row (Andrew, 2026-10-22: the header overflowed) */
+  #modebarRow { display:flex; align-items:center; gap:14px; padding-right:16px; border-bottom:1px solid var(--border);
+                background:var(--surface); min-height:40px; }
+  #modebarRow #modebar { flex:1; min-width:0; }
+  #modebarRow .tabs { margin-left:auto; flex-shrink:0; }
 
   select, input[type=text], input:not([type]), textarea {
     font:inherit; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; color:var(--text);
@@ -95,40 +99,55 @@
   .gttitle { font-weight:600; margin-bottom:3px; }
   .gtpos ol { margin:4px 0 0 18px; padding:0; font-size:12px; }
   .gtpos li { margin:2px 0; }
-  /* a block group's layout: one line per position, one column per block (2026-10-19) */
-  .glay table { border-collapse:collapse; font:11px var(--mono, monospace); margin-top:4px; }
-  .glay td, .glay th { border:1px solid var(--border); padding:1px 4px; text-align:left; white-space:nowrap; }
-  .glay th { color:var(--text-dim); font-weight:600; }
-  .glay tr.gap td { background:color-mix(in srgb, var(--flag, #d93025) 10%, transparent); }
-  .glay .lpart { color:var(--text-dim); }
-  .lchip { cursor:pointer; padding:0 3px; border-radius:3px; }
-  .lchip.pick, .lempty.pick { outline:2px solid var(--accent); }
-  .lchip .x { margin-left:4px; color:var(--text-dim); }
-  .lempty { cursor:pointer; color:var(--text-dim); padding:0 8px; }
-  .lpos { position:absolute; z-index:3; pointer-events:none; border:2px solid var(--c); font:600 9px/1 var(--mono, monospace); color:var(--c); }
-  .lpos span { position:absolute; left:1px; top:1px; background:var(--bg); padding:0 1px; }
-  .lpos.pick { border-width:3px; border-color:var(--accent); }
-  .lfree { position:absolute; z-index:4; cursor:copy; border:1px dashed var(--text-dim); }
-  .lfree:hover { border:2px solid var(--accent); }
-  .lblk { position:absolute; z-index:1; pointer-events:none; border:2px dashed var(--c); }
   .btb { position:absolute; z-index:2; border:2px dashed var(--accent); cursor:pointer; }      /* a block (block types): above the group outlines, below the layout editor's pickers */
   .btb.sel { border-width:3px; border-style:solid; background:color-mix(in srgb, var(--accent) 8%, transparent); }
   .btlist { margin:8px 0; } .btrow { padding:4px 6px; border-left:3px solid transparent; cursor:pointer; }
   .btrow:hover { background:var(--hover, rgba(127,127,127,.08)); } .btrow.sel { border-left-color:var(--accent); background:var(--hover, rgba(127,127,127,.08)); }
   .btmore code.accd { color:var(--accept); }
+  /* a block type as a matrix (2026-10-22): a column per position, a row per block; the block column stays put */
+  .btmx { overflow:auto; max-height:62vh; margin:4px 0; border:1px solid var(--line, rgba(127,127,127,.3)); }
+  .btmx table { border-collapse:separate; border-spacing:0; font:11px var(--mono, monospace); }
+  .btmx th, .btmx td { border-right:1px solid var(--line, rgba(127,127,127,.2)); border-bottom:1px solid var(--line, rgba(127,127,127,.2)); padding:2px 5px; white-space:nowrap; vertical-align:top; text-align:left; }
+  .btmx .mxl { position:sticky; left:0; z-index:1; background:var(--bg); font-weight:normal; }
+  .btmx thead th { color:var(--text-dim); } .btmx tr.mxp td { background:var(--hover, rgba(127,127,127,.06)); }
+  .bttype .btmx input { width:9em; font:11px var(--mono, monospace); } .bttype .btmx input.mxpre { width:8em; } .bttype .btmx input.btit { width:2.6em; }
+  .btmx th.mxl { white-space:normal; min-width:14.5em; max-width:14.5em; }
+  .bttype input[type=checkbox] { width:auto; }
+  .btmx select { font:11px inherit; }
+  .btmx td.chg { background:rgba(230,160,0,.14); } .btmx .was { display:block; color:var(--text-dim); text-decoration:line-through; }
+  .btmx tr.sel > th.mxl { box-shadow:inset 3px 0 0 var(--accent); }
   .btmore ol, .bttype ol { margin:4px 0 6px 18px; padding:0; font-size:11px; } .btmore .row, .bttype .row { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
   .bttype .btlabel { width:95%; font:12px inherit; }
-  .btparts input[type=text] { width:55%; font:11px var(--mono, monospace); } .btparts input.btit { width:3.5em; }
-  .btby label { white-space:nowrap; margin-left:6px; } .btby input { margin:0 3px 0 0; vertical-align:middle; }
+  .btopen h2 { font-size:13px; } .btopen .btparts { display:flex; gap:6px; align-items:center; flex-wrap:wrap; margin:6px 0; }
+  .btopen .btparts input { width:10em; font:11px var(--mono, monospace); } .btopen .btparts input.btit { width:3.5em; }
+  .btnames { border-collapse:collapse; font-size:11px; margin:4px 0 6px; } .btnames td { padding:1px 6px 1px 0; vertical-align:top; }
+  .btnames code.accd { color:var(--accept); }
   .bttype { margin:4px 0; padding:4px 6px; border:1px solid var(--line, rgba(127,127,127,.3)); border-radius:4px; } .bttype input { width:95%; font:11px var(--mono, monospace); }
   .btb span { cursor:copy; position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--accent); background:var(--bg); padding:1px 3px; white-space:nowrap; }
-  .lblk span { position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--c); background:var(--bg); padding:1px 3px; }
+  /* a grid's columns and rows (2026-10-22): one line each, what its button would do under it */
+  .gax { margin-top:8px; } .gax h4 { margin:0 0 3px; }
+  .gax-i { padding:2px 0 2px 8px; border-left:3px solid transparent; font-size:12px; }
+  .gax-i.ok { border-left-color:rgba(134,239,172,.35); } .gax-i.off { border-left-color:var(--amber); }
+  .gax-i code { font-size:11px; } .gax-act { margin:2px 0 3px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+  .gax-act .stale { font-size:11px; flex-basis:100%; } .good { color:var(--green); }
+  .gtres { margin:6px 0; font-size:12px; } .gtbtns { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; } .gtbtns .btn { margin-top:0; }
+  .gtab.dragging, .btb.dragging, .bfield.dragging { opacity:.4; }
+  .bfield { position:absolute; z-index:3; border:1px dashed var(--none); background:color-mix(in srgb, var(--none) 10%, transparent); cursor:grab; }   /* a field in no block (Blocks tab), to be dragged onto one */
+  /* what other tabs have done, drawn under this tab's own boxes ("show", 2026-10-22); never clickable */
+  .ovl { position:absolute; pointer-events:none; z-index:0; }
+  .ovl.valid { background:rgba(30,142,62,.16); border:1px solid rgba(30,142,62,.55); }
+  .ovl.group { border:1.5px dashed var(--c); border-radius:3px; }
+  .ovl.grid { border:2px dotted var(--c); border-radius:4px; } .ovl.grid.ok, .ovl.blk.ok { border-style:solid; border-width:1.5px; }
+  .ovl.blk { border:2px dashed #d8572a; }
+  .ovl span { position:absolute; left:2px; top:-12px; font:600 9px/1 var(--mono, monospace); color:var(--c, #d8572a); background:var(--bg); padding:1px 2px; white-space:nowrap; opacity:.85; }
+  #showctl label { text-transform:none; letter-spacing:0; font-weight:500; color:var(--text-dim); cursor:pointer; }
+  .pages button.done { color:var(--green); }
 
   /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
   .brand { cursor:pointer; }
   #home { display:none; flex:1; overflow:auto; padding:14px 20px 40px; }
   body.home #home { display:block; }
-  body.home main, body.home #modebar, body.home #chatBtn, body.home #gridBtn, body.home #clashBtn, body.home #zoomctl,
+  body.home main, body.home #modebar, body.home #chatBtn, body.home #gridBtn, body.home #clashBtn, body.home #zoomctl, body.home #showctl, body.home #wideBtn,
   body.home #draftBar, body.home #notesBtn { display:none !important; }
   .hstats { display:flex; gap:22px; flex-wrap:wrap; margin:2px 0 14px; align-items:flex-end; }
   .hstage-l { font-size:.62rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--text-dim);
@@ -193,6 +212,13 @@
   #canvas img { display:block; -webkit-user-drag:none; pointer-events:none; }
   aside { width:460px; border-left:1px solid var(--border); background:var(--bg); overflow:auto; padding:14px 16px; display:flex; flex-direction:column; gap:12px; }
   aside > * { flex-shrink:0; }
+  #sidecol { display:flex; flex-direction:column; min-height:0; }
+  #sidecol > aside { flex:1; min-height:0; }
+  #showbar { border-left:1px solid var(--border); border-bottom:1px solid var(--border); background:var(--bg); padding:6px 16px; }
+  #showbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  #showbar .ctl { flex-wrap:wrap; }
+  #showbar .viewbtns { margin-left:auto; display:inline-flex; align-items:center; gap:6px; }
+  body.audit #sidecol { flex:1; } body.audit #showbar { display:none; }
   #sidegrip { width:6px; margin-left:-3px; cursor:col-resize; flex-shrink:0; z-index:7; }
   #sidegrip:hover, #sidegrip.drag { background:var(--accent-dim); }
   /* the chat (form_chat.py): requests for batch edits to the open form; proposals ticked, then applied */
@@ -364,23 +390,22 @@
 </head>
 <body>
 <header>
-  <div class="brand" id="brand" title="home: every blueprint in one table"><h1>Petey<span class="dot">.</span></h1><span class="sub">Blueprint review</span></div>
+  <div class="brand" id="brand" title="home: every blueprint in one list"><h1>Petey<span class="dot">.</span></h1><span class="sub">Blueprint review</span></div>
   <select id="pick"></select>
   <label class="ctl" title="order of the form menu"><select id="listorder"><option value="name">by name</option><option value="oldest">oldest first</option><option value="errors">most to look at first</option></select></label>
-  <span class="tabs" id="tabs">
-    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="grids" title="Shift+4">Grids</button><button data-mode="blocks" title="Shift+5">Blocks</button><button data-mode="audit" title="Shift+6">Audit</button>
-  </span>
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span id="draftBar" hidden></span>
   <span class="spacer"></span>
-  <span class="ctl" id="zoomctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
   <button class="btn" id="notesBtn" title="your notes on this form (saved as you type, shown on the home page)">notes</button>
   <button class="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)">chat</button>
   <button class="btn" id="reboot" title="restart the server so edited code loads, then reload this page">reboot</button>
   <button class="btn" id="helpBtn" title="keyboard shortcuts and how this mode works">help</button>
 </header>
-<div id="modebar"></div>
+<div id="modebarRow"><div id="modebar"></div>
+  <span class="tabs" id="tabs">
+    <button data-mode="review" title="Shift+1">Review</button><button data-mode="groups" title="Shift+2">Groups</button><button data-mode="add" title="Shift+3">Add / remove</button><button data-mode="grids" title="Shift+4">Grids</button><button data-mode="blocks" title="Shift+5">Blocks</button><button data-mode="audit" title="Shift+6">Audit</button>
+  </span></div>
 <div id="home"></div>
 <div id="helpmenu" hidden></div>
 <main>
@@ -389,7 +414,17 @@
     <div id="stage"><div id="canvas"><img id="img" alt=""></div></div>
   </div>
   <div id="sidegrip" title="drag to resize the sidebar"></div>
-  <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
+  <div id="sidecol">
+    <!-- the "show" toggles, at the top of the sidebar rather than in the header (Andrew, 2026-10-22: so the top bar does
+         not run off the page); outside #panel, which each tab redraws -->
+    <div id="showbar"><span class="ctl" id="showctl" title="what the other tabs have done, drawn on the page in every tab (each tab draws its own anyway)">show
+      <label><input type="checkbox" data-show="valid"> validated</label> <label><input type="checkbox" data-show="groups"> groups</label>
+      <label><input type="checkbox" data-show="grids"> grids</label> <label><input type="checkbox" data-show="blocks"> blocks</label></span>
+      <!-- the view buttons, here rather than in the header (Andrew, 2026-10-22: "wider" ran the header off the page) -->
+      <span class="viewbtns"><button class="btn" id="wideBtn" title="the sidebar at 70% of the window, or back to its width (kept for every tab)">wider</button>
+        <span class="ctl" id="zoomctl"><button class="btn" id="zout" title="zoom out (-)">-</button> <button class="btn" id="zin" title="zoom in (+)">+</button></span></span></div>
+    <aside id="panel"><p class="help">Pick a blueprint.</p></aside>
+  </div>
 </main>
 <div id="toast"></div>
 <div id="notes" hidden>
@@ -405,6 +440,12 @@
 <script>
 // ======================================================================= shared: picker, modes, page, zoom, keys
 let LIST = [], bid = null, page = 1, zoom = 1.6, scale = 1, mode = 'review', shaSeen = null;
+// what every tab draws besides its own (Andrew, 2026-10-22: "add block and grid overlays and validated fields to all
+// views, so it's clear what is and isn't already accounted for ... show: validations [ ] groups [ ] grids [ ] blocks
+// [ ]"): the overlay (`/api/overlay`) read with each tab, the toggles kept per browser
+let OVL = null;
+const SHOW = {valid: true, groups: true, grids: true, blocks: true};
+try { Object.assign(SHOW, JSON.parse(localStorage.getItem('br_show') || '{}')); } catch (e) {}
 const MODE = {};
 const M = () => MODE[mode];
 const $ = s => document.querySelector(s);
@@ -418,17 +459,27 @@ function overlap(a, b) {
   const i = ix * iy; if (i <= 0) return 0;
   return i / Math.min(Math.max((a[2] - a[0]) * (a[3] - a[1]), 1e-6), Math.max((b[2] - b[0]) * (b[3] - b[1]), 1e-6));
 }
-// the sidebar's width: drag its left edge; kept per browser (Andrew, 2026-10-13: long field names did not fit)
+// the sidebar's width: drag its left edge; kept per browser (Andrew, 2026-10-13: long field names did not fit). "wider"
+// (70% of the window) and back, one setting for every tab, kept too (Andrew, 2026-10-22: "the ability to expand and
+// shrink the sidebar needs to persist -- if you expand in block view and switch views, the 'narrow' button goes away")
+let WIDE = store('br_wide') === '1';
+function applyWide() {
+  const side = $('#panel'); if (!side) return;
+  side.style.width = WIDE ? Math.round(window.innerWidth * 0.7) + 'px' : (+store('br_side_w') || 460) + 'px';
+  const b = $('#wideBtn'); if (b) { b.textContent = WIDE ? 'narrower' : 'wider'; b.classList.toggle('primary', WIDE); }
+}
+function toggleWide() { WIDE = !WIDE; store('br_wide', WIDE ? '1' : '0'); applyWide(); if (bid) placeAll(); }
 function bindSideGrip() {
   const g = $('#sidegrip'), a = $('#panel'); if (!g || !a) return;
   const setW = w => { a.style.width = Math.max(280, Math.min(window.innerWidth - 320, w)) + 'px'; };
   const saved = +store('br_side_w'); if (saved) setW(saved);
+  if (WIDE) applyWide();
   g.onmousedown = e => {
     e.preventDefault(); g.classList.add('drag');
     const move = ev => setW(window.innerWidth - ev.clientX);
     const up = () => {
       g.classList.remove('drag'); window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up);
-      store('br_side_w', parseInt(a.style.width)); if (bid) placeAll();
+      store('br_side_w', parseInt(a.style.width)); if (WIDE) { WIDE = false; store('br_wide', '0'); applyWide(); } if (bid) placeAll();
     };
     window.addEventListener('mousemove', move); window.addEventListener('mouseup', up);
   };
@@ -447,7 +498,9 @@ async function init() {
   $('#pick').addEventListener('change', () => openBlueprint($('#pick').value));
   $('#listorder').addEventListener('change', e => { store('br_listorder', e.target.value); renderPicker(); });
   document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
-  bindSideGrip();
+  bindSideGrip(); bindSidebarKeys();
+  document.querySelectorAll('[data-show]').forEach(c => { c.checked = !!SHOW[c.dataset.show]; c.onchange = () => {
+    SHOW[c.dataset.show] = c.checked; store('br_show', JSON.stringify(SHOW)); if (bid) placeAll(); }; });
   $('#clashBtn').onclick = async () => { if (mode !== 'review') await setMode('review'); MODE.review.toggleClashes(); };
   $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
   $('#reboot').onclick = reboot;
@@ -461,7 +514,8 @@ async function init() {
   $('#helpBtn').onclick = e => { e.stopPropagation(); toggleHelp(); };
   document.addEventListener('click', e => { if (!$('#helpmenu').hidden && !$('#helpmenu').contains(e.target)) toggleHelp(false); });
   window.addEventListener('keydown', onKey);
-  window.addEventListener('resize', () => bid && placeAll());
+  window.addEventListener('resize', () => { if (WIDE) applyWide(); if (bid) placeAll(); });
+  $('#wideBtn').onclick = toggleWide; applyWide();
   window.addEventListener('focus', checkFresh);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) checkFresh(); });
   setInterval(() => { if (!document.hidden) checkFresh(); }, 20000);
@@ -779,7 +833,7 @@ function renderChat() {
       const errs = t.out.errors.length ? `<div class="cerr">left out: ${esc(t.out.errors.join('; '))}</div>` : '';
       const res = t.result ? `<div class="cfoot">applied: ${t.result.changes.length} change(s)${t.result.errors.length ? ` · <span class="cerr">${esc(t.result.errors.join('; '))}</span>` : ''}</div>` : '';
       const foot = items.length && !t.applied ? `<div class="cfoot"><button class="btn primary" data-apply="${ti}">apply ticked</button><span>$${t.out.cost_usd}</span></div>` : `<div class="cfoot"><span>$${t.out.cost_usd}</span></div>`;
-      const acc = (t.accepted || []).length ? `<div class="cfoot">accepted ${t.accepted.length} table cell(s) the check confirmed (note: grid check)</div>` : '';
+      const acc = (t.accepted || []).length ? `<div class="cfoot">accepted ${t.accepted.length} grid cell(s) the check confirmed (note: grid check)</div>` : '';
       a = `<div class="ca">${esc(t.out.reply)}${list}${errs}${res || foot}${acc}</div>`;
     }
     return `<div class="cq">${esc(t.req)}</div>${a}`;
@@ -849,7 +903,7 @@ async function loadMode() {
   // a tab opened while this one was loading takes over: the rest is that tab's own loadMode (2026-10-20: a check
   // finishing just as Review was opened went on with Review's sidebar before Review had loaded, and threw)
   const m = mode, form = bid;
-  try { await M().load(); }
+  try { const [, ov] = await Promise.all([M().load(), j(`/api/overlay/${encodeURIComponent(bid)}`).catch(() => null)]); OVL = ov; }
   catch (e) { if (mode === m && bid === form) $('#panel').innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
   if (mode !== m || bid !== form) return;
   await syncSha(); renderDraft();
@@ -870,10 +924,12 @@ function renderModebar() { $('#modebar').innerHTML = M().bar(); M().bindBar(); }
 
 function renderPages() {
   const el = $('#pages'); el.innerHTML = '';
+  // p7 (not validated / total) of what the tab works on (Andrew, 2026-10-22): fields in Review, groups in Groups, grids
+  // in Grids, blocks in Blocks; a page with nothing left in green
   for (const p of M().pages()) {
-    const label = M().pageLabel(p.page); if (!label) continue;
-    const b = document.createElement('button'); b.textContent = label;
-    b.className = p.page === page ? 'on' : ''; b.onclick = () => gotoPage(p.page);
+    const lab = M().pageLabel(p.page); if (!lab) continue;
+    const b = document.createElement('button'); b.textContent = typeof lab === 'string' ? lab : lab.text;
+    b.className = (p.page === page ? 'on' : '') + (lab.done ? ' done' : ''); b.onclick = () => gotoPage(p.page);
     el.appendChild(b);
   }
 }
@@ -890,7 +946,80 @@ function placeAll() {
   const canvas = $('#canvas'); canvas.querySelectorAll(':scope > div').forEach(e => e.remove());
   const p = M().pages().find(x => x.page === page); if (!p) return;
   scale = $('#img').clientWidth / p.w_pt;
+  placeOverlays();
   M().place();
+}
+// the other tabs' work under this tab's own boxes, never clickable; a tab's own kind is left to it
+const OWN = {review: ['valid', 'groups'], groups: ['groups'], grids: ['grids'], blocks: ['blocks'], audit: ['valid', 'groups', 'grids', 'blocks']};
+function placeOverlays() {
+  if (!OVL) return;
+  const on = k => SHOW[k] && !(OWN[mode] || []).includes(k);
+  const grow = (r, d) => [r[0] - d, r[1] - d, r[2] + d, r[3] + d];
+  if (on('valid')) for (const f of OVL.fields) if (f.accepted) for (const r of f.rects) if (r.page === page) put('ovl valid', r.rect);
+  if (on('groups')) {
+    let i = 0;
+    for (const f of OVL.fields) {
+      if (!f.group) continue;
+      const c = GROUP_COLORS[i++ % GROUP_COLORS.length], rs = f.rects.filter(r => r.page === page).map(r => r.rect); if (!rs.length) continue;
+      put('ovl group', grow([Math.min(...rs.map(r => r[0])), Math.min(...rs.map(r => r[1])), Math.max(...rs.map(r => r[2])), Math.max(...rs.map(r => r[3]))], 3)).style.setProperty('--c', c);
+    }
+  }
+  if (on('grids')) for (const g of OVL.grids) if (g.page === page) {
+    const d = put('ovl grid' + (g.validated ? ' ok' : ''), grow(g.bbox, 5)); d.style.setProperty('--c', '#4fc3f7'); d.innerHTML = `<span>${esc(g.id)}${g.validated ? ' ✓' : ''}</span>`; }
+  if (on('blocks')) for (const b of OVL.blocks) if (b.page === page) {
+    const d = put('ovl blk' + (b.validated ? ' ok' : ''), grow(b.bbox, 3)); d.innerHTML = `<span>${esc(b.id)}${b.label ? ' ' + esc(b.label) : ''}${b.validated ? ' ✓' : ''}</span>`; }
+}
+
+// the sidebar keeps what you type (Andrew, 2026-10-22: "'return' and 'tab' should exit a field or go to the next one
+// respectively in the sidebar. right now it's unpredictable, and often leads to lost text or a complete jump to
+// another window. especially problematic when editing blocks"). Enter leaves a box (after its own Enter action, if it
+// has one); Tab / Shift+Tab go to the next / previous box in the sidebar and stay in it. Leaving a box often saves it
+// and the save redraws the sidebar, which took the box you had tabbed into, and what you were typing there, with it:
+// a redraw now puts back the text typed in a box not saved yet and the box you were in.
+const FIELD_SEL = 'input:not([type=checkbox]):not([type=radio]):not([type=button]):not([disabled]), select:not([disabled]), textarea:not([disabled])';
+function fieldKey(el) {
+  if (el.id) return '#' + el.id;
+  const ds = Object.entries(el.dataset).sort().map(([k, v]) => `${k}=${v}`).join('|');
+  return ds ? `${el.tagName}|${ds}` : null;
+}
+const findField = (root, key) => [...root.querySelectorAll(FIELD_SEL)].find(el => fieldKey(el) === key);
+function bindSidebarKeys() {
+  const side = $('#panel'), typed = new Map();      // box -> {value typed, was: its value as drawn}
+  let last = null;                                   // the box you are in: {key, el, start, end}
+  const snap = el => { const k = fieldKey(el); if (!k || el.tagName === 'SELECT') return;
+    if (el.value !== el.defaultValue) typed.set(k, {value: el.value, was: el.defaultValue}); else typed.delete(k); };
+  const here = el => { last = {key: fieldKey(el), el, start: el.selectionStart, end: el.selectionEnd}; };
+  side.addEventListener('input', e => { if (e.target.matches(FIELD_SEL)) { snap(e.target); here(e.target); } });
+  side.addEventListener('focusin', e => { if (e.target.matches(FIELD_SEL)) here(e.target); });
+  side.addEventListener('keyup', e => { if (last && e.target === last.el) { last.start = e.target.selectionStart; last.end = e.target.selectionEnd; } });
+  side.addEventListener('focusout', e => {
+    const el = e.target; if (!el.matches || !el.matches(FIELD_SEL)) return;
+    // left for somewhere that is not a box of the sidebar (Enter, Esc, a click on the page): nothing to bring back
+    setTimeout(() => { if (el.isConnected && !side.contains(document.activeElement)) { typed.clear(); last = null; } else if (el.isConnected) snap(el); }, 0);
+  });
+  side.addEventListener('keydown', e => {
+    const el = e.target; if (!el.matches || !el.matches(FIELD_SEL)) return;
+    if (e.key === 'Tab') {
+      e.preventDefault(); e.stopPropagation();
+      const all = [...side.querySelectorAll(FIELD_SEL)].filter(x => x.offsetParent !== null);
+      const i = all.indexOf(el); if (i < 0 || all.length < 2) { el.blur(); return; }
+      const nx = all[(i + (e.shiftKey ? -1 : 1) + all.length) % all.length];
+      nx.focus(); if (nx.tagName === 'INPUT') nx.select();
+    } else if (e.key === 'Enter' && !e.shiftKey && el.tagName !== 'TEXTAREA' && !e.isComposing) {
+      setTimeout(() => { if (document.activeElement === el) el.blur(); }, 0);
+    }
+  }, true);
+  new MutationObserver(() => {
+    for (const [k, t] of [...typed]) {
+      const el = findField(side, k); if (!el) continue;
+      if (el.defaultValue !== t.was) { typed.delete(k); continue; }       // saved meanwhile, or changed: the page's value stands
+      if (el.value !== t.value) el.value = t.value;
+    }
+    if (last && !last.el.isConnected && (!document.activeElement || document.activeElement === document.body)) {
+      const el = findField(side, last.key);
+      if (el) { el.focus({preventScroll: true}); try { if (last.start != null) el.setSelectionRange(last.start, last.end); } catch (e) {} last.el = el; }
+    }
+  }).observe(side, {childList: true, subtree: true});
 }
 // one palette for the things drawn around boxes: option groups (Review, Groups) and tables / block groups (Grids, Blocks)
 const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd', '#dce775'];
@@ -1085,7 +1214,7 @@ MODE.review = (() => {
   const partsNow = () => partInputs().length ? Object.fromEntries(partInputs().map(el => [el.dataset.k, el.value.trim()])) : null;
   function partsHtml(f, v) {
     const p = partsShown(f, v), id = f.identifiers || {};
-    const where = id.grid ? `grid <code>${esc(id.grid)}</code>` : id.block_group ? `block group <code>${esc(id.block_group)}</code>, block ${esc(String((id.block ?? 0) + 1))}` : '<i>no kept grid or block group</i>';
+    const where = id.grid ? `grid <code>${esc(id.grid)}</code>` : '<i>in no kept grid</i>';
     const hint = {subject: 'what the box is about, in the form\'s own words', suffix: 'the kind of value (txt, nm, nbr, dt, amt, ind …); an option group has none',
                   iteration: 'the Nth field holding this information (3, 4a, b); empty when it occurs once', part: 'which box of a value written in several boxes (month, area, dollars, 1)'};
     const flags = (f.identifier_flags || []).length ? `<span class="lbl sub">read</span><span class="stale">${(f.identifier_flags || []).map(esc).join('; ')}</span>` : '';
@@ -1162,6 +1291,17 @@ MODE.review = (() => {
       selected = edit.name; visited = visited.map(n => n === f.name ? edit.name : n);
     }
     next();
+  }
+  // every verdict cleared (Andrew, 2026-10-22: "a button to reset validations? (and a 'are you sure?' screen)")
+  async function resetValidation() {
+    const n = Object.keys((BP && BP.verdicts) || {}).length;
+    if (!n) { alert('This form has no verdicts to clear.'); return; }
+    if (!confirm(`Reset validation on ${bid}?\n\nThis clears all ${n} verdicts (accepted, flagged and their notes), so every field is unreviewed again. The old record is kept in runs/hand_review/_reset/, not deleted.`)) return;
+    let out;
+    try { out = await send('PUT', mapi('review', '/reset'), {}); }
+    catch (e) { alert(e.message); return; }
+    updateEntry(out.entry); await loadMode();
+    toast(`Validation reset: ${out.cleared} verdicts cleared (kept in ${out.backup.split('/').pop()}).`);
   }
   async function bulkAccept() {
     const todo = BP.fields.filter(f => f.tier === 'settled' && !verdictOf(f.name));
@@ -1485,9 +1625,12 @@ MODE.review = (() => {
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
     // a field counts on every page it has a box on (a group merged across pages: CMS-855A pp. 8-9, 2026-10-14)
-    pageLabel(p) { const n = BP.fields.filter(f => f.rects.some(r => r.page === p)).length; return n ? `p${p} (${n})` : null; },
+    // p7 (fields not accepted / fields): a field counts on every page it has a box on
+    pageLabel(p) { const fs = BP.fields.filter(f => f.rects.some(r => r.page === p)); if (!fs.length) return null;
+      const u = fs.filter(f => verdictOf(f.name) !== 'accept').length; return {text: `p${p} (${u}/${fs.length})`, done: !u}; },
     bar: () => `<span class="progress" id="progress"></span>
-      <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>`,
+      <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>
+      <button class="btn" id="resetV" title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside">reset validation</button>`,
     help: {keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
                   ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'back to the field you were on before'],
                   ['u', 'unreviewed only on / off']],
@@ -1496,7 +1639,7 @@ MODE.review = (() => {
                   'Flag a field you cannot or do not want to fix yourself, with a note saying what is wrong: "review edits" sends flags with notes to the agent.',
                   'The note saves when you leave the box or press Enter; Shift+Enter for a new line.']},
     bindBar() {
-      $('#bulk').onclick = bulkAccept; if (BP) progress();
+      $('#bulk').onclick = bulkAccept; $('#resetV').onclick = resetValidation; if (BP) progress();
     },
     place() {
       const cl = clashOn ? clashGroups() : {};
@@ -1504,7 +1647,7 @@ MODE.review = (() => {
       // this page, solid when the field is selected; the boxes keep their verdict colors
       let gi = 0;
       for (const f of BP.fields) {
-        if (f.options.length < 2) continue;
+        if (f.options.length < 2 || !SHOW.groups) continue;
         const c = GROUP_COLORS[gi++ % GROUP_COLORS.length], rs = f.rects.filter(r => r.page === page).map(r => r.rect);
         if (!rs.length) continue;
         const hull = [Math.min(...rs.map(r => r[0])) - 4, Math.min(...rs.map(r => r[1])) - 4, Math.max(...rs.map(r => r[2])) + 4, Math.max(...rs.map(r => r[3])) + 4];
@@ -2046,9 +2189,11 @@ MODE.groups = (() => {
     },
     pages: () => BP ? BP.pages : [],
     startPage: () => optUnits().length ? firstItem(optUnits()[0]).page : ((Object.values(BP.items)[0] || {}).page || 1),
+    // p7 (groups not confirmed / groups), Andrew 2026-10-22; a page of loose boxes only is just p7
     pageLabel(p) {
-      const ou = optUnits().filter(u => onPage(u, p));
-      if (ou.length) { const left = ou.filter(u => !u.confirmed).length; return `p${p} (${left ? left + ' left' : 'done'})`; }
+      const ou = optUnits().filter(u => onPage(u, p)), gs = ou.filter(isGroup);
+      if (gs.length) { const left = gs.filter(u => !u.confirmed).length; return {text: `p${p} (${left}/${gs.length})`, done: !left}; }
+      if (ou.length) return `p${p}`;
       if (showText && Object.values(BP.items).some(it => it.kind === 'text' && it.page === p)) return `p${p}`;
       return null;
     },
@@ -2197,8 +2342,10 @@ MODE.add = (() => {
       <div class="help">${BP.has_widgets ? 'form layer: yes' : 'no form layer (flat)'} · finder: ${BP.finder}${BP.finder !== 'cached' ? ' <button class="btn" id="runFinder" title="step2flat on this blank, local CPU, cached afterwards">run it</button>' : ''} · classifier map: ${BP.classifier}</div>
       <div><b>${left.length}</b> suggestion${left.length === 1 ? '' : 's'} left <span class="help">(${left.filter(s => s.source === 'widget').length} widgets, ${left.filter(s => s.source === 'finder').length} finder boxes${BP.suggestions.some(s => s.copy) && !copies ? '; repeated copies hidden' : ''})</span>
         <button class="btn" id="nextSug">next suggestion</button></div>`;
-    const cards = props.length ? props.map(cardHtml).join('') + `<div class="arow">
-        ${props.length > 1 ? '<button class="btn primary" id="addAll">add all</button>' : ''}
+    // several proposals: "add all" above them too, not only after the last card (Andrew, 2026-10-23)
+    const cards = props.length ? (props.length > 1 ? `<div class="arow"><button class="btn primary" data-addall>add all ${props.length}</button></div>` : '')
+        + props.map(cardHtml).join('') + `<div class="arow">
+        ${props.length > 1 ? `<button class="btn primary" data-addall>add all ${props.length}</button>` : ''}
         ${curSid ? '<button class="btn warn" id="notField" title="record this suggestion as not a field">not a field</button>' : ''}
         <button class="btn" id="cancel">cancel</button></div>`
       : picked ? pickedHtml()
@@ -2217,7 +2364,7 @@ MODE.add = (() => {
   function bindPanel() {
     const rf = $('#runFinder'); if (rf) rf.onclick = runFinder;
     $('#nextSug').onclick = () => gotoSuggestion(1);
-    const aa = $('#addAll'); if (aa) aa.onclick = () => addProps(props.map((_, i) => i));
+    document.querySelectorAll('#panel [data-addall]').forEach(b => b.onclick = () => addProps(props.map((_, i) => i)));
     const nf = $('#notField'); if (nf) nf.onclick = notAField;
     const cc = $('#cancel'); if (cc) cc.onclick = cancel;
     const ar = $('#aRemove'); if (ar) ar.onclick = toggleRemove;
@@ -2389,208 +2536,338 @@ MODE.add = (() => {
   };
 })();
 
-// ======================================================================= Audit: versions and run history (run_audit)
-// Andrew, 2026-10-14: "build a 'run audit' into the review interface, so you can see the run history and all the data
-// for each form". Read only. Numbers are per page as well: forms differ too much in size for per-form numbers.
-// ======================================================================= grids & blocks (grid_check.py, 2026-10-16)
-// every numbered table and repeated block, outlined in dots (groups are dashed); one click checks and validates one:
-// the code check, then the resolver (the name-check model against the shared caption), then Jev for a column it cannot
-// settle, then Opus (its proposals land in the chat to tick)
-function gridMode(API, KIND) {              // the Grids tab (tables) and the Blocks tab (block groups), 2026-10-18
-  const BLK = KIND === 'block', NOUN = BLK ? 'block group' : 'table';
-  let GD = null, selected = null, results = {}, busy = new Set();
-  let ticked = new Set(), drawKind = null, drawStart = null, drawBox = null;    // combine; draw a new one (2026-10-17)
-  let selBlock = null;                // the block clicked (its first box's code), shown in the sidebar
-  // a block group's layout (2026-10-19): `marking` the group whose blocks are being marked on the page (`marks` the
-  // boxes so far, in order); `ed` the layout being edited on the card ({tid, cells: [[code, block, position]], pick:
-  // a code, or {b, k} an empty place}), saved in one go
-  let marking = null, marks = [], ed = null;
+// ======================================================================= Grids (grid_check.py, 2026-10-16)
+// every numbered grid, outlined in dots (option groups are dashed); one click checks and validates one: the code
+// check, then the resolver (the name-check model against the shared caption), then Jev for a column it cannot settle,
+// then Opus (its proposals land in the chat to tick). As in Groups (Andrew, 2026-10-22): drag on an empty part of the
+// page to draw a grid, drag a grid onto another to combine them. A selected grid's card lists its columns and rows,
+// each with what its standardize button would do, or why there is nothing it can do ("it often doesn't work and never
+// says why clearly"): grid_check.preview, a dry run of every button.
+const fileStem = path => String(path || bid || '').split('/').pop().replace(/\.bpt$/, '');
+async function copyText(ref) {
+  try { await navigator.clipboard.writeText(ref); }
+  catch (e) { const t = document.createElement('textarea'); t.value = ref; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  toast(`Copied ${ref}`);
+}
+function dots(el, w, h) {
+  el.innerHTML = `<svg width="${w}" height="${h}" class="gtsvg"><rect x="2" y="2" width="${Math.max(0, w - 4)}" height="${Math.max(0, h - 4)}" rx="4"/></svg>`;
+}
+// an outline on the page dragged onto another of its kind (a grid onto a grid, a block onto a block)
+function dragFrom(el, kind, id) {
+  el.draggable = true;
+  el.addEventListener('dragstart', e => { e.stopPropagation(); e.dataTransfer.setData('text/plain', `${kind}:${id}`); e.dataTransfer.effectAllowed = 'move'; el.classList.add('dragging'); });
+  el.addEventListener('dragend', () => el.classList.remove('dragging'));
+}
+function dropOn(el, kind, fn) {
+  el.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); el.classList.add('over'); });
+  el.addEventListener('dragleave', () => el.classList.remove('over'));
+  el.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation(); el.classList.remove('over');
+    const d = e.dataTransfer.getData('text/plain'); if (d.startsWith(kind + ':')) fn(d.slice(kind.length + 1));
+  });
+}
+// the area dragged on the page, as Groups and Add draw it: a dashed box while the mouse is down
+function areaDrag() {
+  let start = null, box = null;
   const pt = e => { const r = $('#canvas').getBoundingClientRect(); return [(e.clientX - r.left) / scale, (e.clientY - r.top) / scale]; };
+  return {
+    down(e) { if (e.button !== 0 || !(e.target === $('#canvas') || e.shiftKey)) return false; e.preventDefault(); e.stopPropagation(); start = pt(e); return true; },
+    move(e) {
+      if (!start) return; const q = pt(e);
+      const r = [Math.min(start[0], q[0]), Math.min(start[1], q[1]), Math.max(start[0], q[0]), Math.max(start[1], q[1])];
+      if (!box && (r[2] - r[0]) * scale < 4 && (r[3] - r[1]) * scale < 4) return;
+      if (!box) box = put('ov draw', r);
+      else { box.style.left = r[0] * scale + 'px'; box.style.top = r[1] * scale + 'px'; box.style.width = (r[2] - r[0]) * scale + 'px'; box.style.height = (r[3] - r[1]) * scale + 'px'; }
+      box._r = r;
+    },
+    up() { if (!start) return null; const b = box; start = null; box = null; if (!b) return null; b.remove(); return b._r; },
+  };
+}
+
+MODE.grids = (() => {
+  let GD = null, selected = null, results = {}, PV = {};
+  const busy = new Set(), pvBusy = new Set(), area = areaDrag(), runs = {};
   const prov = t => t.source === 'person' ? 'drawn by you' : t.source === 'combined' ? `combined from ${(t.from || []).join(' + ')}`
-    : t.source === 'edited' ? `edited from ${(t.from || []).join(' + ')}` : t.source === 'type' ? `block type ${t.type}`
-    : 'found by the finder';
-  const live = () => GD ? GD.tables.filter(t => !t.dismissed) : [];     // set aside as "not a grid or block": hidden
+    : t.source === 'edited' ? `the finder's ${(t.from || []).join(' + ')}, less fields another grid took` : 'found by the finder';
+  const live = () => GD ? GD.tables.filter(t => !t.dismissed) : [];       // "not a grid": hidden, restorable
   const onPage = p => live().filter(t => t.page === p);
   const asidePage = p => GD ? GD.tables.filter(t => t.dismissed && t.page === p) : [];
-  const done = t => t.accepted >= (t.body ?? t.cells.length);       // every cell accepted (a totals row aside)
-  const status = t => done(t) ? 'validated' : t.on_pattern ? 'on pattern' : 'needs a check';
-  function dots(el, w, h, cls) {
-    el.innerHTML = `<svg width="${w}" height="${h}" class="gtsvg"><rect x="2" y="2" width="${Math.max(0, w - 4)}" height="${Math.max(0, h - 4)}" rx="4"/></svg>`;
+  const done = t => t.accepted >= (t.body ?? t.cells.length);              // every cell accepted (a totals row aside)
+  const colorOf = t => GROUP_COLORS[Math.max(0, GD.tables.findIndex(x => x.id === t.id)) % GROUP_COLORS.length];
+  const ref = tid => `${fileStem(GD.path)}_${tid}`;
+  const T = tid => GD.tables.find(x => x.id === tid) || {};
+  const posWord = t => t.reading === 'rows' ? 'row' : 'column';
+  const lineWord = t => t.reading === 'rows' ? 'column' : 'row';
+  // the code check's reason in the grid's own terms: positions are its columns (or rows, read the other way round)
+  function plainWhy(t) {
+    if (t.on_pattern) return 'on pattern';
+    return String(t.why || '').replace(/\bposition (\d+)/g, `${posWord(t)} $1`).replace(/\bline (\d+)/g, `${lineWord(t)} $1`)
+      .replace(/\blines numbered/g, `${lineWord(t)}s numbered`).replace(/\ba line without/g, `a ${lineWord(t)} without`)
+      .replace(/_N(?=_|$)/g, '_#');
   }
-  // each table or block group in its own color, as option groups are in Groups (Andrew, 2026-10-19): the palette
-  // by the table's place in the form's listing, so a color stays with its id across pages and cancellations
-  const colorOfTable = t => GROUP_COLORS[Math.max(0, GD.tables.findIndex(x => x.id === t.id)) % GROUP_COLORS.length];
-  // blocks (block_types.py, Andrew 2026-10-21): an area dragged on the page is a block, of an existing block type when
-  // its boxes pair with one's template, else of a new type; block groups are gone ("we can basically ditch the
-  // entire block group concept now"): a type and its blocks carry what they did
-  function placeBlocks() {
-    for (const y of (BLK && GD && GD.types) || []) {
-      for (const b of y.blocks.filter(b => b.page === page)) {
-        const pad = 3, d = put('btb' + (b.code === selBlock ? ' sel' : ''), [b.bbox[0] - pad, b.bbox[1] - pad, b.bbox[2] + pad, b.bbox[3] + pad], `${y.id}-${b.n}${y.label ? ' ' + y.label : ''}`);
-        d.innerHTML = `<span title="click to copy the reference">${esc(y.id)}-${b.n}${y.label ? ' ' + esc(y.label) : ''}${b.validated ? ' ✓' : ''}</span>`;
-        d.firstChild.onclick = e => { e.stopPropagation(); copyTableRef(`${y.id}-${b.n}`); };     // as a field's name and a grid's id
-        // each field of the block, accepted or not, as the Grids tab shows a grid's cells
-        for (const x of (b.cells || []).filter(Boolean)) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : ' · not accepted yet')).style.setProperty('--c', 'var(--accent)');
-        d.onclick = e => { e.stopPropagation(); selectBlock(b); };
+  const status = t => done(t) ? 'validated' : t.on_pattern ? 'on pattern, not validated yet' : plainWhy(t);
+  // the code's "position 3" / "line 2" as the page shows them: a column / row (or the other way round)
+  const say = (t, text) => String(text).replace(/\bposition (\d+)/g, `${posWord(t)} $1`).replace(/\bline (\d+)/g, `${lineWord(t)} $1`)
+    .replace(/\bevery position\b/g, `every ${posWord(t)}`).replace(/_N(?=_|$)/g, '_#');
+  function select(tid) {
+    selected = tid; const t = live().find(x => x.id === tid);
+    if (t && t.page !== page) { gotoPage(t.page); } else { placeAll(); panel(); }
+    if (t) loadPreview(tid);
+    const c = document.querySelector(`.gtcard[data-t="${CSS.escape(tid)}"]`); if (c) c.scrollIntoView({block: 'nearest'});
+  }
+  async function loadPreview(tid) {
+    if (PV[tid] || pvBusy.has(tid)) return;
+    const form = bid; pvBusy.add(tid);
+    try { PV[tid] = await send('POST', mapi('grids', '/preview'), {table: tid}); }
+    catch (e) { PV[tid] = {error: e.message}; }
+    pvBusy.delete(tid);
+    if (bid === form && mode === 'grids' && selected === tid) panel();
+  }
+  const renameList = (rs, n = 12) => rs.slice(0, n).map(([o, x]) => `${o} -> ${x}`).join('\n') + (rs.length > n ? `\n... ${rs.length - n} more` : '');
+  // what a button would do, or why there is nothing for it to do
+  function planHtml(tid, plan, what, attrs, picker = '') {
+    if (!plan) return picker ? `<div class="gax-act">${picker}</div>` : '';
+    const n = plan.renames.length, b = busy.has(tid);
+    return `<div class="gax-act">${n ? `<button class="btn mini" ${attrs} ${b ? 'disabled' : ''} title="${esc(renameList(plan.renames))}">${what}: ${n} rename${n === 1 ? '' : 's'}</button>` : ''}${picker}
+      ${plan.pulled.length ? `<span class="help" title="${esc(plan.pulled.join('\n'))}">includes ${plan.pulled.length} cell${plan.pulled.length === 1 ? '' : 's'} of other ${what === 'renumber' ? 'rows' : 'columns'} that held the names</span>` : ''}
+      ${plan.left.map(l => `<div class="stale">${esc(say(T(tid), l))}</div>`).join('')}
+      ${!n && !plan.left.length ? '<span class="help">nothing to change</span>' : ''}</div>`;
+  }
+  // the grid's positions (its columns, or rows when it reads by rows) and its lines, as the page lays them out
+  function axisHtml(t, pv, axis) {
+    const isPos = pv.pos_axis === axis, word = axis === 'col' ? 'column' : 'row';
+    const items = isPos ? pv.positions : pv.lines;
+    const sub = isPos ? `each ${word} one wording` : pv.keyed ? `each ${word} named by its label` : `each ${word} one number: ${esc(pv.summary || '')}`;
+    const list = items.map(x => {
+      if (isPos) {
+        const ok = !x.plan && x.wordings.length < 2;
+        return `<div class="gax-i ${ok ? 'ok' : 'off'}"><b>${word} ${x.pos}</b> ${x.wordings.map(([w, n]) => `<code>${esc(w)}</code>${x.wordings.length > 1 ? `<span class="help"> x${n}</span>` : ''}`).join(' · ')}
+          ${x.caption ? `<span class="help"> · printed "${esc(x.caption)}"</span>` : ''}${x.locked ? '<span class="help"> · printed line numbers, kept</span>' : ''}
+          ${x.off ? `<span class="stale"> · ${x.off} cell${x.off === 1 ? '' : 's'} numbered off their ${axis === 'col' ? 'rows' : 'columns'}</span>` : ''}${ok ? ' <span class="good">✓</span>' : ''}
+          ${planHtml(t.id, x.plan, 'standardize', `data-std="${esc(t.id)}" data-pos="${x.pos}"`, x.wordings.length > 1 && !pv.keyed
+            ? `<select data-pick="${esc(t.id)}" data-pos="${x.pos}" title="every cell of ${word} ${x.pos} under the wording you pick, each numbered as its ${axis === 'col' ? 'row' : 'column'}"><option value="">or pick the wording…</option>${x.wordings.map(([w, n]) => `<option value="${esc(w)}">${esc(w)} (${n})</option>`).join('')}<option value="?">type another…</option></select>` : '')}</div>`;
       }
-    }
-  }
-  function place() {
-    if (BLK) { placeBlocks(); return; }
-    for (const t of onPage(page)) {
-      const pad = 6, r = [t.bbox[0] - pad, t.bbox[1] - pad, t.bbox[2] + pad, t.bbox[3] + pad], c = colorOfTable(t);
-      const d = put('gtab ' + t.kind + (t.on_pattern ? ' ok' : '') + (selected === t.id ? ' sel' : ''), r, `${t.id} · ${t.kind} ${t.rows} x ${t.cols} · ${status(t)} · ${prov(t)}`);
-      d.style.setProperty('--c', c);
-      dots(d, (r[2] - r[0]) * scale, (r[3] - r[1]) * scale);
-      const tag = document.createElement('span'); tag.className = 'gtid'; tag.textContent = t.id; tag.title = 'click to copy the reference'; d.appendChild(tag);
-      tag.onclick = e => { e.stopPropagation(); copyTableRef(t.id); };
-      d.onclick = () => { if (drawKind || marking) return; selected = t.id; placeAll(); panel(); };
-      if (BLK && selected === t.id) { placeLayout(t); continue; }
-      for (const x of t.cells) if (x.rect) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : '')).style.setProperty('--c', c);
-    }
-    marks.forEach((r, i) => { const d = put('lblk', r); d.style.setProperty('--c', 'var(--accent)'); d.innerHTML = `<span>block ${i + 1}</span>`; });
-  }
-  // the selected block group: its blocks outlined, every box with its position (same color for a position in every
-  // block, so a box in the wrong place shows); an empty place picked: the page's other boxes can be clicked in
-  const fieldsHere = () => (GD.fields || {})[page] || [];
-  const rectOf = code => (fieldsHere().find(f => f.code === code) || {}).rect;
-  const cellsOf = t => ed && ed.tid === t.id ? ed.cells : t.cells.map(x => [x.code, x.row, x.col]);
-  function placeLayout(t) {
-    (t.blocks || []).forEach((r, i) => { if (!marks.length) { const d = put('lblk', r); d.style.setProperty('--c', colorOfTable(t)); d.innerHTML = `<span>block ${i + 1}</span>`; } });
-    const pick = ed && ed.tid === t.id ? ed.pick : null;
-    for (const [code, b, k] of cellsOf(t)) {
-      const r = rectOf(code); if (!r) continue;
-      const d = put('lpos' + (pick === code ? ' pick' : ''), r, `${code} · block ${b + 1}, position ${k + 1}`);
-      d.style.setProperty('--c', GROUP_COLORS[k % GROUP_COLORS.length]); d.innerHTML = `<span>${k + 1}</span>`;
-    }
-    if (pick && typeof pick === 'object') {
-      const inIt = new Set(cellsOf(t).map(c => c[0]));
-      for (const f of fieldsHere()) {
-        const d = put('lfree', f.rect, `${f.code}: ${inIt.has(f.code) ? 'move it' : 'put it'} to block ${pick.b + 1}, position ${pick.k + 1}`);
-        d.onclick = e => { e.stopPropagation(); placeAt(f.code, pick.b, pick.k); };
-      }
-    }
-  }
-  function startEdit(t) { if (!ed || ed.tid !== t.id) ed = {tid: t.id, cells: cellsOf(t).map(c => [...c]), pick: null, dirty: false}; }
-  function placeAt(code, b, k) {                   // a field to a place: moved there if it is in the layout, else added
-    const at = ed.cells.find(c => c[1] === b && c[2] === k);
-    const cur = ed.cells.find(c => c[0] === code);
-    if (at && cur) { [at[1], at[2], cur[1], cur[2]] = [cur[1], cur[2], at[1], at[2]]; }   // both placed: swap
-    else if (at) { at[0] = code; }                                                      // replaces (the other leaves)
-    else if (cur) { cur[1] = b; cur[2] = k; }
-    else ed.cells.push([code, b, k]);
-    ed.pick = null; ed.dirty = true; placeAll(); panel();
-  }
-  function layoutHtml(t) {
-    const cells = cellsOf(t), mine = ed && ed.tid === t.id;
-    const nb = Math.max(1, ...cells.map(c => c[1] + 1)), np = Math.max(0, ...cells.map(c => c[2] + 1)) + 1;   // + one empty position
-    const at = {}; for (const c of cells) at[c[1] + ':' + c[2]] = c[0];
-    const part = {}; for (const p of t.parts || []) part[p.from - 1] = (p.tables || []).join(' / ');
-    const pick = mine ? ed.pick : null;
-    const rows = [...Array(np).keys()].map(k => {
-      const gap = k < np - 1 && [...Array(nb).keys()].some(b => !at[b + ':' + k]);
-      return `<tr class="${gap ? 'gap' : ''}"><th style="color:${GROUP_COLORS[k % GROUP_COLORS.length]}">${k < np - 1 ? k + 1 : 'new'}</th>${[...Array(nb).keys()].map(b => {
-        const code = at[b + ':' + k];
-        return `<td>${code ? `<span class="lchip ${pick === code ? 'pick' : ''}" data-lc="${esc(code)}" title="click, then click another to swap or an empty place to move it">${esc(code)}<span class="x" data-lx="${esc(code)}" title="take it out of the block group">×</span></span>`
-          : `<span class="lempty ${pick && pick.b === b && pick.k === k ? 'pick' : ''}" data-lb="${b}" data-lk="${k}" title="${pick && typeof pick === 'string' ? 'move it here' : 'pick, then click a box on the page'}">·</span>`}</td>`; }).join('')}
-        <td class="lpart">${part[k] ? esc(part[k]) : ''}</td></tr>`; }).join('');
-    const gaps = [...Array(np - 1).keys()].filter(k => [...Array(nb).keys()].some(b => !at[b + ':' + k])).length;
-    return `<details class="gtpos glay" ${selected === t.id ? 'open' : ''}><summary class="help">layout · ${nb} block${nb === 1 ? '' : 's'}, ${np - 1} positions${gaps ? ` · <span class="stale">${gaps} not in every block</span>` : ''}${t.blocks ? '' : ' · blocks not marked'}</summary>
-      ${marking === t.id ? `<div class="help"><b>Drag a box around each block on the page</b>, first block first: ${marks.length} marked.
-          <button class="btn mini primary" id="lMarkDone" ${marks.length < 2 ? 'disabled' : ''}>pair them</button> <button class="btn mini" id="lMarkStop">stop</button></div>`
-        : `<button class="btn mini" data-lmark="${esc(t.id)}" title="drag a box around each block, then the fields are paired with the first block's: a kept table whole, the rest by where they sit">mark blocks</button>`}
-      ${mine && ed.dirty ? `<button class="btn mini primary" id="lSave">save layout</button> <button class="btn mini" id="lUndo">undo changes</button>` : ''}
-      ${pick && typeof pick === 'object' ? `<div class="help">Click a box on the page to put it at block ${pick.b + 1}, position ${pick.k + 1}.</div>` : ''}
-      <table><tr><th>#</th>${[...Array(nb).keys()].map(b => `<th>block ${b + 1}</th>`).join('')}<th>table</th></tr>${rows}</table></details>`;
-  }
-  function bindLayout(a) {
-    const t = GD.tables.find(x => x.id === selected); if (!t) return;
-    a.querySelectorAll('.glay').forEach(d => d.addEventListener('click', e => e.stopPropagation()));
-    a.querySelectorAll('[data-lmark]').forEach(bt => bt.onclick = () => { marking = bt.dataset.lmark; marks = []; drawKind = null; placeAll(); panel(); });
-    if ($('#lMarkStop')) $('#lMarkStop').onclick = () => { marking = null; marks = []; placeAll(); panel(); };
-    if ($('#lMarkDone')) $('#lMarkDone').onclick = pairBlocks;
-    a.querySelectorAll('[data-lc]').forEach(el => el.onclick = () => {
-      startEdit(t); const code = el.dataset.lc, p = ed.pick;
-      if (typeof p === 'string' && p !== code) { const c = ed.cells.find(x => x[0] === code); placeAt(p, c[1], c[2]); return; }
-      ed.pick = p === code ? null : code; placeAll(); panel(); });
-    a.querySelectorAll('[data-lb]').forEach(el => el.onclick = () => {
-      startEdit(t); const b = +el.dataset.lb, k = +el.dataset.lk, p = ed.pick;
-      if (typeof p === 'string') { placeAt(p, b, k); return; }
-      ed.pick = p && p.b === b && p.k === k ? null : {b, k}; placeAll(); panel(); });
-    a.querySelectorAll('[data-lx]').forEach(el => el.onclick = e => { e.stopPropagation(); startEdit(t);
-      ed.cells = ed.cells.filter(c => c[0] !== el.dataset.lx); ed.pick = null; ed.dirty = true; placeAll(); panel(); });
-    if ($('#lSave')) $('#lSave').onclick = saveLayout;
-    if ($('#lUndo')) $('#lUndo').onclick = () => { ed = null; placeAll(); panel(); };
-  }
-  async function pairBlocks() {
-    const tid = marking, blocks = marks; marking = null; marks = [];
-    let out;
-    try { out = await send('POST', mapi(API, '/layout'), {table: tid, blocks}); }
-    catch (e) { alert('Could not pair them: ' + e.message); placeAll(); panel(); return; }
-    ed = null; selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`${out.id}: ${out.blocks} blocks, ${out.positions} positions.${leftNote(out)}`);
-  }
-  async function saveLayout() {
-    const tid = ed.tid;
-    let out;
-    try { out = await send('POST', mapi(API, '/cells'), {table: tid, cells: ed.cells}); }
-    catch (e) { alert('Could not save: ' + e.message); return; }
-    ed = null; selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`${out.id}: layout saved.${leftNote(out)}`);
+      const off = x.plan && (x.plan.renames.length || x.plan.left.length);
+      const lab = x.label != null ? `<code>${esc(x.label || '?')}</code>` : `number <code>${esc(x.number ?? '?')}</code>${(x.numbers || []).length > 1 ? ` <span class="stale">also ${esc(x.numbers.slice(1).join(', '))}</span>` : ''}${x.plan && x.plan.renames.length && x.expect != null && x.number != null && String(x.expect) !== String(x.number) ? ` <span class="stale">(should be ${esc(x.expect)})</span>` : ''}${x.note ? ` <span class="help">· ${esc(x.note)}</span>` : ''}`;
+      return `<div class="gax-i ${off ? 'off' : 'ok'}"><b>${word} ${x.line}</b> ${lab} <span class="help">· ${x.cells} cells</span>${off ? '' : ' <span class="good">✓</span>'}
+        ${planHtml(t.id, x.plan, 'renumber', `data-std="${esc(t.id)}" data-line="${x.line}"`)}</div>`;
+    }).join('');
+    const aside = !isPos ? (pv.aside || []).map(a => `<div class="gax-i help">${word} ${a.row}: ${esc(a.why)}, left out of the check</div>`).join('') : '';
+    return `<div class="gax"><h4>${axis === 'col' ? 'Columns' : 'Rows'} (${items.length}) <span class="help">· ${sub}</span></h4>${list}${aside}</div>`;
   }
   function card(t) {
-    const res = results[t.id], b = busy.has(t.id);
-    const blk = t.kind === 'block', across = (t.positions || []).length;
-    const size = blk ? `${t.lines} block${t.lines === 1 ? '' : 's'} × ${across} field${across === 1 ? '' : 's'}`
-                     : `${t.lines} row${t.lines === 1 ? '' : 's'} × ${across} column${across === 1 ? '' : 's'}`;
-    return `<div class="gtcard ${selected === t.id ? 'sel' : ''}" data-t="${esc(t.id)}" style="--c:${colorOfTable(t)}">
-      <div class="gttitle"><span class="gtidc" data-copy="${esc(t.id)}" title="click to copy the reference (file_id)">${esc(t.id)}</span>${esc(t.title || (blk ? 'repeated block' : 'table'))}
-        <label class="gtprov" style="float:right" title="tick two or more of one kind on this page, then 'combine ticked'"><input type="checkbox" data-tick="${esc(t.id)}" ${ticked.has(t.id) ? 'checked' : ''}> combine</label></div>
+    const sel = selected === t.id, res = results[t.id], b = busy.has(t.id), pv = sel ? PV[t.id] : null;
+    const head = `<div class="gttitle"><span class="gtidc" data-copy="${esc(t.id)}" title="click to copy the reference">${esc(t.id)}</span>${esc(t.title || 'grid')}
+        ${done(t) ? '<span class="pill validated" style="float:right">validated</span>' : ''}</div>
+      <div class="help">${t.rows} row${t.rows === 1 ? '' : 's'} × ${t.cols} column${t.cols === 1 ? '' : 's'} · ${t.accepted} of ${t.body ?? t.cells.length} cells accepted · <span class="${t.on_pattern || done(t) ? '' : 'stale'}">${esc(status(t))}</span></div>`;
+    if (!sel) return `<div class="gtcard" data-t="${esc(t.id)}" style="--c:${colorOf(t)}">${head}</div>`;
+    const all = pv && pv.all && pv.all.renames.length;
+    return `<div class="gtcard sel" data-t="${esc(t.id)}" style="--c:${colorOf(t)}">${head}
       <div class="gtprov">${esc(prov(t))}</div>
-      <div><span class="pill ${blk ? 'copy' : 'passed'}">${t.kind}</span> <b>${size}</b>
-        ${done(t) ? '<span class="pill validated">validated</span>' : ''}
-        <span class="help">· ${t.accepted}/${t.body ?? t.cells.length} cells accepted · ${esc(status(t))}</span></div>
-      ${(t.aside || []).length ? `<div class="help">${t.aside.map(a => `row ${a.row} set aside: ${esc(a.why)}`).join('; ')}</div>` : ''}
-      <details class="gtpos" ${!t.keyed && (t.positions || []).some(p => p.wordings.length > 1 || p.off) ? 'open' : ''}><summary class="help">${blk ? 'fields of each block' : (t.reading === 'rows' ? 'rows' : 'columns')}${!t.keyed && (t.positions || []).some(p => p.wordings.length > 1 || p.off)
-          ? ` <button class="btn mini" data-std="${esc(t.id)}" ${b ? 'disabled' : ''} title="every column with more than one wording, or numbers off its rows', to one wording (the resolver's pick, else the commonest) with each cell numbered as its row; nothing accepted">standardize all</button>` : ''}</summary><ol>${(t.positions || []).map(p =>
-        `<li><code>${esc(p.wordings.join(' / '))}</code>${p.caption ? ` <span class="help">· printed: ${esc(p.caption)}</span>` : ''}${p.off ? ` <span class="stale">${p.off} cell${p.off === 1 ? '' : 's'} numbered off the row</span>` : ''}${!t.keyed && (p.wordings.length > 1 || p.off)
-          ? ` <button class="btn mini" data-std="${esc(t.id)}" data-pos="${p.pos}" ${b ? 'disabled' : ''} title="${p.wordings.length > 1 ? 'this column to one wording, each cell numbered as its row' : 'this column numbered as its rows'}">standardize</button>` : ''}</li>`).join('')}</ol></details>
-      <details class="gtpos"><summary class="help">${blk ? 'blocks' : (t.reading === 'rows' ? 'columns' : 'rows')}${t.rows_info ? ` · ${esc(t.rows_info.summary)}` : ''}</summary><ol>${((t.rows_info || {}).lines || []).map(r =>
-        `<li>${r.label != null ? `<code>${esc(r.label || '?')}</code>` : `<code>${esc(r.number || '?')}</code>${(r.numbers || []).length > 1 ? ` <span class="stale">also ${esc(r.numbers.slice(1).join(', '))}</span> <button class="btn mini" data-std="${esc(t.id)}" data-line="${r.line}" ${b ? 'disabled' : ''} title="every cell of this row takes the row's number, under its column's wording">standardize</button>` : ''}`} <span class="help">· ${r.cells} cells</span></li>`).join('')}</ol></details>
-      ${blk && selected === t.id ? layoutHtml(t) : ''}
-      ${t.on_pattern ? '' : `<div class="help">${esc(t.why)}</div>`}
-      <button class="btn ${done(t) ? '' : 'primary'}" data-check="${esc(t.id)}" ${b ? 'disabled' : ''}>${b ? 'checking…' : done(t) ? 'validated ✓ · check again' : 'check & validate'}</button>
-      ${b ? `<button class="btn" data-stop="${esc(t.id)}" title="stop this check: nothing is written after it, and a call to Opus under way is given up">cancel</button>` : ''}
-      <button class="btn" data-notgrid="${esc(t.id)}" title="not a grid or block: hidden and kept out of 'check all'; one the finder found is recorded as its mistake, a combined one gives its parts back; restore below">${blk ? 'not a block group' : 'not a grid'}</button>
-      ${res ? `<div class="help">last run: <b>${esc(res.status)}</b>${res.status === 'proposed' ? ' · the proposals are in the chat' : ''}${!done(t) && ['validated', 'fixed'].includes(res.status) ? ' · some cells keep an earlier verdict (flagged?)' : ''}</div>
-        <ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(s)}</li>`).join('')}</ul>` : ''}
+      <div class="row gtbtns"><button class="btn ${done(t) ? '' : 'primary'}" data-check="${esc(t.id)}" ${b ? 'disabled' : ''} title="the code check, then the resolver, Jev and Opus only when still unclear; renames applied as Claude's, cells accepted">${b ? 'working…' : done(t) ? 'validated ✓ · check again' : 'check & validate'}</button>
+        ${b && runs[t.id] ? `<button class="btn" data-stop="${esc(t.id)}" title="stop this check: nothing is written after it, and a call to Opus under way is given up">cancel</button>` : ''}
+        ${all ? `<button class="btn" data-std="${esc(t.id)}" ${b ? 'disabled' : ''} title="${esc(renameList(pv.all.renames))}">standardize all (${pv.all.renames.length})</button>` : ''}
+        <button class="btn" data-notgrid="${esc(t.id)}" title="hidden and kept out of 'check all'; a finder's grid is recorded as its mistake, a combined one gives its parts back; restore below">not a grid</button></div>
+      ${res ? `<div class="gtres"><b>last: ${esc(res.status)}</b>${res.status === 'proposed' ? ' · the proposals are in the chat' : ''}<ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(say(t, s))}</li>`).join('')}</ul></div>` : ''}
+      ${!pv ? '<p class="help">reading its columns and rows…</p>' : pv.error ? `<p class="err">${esc(pv.error)}</p>`
+        : (pv.keyed ? `<p class="help">Rows named by label (applicant, spouse): standardize does not apply; check & validate settles them.</p>` : '') + axisHtml(t, pv, 'col') + axisHtml(t, pv, 'row')}
     </div>`;
   }
   function panel() {
-    const a = $('#panel'), ts = onPage(page);
+    const a = $('#panel');
     if (!GD) { a.innerHTML = '<p class="help">loading…</p>'; return; }
-    // the Blocks tab is its block types and their blocks; the handlers below find nothing of the grids' there
-    a.innerHTML = BLK ? `<div class="help"><b>Drag on the page around one block</b> to make it a block: of an existing block type when its boxes match one, several blocks when the area holds several copies, else a new type. Click a block to open it; Delete removes it; n / p step through the blocks; Enter validates the open one.</div>` + typesHtml() + blocksHtml()
-      : `<div class="help">Tables (grids) the layout code finds, outlined in dots on the page. One click runs
-      the lightest check that settles a table: the code, then the name-check model, then Jev, and Opus only when it is still unclear.</div>
-      <div style="margin:8px 0;display:flex;gap:6px;flex-wrap:wrap">
-        ${BLK ? '' : `<button class="btn ${drawKind ? 'primary' : ''}" id="gtDraw" title="then drag a box around the fields on the page (d)">draw a ${NOUN}</button>`}
-        ${ticked.size >= 2 ? `<button class="btn primary" id="gtComb">combine ticked (${ticked.size})</button>` : ''}
-      </div>
-      ${BLK ? `<p class="help"><b>Drag on the page around one block</b> to make it a block: of an existing block type when it is an exact copy of one, else of a new type. <b>Drag a block onto another</b> of its type to group them.</p>`
-        : drawKind ? `<p class="help"><b>Drag a box on the page</b> around the table: the fields whose middle is inside become a new ${NOUN}. Drawing stays on for the next one; d or Esc to stop.</p>` : ''}
-      ${ts.length ? `<button class="btn" id="gtAll">check & validate all on this page</button>` + ts.map(card).join('') :
-        `<p class="help">No ${BLK ? 'block group' : 'numbered table'} on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
-      ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Set aside (${BLK ? 'not a block group' : 'not a grid'}): ${asidePage(page).map(t =>
-        `<span><b>${esc(t.id)}</b> ${esc(t.title || t.kind)} (${t.rows} x ${t.cols}, ${esc(prov(t))}) <a href="#" data-restore="${esc(t.id)}">restore</a></span>`).join(' · ')}</div>` : ''}`;
-    a.querySelectorAll('[data-tick]').forEach(b => { b.onclick = e => e.stopPropagation(); b.onchange = () => {
-      b.checked ? ticked.add(b.dataset.tick) : ticked.delete(b.dataset.tick); panel(); }; });
-    if ($('#gtDraw')) $('#gtDraw').onclick = () => { drawKind = drawKind ? null : KIND; panel(); };
+    const ts = onPage(page);
+    a.innerHTML = `<div class="help">Drag on an empty part of the page (or Shift+drag anywhere) to draw a grid around its fields; drag a grid onto another to combine them. Click a grid for its columns and rows.</div>
+      ${ts.length ? `<div class="row"><button class="btn" id="gtAll">check & validate all ${ts.length} on this page</button></div>` + ts.map(card).join('')
+        : `<p class="help">No grid on this page${live().length ? ` (${live().length} on other pages)` : ''}.</p>`}
+      ${asidePage(page).length ? `<div class="help" style="margin-top:10px">Not grids: ${asidePage(page).map(t =>
+        `<span><b>${esc(t.id)}</b> ${esc(t.title || '')} (${t.rows} × ${t.cols}, ${esc(t.aside_why || prov(t))}) <a href="#" data-restore="${esc(t.id)}" title="${t.aside_why ? 'a grid after all: kept, whatever the rule says' : 'a grid after all'}">restore</a></span>`).join(' · ')}</div>` : ''}`;
+    a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected !== c.dataset.t) select(c.dataset.t); });
+    a.querySelectorAll('.gtcard.sel button, .gtcard.sel select, .gtcard.sel a, .gtcard.sel .gax').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+    a.querySelectorAll('[data-copy]').forEach(el => el.onclick = e => { e.preventDefault(); e.stopPropagation(); copyText(ref(el.dataset.copy)); });
+    a.querySelectorAll('[data-check]').forEach(b => b.onclick = () => run(b.dataset.check));
+    a.querySelectorAll('[data-stop]').forEach(b => b.onclick = () => stop(b.dataset.stop));
+    a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = () => setAside(b.dataset.notgrid, true));
+    a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
+    a.querySelectorAll('[data-std]').forEach(b => b.onclick = () => standardize(b.dataset.std, b.dataset.pos, b.dataset.line));
+    a.querySelectorAll('[data-pick]').forEach(sel => sel.onchange = () => {
+      let w = sel.value; if (!w) return;
+      if (w === '?') { w = (prompt('The wording for every cell, with _# where the number goes (e.g. vehicle_#_make_txt):') || '').trim(); if (!w) { sel.value = ''; return; } }
+      standardize(sel.dataset.pick, sel.dataset.pos, null, w);
+    });
+    if ($('#gtAll')) $('#gtAll').onclick = async () => {        // stops if you open another form, or a check is cancelled
+      const form = bid;
+      for (const t of onPage(page)) { if (bid !== form) break; const out = await run(t.id); if (out && out.status === 'cancelled') break; }
+    };
+  }
+  async function reload() { const keep = results; await loadMode(); results = keep; }
+  async function standardize(tid, pos, line, wording) {
+    const form = bid; busy.add(tid); panel();
+    let out;
+    try { out = await send('POST', mapi('grids', '/standardize'), {table: tid, pos: pos ? +pos : null, line: line ? +line : null, wording: wording || null}); }
+    catch (e) { out = {status: 'error', steps: ['standardize failed: ' + e.message]}; }
+    busy.delete(tid); if (bid !== form) return;
+    results[tid] = out; if (out.entry) updateEntry(out.entry);
+    await reload();
+    toast(`${tid}: ${out.status}.` + ((out.left || []).length ? ` ${out.left.length} left, see the card.` : ''));
+  }
+  async function create(rect) {
+    let out;
+    try { out = await send('POST', mapi('grids', '/create'), {page, rect}); }
+    catch (e) { alert('Could not make a grid: ' + e.message); return; }
+    selected = out.id; await reload(); loadPreview(out.id);
+    toast(`New grid ${out.id}: ${out.cells} fields.${leftNote(out)}`);
+  }
+  async function combine(ids) {
+    let out;
+    try { out = await send('POST', mapi('grids', '/combine'), {tables: ids}); }
+    catch (e) { alert('Could not combine: ' + e.message); return; }
+    selected = out.id; await reload(); loadPreview(out.id);
+    toast(`${ids.join(' + ')} combined into ${out.id} ("not a grid" on it gives them back).${leftNote(out)}`);
+  }
+  // a field is in one grid at most (2026-10-20): what it left when it joined this one
+  const leftNote = out => (out.left || []).length ? ' ' + out.left.join('; ') + '.' : '';
+  async function setAside(tid, on) {
+    let out;
+    try { out = await send('POST', mapi('grids', '/dismiss'), {table: tid, on}); }
+    catch (e) { alert('Could not save: ' + e.message); return; }
+    if (on && selected === tid) selected = null;
+    await reload();
+    toast((on ? `${tid}: not a grid.` : `${tid} restored.`) + leftNote(out));
+  }
+  // a check runs on while you go to another tab or page; its result brings this tab back up at the grid's page
+  // (2026-10-20). Cancel stops it (2026-10-21): the card is free at once, the server writes nothing after it.
+  async function stop(tid) {
+    if (!busy.has(tid)) return;
+    runs[tid] = null; busy.delete(tid);
+    results[tid] = {status: 'cancelled', steps: ['cancelled: nothing written after the cancel']};
+    panel();
+    try { await send('POST', mapi('grids', '/cancel'), {table: tid}); } catch (e) {}
+    toast(`${tid}: check cancelled.`);
+  }
+  async function run(tid) {
+    const form = bid, pg = page, token = {}; runs[tid] = token; busy.add(tid); if (mode === 'grids') panel();
+    let out;
+    try { out = await send('POST', mapi('grids', '/check'), {table: tid}); }
+    catch (e) { out = {status: 'error', steps: ['the check failed: ' + e.message]}; }
+    if (runs[tid] !== token) { if (out.entry && bid === form) updateEntry(out.entry); return {status: 'cancelled'}; }
+    runs[tid] = null; busy.delete(tid); if (bid !== form) return out;
+    results[tid] = out; if (out.entry) updateEntry(out.entry);
+    if (out.proposals) {                       // Opus: its proposals go to the chat, ticked, nothing applied
+      const st = chatState(), p = out.proposals;
+      st.history.push({role: 'user', content: p.request}, {role: 'assistant', content: p.raw});
+      st.turns.push({req: `grids: ${tid} (Opus)`, gridPage: pg, out: p, picked: new Set(chatItems(p).map(it => it.k))});
+      toggleChat(true); renderChat();
+    }
+    const keep = results;
+    if (mode === 'grids') await loadMode(); else await setMode('grids');
+    results = keep; selected = tid; loadPreview(tid);
+    const t = live().find(x => x.id === tid);
+    if (t && t.page !== page) await gotoPage(t.page); else { placeAll(); panel(); }
+    toast(`${tid}: ${out.status}.`);
+    return out;
+  }
+  function place() {
+    for (const t of onPage(page)) {
+      const pad = 6, r = [t.bbox[0] - pad, t.bbox[1] - pad, t.bbox[2] + pad, t.bbox[3] + pad], c = colorOf(t);
+      const d = put('gtab' + (t.on_pattern ? ' ok' : '') + (selected === t.id ? ' sel' : ''), r,
+                    `${t.id} · ${t.rows} × ${t.cols} · ${status(t)} · ${prov(t)}\ndrag onto another grid to combine them`);
+      d.style.setProperty('--c', c);
+      dots(d, (r[2] - r[0]) * scale, (r[3] - r[1]) * scale);
+      const tag = document.createElement('span'); tag.className = 'gtid'; tag.textContent = t.id + (done(t) ? ' ✓' : ''); tag.title = 'click to copy the reference'; d.appendChild(tag);
+      tag.onclick = e => { e.stopPropagation(); copyText(ref(t.id)); };
+      d.onclick = e => { e.stopPropagation(); select(t.id); };
+      dragFrom(d, 'grid', t.id);
+      dropOn(d, 'grid', src => { if (src !== t.id) combine([src, t.id]); });
+      for (const x of t.cells) if (x.rect) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : '')).style.setProperty('--c', c);
+    }
+  }
+  return {
+    async load() { GD = await j(mapi('grids')); PV = {}; if (selected && !GD.tables.some(t => t.id === selected && !t.dismissed)) selected = null; if (selected) loadPreview(selected); },
+    pages: () => GD ? GD.pages : [],
+    startPage: () => (live()[0] || {}).page || 1,
+    // p7 (grids not validated / grids), Andrew 2026-10-22
+    pageLabel(p) { const ts = onPage(p); if (!ts.length) return `p${p}`; const u = ts.filter(t => !done(t)).length; return {text: `p${p} (${u}/${ts.length})`, done: !u}; },
+    bar: () => `<span class="progress" id="progress"></span>`,
+    bindBar() { if (GD) this.progress(); },
+    help: {keys: [['n / p', 'next / previous grid'], ['Enter', 'check & validate the selected grid'], ['Delete', 'the selected grid is not a grid'], ['Esc', 'deselect']],
+           tips: ['Drag on an empty part of the page, or Shift+drag anywhere, to draw a grid: the fields whose middle is inside become one.',
+                  'Drag a grid onto another on the same page to combine them; "not a grid" on the combined one gives them back.',
+                  'A selected grid lists its columns and rows. Each standardize or renumber button says how many renames it makes (hover for them); where there is nothing it can do, the reason is under it. A column whose cells split evenly between wordings has a picker: choose one, or type another.',
+                  'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.']},
+    place, panel,
+    progress() {
+      const el = $('#progress'); if (!el || !GD) return;
+      const ts = live(), v = ts.filter(done).length, ok = ts.filter(t => t.on_pattern).length, n = GD.tables.length - ts.length;
+      el.innerHTML = `<b>${ts.length}</b> grids · ${v} validated · ${ok} on pattern${n ? ` · ${n} not grids` : ''}`;
+    },
+    key(e) {
+      const ts = live(), i = ts.findIndex(t => t.id === selected);
+      if (e.key === 'n' || e.key === 'p') { const t = ts[(i + (e.key === 'n' ? 1 : -1) + ts.length) % ts.length]; if (t) select(t.id); return true; }
+      if (e.key === 'Enter' && selected) { run(selected); return true; }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selected) { setAside(selected, true); return true; }
+      if (e.key === 'Escape' && selected) { selected = null; placeAll(); panel(); return true; }
+      return false;
+    },
+    mousedown(e) { area.down(e); },
+    mousemove(e) { area.move(e); },
+    mouseup() { const r = area.up(); if (r) create(r); },
+  };
+})();
 
+// ======================================================================= Blocks (block_types.py, 2026-10-21)
+// block types and their blocks: an area dragged on the page is a block, of an existing type when its boxes pair with
+// that type's template, else of a new type; a block dragged onto another becomes a block of that one's type (Andrew,
+// 2026-10-22: like Groups). Block groups are gone (2026-10-21/22): a type and its blocks carry what they did.
+MODE.blocks = (() => {
+  let GD = null, selBlock = null;          // the block clicked (its first box's code), open in the sidebar
+  const area = areaDrag();
+  const ref = id => `${fileStem(GD.path)}_${id}`;
+  function placeBlocks() {
+    for (const y of (GD && GD.types) || []) {
+      for (const b of y.blocks.filter(b => b.page === page)) {
+        const pad = 3, d = put('btb' + (b.code === selBlock ? ' sel' : ''), [b.bbox[0] - pad, b.bbox[1] - pad, b.bbox[2] + pad, b.bbox[3] + pad], `${y.id}-${b.n}${y.label ? ' ' + y.label : ''}`);
+        d.innerHTML = `<span title="click to copy the reference">${esc(y.id)}-${b.n}${y.label ? ' ' + esc(y.label) : ''}${b.validated ? ' ✓' : ''}</span>`;
+        d.firstChild.onclick = e => { e.stopPropagation(); copyText(ref(`${y.id}-${b.n}`)); };     // as a field's name and a grid's id
+        // each field of the block, accepted or not, as the Grids tab shows a grid's cells
+        for (const x of (b.cells || []).filter(Boolean)) put('gcell' + (x.accepted ? ' acc' : ''), x.rect, x.name + (x.accepted ? ' · accepted' : ' · not accepted yet')).style.setProperty('--c', 'var(--accent)');
+        d.onclick = e => { e.stopPropagation(); selectBlock(b); };
+        // dragged onto another block (Andrew, 2026-10-22, as in Groups): it becomes a block of that one's type
+        dragFrom(d, 'block', b.code);
+        dropOn(d, 'block', src => { if (src === b.code) return; const s = allBlocks().find(x => x.code === src), sy = s && (GD.types || []).find(x => x.blocks.includes(s));
+          if (!s) return; if (sy && sy.id === y.id) { toast(`Already a block of ${y.id}.`); return; } blockAssign(src, y.id); });
+        // a field dropped on it (Andrew, 2026-10-22: "can we drag fields on to a block to add them?")
+        dropOn(d, 'field', code => blockAddField(b.code, code));
+      }
+    }
+    // the fields in no block, above the block outlines so one left out of a block can still be picked up
+    for (const x of ((GD && GD.loose) || []).filter(x => x.page === page)) {
+      const f = put('bfield', x.rect, `${x.name} (${x.kind}, in no block): drag onto a block to add it`);
+      dragFrom(f, 'field', x.code);
+    }
+  }
+  function panel() {
+    const a = $('#panel');
+    if (!GD) { a.innerHTML = '<p class="help">loading…</p>'; return; }
+    a.innerHTML = `<div class="help">Drag on an empty part of the page (or Shift+drag anywhere) around one block to make it a block: of an existing block type when its boxes match one, several blocks when the area holds several copies, else a new type. Drag a block onto another to make it a block of that one's type. Click a block to open it; Delete removes it; n / p step through the blocks; Enter validates the open one.</div>` + openBlockHtml() + typesHtml() + blocksHtml();
+    // the open block's own boxes: prefix, iteration and how it is told apart, saved on leaving a box or Enter
+    const ob = a.querySelector('.btopen');
+    if (ob) {
+      const save = () => { const b = allBlocks().find(x => x.code === selBlock); if (!b) return;
+        const pre = ob.querySelector('[data-obpre]').value.trim(), it = ob.querySelector('[data-obit]').value.trim(), by = ob.querySelector('[data-obby]').value;
+        if (pre === (b.prefix || '') && it === (b.iteration || '') && by === (b.by || 'number')) return;
+        // a new prefix with the iteration left as it was: the next number free among the blocks with that prefix
+        // (Andrew, 2026-10-22: "updating the prefix doesn't automatically populate the iteration")
+        const renumber = by !== (b.by || 'number') || (pre !== (b.prefix || '') && it === (b.iteration || ''));
+        blockParts(b.code, {prefix: pre, iteration: renumber ? '' : it, by}); };
+      ob.querySelectorAll('[data-obpre], [data-obit]').forEach(i => i.addEventListener('blur', save));
+      ob.querySelectorAll('[data-obby]').forEach(sel => sel.onchange = save);
+    }
     a.querySelectorAll('[data-blk]').forEach(r => r.onclick = () => {
       const hit = blocksHere().find(x => x.b.code === r.dataset.blk); if (hit) selectBlock(hit.b); });
     a.querySelectorAll('[data-bval]').forEach(b => b.onclick = e => { e.stopPropagation(); blockValidate(b.dataset.bval); });
     if ($('#btDetect')) $('#btDetect').onclick = e => { e.stopPropagation(); blockDetect(); };
+    if ($('#btFinders')) $('#btFinders').onclick = e => { e.stopPropagation(); runFinders(e.target); };
     a.querySelectorAll('[data-refit]').forEach(b => b.onclick = e => { e.stopPropagation();
       const hit = blocksHere().find(x => x.b.code === b.dataset.refit); if (hit) blockAssign(b.dataset.refit, hit.y.id); });
     a.querySelectorAll('[data-tassign]').forEach(sel => { sel.addEventListener('keydown', e => e.stopPropagation()); sel.onclick = e => e.stopPropagation();
@@ -2600,22 +2877,22 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     a.querySelectorAll('[data-bfix]').forEach(b => b.onclick = e => { e.stopPropagation(); blockFix(b.dataset.bfix); });
     a.querySelectorAll('[data-bkeep]').forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.dataset.bkeep, b.dataset.pos, true); });
     a.querySelectorAll('[data-bunkeep]').forEach(b => b.onclick = e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.dataset.bunkeep, b.dataset.pos, false); });
-    a.querySelectorAll('[data-tw]').forEach(i => { i.addEventListener('keydown', e => e.stopPropagation()); i.onclick = e => e.stopPropagation(); });
+    a.querySelectorAll('[data-ts]').forEach(i => { i.addEventListener('keydown', e => e.stopPropagation()); i.onclick = e => e.stopPropagation();
+      i.addEventListener('input', () => reprintColumn(a, i.dataset.ts, +i.dataset.k)); });
+    a.querySelectorAll('[data-mxwide]').forEach(x => x.onclick = e => { e.preventDefault(); e.stopPropagation(); toggleWide(); panel(); });
+    a.querySelectorAll('[data-bbysel]').forEach(sel => { sel.addEventListener('keydown', e => e.stopPropagation()); sel.onclick = e => e.stopPropagation();
+      sel.onchange = () => { const b = allBlocks().find(x => x.code === sel.dataset.bbysel); if (b) blockParts(b.code, {prefix: b.prefix || '', iteration: '', by: sel.value}); }; });
     a.querySelectorAll('[data-tconf]').forEach(b => b.onclick = e => { e.stopPropagation(); typeConfirm(b.dataset.tconf); });
     // a block's prefix and iteration: saved on Enter or leaving the box (both sent, so one edit keeps the other)
     a.querySelectorAll('[data-bpre], [data-bit]').forEach(i => { i.onclick = e => e.stopPropagation();
       i.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') i.blur(); });
       i.addEventListener('blur', () => {
-        const code = i.dataset.bpre || i.dataset.bit, b = blocksHere().map(x => x.b).find(x => x.code === code); if (!b) return;
+        const code = i.dataset.bpre || i.dataset.bit, b = allBlocks().find(x => x.code === code); if (!b) return;
         const pre = a.querySelector(`[data-bpre="${CSS.escape(code)}"]`).value.trim(), it = a.querySelector(`[data-bit="${CSS.escape(code)}"]`).value.trim();
         if (pre === (b.prefix || '') && it === (b.iteration || '')) return;
-        blockParts(code, {prefix: pre, iteration: it, by: b.by});
+        const renumber = pre !== (b.prefix || '') && it === (b.iteration || '');      // a new prefix: the next number free
+        blockParts(code, {prefix: pre, iteration: renumber ? '' : it, by: b.by});
       }); });
-    // told apart by number or by its prefix (2026-10-21, a block's own choice): the prefix kept, the iteration cleared
-    a.querySelectorAll('[data-bby]').forEach(r => { r.onclick = e => e.stopPropagation(); r.onchange = () => {
-      if (!r.checked) return;
-      const code = r.dataset.bby, b = blocksHere().map(x => x.b).find(x => x.code === code); if (!b) return;
-      blockParts(code, {prefix: b.prefix || '', iteration: '', by: r.value}); }; });     // the number follows the choice
     a.querySelectorAll('[data-bpreset]').forEach(x => x.onclick = e => { e.preventDefault(); e.stopPropagation(); blockParts(x.dataset.bpreset, {}); });
     a.querySelectorAll('[data-tauto]').forEach(c => { c.onclick = e => e.stopPropagation(); c.onchange = () => typeAuto(c.dataset.tauto, c.checked); });
     a.querySelectorAll('[data-tlabel]').forEach(i => { i.onclick = e => e.stopPropagation();
@@ -2628,58 +2905,54 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       const hit = (GD.types || []).flatMap(y => y.blocks).find(x => x.code === r.dataset.tblk); if (hit) selectBlock(hit); });
     a.querySelectorAll('.bttype').forEach(d => d.addEventListener('click', e => e.stopPropagation()));
     a.querySelectorAll('[data-blkdel]').forEach(b => b.onclick = e => { e.stopPropagation(); blockOut(b.dataset.blkdel); });
-    if ($('#gtComb')) $('#gtComb').onclick = combineTicked;
-    a.querySelectorAll('[data-check]').forEach(b => b.onclick = e => { e.stopPropagation(); run(b.dataset.check); });
-    a.querySelectorAll('[data-stop]').forEach(b => b.onclick = e => { e.stopPropagation(); stop(b.dataset.stop); });
-    a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = e => { e.stopPropagation(); setAside(b.dataset.notgrid, true); });
-    a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
-    a.querySelectorAll('.gtcard').forEach(c => c.onclick = () => { if (selected === c.dataset.t) return; selected = c.dataset.t; selBlock = null; placeAll(); panel(); });
-    a.querySelectorAll('[data-copy]').forEach(el => el.onclick = e => { e.preventDefault(); e.stopPropagation(); copyTableRef(el.dataset.copy); });
-    a.querySelectorAll('[data-std]').forEach(bt => bt.onclick = e => { e.stopPropagation(); standardize(bt.dataset.std, bt.dataset.pos, bt.dataset.line); });
-    a.querySelectorAll('.gtpos').forEach(d => d.addEventListener('click', e => e.stopPropagation()));   // opening the list keeps it open
-    if ($('#gtAll')) $('#gtAll').onclick = async () => {        // stops if you open another form
-      const form = bid;
-      for (const t of onPage(page)) {                         // ... or when a check is cancelled
-        if (bid !== form) break;
-        const out = await run(t.id); if (out && out.status === 'cancelled') break;
-      }
-    };
-    if (BLK) bindLayout(a);
+    a.querySelectorAll('[data-copy]').forEach(el => el.onclick = e => { e.preventDefault(); e.stopPropagation(); copyText(ref(el.dataset.copy)); });
   }
-  // the blocks on this page (Andrew, 2026-10-21: "blocks/block groups need to be clickable and show up in the
-  // sidebar"): each one clickable; the clicked one with its fields, "add to existing", "take out of" its group and
-  // "not a block"
+  const allBlocks = () => (GD.types || []).flatMap(y => y.blocks);
   const blocksHere = () => (GD.types || []).flatMap(y => y.blocks.filter(b => b.page === page).map(b => ({y, b})));
   function selectBlock(b) {
     selBlock = b.code;
-    if (b.page !== page) { gotoPage(b.page); return; }
-    placeAll(); panel();
-    const row = document.querySelector(`[data-blk="${CSS.escape(b.code)}"]`); if (row) row.scrollIntoView({block: 'nearest'});
+    if (b.page !== page) { gotoPage(b.page).then(() => { $('#panel').scrollTop = 0; }); return; }
+    placeAll(); panel(); $('#panel').scrollTop = 0;          // the open block's card is at the top
+  }
+  // the clicked block, at the top of the sidebar (Andrew, 2026-10-22: "why can't I edit individual blocks anymore?"
+  // and "I'm clicking on BT1-2 and it brings up BT5": every unconfirmed type's matrix was open, the block's row
+  // somewhere below them): its prefix, iteration and how it is told apart; its names now and as its type prints them
+  function openBlockHtml() {
+    const y = (GD.types || []).find(t => t.blocks.some(b => b.code === selBlock)); if (!y) return '';
+    const b = y.blocks.find(x => x.code === selBlock), ss = typeSlots(y), code = esc(b.code);
+    const rows = b.names.map((n, k) => {
+      if (n == null) return `<tr><td class="help">${k + 1}</td><td class="help" colspan="2">no box at ${esc(y.id)}'s position ${k + 1} (${esc((y.wordings || [])[k] || '')})</td></tr>`;
+      const want = printIdent(blockIdent(b.prefix, b.iteration, ss[k] || {})), kept = (b.kept || []).includes(k + 1);
+      const d = (b.differs || []).find(x => x.pos === k + 1), acc = ((b.cells || [])[k] || {}).accepted;
+      const chg = want && want !== n && !kept && !(b.same_as || []).length;
+      return `<tr><td class="help">${k + 1}</td><td><code class="${acc ? 'accd' : ''}">${esc(n)}</code>${acc ? ' ✓' : ''}</td><td>${chg ? `→ <code>${esc(want)}</code>${d && d.held ? ` <span class="help">held by ${esc(d.held === 'no block' ? 'a field in no block' : d.held)}</span>` : ''} <a href="#" class="x" data-bkeep="${code}" data-pos="${k + 1}" title="cancel this rename: the name stays as it is">×</a>`
+        : kept ? `<span class="help">kept as is · <a href="#" data-bunkeep="${code}" data-pos="${k + 1}">undo</a></span>` : '<span class="help">as its type prints it</span>'}</td></tr>`;
+    }).join('');
+    const nOff = (b.differs || []).filter(d => !d.held).length;
+    return `<div class="gcur btopen"><h2><b class="gtidc" data-copy="${esc(y.id)}-${b.n}" title="click to copy the reference">${esc(y.id)}-${b.n}</b>${y.label ? ' ' + esc(y.label) : ''} <span class="help">p${b.page} · ${b.n} of ${y.blocks.length} · ${esc(blockState(y, b))}</span></h2>
+      <div class="row btparts">prefix <input type="text" data-obpre="${code}" value="${esc(b.prefix || '')}" title="the start of every name in this block">
+        iteration <input type="text" class="btit" data-obit="${code}" value="${esc(b.iteration || '')}" placeholder="${b.by === 'prefix' ? 'none' : 'next'}" title="${b.by === 'prefix' ? 'told apart by its prefix: a number only when another block of the type has this prefix, or you type one' : "this block's number among its type's blocks with this prefix; empty, the next number free; - for none"}">
+        <select data-obby="${code}" title="told apart by number (a block alone with its prefix is 1) or by its prefix (no number unless another block shares the prefix)"><option value="number" ${b.by !== 'prefix' ? 'selected' : ''}>by number</option><option value="prefix" ${b.by === 'prefix' ? 'selected' : ''}>by prefix</option></select>
+        ${b.parts_set ? `<a href="#" data-bpreset="${code}" title="back to the prefix and iteration read from the names">reset</a>` : ''}</div>
+      <table class="btnames">${rows}</table>
+      <div class="row">${y.confirmed ? `<button class="btn mini ${b.validated ? '' : 'primary'}" data-bval="${code}" ${bBusy.has(b.code) ? 'disabled' : ''}>${bBusy.has(b.code) ? 'checking…' : b.validated ? 'validated ✓ · check again' : 'check & validate'}</button>` : `<span class="help">confirm ${esc(y.id)}'s parts (below) to validate its blocks</span>`}
+        ${nOff ? `<button class="btn mini" data-bfix="${code}" title="the names marked → put to the type's parts, as Claude's renames; nothing accepted">rename (${nOff})</button>` : ''}
+        <button class="btn mini" data-blkdel="${code}" title="this area is not a block: its fields leave ${esc(y.id)}">not a block</button>
+        ${b.names.some(n => n == null) ? `<button class="btn mini" data-refit="${code}" title="fitted again from the boxes in and round it (place, size and label)">re-fit to ${esc(y.id)}</button>` : ''}
+        ${(GD.types || []).some(x => x.id !== y.id) ? `<select data-assign="${code}"><option value="">assign to type…</option>${typeOptions(y.id, closestFor[b.code])}</select>` : ''}</div>
+      <div class="help">Its type's parts, and every block of ${esc(y.id)} side by side: ${esc(y.id)} below.</div></div>`;
   }
   function blocksHtml() {
     const here = blocksHere();
-    const find = (GD.types || []).length ? `<button class="btn mini" id="btDetect" title="every block type's copies on this page added as its blocks (boxes already in a block are left)">find block types on this page</button>` : '';
-    if (!here.length) return find ? `<div class="btlist">${find}</div>` : '';
-    return `<div class="btlist"><h4>Blocks on page ${page} (${here.length}) ${find}</h4>${here.map(({y, b}) => {
+    const find = (GD.types || []).length ? `<button class="btn mini" id="btDetect" title="each block type with a block on this page takes in the fields in no block that sit at the same place in every one of its blocks (cancel a grid first if it holds them); then every type's copies on the page are added as its blocks: exact copies of its layout, then places where its printed labels repeat (those can lack a box: drag it on); boxes already in a block are left">rescan this page</button>` : '';
+    // the whole form (2026-10-23, "both, one button"): SIA's repeated blocks as new types, then the Grids tab's finder
+    // leaves out what they hold
+    const fin = `<button class="btn mini" id="btFinders" title="the whole form: repeated blocks among the fields in no block, found with no type drawn (SIA), each saved as a new block type marked 'from the finder'; the Grids tab's finder then leaves out grids those blocks hold. Keep what's right; 'not a block' on the rest">run finders</button>`;
+    if (!here.length) return `<div class="btlist">${fin} ${find}</div>`;
+    return `<div class="btlist"><h4>Blocks on page ${page} (${here.length}) ${find} ${fin}</h4>${here.map(({y, b}) => {
       const open = b.code === selBlock;
       return `<div class="btrow${open ? ' sel' : ''}" data-blk="${esc(b.code)}"><b class="gtidc" data-copy="${esc(y.id)}-${b.n}" title="click to copy the reference (file_id)">${esc(y.id)}-${b.n}</b> <span class="help">${y.label ? esc(y.label) + ' · ' : ''}${b.template ? 'the type\'s template · ' : ''}${blockState(y, b)}</span>
-        ${open ? `<div class="btmore"><div class="row btparts">prefix <input type="text" data-bpre="${esc(b.code)}" value="${esc(b.prefix || '')}" title="the block's own start: every name is [prefix]_[iteration]_[wording]">
-            iteration <input type="text" class="btit" data-bit="${esc(b.code)}" value="${esc(b.iteration || '')}" placeholder="${b.by === 'prefix' ? 'none' : 'next free'}" title="${b.by === 'prefix' ? 'told apart by its prefix: a number only when another block of the type has this prefix, or you type one' : "the block's number among the type's blocks with this prefix; left empty, the next number free; - for none"}">
-
-            ${b.parts_set ? `<a href="#" data-bpreset="${esc(b.code)}" title="back to the prefix and iteration read from the names">reset</a>` : ''}</div>
-          <div class="row help btby" title="number: [prefix]_[iteration]_[wording], a block alone with its prefix numbered 1 (child_1_). prefix: the prefix tells this block apart, preparer_address; numbered only if another block shares the prefix (preparer_1_, preparer_2_)">told apart by <label><input type="radio" name="bby-${esc(b.code)}" data-bby="${esc(b.code)}" value="number" ${b.by !== 'prefix' ? 'checked' : ''}> number</label> <label><input type="radio" name="bby-${esc(b.code)}" data-bby="${esc(b.code)}" value="prefix" ${b.by === 'prefix' ? 'checked' : ''}> prefix</label></div>
-          <div class="help">${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} of ${esc(y.id)}, ${y.boxes} boxes each, named ${esc(b.prefix || '')}${b.iteration ? '_' + esc(b.iteration) : ''}_[wording]:</div>
-          <ol>${b.names.map((n, k) => { const d = b.differs.find(x => x.pos === k + 1), kept = (b.kept || []).includes(k + 1);
-            const ok = ((b.cells || [])[k] || {}).accepted;
-            if (n == null) return `<li class="help">(no box: ${esc(y.wordings[k] || '')})</li>`;
-            return `<li><code${ok ? ' class="accd" title="accepted"' : ' title="not accepted yet"'}>${esc(n)}</code>${ok ? ' ✓' : ''}${d ? ` <span class="stale">→ ${esc(d.want)}</span>${d.held ? ` <span class="help" title="another field already has that name and keeps it: ${d.held === 'no block' ? 'a field in no block (the block\'s own box left out? re-fit)' : 'a box of ' + esc(d.held)}">held by ${d.held === 'no block' ? 'a field in no block' : esc(d.held)}</span>` : ''} <a href="#" class="x" data-bkeep="${esc(b.code)}" data-pos="${k + 1}" title="cancel this rename: the name stays as it is and no longer counts as off ${esc(y.id)}">×</a>`
-              : kept ? ` <span class="help">kept as is · <a href="#" data-bunkeep="${esc(b.code)}" data-pos="${k + 1}">undo</a></span>` : ''}</li>`; }).join('')}</ol>
-          <div class="row" style="margin-bottom:4px">${b.validated ? '<span class="pill validated">validated</span>' : ''}${y.confirmed ? `<button class="btn mini ${b.validated ? '' : 'primary'}" data-bval="${esc(b.code)}" ${bBusy.has(b.code) ? 'disabled' : ''} title="every name this block's start (${esc(b.start)}) and then ${esc(y.id)}'s wording: its cells accepted">${bBusy.has(b.code) ? 'checking…' : b.validated ? 'validated ✓ · check again' : `check & validate against ${esc(y.id)}`}</button>
-            ${b.differs.some(d => !d.held) ? `<button class="btn mini" data-bfix="${esc(b.code)}" title="the names marked → put to ${esc(y.id)}'s wordings, as Claude's renames; nothing accepted. Blocks whose names this one moves onto move with it, in one go (a swap); names another field keeps are left">rename to the type's wording (${b.differs.filter(d => !d.held).length})</button>` : ''}`
-            : `<span class="help">confirm ${esc(y.id)}'s wordings (Block types, above) to validate its blocks</span>`}</div>
-          <div class="row"><button class="btn mini" data-blkdel="${esc(b.code)}" title="this area is not a block: its fields leave ${esc(y.id)}">not a block</button>
-            ${b.names.some(n => n == null) ? `<button class="btn mini" data-refit="${esc(b.code)}" title="${b.names.filter(n => n == null).length} of ${esc(y.id)}'s boxes have no box in this block: fitted again from the boxes in and round it (place, size and label)">re-fit to ${esc(y.id)}</button>` : ''}
-            ${(GD.types || []).some(x => x.id !== y.id) ? `<select data-assign="${esc(b.code)}" title="this block given another type, a copy or not: its boxes paired with the type's by best fit (place, size and label); the type's boxes it lacks stay empty, its boxes the type has no place for stay out"><option value="">assign to type…</option>${typeOptions(y.id, closestFor[b.code])}</select>` : ''}</div></div>` : ''}</div>`;
+      </div>`;
     }).join('')}</div>`;
   }
   // the other types, the closest one (if any) first
@@ -2701,56 +2974,107 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     if (!ys.length) return '';
     return `<div class="btlist"><h4>Block types (${ys.length})</h4>${ys.map(y => {
       const edit = !y.confirmed || editing.has(y.id), mine = y.blocks.some(b => b.code === selBlock);
-      return `<details class="bttype" ${edit || mine ? 'open' : ''}><summary><b class="gtidc" data-copy="${esc(y.id)}" title="click to copy the reference (file_id)">${esc(y.id)}</b>${y.label ? ` ${esc(y.label)}` : ''} <span class="help">${y.boxes} boxes · ${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} · ${y.confirmed ? 'confirmed' : 'not confirmed'}</span></summary>
+      return `<details class="bttype" ${mine || editing.has(y.id) || (!selBlock && ys.length === 1) ? 'open' : ''}><summary><b class="gtidc" data-copy="${esc(y.id)}" title="click to copy the reference (file_id)">${esc(y.id)}</b>${y.label ? ` ${esc(y.label)}` : ''} <span class="help">${y.boxes} boxes · ${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} · ${y.confirmed ? 'confirmed' : 'not confirmed'}${(y.from || '').includes('finder') ? ' · from the finder' : ''}</span></summary>
         <div class="row" style="margin:2px 0 4px"><input type="text" class="btlabel" data-tlabel="${esc(y.id)}" value="${esc(y.label || '')}" placeholder="label (e.g. US address)" title="your name for ${esc(y.id)}; Enter or leaving the box saves it"></div>
         <label class="help" title="every block's prefix the label as a name and its iteration its number in ${esc(y.id)} (1 to ${y.blocks.length}, the PDF's order); a block's own prefix or iteration, set by hand, still wins"><input type="checkbox" data-tauto="${esc(y.id)}" ${y.auto ? 'checked' : ''} ${y.label ? '' : 'disabled'}> name its blocks ${y.label ? `${esc(y.label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''))}_1, _2, …` : 'from the label (give it one first)'}</label>
-        <div class="help">Names: [block prefix]_[block iteration]_[wording]; an empty iteration takes the next number free (- for none); a block told apart by its prefix has no number unless another block shares the prefix. Wordings, one per position:</div>
-        <ol>${y.wordings.map((w, k) => `<li>${edit ? `<input type="text" data-tw="${esc(y.id)}" data-k="${k}" value="${esc(w)}">` : `<code>${esc(w)}</code>`}</li>`).join('')}</ol>
-        <div class="row">${edit ? `<button class="btn mini primary" data-tconf="${esc(y.id)}">confirm ${esc(y.id)}</button>` : `<a href="#" data-tedit="${esc(y.id)}">edit wordings</a>`}
+        <div class="row help"><span title="A column per position: its subject, suffix and part. A row per block: its prefix and iteration (empty: the next number free; - none; # told apart by number, pre by its prefix: no number unless another block shares it).">Names print as every field's: [prefix + subject]_[suffix]_[iteration]_[part]; names that will change are marked.</span> <button class="btn mini" data-mxwide title="the sidebar wider, for types with many positions">${WIDE ? 'narrower' : 'wider'}</button></div>
+        ${matrixHtml(y, edit)}
+        <div class="row">${edit ? `<button class="btn mini primary" data-tconf="${esc(y.id)}">confirm ${esc(y.id)}</button>` : `<a href="#" data-tedit="${esc(y.id)}">edit parts</a>`}
           ${y.confirmed ? `<button class="btn mini ${y.blocks.every(b => b.validated) ? '' : 'primary'}" data-tval="${esc(y.id)}" ${tBusy.has(y.id) ? 'disabled' : ''} title="check & validate every block of ${esc(y.id)}: the cells of each block that follows these wordings accepted; the others said, nothing of theirs accepted">${tBusy.has(y.id) ? 'checking…' : y.blocks.every(b => b.validated) ? 'all validated ✓ · check again' : `validate all ${y.blocks.length}`}</button>` : ''}
-          ${y.confirmed && typeOff(y) ? `<button class="btn mini" data-tfix="${esc(y.id)}" title="every block of ${esc(y.id)} put to these wordings (each block's own start kept; cancelled renames left), as Claude's renames; nothing accepted">rename every block to these wordings (${typeOff(y)})</button>` : ''}</div>
+          ${y.confirmed && typeOff(y) ? `<button class="btn mini" data-tfix="${esc(y.id)}" title="every block of ${esc(y.id)} printed from these parts (each block's prefix and iteration; cancelled renames left), as Claude's renames, the parts stored on each field; nothing accepted">rename every block (${typeOff(y)})</button>` : ''}</div>
         ${(GD.types || []).length > 1 ? `<div class="row"><select data-tassign="${esc(y.id)}" title="every block of ${esc(y.id)} given another type, each fitted by best fit (place, size, label); ${esc(y.id)} is then dropped"><option value="">assign ${y.blocks.length === 1 ? 'its block' : `its ${y.blocks.length} blocks`} to…</option>${typeOptions(y.id, y.blocks.length === 1 ? closestFor[y.blocks[0].code] : null)}</select></div>` : ''}
-        <div class="help" style="margin-top:4px">Blocks:</div>
-        ${y.blocks.map(b => `<div class="btrow${b.code === selBlock ? ' sel' : ''}" data-tblk="${esc(b.code)}"><b class="gtidc" data-copy="${esc(y.id)}-${b.n}" title="click to copy the reference (file_id)">${esc(y.id)}-${b.n}</b> <span class="help">p${b.page} · ${esc(b.start)} · ${blockState(y, b)}</span></div>`).join('')}
       </details>`;
     }).join('')}</div>`;
+  }
+  // the type as a matrix (Andrew, 2026-10-22: block labels "work like the rest of the field names", the same inputs
+  // a standalone field has): a column per position with its subject / suffix / part, a row per block with its prefix
+  // and iteration, each cell the name it prints (block_types.block_ident + field_identifiers.print_name)
+  const PKEYS = ['subject', 'suffix', 'part'];
+  function blockIdent(prefix, iteration, s) {
+    const pt = (prefix || '').split('_').filter(Boolean); let st = (s.subject || '').split('_').filter(Boolean);
+    while (pt.length && st.length && pt[pt.length - 1] === st[0] && (st.length > 1 || s.suffix)) st = st.slice(1);
+    return {subject: [...pt, ...st].join('_'), suffix: s.suffix || '', iteration: iteration || '', part: s.part || ''};
+  }
+  const printIdent = i => ['subject', 'suffix', 'iteration', 'part'].map(k => i[k]).filter(Boolean).join('_');
+  const typeSlots = y => y.slots || y.wordings.map(w => ({subject: w}));
+  function cellHtml(y, b, k, s) {
+    const n = b.names[k];
+    if (n == null) return `<td class="help" title="this block has no box at ${y.id}'s position ${k + 1}">no box</td>`;
+    const want = printIdent(blockIdent(b.prefix, b.iteration, s)), kept = (b.kept || []).includes(k + 1);
+    const d = (b.differs || []).find(x => x.pos === k + 1), acc = ((b.cells || [])[k] || {}).accepted;
+    const chg = want && want !== n && !kept && !(b.same_as || []).length;
+    return `<td class="${chg ? 'chg' : ''}" data-mxcell="${esc(b.code)}" data-k="${k}" data-now="${esc(n)}">
+      <code class="mxname${acc ? ' accd' : ''}" title="${acc ? 'accepted' : 'not accepted yet'}">${esc(kept ? n : want || n)}</code>${acc ? ' ✓' : ''}
+      ${chg ? `<span class="was" title="its name now">${esc(n)}</span>` : ''}
+      ${d && d.held ? `<span class="help" title="another field has that name and keeps it">held by ${d.held === 'no block' ? 'a field in no block' : esc(d.held)}</span>` : ''}
+      ${d && !kept ? `<a href="#" class="x" data-bkeep="${esc(b.code)}" data-pos="${k + 1}" title="cancel this rename: the name stays as it is">×</a>` : ''}
+      ${kept ? `<span class="help">kept · <a href="#" data-bunkeep="${esc(b.code)}" data-pos="${k + 1}">undo</a></span>` : ''}</td>`;
+  }
+  function matrixHtml(y, edit) {
+    const ss = typeSlots(y), cols = ss.map((_, k) => k);
+    const part = (k, key) => edit ? `<input type="text" data-ts="${esc(y.id)}" data-k="${k}" data-key="${key}" value="${esc(ss[k][key] || '')}" placeholder="${key}">`
+      : `<code>${esc(ss[k][key] || '')}</code>`;
+    return `<div class="btmx"><table>
+      <thead><tr><th class="mxl">position</th>${cols.map(k => `<th>${k + 1}</th>`).join('')}</tr>
+        ${PKEYS.map(key => `<tr class="mxp"><th class="mxl">${key}</th>${cols.map(k => `<td>${part(k, key)}</td>`).join('')}</tr>`).join('')}</thead>
+      <tbody>${y.blocks.map(b => `<tr class="${b.code === selBlock ? 'sel' : ''}">
+        <th class="mxl"><b class="gtidc" data-tblk="${esc(b.code)}" title="show this block (p${b.page})">${esc(y.id)}-${b.n}</b> <span class="help" title="${esc(blockState(y, b))}">p${b.page}${b.validated ? ' ✓' : (b.differs || []).length ? ` · ${b.differs.length} off` : ''}${(b.same_as || []).length ? ' · same names!' : ''}</span><br>
+          <input type="text" class="mxpre" data-bpre="${esc(b.code)}" value="${esc(b.prefix || '')}" placeholder="prefix" title="the block's prefix: the start of every subject in this block">
+          <input type="text" class="btit" data-bit="${esc(b.code)}" value="${esc(b.iteration || '')}" placeholder="${b.by === 'prefix' ? 'none' : 'next'}" title="${b.by === 'prefix' ? 'told apart by its prefix: a number only when another block of the type has this prefix, or you type one' : "the block's iteration among the type's blocks with this prefix; empty, the next number free; - for none"}">
+          <select data-bbysel="${esc(b.code)}" title="told apart by number (a block alone with its prefix is 1) or by its prefix (no number unless another block shares the prefix)"><option value="number" ${b.by !== 'prefix' ? 'selected' : ''}>#</option><option value="prefix" ${b.by === 'prefix' ? 'selected' : ''}>pre</option></select>
+          ${b.parts_set ? `<a href="#" data-bpreset="${esc(b.code)}" title="back to the prefix and iteration read from the names">reset</a>` : ''}</th>
+        ${cols.map(k => cellHtml(y, b, k, ss[k])).join('')}</tr>`).join('')}</tbody></table></div>`;
+  }
+  // typing in a part reprints that column's names at once (nothing saved until "confirm")
+  function reprintColumn(a, tid, k) {
+    const y = (GD.types || []).find(x => x.id === tid); if (!y) return;
+    const s = {}; PKEYS.forEach(key => { const i = a.querySelector(`[data-ts="${CSS.escape(tid)}"][data-k="${k}"][data-key="${key}"]`); s[key] = i ? i.value.trim() : ''; });
+    y.blocks.forEach(b => {
+      const td = a.querySelector(`[data-mxcell="${CSS.escape(b.code)}"][data-k="${k}"]`); if (!td) return;
+      const want = printIdent(blockIdent(b.prefix, b.iteration, s)), now = td.dataset.now, chg = want && want !== now && !(b.same_as || []).length;
+      td.classList.toggle('chg', !!chg);
+      td.querySelector('.mxname').textContent = want || now;
+      let was = td.querySelector('.was');
+      if (chg && !was) { was = document.createElement('span'); was.className = 'was'; was.title = 'its name now'; td.querySelector('.mxname').after(was); }
+      if (was) { if (chg) was.textContent = now; else was.remove(); }
+    });
   }
   const typeOff = y => y.blocks.reduce((n, b) => n + (b.differs || []).filter(d => !d.held).length, 0);
   const tBusy = new Set();
   async function typeValidate(tid) {
     let out;
     tBusy.add(tid); panel();
-    try { out = await send('POST', mapi(API, '/tvalidate'), {type: tid}); }
+    try { out = await send('POST', mapi('blocks', '/tvalidate'), {type: tid}); }
     catch (e) { tBusy.delete(tid); panel(); alert(e.message); return; }
     tBusy.delete(tid);
     if (out.entry) updateEntry(out.entry);
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast(`${tid}: ${out.validated.length} block(s) validated` + (out.accepted ? `, ${out.accepted} cell(s) accepted` : '')
       + (out.off.length ? `; not validated: ${out.off.map(o => `${o.block} (${o.off} name${o.off === 1 ? '' : 's'} off)`).join(', ')}` : '') + '.');
   }
   async function typeFix(tid) {
     let out;
-    try { out = await send('POST', mapi(API, '/tfix'), {type: tid}); }
+    try { out = await send('POST', mapi('blocks', '/tfix'), {type: tid}); }
     catch (e) { alert(e.message); return; }
     if (out.entry) updateEntry(out.entry);
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast(renameNote(tid, out));
   }
   async function blockParts(code, body) {
-    try { await send('POST', mapi(API, '/bparts'), {block: code, ...body}); }
+    try { await send('POST', mapi('blocks', '/bparts'), {block: code, ...body}); }
     catch (e) { alert(e.message); return; }
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
   }
   async function typeAuto(tid, on) {
-    try { await send('POST', mapi(API, '/tauto'), {type: tid, on}); }
+    try { await send('POST', mapi('blocks', '/tauto'), {type: tid, on}); }
     catch (e) { alert(e.message); panel(); return; }
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     const y = (GD.types || []).find(x => x.id === tid), n = y ? typeOff(y) : 0;
-    if (on && y && y.confirmed && n && confirm(`${tid}: ${n} name(s) across its ${y.blocks.length} blocks do not follow ${y.label}_N_[wording]. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
+    if (on && y && y.confirmed && n && confirm(`${tid}: ${n} name(s) across its ${y.blocks.length} blocks do not print from its label and parts. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
   }
   async function typeLabel(tid, label) {
     const y = (GD.types || []).find(x => x.id === tid); if (!y || (y.label || '') === label.trim()) return;
-    try { await send('POST', mapi(API, '/tlabel'), {type: tid, label}); }
+    try { await send('POST', mapi('blocks', '/tlabel'), {type: tid, label}); }
     catch (e) { alert(e.message); return; }
     y.label = label.trim(); placeAll(); panel();
   }
@@ -2760,62 +3084,79 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
     + ((out.held || []).length ? ` Left, the name is another field's: ${out.held.slice(0, 3).join('; ')}${out.held.length > 3 ? ` and ${out.held.length - 3} more` : ''}.` : '')
     + (out.errors.length ? ' Not applied: ' + out.errors.join('; ') : '');
   async function typeConfirm(tid) {
-    const words = [...document.querySelectorAll(`[data-tw="${CSS.escape(tid)}"]`)].sort((a, b) => a.dataset.k - b.dataset.k).map(i => i.value.trim());
+    const y0 = (GD.types || []).find(x => x.id === tid); if (!y0) return;
+    const slots = typeSlots(y0).map((_, k) => { const s = {};
+      PKEYS.forEach(key => { const i = document.querySelector(`[data-ts="${CSS.escape(tid)}"][data-k="${k}"][data-key="${key}"]`); if (i && i.value.trim()) s[key] = i.value.trim(); });
+      return s; });
     let out;
-    try { out = await send('POST', mapi(API, '/confirm'), {type: tid, wordings: words}); }
+    try { out = await send('POST', mapi('blocks', '/confirm'), {type: tid, slots}); }
     catch (e) { alert(e.message); return; }
-    editing.delete(tid); const keep = results; await loadMode(); results = keep;
+    editing.delete(tid); await loadMode();
     const y = (GD.types || []).find(x => x.id === tid), n = y ? typeOff(y) : 0;
-    toast(`${tid} confirmed: ${out.wordings.length} wordings.`);
-    if (n && confirm(`${tid}: ${n} name(s) across its ${y.blocks.length} blocks do not follow these wordings. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
+    toast(`${tid} confirmed: ${out.wordings.length} positions.`);
+    if (n && confirm(`${tid}: ${n} name(s) across its ${y.blocks.length} blocks do not print from these parts. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
   }
   const bBusy = new Set();
   async function blockValidate(code) {
     let out;
     bBusy.add(code); panel();
-    try { out = await send('POST', mapi(API, '/bvalidate'), {block: code}); }
+    try { out = await send('POST', mapi('blocks', '/bvalidate'), {block: code}); }
     catch (e) { bBusy.delete(code); panel(); alert(e.message); return; }
     bBusy.delete(code);
     if (out.entry) updateEntry(out.entry);
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast(out.ok ? `Validated against ${out.type}` + (out.accepted.length ? `: ${out.accepted.length} cell(s) accepted.` : ' (every cell already had a verdict).')
       : `${out.differs.length} name(s) off ${out.type}'s wordings; nothing accepted (rename them, cancel the renames that are wrong, or edit the type).`);
   }
   async function blockKeep(code, pos, on) {
-    try { await send('POST', mapi(API, '/bkeep'), {block: code, pos: +pos, on}); }
+    try { await send('POST', mapi('blocks', '/bkeep'), {block: code, pos: +pos, on}); }
     catch (e) { alert(e.message); return; }
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
   }
   async function blockFix(code) {
     let out;
-    try { out = await send('POST', mapi(API, '/bfix'), {block: code}); }
+    try { out = await send('POST', mapi('blocks', '/bfix'), {block: code}); }
     catch (e) { alert(e.message); return; }
     if (out.entry) updateEntry(out.entry);
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast(renameNote('', out));
+  }
+  async function runFinders(btn) {
+    btn.disabled = true; btn.textContent = 'running…';
+    let out;
+    try { out = await send('POST', mapi('blocks', '/finders'), {}); }
+    catch (e) { btn.disabled = false; btn.textContent = 'run finders'; alert(e.message); return; }
+    await loadMode();
+    toast(out.types.length ? `The finder made ${out.types.length} block type${out.types.length === 1 ? '' : 's'} (${out.types.join(', ')}): ${out.blocks} blocks, ${out.fields} fields. The Grids tab leaves those fields out.`
+      : 'The finder found no repeated blocks among the fields in no block.');
   }
   async function blockDetect() {
     let out;
-    try { out = await send('POST', mapi(API, '/detect'), {page}); }
+    try { out = await send('POST', mapi('blocks', '/rescan'), {page}); }
     catch (e) { alert(e.message); return; }
-    const keep = results; await loadMode(); results = keep;
-    toast(out.n ? 'Found ' + Object.entries(out.found).map(([t, ns]) => ns.map(n => `${t}-${n}`).join(', ')).join('; ') + '.' : 'No new copies of a block type on this page.');
+    await loadMode();
+    const lab = Object.entries(out.by_labels || {}).flatMap(([t, ns]) => ns.map(n => `${t}-${n}`)), emp = Object.entries(out.empty || {});
+    const grew = Object.entries(out.grew || {}).map(([t, ns]) => `${t} took in ${ns.length} field${ns.length === 1 ? '' : 's'} repeating in all its blocks (${ns.slice(0, 4).join(', ')}${ns.length > 4 ? ', …' : ''})`);
+    toast((grew.length ? grew.join('; ') + '. ' : '') + (out.n ? 'Found ' + Object.entries(out.found).map(([t, ns]) => ns.map(n => `${t}-${n}`).join(', ')).join('; ') + '.'
+      + (lab.length ? ` By their printed labels: ${lab.join(', ')}.` : '')
+      + (emp.length ? ` With empty positions (drag the missing fields onto them): ${emp.map(([b, k]) => `${b} (${k})`).join(', ')}.` : '')
+      : 'No new copies of a block type on this page.'));
   }
   async function typeAssign(from, tid) {          // each block of `from` given type `tid`, one after another
     const y = (GD.types || []).find(x => x.id === from); if (!y) return;
     const said = [];
     for (const b of y.blocks) {
-      try { const out = await send('POST', mapi(API, '/assign'), {block: b.code, type: tid}); said.push(`${tid}-${out.block}`); }
+      try { const out = await send('POST', mapi('blocks', '/assign'), {block: b.code, type: tid}); said.push(`${tid}-${out.block}`); }
       catch (e) { said.push(`${from}-${b.n}: ${e.message}`); }
     }
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast(`${from} into ${tid}: ${said.join(', ')}.`);
   }
   async function blockAssign(code, tid) {
     let out;
-    try { out = await send('POST', mapi(API, '/assign'), {block: code, type: tid}); }
+    try { out = await send('POST', mapi('blocks', '/assign'), {block: code, type: tid}); }
     catch (e) { alert(e.message); return; }
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast((out.refit ? `${out.type}-${out.block} fitted again.` : `Now ${out.type}-${out.block} (was a block of ${out.was}).`) + (out.missing.length ? ` It has no box for ${out.type}'s position${out.missing.length === 1 ? '' : 's'} ${out.missing.join(', ')}.` : '')
       + (out.extra.length ? ` Left out (no place in ${out.type}): ${out.extra.join(', ')}.` : '')
       + (out.renamed ? ` ${out.renamed} name${out.renamed === 1 ? '' : 's'} put to ${out.type}'s wordings.` : '')
@@ -2823,180 +3164,80 @@ function gridMode(API, KIND) {              // the Grids tab (tables) and the Bl
       + ((out.same || []).length ? ` Not renamed, same names as ${out.same.join(', ')}: set one's iteration.` : '')
       + ((out.rename_errors || []).length ? ` Rename errors: ${out.rename_errors.join('; ')}` : ''));
   }
+  async function blockAddField(code, field) {
+    let out;
+    try {
+      out = await send('POST', mapi('blocks', '/addfield'), {block: code, field});
+      if (out.grow_needed) {          // no empty position of its kind: a new position of the type, if the person says so
+        if (!confirm(`${out.why}. Add a new position to ${out.type} for it? (It stays empty in ${out.type}'s other blocks.)`)) return;
+        out = await send('POST', mapi('blocks', '/addfield'), {block: code, field, grow: true});
+      }
+    } catch (e) { alert(e.message); return; }
+    selBlock = out.code;
+    await loadMode();
+    toast(out.said.join('; ') + '.'
+      + (out.renamed ? ` ${out.renamed} name${out.renamed === 1 ? '' : 's'} put to ${out.type}'s wordings.` : '')
+      + ((out.held || []).length ? ` Not renamed, another field has the name: ${out.held.join('; ')}.` : '')
+      + ((out.same || []).length ? ` Not renamed, same names as ${out.same.join(', ')}: set one's iteration.` : '')
+      + ((out.rename_errors || []).length ? ` Rename errors: ${out.rename_errors.join('; ')}` : ''));
+  }
   async function blockOut(code) {
     let out;
-    try { out = await send('POST', mapi(API, '/out'), {block: code}); }
+    try { out = await send('POST', mapi('blocks', '/out'), {block: code}); }
     catch (e) { alert(e.message); return; }
     selBlock = null;
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast(out.said.join('; ') + '.');
   }
   const closestFor = {};           // a block just drawn as a new type: the type it nearly was, first in "assign to"
   async function blockDraw(rect) {
     let out;
-    try { out = await send('POST', mapi(API, '/draw'), {page, rect}); }
+    try { out = await send('POST', mapi('blocks', '/draw'), {page, rect}); }
     catch (e) { panel(); alert('Could not make a block: ' + e.message); return; }
     if (out.code) { selBlock = out.code; closestFor[out.code] = out.closest && out.closest.type; }
-    const keep = results; await loadMode(); results = keep;
+    await loadMode();
     toast(out.found ? `${out.type}: ${out.found} blocks in the area (${out.blocks.map(n => out.type + '-' + n).join(', ')}), ${out.fresh} new.`
       : out.already ? `That is block ${out.block} of ${out.type} already.`
       : out.new ? `New block type ${out.type}.` + (out.closest ? ` Closest: ${out.closest.type} (${out.closest.differs}).` : '')
       : `${out.type}: block ${out.block} of ${out.of}.` + ((out.left || []).length ? ' ' + out.left.join('; ') + '.' : ''));
   }
-
-  async function create(rect) {
-    const kind = drawKind;           // drawing stays on for the next one (Andrew, 2026-10-20); d or Esc stops it
-    let out;
-    try { out = await send('POST', mapi(API, '/create'), {page, rect, kind}); }
-    catch (e) { panel(); alert('Could not make it: ' + e.message); return; }
-    selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`New ${NOUN} ${out.id}: ${out.cells} fields.${leftNote(out)}`);
-  }
-  async function combineTicked() {
-    const ids = [...ticked], kinds = new Set(ids.map(i => (GD.tables.find(t => t.id === i) || {}).kind));
-    if (kinds.size > 1) { alert('A table and a block cannot be combined.'); return; }
-    let out;
-    try { out = await send('POST', mapi(API, '/combine'), {tables: ids}); }
-    catch (e) { alert('Could not combine: ' + e.message); return; }
-    ticked.clear(); selected = out.id; const keep = results; await loadMode(); results = keep;
-    toast(`Combined into ${out.id} ('${BLK ? 'not a block group' : 'not a grid'}' on it gives the parts back).${leftNote(out)}`);
-  }
-  // a field is in one table and one block group at most (2026-10-20): what it left when it joined this one
-  const leftNote = out => (out.left || []).length ? ' ' + out.left.join('; ') + '.' : '';
-  async function setAside(tid, on) {
-    let out;
-    try { out = await send('POST', mapi(API, '/dismiss'), {table: tid, on}); }
-    catch (e) { alert('Could not save: ' + e.message); return; }
-    if (on && selected === tid) selected = null;
-    const keep = results; await loadMode(); results = keep;
-    ticked.delete(tid);
-    toast((on ? `${tid} set aside (${BLK ? 'not a block group' : 'not a grid'}).` : `${tid} restored.`) + leftNote(out));
-  }
-  // the table's reference, as a field's: <blueprint file stem>_<id> (acord_90_ny_p1-T13); the id on the card and on
-  // the page copies it (Andrew, 2026-10-19: "grids should have IDs like fields, click to copy in the same way")
-  const tableRef = tid => `${(GD.path || bid).split('/').pop().replace(/\.bpt$/, '')}_${tid}`;
-  async function copyTableRef(tid) {
-    const ref = tableRef(tid);
-    try { await navigator.clipboard.writeText(ref); }
-    catch (e) { const t = document.createElement('textarea'); t.value = ref; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
-    toast(`Copied ${ref}`);
-  }
-  async function standardize(tid, pos, line) {
-    const form = bid; busy.add(tid); panel();
-    let out;
-    try { out = await send('POST', mapi(API, '/standardize'), {table: tid, pos: pos ? +pos : null, line: line ? +line : null}); }
-    catch (e) { out = {status: 'error', steps: ['standardize failed: ' + e.message]}; }
-    busy.delete(tid); if (bid !== form) return;
-    results[tid] = out; if (out.entry) updateEntry(out.entry);
-    const keep = results; await loadMode(); results = keep;
-    toast(`${tid}: ${out.status}${out.applied ? `, ${out.applied.length} renamed` : ''}.`);
-  }
-  // a check runs on while you go to another tab or page; its result brings this tab back up at the table's page, the
-  // tabs, page buttons and address with it (Andrew, 2026-10-20: the sidebar came up but the tabs still said Review)
-  const showing = () => mode === API;
-  // cancel stops a check under way (Andrew, 2026-10-21): the card is free at once, the server writes nothing after it
-  // and gives up a call to Opus under way; the answer that still comes back is dropped
-  const runs = {};
-  async function stop(tid) {
-    if (!busy.has(tid)) return;
-    runs[tid] = null; busy.delete(tid);
-    results[tid] = {status: 'cancelled', steps: ['cancelled: nothing written after the cancel']};
-    panel();
-    try { await send('POST', mapi(API, '/cancel'), {table: tid}); } catch (e) {}
-    toast(`${BLK ? 'Block group' : 'Table'} ${tid}: check cancelled.`);
-  }
-  async function run(tid) {
-    const form = bid, pg = page, token = {}; runs[tid] = token; busy.add(tid); if (showing()) panel();
-    let out;
-    try { out = await send('POST', mapi(API, '/check'), {table: tid}); }
-    catch (e) { out = {status: 'error', steps: ['the check failed: ' + e.message]}; }
-    if (runs[tid] !== token) {                 // cancelled meanwhile
-      if (out.entry && bid === form) updateEntry(out.entry);
-      return {status: 'cancelled'};
-    }
-    runs[tid] = null; busy.delete(tid); if (bid !== form) return out;
-    results[tid] = out; if (out.entry) updateEntry(out.entry);
-    if (out.proposals) {                       // Opus: its proposals go to the chat, ticked, nothing applied
-      const st = chatState(), p = out.proposals;
-      st.history.push({role: 'user', content: p.request}, {role: 'assistant', content: p.raw});
-      st.turns.push({req: `grids & blocks: table ${tid} (Opus)`, gridPage: pg, out: p, picked: new Set(chatItems(p).map(it => it.k))});
-      toggleChat(true); renderChat();
-    }
-    const keep = results;
-    if (showing()) await loadMode(); else await setMode(API);
-    results = keep; selected = tid;
-    const t = live().find(x => x.id === tid);
-    if (t && t.page !== page) await gotoPage(t.page); else { placeAll(); panel(); }
-    toast(`${BLK ? 'Block group' : 'Table'} ${tid}: ${out.status}.`);
-    return out;
-  }
   return {
-    async load() { GD = await j(mapi(API)); if (selected && !GD.tables.some(t => t.id === selected)) selected = null; },
+    async load() { GD = await j(mapi('blocks')); if (selBlock && !allBlocks().some(b => b.code === selBlock)) selBlock = null; },
     pages: () => GD ? GD.pages : [],
-    startPage: () => (GD && GD.tables[0] || {}).page || 1,
-    pageLabel(p) { const n = onPage(p).length; return `p${p}${n ? ` (${n})` : ''}`; },
+    startPage: () => ((allBlocks()[0]) || {}).page || 1,
+    // p7 (blocks not validated / blocks), Andrew 2026-10-22
+    pageLabel(p) { const bs = allBlocks().filter(b => b.page === p); if (!bs.length) return `p${p}`; const u = bs.filter(b => !b.validated).length; return {text: `p${p} (${u}/${bs.length})`, done: !u}; },
     bar: () => `<span class="progress" id="progress"></span>`,
     bindBar() { if (GD) this.progress(); },
-    help: {keys: [['n', 'next table'], ['p', 'previous table'], ['Enter', 'check & validate the selected table'], ['d', 'Grids: draw on / off (stays on after each one drawn)'], ['Delete', 'the selected block is no longer a block; else the selected grid or block group is set aside']],
-           tips: ['Dotted outlines are tables and repeated blocks; dashed ones (in Review and Groups) are option groups.',
-                  'Check & validate: already on pattern, its cells are accepted; out of order, the renames are applied as Claude\'s and the cells accepted; unclear, Opus proposes in the chat and you tick.']},
-    place, panel,
+    help: {keys: [['n / p', 'next / previous block'], ['Enter', 'check & validate the open block'], ['Delete', 'the open block is not a block'], ['Esc', 'close the open block']],
+           tips: ['Drag on an empty part of the page, or Shift+drag anywhere, around one block: a block of the type it matches, else a new type.',
+                  'Drag a block onto another: it becomes a block of that one\'s type, its boxes paired by place and its names put to the type\'s parts.',
+                  'Fields in no block show as grey dashed boxes: drag one onto a block to add it, into the empty position of its kind nearest it (or a new position of the type, if it has none).']},
+    place: placeBlocks, panel,
     progress() {
       const el = $('#progress'); if (!el || !GD) return;
-      const ts = live(), v = ts.filter(done).length, ok = ts.filter(t => t.on_pattern).length, n = GD.tables.length - ts.length;
-      el.innerHTML = `<b>${ts.length}</b> ${BLK ? 'block groups' : 'tables'} · ${ok} on pattern · ${v} validated${n ? ` · ${n} set aside` : ''}`;
+      const ys = GD.types || [], bs = allBlocks();
+      el.innerHTML = `<b>${ys.length}</b> block types · ${bs.length} blocks · ${bs.filter(b => b.validated).length} validated`;
     },
     key(e) {
-      if (BLK) {                       // the Blocks tab: n / p through the blocks, Delete, Enter, Esc on the open one
-        const all = (GD && GD.types || []).flatMap(y => y.blocks).sort((a, b) => a.page - b.page || a.bbox[1] - b.bbox[1] || a.bbox[0] - b.bbox[0]);
-        if ((e.key === 'n' || e.key === 'p') && all.length) {
-          const k = all.findIndex(b => b.code === selBlock), b = all[(k + (e.key === 'n' ? 1 : -1) + all.length) % all.length];
-          selectBlock(b); return true;
-        }
-        if ((e.key === 'Delete' || e.key === 'Backspace') && selBlock) { blockOut(selBlock); return true; }
-        if (e.key === 'Enter' && selBlock) { blockValidate(selBlock); return true; }
-        if (e.key === 'Escape' && selBlock) { selBlock = null; placeAll(); panel(); return true; }
-        return false;
+      const all = allBlocks().slice().sort((a, b) => a.page - b.page || a.bbox[1] - b.bbox[1] || a.bbox[0] - b.bbox[0]);
+      if ((e.key === 'n' || e.key === 'p') && all.length) {
+        const k = all.findIndex(b => b.code === selBlock); selectBlock(all[(k + (e.key === 'n' ? 1 : -1) + all.length) % all.length]); return true;
       }
-      const ts = live(), i = ts.findIndex(t => t.id === selected);
-      if (e.key === 'n' || e.key === 'p') {
-        const t = ts[(i + (e.key === 'n' ? 1 : -1) + ts.length) % ts.length]; if (!t) return true;
-        selected = t.id; if (t.page !== page) gotoPage(t.page); else { placeAll(); panel(); } return true;
-      }
-      if (e.key === 'Enter' && selected) { run(selected); return true; }
-      // Delete (Andrew, 2026-10-21): the selected block is no longer a block; else the selected grid or block group is
-      // set aside (restorable from "Set aside")
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selected) { setAside(selected, true); return true; }
-        return false;
-      }
-      if (e.key === 'd' && !BLK) { drawKind = drawKind ? null : KIND; marking = null; marks = []; placeAll(); panel(); return true; }
-      if (e.key === 'Escape' && drawKind) { drawKind = null; panel(); return true; }
-      if (e.key === 'Escape' && marking) { marking = null; marks = []; placeAll(); panel(); return true; }
-      if (e.key === 'Escape' && ed && ed.pick) { ed.pick = null; placeAll(); panel(); return true; }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selBlock) { blockOut(selBlock); return true; }
+      if (e.key === 'Enter' && selBlock) { blockValidate(selBlock); return true; }
+      if (e.key === 'Escape' && selBlock) { selBlock = null; placeAll(); panel(); return true; }
       return false;
     },
-    mousedown(e) {
-      if (e.button !== 0 || !(drawKind || marking || BLK)) return;
-      e.preventDefault(); e.stopPropagation(); drawStart = pt(e);
-    },
-    mousemove(e) {
-      if (!drawStart) return; const q = pt(e);
-      const r = [Math.min(drawStart[0], q[0]), Math.min(drawStart[1], q[1]), Math.max(drawStart[0], q[0]), Math.max(drawStart[1], q[1])];
-      if (!drawBox && (r[2] - r[0]) * scale < 4 && (r[3] - r[1]) * scale < 4) return;
-      if (!drawBox) drawBox = put('ov draw', r);
-      else { drawBox.style.left = r[0] * scale + 'px'; drawBox.style.top = r[1] * scale + 'px'; drawBox.style.width = (r[2] - r[0]) * scale + 'px'; drawBox.style.height = (r[3] - r[1]) * scale + 'px'; }
-      drawBox._r = r;
-    },
-    mouseup() {
-      if (!drawStart) return;
-      const b = drawBox; drawStart = null; drawBox = null;
-      if (b) { b.remove(); if (marking) { marks.push(b._r); placeAll(); panel(); } else if (BLK) blockDraw(b._r); else create(b._r); }
-    },
+    mousedown(e) { area.down(e); },
+    mousemove(e) { area.move(e); },
+    mouseup() { const r = area.up(); if (r) blockDraw(r); },
   };
-}
-MODE.grids = gridMode('grids', 'table');
-MODE.blocks = gridMode('blocks', 'block');
+})();
+
+// ======================================================================= Audit: versions and run history (run_audit)
+// Andrew, 2026-10-14: "build a 'run audit' into the review interface, so you can see the run history and all the data
+// for each form". Read only. Numbers are per page as well: forms differ too much in size for per-form numbers.
 
 MODE.audit = (() => {
   let A = null, B = null, view = store('br_audit_view') || 'form';

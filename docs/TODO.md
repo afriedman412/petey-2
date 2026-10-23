@@ -570,20 +570,54 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   between) rather than the names, and whether the result is a combined field or an association that keeps the
   boxes.
 
+- **Tables as block types** (parked 2026-10-22, Andrew: "lets park these ideas and see how SIA does in production").
+  What the Grids tab is for: "here are the row labels, here are the column labels" and r x c names at once. A block
+  type's matrix already names that way (each position's wording once = the column labels, each block's prefix or
+  number = the row labels, "rename every block" prints the r x c), so a table is a block type whose blocks are its
+  rows. Missing for that to be as quick as the grid: (1) a table made a block type in one step (each row a block,
+  each column a position) rather than row 1 drawn and the rest detected; (2) position wordings seeded from the
+  printed column headers and block prefixes from the printed row labels (the grid resolver reads both), and a list
+  of row labels pasted at once; (3) tables that repeat across (a column per year) as a type whose blocks are the
+  columns. Then the Grids tab could go. Measured on the way (2026-10-22): grid-finder tables hold 15,090 fields on
+  the forms with types, 3,275 of them also in a block type; 104 tables cancelled by hand, 824 of their fields in
+  block types.
+
+- **Printed labels in assign and drawing** (parked 2026-10-22 with the above): assign's `fit` pairing boxes by the
+  caption printed beside each (with the spouse / child tolerance, `block_types._alike`) instead of by field names;
+  drawing recognising a near copy whose labels match as an existing type. Detection already uses printed lines
+  (`label_copies`). Tolerant captions in SIA were tried and dropped: +61 right of ~2,700 fields, 6 new real errors.
+
 - **Suggested block types from the block-group finder** (parked 2026-10-21, Andrew: "park that and we can integrate
   it later"). Since block groups went, `eval/block_groups.find` only feeds structure-first labeling and keeps grids
   inside repeated blocks out of the Grids listing. Idea: on the Blocks tab, each group it finds proposed as a block
   type (its first block the template, the others its copies), dashed on the page, accepted or dismissed by hand. On
   2026-10-21, 192 of 368 found block groups had every block match the first as a copy (`block_types.copies_in`).
 
-- **Remove the old blocks from the blueprints** (Andrew, 2026-10-22: "eventually we should remove the old blocks from
-  the blueprints"). The kept block groups were converted to block types on 2026-10-22 (220 active groups on 111
-  forms -> 208 types, 598 blocks; cancelled groups left out; the 52 blocks already in a drawn type left there; each
-  converted type carries `from`, the old group's id). What the blueprints still carry from the old groups:
-  `x_petey_identifiers` with an `iteration` read from block-group membership (229 fields on 15 forms, plan step 1-3
-  fill). To clear once names are printed from block types. Also open from the conversion: 17 converted types hold
-  one block (an old group mixed block shapes; I-589 p3 child_4 beside child_2 / child_3): "assign to type" puts
-  each with its siblings.
+- **Where a block's number goes in a name: decide, then apply in bulk** (Andrew, 2026-10-22: "we can handle this
+  in bulk later"; "what matters is that the fields can be fully constructed from the provided inputs"). Two orders
+  in play: the validated library puts the block number after the block prefix (`child_2_last_nm`, `child_2_ssn_1`,
+  Andrew: "[block prefix]_[block iteration]_[field subject]_[field iteration]"); the 2026-10-19 identifiers decision
+  prints the iteration last (`child_last_nm_2`), which the generator's block printer, its labeler prompt example
+  (`child_name_1`) and the block types' matrix followed, so the matrix marks every validated block name as a change.
+  Either order works if every name prints from its stored parts; existing blueprints are not relitigated, this is a
+  generation question. HALF DONE, UNCOMMITTED: a change to the first order (identifier keys `block_prefix` /
+  `block_iteration` printed first, in `eval/field_identifiers.ORDERS`, `hand_review.clean_edit`,
+  `block_types.block_ident`, `petey/label/structure.py`'s `print_name`, its block cells and prompt example) is in the
+  working tree with 9 tests still expecting number-last (tests/test_block_types.py, tests/test_structure_labels.py);
+  the pre-push test gate fails until it is finished or reverted. The review page's JS (`blockIdent` / `printIdent` in
+  the Blocks matrix, Review's `PART_KEYS`) was not changed yet.
+
+- **Block groups: gone** (Andrew, 2026-10-22: "get rid of all vestiges of block groups and associated code"). Done
+  2026-10-22: the review page's block-group code (layout editor, marked blocks, BG ids, the block path of
+  `grid_check.arrange`, `layout` / `set_cells`), `block_group` / `block` in field identifiers, and the last 38
+  block entries and BG id counters in the kept records (archived first in
+  `runs/hand_review/grids/_archive_2026-10-22b/`). The Grids finder now holds back a grid mostly inside one block
+  type's block (164 of the 173 grids the block-group finder hid). The library blueprints carried no `block_group`
+  keys; the 229 fields with block-group iterations were on the scratch copies in `runs/identifiers/`. Still open:
+  `eval/block_groups.find` is the labeler's structure finder before labeling (`petey/label/structure.py`), a
+  separate system, kept until Andrew says otherwise; 17 converted types hold one block (an old group mixed block
+  shapes; I-589 p3 child_4 beside child_2 / child_3): "assign to type", or drag the block onto a sibling, puts each
+  with its siblings.
 
 - **IRS 941-X page 2 as a grid** (Andrew, 2026-10-21: "leave it for now, come back to it"). Two causes found: (1)
   each cell carries two printed numbers, the line (6-17) and the column (1-4), `line_7_col_1_amt_dollars`; the

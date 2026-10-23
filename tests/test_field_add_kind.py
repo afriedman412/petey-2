@@ -63,3 +63,16 @@ def test_one_box_beside_an_option_group_is_one_option_not_the_group():
          "widget": {"page": 5, "rect": [308, 340, 323, 355], "widget_type": "checkbox", "path": "Proposed-1"}}
     _named(p, [("property_type", "twin: sibling path")], "option", set(bp["fields"]), types.SimpleNamespace(bp=bp))
     assert (p["name"], p["type"], p["semantic_type"]) == ("property_type_proposed_ind", "boolean", "indicator")
+
+
+def test_selected_checkboxes_are_not_grouped():
+    """Andrew (2026-10-22): "when you select multiple fields in the add/remove view, can you not automatically group
+    the selected fields?" Each checkbox is its own proposal; a radio field's buttons stay one group (one PDF field)."""
+    from petey.validate.field_add import _option_units
+    a = ({"widget_type": "checkbox", "path": "A[0]"}, "widget")
+    b = ({"widget_type": "checkbox", "path": "B[0]"}, "widget")
+    f = ({"kind": "checkbox"}, "finder")
+    r1 = ({"widget_type": "radiobutton", "path": "R[0]", "on_state": "1"}, "widget")
+    r2 = ({"widget_type": "radiobutton", "path": "R[0]", "on_state": "2"}, "widget")
+    units = _option_units([a, r1, b, r2, f])
+    assert units == [[a], [r1, r2], [b], [f]]

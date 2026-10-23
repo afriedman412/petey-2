@@ -28,6 +28,7 @@ import argparse
 import collections
 import hashlib
 import json
+import os
 import re
 import subprocess
 import threading
@@ -46,8 +47,79 @@ OUT = RUNS / "hand_review"
 _LOADER = getattr(yaml, "CSafeLoader", yaml.SafeLoader)     # libyaml when present: 10x faster over 229 blueprints
 
 
+# parsed blueprints kept on disk (Andrew, 2026-10-22: "can you look into if there's a way to speed up the reboot?"):
+# the server parsed all 770 blueprints twice at startup, 78 MB of YAML, ~40 s; a parsed copy reloads in about a
+# millisecond. A copy is used only while its file has the same modification time and size; files outside the repo
+# (tests' temporary ones) are not kept. 64 MB for the library.
+PARSED = OUT / ".parsed"
+
+
+def _parsed_path(p: Path) -> Optional[Path]:
+    import hashlib
+    from petey.paths import REPO
+    try:
+        rp = p.resolve()
+        rp.relative_to(REPO)
+    except (OSError, ValueError):
+        return None
+    return PARSED / (hashlib.sha1(str(rp).encode()).hexdigest() + ".pickle")
+
+
 def _load(p: Path) -> dict:
-    return yaml.load(p.read_text(encoding="utf-8"), Loader=_LOADER) or {}
+    import pickle
+    cp, st = _parsed_path(Path(p)), Path(p).stat()
+    stamp = (st.st_mtime_ns, st.st_size)
+    if cp is not None:
+        try:
+            with open(cp, "rb") as f:
+                kept, data = pickle.load(f)
+            if kept == stamp:
+                return data
+        except (OSError, EOFError, pickle.UnpicklingError, ValueError, TypeError):
+            pass
+    data = yaml.load(Path(p).read_text(encoding="utf-8"), Loader=_LOADER) or {}
+    if cp is not None and Path(p).stat().st_mtime_ns == stamp[0]:       # not rewritten while it was read
+        try:
+            PARSED.mkdir(parents=True, exist_ok=True)
+            tmp = cp.with_suffix(f".{os.getpid()}.{threading.get_ident()}.tmp")
+            with open(tmp, "wb") as f:
+                pickle.dump((stamp, data), f, protocol=pickle.HIGHEST_PROTOCOL)
+            os.replace(tmp, cp)
+        except OSError:
+            pass
+    return data
+
+
+def warm_parsed(paths: list) -> int:
+    """Every blueprint's parsed copy brought up to date, parsed on all cores (startup: 770 files in ~3 s rather than
+    ~20 s one by one); how many were parsed again."""
+    from concurrent.futures import ProcessPoolExecutor
+    stale = [str(p) for p in paths if _stale(Path(p))]
+    if len(stale) < 8:
+        for p in stale:
+            _load(Path(p))
+        return len(stale)
+    with ProcessPoolExecutor(os.cpu_count() or 4) as ex:
+        list(ex.map(_warm_one, stale, chunksize=4))
+    return len(stale)
+
+
+def _warm_one(p: str) -> None:
+    _load(Path(p))
+
+
+def _stale(p: Path) -> bool:
+    import pickle
+    cp = _parsed_path(p)
+    if cp is None or not cp.exists():
+        return cp is not None
+    try:
+        st = p.stat()
+        with open(cp, "rb") as f:
+            kept, _ = pickle.load(f)
+        return kept != (st.st_mtime_ns, st.st_size)
+    except Exception:
+        return True
 
 
 DPI = 110
@@ -112,6 +184,21 @@ def verdict_path(bid: str) -> Path:
 # over each other, the shorter on top of the longer, and left the file unreadable. Saves read, change and write the
 # record under one lock, and write it whole (a temporary file put in its place).
 _VERDICT_LOCK = threading.RLock()
+
+
+def reset_verdicts(bid: str) -> dict:
+    """Every verdict on the form cleared (Andrew, 2026-10-22: "can you add a button to reset validations? (and a 'are
+    you sure?' screen)"): the record moved to runs/hand_review/_reset/<bid>_<when>.json, so nothing is lost.
+    {cleared, backup}."""
+    with _VERDICT_LOCK:
+        p = verdict_path(bid)
+        if not p.exists():
+            return {"cleared": 0, "backup": None}
+        n = len(load_verdicts(bid).get("verdicts") or {})
+        bk = OUT / "_reset" / f"{bid}_{time.strftime('%Y%m%d_%H%M%S')}.json"
+        bk.parent.mkdir(parents=True, exist_ok=True)
+        p.replace(bk)
+        return {"cleared": n, "backup": str(bk)}
 
 
 def _write_verdicts(bid: str, rec: dict) -> None:
@@ -522,6 +609,10 @@ def _flag_agent():
     return flag_agent
 
 
+# the parts a name prints from, in order: a block's prefix and number first (eval/field_identifiers.ORDERS, 2026-10-22)
+IDENT_KEYS = ("block_prefix", "block_iteration", "subject", "suffix", "iteration", "part")
+
+
 def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
     """A person's correction of a field (2026-10-07: field name and type directly adjustable in the review page):
     only the parts that differ from the blueprint, validated (a snake_case name; a spec type)."""
@@ -532,7 +623,7 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
     # the name's parts (docs/NAMING.md "Identifiers", 2026-10-19): the name is printed from them, never typed
     if isinstance(edit.get("identifiers"), dict):
         ident = {}
-        for k in ("subject", "suffix", "iteration", "part"):
+        for k in IDENT_KEYS:
             v = str(edit["identifiers"].get(k) or "").strip()
             if v:
                 if not _SLUG.match(v):
@@ -541,9 +632,9 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
         if not ident.get("subject") and not ident.get("suffix"):
             raise ValueError("a field needs a subject (what the box is about)")
         if ident != {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items()
-                     if k in ("subject", "suffix", "iteration", "part") and v not in (None, "")}:
+                     if k in IDENT_KEYS and v not in (None, "")}:
             out["identifiers"] = ident
-        new_name = "_".join(ident[k] for k in ("subject", "suffix", "iteration", "part") if ident.get(k))
+        new_name = "_".join(ident[k] for k in IDENT_KEYS if ident.get(k))
     if new_name and new_name != name:
         if not _SLUG.match(new_name):
             raise ValueError(f"field name {new_name!r}: lower-case letters, digits and _ only")
@@ -762,7 +853,7 @@ def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str,
             before = {"name": n, "type": spec.get("type")}
             before.update(semantic_type=spec.get("semantic_type"), pattern=spec.get("pattern"))
             if e.get("identifiers"):            # the parts the name was printed from (membership stays as kept)
-                keep = {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items() if k in ("grid", "block_group", "block")}
+                keep = {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items() if k == "grid"}
                 before["identifiers"] = spec.get("x_petey_identifiers")
                 spec["x_petey_identifiers"] = {**e["identifiers"], **keep}
             if "type" in e:

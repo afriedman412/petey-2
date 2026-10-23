@@ -33,22 +33,6 @@ def test_simple_scheme_names_are_on_pattern_too():
     assert G.on_pattern(g)[0]
 
 
-def test_a_drawn_block_group_with_an_uneven_last_gap_keeps_its_blocks():
-    """I-526 p18 (2026-10-20): page / part / item on one line, additional information under it, five times; the fifth
-    block sits 6 pt lower than the step. Each block is one row of four positions, not two rows."""
-    from petey.validate.grid_check import arrange
-    fields, names = {}, []
-    for b, top in enumerate((204, 306, 408, 510, 618), start=1):
-        for n, r in ((f"page_{b}_nbr", [78, top, 138, top + 18]), (f"part_{b}_nbr", [174, top, 234, top + 18]),
-                     (f"item_{b}_nbr", [270, top, 330, top + 18]),
-                     (f"additional_information_{b}_txt", [78, top + 24, 576, top + 78 - (0.00001 if b == 1 else 0)])):
-            fields[n] = {"type": "string", "widget": {"page": 18, "widget_type": "text", "rect": r}}
-            names.append(n)
-    cells = arrange({"fields": fields}, names, "block")
-    assert {(c["row"], c["col"]) for c in cells} == {(r, k) for r in range(5) for k in range(4)}
-    assert all(c["row"] == int(c["name"].split("_")[-2]) - 1 for c in cells)
-
-
 def test_one_row_of_boxes_out_of_order_is_renumbered_by_position():
     """UK MR01 p1 (2026-10-20): the company number's eight boxes named company_3_nbr, company_5_nbr, ... left to right.
     One row of one wording is one position numbered across; the resolver renumbers it in code, swaps included."""
@@ -79,24 +63,6 @@ def test_a_number_the_same_along_a_line_is_wording():
     assert G.on_pattern(g) == (True, "rows")
 
 
-def test_item_lettered_blocks_with_different_box_heights():
-    """N-600 p14 (2026-10-20): items 3-6, each page / part / item on one line and additional information under it,
-    lettered a-d by the form (part_11_3a_page_nbr .. part_11_3d_additional_information_txt); the text box is 72 pt in
-    two items and 90 in two, and overlaps the page, part and item columns alike. Four blocks of four, on pattern."""
-    from petey.validate.grid_check import arrange
-    fields, names = {}, []
-    for b, (top, h) in enumerate(((210, 72), (330, 72), (450, 90), (588, 90)), start=3):
-        for n, r in ((f"part_11_{b}a_page_nbr", [78, top, 138, top + 18]),
-                     (f"part_11_{b}b_part_nbr", [168, top, 228, top + 18]),
-                     (f"part_11_{b}c_item_nbr", [258, top, 318, top + 18]),
-                     (f"part_11_{b}d_additional_information_txt", [78 - (0.001 if b % 2 else 0), top + 24, 576, top + 24 + h])):
-            fields[n] = {"type": "string", "widget": {"page": 14, "widget_type": "text", "rect": r}}
-            names.append(n)
-    cells = arrange({"fields": fields}, names, "block")
-    assert {(c["row"], c["col"]) for c in cells} == {(r, k) for r in range(4) for k in range(4)}
-    assert G.on_pattern(cells)[0]
-
-
 def test_a_table_labelled_with_the_column_first_is_on_pattern():
     """GSE 1076 p3 (2026-10-20): unit counts down the side, entire project / subject legal phase across, named
     [column]_[line]_cnt."""
@@ -105,24 +71,6 @@ def test_a_table_labelled_with_the_column_first_is_on_pattern():
          for r, k in enumerate(kinds) for c, col in enumerate(["entire_project", "subject_legal_phase"])]
     assert G.on_pattern(g) == (True, "columns named by role or kind")
     assert G.resolve({"fields": {c["name"]: {} for c in g}}, g, {})["status"] == "ok"
-
-
-def test_blocks_side_by_side():
-    """CBP 7512 p2 (2026-10-20): two certificates of transfer side by side, each box of the second 225 pt right of
-    its twin; two blocks of the same fields, not lines down the page."""
-    from petey.validate.grid_check import arrange
-    left = {"reason_txt": [100, 352, 233, 364], "to_nm": [36, 371, 234, 384], "dt": [34, 389, 146, 402],
-            "at_txt": [169, 389, 234, 402], "sealed_with_txt": [87, 407, 196, 420], "seal_nbr": [44, 425, 189, 438]}
-    fields = {}
-    for b in (1, 2):
-        for k, r in left.items():
-            d = 225 * (b - 1) + (0.6 if b == 2 else 0)
-            fields[f"transfer_{b}_{k}"] = {"type": "string", "widget": {
-                "page": 2, "widget_type": "text", "rect": [r[0] + d, r[1] + 0.3, r[2] + d, r[3] + 0.3]}}
-    cells = arrange({"fields": fields}, list(fields), "block")
-    assert {c["row"] for c in cells} == {0, 1} and len({c["col"] for c in cells}) == 6
-    assert all(c["name"].startswith(f"transfer_{c['row'] + 1}_") for c in cells)
-    assert G.on_pattern(cells)[0]
 
 
 def test_labelled_rows_with_a_numbered_run_are_on_pattern():
@@ -151,18 +99,58 @@ def test_a_labelled_table_needs_one_wording_per_column():
     assert G.keyed(g) and not G.keyed(g, strict=True) and not G.on_pattern(g)[0]
 
 
-def test_a_table_in_two_halves_side_by_side():
-    """SF 3107 p6 (2026-10-21): dependent children 1-4 down the left half, 5-8 down the right, each row name / birth
-    date / disabled (a checkbox), the rows a few tenths of a point uneven. Eight blocks of three, numbered down the
-    left half then the right."""
-    from petey.validate.grid_check import arrange
-    fields = {}
-    for half, x in ((0, 17), (1, 306)):
-        for row in range(4):
-            n, y = half * 4 + row + 1, 669 + 22.6 * row + (0.4 if half else 0)
-            for k, (dx, w, h) in (("nm", (0, 171, 17)), ("birth_dt", (173, 71, 17)), ("disabled_ind", (260, 12, 12))):
-                fields[f"dependent_child_{n}_{k}"] = {"type": "string", "widget": {
-                    "page": 6, "widget_type": "text", "rect": [x + dx, y, x + dx + w, y + h]}}
-    cells = arrange({"fields": fields}, list(fields), "block")
-    assert all(c["row"] == int(c["name"].split("_")[2]) - 1 for c in cells)
-    assert len({c["col"] for c in cells}) == 3 and G.on_pattern(cells)[0]
+# standardize (the Grids card's buttons, reworked 2026-10-22: "it often doesn't work and never says why clearly")
+
+def _grid(names_by_row, page=1):
+    """A blueprint and its grid: rows of cells, each row's names left to right."""
+    fields, g = {}, []
+    for r, row in enumerate(names_by_row):
+        for c, n in enumerate(row):
+            fields[n] = {"type": "string", "widget": {"page": page, "widget_type": "text",
+                                                      "rect": [50 + c * 120, 100 + r * 20, 160 + c * 120, 116 + r * 20]}}
+            g.append({"name": n, "page": page, "row": r, "col": c})
+    return {"fields": fields}, g
+
+
+def test_a_shifted_row_takes_the_row_holding_its_name_along():
+    """ACORD 126 p1-T1: the premium columns numbered one ahead (rows 1-3 carry 2-4); renumbering row 2 alone ran onto
+    row 3's names and did nothing. The cells holding the names are renamed with it."""
+    bp, g = _grid([[f"make_{r}_txt", f"premium_{r + 1}_amt"] for r in (1, 2, 3)])
+    r = G.standardize(bp, g, {}, lines_=[1])
+    assert r["renames"]["premium_3_amt"] == "premium_2_amt"
+    assert r["renames"]["premium_2_amt"] == "premium_1_amt" and "premium_2_amt" in r["pulled"]
+    assert not r["left"]
+
+
+def test_a_rename_onto_a_field_outside_the_grid_says_where_it_is():
+    bp, g = _grid([[f"make_{r}_txt", f"premium_{r + 1}_amt"] for r in (1, 2, 3)])
+    bp["fields"]["premium_1_amt"] = {"type": "string", "widget": {"page": 2, "widget_type": "text", "rect": [0, 0, 9, 9]}}
+    r = G.standardize(bp, g, {}, positions=[1])
+    assert any("a field outside this grid, p2" in x for x in r["left"])
+
+
+def test_an_even_split_asks_for_a_pick_and_the_pick_is_used():
+    bp, g = _grid([["guns_1_amt", "note_1_txt"], ["silver_2_amt", "note_2_txt"]])
+    r = G.standardize(bp, g, {}, positions=[0])
+    assert not r["renames"] and "pick one" in r["left"][0]
+    r = G.standardize(bp, g, {}, positions=[0], forced={0: "valuables_N_amt"})
+    assert r["renames"] == {"guns_1_amt": "valuables_1_amt", "silver_2_amt": "valuables_2_amt"}
+
+
+def test_lettered_rows_take_the_letter_most_of_the_row_has():
+    """ACORD 24 p1-T2: a lettered grid whose row d has one cell numbered 1; renumbering the row did nothing."""
+    bp, g = _grid([[f"line_{x}_txt", f"amount_{x}_amt", f"note_{x}_txt"] for x in "abc"]
+                  + [["line_d_txt", "amount_1_amt", "note_d_txt"]])
+    r = G.standardize(bp, g, {}, lines_=[3])
+    assert r["renames"] == {"amount_1_amt": "amount_d_amt"}
+
+
+def test_the_off_count_and_the_button_agree_on_a_continued_series():
+    """ACORD 90 NY p1-T15 (2026-10-22): vehicles 3-4, continuing vehicles 1-2 in another grid, were counted off their
+    rows (as if from 1) while the button kept them: both read the series from the same basis now."""
+    bp, g = _grid([[f"vehicle_{n}_make_txt", f"vehicle_{n}_year_txt"] for n in (3, 4)])
+    for n in (1, 2):
+        bp["fields"][f"vehicle_{n}_make_txt"] = {"type": "string"}
+    F = G._Frame(g)
+    assert F.numbers(bp, g, {}, F.basis())[0] == {0: 3, 1: 4}
+    assert G.standardize(bp, g, {})["renames"] == {}

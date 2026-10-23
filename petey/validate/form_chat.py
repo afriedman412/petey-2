@@ -235,7 +235,7 @@ def table_request(bid: str, tid: str, stopped: list[str]) -> str:
     if t is None:
         return f"Table {tid} is no longer found; say so and propose nothing."
     g = [dict(c, page=t["page"]) for c in t["cells"]]
-    noun, line = ("block group", "block") if t["kind"] == "block" else ("table", "row")
+    noun, line = "table", "row"
     nr, nc = max(c["row"] for c in g) + 1, max(c["col"] for c in g) + 1
     cells = {(c["row"], c["col"]): c["name"] for c in g}
     grid = "\n".join(" | ".join(cells.get((r, c), "-") for c in range(nc)) for r in range(nr))

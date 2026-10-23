@@ -1,8 +1,9 @@
-"""Grids and blocks: the review page's view for tables (Andrew, 2026-10-16: "add a 'grids and blocks' view to the
-reviewer and just route the skill through there ... a button to check and validate it in one click").
+"""Grids: the review page's Grids tab (Andrew, 2026-10-16: "add a 'grids and blocks' view to the reviewer and just
+route the skill through there ... a button to check and validate it in one click"). Repeated blocks are block types
+(block_types.py) since 2026-10-21; the block groups that were kept here are gone (2026-10-22).
 
-Every numbered table and repeated block the layout code finds (eval/grid_naming.grids) is listed with its cells, and
-one click runs the lightest method that settles it, in order:
+Every numbered grid the layout code finds (eval/grid_naming.grids) is listed with its cells, and one click runs the
+lightest method that settles it, in order:
 
   1. the code check: already on pattern -> its cells accepted, nothing else;
   2. the resolver (grid_naming.resolve): each position's wording, settled by the name-check model against the
@@ -13,10 +14,9 @@ one click runs the lightest method that settles it, in order:
   4. Opus (the chat with the grid-validation skill's rules, this page only): only what is still unclear; its
      proposals come back for the person to tick, nothing applied.
 
-Nothing is stored about the tables in the blueprint (they may get names there later). The form's grids and blocks
-are kept apart from it (2026-10-17, `listing`: runs/hand_review/grids/<id>.json): ids that last (p1-T2, p2-B1),
-cancelled ones ("not a grid or block"), ones the person drew around an area and ones combined from others, each with
-its provenance (finder, person, combined).
+Nothing is stored about the grids in the blueprint. The form's grids are kept apart from it (2026-10-17, `listing`:
+runs/hand_review/grids/<id>.json): ids that last (p1-G2), cancelled ones ("not a grid"), ones the person drew around
+an area and ones combined from others, each with its provenance (finder, person, combined).
 """
 from __future__ import annotations
 
@@ -83,9 +83,9 @@ def dismissed(entries: list[dict], page: int, cells) -> bool:
 # ------------------------------------------------------------------ the form's grids and blocks, kept (2026-10-17)
 # Andrew: "add IDs to grids and blocks; the ability to cancel; to create new ones by selecting an area; to combine
 # existing ones of the same kind" and "they should be the same button -- the provenance will distinguish them".
-# runs/hand_review/grids/<bid>.json: {"grids": [entry], "next": {"1T": 3}}; an entry is {id (p1-T2 / p1-B1), kind
-# (table | block), page, source (finder | person | combined), status (active | cancelled | combined: taken into
-# another), cells: [[field code, row, col]], from: [ids], into: id, when}. Cells are kept by field code (x_petey_id),
+# runs/hand_review/grids/<bid>.json: {"grids": [entry], "types": [block type], "next": {"1T": 3}}; an entry is {id
+# (p1-G2), kind (table), page, source (finder | person | combined | edited), status (active | cancelled | combined:
+# taken into another), cells: [[field code, row, col]], from: [ids], into: id, when}. Cells are kept by field code (x_petey_id),
 # so a rename moves nothing. The finder runs on every read; its grids are matched to their entries by cells (most
 # in common, same page) and keep their ids; a new one gets the next id. A grid the person made or combined hides the
 # finder's grids that are mostly inside it.
@@ -106,34 +106,65 @@ def load_set(bid: str) -> dict:
         return {"grids": [], "next": {}}
 
 
+def one_block_per_field(rec: dict) -> list[str]:
+    """No field in two blocks (Andrew, 2026-10-22: "make sure no field can be in two blocks. larger blocks get
+    precedence"): blocks by their fields, most first; a field already held by a larger block leaves the smaller one
+    (its position empty), a block left with no field goes, a type left with no block goes. What moved."""
+    from petey.validate import block_types as bt
+    said, held = [], set()
+    types = rec.get("types") or []
+    blocks = sorted(((t, b) for t in types for b in t["blocks"]), key=lambda x: -sum(1 for c in x[1] if c))
+    for t, b in blocks:
+        clash = [c for c in b if c and c in held]
+        held |= {c for c in b if c}
+        if not clash:
+            continue
+        i = next(k for k, x in enumerate(t["blocks"]) if x is b)
+        nb = [None if c in clash else c for c in b]
+        said.append(f"{t['id']}-{i + 1}: {len(clash)} field{'s' if len(clash) > 1 else ''} kept by a larger block")
+        if bt._bid(nb) is None:
+            t["blocks"][i] = None
+        else:
+            t["blocks"][i] = nb
+            bt._rekey(t, bt._bid(b), bt._bid(nb))
+    for t in types:
+        t["blocks"] = [b for b in t["blocks"] if b is not None]
+    rec["types"] = [t for t in types if t["blocks"]] if "types" in rec else rec.get("types")
+    return said
+
+
 def _save_set(bid: str, rec: dict) -> None:
     import json
+    if rec.get("types"):
+        one_block_per_field(rec)                 # every block change goes through here
     SETS.mkdir(parents=True, exist_ok=True)
     _set_path(bid).write_text(json.dumps(rec, indent=1), encoding="utf-8")
 
 
-def _new_id(rec: dict, page: int, kind: str) -> str:
-    """p1-T2 for a table (grid), p2-BG1 for a block group."""
-    tag = "BG" if kind == "block" else "T"
-    k = f"{page}{tag}"
+def _new_id(rec: dict, page: int) -> str:
+    """p1-G2: the page and the grid's number on it (G for grid since 2026-10-23, Andrew: "they are grids not tables";
+    older records renamed from p1-T2)."""
+    k = f"{page}G"
     n = rec.setdefault("next", {}).get(k, 1)
     rec["next"][k] = n + 1
-    return f"p{page}-{tag}{n}"
+    return f"p{page}-G{n}"
 
 
-def found(bp: dict) -> list[list[dict]]:
-    """What the finders find (2026-10-18: grids and blocks apart): block groups (eval/block_groups.py), and the
-    numbered tables (grid_naming, without its old blocks) that are not mostly inside one of them."""
-    import block_groups
-    groups = block_groups.find(bp)
-    inside = [{c["name"] for c in g} for g in groups]
-    tables = [g for g in G.grids(bp, blocks=False) if G.iterated(g)
-              and not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in inside)]
-    return tables + groups
+def found(bp: dict, held: list[set] = ()) -> list[list[dict]]:
+    """The finder's grids (grid_naming, without its old blocks), less those mostly inside one block (`held`: each block
+    type's blocks, as field names). 2026-10-22, in place of the block-group finder that hid them before: of the 173
+    grids it hid on 63 forms, 164 sit in block types' blocks."""
+    return [g for g in G.grids(bp, blocks=False) if G.iterated(g)
+            and not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in held)]
+
+
+def _blocks_held(rec: dict, name: dict) -> list[set]:
+    """Each block type's blocks as sets of field names (codes mapped through `name`)."""
+    return [{name[c] for c in b if c in name} for y in rec.get("types") or [] for b in y.get("blocks") or []]
 
 
 def listing(bid: str, bp: dict) -> list[dict]:
-    """The form's grids and blocks: [{id, kind, page, source, status, from, into, when, grid}] where `grid` is the
+    """The form's grids: [{id, kind, page, source, status, from, into, when, grid}] where `grid` is the
     cells as the checks take them ([{name, page, row, col, block?}]). Every finder grid gets (and keeps) an id; the
     record is written when one is new."""
     import time
@@ -147,16 +178,13 @@ def listing(bid: str, bp: dict) -> list[dict]:
     def at(g):                                  # top, then left: new ids are given in reading order
         rs = [r for r in (_rect(bp, c["name"]) for c in g) if r]
         return (g[0]["page"], min((r[1] for r in rs), default=0), min((r[0] for r in rs), default=0))
-    # block groups are gone (Andrew, 2026-10-21: "we can basically ditch the entire block group concept now"): the
-    # finder's are not recorded or listed (`found` still keeps the grids inside them out of the listing), and kept ones
-    # in old records are passed over; block types (block_types.py) carry what they did
-    for g in sorted((g for g in found(bp) if not g[0].get("block")), key=at):
-        page, kind = g[0]["page"], "block" if g[0].get("block") else "table"
+    for g in sorted(found(bp, _blocks_held(rec, name)), key=at):
+        page = g[0]["page"]
         codes = [code.get(c["name"], c["name"]) for c in g]
         e = next((e for e in rec["grids"] if e["source"] == "finder" and e["page"] == page and id(e) not in claimed
                   and _same([c[0] for c in e["cells"]], codes)), None)
         if e is None:
-            e = {"id": _new_id(rec, page, kind), "kind": kind, "page": page, "source": "finder",
+            e = {"id": _new_id(rec, page), "kind": "table", "page": page, "source": "finder",
                  "status": "cancelled" if dismissed(legacy, page, [c["name"] for c in g]) else "active",
                  "when": time.strftime("%Y-%m-%d %H:%M:%S")}
             rec["grids"].append(e)
@@ -165,41 +193,109 @@ def listing(bid: str, bp: dict) -> list[dict]:
             e["cells"] = [[cd, c["row"], c["col"]] for cd, c in zip(codes, g)]
             changed = True
         claimed.add(id(e))
-        out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts")},
+        out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "kept")},
                     "grid": [dict(c) for c in g]})
     for e in rec["grids"]:
-        if e["source"] == "finder" or e.get("kind") == "block":
+        if e["source"] == "finder" or e.get("kind") != "table":       # (block groups' entries: gone, 2026-10-22)
             continue
-        cells = [{"name": name[c], "page": e["page"], "row": r, "col": k, **({"block": True} if e["kind"] == "block" else {})}
-                 for c, r, k in e["cells"] if c in name]
+        cells = [{"name": name[c], "page": e["page"], "row": r, "col": k} for c, r, k in e["cells"] if c in name]
         if cells:
-            out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "blocks", "parts", "type")},
+            out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when")},
                         "grid": cells})
     mine = [set(c["name"] for c in t["grid"]) for t in out if t["source"] != "finder" and t["status"] == "active"]
-    # what the person made, drew, combined or edited holds its fields against the finder (one table and one block
-    # group per field, `exclusive`): a finder grid mostly inside one of them, or mostly inside those of its kind
-    # together (je__uk_ch_psc01 p1-T7, 2026-10-20: the finder's 30 cells over the four tables drawn in its place), is
-    # shown as them; one that only shares a few is shown without those
-    held = {k: set().union(*[set(c["name"] for c in t["grid"]) for t in out if t["source"] != "finder"
-                             and t["status"] == "active" and t["kind"] == k]) for k in ("table", "block")}
+    # what the person made, drew, combined or edited holds its fields against the finder (one grid per field,
+    # `exclusive`): a finder grid mostly inside one of them, or mostly inside them together (je__uk_ch_psc01 p1-T7,
+    # 2026-10-20: the finder's 30 cells over the four grids drawn in its place), is shown as them; one that only
+    # shares a few is shown without those
+    held = set().union(*mine) if mine else set()
     for t in out:
         if t["source"] != "finder" or t["status"] != "active":
             continue
         names = {c["name"] for c in t["grid"]}
-        if any(len(names & m) >= 0.5 * len(names) for m in mine) or len(names & held[t["kind"]]) >= 0.5 * len(names):
+        if any(len(names & m) >= 0.5 * len(names) for m in mine) or len(names & held) >= 0.5 * len(names):
             t["status"] = "replaced"
-        elif names & held[t["kind"]]:
-            t["grid"] = [c for c in t["grid"] if c["name"] not in held[t["kind"]]]
+        elif names & held:
+            t["grid"] = [c for c in t["grid"] if c["name"] not in held]
             if len(t["grid"]) < 2:
                 t["status"] = "replaced"
+    # a finder grid split between blocks is probably not one (Andrew, 2026-10-22: "grids that are split between blocks
+    # are probably not correct, unless they are very uniformly shaped"; VA 21P-534EZ p13: three grids across the
+    # children's blocks, cancelled by hand): set aside, said why, until the person restores it (`kept`)
+    blk = {c: f"{y['id']}-{i}" for y in rec.get("types") or [] for i, b in enumerate(y.get("blocks") or [], 1) for c in b if c}
+    for t in out:
+        if t["source"] != "finder" or t["status"] != "active" or t.get("kept"):
+            continue
+        hit = sorted({blk[code[c["name"]]] for c in t["grid"] if code.get(c["name"]) in blk})
+        if len(hit) >= 2 and not uniform(bp, t["grid"]):
+            t["status"], t["aside_why"] = "split", f"split between blocks {', '.join(hit)}"
+    # a small finder grid is set aside (Andrew, 2026-10-23: "i_829_check_p4-T1 is a frivolous grid": child 1's and
+    # child 2's addresses side by side, 3 x 2, two blocks really): under 3 x 3 and under 12 cells, as labeling leaves
+    # small tables out (petey/label/structure.py); 243 of 938 then active, none kept by hand. Restorable (`kept`)
+    for t in out:
+        if t["source"] != "finder" or t["status"] != "active" or t.get("kept"):
+            continue
+        rows, cols = len({c["row"] for c in t["grid"]}), len({c["col"] for c in t["grid"]})
+        if (rows < 3 or cols < 3) and len(t["grid"]) < 12:
+            t["status"], t["aside_why"] = "split", f"small: {rows} x {cols}"
+    # a finder grid whose outline holds as many other fields as its own cells is set aside (Andrew, 2026-10-23: "a
+    # grid can include a field within the space it covers without it being in the grid ... that's ok to a point";
+    # I-829 p4: 6 cells over 8 other fields): mostly grids cutting across blocks (VA 21-686c p9: 24 prior-marriage
+    # city boxes over six marriages, 38 other fields inside; I-730 p5: prior spouses with the native language)
+    on_page: dict[int, list] = {}
+    for n in fields:
+        r = _rect(bp, n)
+        ws = [fields[n]["widget"]] if fields[n].get("widget") else list((fields[n].get("widgets") or {}).values())
+        if r and ws:
+            on_page.setdefault(ws[0].get("page"), []).append((n, r))
+    for t in out:
+        if t["source"] != "finder" or t["status"] != "active" or t.get("kept"):
+            continue
+        mine_ = {c["name"] for c in t["grid"]}
+        rs = [r for n, r in on_page.get(t["page"], []) if n in mine_]
+        if not rs:
+            continue
+        bb = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
+        other = sum(1 for n, r in on_page.get(t["page"], []) if n not in mine_
+                    and bb[0] < (r[0] + r[2]) / 2 < bb[2] and bb[1] < (r[1] + r[3]) / 2 < bb[3])
+        if other >= len(mine_):
+            t["status"], t["aside_why"] = "split", f"covers {other} other fields, more than its {len(mine_)} cells"
     if changed:
         _save_set(bid, rec)
     return out
 
 
+def uniform(bp: dict, g: list[dict]) -> bool:
+    """A grid "very uniformly shaped" (Andrew, 2026-10-22; "both rows and columns can be inconsistently sized"): a full
+    lattice, each row's cells crossed by one line across, each column's by one line down, no cell missing, and no other field inside
+    its outline (VA 21P-534EZ p13-T2: each child's SSN boxes lined up as a lattice, the other children's name boxes
+    between its rows). Sizes and spacing may vary."""
+    rs = [_rect(bp, c["name"]) for c in g]
+    if not rs or any(r is None for r in rs):
+        return False
+    rows, cols = sorted({c["row"] for c in g}), sorted({c["col"] for c in g})
+    if len(g) != len(rows) * len(cols) or len({(c["row"], c["col"]) for c in g}) != len(g):
+        return False
+    for axis, lines, i in (("row", rows, 1), ("col", cols, 0)):
+        for k in lines:                    # lined up: one line across (down) passes through every cell of the row
+            spans = [(r[i], r[i + 2]) for c, r in zip(g, rs) if c[axis] == k]       # (column); sizes may differ
+            if max(a for a, _ in spans) >= min(b for _, b in spans):
+                return False
+    box = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
+    mine = {c["name"] for c in g}
+    page = g[0].get("page")
+    for n, sp in (bp.get("fields") or {}).items():
+        if n in mine or not isinstance(sp, dict):
+            continue
+        w = sp.get("widget") or next(iter((sp.get("widgets") or {}).values()), {})
+        r = _rect(bp, n)
+        if r and w.get("page") == page and box[0] < (r[0] + r[2]) / 2 < box[2] and box[1] < (r[1] + r[3]) / 2 < box[3]:
+            return False
+    return True
+
+
 def set_status(bid: str, gid: str, cancel: bool, bp: Optional[dict] = None) -> dict:
-    """Cancel a grid or block (not a grid or block), or restore it. Cancelling a combined one gives its parts back.
-    With `bp`, what comes back takes its fields from the others of its kind (`exclusive`)."""
+    """Cancel a grid ("not a grid"), or restore it. Cancelling a combined one gives its parts back. With `bp`, what
+    comes back takes its fields from the other grids (`exclusive`)."""
     import time
     rec = load_set(bid)
     e = next((e for e in rec["grids"] if e["id"] == gid), None)
@@ -207,6 +303,10 @@ def set_status(bid: str, gid: str, cancel: bool, bp: Optional[dict] = None) -> d
         raise ValueError(f"no grid {gid}")
     e["status"] = "cancelled" if cancel else "active"
     e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
+    if cancel:                        # restored by the person: a grid, whatever the rules say (`listing`'s split rule)
+        e.pop("kept", None)
+    else:
+        e["kept"] = True
     back = [] if cancel else [gid]
     if e["source"] in ("combined", "edited"):
         for x in rec["grids"]:
@@ -220,8 +320,8 @@ def set_status(bid: str, gid: str, cancel: bool, bp: Optional[dict] = None) -> d
 
 
 def _give_back(rec: dict, gid: str) -> None:
-    """Cancelling one that took fields from others (`exclusive`) gives them back: each table or block group it took
-    from as it was, if it has not changed since and the fields are in no other one now."""
+    """Cancelling one that took fields from others (`exclusive`) gives them back: each grid it took from as it was,
+    if it has not changed since and the fields are in no other one now."""
     held = {c[0] for e in rec["grids"] if e["status"] == "active" and e["id"] != gid for c in e.get("cells") or []}
     for x in rec["grids"]:
         u = x.get("undo") or {}
@@ -243,12 +343,10 @@ def _give_back(rec: dict, gid: str) -> None:
 
 
 def exclusive(bid: str, bp: dict, winners: list[str]) -> list[str]:
-    """A field is in one table and one block group at most (Andrew, 2026-10-20: "if you drag it into a group, it should
-    join that one and leave the other one"): the fields of `winners` (what was just drawn, combined, laid out or
-    restored) leave every other table, or block group, shown on the form. One the finder found becomes an edited copy
-    without them; one left with fewer than two fields, or a block group with fewer than two blocks, is emptied.
-    Cancelling the winner gives them back (`_give_back`). A table inside a block group is one of its parts, not a second membership,
-    so tables and block groups are kept apart. What left where, for the page to say."""
+    """A field is in one grid at most (Andrew, 2026-10-20: "if you drag it into a group, it should join that one and
+    leave the other one"): the fields of `winners` (what was just drawn, combined or restored) leave every other grid
+    shown on the form. One the finder found becomes an edited copy without them; one left with fewer than two fields is
+    emptied. Cancelling the winner gives them back (`_give_back`). What left where, for the page to say."""
     import time
     shown = {t["id"] for t in listing(bid, bp) if t["status"] == "active"}     # also records any new finder ids
     rec = load_set(bid)
@@ -260,19 +358,18 @@ def exclusive(bid: str, bp: dict, winners: list[str]) -> list[str]:
             continue
         mine = {c[0] for c in we.get("cells") or []}
         for e in list(rec["grids"]):
-            if e["id"] == w or e["kind"] != we["kind"] or e["id"] not in shown or e["status"] != "active":
+            if e["id"] == w or e.get("kind") != "table" or e["id"] not in shown or e["status"] != "active":
                 continue
             left = [list(c) for c in e.get("cells") or [] if c[0] not in mine]
             n = len(e.get("cells") or []) - len(left)
             if not n:
                 continue
-            small = len(left) < 2 or (e["kind"] == "block" and len({c[1] for c in left}) < 2)
-            if small:
+            if len(left) < 2:
                 e["undo"] = {"by": w, "cells": e.get("cells"), "after": e.get("cells")}
                 e["status"], e["into"] = "emptied", w
                 said.append(f"{e['id']} emptied ({n} field{'s' if n != 1 else ''} to {w})")
             elif e["source"] == "finder":
-                c = {"id": _new_id(rec, e["page"], e["kind"]), "kind": e["kind"], "page": e["page"], "source": "edited",
+                c = {"id": _new_id(rec, e["page"]), "kind": "table", "page": e["page"], "source": "edited",
                      "status": "active", "cells": _compact(left), "from": [e["id"]], "when": time.strftime("%Y-%m-%d %H:%M:%S")}
                 c["undo"] = {"by": w, "drop": True, "after": c["cells"]}
                 e["status"], e["into"] = "combined", c["id"]
@@ -291,14 +388,12 @@ def exclusive(bid: str, bp: dict, winners: list[str]) -> list[str]:
     return said
 
 
-def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
+def arrange(bp: dict, names: list[str]) -> list[dict]:
     """Rows and columns for fields the person grouped (an area drawn, or grids combined), from their boxes on the page.
     Lines: a box joins a line it overlaps from top to bottom by half the smaller height; ordinary boxes widen the
     line, a box much taller than most (Form 8949's description, IMM 5645's relationship) joins the line its top is on
     without widening it. Columns: boxes overlapping across by half the narrower (two on one line and column are two
-    columns). A table: each line a row. A block: the step down the page at which most lines come again with the
-    same boxes (column and height) is the repeat; each repeat a row, each column at each line within the repeat a
-    slot; slots left to right, stacked ones top first."""
+    columns). Each line a row."""
     boxes = [(n, _rect(bp, n)) for n in names]
     boxes = [(n, r) for n, r in boxes if r]
     if not boxes:
@@ -334,133 +429,14 @@ def arrange(bp: dict, names: list[str], kind: str) -> list[dict]:
             ci = col_of(r)
             placed.append((li, ci, seen.get(ci, 0), n, r))
             seen[ci] = seen.get(ci, 0) + 1
-    row_of, slot_of = {}, {}
-    if kind == "block" and len(lines) > 1:
-        # a line's boxes as (column, height); heights alike within 2 pt or a quarter (a bucket of 4 pt split I-526
-        # p18's 54 pt boxes, 53.99997 against 54.0; N-600 p14's text boxes are 72 pt in two blocks, 90 in two, 2026-10-20)
-        sig = [[(ci, r[3] - r[1]) for li2, ci, _k, _n, r in placed if li2 == li] for li in range(len(lines))]
-        tops = [ln["y0"] for ln in lines]
-
-        def alike(i, j, loose=True):
-            left, hit = list(sig[j]), 0
-            for ci, hh in sig[i]:
-                m = next((x for x in left if x[0] == ci
-                          and abs(x[1] - hh) <= (max(2, 0.25 * max(x[1], hh)) if loose else 2)), None)
-                if m:
-                    left.remove(m)
-                    hit += 1
-            return hit >= 0.8 * (len(sig[i]) + len(sig[j]) - hit)
-
-        def score(step):                         # the share of lines that come again one step lower, alike
-            ok = tried = 0
-            for i, t in enumerate(tops):
-                if t + step > tops[-1] + 3:
-                    continue
-                tried += 1
-                j = min(range(len(tops)), key=lambda j: abs(tops[j] - (t + step)))
-                ok += abs(tops[j] - (t + step)) <= 3 and alike(i, j, loose=False)
-            return ok / tried if tried else 0
-        # the lines come again every p lines, alike, however far apart the repeats sit (I-526 p18, 2026-10-20:
-        # four blocks 102 pt apart, the fifth 108; the even step below took one pair of lines for a repeat)
-        p = next((p for p in range(2, len(lines) // 2 + 1) if len(lines) % p == 0
-                  and all(alike(i, i + p) for i in range(len(lines) - p))
-                  and not all(alike(i, i + 1) for i in range(p - 1))), None)
-        if p:
-            row_of = {li: li // p for li in range(len(lines))}
-            slot_of = {li: li % p for li in range(len(lines))}
-        elif (side := _side_by_side(boxes)):     # repeats across the page, not down it (CBP 7512 p2's transfers)
-            out = []
-            for n, (blk, pos) in side.items():
-                spec = bp["fields"][n]
-                w = spec.get("widget") or next(iter((spec.get("widgets") or {}).values()), {})
-                out.append({"name": n, "page": w.get("page"), "row": blk, "col": pos, "block": True})
-            return sorted(out, key=lambda c: (c["row"], c["col"]))
-        else:                                    # a repeat with a line missing: an even step down the page
-            steps = sorted({round(b - a, 1) for i, a in enumerate(tops) for b in tops[i + 1:] if b - a > 3})
-            step = next((st for st in steps if score(st) >= 0.8), None)
-            if step:
-                for li, ln in enumerate(lines):
-                    row_of[li] = int((ln["y0"] - tops[0] + 3) // step)
-                    slot_of[li] = round((ln["y0"] - tops[0] - row_of[li] * step) / 3)
-    if not row_of:                               # a table (or a block with no repeat found): a line is a row
-        row_of = {li: li for li in range(len(lines))}
-        slot_of = {li: 0 for li in range(len(lines))}
-    slots = sorted({(ci, k, slot_of[li]) for li, ci, k, _n, _r in placed}, key=lambda t: (t[0], t[2], t[1]))
+    slots = sorted({(ci, k) for _li, ci, k, _n, _r in placed})
     slot_ix = {s_: i for i, s_ in enumerate(slots)}
-    rows = sorted(set(row_of.values()))
     out = []
     for li, ci, k, n, _r in placed:
         spec = bp["fields"][n]
         w = spec.get("widget") or next(iter((spec.get("widgets") or {}).values()), {})
-        cell = {"name": n, "page": w.get("page"), "row": rows.index(row_of[li]), "col": slot_ix[(ci, k, slot_of[li])]}
-        if kind == "block":
-            cell["block"] = True
-        out.append(cell)
+        out.append({"name": n, "page": w.get("page"), "row": li, "col": slot_ix[(ci, k)]})
     return out
-
-
-def _side_by_side(boxes: list[tuple]) -> Optional[dict]:
-    """{name: (block, position)} when the boxes are two or more copies of one block set side by side (CBP 7512 page 2,
-    2026-10-20: the two certificates of transfer, every box of the second 225 pt right of its twin in the first), else
-    None. Each box's twin one step right sits on its line (3 pt), is its size (2 pt high, a tenth wide) and the step
-    is the same for all (4 pt); the twins chain left to right, every chain as long, and every box in one. A chain is
-    a position, numbered by where its first box is (top, then left); a box's place in its chain is its block."""
-    if len(boxes) < 4:
-        return None
-
-    def twin(a, b, d):
-        return (abs(b[1] - a[1]) <= 3 and abs((b[3] - b[1]) - (a[3] - a[1])) <= 2
-                and abs((b[2] - b[0]) - (a[2] - a[0])) <= max(3, 0.1 * (a[2] - a[0])) and abs(b[0] - a[0] - d) <= 4)
-    steps = sorted({round(rb[0] - ra[0]) for _a, ra in boxes for _b, rb in boxes
-                    if rb[0] - ra[0] > 20 and abs(rb[1] - ra[1]) <= 3})
-    for d in steps:
-        nxt = {}
-        for a, ra in boxes:
-            m = [b for b, rb in boxes if b != a and twin(ra, rb, d)]
-            if len(m) > 1:
-                break
-            if m:
-                nxt[a] = m[0]
-        else:
-            if not nxt or len(set(nxt.values())) < len(nxt):
-                continue
-            starts = [a for a, _r in boxes if a not in set(nxt.values())]
-            chains = []
-            for a in starts:
-                ch = [a]
-                while ch[-1] in nxt:
-                    ch.append(nxt[ch[-1]])
-                chains.append(ch)
-            if len({len(c) for c in chains}) != 1 or len(chains[0]) < 2 or sum(map(len, chains)) != len(boxes):
-                continue
-            rect = dict(boxes)
-            chains.sort(key=lambda c: (round(rect[c[0]][1] / 3), rect[c[0]][0]))
-            out = {n: (blk, pos) for pos, c in enumerate(chains) for blk, n in enumerate(c)}
-            return _rows_within(out, rect, chains) or out
-    return None
-
-
-def _rows_within(out: dict, rect: dict, chains: list) -> Optional[dict]:
-    """A side-by-side copy that is itself rows of one set of boxes (SF 3107 p6, 2026-10-21: dependent children 1-4 on
-    the left half, 5-8 on the right, each row name / birth date / disabled): each row its own block, down the first
-    copy, then down the next; positions the boxes of one row. None when a copy is not rows alike (a block of several
-    different lines stays one block)."""
-    first = sorted(((rect[c[0]], k) for k, c in enumerate(chains)), key=lambda t: (t[0][1], t[0][0]))   # top first
-    lines: list[list] = []
-    for r, k in first:
-        ln = next((ln for ln in lines if abs(rect[chains[ln[0]][0]][1] - r[1]) <= 4), None)
-        (ln.append(k) if ln is not None else lines.append([k]))
-    if len(lines) < 2:
-        return None
-    lines = sorted((sorted(ln, key=lambda k: rect[chains[k][0]][0]) for ln in lines),
-                   key=lambda ln: min(rect[chains[k][0]][1] for k in ln))
-    shape = lambda k: (rect[chains[k][0]][0], rect[chains[k][0]][2] - rect[chains[k][0]][0],      # noqa: E731
-                       rect[chains[k][0]][3] - rect[chains[k][0]][1])
-    if len({len(ln) for ln in lines}) != 1 or not all(
-            all(abs(a - b) <= 4 for a, b in zip(shape(k), shape(k0))) for ln in lines for k, k0 in zip(ln, lines[0])):
-        return None
-    where = {k: (li, pos) for li, ln in enumerate(lines) for pos, k in enumerate(ln)}
-    return {n: (blk * len(lines) + where[k][0], where[k][1]) for n, (blk, k) in out.items()}
 
 
 def _in_area(bp: dict, page: int, rect) -> list[str]:
@@ -478,30 +454,27 @@ def _in_area(bp: dict, page: int, rect) -> list[str]:
     return out
 
 
-def create(bid: str, bp: dict, page: int, rect, kind: str) -> dict:
-    """A grid or block the person drew: the fields inside the area, arranged (`arrange`)."""
+def create(bid: str, bp: dict, page: int, rect) -> dict:
+    """A grid the person drew: the fields inside the area, arranged (`arrange`)."""
     names = _in_area(bp, page, rect)
     if len(names) < 2:
         raise ValueError("fewer than two fields in that area")
-    cells = arrange(bp, names, kind)
-    out = _add(bid, bp, page, kind, cells, "person", [])
+    cells = arrange(bp, names)
+    out = _add(bid, bp, page, cells, "person", [])
     return {**out, "left": exclusive(bid, bp, [out["id"]])}
 
 
 def combine(bid: str, bp: dict, gids: list[str]) -> dict:
-    """Two or more grids (or two or more blocks) on one page as one: their cells arranged again together. The parts are
-    kept, marked as taken into the new one; cancelling it gives them back."""
+    """Two or more grids on one page as one: their cells arranged again together. The parts are kept, marked as taken
+    into the new one; cancelling it gives them back."""
     have = {t["id"]: t for t in listing(bid, bp)}
     parts = [have[g] for g in gids if g in have]
     if len(parts) < 2:
-        raise ValueError("pick two or more")
-    if len({t["kind"] for t in parts}) > 1:
-        raise ValueError("a table and a block cannot be combined")
+        raise ValueError("pick two or more grids")
     if len({t["page"] for t in parts}) > 1:
-        raise ValueError("combining across pages is not supported yet")
+        raise ValueError("grids on different pages cannot be combined yet")
     names = list(dict.fromkeys(c["name"] for t in parts for c in t["grid"]))
-    out = _add(bid, bp, parts[0]["page"], parts[0]["kind"], arrange(bp, names, parts[0]["kind"]), "combined",
-               [t["id"] for t in parts])
+    out = _add(bid, bp, parts[0]["page"], arrange(bp, names), "combined", [t["id"] for t in parts])
     rec = load_set(bid)
     for e in rec["grids"]:
         if e["id"] in gids:
@@ -510,11 +483,11 @@ def combine(bid: str, bp: dict, gids: list[str]) -> dict:
     return {**out, "left": exclusive(bid, bp, [out["id"]])}
 
 
-def _add(bid: str, bp: dict, page: int, kind: str, cells: list[dict], source: str, parts: list[str]) -> dict:
+def _add(bid: str, bp: dict, page: int, cells: list[dict], source: str, parts: list[str]) -> dict:
     import time
     code = {n: str(s.get("x_petey_id")) for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     rec = load_set(bid)
-    e = {"id": _new_id(rec, page, kind), "kind": kind, "page": page, "source": source, "status": "active",
+    e = {"id": _new_id(rec, page), "kind": "table", "page": page, "source": source, "status": "active",
          "cells": [[code[c["name"]], c["row"], c["col"]] for c in cells], "when": time.strftime("%Y-%m-%d %H:%M:%S")}
     if parts:
         e["from"] = parts
@@ -523,183 +496,12 @@ def _add(bid: str, bp: dict, page: int, kind: str, cells: list[dict], source: st
     return {"id": e["id"], "cells": len(cells)}
 
 
-# ------------------------------------------------------------------ a block group's layout (2026-10-19)
-# Andrew, on je__cra_t5013 p1-BG2 (two slips): "we need some kind of way to edit the block layout". The repeat step
-# `arrange` looks for misses when one block's boxes sit a few points off the other's (slip 2's header boxes shift
-# right), and a table's two panes read as one line (the finder's T2: T6 and T7 side by side). So the person marks
-# the blocks (`layout`): the fields in each, paired with the first block's, a kept table inside a block taken whole
-# (T6 in slip 1 pairs with T8 in slip 2 cell by cell), the rest by where they sit inside their block. The pairing is
-# then edited by hand (`set_cells`): swap, move, take out, add. The entry keeps `blocks` (the areas drawn) and
-# `parts` (which kept tables fill which positions). A finder's block group is edited as a copy ("edited", `from` the
-# finder's), since the finder's entry follows the finder on every read; cancelling the copy gives the original back.
-
-def _editable(rec: dict, gid: str) -> dict:
-    import time
-    e = next((e for e in rec["grids"] if e["id"] == gid), None)
-    if e is None:
-        raise ValueError(f"no block group {gid}")
-    if e["kind"] != "block":
-        raise ValueError(f"{gid} is a table, not a block group")
-    if e["source"] != "finder":
-        return e
-    c = {"id": _new_id(rec, e["page"], "block"), "kind": "block", "page": e["page"], "source": "edited",
-         "status": "active", "cells": [list(x) for x in e.get("cells") or []], "from": [gid],
-         "when": time.strftime("%Y-%m-%d %H:%M:%S")}
-    e["status"], e["into"] = "combined", c["id"]
-    rec["grids"].append(c)
-    return c
-
-
-def _units(bp: dict, names: list[str], tables: list[dict]) -> tuple[list[dict], tuple]:
-    """One block's parts: the kept tables mostly inside it, whole, and its other fields one by one; each with its box
-    and its place relative to the block's top left (the block's boxes, not the area drawn: drawn by hand, it is loose)."""
-    rect = {n: _rect(bp, n) for n in names}
-    rect = {n: r for n, r in rect.items() if r}
-    if not rect:
-        return [], (0, 0)
-    o = (min(r[0] for r in rect.values()), min(r[1] for r in rect.values()))
-    units, used = [], set()
-    for t in tables:
-        mine = [c for c in t["grid"] if c["name"] in rect and c["name"] not in used]
-        if len(mine) < 0.5 * len(t["grid"]) or len(mine) < 2:
-            continue
-        rs = [rect[c["name"]] for c in mine]
-        units.append({"table": t["id"], "cells": {(c["row"], c["col"]): c["name"] for c in mine},
-                      "shape": (max(c["row"] for c in t["grid"]) + 1, max(c["col"] for c in t["grid"]) + 1),
-                      "box": [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]})
-        used |= {c["name"] for c in mine}
-    units += [{"name": n, "box": r} for n, r in rect.items() if n not in used]
-    for u in units:
-        b = u["box"]
-        u["rel"] = ((b[0] + b[2]) / 2 - o[0], (b[1] + b[3]) / 2 - o[1])
-    units.sort(key=lambda u: (round(u["box"][1] / 4), u["box"][0]))
-    return units, o
-
-
-def _pair(ref: list[dict], other: list[dict]) -> dict[int, int]:
-    """Which of `other`'s parts is which of `ref`'s: tables with tables (same shape first), fields with fields, by
-    where they sit in their block, the least total distance; a pair more than PAIR_MAX points apart is no pair."""
-    from scipy.optimize import linear_sum_assignment
-    out = {}
-    for is_tab in (True, False):
-        R = [i for i, u in enumerate(ref) if ("table" in u) == is_tab]
-        O = [j for j, u in enumerate(other) if ("table" in u) == is_tab]
-        if not R or not O:
-            continue
-        cost = [[((ref[i]["rel"][0] - other[j]["rel"][0]) ** 2 + (ref[i]["rel"][1] - other[j]["rel"][1]) ** 2) ** 0.5
-                 + (0 if not is_tab or ref[i]["shape"] == other[j]["shape"] else PAIR_MAX) for j in O] for i in R]
-        for a, b in zip(*linear_sum_assignment(cost)):
-            if cost[a][b] <= PAIR_MAX:
-                out[R[a]] = O[b]
-    return out
-
-
-PAIR_MAX = 60.0          # points: further apart than this inside their blocks, two fields are not the same position
-
-
-def layout(bid: str, bp: dict, gid: str, blocks: list) -> dict:
-    """The block group as the person marked it: `blocks` the areas drawn, one per block, in order. Each block's
-    fields are the ones inside its area; the first block sets the positions (its parts top to bottom, left to right,
-    a table's cells row by row), the others' parts are paired with them (`_pair`), a table's cells by row and column.
-    A field with no pair gets a position of its own."""
-    import time
-    if len(blocks) < 2:
-        raise ValueError("mark two or more blocks")
-    rec = load_set(bid)
-    e = _editable(rec, gid)
-    page = e["page"]
-    code = {n: str(s.get("x_petey_id")) for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
-    tables = [t for t in listing(bid, bp) if t["kind"] == "table" and t["status"] == "active" and t["page"] == page]
-    taken: set = set()
-    per = []
-    for r in blocks:
-        names = [n for n in _in_area(bp, page, r) if n not in taken]
-        taken |= set(names)
-        per.append(_units(bp, names, tables)[0])
-    if sum(1 for u in per if u) < 2:
-        raise ValueError("fewer than two of the blocks have fields in them")
-    ref = per[0]
-    slots: list = []                      # a position: (ref unit index, table cell or None)
-    for i, u in enumerate(ref):
-        slots += [(i, rc) for rc in sorted(u["cells"])] if "table" in u else [(i, None)]
-    cells = []
-    parts = []
-    for i, u in enumerate(ref):
-        if "table" in u:
-            first = slots.index((i, min(u["cells"])))
-            parts.append({"from": first + 1, "to": first + len(u["cells"]), "tables": [u["table"]]})
-    for b, units in enumerate(per):
-        pair = {i: i for i in range(len(units))} if b == 0 else _pair(ref, units)
-        back = {j: i for i, j in pair.items()}
-        for i, j in pair.items():
-            if b and "table" in ref[i]:
-                next(p for p in parts if p["tables"][0] == ref[i]["table"])["tables"].append(units[j]["table"])
-        for j, u in enumerate(units):
-            i = back.get(j)
-            if i is None:                                   # no pair in the first block: positions of its own
-                for n in (u["cells"].values() if "table" in u else [u["name"]]):
-                    slots.append(("extra", n))
-                    cells.append([code[n], b, len(slots) - 1])
-                continue
-            if "table" in u:
-                for rc, n in u["cells"].items():
-                    k = slots.index((i, rc)) if (i, rc) in slots else None
-                    if k is None:
-                        slots.append(("extra", n))
-                        k = len(slots) - 1
-                    cells.append([code[n], b, k])
-            else:
-                cells.append([code[u["name"]], b, slots.index((i, None))])
-    e["cells"] = _compact(cells)
-    e["blocks"] = [list(map(float, r)) for r in blocks]
-    e["parts"] = parts
-    e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    _save_set(bid, rec)
-    return {"id": e["id"], "cells": len(cells), "blocks": len(blocks), "positions": len({c[2] for c in e["cells"]}),
-            "left": exclusive(bid, bp, [e["id"]])}
-
-
 def _compact(cells: list) -> list:
     """Positions numbered 0..n-1 in their order (an emptied one dropped), blocks likewise; cells by block, then
     position."""
     pos = {k: i for i, k in enumerate(sorted({c[2] for c in cells}))}
     blk = {k: i for i, k in enumerate(sorted({c[1] for c in cells}))}
     return sorted([[c[0], blk[c[1]], pos[c[2]]] for c in cells], key=lambda c: (c[1], c[2]))
-
-
-def set_cells(bid: str, bp: dict, gid: str, cells: list) -> dict:
-    """The layout as edited on the card: [[field code, block, position]] (swapped, moved, taken out, added). A field
-    once, a block and position once; positions and blocks renumbered in order."""
-    import time
-    have = {str(s.get("x_petey_id")) for s in (bp.get("fields") or {}).values() if isinstance(s, dict)}
-    cells = [[str(c), int(r), int(k)] for c, r, k in cells]
-    if len({c[0] for c in cells}) < len(cells):
-        raise ValueError("a field is in two places")
-    if len({(c[1], c[2]) for c in cells}) < len(cells):
-        raise ValueError("two fields in one place")
-    if any(c[0] not in have for c in cells):
-        raise ValueError("a field that is not on the form")
-    if len({c[1] for c in cells}) < 2:
-        raise ValueError("a block group needs two or more blocks")
-    rec = load_set(bid)
-    e = _editable(rec, gid)
-    e["cells"] = _compact(cells)
-    e["when"] = time.strftime("%Y-%m-%d %H:%M:%S")
-    _save_set(bid, rec)
-    return {"id": e["id"], "cells": len(cells), "left": exclusive(bid, bp, [e["id"]])}
-
-
-def page_fields(bp: dict, page: int) -> list[dict]:
-    """Every field on the page with its code and box: what can be added to a block by clicking it."""
-    out = []
-    for n, s in (bp.get("fields") or {}).items():
-        if not isinstance(s, dict) or s.get("x_petey_id") is None:
-            continue
-        ws = [s["widget"]] if s.get("widget") else list((s.get("widgets") or {}).values())
-        r = _rect(bp, n)
-        if r and ws and all(w.get("page") == page for w in ws):
-            out.append({"name": n, "code": str(s["x_petey_id"]), "rect": r})
-    return out
 
 
 def _rect(bp: dict, name: str):
@@ -744,12 +546,12 @@ def _title(bbox, page_lines, heads=None, captions=()) -> Optional[str]:
     return best[1] if best else None
 
 
-def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> list[dict]:
+def tables(bp: dict, bid: Optional[str] = None) -> list[dict]:
     """[{id, page, kind, rows, cols, lines, positions, title, bbox, cells: [{name, rect, row, col}], on_pattern, why,
-    source, status, from, into}] for every numbered table and block, in page order; with `bid`, the form's kept
-    grids (`listing`: ids that last, cancelled ones, the person's and combined ones). `lines` is how many rows (or
-    blocks) it numbers, `positions` each column (or a block's field) with its wording and the caption printed for
-    it."""
+    source, status, from, into}] for every numbered grid, in page order; with `bid`, the form's kept grids
+    (`listing`: ids that last, cancelled ones, the person's and combined ones). `lines` is how many rows (or columns,
+    when the columns are numbered) it numbers, `positions` each column (or row) with its wording and the caption
+    printed for it."""
     blank = resolve_blank(bp)
     page_text = _lines(blank) if blank and blank.exists() else {}
     if blank and blank.exists() and str(blank) not in _HEADS:
@@ -758,14 +560,14 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
     heads = _HEADS.get(str(blank), {}) if blank else {}
     out, n = [], {}
     if bid:
-        entries = [t for t in listing(bid, bp) if t["status"] in ("active", "cancelled") and kind in (None, t["kind"])]
+        entries = [t for t in listing(bid, bp) if t["status"] in ("active", "cancelled", "split")]
     else:
         entries = []
-        for g in G.grids(bp):
+        for g in G.grids(bp, blocks=False):
             if G.iterated(g):
                 n[g[0]["page"]] = n.get(g[0]["page"], 0) + 1
                 entries.append({"id": f"p{g[0]['page']}t{n[g[0]['page']]}", "source": "finder", "status": "active",
-                                "kind": "block" if g[0].get("block") else "table", "grid": g})
+                                "kind": "table", "grid": g})
     for e in entries:
         g = e["grid"]
         page = g[0]["page"]
@@ -776,13 +578,13 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
         ok, why = G.on_pattern(g)
         reading = "columns" if G.keyed(g) else G.breaks(g)[0]      # lines named by role or kind are the rows
         pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
-        how = "block" if g[0].get("block") else reading
+        how = reading
         body = G.body(g)
         body_names = {c["name"] for c in body}             # a totals row is outside the check (and the validation)
         positions = []
         F = G._Frame(g) if body else None      # the number that varies down a column is its N, not the last one
         same_axis = bool(F) and F.pos_axis == pos_axis
-        number = F.numbers(bp, g, page_text, {})[0] if same_axis and not G.keyed(g) else {}
+        number = F.numbers(bp, g, page_text, F.basis())[0] if same_axis and not G.keyed(g) else {}   # as standardize
         for k in sorted({c[pos_axis] for c in body}):
             pcs = [c for c in body if c[pos_axis] == k]
             wordings = sorted({(F.pat_of(c) if same_axis else (G._pattern(c["name"]) or c["name"])).replace("_N", "_#") for c in pcs})
@@ -791,8 +593,8 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
                       and (F.num_of(c) or "").isdigit() and int(F.num_of(c)) != number[c[num_axis]]) if same_axis else 0
             positions.append({"pos": k + 1, "wordings": wordings, "off": off, "caption": G.position_caption(bp, pcs, how, page_text)})
         bbox = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
-        out.append({"id": e["id"], "page": page, "kind": "block" if g[0].get("block") else "grid",
-                    **{k: e.get(k) for k in ("source", "status", "from", "into", "blocks", "parts", "type")},
+        out.append({"id": e["id"], "page": page, "kind": "grid",
+                    **{k: e.get(k) for k in ("source", "status", "from", "into", "aside_why")},
                     "lines": len({c[num_axis] for c in body}), "positions": positions, "reading": reading,
                     "rows_info": rows_info(g, body, pos_axis, num_axis), "keyed": G.keyed(g),
                     "aside": [{"row": r + 1, "why": why} for r, why in sorted(G.aside(g).items())],
@@ -808,10 +610,9 @@ def tables(bp: dict, bid: Optional[str] = None, kind: Optional[str] = None) -> l
 
 
 def rows_info(g: list[dict], body: list[dict], pos_axis: str, num_axis: str) -> dict:
-    """The table's lines (rows, or columns when the columns are numbered; a block group's blocks) as the card's
-    "rows" section says them (Andrew, 2026-10-19: "even if it's just numbers"): {kind: numerical | labelled |
-    lettered | mixed, summary, lines: [{line, number | label, numbers: every number its cells carry, cells}]}."""
-    blk = bool(g and g[0].get("block"))
+    """The grid's lines (rows, or columns when the columns are numbered) as the card says them (Andrew, 2026-10-19:
+    "even if it's just numbers"): {kind: numerical | labelled | lettered | mixed, summary, lines: [{line, number |
+    label, numbers: every number its cells carry, cells}]}."""
     if not body:
         return {"kind": "none", "summary": "no rows", "lines": []}
     if G.keyed(g):
@@ -829,7 +630,7 @@ def rows_info(g: list[dict], body: list[dict], pos_axis: str, num_axis: str) -> 
         rows.append({"line": i + 1, "number": nums.most_common(1)[0][0] if nums else None,
                      "numbers": [n for n, _ in nums.most_common()], "cells": len(cs)})
     seq = [r["number"] for r in rows]
-    noun = "blocks" if blk else ("rows" if num_axis == "row" else "columns")
+    noun = "rows" if num_axis == "row" else "columns"
     if all(n and n.isdigit() for n in seq):
         ints = [int(n) for n in seq]
         kind = "numerical"
@@ -842,27 +643,99 @@ def rows_info(g: list[dict], body: list[dict], pos_axis: str, num_axis: str) -> 
     return {"kind": kind, "summary": summary, "lines": rows}
 
 
-def standardize(bid: str, tid: str, *, apply, pos: Optional[int] = None, line: Optional[int] = None) -> dict:
-    """The card's "standardize" buttons (Andrew, 2026-10-19): one column (`pos`, 1-based), every inconsistent column
-    (neither), or one row (`line`, 1-based) renumbered. {status, steps, applied, left}; nothing accepted."""
+def standardize(bid: str, tid: str, *, apply, pos: Optional[int] = None, line: Optional[int] = None,
+                wording: Optional[str] = None) -> dict:
+    """The card's "standardize" buttons (Andrew, 2026-10-19): one position (`pos`, 1-based; with `wording`, the one the
+    person picked, `_#` or `_N` for the number), every inconsistent position (neither), or one line (`line`, 1-based)
+    renumbered. {status, steps, applied, left}; nothing accepted. `steps` say, in plain words, what was done and what
+    was left and why (2026-10-22: "it often doesn't work and never says why clearly")."""
     bp = h._load(h.working_path(bid))
     t, g = _grid(bp, tid, bid)
     if not g:
-        return {"status": "gone", "steps": ["the table is no longer found on the page (renamed or moved?)"]}
+        return {"status": "gone", "steps": ["the grid is no longer found on the page (renamed or moved?)"]}
     blank = resolve_blank(bp)
     lines = _lines(blank) if blank else {}
+    forced = {pos - 1: wording.replace("_#", "_N")} if pos and wording else None
     r = G.standardize(bp, g, lines, G.text_match_score(), positions=[pos - 1] if pos else None,
-                      lines_=[line - 1] if line else None)
-    what = f"column {pos}" if pos else f"row {line}" if line else "every column"
-    steps = [f"standardize {what}: {r['why']}"] + r["left"]
+                      lines_=[line - 1] if line else None, forced=forced)
+    what = _what(g, pos, line)
+    steps = [f"{what}: {r['why']}"] + (
+        [f"also renamed, as they held the names: {', '.join(r['pulled'][:4])}{' ...' if len(r['pulled']) > 4 else ''}"]
+        if r.get("pulled") else []) + r["left"]
     if not r["renames"]:
-        return {"status": "nothing", "steps": steps + ["no rename to make"], "applied": [], "left": r["left"]}
-    out = apply([{"field": o, "edit": {"name": n}, "why": f"grids and blocks: standardize {what} of {tid} ({r['why'][:120]})"}
+        return {"status": "nothing changed", "steps": steps, "applied": [], "left": r["left"]}
+    out = apply([{"field": o, "edit": {"name": n}, "why": f"grids: standardize {what} of {tid} ({r['why'][:120]})"}
                  for o, n in r["renames"].items()])
     if out.get("errors"):
         steps.append("not all applied: " + "; ".join(out["errors"][:3]))
-    steps.append(f"{len(out.get('changes') or [])} rename(s) applied")
-    return {"status": "standardized", "steps": steps, "applied": out.get("changes") or [], "left": r["left"]}
+    steps.append(f"{len(out.get('changes') or [])} renamed")
+    return {"status": f"{len(out.get('changes') or [])} renamed", "steps": steps, "applied": out.get("changes") or [],
+            "left": r["left"]}
+
+
+def _what(g: list[dict], pos: Optional[int], line: Optional[int]) -> str:
+    """'column 3' / 'row 2' as the grid lies on the page (positions are columns unless the grid reads by rows)."""
+    if not (pos or line):
+        return "every position"
+    pos_axis = "col" if (G.keyed(g) or G.breaks(g)[0] == "columns") else "row"
+    axis = pos_axis if pos else ("row" if pos_axis == "col" else "col")
+    return f"{'column' if axis == 'col' else 'row'} {pos or line}"
+
+
+def preview(bid: str, tid: str) -> dict:
+    """What each standardize button on the grid's card would do, without doing it (Andrew, 2026-10-22: "we need a list
+    of rows, a list of columns, and better implementation of the standardize functionality"): {pos_axis, keyed,
+    positions: [{pos, wordings: [[wording, cells]], caption, off, locked, plan}], lines: [{line, number | label,
+    numbers, cells, expect, plan}], all: plan}; a plan is {renames: [[old, new]], left: [why], why, pulled}, given
+    only where there is something off. `pos` and `line` are 1-based places on the page's axis (`pos_axis` is the
+    one the wordings run along: col, or row when the grid reads by rows)."""
+    bp = h._load(h.working_path(bid))
+    t, g = _grid(bp, tid, bid)
+    if not g:
+        raise ValueError(f"{tid} is no longer found on the page")
+    blank = resolve_blank(bp)
+    lines = _lines(blank) if blank and blank.exists() else {}
+    body = G.body(g)
+    keyed = G.keyed(g)
+    if not body:
+        return {"id": tid, "pos_axis": "col", "keyed": keyed, "positions": [], "lines": [], "all": None}
+    F = G._Frame(g)
+    pos_axis, num_axis = ("col", "row") if keyed else (F.pos_axis, F.num_axis)
+    score = G.text_match_score()
+    plan = lambda r: {"renames": sorted(r["renames"].items()), "left": r["left"], "why": r["why"],   # noqa: E731
+                      "pulled": r.get("pulled") or []}
+    number = {} if keyed else F.numbers(bp, g, lines, F.basis())[0]
+    positions = []
+    import collections
+    for k in sorted({c[pos_axis] for c in body}):
+        pcs = [c for c in body if c[pos_axis] == k]
+        ws = collections.Counter((G._pattern(c["name"]) or c["name"]) if keyed else F.pat_of(c) for c in pcs)
+        locked = not keyed and k in F.locked
+        off = 0 if keyed or locked else sum(1 for c in pcs if number.get(c[num_axis]) is not None
+                                            and (F.num_of(c) or "").isdigit() and int(F.num_of(c)) != number[c[num_axis]])
+        p = {"pos": k + 1, "wordings": [[w.replace("_N", "_#"), n] for w, n in ws.most_common()], "off": off,
+             "locked": locked, "caption": G.position_caption(bp, pcs, "columns" if pos_axis == "col" else "rows", lines)}
+        if not keyed and (len(ws) > 1 or off):
+            p["plan"] = plan(G.standardize(bp, g, lines, score, positions=[k]))
+        positions.append(p)
+    info = rows_info(g, body, pos_axis, num_axis)
+    out_lines = []
+    for ln in info["lines"]:
+        i = ln["line"] - 1
+        x = dict(ln, expect=number.get(i))
+        shifted = not keyed and x.get("number") and number.get(i) is not None and x["number"].isdigit() \
+            and int(x["number"]) != number[i]
+        if not keyed and (len(ln.get("numbers") or []) > 1 or shifted):
+            x["plan"] = plan(G.standardize(bp, g, lines, score, lines_=[i]))
+            if not x["plan"]["renames"] and not x["plan"]["left"]:       # nothing for a button to do: say why instead
+                free = [c for c in body if c[num_axis] == i and c[pos_axis] not in F.locked]
+                x.pop("plan")
+                x["note"] = "printed line numbers, kept as they are" if len(free) < len([c for c in body if c[num_axis] == i]) \
+                    else "its cells already carry its number"
+        out_lines.append(x)
+    whole = None if keyed else plan(G.standardize(bp, g, lines, score))
+    return {"id": tid, "pos_axis": pos_axis, "keyed": keyed, "summary": info["summary"], "positions": positions,
+            "lines": out_lines, "all": whole, "aside": [{"row": r + 1, "why": w} for r, w in sorted(G.aside(g).items())]}
 
 
 def _grid(bp: dict, tid: str, bid: Optional[str] = None):
@@ -874,7 +747,7 @@ def _grid(bp: dict, tid: str, bid: Optional[str] = None):
     if not want:
         return None, None
     names = {c["name"] for c in want["cells"]}
-    g = next((g for g in G.grids(bp) if {c["name"] for c in g} == names), None)
+    g = next((g for g in G.grids(bp, blocks=False) if {c["name"] for c in g} == names), None)
     return want, g
 
 
@@ -919,7 +792,7 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
     bp = h._load(h.working_path(bid))
     t, g = _grid(bp, tid, bid)
     if not g:
-        return {"status": "gone", "steps": ["the table is no longer found on the page (renamed or moved?)"]}
+        return {"status": "gone", "steps": ["the grid is no longer found on the page (renamed or moved?)"]}
     page, steps = t["page"], []
     if G.on_pattern(g)[0]:
         acc = accept(page, [c["name"] for c in G.body(g)])
@@ -939,7 +812,7 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
             r = G.resolve(bp, g, lines, G.text_match_score(), forced=forced)
             steps.append(f"resolver with Jev's wording: {r['status']} ({r['why']})")
     if r["status"] in ("fixed", "ok") and (r["renames"] or r["status"] == "ok"):
-        out = apply([{"field": o, "edit": {"name": n}, "why": "grids and blocks: " + ("Jev's wording, " if forced else "")
+        out = apply([{"field": o, "edit": {"name": n}, "why": "grids: " + ("Jev's wording, " if forced else "")
                       + "each position one wording, each line one number"} for o, n in r["renames"].items()]) \
             if r["renames"] else {"changes": [], "errors": []}
         if out.get("errors"):

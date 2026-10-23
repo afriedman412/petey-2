@@ -714,10 +714,11 @@ def _standard(name: str, spec: dict) -> str:
     return standard(name, spec)[0]
 
 
-def fixes(bp: dict) -> tuple[dict[str, str], list[str]]:
-    """({cell: new name}, [cells it cannot fix]) for every iterated grid."""
+def fixes(bp: dict, blocks: bool = True) -> tuple[dict[str, str], list[str]]:
+    """({cell: new name}, [cells it cannot fix]) for every iterated grid (`blocks=False`: tables only, as the review
+    page reads them since block groups went, 2026-10-22)."""
     ren, left = {}, []
-    for g in grids(bp):
+    for g in grids(bp, blocks=blocks):
         if not iterated(g):
             continue
         reading, probs = breaks(g)
@@ -1197,6 +1198,12 @@ class _Frame:
     def at(self, k):
         return [c for c in self.cells if c[self.pos_axis] == k]
 
+    def basis(self) -> dict:
+        """{position: its commonest wording}: what `numbers` reads a series' continuation from, the same for every
+        button and for the card's "numbered off" count (2026-10-22: a column of vehicles 3-4, continued from another
+        grid, was shown off its rows, and its button then did nothing)."""
+        return {k: collections.Counter(self.pat_of(c) for c in self.at(k)).most_common(1)[0][0] for k in self.positions}
+
     def numbers(self, bp: dict, g: list[dict], lines: dict, chosen: dict) -> tuple[dict, bool]:
         """({line index: its number or None}, lettered): one number per line, by position; letters and lettered line
         numbers (5a) keep theirs."""
@@ -1315,47 +1322,71 @@ def resolve(bp: dict, g: list[dict], lines: dict, score=None, forced: dict | Non
 
 
 def standardize(bp: dict, g: list[dict], lines: dict, score=None, positions: list[int] | None = None,
-                lines_: list[int] | None = None) -> dict:
-    """The "standardize" button on a column (Andrew, 2026-10-19): every cell of the position takes one wording, with
-    its line's number. {renames, chosen: {pos: (wording, how)}, left: [why a cell or position was left], why}.
-    The wording: the resolver's own pick (equivalent spellings settled in code, else the caption and the name-check
-    model), else the commonest wording in the column when it has a majority (the person asked for it; it is
-    reported); a column whose wordings split evenly and say different things is left. `positions` are 0-based;
-    None means every position with more than one wording; `lines_` instead names rows (0-based line indexes) to
-    renumber: each cell takes its line's number under the wording its column already has. Renames that would take a
-    name another field holds are left and said."""
+                lines_: list[int] | None = None, forced: dict | None = None) -> dict:
+    """The "standardize" buttons on the Grids card (Andrew, 2026-10-19; reworked 2026-10-22: "it often doesn't work
+    and never says why clearly"). {renames, chosen: {pos: (wording, how)}, left: [why a cell or position was left, in
+    plain words], why, pulled: [cells of other lines or positions renamed with them]}.
+
+    A position (`positions`, 0-based; None: every position with more than one wording or numbers off its lines) takes
+    one wording, each cell its line's number. The wording: `forced` (the person's pick, {pos: wording}), else the
+    resolver's (equivalent spellings settled in code, else the caption and the name-check model), else the commonest
+    when it has a majority; a position whose wordings split evenly is left, with its wordings, for the person to pick.
+    `lines_` (0-based) instead renumbers lines: each cell takes its line's number (a lettered grid: the letter most
+    of the line has) under its position's wording. Numbers come from one basis for every button (`_Frame.basis`), so
+    the card's "numbered off" and the button agree. A rename onto a name a cell of another line or position holds,
+    where that cell is itself off the pattern (a shifted series: rows 2-8 numbered 3-9), takes that cell along
+    (`pulled`); a rename onto a name some other field keeps is left and says which field and where."""
     F = _Frame(g)
-    cells, fields = F.cells, bp.get("fields") or {}
-    names = {c["name"] for c in g}
-    if lines_ is not None:                    # a row (or column) renumbered: each cell under its column's wording
-        return _standardize_lines(bp, g, lines, F, lines_)
+    forced = forced or {}
+    fields, names = bp.get("fields") or {}, {c["name"] for c in g}
+    if lines_ is not None:
+        r = _lines_renames(bp, g, lines, F, lines_)
+        full = lambda: _lines_renames(bp, g, lines, F, sorted({c[F.num_axis] for c in F.cells}))["renames"]   # noqa: E731
+    else:
+        r = _position_renames(bp, g, lines, F, score, positions, forced)
+        full = lambda: _position_renames(bp, g, lines, F, score, None, forced)["renames"]                     # noqa: E731
+    ren, left = r["renames"], r["left"]
+    pulled = _chain(ren, full, names) if any(n in names and n not in ren for n in ren.values()) else []
+    ren = _clashes(ren, fields, names, left, _where(g, fields))
+    return {"renames": ren, "chosen": r.get("chosen") or {}, "left": left, "pulled": [p for p in pulled if p in ren],
+            "why": r["why"]}
+
+
+def _position_renames(bp, g, lines, F, score, positions, forced) -> dict:
     want = [k for k in F.positions if positions is None or k in positions]
     chosen, left = {}, []
-    number0, lettered0 = F.numbers(bp, g, lines, {})
+    number0, lettered0 = F.numbers(bp, g, lines, F.basis())
     for k in want:
         pc_ = F.at(k)
         pats = collections.Counter(F.pat_of(c) for c in pc_)
+        if k in forced:
+            chosen[k] = (forced[k], "your pick")
+            continue
         if len(pats) < 2:                    # one wording: standardize when its numbers are off their lines'
             pat = next(iter(pats))
             if k not in F.locked and any(F.rename(c, pat, number0, lettered0) != c["name"] for c in pc_):
-                chosen[k] = (pat, "its wording; the numbers set to the rows'")
+                chosen[k] = (pat, "its own wording, numbered as its lines")
+            elif positions is not None:
+                left.append(f"position {k + 1}: already one wording, numbered as its lines" if k not in F.locked
+                            else f"position {k + 1}: printed line numbers, kept as they are")
             continue
         pick = same_words(pc_, F.pat_of, F.common)
-        how = "equivalent spellings, settled in code"
+        how = "the same words spelled two ways, settled in code"
         if not pick:
             cap = position_caption(bp, pc_, F.how, lines)
             pick, how = choose_wording(pc_, cap, score, F.pat_of)
         if not pick:
             p, n = pats.most_common(1)[0]
             if n > sum(pats.values()) / 2:
-                pick, how = p, f"the commonest wording ({n} of {sum(pats.values())} cells), on request"
+                pick, how = p, f"the commonest wording, {n} of {sum(pats.values())} cells"
             else:
-                left.append(f"position {k + 1}: no wording has a majority ({', '.join(f'{p} x{n}' for p, n in pats.most_common())}); left")
+                left.append(f"position {k + 1}: no wording has a majority "
+                            f"({', '.join(f'{p} x{n}' for p, n in pats.most_common())}); pick one")
                 continue
         chosen[k] = (pick, how)
     if not chosen:
-        return {"renames": {}, "chosen": {}, "left": left, "why": "nothing to standardize" if not left else "; ".join(left)}
-    number, lettered = F.numbers(bp, g, lines, {k: v[0] for k, v in chosen.items()})
+        return {"renames": {}, "chosen": {}, "left": left, "why": "nothing to change"}
+    number, lettered = F.numbers(bp, g, lines, {**F.basis(), **{k: v[0] for k, v in chosen.items()}})
     ren = {}
     for k, (pat, _how) in chosen.items():
         for c in F.at(k):
@@ -1371,44 +1402,90 @@ def standardize(bp: dict, g: list[dict], lines: dict, score=None, positions: lis
                 new = F.rename(c, pat, number, lettered)
             if new != c["name"]:
                 ren[c["name"]] = new
-    ren = _clashes(ren, fields, names, left)
     why = "; ".join(f"position {k + 1}: {p} ({how})" for k, (p, how) in sorted(chosen.items()))
-    return {"renames": ren, "chosen": {k: v for k, v in chosen.items()}, "left": left, "why": why}
+    return {"renames": ren, "chosen": dict(chosen), "left": left, "why": why}
 
 
-def _clashes(ren: dict, fields: dict, names: set, left: list) -> dict:
+def _lines_renames(bp, g, lines, F, which) -> dict:
+    """The lines in `which` renumbered: a cell whose number is not its line's takes it, under the wording most of its
+    position has (its own when the position agrees). A lettered grid: the letter most of the line's cells carry."""
+    left, ren = [], {}
+    number, lettered = F.numbers(bp, g, lines, F.basis())
+    idx = sorted({c[F.num_axis] for c in F.cells})
+    for i in which:
+        mine = [c for c in F.cells if c[F.num_axis] == i and c[F.pos_axis] not in F.locked]
+        if lettered:               # the letter most of the line carries, its printed line numbers (locked) counted
+            every = [c for c in F.cells if c[F.num_axis] == i]
+            toks = collections.Counter(F.num_of(c) for c in every if F.num_of(c))
+            if not toks:
+                continue
+            tok, n = toks.most_common(1)[0]
+            if n <= len(every) / 2 and len(toks) > 1:
+                left.append(f"line {idx.index(i) + 1 if i in idx else i + 1}: its cells carry "
+                            f"{', '.join(t for t, _ in toks.most_common())}, none a majority; rename them by hand")
+                continue
+        for c in mine:
+            pats = collections.Counter(F.pat_of(x) for x in F.at(c[F.pos_axis]))
+            pat, n = pats.most_common(1)[0]
+            if n <= sum(pats.values()) / 2 and F.pat_of(c) != pat:
+                why = (f"position {c[F.pos_axis] + 1}: no wording has a majority "
+                       f"({', '.join(p for p, _ in pats.most_common())}); standardize it first, then renumber")
+                if why not in left:                      # once per position, not once per cell
+                    left.append(why)
+                continue
+            if lettered:
+                toks_ = pat.split("_")
+                if "N" not in toks_ or F.num_of(c) == tok:
+                    continue
+                toks_[max(j for j, t in enumerate(toks_) if t == "N")] = tok
+                new = "_".join(toks_)
+            else:
+                new = F.rename(c, pat, number, lettered)
+            if new != c["name"]:
+                ren[c["name"]] = new
+    why = "; ".join(f"line {idx.index(i) + 1 if i in idx else i + 1}: "
+                    + ("its letter" if lettered else f"number {number.get(i)}") for i in which)
+    return {"renames": ren, "left": left, "why": why}
+
+
+def _chain(ren: dict, full, names: set) -> list:
+    """Cells of the grid holding a name `ren` moves onto, renamed too when the whole grid's standardizing renames them
+    (a shifted series): pulled in until nothing more moves. `full` is called once, when needed."""
+    whole = full()
+    out = []
+    while True:
+        add = {h: whole[h] for h in ren.values() if h in names and h not in ren and h in whole}
+        if not add:
+            return out
+        ren.update(add)
+        out += list(add)
+
+
+def _where(g: list[dict], fields: dict):
+    """A name's holder, said for a person: a cell of this grid by row and column, or a field elsewhere by page."""
+    at = {c["name"]: (c["row"], c["col"]) for c in g}
+
+    def where(n):
+        if n in at:
+            return f"row {at[n][0] + 1}, column {at[n][1] + 1} of this grid"
+        spec = fields.get(n) if isinstance(fields.get(n), dict) else {}
+        w = spec.get("widget") or next(iter((spec.get("widgets") or {}).values()), {})
+        return f"a field outside this grid, p{w.get('page')}" if w.get("page") else "a field outside this grid"
+    return where
+
+
+def _clashes(ren: dict, fields: dict, names: set, left: list, where=None) -> dict:
+    where = where or (lambda n: "another field")
     for o, n in list(ren.items()):
         if (n in fields and n not in ren) or (n in names and n not in ren):
-            left.append(f"{o} -> {n}: that name is another field's; left")
+            left.append(f"{o} -> {n}: {n} is taken by {where(n)}; rename that one first")
             ren.pop(o)
     targets = collections.Counter(ren.values())
     for o, n in list(ren.items()):
         if targets[n] > 1:
-            left.append(f"{o} -> {n}: two cells would share the name; left")
+            left.append(f"{o} -> {n}: two cells would both become {n}; left")
             ren.pop(o)
     return ren
-
-
-def _standardize_lines(bp: dict, g: list[dict], lines: dict, F: "_Frame", which: list[int]) -> dict:
-    """The rows (lines) named in `which` renumbered: a cell whose number is not its line's takes it, under the
-    wording most of its column has (its own when the column agrees)."""
-    fields, names, left, ren = bp.get("fields") or {}, {c["name"] for c in g}, [], {}
-    number, lettered = F.numbers(bp, g, lines, {})
-    for c in F.cells:
-        if c[F.num_axis] not in which or c[F.pos_axis] in F.locked:
-            continue
-        pats = collections.Counter(F.pat_of(x) for x in F.at(c[F.pos_axis]))
-        pat, n = pats.most_common(1)[0]
-        if n <= sum(pats.values()) / 2 and F.pat_of(c) != pat:
-            left.append(f"{c['name']}: its column has no agreed wording; left")
-            continue
-        new = F.rename(c, pat, number, lettered)
-        if new != c["name"]:
-            ren[c["name"]] = new
-    ren = _clashes(ren, fields, names, left)
-    idx = sorted({c[F.num_axis] for c in F.cells})
-    why = "; ".join(f"line {idx.index(i) + 1 if i in idx else i + 1}: number {number.get(i)}" for i in which)
-    return {"renames": ren, "chosen": {}, "left": left, "why": why}
 
 
 def text_match_score():

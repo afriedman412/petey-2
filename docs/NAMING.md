@@ -71,16 +71,15 @@ parts instead of inferring the name from structure"). Each field carries them un
         subject: first_name     # what the box is about, in the form's own words (Andrew, 2026-10-19: "subject")
         suffix: txt             # what kind of value it holds (the table above); an option group has none
         iteration: '3'          # the Nth field holding this information: 3, 12, 4a, b; absent when it occurs once
-        grid: p1-T2             # the kept grid it is a cell of (ids from the review page's Grids tab); or
-        block_group: p2-BG1     # the kept block group, with
-        block: 2                #   which block (0-based, the kept record's row)
+        grid: p1-T2             # the kept grid it is a cell of (ids from the review page's Grids tab)
         part: month             # which box of a compound value: month / day / yr, area / prefix / line,
                                 #   dollars / cents, 1 / 2 / 3 (SSN, EIN, ZIP, numbered lines); absent otherwise
 
 - `subject` and `suffix` are the name's words; `iteration` is the field's own number, the Nth field holding this
-  information (Andrew, 2026-10-19), and needs no table: `grid`, `block_group` and `block` say which kept table or
-  repeat it belongs to when it does (the kept record, `runs/hand_review/grids/<id>.json`, holds the cells' rows and
-  columns), which is how the grid checks verify the numbers; `part` says which box of one value it is.
+  information (Andrew, 2026-10-19), and needs no grid: `grid` says which kept grid it belongs to when it does (the
+  kept record, `runs/hand_review/grids/<id>.json`, holds the cells' rows and columns), which is how the grid checks
+  verify the numbers; `part` says which box of one value it is. (`block_group` / `block` went with block groups,
+  2026-10-22; a block's prefix and iteration come from its block type, `petey/validate/block_types.py`.)
   A compound value is the boxes whose subject, suffix and iteration agree and whose parts differ, as
   `eval/associate.py` reads it today.
 - A number that is not an iteration stays in the subject (`line_6`, `item_5a`, `w2`): the subject is words, and a

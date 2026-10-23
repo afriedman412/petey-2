@@ -43,3 +43,16 @@ def test_clearing_a_verdict(state):
     state.put_verdicts("t__form", {"verdicts": {"f1": {"verdict": "accept"}}})
     state.put_verdicts("t__form", {"verdicts": {"f1": None}})
     assert "f1" not in H.load_verdicts("t__form")["verdicts"]
+
+
+
+def test_reset_clears_every_verdict_and_keeps_the_record(tmp_path, monkeypatch):
+    """Andrew (2026-10-22): "a button to reset validations? (and a 'are you sure?' screen)"."""
+    import json
+    from petey.validate import hand_review as h
+    monkeypatch.setattr(h, "OUT", tmp_path)
+    assert h.reset_verdicts("t__x") == {"cleared": 0, "backup": None}
+    h.verdict_path("t__x").write_text(json.dumps({"verdicts": {"a": {"verdict": "accept"}, "b": {"verdict": "flag"}}}))
+    out = h.reset_verdicts("t__x")
+    assert out["cleared"] == 2 and not h.verdict_path("t__x").exists()
+    assert json.loads(open(out["backup"]).read())["verdicts"]["b"]["verdict"] == "flag"

@@ -97,12 +97,13 @@ def test_a_lone_block_is_checked_against_its_confirmed_type(monkeypatch, tmp_pat
     except ValueError as e:
         assert "confirm" in str(e)
     bt.confirm("t5", bp, "BT1", ["street_txt", "city_nm", "ind"])
-    assert bt.validate_block("t5", bp, "1_1")["differs"][0]["want"] == "supporter_mailing_1_street_txt"   # empty: next free
+    assert bt.validate_block("t5", bp, "1_1")["differs"][0]["want"] == "supporter_mailing_street_txt_1"   # empty: next free
     for c in ("1_1", "1_4", "1_7"):
         bt.set_parts("t5", c, None, "-")                                   # '-': no iteration
     assert bt.validate_block("t5", bp, "1_1")["ok"]
     res = bt.validate_block("t5", bp, "1_4")
-    assert not res["ok"] and res["differs"] == [{"pos": 1, "name": "physical_street_number_txt", "want": "physical_street_txt"}]
+    assert not res["ok"] and res["differs"] == [{"pos": 1, "name": "physical_street_number_txt", "want": "physical_street_txt",
+                                            "ident": {"subject": "physical_street", "suffix": "txt"}}]
 
 
 def test_a_cancelled_rename_keeps_the_name(monkeypatch, tmp_path):
@@ -160,9 +161,10 @@ def test_a_block_type_has_a_label(monkeypatch, tmp_path):
     assert bt.listing(bp, gc.load_set("t9"))[0]["label"] == ""
 
 
-def test_names_are_prefix_iteration_wording(monkeypatch, tmp_path):
-    """Andrew (2026-10-21): "for each block type [field_name]_[block iteration] and for each block: [prefix] ... so
-    you can have beneficiary_prior_spouse_1_first_nm"."""
+def test_names_are_printed_from_parts_as_every_field(monkeypatch, tmp_path):
+    """Andrew (2026-10-21): "for each block type [field_name]_[block iteration] and for each block: [prefix]"; since
+    2026-10-22 ("set up block labels to work like the rest of the field names") the parts are a field's: the block's
+    prefix and the position's subject, the position's suffix, the block's iteration, printed iteration last."""
     use_tmp_records(monkeypatch, tmp_path)
     bp = blueprint([["prior_spouse_1_first_nm", "prior_spouse_1_last_nm", "prior_spouse_1_ind"],
                     ["prior_spouse_first_nm", "prior_spouse_last_nm", "prior_spouse_ind"]])
@@ -171,10 +173,11 @@ def test_names_are_prefix_iteration_wording(monkeypatch, tmp_path):
     bt.confirm("t10", bp, "BT1", ["first_nm", "last_nm", "ind"])
     res = bt.validate_block("t10", bp, "1_4")             # the second block: no number, shares the prefix -> 2
     assert res["prefix"] == "prior_spouse" and res["iteration"] == "2"
-    assert res["differs"][0] == {"pos": 1, "name": "prior_spouse_first_nm", "want": "prior_spouse_2_first_nm"}
+    assert res["differs"][0] == {"pos": 1, "name": "prior_spouse_first_nm", "want": "prior_spouse_first_nm_2",
+                                 "ident": {"subject": "prior_spouse_first", "suffix": "nm", "iteration": "2"}}
     bt.set_parts("t10", "1_1", "beneficiary_prior_spouse", "1")
     res = bt.validate_block("t10", bp, "1_1")
-    assert res["differs"][0]["want"] == "beneficiary_prior_spouse_1_first_nm"
+    assert res["differs"][0]["want"] == "beneficiary_prior_spouse_first_nm_1"
 
 
 def test_a_block_with_fewer_boxes_is_fitted_to_a_type(monkeypatch, tmp_path):
@@ -214,7 +217,7 @@ def test_blocks_named_from_the_type_label_and_numbered(monkeypatch, tmp_path):
     bt.set_label("t12", "BT1", "Prior Spouse")
     bt.set_auto("t12", "BT1", True)
     wants = [d["want"] for d in bt.validate_block("t12", bp, "1_4")["differs"]]
-    assert wants == ["prior_spouse_2_first_nm", "prior_spouse_2_last_nm", "prior_spouse_2_ind"]
+    assert wants == ["prior_spouse_first_nm_2", "prior_spouse_last_nm_2", "prior_spouse_ind_2"]
 
 
 def test_word_variants_still_pair(monkeypatch, tmp_path):
@@ -237,24 +240,24 @@ def test_block_name_clashes(monkeypatch, tmp_path):
     """VA 21-686c BT7-5 / BT7-6 (2026-10-21): blocks whose names are swapped rename together; two blocks coming to one
     name get no renames until settled; a rename onto a name a field outside keeps is held."""
     use_tmp_records(monkeypatch, tmp_path)
-    bp = blueprint([["child_2_first_nm", "child_2_last_nm", "child_2_ind"],      # the first block carries the 2nd's
-                    ["child_1_first_nm", "child_1_last_nm", "child_1_ind"]])     # names, and the 2nd the 1st's
+    bp = blueprint([["child_first_nm_2", "child_last_nm_2", "child_ind_2"],      # the first block carries the 2nd's
+                    ["child_first_nm_1", "child_last_nm_1", "child_ind_1"]])     # names, and the 2nd the 1st's
     for b in range(2):
         bt.draw("t14", bp, 1, area(b))
     bt.confirm("t14", bp, "BT1", ["first_nm", "last_nm", "ind"])
     bt.set_label("t14", "BT1", "child")
     bt.set_auto("t14", "BT1", True)
     r = bt.block_renames("t14", bp, "1_1")
-    assert {(d["name"], d["want"]) for d in r["renames"]} >= {("child_2_first_nm", "child_1_first_nm"),
-                                                               ("child_1_first_nm", "child_2_first_nm")}   # the swap
+    assert {(d["name"], d["want"]) for d in r["renames"]} >= {("child_first_nm_2", "child_first_nm_1"),
+                                                               ("child_first_nm_1", "child_first_nm_2")}   # the swap
     bt.set_parts("t14", "1_4", None, "1")                                       # both now come to child_1
     t = bt.type_renames("t14", bp, "BT1")
     assert t["same"] == ["BT1-1", "BT1-2"] and t["renames"] == []
     bt.set_parts("t14", "1_4", None, "3")
-    bp["fields"]["child_3_ind"] = {"type": "boolean", "x_petey_id": "1_99", "widget": {"page": 1, "widget_type": "checkbox",
+    bp["fields"]["child_ind_3"] = {"type": "boolean", "x_petey_id": "1_99", "widget": {"page": 1, "widget_type": "checkbox",
                                                                                      "rect": [500, 700, 510, 710]}}
     held = bt.type_renames("t14", bp, "BT1")["held"]
-    assert [(d["name"], d["want"], d["held"]) for d in held] == [("child_1_ind", "child_3_ind", "no block")]
+    assert [(d["name"], d["want"], d["held"]) for d in held] == [("child_ind_1", "child_ind_3", "no block")]
 
 
 def test_a_block_told_apart_by_its_prefix(monkeypatch, tmp_path):
@@ -270,15 +273,15 @@ def test_a_block_told_apart_by_its_prefix(monkeypatch, tmp_path):
         bt.draw("t20", bp, 1, area(b))
     bt.confirm("t20", bp, "BT1", ["nm", "signature_dt", "ind"])
     res = bt.validate_block("t20", bp, "1_4")             # by number: alone with its prefix -> 1
-    assert res["iteration"] == "1" and res["differs"][0]["want"] == "interpreter_1_nm"
+    assert res["iteration"] == "1" and res["differs"][0]["want"] == "interpreter_nm_1"
     for code in ("1_1", "1_4"):
         bt.set_parts("t20", code, None, None, "prefix")
         res = bt.validate_block("t20", bp, code)
         assert res["ok"] and res["iteration"] is None
-    assert bt.validate_block("t20", bp, "1_7")["differs"][0]["want"] == "child_1_nm"     # still by number
+    assert bt.validate_block("t20", bp, "1_7")["differs"][0]["want"] == "child_nm_1"     # still by number
     bt.set_parts("t20", "1_4", "preparer", "", "prefix")   # two blocks on one prefix: numbered, in the type's order
-    assert bt.validate_block("t20", bp, "1_1")["differs"][0]["want"] == "preparer_1_nm"
-    assert bt.validate_block("t20", bp, "1_4")["differs"][0]["want"] == "preparer_2_nm"
+    assert bt.validate_block("t20", bp, "1_1")["differs"][0]["want"] == "preparer_nm_1"
+    assert bt.validate_block("t20", bp, "1_4")["differs"][0]["want"] == "preparer_nm_2"
     bt.set_parts("t20", "1_4", "preparer", "-", "prefix")  # ... both set to none: they clash, flagged
     bt.set_parts("t20", "1_1", None, "-", "prefix")
     rec = gc.load_set("t20")
@@ -326,4 +329,289 @@ def test_assign_pairs_by_location_not_by_name(monkeypatch, tmp_path):
     t = next(x for x in gc.load_set("t22")["types"] if x["id"] == "BT1")
     assert t["blocks"][1] == ["1_4", "1_5", "1_6"]
     res = bt.validate_block("t22", bp, "1_4")
-    assert [d["want"] for d in res["differs"]] == ["hired_1_month", "hired_1_day", "hired_1_yr"]
+    assert [d["want"] for d in res["differs"]] == ["hired_month_1", "hired_day_1", "hired_yr_1"]
+
+
+def test_a_block_reads_the_same_in_either_print_order():
+    """2026-10-22: block names were printed [prefix]_[iteration]_[wording] (child_2_city_nm); they are now printed as
+    every field's, the iteration last (child_city_nm_2). Either reads to one prefix, iteration and wordings, and a
+    number inside a wording (address_line_1) is not the block's."""
+    old = bt._read_block(["child_2_address_line_1_txt", "child_2_city_nm", "child_2_ind"])
+    new = bt._read_block(["child_address_line_1_txt_2", "child_city_nm_2", "child_ind_2"])
+    assert old == new == ("child", "2", ["address_line_1_txt", "city_nm", "ind"])
+    assert bt._read_block(["preparer_nm", "preparer_signature_dt"]) == ("preparer", None, ["nm", "signature_dt"])
+
+
+def test_a_type_is_confirmed_with_a_fields_parts(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "we just need to have the same inputs that go into the standalone fields for the block
+    fields": each position a subject, a suffix and a part; the block gives the iteration; names print as a field's."""
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([["dob_1_month", "dob_1_day", "dob_1_ind"], ["dob_2_month", "dob_2_day", "dob_2_ind"]])
+    for b in range(2):
+        bt.draw("t23", bp, 1, area(b))
+    assert bt.slot("birth_dt_month") == {"subject": "birth", "suffix": "dt", "part": "month"}
+    try:
+        bt.confirm("t23", bp, "BT1", [{"part": "month"}, {"subject": "birth"}, {"suffix": "ind"}])
+        raise AssertionError("a position with only a part")
+    except ValueError as e:
+        assert "subject or a suffix" in str(e)
+    out = bt.confirm("t23", bp, "BT1", [{"subject": "birth", "suffix": "dt", "part": "month"},
+                                        {"subject": "birth", "suffix": "dt", "part": "day"}, {"suffix": "ind"}])
+    assert out["wordings"] == ["birth_dt_month", "birth_dt_day", "ind"]
+    res = bt.validate_block("t23", bp, "1_4")
+    assert [d["want"] for d in res["differs"]] == ["dob_birth_dt_2_month", "dob_birth_dt_2_day", "dob_ind_2"]
+    assert res["differs"][0]["ident"] == {"subject": "dob_birth", "suffix": "dt", "iteration": "2", "part": "month"}
+
+
+def test_a_field_dropped_on_a_block_fills_its_empty_position(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "selected fields sometimes don't show up in a block ... can we drag fields on to a block to
+    add them?" A field dropped on a block takes the empty position of its kind nearest it, leaving the block it was in;
+    with no such position, the type grows a position only when asked."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
+    other = {"child_1_note_txt": {"type": "string", "x_petey_id": "1_99",
+                                  "widget": {"page": 1, "widget_type": "text", "rect": [50, 130, 120, 144]}}}
+    bp = blueprint(rows, other)
+    for b in range(3):
+        bt.draw("t1", bp, 1, area(b))
+    rec = gc.load_set("t1")
+    (t,) = rec["types"]
+    t["blocks"][1][1] = None                          # block 2's date left out, as a drifted box is
+    gc._save_set("t1", rec)
+
+    out = bt.add_field("t1", bp, "1_4", "1_5")
+    assert out["pos"] == 2 and not out["grew"]
+    assert gc.load_set("t1")["types"][0]["blocks"][1] == ["1_4", "1_5", "1_6"]
+
+    # block 3's date dropped on block 1, which has no empty date: nothing changes until the type may grow
+    out = bt.add_field("t1", bp, "1_1", "1_8")
+    assert out["grow_needed"] and "every position is filled" in out["why"]
+
+    # a checkbox dropped on a block whose only empty position is a text box: the kinds differ
+    rec = gc.load_set("t1")
+    rec["types"][0]["blocks"][2][1] = None
+    gc._save_set("t1", rec)
+    out = bt.add_field("t1", bp, "1_7", "1_3")
+    assert out["grow_needed"] and "other kinds" in out["why"]
+
+    # block 1's date into block 3's empty position: it leaves block 1
+    out = bt.add_field("t1", bp, "1_7", "1_2")
+    assert out["pos"] == 2 and any(s.startswith("out of BT1-1") for s in out["said"])
+    assert gc.load_set("t1")["types"][0]["blocks"][0] == ["1_1", None, "1_3"]
+
+
+def test_a_dropped_field_can_grow_its_type(monkeypatch, tmp_path):
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2)]
+    other = {"child_1_note_txt": {"type": "string", "x_petey_id": "1_99",
+                                  "widget": {"page": 1, "widget_type": "text", "rect": [50, 130, 120, 144]}}}
+    bp = blueprint(rows, other)
+    bt.draw("t2", bp, 1, area(0))
+    bt.draw("t2", bp, 1, area(1))
+    out = bt.add_field("t2", bp, "1_1", "1_99", grow=True)
+    assert out["grew"] and out["pos"] == 4
+    (t,) = gc.load_set("t2")["types"]
+    assert len(t["boxes"]) == 4 and t["boxes"][3]["dy"] == 30
+    assert t["blocks"] == [["1_1", "1_2", "1_3", "1_99"], ["1_4", "1_5", "1_6", None]]
+    assert bt.wordings(bp, t)[3] == "note_txt"
+    (y,) = bt.listing(bp, gc.load_set("t2"))
+    assert y["blocks"][1]["names"][3] is None
+
+
+def test_a_copy_drawn_off_its_layout_is_found_by_its_printed_labels(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "block detection logic could be/should be using printed labels ... the relative location
+    of labels is more important than the actual intended content of the field". The second block's date box is
+    drawn 11 pt off, so layout alone misses it; its printed labels sit where the first block's do."""
+    import pymupdf
+    from petey.validate import retype
+    use_tmp_records(monkeypatch, tmp_path)
+    pdf = tmp_path / "blank.pdf"
+    doc = pymupdf.open()
+    pg = doc.new_page(width=612, height=792)
+    for y in (100, 160):
+        pg.insert_text((50, y - 4), "Child 1 full name", fontsize=8)
+        pg.insert_text((250, y - 4), "Date of birth", fontsize=8)
+        pg.insert_text((450, y - 4), "Disabled", fontsize=8)
+    doc.save(str(pdf))
+    doc.close()
+    monkeypatch.setattr(retype, "resolve_blank", lambda bp: pdf)
+    bp = blueprint([[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2)])
+    r = bp["fields"]["child_2_birth_dt"]["widget"]["rect"]
+    r[0] += 11
+    r[2] += 11
+    bt.draw("t3", bp, 1, [45, 85, 470, 118])                  # the template, its labels inside the area
+    out = bt.detect("t3", bp, 1)
+    assert out["by_labels"] == {"BT1": [2]} and not out["empty"]
+    assert gc.load_set("t3")["types"][0]["blocks"][1] == ["1_4", "1_5", "1_6"]
+
+
+def test_labels_of_different_subjects_still_match(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "we need some tolerance on the label matching (spouse first name and child first name are
+    congruent)". The second block prints Child's where the first prints Spouse's (so its words after that sit
+    elsewhere on the line); its date box is drawn off, so only the labels find it. A block whose lines say something
+    else is no copy."""
+    import pymupdf
+    from petey.validate import retype
+    use_tmp_records(monkeypatch, tmp_path)
+    pdf = tmp_path / "blank.pdf"
+    doc = pymupdf.open()
+    pg = doc.new_page(width=612, height=792)
+    for y, who in ((100, "Spouse's"), (160, "Child's")):
+        pg.insert_text((50, y - 4), f"{who} first name", fontsize=8)
+        pg.insert_text((250, y - 4), f"{who} date of birth", fontsize=8)
+        pg.insert_text((450, y - 4), "Disabled", fontsize=8)
+    pg.insert_text((50, 216), "Employer telephone", fontsize=8)
+    pg.insert_text((250, 216), "Gross wages", fontsize=8)
+    pg.insert_text((450, 216), "Union member", fontsize=8)
+    doc.save(str(pdf))
+    doc.close()
+    monkeypatch.setattr(retype, "resolve_blank", lambda bp: pdf)
+    bp = blueprint([["spouse_first_nm", "spouse_birth_dt", "spouse_ind"], ["child_first_nm", "child_birth_dt", "child_ind"],
+                    ["employer_phone_nbr", "wages_amt", "union_ind"]])
+    for n in ("child_birth_dt", "wages_amt"):
+        r = bp["fields"][n]["widget"]["rect"]
+        r[0] += 11
+        r[2] += 11
+    bt.draw("t4", bp, 1, [45, 85, 470, 118])
+    out = bt.detect("t4", bp, 1)
+    assert out["by_labels"] == {"BT1": [2]}
+    assert [b for b in gc.load_set("t4")["types"][0]["blocks"]] == [["1_1", "1_2", "1_3"], ["1_4", "1_5", "1_6"]]
+
+
+# rescan (Andrew, 2026-10-22: "we should be able to rescan a page to allow blocks to reform")
+
+def test_a_rescan_grows_a_type_to_the_fields_repeating_in_every_block(monkeypatch, tmp_path):
+    """VA 21P-534EZ p13: each child's block held 4 of its boxes, the rest in grids since cancelled. A free field at
+    one place in every block joins the type, in reading order; one with no copy in a block does not."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
+    extra = {f"child_{b}_ssn": {"type": "string", "x_petey_id": f"1_{50 + b}",                # right of the drawn area
+                                "widget": {"page": 1, "widget_type": "text", "rect": [480, 40 + 60 * b, 540, 54 + 60 * b]}}
+             for b in (1, 2, 3)}
+    extra["lone_txt"] = {"type": "string", "x_petey_id": "1_90",                               # only by the first block
+                         "widget": {"page": 1, "widget_type": "text", "rect": [300, 120, 380, 130]}}
+    bp = blueprint(rows, extra)
+    for b in range(3):
+        bt.draw("t0", bp, 1, area(b))
+    rec = gc.load_set("t0")
+    rec["types"][0].setdefault("parts", {})["1_1"] = {"prefix": "kid", "iteration": "1"}
+    gc._save_set("t0", rec)
+    out = bt.rescan("t0", bp, 1)
+    assert out["grew"] == {"BT1": ["child_1_ssn"]}
+    t = gc.load_set("t0")["types"][0]
+    names = bt._names(bp)
+    assert [[names[c] for c in b] for b in t["blocks"]] == [r + [f"child_{b}_ssn"] for b, r in zip((1, 2, 3), rows)]
+    assert t["parts"] == {"1_1": {"prefix": "kid", "iteration": "1"}}
+
+
+def test_a_grid_split_between_blocks_is_set_aside_unless_regular(monkeypatch, tmp_path):
+    """Andrew, 2026-10-22: "grids that are split between blocks are probably not correct, unless they are very
+    uniformly shaped" ("both rows and columns can be inconsistently sized"): kept when a solid lattice, set aside when
+    another field sits inside it (VA 21P-534EZ p13: SSN boxes lined up through the children's blocks); restored by
+    hand, it stays."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
+    bp = blueprint(rows)
+    for b in range(3):
+        bt.draw("t0", bp, 1, area(b))
+    g = [{"name": n, "page": 1, "row": r, "col": c} for r, row in enumerate(rows) for c, n in enumerate(row)]
+    bp["fields"]["child_3_nm"]["widget"]["rect"][3] += 6                      # sizes may differ
+    assert gc.uniform(bp, g)
+    assert all(t["status"] == "active" for t in gc.listing("t0", bp))
+    bp["fields"]["note_txt"] = {"type": "string", "x_petey_id": "1_77",       # another field inside the grid
+                                "widget": {"page": 1, "widget_type": "text", "rect": [260, 140, 300, 150]}}
+    assert not gc.uniform(bp, g)
+    split = [t for t in gc.listing("t0", bp) if t["status"] == "split"]
+    assert split and "BT1-1" in split[0]["aside_why"]
+    gc.set_status("t0", split[0]["id"], False)                                # restored: a grid after all
+    assert next(t for t in gc.listing("t0", bp) if t["id"] == split[0]["id"])["status"] == "active"
+
+
+def test_an_empty_prefix_is_an_error_only_when_the_prefix_tells_the_block_apart(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "only raise an error when the prefix field is empty if prefix is selected"."""
+    import pytest
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2)])
+    bt.draw("t5", bp, 1, area(0))
+    bt.draw("t5", bp, 1, area(1))
+    assert bt.set_parts("t5", "1_1", "", "1", "number")["prefix"] == ""
+    (t,) = gc.load_set("t5")["types"]
+    assert bt.check_block(bp, t, t["blocks"][0])["start"] == "1"
+    with pytest.raises(ValueError, match="needs one"):
+        bt.set_parts("t5", "1_1", "", None, "prefix")
+    with pytest.raises(ValueError, match="lower case"):
+        bt.set_parts("t5", "1_1", "Child One", None, "number")
+
+
+def test_a_new_prefix_takes_the_next_number_free(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "updating the prefix doesn't automatically populate the iteration". Block 3 (child_3)
+    given the prefix spouse, its iteration left empty: spouse 1, not the 3 its names carried."""
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)])
+    for b in range(3):
+        bt.draw("t6", bp, 1, area(b))
+    bt.set_parts("t6", "1_7", "spouse", "", "number")
+    (t,) = gc.load_set("t6")["types"]
+    parts = bt.block_parts(bp, t)
+    assert parts["1_7"]["prefix"] == "spouse" and parts["1_7"]["iteration"] == "1"
+    assert parts["1_1"]["iteration"] == "1" and parts["1_4"]["iteration"] == "2"
+
+
+def test_no_field_is_in_two_blocks_the_larger_keeps_it(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "make sure no field can be in two blocks. larger blocks get precedence"."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rec = {"types": [{"id": "BT1", "boxes": [{}] * 4, "blocks": [["1_1", "1_2", "1_3", "1_4"]]},
+                     {"id": "BT2", "boxes": [{}] * 2, "blocks": [["1_3", "1_9"], ["1_4", "1_2"]],
+                      "parts": {"1_3": {"prefix": "x"}}}]}
+    gc._save_set("t7", rec)
+    got = gc.load_set("t7")
+    assert got["types"][0]["blocks"] == [["1_1", "1_2", "1_3", "1_4"]]
+    assert got["types"][1]["blocks"] == [[None, "1_9"]]                 # the block left with nothing went
+    assert got["types"][1]["parts"] == {"1_9": {"prefix": "x"}}         # its settings follow its new first box
+
+
+def test_grouping_fields_keeps_them_in_their_block(monkeypatch, tmp_path):
+    """Andrew (2026-10-22): "groups should act independently from the block logic ... creating a group shouldn't pull
+    those fields out of the block". Block 2's two checkboxes grouped into a new field (a new id): its positions point
+    at the group, and the block does not rename it."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind", f"child_{b}_other_ind"] for b in (1, 2)]
+    bp = blueprint(rows)
+    for b, row in enumerate(rows):                           # a second checkbox beside each block's first
+        y = 100 + 60 * b
+        bp["fields"][row[3]]["widget"] = {"page": 1, "widget_type": "checkbox", "rect": [470, y, 480, y + 14]}
+    bt.draw("t8", bp, 1, [45, 95, 490, 118])
+    bt.draw("t8", bp, 1, [45, 155, 490, 178])
+    (t,) = gc.load_set("t8")["types"]
+    assert t["blocks"][1] == ["1_5", "1_6", "1_7", "1_8"]
+    w1 = bp["fields"].pop("child_2_ind")["widget"]
+    w2 = bp["fields"].pop("child_2_other_ind")["widget"]
+    bp["fields"]["child_2_status"] = {"type": "category", "x_petey_id": "1_9", "widgets": {"a": w1, "b": w2}}
+    assert bt.reattach("t8", bp) == {"moved": 2, "left": 0, "merged": 0}      # only block 2 grouped: no merge
+    (t,) = gc.load_set("t8")["types"]
+    assert t["blocks"][1] == ["1_5", "1_6", "1_9", "1_9"]
+    assert all(d["name"] != "child_2_status" for d in bt.check_block(bp, t, t["blocks"][1])["differs"])
+
+
+def test_a_group_in_every_block_becomes_one_position(monkeypatch, tmp_path):
+    """Andrew (2026-10-23): "field names persist from group to block and v/v". Both blocks' two checkboxes grouped:
+    the type's two positions become one, the group's; the block names the group like any field."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind", f"child_{b}_other_ind"] for b in (1, 2)]
+    bp = blueprint(rows)
+    for b, row in enumerate(rows):
+        y = 100 + 60 * b
+        bp["fields"][row[3]]["widget"] = {"page": 1, "widget_type": "checkbox", "rect": [470, y, 480, y + 14]}
+    bt.draw("t9", bp, 1, [45, 95, 490, 118])
+    bt.draw("t9", bp, 1, [45, 155, 490, 178])
+    for b, code in ((1, "1_9"), (2, "1_10")):
+        w1 = bp["fields"].pop(f"child_{b}_ind")["widget"]
+        w2 = bp["fields"].pop(f"child_{b}_other_ind")["widget"]
+        bp["fields"][f"child_{b}_status"] = {"type": "category", "x_petey_id": code, "widgets": {"a": w1, "b": w2}}
+    assert bt.reattach("t9", bp) == {"moved": 4, "left": 0, "merged": 1}
+    (t,) = gc.load_set("t9")["types"]
+    assert len(t["boxes"]) == 3 and t["boxes"][2]["kind"] == "checkboxx2"
+    assert t["blocks"] == [["1_1", "1_2", "1_9"], ["1_5", "1_6", "1_10"]]
+    assert bt.wordings(bp, t)[2] == "status"
+    bp["fields"]["child_2_state"] = bp["fields"].pop("child_2_status")      # renamed in Groups: the block sees it
+    assert [(d["name"], d["want"]) for d in bt.check_block(bp, t, t["blocks"][1])["differs"]] == [("child_2_state", "child_2_status")]

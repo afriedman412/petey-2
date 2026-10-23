@@ -5,11 +5,11 @@ in docs/NAMING.md "Identifiers"). Each field's name is read once into its parts 
     subject      the name's words once the iteration, suffix and part are taken out
     suffix       the last word when it is a standard suffix (standardize_names.SUFFIXES); an option group has none
     iteration    the field's number (or letter) in its series, the Nth field holding this information (Andrew,
-                 2026-10-19): for a cell of a kept grid or block group, the number its row (or column) carries;
+                 2026-10-19): for a cell of a kept grid, the number its row (or column) carries;
                  elsewhere, a number that varies across otherwise identical names (parent_1_nm / parent_2_nm). A
                  lone number nothing varies against stays in the subject (line_6). No membership is needed
-    grid / block_group + block   the kept grid or block group the field is a cell of (grid_check.listing: the
-                 review page's lasting ids), from the active entries only
+    grid         the kept grid the field is a cell of (grid_check.listing: the review page's lasting ids), from the
+                 active entries only (block groups, and their block_group / block keys, gone 2026-10-22)
     part         the last word when the field is one box of a compound value (associate.compound_values)
 
 Flag rather than guess: a name that cannot be read one way is written with what is certain and listed in the report
@@ -45,8 +45,12 @@ from standardize_names import SUFFIXES, _is_group  # noqa: E402
 
 OUT = RUNS / "identifiers"
 KEY = "x_petey_identifiers"
-ORDERS = {"iteration_last": ("subject", "suffix", "iteration", "part"),   # the decided order (Andrew, 2026-10-19)
-          "old": ("subject", "iteration", "suffix", "part")}              # docs/NAMING.md before identifiers
+# a block's prefix and number lead (Andrew, 2026-10-22: "the validated names should be the guide -- [block prefix]_
+# [block iteration]_[field subject]_[field iteration] ... child_2_ssn_1 would be the first ssn field of the second
+# 'child' block"); a field in no block has neither and prints as decided 2026-10-19, its own iteration last
+ORDERS = {"iteration_last": ("block_prefix", "block_iteration", "subject", "suffix", "iteration", "part"),
+          "old": ("block_prefix", "block_iteration", "subject", "iteration", "suffix", "part")}   # docs/NAMING.md before
+IDENT_KEYS = ORDERS["iteration_last"]                                                      # identifiers
 ORDER = "iteration_last"
 
 
@@ -71,8 +75,8 @@ def _series_index(names: list[str]) -> dict[tuple, set]:
 
 
 def _membership(bid: str, bp: dict) -> tuple[dict[str, dict], dict[str, str]]:
-    """{field name: {grid | block_group, block?, expect: the number its line carries or None, keyed}} from the
-    kept list's active grids and block groups, and {name: why} for fields in two of them."""
+    """{field name: {grid, expect: the number its line carries or None, keyed}} from the kept list's active grids,
+    and {name: why} for fields in two of them."""
     out, twice = {}, {}
     for t in gc.listing(bid, bp):
         if t["status"] != "active":
@@ -91,10 +95,10 @@ def _membership(bid: str, bp: dict) -> tuple[dict[str, dict], dict[str, str]]:
             expect = {k: v.most_common(1)[0][0] for k, v in line.items() if v}
         totals = {c["name"] for c in cells} - {c["name"] for c in G.body(cells)}    # a last row of totals: not iterated
         for c in cells:
-            m = {"block_group": t["id"], "block": c["row"]} if t["kind"] == "block" else {"grid": t["id"]}
+            m = {"grid": t["id"]}
             m["expect"], m["keyed"] = expect.get(c[num_axis]), keyed or c["name"] in totals
             if c["name"] in out:
-                twice[c["name"]] = f"in {out[c['name']].get('grid') or out[c['name']].get('block_group')} and {t['id']}"
+                twice[c["name"]] = f"in {out[c['name']]['grid']} and {t['id']}"
             else:
                 out[c["name"]] = m
     return out, twice
@@ -118,9 +122,8 @@ def read(name: str, spec: dict, parts: dict[str, str], member: dict | None, seri
     its = _iter_positions(toks)
     pick = None
     if member:
-        for k in ("grid", "block_group", "block"):
-            if k in member:
-                ident[k] = member[k]
+        if "grid" in member:
+            ident["grid"] = member["grid"]
         if member["keyed"]:
             pass                                    # rows named by role or kind: the key stays in the subject
         elif member["expect"] is None:
@@ -173,9 +176,9 @@ def read_form(bid: str, bp: dict) -> dict[str, tuple[dict, list[str]]]:
     for n, s in fields.items():
         stored = s.get(KEY) if isinstance(s.get(KEY), dict) else None
         if stored:
-            ident = {k: v for k, v in stored.items() if k in ("subject", "suffix", "iteration", "part") and v not in (None, "")}
+            ident = {k: v for k, v in stored.items() if k in IDENT_KEYS and v not in (None, "")}
             m = member.get(n) or {}
-            ident.update({k: m[k] for k in ("grid", "block_group", "block") if k in m})
+            ident.update({k: m[k] for k in ("grid",) if k in m})
             flags = [twice[n]] if n in twice else []
             if print_name(ident) != n:
                 flags.append(f"the name is not what its parts print ({print_name(ident)})")
@@ -204,7 +207,7 @@ def run(bid: str, paths: dict) -> dict:
         tot["fields"] += 1
         if "part" in ident:
             tot["parts"] += 1
-        if "grid" in ident or "block_group" in ident:
+        if "grid" in ident:
             tot["in_kept"] += 1
             per_page[pg]["in_kept"] += 1
         if "iteration" in ident:
@@ -272,7 +275,7 @@ def main() -> int:
     for k, v in sorted(tot.items(), key=lambda kv: -kv[1]):
         if k.startswith("why: "):
             print(f"    {v:6}  {k[5:]}")
-    print(f"  with an iteration {tot['iterated']}; in a kept grid or block group {tot['in_kept']}; "
+    print(f"  with an iteration {tot['iterated']}; in a kept grid {tot['in_kept']}; "
           f"parts of compound values {tot['parts']}")
     print(f"  printed back in the old order: {f - tot['old_order_differs']} same, {tot['old_order_differs']} differ "
           f"({tot['old_order_differs'] / max(1, f):.1%})")

@@ -16,7 +16,7 @@ The code finds and fixes the mechanical cases; the judgment below is what the co
 
 The review page's **Grids** tab (tables) and **Blocks** tab (block groups; split apart 2026-10-18) (`petey/validate/
 grid_check.py`) outline every numbered table / block group in dots and check one in a click, lightest method first.
-Each has a lasting id (p1-T2, p2-BG1), can be cancelled (not a grid / block group), drawn around an area, or
+Each has a lasting id (p1-G2), can be cancelled (not a grid / block group), drawn around an area, or
 combined with others of its kind on the page; the form's list is kept in runs/hand_review/grids/<id>.json with
 where each came from (finder, person, combined). Only what is still unclear reaches a model:
 

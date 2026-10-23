@@ -2,8 +2,13 @@
 identifying the grids and blocks first, then using that as guidance for labeling").
 
 The finders need only box positions (eval/grid_naming.grids: columns and rows of alike boxes) and the page's printed
-captions (eval/block_groups.find: a set of fields laid out again at one step, each slot's caption repeating), so they
-run on the widgets as enumerated, with no names. What the labeler gets from them:
+captions (petey/validate/block_discovery.find, SIA since 2026-10-22: a set of fields laid out again anywhere on the
+form, each slot's caption repeating; it replaced eval/block_groups.find, the block-group finder), so they run on the
+widgets as enumerated, with no names. Where both read the same fields, the block wins: a table half inside a block is
+left out, as before (Andrew, 2026-10-22, when SIA read ACORD 90 NY's coverage x vehicle tables as "vehicles 1-2" /
+"vehicles 3-4" blocks: "that would get sorted out in the labeler anyways ... this whole system is about accuracy and
+consistency in labels"). A block reaches the labeler on a page where 2+ of its copies are. What the labeler gets
+from them:
 
     batches     a table or block group is never split across two calls (ACORD 90 NY, 2026-10-19: the vehicle
                 table's rows 3 and 4 fell in the second batch of page 1, which named them without the vehicle
@@ -34,7 +39,8 @@ def _stub(blank: Path, entries: list[dict]) -> dict:
     for w in entries:
         if not w.get("rect") or not w.get("page"):
             continue
-        fields[f"w{w['id']}"] = {"type": "string", "widget": {"page": w["page"], "rect": list(w["rect"]),
+        fields[f"w{w['id']}"] = {"type": "string", "x_petey_id": str(w["id"]),
+                                 "widget": {"page": w["page"], "rect": list(w["rect"]),
                                                                "widget_type": _KIND.get(w.get("widget_type"), "text"),
                                                                "path": w.get("path")}}
     return {"source_pdf": str(Path(blank).resolve()), "fields": fields}
@@ -43,24 +49,17 @@ def _stub(blank: Path, entries: list[dict]) -> dict:
 def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
     """{page: {"tables": [{"rows", "cols", "cells": [{"id", "row", "col"}]}],
                "blocks": [{"blocks", "slots", "cells": [{"id", "block", "slot"}]}]}} for the pages with any."""
-    import block_groups
     import grid_naming as G
     bp = _stub(blank, entries)
     out: dict[int, dict] = {}
-    try:
-        groups = block_groups.find(bp)
-    except Exception as e:                      # no page text, an odd page: the labeler runs without blocks
-        print(f"  [structure] block groups: {e}")
-        groups = []
-    inside = [{c["name"] for c in g} for g in groups]
-    tables = []
+    found = []
     for g in G.grids(bp, blocks=False):
         nrow, ncol = len({c["row"] for c in g}), len({c["col"] for c in g})
-        if nrow < 2 or ncol < 2 or len(g) < 4:
-            continue
-        if any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in inside):
-            continue
-        tables.append(g)
+        if nrow >= 2 and ncol >= 2 and len(g) >= 4:
+            found.append(g)
+    groups = _blocks(bp)
+    inside = [{c["name"] for c in g} for g in groups]
+    tables = [g for g in found if not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in inside)]
     path_of = {w["id"]: (w.get("path") or "") for w in entries}
     for g in tables:
         page = g[0]["page"]
@@ -85,6 +84,30 @@ def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
         for k, b in enumerate(st["blocks"], 1):
             b["id"] = f"B{k}"
     return {p: st for p, st in out.items() if st["tables"] or st["blocks"]}
+
+
+def _blocks(bp: dict) -> list[list[dict]]:
+    """The repeated blocks (block_discovery.find, SIA) as cells {name, page, row: the block, col: the slot}, one list
+    per page a pattern has 2+ copies on."""
+    from petey.validate import block_discovery
+    try:
+        pats = block_discovery.find(bp)
+    except Exception as e:                      # no page text, an odd page: the labeler runs without blocks
+        print(f"  [structure] blocks: {e}")
+        return []
+    page = {str(sp["x_petey_id"]): sp["widget"]["page"] for sp in bp["fields"].values()}
+    out = []
+    for p in pats:
+        copies = [[c for c in o] for o in p["slots"]]
+        by_page: dict[int, list] = {}
+        for o in copies:
+            by_page.setdefault(page[next(c for c in o if c)], []).append(o)
+        for pg, os_ in sorted(by_page.items()):
+            if len(os_) < 2:
+                continue
+            out.append([{"name": f"w{c}", "page": pg, "row": b, "col": k, "block": True}
+                        for b, o in enumerate(os_) for k, c in enumerate(o) if c])
+    return out
 
 
 def _path_tokens(path: str) -> list[str]:
@@ -288,7 +311,7 @@ BULK_RULES = (
     "a totals line): list it in \"aside\" (1-based row numbers) and label its widgets one by one in \"labels\".\n"
     "- A repeated block: say what repeats as \"entity\" (child, sibling, employer, property) and give each FIELD of "
     "the block one label (the same field in every block: name, birth_dt, present_address), with no block number; "
-    "the blocks are numbered in order and the entity leads every name (child_name_1, child_birth_dt_1).\n"
+    "the blocks are numbered in order and the entity and the block number lead every name (child_1_name, child_1_birth_dt).\n"
     "- A pair or cluster of tick boxes answering one question inside a table or block (Yes / No: will accompany you "
     "to Canada?) is one choice per block: label each box <question>.<value> (will_accompany.yes, "
     "will_accompany.no) and they become one field per block.\n"
@@ -310,7 +333,7 @@ def _rules() -> str:
     # (2026-10-19: the first pair never matched, and ACORD 90 NY's simple runs still wrote _ind)
     for a, b in (("(vehicle_make_txt, parent_first_nm)", "(vehicle_make, parent_first_name)"),
                  ("bodily_injury_limit_amt, net_income_amt", "bodily_injury_limit, net_income"),
-                 ("(child_name_1, child_birth_dt_1)", "(child_name_1, child_birth_date_1)"),
+                 ("(child_1_name, child_1_birth_dt)", "(child_1_name, child_1_birth_date)"),
                  ("name, birth_dt, present_address", "name, birth_date, present_address")):
         r = r.replace(a, b)
     r = r.replace('"columns": [{"col": 1, "label": "<slug>"}, ...]', '"columns": [{"col": 1, "label": "<slug>", "kind": "<kind>"}, ...]')
@@ -354,8 +377,10 @@ def _split(label: str) -> tuple[str, str | None]:
 
 
 def print_name(ident: dict) -> str:
-    """[subject]_[suffix]_[iteration]_[part], absent parts skipped (docs/NAMING.md "Identifiers")."""
-    return "_".join(str(ident[k]) for k in ("subject", "suffix", "iteration", "part") if ident.get(k) not in (None, ""))
+    """[block prefix]_[block iteration]_[subject]_[suffix]_[iteration]_[part], absent parts skipped (docs/NAMING.md
+    "Identifiers"; a block's prefix and number lead, Andrew 2026-10-22: child_2_ssn_1)."""
+    return "_".join(str(ident[k]) for k in ("block_prefix", "block_iteration", "subject", "suffix", "iteration", "part")
+                    if ident.get(k) not in (None, ""))
 
 
 def _slug(s) -> str:
@@ -503,9 +528,13 @@ def print_cells(page_struct: dict | None, parsed: dict, ids: set[int]) -> tuple[
                 left.append(c["id"])
                 continue
             subject, suffix = _split(lab.split(".", 1)[0])
-            if entity and not subject.startswith(entity):
-                subject = f"{entity}_{subject}" if subject else entity
-            ident = {k: v for k, v in {"subject": subject, "suffix": suffix, "iteration": str(c["block"] + 1)}.items() if v}
+            if entity:                   # [entity]_[block number]_[field] (Andrew, 2026-10-22: child_2_ssn_1)
+                if subject == entity or subject.startswith(entity + "_"):
+                    subject = subject[len(entity) + 1:]
+                ident = {"block_prefix": entity, "block_iteration": str(c["block"] + 1), "subject": subject, "suffix": suffix}
+            else:                        # no entity to lead: the number last, as a field's own
+                ident = {"subject": subject, "suffix": suffix, "iteration": str(c["block"] + 1)}
+            ident = {k: v for k, v in ident.items() if v}
             names[c["id"]], pt = _emit(ident, lab)
             if pt is not None:
                 kind = kinds.get(("slot", c["slot"] + 1))

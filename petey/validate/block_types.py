@@ -317,22 +317,174 @@ def draw(bid: str, bp: dict, page: int, rect) -> dict:
             "left": left}
 
 
+LABEL_TOL = 3.0           # points: a printed line starts within this of the template's, across (typeset text does not
+                          # drift as drawn boxes do)
+LABEL_TOL_Y = 10.0        # ... and within this down: a copy set more tightly moves its lower lines up (B 106D page 2,
+                          # 2026-10-22: the middle claim's description box 26 pt tall, not 34; its lines 8 pt higher
+                          # from there: 67 of 137 label words at 3 pt, 107 at 10)
+LABEL_SHARE = 0.7         # this share of the words of the type's printed lines must repeat for a place to be a copy
+LABEL_WORDS = 0.5         # two lines are one label when they share this share of the longer one's words (Andrew,
+                          # 2026-10-22: "spouse first name and child first name are congruent")
+_ENUM = re.compile(r"^[\(\[]?(\d+[a-z]?|[a-z]|[ivx]+)[\)\]\.:]?$", re.I)
+_STOP = {"of", "the", "a", "an", "if", "and", "or", "in", "to", "for", "on", "at", "by", "any"}
+_LINES: dict[tuple, list] = {}
+
+
+def _label_word(w: str) -> Optional[str]:
+    """A printed word as part of a label: lower case, a possessive dropped (spouse's -> spouse), item numbers and
+    letters dropped (10e., (b), iii) and numbers inside a word made alike (Child 1 / Child 2), since copies differ just
+    there; None for a word that is only that."""
+    w = re.sub(r"['\u2019]s$", "", w.lower().strip(".,:;()[]"))
+    if not w or _ENUM.match(w) or not re.search(r"[a-z]", w):
+        return None
+    return re.sub(r"\d+", "#", w)
+
+
+def page_lines(blank, page: int) -> list[tuple]:
+    """The page's printed lines as labels: [(words, x0, y0)], each line's words (a frozenset, `_label_word`) and
+    where it starts, read once per blank and page. A line, not a word: after "Spouse's" or "Child's" the rest of the
+    line sits further right or left, so only its start lines up."""
+    import pymupdf
+    k = (str(blank), blank.stat().st_mtime, page)
+    if k not in _LINES:
+        doc = pymupdf.open(str(blank))
+        try:
+            ws = doc[page - 1].get_text("words")
+        finally:
+            doc.close()
+        lines: dict[tuple, list] = {}
+        for w in ws:
+            lines.setdefault((w[5], w[6]), []).append(w)
+        out = []
+        for v in lines.values():
+            words = frozenset(x for x in (_label_word(w[4]) for w in v) if x)
+            if words:
+                out.append((words, min(w[0] for w in v), min(w[1] for w in v), max(w[2] for w in v), max(w[3] for w in v)))
+        _LINES[k] = out
+    return _LINES[k]
+
+
+def _alike(a: frozenset, b: frozenset) -> bool:
+    """Two printed lines that say the same thing of different subjects (spouse / child first name)."""
+    a, b = (a - _STOP) or a, (b - _STOP) or b
+    return len(a & b) >= LABEL_WORDS * max(len(a), len(b))
+
+
+def _origin(t: dict, b: list, at: dict) -> Optional[tuple]:
+    """A block's top left in the type's template frame, from the boxes it has (the median, so one drifted box does
+    not move it)."""
+    pres = [(k, at[c]) for k, c in enumerate(b) if c and c in at]
+    if not pres:
+        return None
+    xs = sorted(x["rect"][0] - t["boxes"][k]["dx"] for k, x in pres)
+    ys = sorted(x["rect"][1] - t["boxes"][k]["dy"] for k, x in pres)
+    return xs[len(xs) // 2], ys[len(ys) // 2]
+
+
+def type_labels(t: dict, blank, at: dict) -> list[tuple]:
+    """The type's printed labels, [(words, dx, dy)]: each line printed in its area, from the block's top left (Andrew,
+    2026-10-22: "the relative location of labels is more important than the actual intended content of the field"):
+    the lines whose middle is inside the area drawn for its template, else round its fullest block (20 pt above and
+    left, where captions sit)."""
+    tpl_codes = [x["code"] for x in t["boxes"]]
+    tpl = next((b for b in t["blocks"] if b == tpl_codes), None)
+    own = tpl or max(t["blocks"], key=lambda b: sum(1 for c in b if c and c in at), default=None)
+    o = _origin(t, own, at) if own else None
+    if o is None:
+        return []
+    page = next(at[c]["page"] for c in own if c and c in at)
+    if tpl is not None and t.get("rect"):
+        r = t["rect"]
+    else:
+        rs = [at[c]["rect"] for c in own if c and c in at]
+        r = [min(x[0] for x in rs) - 20, min(x[1] for x in rs) - 20, max(x[2] for x in rs) + 4, max(x[3] for x in rs) + 4]
+    return [(ws, x0 - o[0], y0 - o[1]) for ws, x0, y0, x1, y1 in page_lines(blank, page)
+            if r[0] <= (x0 + x1) / 2 <= r[2] and r[1] <= (y0 + y1) / 2 <= r[3]]
+
+
+def label_copies(t: dict, lines: list[tuple], boxes: list[dict], labs: list[tuple]) -> list[list[Optional[str]]]:
+    """The type's copies among one page's `boxes`, found by its printed labels: each place where `LABEL_SHARE` of
+    the words of the lines `labs` repeat, each starting where it does (within `LABEL_TOL`) and alike in words (`_alike`: half the
+    words, so Spouse's First Name is Child's First Name), its boxes paired with the template's by place (same kind,
+    within a quarter of the block's height or 12 pt; the size only roughly), a position with no box there left empty,
+    a copy with fewer than half the boxes dropped. Measured 2026-10-22 on the saved blocks (each looked for with the
+    others held): layout finds 826 of 852, labels 8 more (boxes drawn a few points off); no help to the 47 of 243 types
+    with no printed words in their area (rows of a table, captioned in its header), nor to a copy that prints fewer
+    labels (ACORD 80's co-applicant), which layout still finds."""
+    from scipy.optimize import linear_sum_assignment
+    if len(labs) < 2 or not boxes:
+        return []
+    def hits(ox: float, oy: float) -> int:          # words, not lines: a one-word caption (County) weighs less than
+        return sum(len(ws) for ws, dx, dy in labs     # a line of five (N-336: a US address prints no county / country)
+                   if any(abs(x0 - ox - dx) <= LABEL_TOL and abs(y0 - oy - dy) <= LABEL_TOL_Y and _alike(ws, pw)
+                          for pw, x0, y0, _, _ in lines))
+    total = sum(len(ws) for ws, _, _ in labs)
+    places: list[tuple] = []
+    for ws, dx, dy in labs:
+        for pw, x0, y0, _, _ in lines:
+            if not _alike(ws, pw):
+                continue
+            ox, oy = x0 - dx, y0 - dy
+            if not any(abs(ox - a) <= LABEL_TOL and abs(oy - b) <= LABEL_TOL_Y for a, b in places) \
+                    and hits(ox, oy) >= max(2, LABEL_SHARE * total):
+                places.append((ox, oy))
+    want = t["boxes"]
+    height = max(w["dy"] + w["h"] for w in want) - min(w["dy"] for w in want)
+    near = max(TOL, 0.25 * height, 12.0)
+    out, used = [], set()
+    for ox, oy in places:
+        cand = [b for b in boxes if b["code"] not in used]
+        if not cand:
+            break
+        cost = [[abs(b["rect"][0] - ox - w["dx"]) + abs(b["rect"][1] - oy - w["dy"]) if b["kind"] == w["kind"] else 1e6
+                 for w in want] for b in cand]
+        codes: list[Optional[str]] = [None] * len(want)
+        for i, k in zip(*linear_sum_assignment(cost)):
+            b, w = cand[i], want[k]
+            if cost[i][k] <= near and abs(b["rect"][2] - b["rect"][0] - w["w"]) <= max(near, 0.5 * w["w"]):
+                codes[k] = b["code"]
+        if 2 * sum(1 for c in codes if c) >= len(want):
+            out.append(codes)
+            used |= {c for c in codes if c}
+    return out
+
+
 def detect(bid: str, bp: dict, page: int) -> dict:
     """Every block type's copies on a page added as its blocks (Andrew, 2026-10-21: "can we detect existing block types
-    on a page?"); boxes already in a block are left where they are. {found: {type: [block numbers]}, n}."""
+    on a page?"); boxes already in a block are left where they are. First by layout (`copies_in`, exact copies), then
+    by printed labels among the boxes left (`label_copies`, 2026-10-22), whose copies can lack a box or two.
+    {found: {type: [block numbers]}, n, by_labels: {type: [block numbers]}, empty: {"BT1-3": positions empty}}."""
+    from petey.validate.retype import resolve_blank
     rec = gc.load_set(bid)
     held = {c for t in rec.get("types") or [] for b in t["blocks"] for c in b}
-    found = {}
+    found, by_labels, empty = {}, {}, {}
+    boxes = _boxes(bp)
     for t in rec.get("types") or []:
-        free = [x for x in _boxes(bp) if x["page"] == page and x["code"] not in held]
+        free = [x for x in boxes if x["page"] == page and x["code"] not in held]
         fresh = copies_in(free, t)
         if fresh:
             held |= {c for f in fresh for c in f}
             t["blocks"] = _sorted_blocks(bp, t["blocks"] + fresh)
             found[t["id"]] = [next(i for i, b in enumerate(t["blocks"], 1) if b == f) for f in fresh]
+    blank = resolve_blank(bp)
+    if blank and blank.exists():
+        at = {b["code"]: b for b in boxes}
+        lines = page_lines(blank, page)
+        for t in rec.get("types") or []:
+            free = [x for x in boxes if x["page"] == page and x["code"] not in held]
+            fresh = label_copies(t, lines, free, type_labels(t, blank, at))
+            if fresh:
+                held |= {c for f in fresh for c in f if c}
+                t["blocks"] = _sorted_blocks(bp, t["blocks"] + fresh)
+                nums = [next(i for i, b in enumerate(t["blocks"], 1) if b == f) for f in fresh]
+                by_labels[t["id"]] = nums
+                found.setdefault(t["id"], []).extend(nums)
+                for n, f in zip(nums, fresh):
+                    if None in f:
+                        empty[f"{t['id']}-{n}"] = f.count(None)
     if found:
         gc._save_set(bid, rec)
-    return {"found": found, "n": sum(len(v) for v in found.values())}
+    return {"found": found, "n": sum(len(v) for v in found.values()), "by_labels": by_labels, "empty": empty}
 
 
 FIT_MAX = 1.5            # a pair scoring above this is no pair (`fit`)
@@ -461,7 +613,8 @@ def listing(bp: dict, rec: dict, verdicts: Optional[dict] = None) -> list[dict]:
     names = {str(sp.get("x_petey_id")): n for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict)}
     out = []
     for t in rec.get("types") or []:
-        blocks, words, parts = [], wordings(bp, t), block_parts(bp, t)
+        blocks, ss, parts = [], slots(bp, t), block_parts(bp, t)
+        words = [slot_text(s) for s in ss]
         checks = type_checks(bp, t, rec)
         for i, b in enumerate(t["blocks"], 1):
             bs = [boxes[c] for c in b if c in boxes]
@@ -481,8 +634,9 @@ def listing(bp: dict, rec: dict, verdicts: Optional[dict] = None) -> list[dict]:
                                "bbox": [min(x["rect"][0] for x in bs), min(x["rect"][1] for x in bs),
                                         max(x["rect"][2] for x in bs), max(x["rect"][3] for x in bs)]})
         out.append({"id": t["id"], "label": t.get("label") or "", "auto": bool(t.get("auto")), "page": t["page"],
+                    "from": t.get("from"),
                     "boxes": len(t["boxes"]),
-                    "blocks": blocks, "wordings": words,
+                    "blocks": blocks, "wordings": words, "slots": ss,
                     "confirmed": t.get("confirmed")})
     return out
 
@@ -498,6 +652,353 @@ def remove_block(bid: str, bp: dict, code: str) -> dict:
         said_.append(f"{t['id']} dropped (no blocks left)")
     gc._save_set(bid, rec)
     return {"said": said_}
+
+
+def reattach(bid: str, bp: dict) -> dict:
+    """Block positions whose field is gone pointed at the field now at that spot (Andrew, 2026-10-22: "groups should
+    act independently from the block logic ... creating a group shouldn't pull those fields out of the block"; a new
+    group, or text boxes combined, is a new field with a new id, and the members' ids vanish from the blocks: 192
+    positions on 1095-B). The spot is the type's box placed by the block's other boxes; the field is the one with a
+    widget there (within the type's tolerance, the size roughly), so a group can fill several positions of one block,
+    one per box it covers. Saved when anything moved. {moved, left}."""
+    rec = gc.load_set(bid)
+    if not rec.get("types"):
+        return {"moved": 0, "left": 0}
+    at = {b["code"]: b for b in _boxes(bp)}
+    widgets = []                                     # (code, page, rect) of every widget, a group's each of its boxes
+    for spec in (bp.get("fields") or {}).values():
+        if not isinstance(spec, dict) or spec.get("x_petey_id") is None:
+            continue
+        for w in ([spec["widget"]] if spec.get("widget") else list((spec.get("widgets") or {}).values())):
+            if w.get("rect"):
+                widgets.append((str(spec["x_petey_id"]), w.get("page"), w["rect"]))
+    moved = left = 0
+    for t in rec["types"]:
+        T = tol(t["boxes"])
+        for i, b in enumerate(t["blocks"]):
+            gone = [k for k, c in enumerate(b) if c and c not in at]
+            if not gone:
+                continue
+            o = _origin(t, b, at)
+            pages = {at[c]["page"] for c in b if c and c in at}
+            nb = list(b)
+            for k in gone:
+                w = t["boxes"][k]
+                hit = None
+                if o is not None and len(pages) == 1:
+                    x, y = o[0] + w["dx"], o[1] + w["dy"]
+                    near = [(abs(r[0] - x) + abs(r[1] - y), c) for c, pg, r in widgets if pg in pages
+                            and abs(r[0] - x) <= T and abs(r[1] - y) <= T
+                            and abs((r[2] - r[0]) - w["w"]) <= max(T, 0.5 * w["w"])
+                            and abs((r[3] - r[1]) - w["h"]) <= max(T, 0.5 * w["h"])]
+                    hit = min(near)[1] if near else None
+                nb[k] = hit
+                moved += hit is not None
+                left += hit is None
+            t["blocks"][i] = nb
+            _rekey(t, _bid(b), _bid(nb))
+    merged = sum(merge_groups(t, bp, at) for t in rec["types"])
+    if moved or left or merged:
+        gc._save_set(bid, rec)
+    return {"moved": moved, "left": left, "merged": merged}
+
+
+def merge_groups(t: dict, bp: dict, at: Optional[dict] = None) -> int:
+    """A group over several positions in EVERY block of the type made one position of the type (Andrew, 2026-10-23:
+    "if you edit it in one window it should affect the other -- field names persist from group to block and v/v"):
+    the position's box the one around the group's boxes, its kind the group's, its wording the group's name less the
+    block's start, so the block names it, the type's matrix renames it and a rename in Groups shows there. While some
+    blocks still have those boxes apart, nothing merges (the block leaves the group's name alone, `check_block`).
+    Returns how many position sets merged."""
+    at = at if at is not None else {b["code"]: b for b in _boxes(bp)}
+    names = _names(bp)
+    merged = 0
+    while True:
+        sets = None
+        for b in t["blocks"]:
+            pos: dict = collections.defaultdict(list)
+            for k, c in enumerate(b):
+                if c:
+                    pos[c].append(k)
+            mine = {tuple(v) for v in pos.values() if len(v) > 1}
+            sets = mine if sets is None else sets & mine
+        K = sorted(sets or [], key=lambda x: x[0])
+        if not K:
+            return merged
+        K = list(K[0])
+        k0 = K[0]
+        tpl = t["blocks"][0]
+        code0 = tpl[k0]
+        bs = [t["boxes"][k] for k in K]
+        x0, y0 = min(w["dx"] for w in bs), min(w["dy"] for w in bs)
+        box = {"code": code0, "dx": x0, "dy": y0, "w": max(w["dx"] + w["w"] for w in bs) - x0,
+               "h": max(w["dy"] + w["h"] for w in bs) - y0, "kind": (at.get(code0) or {}).get("kind") or bs[0]["kind"]}
+        old_slots = slots(bp, t)
+        _, _, rest = _read_block([names.get(c) for c in dict.fromkeys(c for c in tpl if c)])
+        group_rest = dict(zip(dict.fromkeys(c for c in tpl if c), rest)).get(code0)
+        drop = set(K[1:])
+        keep_idx = [k for k in range(len(t["boxes"])) if k not in drop]
+        new_at = {k: i for i, k in enumerate(keep_idx)}
+        t["boxes"] = [box if k == k0 else t["boxes"][k] for k in keep_idx]
+        t["blocks"] = [[b[k] for k in keep_idx] for b in t["blocks"]]
+        if t.get("slots") or t.get("wordings"):
+            ss = [slot(group_rest or names.get(code0) or "group") if k == k0 else old_slots[k] for k in keep_idx]
+            t["slots"], t["wordings"] = ss, [slot_text(x) for x in ss]
+        for bk, ks in list((t.get("keep") or {}).items()):
+            t["keep"][bk] = sorted({new_at[k - 1] + 1 for k in ks if k - 1 in new_at})
+        merged += 1
+
+
+def discover(bid: str, bp: dict) -> dict:
+    """The review page's "run finders" (Andrew, 2026-10-23: "both, one button"): repeated blocks found with no type
+    drawn (block_discovery.find, SIA) among the fields in no block, each pattern saved as a new block type marked
+    `from: "finder (SIA)"`, its copies its blocks (a copy that has lost fields to a block keeps the rest, 3 or more).
+    The grid finder runs on its own each time the Grids tab loads and leaves out grids mostly inside a block, so the
+    blocks found here come first. {types: [ids], blocks, fields}."""
+    from petey.validate import block_discovery
+    rec = gc.load_set(bid)
+    rec.setdefault("types", [])
+    held = {c for t in rec["types"] for b in t["blocks"] for c in b if c}
+    at = {b["code"]: b for b in _boxes(bp)}
+    made, nb, nf = [], 0, 0
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    for p in block_discovery.find(bp):
+        copies = [[c if c and c not in held and c in at else None for c in o] for o in p["slots"]]
+        copies = [o for o in copies if sum(1 for c in o if c) >= block_discovery.MIN_BOXES]
+        if len(copies) < 2:
+            continue
+        tpl = max(copies, key=lambda o: sum(1 for c in o if c))
+        # each position's box from the copy that has it, put in the template copy's frame by the copies' shift
+        x0 = min(at[c]["rect"][0] for c in tpl if c)
+        y0 = min(at[c]["rect"][1] for c in tpl if c)
+        boxes = []
+        for k in range(len(tpl)):
+            src = tpl if tpl[k] else next((o for o in copies if o[k]), None)
+            sx = sorted(at[a]["rect"][0] - at[b]["rect"][0] for a, b in zip(tpl, src) if a and b) if src is not tpl else [0]
+            sy = sorted(at[a]["rect"][1] - at[b]["rect"][1] for a, b in zip(tpl, src) if a and b) if src is not tpl else [0]
+            r = at[src[k]]["rect"]
+            dx, dy = (sx[len(sx) // 2], sy[len(sy) // 2]) if sx and sy else (0, 0)
+            boxes.append({"code": src[k], "dx": r[0] + dx - x0, "dy": r[1] + dy - y0, "w": r[2] - r[0], "h": r[3] - r[1],
+                          "kind": at[src[k]]["kind"]})
+        rs = [at[c]["rect"] for c in tpl if c]
+        t = {"id": _new_type_id(rec), "page": at[next(c for c in tpl if c)]["page"],
+             "rect": [min(r[0] for r in rs) - 20, min(r[1] for r in rs) - 20, max(r[2] for r in rs) + 4,
+                      max(r[3] for r in rs) + 4],
+             "boxes": boxes, "blocks": _sorted_blocks(bp, copies), "when": now, "from": "finder (SIA)"}
+        rec["types"].append(t)
+        held |= {c for o in copies for c in o if c}
+        made.append(t["id"])
+        nb += len(copies)
+        nf += sum(1 for o in copies for c in o if c)
+    if made:
+        gc._save_set(bid, rec)
+    return {"types": made, "blocks": nb, "fields": nf}
+
+
+def _rekey(t: dict, old: Optional[str], new: Optional[str]) -> None:
+    """A block's settings (parts, cancelled renames) follow it when its first box, its id, changes."""
+    if old == new:
+        return
+    for key in ("parts", "keep"):
+        v = (t.get(key) or {}).pop(old, None)
+        if v is not None and new:
+            t[key][new] = v
+
+
+def _take(rec: dict, code: str, keep_in: Optional[list] = None) -> list[str]:
+    """A field out of whatever block holds it (but `keep_in`), its position left empty; a block left with no box
+    leaves its type, a type left with no blocks is dropped. What moved."""
+    said_ = []
+    for t in list(rec.get("types") or []):
+        for i, b in enumerate(list(t["blocks"])):
+            if b is keep_in or code not in b:
+                continue
+            was = _bid(b)
+            nb = [None if c == code else c for c in b]
+            if _bid(nb) is None:
+                t["blocks"].remove(b)
+                said_.append(f"a block of {t['id']} left empty and dropped")
+            else:
+                t["blocks"][t["blocks"].index(b)] = nb
+                _rekey(t, was, _bid(nb))
+                said_.append(f"out of {t['id']}-{i + 1}")
+        if not t["blocks"]:
+            rec["types"].remove(t)
+            said_.append(f"{t['id']} dropped (no blocks left)")
+    return said_
+
+
+def add_field(bid: str, bp: dict, code: str, field: str, grow: bool = False) -> dict:
+    """A field dropped on a block (Andrew, 2026-10-22: "can we drag fields on to a block to add them?" - boxes left
+    out of a block were one of the big reasons for forcing blocks to types). It takes the block's empty position of
+    its own kind nearest its place (place and size from the block's other boxes, no tolerance: the person put it
+    there); with none free, `grow` adds a position to the type, worded from the field's name and empty in the type's
+    other blocks, and without `grow` nothing changes and `grow_needed` says why. A field in another block leaves it
+    (one block per field). `field` is the field's code (x_petey_id). {type, block, pos, grew, code, said} or
+    {grow_needed, why}."""
+    rec = gc.load_set(bid)
+    t, b = _block_by_code(rec, code)
+    at = {x["code"]: x for x in _boxes(bp)}
+    f = at.get(str(field))
+    if f is None:
+        raise ValueError("that field has no box on one page, so it can't be part of a block")
+    if str(field) in b:
+        return {"type": t["id"], "block": t["blocks"].index(b) + 1, "pos": b.index(str(field)) + 1, "grew": False,
+                "code": _bid(b), "said": ["already in this block"]}
+    present = [(k, at[c]) for k, c in enumerate(b) if c and c in at]
+    if not present:
+        raise ValueError("the block has no boxes left to place the field by")
+    if f["page"] != present[0][1]["page"]:
+        raise ValueError("the field is on another page than the block")
+    want = t["boxes"]
+    ox = sorted(x["rect"][0] - want[k]["dx"] for k, x in present)[len(present) // 2]    # the block's top left in the
+    oy = sorted(x["rect"][1] - want[k]["dy"] for k, x in present)[len(present) // 2]    # template's frame
+    w_, h_ = f["rect"][2] - f["rect"][0], f["rect"][3] - f["rect"][1]
+    free = [(abs(f["rect"][0] - ox - want[k]["dx"]) + abs(f["rect"][1] - oy - want[k]["dy"])
+             + abs(w_ - want[k]["w"]) + abs(h_ - want[k]["h"]), k)
+            for k, c in enumerate(b) if c is None and want[k]["kind"] == f["kind"]]
+    if not free and not grow:
+        empty = [k + 1 for k, c in enumerate(b) if c is None]
+        why = (f"no empty position for {said(f['kind'])}" + (f" (empty: {', '.join(map(str, empty))}, other kinds)"
+                                                              if empty else " (every position is filled)"))
+        return {"grow_needed": True, "why": why, "type": t["id"]}
+    was = _bid(b)
+    said_ = _take(rec, str(field), keep_in=b)
+    names = _names(bp)
+    if free:
+        d, k = min(free)
+        nb = list(b)
+        nb[k] = str(field)
+        grew = False
+    else:                                # a new position for the type, empty in its other blocks
+        ss = slots(bp, t)                # the positions' parts as they stand, before the type changes
+        k = len(want)
+        want.append({"code": str(field), "dx": f["rect"][0] - ox, "dy": f["rect"][1] - oy, "w": w_, "h": h_,
+                     "kind": f["kind"]})
+        _, _, rest = _read_block([names.get(c) for c in b] + [names.get(str(field))])
+        ss.append(slot(rest[-1] or names.get(str(field)) or f"position_{k + 1}"))
+        if t.get("slots") or t.get("wordings"):
+            t["slots"], t["wordings"] = ss, [slot_text(s) for s in ss]
+        t["blocks"] = [x + [None] for x in t["blocks"]]
+        b = t["blocks"][[_bid(x) for x in t["blocks"]].index(was)]
+        nb = b[:-1] + [str(field)]
+        grew = True
+    i = t["blocks"].index(b)
+    t["blocks"][i] = nb
+    _rekey(t, was, _bid(nb))
+    gc._save_set(bid, rec)
+    said_.insert(0, f"{names.get(str(field), field)} in {t['id']}-{i + 1} at position {k + 1}"
+                 + (" (a new position of the type)" if grew else ""))
+    return {"type": t["id"], "block": i + 1, "pos": k + 1, "grew": grew, "code": _bid(nb), "said": said_}
+
+
+SIZE_TOL = 3.0            # points: a box's copy in another block is its size within this (place within `tol`)
+BAND_UP = 12.0            # points: a block's band starts this far above its top (a first line set a little higher)
+
+
+def _frame_at(t: dict, b: list, at: dict) -> Optional[tuple]:
+    """(page, x, y): where the block's template frame sits, from its boxes there (the median, as `add_field` does)."""
+    present = [(k, at[c]) for k, c in enumerate(b) if c and c in at]
+    if not present:
+        return None
+    want = t["boxes"]
+    ox = sorted(x["rect"][0] - want[k]["dx"] for k, x in present)[len(present) // 2]
+    oy = sorted(x["rect"][1] - want[k]["dy"] for k, x in present)[len(present) // 2]
+    return present[0][1]["page"], ox, oy
+
+
+def grow_type(bp: dict, rec: dict, t: dict, page: int) -> list[str]:
+    """`t` takes in the fields in no block that sit at one place in EVERY block of it (Andrew, 2026-10-22: "we should
+    be able to rescan a page to allow blocks to reform"; VA 21P-534EZ p13's children: the old block group held 4 of
+    each child's boxes, the rest in grids since cancelled). Candidates are the free fields in the band of a block on
+    `page` (from just above its top to the top of the type's next block on the page); one joins when every block of the
+    type, on any page, has a free field of its kind and size at the same place in its own frame (`tol`). Each is a
+    new position, worded from its name, filled in every block. The names added in the reference block."""
+    at = {x["code"]: x for x in _boxes(bp)}
+    held = {c for y in rec.get("types") or [] for b in y["blocks"] for c in b if c}
+    org = [(b, _frame_at(t, b, at)) for b in t["blocks"]]
+    org = [(b, o) for b, o in org if o]
+    if len(org) < 2:
+        return []
+    tl = tol(t["boxes"])
+    here = sorted((o for o in org if o[1][0] == page), key=lambda o: o[1][2])
+    free = [x for x in at.values() if x["code"] not in held]
+    added, names = [], _names(bp)
+    for i, (b, (pg, ox, oy)) in enumerate(here[:-1]):
+        top = min(at[c]["rect"][1] for c in b if c and c in at) - BAND_UP
+        nxt = min(at[c]["rect"][1] for c in here[i + 1][0] if c and c in at) - BAND_UP
+        for f in sorted((x for x in free if x["page"] == pg and top <= x["rect"][1] < nxt), key=_order):
+            if f["code"] in held:
+                continue
+            dx, dy = f["rect"][0] - ox, f["rect"][1] - oy
+            w, h = f["rect"][2] - f["rect"][0], f["rect"][3] - f["rect"][1]
+            row = {}
+            for b2, (pg2, ox2, oy2) in org:
+                if b2 is b:
+                    row[id(b2)] = f["code"]
+                    continue
+                cands = [x for x in free if x["page"] == pg2 and x["code"] not in held and x["kind"] == f["kind"]
+                         and abs(x["rect"][0] - ox2 - dx) <= tl and abs(x["rect"][1] - oy2 - dy) <= tl
+                         and abs(x["rect"][2] - x["rect"][0] - w) <= SIZE_TOL and abs(x["rect"][3] - x["rect"][1] - h) <= SIZE_TOL]
+                if not cands:
+                    break
+                row[id(b2)] = min(cands, key=lambda x: abs(x["rect"][0] - ox2 - dx) + abs(x["rect"][1] - oy2 - dy))["code"]
+            else:
+                if len(set(row.values())) < len(row):
+                    continue
+                ss = slots(bp, t)                # the positions' parts as they stand, before the type changes
+                t["boxes"].append({"code": f["code"], "dx": dx, "dy": dy, "w": w, "h": h, "kind": f["kind"]})
+                _, _, rest = _read_block([names.get(c) for c in b] + [names.get(f["code"])])
+                ss.append(slot(rest[-1] or names.get(f["code"]) or f"position_{len(ss) + 1}"))
+                if t.get("slots") or t.get("wordings"):
+                    t["slots"], t["wordings"] = ss, [slot_text(x) for x in ss]
+                for b2, _o in org:
+                    b2.append(row[id(b2)])
+                for b2 in t["blocks"]:           # a block with no frame (no box found) gets an empty place
+                    if len(b2) < len(t["boxes"]):
+                        b2.append(None)
+                held |= set(row.values())
+                added.append(names.get(f["code"], f["code"]))
+    if added:
+        _reorder(t)
+    return added
+
+
+def _reorder(t: dict) -> None:
+    """The type's positions in reading order (top, then left, in its frame), after positions were added at its end; a
+    block's settings follow it when its first box, its id, changes (`_rekey`), and cancelled renames their position."""
+    bx = t["boxes"]
+    order = sorted(range(len(bx)), key=lambda k: (round(bx[k]["dy"] / 4), bx[k]["dx"]))
+    if order == list(range(len(bx))):
+        return
+    new_pos = {old + 1: new + 1 for new, old in enumerate(order)}
+    old_ids = [_bid(b) for b in t["blocks"]]
+    t["boxes"] = [bx[k] for k in order]
+    t["blocks"] = [[b[k] if k < len(b) else None for k in order] for b in t["blocks"]]
+    for key in ("slots", "wordings"):
+        if t.get(key) and len(t[key]) == len(order):
+            t[key] = [t[key][k] for k in order]
+    for code, ps in (t.get("keep") or {}).items():
+        t["keep"][code] = sorted(new_pos.get(x, x) for x in ps)
+    for was, b in zip(old_ids, t["blocks"]):
+        _rekey(t, was, _bid(b))
+
+
+def rescan(bid: str, bp: dict, page: int) -> dict:
+    """The Blocks tab's "rescan this page": every block type with a block on the page grows to the free fields that
+    repeat in all its blocks (`grow_type`), then the types' copies are looked for again (`detect`). {grew: {type:
+    [names added]}, **detect's answer}."""
+    rec = gc.load_set(bid)
+    grew = {}
+    for t in rec.get("types") or []:
+        if any(_frame_at(t, b, {x["code"]: x for x in _boxes(bp)}) and any(
+                c and c in {x["code"] for x in _boxes(bp) if x["page"] == page} for c in b) for b in t["blocks"]):
+            got = grow_type(bp, rec, t, page)
+            if got:
+                grew[t["id"]] = got
+    if grew:
+        gc._save_set(bid, rec)
+    return {"grew": grew, **detect(bid, bp, page)}
 
 
 def _suffix_votes(names: list[str]) -> Optional[str]:
@@ -551,24 +1052,100 @@ def _rest(name: Optional[str], start: str) -> Optional[str]:
     return "_".join(toks[len(shared):]) if len(shared) < len(toks) else toks[-1]
 
 
-def wordings(bp: dict, t: dict) -> list[str]:
-    """Each position's wording, the part of every block's name after the block's own start (Andrew, 2026-10-21, I-134
-    BT3: supporter_mailing_ / physical_address_ / beneficiary_mailing_ then in_care_of_nm, street_address_txt, ...):
-    the confirmed ones, else the rest most of the type's blocks give, else the template block's."""
+SLOT_KEYS = ("subject", "suffix", "part")      # a position's parts; the block gives the iteration (and its prefix
+                                               # starts the subject)
+
+
+def _ids():
+    """eval/field_identifiers (the one function names are printed by) and the naming standard's suffixes."""
+    import sys
+    from pathlib import Path
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+    import field_identifiers
+    import standardize_names
+    return field_identifiers, standardize_names
+
+
+def slot(w) -> dict:
+    """A position's parts, the inputs a field's name is printed from (Andrew, 2026-10-22: "we just need to have the
+    same inputs that go into the standalone fields for the block fields"): {subject, suffix, part}, absent ones left
+    out. A wording string is read as a field name is: city_nm -> city + nm, birth_dt_month -> birth + dt + month."""
+    if isinstance(w, dict):
+        return {k: str(w[k]).strip().strip("_") for k in SLOT_KEYS if str(w.get(k) or "").strip().strip("_")}
+    _, sn = _ids()
+    toks = [x for x in str(w or "").split("_") if x]
+    out: dict = {}
+    if len(toks) > 1 and toks[-2] in sn.SUFFIXES and (toks[-1] in sn.PARTS_AFTER or toks[-1].isdigit()):
+        out["part"] = toks.pop()
+    if toks and toks[-1] in sn.SUFFIXES:
+        out["suffix"] = toks.pop()
+    if toks:
+        out["subject"] = "_".join(toks)
+    return out
+
+
+def slot_text(s: dict) -> str:
+    """A position's parts as one wording (city_nm), the way the field name prints them."""
+    return "_".join(s[k] for k in SLOT_KEYS if s.get(k))
+
+
+def _read_block(names: list[Optional[str]]) -> tuple[str, Optional[str], list[Optional[str]]]:
+    """(prefix, iteration, each name's wording) of one block's names, whichever order they were printed in
+    (child_2_city_nm, child_city_nm_2): the iteration is the number most of the names carry (at the place most of them
+    have it when a name has it twice: child_1_address_line_1_txt), the prefix the start the names share once it is
+    taken out (`block_start`), the wording what follows."""
+    from collections import Counter
+    LINE = re.compile(r"^\d+[a-z]?$")
+    toks = [n.split("_") if n else None for n in names]
+    have = [t for t in toks if t]
+    cnt = Counter(v for t in have for v in {x for x in t if LINE.match(x)})
+    it = None
+    if cnt:
+        v, k = cnt.most_common(1)[0]
+        if 2 * k > len(have):
+            it = v
+    bare = []
+    if it is not None:
+        lone = Counter(t.index(it) for t in have if t.count(it) == 1)
+        at = lone.most_common(1)[0][0] if lone else None
+        for t in toks:
+            if not t or it not in t:
+                bare.append(t)
+                continue
+            idx = [i for i, x in enumerate(t) if x == it]
+            i = at if at in idx else idx[-1]
+            bare.append(t[:i] + t[i + 1:])
+    else:
+        bare = toks
+    plain = ["_".join(t) if t else None for t in bare]
+    start = block_start([p for p in plain if p])
+    return start, it, [_rest(p, start) if p else None for p in plain]
+
+
+def slots(bp: dict, t: dict) -> list[dict]:
+    """Each position's parts: the confirmed ones (older records keep wordings, read as names are), else what most of
+    the type's blocks give once their prefix and iteration are taken out, else the template block's."""
+    if t.get("slots"):
+        return [slot(s) for s in t["slots"]]
     if t.get("wordings"):
-        return list(t["wordings"])
+        return [slot(w) for w in t["wordings"]]
     names = _names(bp)
     blocks = [[names.get(c) for c in b] for b in t["blocks"]]
     tpl = [x["code"] for x in t["boxes"]]
     own = next((b for b, codes in zip(blocks, t["blocks"]) if codes == tpl), blocks[0] if blocks else [])
-    rests = [[_rest(n, block_start(b)) for n in b] for b in blocks]
-    own_rest = [_rest(n, block_start(own)) for n in own]
+    rests = [_read_block(b)[2] for b in blocks]
+    own_rest = _read_block(own)[2] if own else []
     out = []
     for k in range(len(t["boxes"])):
-        cnt = collections.Counter(r[k] for r in rests if r[k])
+        cnt = collections.Counter(r[k] for r in rests if k < len(r) and r[k])
         top = cnt.most_common(1)
-        out.append(top[0][0] if top and 2 * top[0][1] > len(rests) else (own_rest[k] if k < len(own_rest) else "") or "")
+        out.append(slot(top[0][0] if top and 2 * top[0][1] > len(rests) else (own_rest[k] if k < len(own_rest) else "") or ""))
     return out
+
+
+def wordings(bp: dict, t: dict) -> list[str]:
+    """Each position's parts as one wording (city_nm), for the page and the older callers (`slots`)."""
+    return [slot_text(s) for s in slots(bp, t)]
 
 
 def _names(bp: dict) -> dict[str, str]:
@@ -594,7 +1171,7 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
     out = {}
     auto = _slug(t.get("label")) if t.get("auto") else ""
     for n, b in enumerate(t["blocks"], 1):
-        pre, it = _split_start(block_start([names.get(c) for c in b]))
+        pre, it, _ = _read_block([names.get(c) for c in dict.fromkeys(b)])    # a group over several positions once
         if auto:                         # named from the type's label, numbered in the type's order (Andrew, 2026-10-21)
             pre, it = auto, str(n)
         mine = set_.get(_bid(b)) or {}
@@ -603,7 +1180,11 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
         if by == "prefix":               # told apart by its prefix: a number only where the prefix repeats (set_parts)
             out[_bid(b)] = {"prefix": mine.get("prefix", pre), "iteration": own, "by": by, "set": True}
             continue
-        out[_bid(b)] = {"prefix": mine.get("prefix", pre), "iteration": own if own else it, "by": by, "set": bool(mine)}
+        # the number read from the names only while the person has set neither an iteration (left empty: the next
+        # number free) nor another prefix (Andrew, 2026-10-22: "updating the prefix doesn't automatically populate
+        # the iteration": the old prefix's number stuck)
+        read = it if "iteration" not in mine and mine.get("prefix", pre) == pre else None
+        out[_bid(b)] = {"prefix": mine.get("prefix", pre), "iteration": own if own else read, "by": by, "set": bool(mine)}
     if auto:
         for c in out:
             if out[c]["iteration"] == "-":
@@ -632,27 +1213,45 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
     return out
 
 
-def check_block(bp: dict, t: dict, block: list[str], words: Optional[list[str]] = None,
+def block_ident(prefix: Optional[str], iteration: Optional[str], s: dict) -> dict:
+    """A block field's parts: the block's prefix and number, then the position's subject, suffix and part (Andrew,
+    2026-10-22: "[block prefix]_[block iteration]_[field subject]_[field iteration] ... child_2_ssn_1 would be the first
+    ssn field of the second 'child' block"; the validated names are the guide). The prefix's last word is said once
+    when the subject starts with it (mailing + mailing_street). A block with no prefix keeps its number last
+    (field_identifiers.ORDERS: a name does not start with a number)."""
+    pt = [x for x in (prefix or "").split("_") if x]
+    st = [x for x in (s.get("subject") or "").split("_") if x]
+    while pt and st and pt[-1] == st[0] and (len(st) > 1 or s.get("suffix")):
+        st = st[1:]
+    if not pt:
+        out = {"subject": "_".join(st), "suffix": s.get("suffix"), "iteration": iteration, "part": s.get("part")}
+    else:
+        out = {"block_prefix": "_".join(pt), "block_iteration": iteration, "subject": "_".join(st),
+               "suffix": s.get("suffix"), "part": s.get("part")}
+    return {k: v for k, v in out.items() if v}
+
+
+def check_block(bp: dict, t: dict, block: list[str], words: Optional[list] = None,
                 parts: Optional[dict] = None) -> dict:
-    """A block against its type: every name [prefix]_[iteration]_[the position's wording] (`block_parts`; no
-    iteration where the person set '-'). {start, prefix, iteration, ok, differs: [{pos, name, want}], kept}."""
-    words = words or wordings(bp, t)
+    """A block against its type: every name printed from its parts as every field's is (`block_ident`,
+    field_identifiers.print_name: [block prefix]_[block iteration]_[subject]_[suffix]_[part], Andrew 2026-10-22). {start, prefix, iteration, ok, differs: [{pos, name, want,
+    ident}], kept}."""
+    fi, _ = _ids()
+    ss = [slot(w) for w in words] if words else slots(bp, t)
     names = _names(bp)
     ns = [names.get(c) for c in block]
     part = (parts or block_parts(bp, t)).get(_bid(block)) or {"prefix": block_start(ns), "iteration": None}
     start = "_".join(x for x in [part["prefix"], part["iteration"]] if x)
     keep = set((t.get("keep") or {}).get(_bid(block)) or [])         # suggestions the person cancelled: names kept
     differs_ = []
-    for k, (n, w) in enumerate(zip(ns, words)):
-        if n is None:                    # the type's box this block lacks
+    many = {c for c in block if c and block.count(c) > 1}       # a group over several positions (`reattach`): the
+    for k, (n, s) in enumerate(zip(ns, ss)):                    # Groups tab names it, not the block
+        if n is None or block[k] in many:  # the type's box this block lacks
             continue
-        st = start.split("_")
-        wt = w.split("_")
-        while st and wt and st[-1] == wt[0] and len(wt) > 1:       # the start's last word repeated: once (mailing)
-            wt = wt[1:]
-        want = "_".join([x for x in st if x] + wt) if start else w
-        if n != want and k + 1 not in keep:
-            differs_.append({"pos": k + 1, "name": n, "want": want})
+        ident = block_ident(part["prefix"], part["iteration"], s)
+        want = fi.print_name(ident)
+        if want and n != want and k + 1 not in keep:
+            differs_.append({"pos": k + 1, "name": n, "want": want, "ident": ident})
     return {"start": start, "prefix": part["prefix"], "iteration": part["iteration"], "ok": not differs_,
             "differs": differs_, "kept": sorted(keep)}
 
@@ -669,8 +1268,12 @@ def set_parts(bid: str, code: str, prefix: Optional[str], iteration: Optional[st
     mine = {}
     if prefix is not None:
         prefix = str(prefix).strip().strip("_")
-        if not re.fullmatch(r"[a-z0-9]+(_[a-z0-9]+)*", prefix):
+        if prefix and not re.fullmatch(r"[a-z0-9]+(_[a-z0-9]+)*", prefix):
             raise ValueError("a prefix is lower case words joined by _")
+        # an empty prefix is an error only for a block told apart by its prefix (Andrew, 2026-10-22); told apart by
+        # number, it is none: [wording]_[iteration]
+        if not prefix and by == "prefix":
+            raise ValueError("a block told apart by its prefix needs one")
         mine["prefix"] = prefix
     if iteration is not None:
         iteration = str(iteration).strip()
@@ -689,20 +1292,28 @@ def set_parts(bid: str, code: str, prefix: Optional[str], iteration: Optional[st
     return {"type": t["id"], **mine}
 
 
-def confirm(bid: str, bp: dict, tid: str, words: list[str]) -> dict:
-    """The type's wordings, one per position, as the person confirmed them (one each, no two alike, words only)."""
+def confirm(bid: str, bp: dict, tid: str, words: list) -> dict:
+    """The type's positions as the person confirmed them, each its parts ({subject, suffix, part}, as a field's) or
+    a wording read as a name is: one per position, each a subject or a suffix, no two alike, words only."""
     rec = gc.load_set(bid)
     t = next((x for x in rec.get("types") or [] if x["id"] == tid), None)
     if t is None:
         raise ValueError(f"no block type {tid}")
-    words = [str(w).strip().strip("_") for w in words]
-    if len(words) != len(t["boxes"]) or not all(re.fullmatch(r"[a-z0-9]+(_[a-z0-9]+)*", w) for w in words):
-        raise ValueError("one wording per position: lower case words joined by _")
-    if len(set(words)) < len(words):
-        raise ValueError("two positions with one wording")
-    t["wordings"], t["confirmed"] = words, time.strftime("%Y-%m-%d %H:%M:%S")
+    ss = [slot(w) for w in words]
+    if len(ss) != len(t["boxes"]):
+        raise ValueError("one set of parts per position")
+    for k, s in enumerate(ss, 1):
+        if not (s.get("subject") or s.get("suffix")):
+            raise ValueError(f"position {k}: a subject or a suffix")
+        bad = [x for x in s.values() if not re.fullmatch(r"[a-z0-9]+(_[a-z0-9]+)*", x)]
+        if bad:
+            raise ValueError(f"position {k}: {bad[0]!r}: lower case words joined by _")
+    texts = [slot_text(s) for s in ss]
+    if len(set(texts)) < len(texts):
+        raise ValueError("two positions with the same parts")
+    t["slots"], t["wordings"], t["confirmed"] = ss, texts, time.strftime("%Y-%m-%d %H:%M:%S")
     gc._save_set(bid, rec)
-    return {"id": tid, "wordings": words}
+    return {"id": tid, "wordings": texts, "slots": ss}
 
 
 def _slug(label: Optional[str]) -> str:

@@ -84,13 +84,22 @@ def until(fn, stopped, every: float = 0.2):
         ex.shutdown(wait=False)
 
 
-class Grids:
-    """Grids and blocks (`grid_check`): every numbered table and repeated block of the form, and one click to check
-    and validate one."""
+def page_sizes(bp: dict) -> list[dict]:
+    blank = resolve_blank(bp)
+    if not (blank and blank.exists()):
+        return []
+    doc = pymupdf.open(str(blank))
+    try:
+        return [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, start=1)]
+    finally:
+        doc.close()
 
-    def __init__(self, app: "App", kind: str = "table") -> None:
+
+class Grids:
+    """The Grids tab (`grid_check`): every numbered grid of the form, and one click to check and validate one."""
+
+    def __init__(self, app: "App") -> None:
         self.app = app
-        self.kind = kind                 # "table" (the Grids tab) or "block" (the Blocks tab: block groups), 2026-10-18
         self.running: set[tuple] = set()             # (bid, tid) of each check under way
         self.stop: set[tuple] = set()                # ... and the ones cancelled
 
@@ -98,66 +107,123 @@ class Grids:
         from petey.validate import grid_check
         p = self.app.working(bid)
         bp = hand_review._load(p)
-        blank = resolve_blank(bp)
-        pages = []
-        if blank and blank.exists():
-            doc = pymupdf.open(str(blank))
-            try:
-                pages = [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, start=1)]
-            finally:
-                doc.close()
         vs = hand_review.load_verdicts(bid).get("verdicts") or {}
-        # the form's kept grids: ids, cancelled, ... (the Blocks tab has no block groups since 2026-10-21: its block
-        # types and their blocks)
-        tabs = grid_check.tables(bp, bid, self.kind) if self.kind != "block" else []
+        tabs = grid_check.tables(bp, bid)             # the form's kept grids: ids, cancelled, ...
         for t in tabs:
-            t["dismissed"] = t.get("status") == "cancelled"
+            t["dismissed"] = t.get("status") in ("cancelled", "split")       # split: set aside by rule, restorable
             for c in t["cells"]:
                 c["accepted"] = (vs.get(c["name"]) or {}).get("verdict") == "accept"
             t["accepted"] = sum(c["accepted"] for c in t["cells"] if not c.get("total"))
             t["body"] = sum(not c.get("total") for c in t["cells"])     # validated when every one is accepted
-        out = {"id": bid, "path": str(self.app.paths[bid]), "pages": pages, "tables": tabs, "sha": hand_review._sha(p)}
-        if self.kind == "block":
-            from petey.validate import block_types
-            out["types"] = block_types.listing(bp, grid_check.load_set(bid), vs)     # block types (2026-10-21)
-        return out
+        return {"id": bid, "path": str(self.app.paths[bid]), "pages": page_sizes(bp), "tables": tabs,
+                "sha": hand_review._sha(p)}
+
+    def preview(self, bid: str, tid: str) -> dict:
+        """What each standardize button on a grid's card would do (2026-10-22)."""
+        from petey.validate import grid_check
+        return grid_check.preview(bid, tid)
 
     def dismiss(self, bid: str, tid: str, on: bool) -> dict:
-        """Cancel ("not a grid or block") a grid or block, the finder's or the person's, or restore it (2026-10-17: one
-        button, the provenance tells them apart)."""
+        """Cancel ("not a grid") a grid, the finder's or the person's, or restore it (2026-10-17: one button, the
+        provenance tells them apart)."""
         from petey.validate import grid_check
         return grid_check.set_status(bid, tid, on, hand_review._load(self.app.working(bid)))
 
-    def create(self, bid: str, page: int, rect, kind: str) -> dict:
-        """A grid or block drawn on the page: the fields inside, arranged into rows and columns."""
+    def create(self, bid: str, page: int, rect) -> dict:
+        """A grid drawn on the page: the fields inside, arranged into rows and columns."""
         from petey.validate import grid_check
-        return grid_check.create(bid, hand_review._load(self.app.working(bid)), page, rect, self.kind)
+        return grid_check.create(bid, hand_review._load(self.app.working(bid)), page, rect)
 
     def combine(self, bid: str, ids: list[str]) -> dict:
         from petey.validate import grid_check
         return grid_check.combine(bid, hand_review._load(self.app.working(bid)), ids)
 
-    def layout(self, bid: str, tid: str, blocks: list) -> dict:
-        """A block group's blocks as the person marked them, its fields paired across them (2026-10-19)."""
-        from petey.validate import grid_check
-        return grid_check.layout(bid, hand_review._load(self.app.working(bid)), tid, blocks)
+    def _apply(self, bid: str):
+        return _apply_as_claude(self.app, bid)
 
-    def cells(self, bid: str, tid: str, cells: list) -> dict:
-        """A block group's layout as edited on its card: [[field code, block, position]]."""
+    def standardize(self, bid: str, tid: str, pos=None, line=None, wording=None) -> dict:
+        """One position (with the person's pick of wording, or not), every inconsistent position, or one line of a
+        grid to one wording / its number (2026-10-19; 2026-10-22: the pick, and plain reasons)."""
         from petey.validate import grid_check
-        return grid_check.set_cells(bid, hand_review._load(self.app.working(bid)), tid, cells)
+        out = grid_check.standardize(bid, tid, apply=self._apply(bid), pos=int(pos) if pos else None,
+                                     line=int(line) if line else None, wording=wording or None)
+        self.app.refresh()
+        return {**out, "entry": self.app.entry(bid)}
+
+    def check(self, bid: str, tid: str) -> dict:
+        from petey.validate import form_chat, grid_check
+        apply = self._apply(bid)
+
+        def ask_opus(page, tid, steps):                 # this grid only (form_chat.table_request, 2026-10-21)
+            req = form_chat.table_request(bid, tid, steps)
+            return {"request": req, **form_chat.ask(bid, [{"role": "user", "content": req}], only_pages=[page])}
+        key = (bid, tid)
+        self.stop.discard(key)
+        self.running.add(key)
+        stopped = lambda: key in self.stop             # noqa: E731
+
+        def before(fn):          # a write is not started once the check is cancelled (one started runs to its end)
+            def go(*a):
+                if stopped():
+                    raise Cancelled
+                return fn(*a)
+            return go
+        try:
+            out = grid_check.check(bid, tid, accept=before(lambda page, names: self.app.accept_grid(bid, page, set(names))),
+                                   apply=before(apply), ask_opus=lambda *a: until(lambda: ask_opus(*a), stopped))
+        except Cancelled:
+            out = {"status": "cancelled", "steps": ["cancelled: nothing written after the cancel"]}
+        finally:
+            self.running.discard(key)
+            self.stop.discard(key)
+        self.app.refresh()
+        return {**out, "entry": self.app.entry(bid)}
+
+    def cancel(self, bid: str, tid: str) -> dict:
+        """Stop the check under way on one grid (Andrew, 2026-10-21: "can the cancel button cancel the validation
+        query"): nothing is written after it, and a call to Opus under way is given up."""
+        key = (bid, tid)
+        if key in self.running:
+            self.stop.add(key)
+        return {"cancelled": key in self.stop}
+
+
+def _apply_as_claude(app: "App", bid: str):
+    """Renames into the working copy as Claude's (form_chat.apply), logged with the draft."""
+    from petey.validate import form_chat
+
+    def apply(edits):
+        app.open_draft(bid)
+        before = hand_review._sha(app.working(bid))
+        out = form_chat.apply(bid, edits, [])
+        app.follow(bid, before)
+        draft.log(bid, "claude", out.get("changes") or [])
+        return out
+    return apply
+
+
+class Blocks:
+    """The Blocks tab (`block_types`, 2026-10-21): block types and their blocks; no block groups since 2026-10-22."""
+
+    def __init__(self, app: "App") -> None:
+        self.app = app
+
+    def detail(self, bid: str) -> dict:
+        from petey.validate import block_types, grid_check
+        p = self.app.working(bid)
+        bp = hand_review._load(p)
+        vs = hand_review.load_verdicts(bid).get("verdicts") or {}
+        block_types.reattach(bid, bp)           # positions whose field was regrouped or combined: the field there now
+        rec = grid_check.load_set(bid)
+        held = {c for t in rec.get("types") or [] for b in t["blocks"] for c in b if c}
+        # the fields in no block, drawn on the page to be dragged onto one (2026-10-22)
+        loose = [{"code": x["code"], "name": x["name"], "page": x["page"], "rect": x["rect"], "kind": block_types.said(x["kind"])}
+                 for x in block_types._boxes(bp) if x["code"] not in held]
+        return {"id": bid, "path": str(self.app.paths[bid]), "pages": page_sizes(bp), "sha": hand_review._sha(p),
+                "types": block_types.listing(bp, rec, vs), "loose": loose}
 
     def _apply(self, bid: str):
-        from petey.validate import form_chat
-
-        def apply(edits):
-            self.app.open_draft(bid)
-            before = hand_review._sha(self.app.working(bid))
-            out = form_chat.apply(bid, edits, [])
-            self.app.follow(bid, before)
-            draft.log(bid, "claude", out.get("changes") or [])
-            return out
-        return apply
+        return _apply_as_claude(self.app, bid)
 
     def block_draw(self, bid: str, page: int, rect) -> dict:
         """An area drawn on the Blocks tab: a block of an existing block type, or a new type (2026-10-21)."""
@@ -165,12 +231,13 @@ class Grids:
         return block_types.draw(bid, hand_review._load(self.app.working(bid)), page, rect)
 
     def type_confirm(self, bid: str, tid: str, words: list) -> dict:
-        """A block type's wordings confirmed by the person (2026-10-21)."""
+        """A block type's positions confirmed by the person (2026-10-21): each a field's parts (subject, suffix, part;
+        2026-10-22) or a wording."""
         from petey.validate import block_types
         return block_types.confirm(bid, hand_review._load(self.app.working(bid)), tid, words)
 
     def block_validate(self, bid: str, code: str) -> dict:
-        """Check & validate one block against its confirmed type, in a block group or not: its cells accepted when
+        """Check & validate one block against its confirmed type: its cells accepted when
         every name is the block's start and the type's wording (a field with a verdict keeps it)."""
         from petey.validate import block_types
         res = block_types.validate_block(bid, hand_review._load(self.app.working(bid)), code)
@@ -204,6 +271,18 @@ class Grids:
         from petey.validate import block_types
         return block_types.detect(bid, hand_review._load(self.app.working(bid)), page)
 
+    def run_finders(self, bid: str) -> dict:
+        """"run finders" (2026-10-23): SIA's repeated blocks as new block types; the Grids tab's finder then leaves out
+        what they hold when it next loads."""
+        from petey.validate import block_types
+        return block_types.discover(bid, hand_review._load(self.app.working(bid)))
+
+    def block_rescan(self, bid: str, page: int) -> dict:
+        """The page rescanned (Andrew, 2026-10-22: "we should be able to rescan a page to allow blocks to reform"): each
+        type with a block on it takes in the free fields that repeat in all its blocks, then its copies are looked for."""
+        from petey.validate import block_types
+        return block_types.rescan(bid, hand_review._load(self.app.working(bid)), page)
+
     def block_assign(self, bid: str, code: str, tid: str) -> dict:
         """A block given another block type by hand, its boxes paired by place, and its names put to the type's
         wordings at once, as Claude's renames (Andrew, 2026-10-22: "assigning a block to a type should just overwrite
@@ -211,6 +290,21 @@ class Grids:
         from petey.validate import block_types
         out = block_types.assign(bid, hand_review._load(self.app.working(bid)), code, tid)
         fix = self.block_fix(bid, out["code"])
+        return {**out, "renamed": fix["renamed"], "rename_errors": fix["errors"], "held": fix["held"], "same": fix["same"]}
+
+    def block_add_field(self, bid: str, code: str, field: str, grow: bool = False) -> dict:
+        """A field dropped on a block (2026-10-22): into the block's empty position of its kind nearest its place, or
+        a new position of the type when `grow`; then that field's name put to its position's wording (only that field:
+        the block's other names are left as they are)."""
+        from petey.validate import block_types
+        out = block_types.add_field(bid, hand_review._load(self.app.working(bid)), code, field, grow)
+        if out.get("grow_needed"):
+            return out
+        bp = hand_review._load(self.app.working(bid))
+        name = block_types._names(bp).get(str(field))
+        r = block_types.block_renames(bid, bp, out["code"])
+        fix = self._renames(bid, r["type"], [d for d in r["renames"] if d["name"] == name],
+                            [d for d in r["held"] if d["name"] == name], r["same_as"])
         return {**out, "renamed": fix["renamed"], "rename_errors": fix["errors"], "held": fix["held"], "same": fix["same"]}
 
     def type_fix(self, bid: str, tid: str) -> dict:
@@ -262,8 +356,9 @@ class Grids:
         return self._renames(bid, r["type"], r["renames"], r["held"], r["same_as"])
 
     def _renames(self, bid: str, tid: str, renames: list, held: list, same: list) -> dict:
-        edits = [{"field": d["name"], "edit": {"name": d["want"]}, "why": f"block type {tid}: the type's wording"}
-                 for d in renames]
+        # the parts go in as a field's do (the parts panel's edit): the name printed from them, the parts stored
+        edits = [{"field": d["name"], "edit": {"identifiers": d["ident"]} if d.get("ident") else {"name": d["want"]},
+                  "why": f"block type {tid}: the type's parts"} for d in renames]
         out = self._apply(bid)(edits) if edits else {"changes": [], "errors": []}
         self.app.refresh()
         return {"renamed": len(out.get("changes") or []), "errors": out.get("errors") or [],
@@ -275,49 +370,46 @@ class Grids:
         from petey.validate import block_types
         return block_types.remove_block(bid, hand_review._load(self.app.working(bid)), code)
 
-    def standardize(self, bid: str, tid: str, pos=None, line=None) -> dict:
-        """One column, every inconsistent column, or one row of a table to one wording / its number (2026-10-19)."""
-        from petey.validate import grid_check
-        out = grid_check.standardize(bid, tid, apply=self._apply(bid), pos=int(pos) if pos else None, line=int(line) if line else None)
-        self.app.refresh()
-        return {**out, "entry": self.app.entry(bid)}
 
-    def check(self, bid: str, tid: str) -> dict:
-        from petey.validate import form_chat, grid_check
-        apply = self._apply(bid)
+def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
+    """`App.overlay` for one blueprint and its verdicts."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+    import grid_naming
+    from petey.validate import block_types, grid_check
+    acc = {n for n, v in verdicts.items() if (v or {}).get("verdict") == "accept"}
+    fields = []
+    for n, sp in (bp.get("fields") or {}).items():
+        if not isinstance(sp, dict):
+            continue
+        ws = [sp["widget"]] if sp.get("widget") else list((sp.get("widgets") or {}).values())
+        rs = [{"page": w.get("page"), "rect": w.get("rect")} for w in ws if w.get("rect")]
+        if rs:
+            fields.append({"name": n, "id": str(sp.get("x_petey_id", "")), "page": rs[0]["page"], "rects": rs,
+                           "accepted": n in acc, "group": len(rs) > 1 and sp.get("type") in ("category", "multi_category")})
 
-        def ask_opus(page, tid, steps):                 # this table only (form_chat.table_request, 2026-10-21)
-            req = form_chat.table_request(bid, tid, steps)
-            return {"request": req, **form_chat.ask(bid, [{"role": "user", "content": req}], only_pages=[page])}
-        key = (bid, tid)
-        self.stop.discard(key)
-        self.running.add(key)
-        stopped = lambda: key in self.stop             # noqa: E731
-
-        def before(fn):          # a write is not started once the check is cancelled (one started runs to its end)
-            def go(*a):
-                if stopped():
-                    raise Cancelled
-                return fn(*a)
-            return go
-        try:
-            out = grid_check.check(bid, tid, accept=before(lambda page, names: self.app.accept_grid(bid, page, set(names))),
-                                   apply=before(apply), ask_opus=lambda *a: until(lambda: ask_opus(*a), stopped))
-        except Cancelled:
-            out = {"status": "cancelled", "steps": ["cancelled: nothing written after the cancel"]}
-        finally:
-            self.running.discard(key)
-            self.stop.discard(key)
-        self.app.refresh()
-        return {**out, "entry": self.app.entry(bid)}
-
-    def cancel(self, bid: str, tid: str) -> dict:
-        """Stop the check under way on one table or block group (Andrew, 2026-10-21: "can the cancel button cancel the
-        validation query"): nothing is written after it, and a call to Opus under way is given up."""
-        key = (bid, tid)
-        if key in self.running:
-            self.stop.add(key)
-        return {"cancelled": key in self.stop}
+    def bbox(rs):
+        return [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
+    grids = []
+    for t in grid_check.listing(bid, bp):
+        if t["status"] != "active":
+            continue
+        rs = [r for r in (grid_check._rect(bp, c["name"]) for c in t["grid"]) if r]
+        if rs:
+            body = grid_naming.body(t["grid"])
+            grids.append({"id": t["id"], "page": t["page"], "bbox": bbox(rs),
+                          "validated": bool(body) and all(c["name"] in acc for c in body)})
+    rec, boxes = grid_check.load_set(bid), {b["code"]: b for b in block_types._boxes(bp)}
+    name = {str(sp.get("x_petey_id")): n for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict)}
+    blocks = []
+    for y in rec.get("types") or []:
+        for i, b in enumerate(y.get("blocks") or [], 1):
+            bs = [boxes[c] for c in b if c in boxes]
+            if bs:
+                blocks.append({"id": f"{y['id']}-{i}", "label": y.get("label") or "", "page": bs[0]["page"],
+                               "bbox": bbox([x["rect"] for x in bs]),
+                               "validated": all(name.get(c) in acc for c in b if c)})
+    return {"fields": fields, "grids": grids, "blocks": blocks}
 
 
 class App:
@@ -327,12 +419,15 @@ class App:
         self.add = field_add.State()
         self.audit = Audit(self)
         self.grids = Grids(self)
-        self.blocks = Grids(self, "block")
+        self.blocks = Blocks(self)
         self.paths = self.review.paths
         self.png: dict[tuple[str, int], bytes] = {}
         self.mtimes: dict[str, float] = {}
 
     def index(self) -> None:
+        t0 = time.time()                 # parsed copies of the blueprints brought up to date on all cores first, so
+        n = hand_review.warm_parsed([self.working(b) for b in self.paths])     # both indexes below read them
+        print(f"  {n} blueprint(s) parsed again ({time.time() - t0:.1f}s)")
         self.review.index()
         self.groups.index()
         self.mtimes = {bid: self.working(bid).stat().st_mtime for bid in self.paths}
@@ -366,6 +461,14 @@ class App:
                 self.groups._index[bid] = g
             else:
                 self.groups._index.pop(bid, None)
+
+    def overlay(self, bid: str) -> dict:
+        """What every tab can draw over the page besides its own (Andrew, 2026-10-22: "add block and grid overlays and
+        validated fields to all views, so it's clear what is and isn't already accounted for"): {fields: [{name, id,
+        page, rects, accepted, group}], grids: [{id, page, bbox, validated}], blocks: [{id, page, bbox, validated}]}.
+        Boxes only, nothing checked: cheap enough to read again after every change."""
+        return overlay(hand_review._load(self.working(bid)), bid,
+                       hand_review.load_verdicts(bid).get("verdicts") or {})
 
     def entry(self, bid: str) -> dict:
         """One picker row: what each mode has recorded for this blueprint."""
@@ -423,6 +526,12 @@ class App:
         self.refresh()
         return {**out, "applied": pl.get("changes") or [], "changes": [], "skipped": pl.get("skipped") or []}
 
+    def reset_verdicts(self, bid: str) -> dict:
+        """The Review bar's "reset validation" (2026-10-22): every verdict cleared, the record kept aside."""
+        out = hand_review.reset_verdicts(bid)
+        self.review._index[bid] = self.review._entry(bid)
+        return {**out, "entry": self.entry(bid)}
+
     def put_verdicts(self, bid: str, body: dict) -> dict:
         out = self.review.put_verdicts(bid, body, on_pending=lambda: self.open_draft(bid))
         ap = self.apply_review(bid)
@@ -440,7 +549,7 @@ class App:
         import grid_naming
         bp = hand_review._load(self.working(bid))
         passed, failed = [], []
-        for g in grid_naming.grids(bp):
+        for g in grid_naming.grids(bp, blocks=False):
             if g[0]["page"] == page and grid_naming.iterated(g):
                 (passed.append(grid_naming.body(g)) if grid_naming.on_pattern(g)[0] else failed.append(g))
         return passed, failed
@@ -456,7 +565,7 @@ class App:
         import grid_naming
         bp = hand_review._load(self.working(bid))
         fields = bp.get("fields") or {}
-        ren, left = grid_naming.fixes(bp)
+        ren, left = grid_naming.fixes(bp, blocks=False)
         edits, cells, rest = [], [], []
         for g in failed:
             names = {c["name"] for c in g}
@@ -666,6 +775,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._send(png, "image/png") if png else self._send(b"no such page", "text/plain", 404)
         if len(parts) == 4 and parts[:2] == ["api", "review"] and parts[3] == "removals":
             return self._route(lambda: {"removed": field_add.load_record(parts[2]).get("removed") or []}, parts[2])
+        if len(parts) == 3 and parts[:2] == ["api", "overlay"]:       # what every tab draws besides its own
+            return self._route(lambda: APP.overlay(parts[2]), parts[2])
         if len(parts) == 3 and parts[0] == "api" and parts[1] in MODES:
             mode, bid = parts[1], parts[2]
             state = getattr(APP, mode)
@@ -680,6 +791,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         body = self._body()
         if (mode, what) == ("review", "verdicts"):
             return self._route(lambda: APP.put_verdicts(bid, body), bid)
+        if (mode, what) == ("review", "reset"):             # every verdict on the form cleared
+            return self._route(lambda: APP.reset_verdicts(bid), bid)
         if (mode, what) == ("form", "note"):                 # the notes panel: one note per form
             def note():
                 n = hand_review.set_form_note(bid, body.get("text") or "")
@@ -753,15 +866,15 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 accepted = APP.accept_grid(bid, pg, {c["name"] for g in passed for c in g})
                 if passed and not failed:            # every table on the page passes the code check: no model call
                     n = sum(len(g) for g in passed)
-                    return {"reply": f"Page {pg}: {len(passed)} table(s), {n} cell(s): each column one pattern that "
+                    return {"reply": f"Page {pg}: {len(passed)} grid(s), {n} cell(s): each column one pattern that "
                                      f"varies only by its iteration, rows numbered by steps of 1 (code check, no "
                                      f"model call).", "edits": [], "groups": [], "remove": [], "errors": [],
                             "confirmed": [], "cost_usd": 0, "accepted": accepted}
                 edits, fixed, rest = APP.code_fix(bid, failed)
                 if failed and not rest:              # the code can renumber every failing table: no model call
                     n = sum(len(g) for g in passed)
-                    return {"reply": f"Page {pg}: {len(failed)} table(s) out of order, renumbered by code ({len(edits)} "
-                                     f"rename(s)); tick and apply" + (f"; {len(passed)} table(s) already right, "
+                    return {"reply": f"Page {pg}: {len(failed)} grid(s) out of order, renumbered by code ({len(edits)} "
+                                     f"rename(s)); tick and apply" + (f"; {len(passed)} grid(s) already right, "
                                      f"{n} cell(s) accepted" if passed else "") + " (no model call).",
                             "edits": edits, "groups": [], "remove": [], "errors": [], "confirmed": fixed,
                             "cost_usd": 0, "accepted": accepted}
@@ -777,8 +890,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.blocks.block_draw(bid, int(body["page"]), body["rect"]), bid)
         if (mode, what) == ("blocks", "out"):           # a block that is no longer one
             return self._route(lambda: APP.blocks.block_out(bid, body["block"]), bid)
-        if (mode, what) == ("blocks", "confirm"):       # a block type's wordings confirmed
-            return self._route(lambda: APP.blocks.type_confirm(bid, body["type"], list(body.get("wordings") or [])), bid)
+        if (mode, what) == ("blocks", "confirm"):       # a block type's positions confirmed: parts, or wordings
+            return self._route(lambda: APP.blocks.type_confirm(bid, body["type"],
+                                                               list(body.get("slots") or body.get("wordings") or [])), bid)
         if (mode, what) == ("blocks", "bvalidate"):     # one block checked against its type, its cells accepted
             return self._route(lambda: APP.blocks.block_validate(bid, body["block"]), bid)
         if (mode, what) == ("blocks", "bparts"):        # a block's prefix and iteration
@@ -788,10 +902,17 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.blocks.type_auto(bid, body["type"], bool(body.get("on"))), bid)
         if (mode, what) == ("blocks", "tlabel"):        # a block type's label
             return self._route(lambda: APP.blocks.type_label(bid, body["type"], body.get("label") or ""), bid)
+        if (mode, what) == ("blocks", "finders"):       # the whole form: SIA's blocks as new types
+            return self._route(lambda: APP.blocks.run_finders(bid), bid)
         if (mode, what) == ("blocks", "detect"):        # every block type's copies on a page found
             return self._route(lambda: APP.blocks.block_detect(bid, int(body["page"])), bid)
+        if (mode, what) == ("blocks", "rescan"):        # blocks grown to the free fields repeating in them, then copies
+            return self._route(lambda: APP.blocks.block_rescan(bid, int(body["page"])), bid)
         if (mode, what) == ("blocks", "assign"):        # a block given another block type
             return self._route(lambda: APP.blocks.block_assign(bid, body["block"], body["type"]), bid)
+        if (mode, what) == ("blocks", "addfield"):      # a field dropped on a block
+            return self._route(lambda: APP.blocks.block_add_field(bid, body["block"], str(body["field"]),
+                                                                  bool(body.get("grow"))), bid)
         if (mode, what) == ("blocks", "tvalidate"):     # every block of a confirmed type checked and validated
             return self._route(lambda: APP.blocks.type_validate(bid, body["type"]), bid)
         if (mode, what) == ("blocks", "tfix"):          # every block of a type put to its wordings
@@ -800,23 +921,21 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.blocks.block_keep(bid, body["block"], body["pos"], bool(body.get("on", True))), bid)
         if (mode, what) == ("blocks", "bfix"):          # one block's names put to its type's wordings
             return self._route(lambda: APP.blocks.block_fix(bid, body["block"]), bid)
-        if mode in ("grids", "blocks") and what in ("check", "cancel", "dismiss", "create", "combine", "standardize", "layout",
-                                                    "cells"):
-            tab = getattr(APP, mode)                     # Grids / Blocks
-            if what == "layout":                         # the blocks marked on the page
-                return self._route(lambda: tab.layout(bid, body["table"], list(body.get("blocks") or [])), bid)
-            if what == "cells":                          # the layout edited on the card
-                return self._route(lambda: tab.cells(bid, body["table"], list(body.get("cells") or [])), bid)
+        if mode == "grids" and what in ("check", "cancel", "dismiss", "create", "combine", "standardize", "preview"):
+            tab = APP.grids
+            if what == "preview":                        # what each standardize button would do, nothing written
+                return self._route(lambda: tab.preview(bid, body["table"]), bid)
             if what == "check":                          # check and validate one
                 return self._route(lambda: tab.check(bid, body["table"]), bid)
             if what == "cancel":                         # stop the check under way on one
                 return self._route(lambda: tab.cancel(bid, body["table"]), bid)
-            if what == "standardize":                    # a column, every inconsistent column, or a row
-                return self._route(lambda: tab.standardize(bid, body["table"], body.get("pos"), body.get("line")), bid)
-            if what == "dismiss":                        # "not a grid" / "not a block group", or restore
+            if what == "standardize":                    # a position (a wording picked, or not), all of them, or a line
+                return self._route(lambda: tab.standardize(bid, body["table"], body.get("pos"), body.get("line"),
+                                                           body.get("wording")), bid)
+            if what == "dismiss":                        # "not a grid", or restore
                 return self._route(lambda: tab.dismiss(bid, body["table"], bool(body.get("on", True))), bid)
             if what == "create":                         # drawn on the page
-                return self._route(lambda: tab.create(bid, int(body["page"]), body["rect"], body.get("kind")), bid)
+                return self._route(lambda: tab.create(bid, int(body["page"]), body["rect"]), bid)
             return self._route(lambda: tab.combine(bid, list(body.get("tables") or [])), bid)   # combine, one page
         if (mode, what) == ("review", "chat_apply"):     # the ticked part of the proposal, written
             return self._route(lambda: APP.chat_apply(bid, body), bid)
