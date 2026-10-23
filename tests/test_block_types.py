@@ -538,7 +538,8 @@ def test_a_regular_grid_supersedes_the_blocks_inside_it_and_run_finders_leaves_t
         bt.draw("t1", bp, 1, area(b))
     assert [t["status"] for t in gc.listing("t1", bp)] == ["active"]
     assert not gc.load_set("t1")["types"]
-    assert bt.discover("t1", bp)["types"] == []                              # SIA does not rebuild them
+    out = bt.discover("t1", bp)
+    assert out["types"] == [] and out["grids"] == ["p1-G1"]                 # SIA does not rebuild them
 
 
 def test_an_empty_prefix_is_an_error_only_when_the_prefix_tells_the_block_apart(monkeypatch, tmp_path):

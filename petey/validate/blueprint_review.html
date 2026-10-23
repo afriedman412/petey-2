@@ -396,6 +396,11 @@
   <button class="btn" id="clashBtn" disabled title="fields that would share a name once saved corrections are applied (apply refuses them): click to outline each set in its own color, in Review">clashes</button>
   <span id="draftBar" hidden></span>
   <span class="spacer"></span>
+  <!-- the form's whole-form actions in the top bar (Andrew, 2026-10-23: "'run finders', 'accept settled' and 'reset
+       validation' can go in the top bar"); each opens the tab it works in -->
+  <button class="btn" id="hdrFinders" disabled title="the whole form: the grid finder first (a grid replaces the blocks inside it), then repeated blocks among the fields in no block and no grid (SIA), each saved as a new block type marked 'from the finder'. Opens Blocks. Keep what's right; 'not a block' on the rest">run finders</button>
+  <button class="btn" id="bulk" disabled title="accept every unreviewed field that two or more witnesses back and none disputes (opens Review)">accept settled</button>
+  <button class="btn" id="resetV" disabled title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)">reset validation</button>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
   <button class="btn" id="notesBtn" title="your notes on this form (saved as you type, shown on the home page)">notes</button>
   <button class="btn" id="chatBtn" title="ask for batch edits to this form in plain words; it proposes, you tick and apply (one Opus call per request)">chat</button>
@@ -502,6 +507,9 @@ async function init() {
   document.querySelectorAll('[data-show]').forEach(c => { c.checked = !!SHOW[c.dataset.show]; c.onchange = () => {
     SHOW[c.dataset.show] = c.checked; store('br_show', JSON.stringify(SHOW)); if (bid) placeAll(); }; });
   $('#clashBtn').onclick = async () => { if (mode !== 'review') await setMode('review'); MODE.review.toggleClashes(); };
+  $('#bulk').onclick = async () => { if (mode !== 'review') await setMode('review'); MODE.review.bulkAccept(); };
+  $('#resetV').onclick = async () => { if (mode !== 'review') await setMode('review'); MODE.review.resetValidation(); };
+  $('#hdrFinders').onclick = async e => { const b = e.currentTarget; if (mode !== 'blocks') await setMode('blocks'); MODE.blocks.runFinders(b); };
   $('#zin').onclick = () => setZoom(zoom * 1.25); $('#zout').onclick = () => setZoom(zoom / 1.25);
   $('#reboot').onclick = reboot;
   $('#chatBtn').onclick = () => toggleChat(); $('#chatClose').onclick = () => toggleChat(false);
@@ -920,7 +928,11 @@ async function setMode(m) {
   document.querySelectorAll('#canvas > div').forEach(e => e.remove());
   if (bid) await loadMode(); else renderModebar();
 }
-function renderModebar() { $('#modebar').innerHTML = M().bar(); M().bindBar(); }
+function renderModebar() {
+  $('#modebar').innerHTML = M().bar(); M().bindBar();
+  for (const id of ['hdrFinders', 'resetV']) $('#' + id).disabled = !bid;
+  if (!bid || mode !== 'review') { $('#bulk').disabled = !bid; $('#bulk').textContent = 'accept settled'; }   // the count is Review's
+}
 
 function renderPages() {
   const el = $('#pages'); el.innerHTML = '';
@@ -1628,9 +1640,8 @@ MODE.review = (() => {
     // p7 (fields not accepted / fields): a field counts on every page it has a box on
     pageLabel(p) { const fs = BP.fields.filter(f => f.rects.some(r => r.page === p)); if (!fs.length) return null;
       const u = fs.filter(f => verdictOf(f.name) !== 'accept').length; return {text: `p${p} (${u}/${fs.length})`, done: !u}; },
-    bar: () => `<span class="progress" id="progress"></span>
-      <button class="btn" id="bulk" title="accept every unreviewed field that two or more witnesses back and none disputes">accept settled</button>
-      <button class="btn" id="resetV" title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside">reset validation</button>`,
+    bar: () => `<span class="progress" id="progress"></span>`,
+    bulkAccept, resetValidation,
     help: {keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
                   ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'back to the field you were on before'],
                   ['u', 'unreviewed only on / off']],
@@ -1639,7 +1650,7 @@ MODE.review = (() => {
                   'Flag a field you cannot or do not want to fix yourself, with a note saying what is wrong: "review edits" sends flags with notes to the agent.',
                   'The note saves when you leave the box or press Enter; Shift+Enter for a new line.']},
     bindBar() {
-      $('#bulk').onclick = bulkAccept; $('#resetV').onclick = resetValidation; if (BP) progress();
+      if (BP) progress();
     },
     place() {
       const cl = clashOn ? clashGroups() : {};
@@ -2867,7 +2878,6 @@ MODE.blocks = (() => {
       const hit = blocksHere().find(x => x.b.code === r.dataset.blk); if (hit) selectBlock(hit.b); });
     a.querySelectorAll('[data-bval]').forEach(b => b.onclick = e => { e.stopPropagation(); blockValidate(b.dataset.bval); });
     if ($('#btDetect')) $('#btDetect').onclick = e => { e.stopPropagation(); blockDetect(); };
-    if ($('#btFinders')) $('#btFinders').onclick = e => { e.stopPropagation(); runFinders(e.target); };
     a.querySelectorAll('[data-refit]').forEach(b => b.onclick = e => { e.stopPropagation();
       const hit = blocksHere().find(x => x.b.code === b.dataset.refit); if (hit) blockAssign(b.dataset.refit, hit.y.id); });
     a.querySelectorAll('[data-tassign]').forEach(sel => { sel.addEventListener('keydown', e => e.stopPropagation()); sel.onclick = e => e.stopPropagation();
@@ -2945,11 +2955,8 @@ MODE.blocks = (() => {
   function blocksHtml() {
     const here = blocksHere();
     const find = (GD.types || []).length ? `<button class="btn mini" id="btDetect" title="each block type with a block on this page takes in the fields in no block that sit at the same place in every one of its blocks (cancel a grid first if it holds them); then every type's copies on the page are added as its blocks: exact copies of its layout, then places where its printed labels repeat (those can lack a box: drag it on); boxes already in a block are left">rescan this page</button>` : '';
-    // the whole form (2026-10-23, "both, one button"): SIA's repeated blocks as new types, then the Grids tab's finder
-    // leaves out what they hold
-    const fin = `<button class="btn mini" id="btFinders" title="the whole form: repeated blocks among the fields in no block, found with no type drawn (SIA), each saved as a new block type marked 'from the finder'; the Grids tab's finder then leaves out grids those blocks hold. Keep what's right; 'not a block' on the rest">run finders</button>`;
-    if (!here.length) return `<div class="btlist">${fin} ${find}</div>`;
-    return `<div class="btlist"><h4>Blocks on page ${page} (${here.length}) ${find} ${fin}</h4>${here.map(({y, b}) => {
+    if (!here.length) return `<div class="btlist">${find}</div>`;
+    return `<div class="btlist"><h4>Blocks on page ${page} (${here.length}) ${find}</h4>${here.map(({y, b}) => {
       const open = b.code === selBlock;
       return `<div class="btrow${open ? ' sel' : ''}" data-blk="${esc(b.code)}"><b class="gtidc" data-copy="${esc(y.id)}-${b.n}" title="click to copy the reference (file_id)">${esc(y.id)}-${b.n}</b> <span class="help">${y.label ? esc(y.label) + ' · ' : ''}${b.template ? 'the type\'s template · ' : ''}${blockState(y, b)}</span>
       </div>`;
@@ -3126,9 +3133,12 @@ MODE.blocks = (() => {
     let out;
     try { out = await send('POST', mapi('blocks', '/finders'), {}); }
     catch (e) { btn.disabled = false; btn.textContent = 'run finders'; alert(e.message); return; }
+    btn.disabled = false; btn.textContent = 'run finders';
     await loadMode();
-    toast(out.types.length ? `The finder made ${out.types.length} block type${out.types.length === 1 ? '' : 's'} (${out.types.join(', ')}): ${out.blocks} blocks, ${out.fields} fields. The Grids tab leaves those fields out.`
-      : 'The finder found no repeated blocks among the fields in no block.');
+    const g = out.grids || [], sup = out.superseded || [];
+    toast((g.length ? `Grids: ${g.length} (${g.slice(0, 6).join(', ')}${g.length > 6 ? ', …' : ''})${sup.length ? `, in place of blocks ${sup.slice(0, 6).join(', ')}${sup.length > 6 ? ', …' : ''}` : ''}. ` : 'No grids. ')
+      + (out.types.length ? `Blocks: ${out.types.length} new block type${out.types.length === 1 ? '' : 's'} (${out.types.join(', ')}), ${out.blocks} blocks, ${out.fields} fields.`
+         : 'No new repeated blocks among the fields in no block or grid.'));
   }
   async function blockDetect() {
     let out;
@@ -3202,6 +3212,7 @@ MODE.blocks = (() => {
       : `${out.type}: block ${out.block} of ${out.of}.` + ((out.left || []).length ? ' ' + out.left.join('; ') + '.' : ''));
   }
   return {
+    runFinders,
     async load() { GD = await j(mapi('blocks')); if (selBlock && !allBlocks().some(b => b.code === selBlock)) selBlock = null; },
     pages: () => GD ? GD.pages : [],
     startPage: () => ((allBlocks()[0]) || {}).page || 1,

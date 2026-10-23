@@ -750,11 +750,12 @@ def merge_groups(t: dict, bp: dict, at: Optional[dict] = None) -> int:
 
 
 def discover(bid: str, bp: dict) -> dict:
-    """The review page's "run finders" (Andrew, 2026-10-23: "both, one button"): repeated blocks found with no type
-    drawn (block_discovery.find, SIA) among the fields in no block, each pattern saved as a new block type marked
-    `from: "finder (SIA)"`, its copies its blocks (a copy that has lost fields to a block keeps the rest, 3 or more).
-    The grid finder runs on its own each time the Grids tab loads and leaves out grids mostly inside a block, so the
-    blocks found here come first. {types: [ids], blocks, fields}."""
+    """The review page's "run finders" (Andrew, 2026-10-23: "both, one button"): the grid finder first (the Grids
+    tab's listing: its set-asides, and an active grid supersedes the blocks inside it), then repeated blocks found
+    with no type drawn (block_discovery.find, SIA) among the fields in no block and no active grid ("SIA shouldn't
+    be looking at fields within grids"), each pattern saved as a new block type marked `from: "finder (SIA)"`, its
+    copies its blocks (a copy that has lost fields to a block keeps the rest, 3 or more).
+    {grids: [active grid ids], superseded: [blocks a grid took], types: [ids], blocks, fields}."""
     from petey.validate import block_discovery
     rec = gc.load_set(bid)
     rec.setdefault("types", [])
@@ -763,8 +764,10 @@ def discover(bid: str, bp: dict) -> dict:
     # blocks there would only be taken out again
     code = {n: str(s.get("x_petey_id")) for n, s in (bp.get("fields") or {}).items()
             if isinstance(s, dict) and s.get("x_petey_id") is not None}
-    held |= {code.get(c["name"]) for g in gc.listing(bid, bp) if g["status"] == "active" for c in g["grid"]} - {None}
+    grids = [g for g in gc.listing(bid, bp) if g["status"] == "active"]
+    held |= {code.get(c["name"]) for g in grids for c in g["grid"]} - {None}
     rec = gc.load_set(bid)                        # as the listing left it
+    superseded = sorted({b for e in rec.get("grids") or [] for b in e.get("supersedes") or []})
     rec.setdefault("types", [])
     at = {b["code"]: b for b in _boxes(bp)}
     made, nb, nf = [], 0, 0
@@ -799,7 +802,7 @@ def discover(bid: str, bp: dict) -> dict:
         nf += sum(1 for o in copies for c in o if c)
     if made:
         gc._save_set(bid, rec)
-    return {"types": made, "blocks": nb, "fields": nf}
+    return {"grids": [g["id"] for g in grids], "superseded": superseded, "types": made, "blocks": nb, "fields": nf}
 
 
 def _rekey(t: dict, old: Optional[str], new: Optional[str]) -> None:
