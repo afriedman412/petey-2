@@ -66,7 +66,8 @@ def test_run_finders_saves_the_blocks_found_as_a_type(tmp_path, monkeypatch):
     caps = [[f"Child {b + 1} name", "Date of birth", "City of birth"] for b in range(3)]
     bp = _form(tmp_path, 3, ["text", "text", "text"], caps)
     out = bt.discover("t1", bp)
-    assert out == {"grids": [], "superseded": [], "types": ["BT1"], "blocks": 3, "fields": 9}
+    assert {k: v for k, v in out.items() if k != "primed"} == {"grids": [], "superseded": [], "types": ["BT1"], "blocks": 3,
+                                                              "fields": 9}
     (t,) = gc.load_set("t1")["types"]
     assert t["from"] == "finder (SIA)" and t["blocks"] == [["1_1", "1_2", "1_3"], ["1_4", "1_5", "1_6"], ["1_7", "1_8", "1_9"]]
     assert bt.discover("t1", bp)["types"] == []                       # nothing left in no block

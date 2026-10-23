@@ -750,24 +750,42 @@ def merge_groups(t: dict, bp: dict, at: Optional[dict] = None) -> int:
 
 
 def discover(bid: str, bp: dict) -> dict:
-    """The review page's "run finders" (Andrew, 2026-10-23: "both, one button"): the grid finder first (the Grids
-    tab's listing: its set-asides, and an active grid supersedes the blocks inside it), then repeated blocks found
-    with no type drawn (block_discovery.find, SIA) among the fields in no block and no active grid ("SIA shouldn't
-    be looking at fields within grids"), each pattern saved as a new block type marked `from: "finder (SIA)"`, its
-    copies its blocks (a copy that has lost fields to a block keeps the rest, 3 or more).
-    {grids: [active grid ids], superseded: [blocks a grid took], types: [ids], blocks, fields}."""
+    """The review page's "run finders" (Andrew, 2026-10-23: "both, one button"): the block types there are first
+    (filled, grown, their copies found on every page: `primed`), then repeated blocks found with no type drawn
+    (block_discovery.find, SIA) among the fields in no block, each pattern saved as a new block type marked `from:
+    "finder (SIA)"`, its copies its blocks (a copy that has lost fields to a block keeps the rest, 3 or more); then the
+    grids, settled against the blocks both ways (grid_check.listing: a grid replaces the blocks mostly inside it, as
+    1095-B's rows; a grid mostly inside blocks gives way, as B 106D p2's city / state / zip across three claims).
+    {primed: {filled, grew, found}, grids: [active grid ids], superseded: [blocks a grid took], types: [ids], blocks,
+    fields}."""
     from petey.validate import block_discovery
     rec = gc.load_set(bid)
     rec.setdefault("types", [])
+    # primed with the blocks there are (Andrew, 2026-10-23: "priming 'run finders' with the existing blocks, so that
+    # creating one iteration of the intended block will push it to find other ones like it"): every type's blocks
+    # filled where a position is empty, each type grown to the free fields repeating in all its blocks and its copies
+    # found on every page, then filled again (a copy found by its labels can lack a box). A field in a grid counts as
+    # free: the blocks come first, and the grid listing after settles which wins
+    primed = {"filled": fill_blocks(bp, rec)}
+    if rec["types"]:
+        gc._save_set(bid, rec)
+    grew, found = {}, {}
+    for page in sorted({x["page"] for x in _boxes(bp)}):
+        out = rescan(bid, bp, page)
+        for k, v in (out.get("grew") or {}).items():
+            grew.setdefault(k, []).extend(v)
+        for k, v in (out.get("found") or {}).items():
+            found.setdefault(k, []).extend(v)
+    rec = gc.load_set(bid)
+    rec.setdefault("types", [])
+    more = fill_blocks(bp, rec)
+    if more:
+        gc._save_set(bid, rec)
+        rec = gc.load_set(bid)
+    primed.update(grew=grew, found=found)
+    for k, v in more.items():
+        primed["filled"].setdefault(k, []).extend(v)
     held = {c for t in rec["types"] for b in t["blocks"] for c in b if c}
-    # and the fields of the active grids: a grid supersedes the blocks inside it (grid_check.superseded), so SIA's
-    # blocks there would only be taken out again
-    code = {n: str(s.get("x_petey_id")) for n, s in (bp.get("fields") or {}).items()
-            if isinstance(s, dict) and s.get("x_petey_id") is not None}
-    grids = [g for g in gc.listing(bid, bp) if g["status"] == "active"]
-    held |= {code.get(c["name"]) for g in grids for c in g["grid"]} - {None}
-    rec = gc.load_set(bid)                        # as the listing left it
-    superseded = sorted({b for e in rec.get("grids") or [] for b in e.get("supersedes") or []})
     rec.setdefault("types", [])
     at = {b["code"]: b for b in _boxes(bp)}
     made, nb, nf = [], 0, 0
@@ -802,7 +820,13 @@ def discover(bid: str, bp: dict) -> dict:
         nf += sum(1 for o in copies for c in o if c)
     if made:
         gc._save_set(bid, rec)
-    return {"grids": [g["id"] for g in grids], "superseded": superseded, "types": made, "blocks": nb, "fields": nf}
+    # then the grids, settled against the blocks (grid_check.listing): a grid replaces the blocks lying mostly inside
+    # it, and gives way to blocks it lies mostly inside
+    grids = [g for g in gc.listing(bid, bp) if g["status"] == "active"]
+    rec = gc.load_set(bid)
+    superseded = sorted({b for e in rec.get("grids") or [] for b in e.get("supersedes") or []})
+    return {"primed": primed, "grids": [g["id"] for g in grids], "superseded": superseded, "types": made, "blocks": nb,
+            "fields": nf}
 
 
 def _rekey(t: dict, old: Optional[str], new: Optional[str]) -> None:
@@ -902,7 +926,9 @@ def add_field(bid: str, bp: dict, code: str, field: str, grow: bool = False) -> 
     return {"type": t["id"], "block": i + 1, "pos": k + 1, "grew": grew, "code": _bid(nb), "said": said_}
 
 
-SIZE_TOL = 3.0            # points: a box's copy in another block is its size within this (place within `tol`)
+SIZE_TOL = TOL            # points: a box's copy in another block is its size within this (place within `tol`); 3 pt
+                          # until 2026-10-23, when B 106D p3's "part / line" box, 17 pt tall in the first row and 11 in
+                          # the rest, kept BT4 from growing to it; finding copies already allowed TOL
 BAND_UP = 12.0            # points: a block's band starts this far above its top (a first line set a little higher)
 
 
@@ -972,6 +998,45 @@ def grow_type(bp: dict, rec: dict, t: dict, page: int) -> list[str]:
     if added:
         _reorder(t)
     return added
+
+
+def fill_blocks(bp: dict, rec: dict) -> dict:
+    """Each block's empty positions filled with the free field at its place (Andrew, 2026-10-23: B 106D p2's claims 3-5
+    without their city / state / zip, held by a grid when the claims were found): the field in no block, of the
+    position's kind, within `tol` of where the position sits in the block's frame and its size within `SIZE_TOL`; a
+    field in a grid counts as free (blocks first, the grid then gives way: grid_check.listing). {"BT1-3": [names]}."""
+    at = {x["code"]: x for x in _boxes(bp)}
+    names = _names(bp)
+    held = {c for y in rec.get("types") or [] for b in y["blocks"] for c in b if c}
+    got: dict[str, list] = {}
+    for t in rec.get("types") or []:
+        tl = tol(t["boxes"])
+        for i, b in enumerate(t["blocks"], 1):
+            if all(b[k] for k in range(min(len(b), len(t["boxes"])))) and len(b) >= len(t["boxes"]):
+                continue
+            fr = _frame_at(t, b, at)
+            if not fr:
+                continue
+            pg, ox, oy = fr
+            while len(b) < len(t["boxes"]):
+                b.append(None)
+            for k, want in enumerate(t["boxes"]):
+                if b[k]:
+                    continue
+                cands = [x for x in at.values() if x["page"] == pg and x["code"] not in held and x["kind"] == want["kind"]
+                         and abs(x["rect"][0] - ox - want["dx"]) <= tl and abs(x["rect"][1] - oy - want["dy"]) <= tl
+                         and abs(x["rect"][2] - x["rect"][0] - want["w"]) <= SIZE_TOL
+                         and abs(x["rect"][3] - x["rect"][1] - want["h"]) <= SIZE_TOL]
+                if not cands:
+                    continue
+                f = min(cands, key=lambda x: abs(x["rect"][0] - ox - want["dx"]) + abs(x["rect"][1] - oy - want["dy"]))
+                was = _bid(b)
+                b[k] = f["code"]
+                held.add(f["code"])
+                if was != _bid(b):
+                    _rekey(t, was, _bid(b))
+                got.setdefault(f"{t['id']}-{i}", []).append(names.get(f["code"], f["code"]))
+    return got
 
 
 def _reorder(t: dict) -> None:

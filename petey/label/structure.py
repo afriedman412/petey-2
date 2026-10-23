@@ -7,11 +7,11 @@ form, each slot's caption repeating; it replaced eval/block_groups.find, the blo
 widgets as enumerated, with no names. Where both read the same fields, the block wins: a table half inside a block is
 left out, as before (Andrew, 2026-10-22, when SIA read ACORD 90 NY's coverage x vehicle tables as "vehicles 1-2" /
 "vehicles 3-4" blocks: "that would get sorted out in the labeler anyways ... this whole system is about accuracy and
-consistency in labels"). Since 2026-10-23 the grids come first: a table that passes the Grids tab's set-asides (not
-small, not covering as many other fields as it holds: grid_check.aside_why) and labeling's size check is handed over,
-and SIA runs on the fields outside them ("grids are definitely more efficient than blocks for actual grids"; "SIA
-shouldn't be looking at fields within grids"). A block reaches the labeler on a page where 2+ of its copies are. What
-the labeler gets
+consistency in labels"). Since 2026-10-23 a table must pass the Grids tab's set-asides (not small, not covering as
+many other fields as it holds: grid_check.aside_why) and labeling's size check, and it settles with SIA's blocks both
+ways: it replaces the blocks lying mostly inside it ("grids are definitely more efficient than blocks for actual
+grids"), and gives way to blocks it lies mostly inside (B 106D's claims). A block reaches the labeler on a page where
+2+ of its copies are. What the labeler gets
 from them:
 
     batches     a table or block group is never split across two calls (ACORD 90 NY, 2026-10-19: the vehicle
@@ -73,11 +73,24 @@ def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
         # rest get their labels cell by cell as before
         if (t["rows"] >= 3 and t["cols"] >= 3) or (len(cells) >= 12 and t["hint"].get("axis")):
             found.append((g, t))
-    # SIA looks only at the fields outside those grids (Andrew, 2026-10-23: "SIA shouldn't be looking at fields within
-    # grids"): twelve like rows are a grid, not two copies of six (1095-B p3), and a grid's fields are never a block's
-    tables = found
-    held = {c["name"] for g, _ in found for c in g}
-    groups = _blocks({**bp, "fields": {n: f for n, f in bp["fields"].items() if n not in held}})
+    # grids and SIA's blocks settled both ways, as the review page does (grid_check.listing): a grid replaces the blocks
+    # lying mostly inside it (Andrew, 2026-10-23: 1095-B p3's twelve rows, which SIA read as two copies of six), and
+    # gives way to the blocks it lies mostly inside, taken together (B 106D p2: three claims' city / state / zip read
+    # as a grid: "we want 3 blocks that fill each row"); otherwise both go to the labeler
+    groups = _blocks(bp)
+    inside = [{c["name"] for c in g} for g in groups]
+    copies = [[{c["name"] for c in g if c["row"] == r} for r in sorted({c["row"] for c in g})] for g in groups]
+    dropped: set[int] = set()
+    tables = []
+    for g, t in found:
+        names = {c["name"] for c in g}
+        over = [i for i, ns in enumerate(inside) if ns & names and i not in dropped]
+        if over and all(len(cp & names) > 0.5 * len(cp) for i in over for cp in copies[i]):
+            dropped.update(over)                # every copy of those blocks mostly inside the grid: the grid
+            tables.append((g, t))
+        elif not over or len(names & set().union(*(inside[i] for i in over))) < 0.5 * len(names):
+            tables.append((g, t))               # mostly outside the blocks: both
+    groups = [g for i, g in enumerate(groups) if i not in dropped]
     for g, t in tables:
         out.setdefault(g[0]["page"], {"tables": [], "blocks": []})["tables"].append(t)
     for g in groups:

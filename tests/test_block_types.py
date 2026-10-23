@@ -646,3 +646,36 @@ def test_a_grid_row_is_relabeled_in_each_of_its_cells(monkeypatch, tmp_path):
     out = gc.relabel_line("t2", g["id"], 2, "7", apply=lambda edits: got.extend(edits) or {"changes": edits})
     assert {e["field"]: e["edit"]["name"] for e in got} == {"child_2_nm": "child_7_nm", "child_2_birth_dt": "child_7_birth_dt"}
     assert out["left"] == ["child_2_ind: child_7_ind is already another field's name"]
+
+
+def test_run_finders_is_primed_by_a_block_drawn_and_a_grid_inside_blocks_gives_way(monkeypatch, tmp_path):
+    """Andrew (2026-10-23, B 106D check): "priming 'run finders' with the existing blocks, so that creating one
+    iteration of the intended block will push it to find other ones like it"; p2-G2, three claims' city / state /
+    zip read as a grid, gives way to the claims' blocks ("we want 3 blocks that fill each row")."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"claim_{b}_nm", f"claim_{b}_dt", f"claim_{b}_ind"] for b in (1, 2, 3)]
+    extra = {}
+    for b in range(3):                       # each claim's city / state / zip line, 30 pt under its first line
+        for k, part in enumerate(("city", "state", "zip")):
+            extra[f"claim_{b + 1}_{part}"] = {"type": "string", "x_petey_id": f"1_{50 + 3 * b + k}",
+                                              "widget": {"page": 1, "widget_type": "text",
+                                                         "rect": [50 + 70 * k, 130 + 60 * b, 110 + 70 * k, 144 + 60 * b]}}
+    bp = blueprint(rows, extra)
+    bt.draw("t3", bp, 1, [45, 95, 470, 148])                   # one claim drawn, with its address line
+    out = bt.discover("t3", bp)
+    (t,) = gc.load_set("t3")["types"]
+    assert len(t["blocks"]) == 3 and all(len([c for c in b if c]) == 6 for b in t["blocks"])
+    assert out["primed"]["found"] == {"BT1": [2, 3]} or sum(len(v) for v in out["primed"]["found"].values()) == 2
+    g = [x for x in gc.listing("t3", bp) if x["source"] == "finder"]
+    assert g and all(x["status"] != "active" for x in g)                  # the city / state / zip grid gives way
+
+
+def test_fill_blocks_puts_the_field_at_an_empty_position(monkeypatch, tmp_path):
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2)]
+    bp = blueprint(rows)
+    bt.draw("t4", bp, 1, area(0))
+    bt.draw("t4", bp, 1, area(1))
+    rec = gc.load_set("t4")
+    rec["types"][0]["blocks"][1][1] = None                    # the second block lost its date
+    assert bt.fill_blocks(bp, rec) == {"BT1-2": ["child_2_birth_dt"]}

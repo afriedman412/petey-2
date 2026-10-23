@@ -241,6 +241,17 @@ def listing(bid: str, bp: dict) -> list[dict]:
     # As labeling does (petey/label/structure.find). Names are left as they are
     if superseded(rec, out, code):
         changed = True
+    # and a finder grid lying mostly inside blocks gives way to them (Andrew, 2026-10-23, B 106D p2-G2: claims 3-5's
+    # city / state / zip read as a grid, "we want 3 blocks that fill each row"): half its cells or more in blocks,
+    # taken together; set aside, restorable (`kept`)
+    in_block = {c: f"{y['id']}-{i}" for y in rec.get("types") or [] for i, b in enumerate(y.get("blocks") or [], 1)
+                for c in b if c}
+    for t in out:
+        if t["source"] != "finder" or t["status"] != "active" or t.get("kept"):
+            continue
+        hit = [in_block[code[c["name"]]] for c in t["grid"] if code.get(c["name"]) in in_block]
+        if len(hit) >= 0.5 * len(t["grid"]):
+            t["status"], t["aside_why"] = "split", f"inside blocks {', '.join(sorted(set(hit))[:6])}"
     if changed:
         _save_set(bid, rec)
     return out
@@ -256,7 +267,7 @@ def superseded(rec: dict, grids: list[dict], code: dict) -> list[str]:
             continue
         mine = {code.get(c["name"]) for c in t["grid"]} - {None}
         over = [(y, b) for y in types for b in y["blocks"] if b and {c for c in b if c} & mine]
-        if len(over) < 2 or not all(len({c for c in b if c} & mine) >= 0.5 * sum(1 for c in b if c) for _, b in over):
+        if len(over) < 2 or not all(len({c for c in b if c} & mine) > 0.5 * sum(1 for c in b if c) for _, b in over):
             continue
         names = []
         for y, b in over:
@@ -299,9 +310,21 @@ def aside_why(grid: list[dict], on_page: dict[int, list]) -> str | None:
     # marriages, 38 other fields inside; I-730 p5: prior spouses with the native language)
     mine = {c["name"] for c in grid}
     page = grid[0]["page"] if grid else None
-    rs = [r for n, r in on_page.get(page, []) if n in mine]
+    rect = {n: r for n, r in on_page.get(page, []) if n in mine}
+    rs = list(rect.values())
     if not rs:
         return None
+    # its rows are stacks of lines, not lines (Andrew, 2026-10-23, B 106D p3-G1: each party to notify a row of name,
+    # two address lines and city / state / zip, "we don't want" it; the rows are blocks): a row over three field
+    # heights tall, most rows so
+    hs = sorted(r[3] - r[1] for r in rs)
+    tall = 0
+    for row in {c["row"] for c in grid}:
+        rr = [rect[c["name"]] for c in grid if c["row"] == row and c["name"] in rect]
+        if rr and max(r[3] for r in rr) - min(r[1] for r in rr) > 3 * hs[len(hs) // 2]:
+            tall += 1
+    if tall > rows / 2:
+        return f"rows of several lines ({tall} of {rows}): blocks, not a grid"
     bb = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
     other = sum(1 for n, r in on_page.get(page, []) if n not in mine
                 and bb[0] < (r[0] + r[2]) / 2 < bb[2] and bb[1] < (r[1] + r[3]) / 2 < bb[3])

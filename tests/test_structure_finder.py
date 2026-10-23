@@ -66,16 +66,24 @@ def _finders(monkeypatch, grids, blocks):
     return seen
 
 
-def test_sia_does_not_look_inside_a_grid_handed_over(monkeypatch, tmp_path):
-    """1095-B p3 (2026-10-23): SIA read twelve rows as two copies of six. Andrew: "SIA shouldn't be looking at fields
-    within grids": the rows go over as one grid and SIA sees only the fields outside it."""
+def test_blocks_inside_a_grid_give_way_to_it(monkeypatch, tmp_path):
+    """1095-B p3 (2026-10-23): SIA read twelve rows as two copies of six; the rows go over as one grid."""
     entries, cells = _rows(12, 6)
-    others, _ = _rows(2, 3, y0=500, start=300)
     halves = [dict(c, row=c["row"] // 6, col=(c["row"] % 6) * 6 + c["col"], block=True) for c in cells]
-    seen = _finders(monkeypatch, [cells], [halves])
-    st = S.find(tmp_path / "x.pdf", entries + others)
+    _finders(monkeypatch, [cells], [halves])
+    st = S.find(tmp_path / "x.pdf", entries)
     assert [(t["rows"], t["cols"]) for t in st[1]["tables"]] == [(12, 6)] and st[1]["blocks"] == []
-    assert seen == {f"w{300 + k}" for k in range(6)}
+
+
+def test_a_grid_inside_blocks_gives_way_to_them(monkeypatch, tmp_path):
+    """B 106D p2 (2026-10-23): three claims' city / state / zip read as a 3 x 3 grid; each claim a block."""
+    entries, cells = _rows(3, 3, step=60)
+    names, _ = _rows(3, 5, y0=70, step=60, start=100)          # each claim's other line (5 fields), above its address
+    claims = [[dict(name=f"w{100 + 5 * b + k}", page=1, row=b, col=k, block=True) for k in range(5)]
+              + [dict(c, row=b, col=5 + c["col"], block=True) for c in cells if c["row"] == b] for b in range(3)]
+    _finders(monkeypatch, [cells], [[c for cl in claims for c in cl]])
+    st = S.find(tmp_path / "x.pdf", entries + names)
+    assert st[1]["tables"] == [] and len(st[1]["blocks"]) == 1
 
 
 def test_a_set_aside_grid_leaves_its_fields_to_sia(monkeypatch, tmp_path):
