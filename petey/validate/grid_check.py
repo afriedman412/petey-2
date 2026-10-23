@@ -228,40 +228,54 @@ def listing(bid: str, bp: dict) -> list[dict]:
         hit = sorted({blk[code[c["name"]]] for c in t["grid"] if code.get(c["name"]) in blk})
         if len(hit) >= 2 and not uniform(bp, t["grid"]):
             t["status"], t["aside_why"] = "split", f"split between blocks {', '.join(hit)}"
-    # a small finder grid is set aside (Andrew, 2026-10-23: "i_829_check_p4-T1 is a frivolous grid": child 1's and
-    # child 2's addresses side by side, 3 x 2, two blocks really): under 3 x 3 and under 12 cells, as labeling leaves
-    # small tables out (petey/label/structure.py); 243 of 938 then active, none kept by hand. Restorable (`kept`)
+    on_page = fields_on_page(bp)
     for t in out:
         if t["source"] != "finder" or t["status"] != "active" or t.get("kept"):
             continue
-        rows, cols = len({c["row"] for c in t["grid"]}), len({c["col"] for c in t["grid"]})
-        if (rows < 3 or cols < 3) and len(t["grid"]) < 12:
-            t["status"], t["aside_why"] = "split", f"small: {rows} x {cols}"
-    # a finder grid whose outline holds as many other fields as its own cells is set aside (Andrew, 2026-10-23: "a
-    # grid can include a field within the space it covers without it being in the grid ... that's ok to a point";
-    # I-829 p4: 6 cells over 8 other fields): mostly grids cutting across blocks (VA 21-686c p9: 24 prior-marriage
-    # city boxes over six marriages, 38 other fields inside; I-730 p5: prior spouses with the native language)
+        why = aside_why(t["grid"], on_page)
+        if why:
+            t["status"], t["aside_why"] = "split", why
+    if changed:
+        _save_set(bid, rec)
+    return out
+
+
+def fields_on_page(bp: dict) -> dict[int, list]:
+    """{page: [(field name, rect)]}, for `aside_why`."""
+    fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
     on_page: dict[int, list] = {}
     for n in fields:
         r = _rect(bp, n)
         ws = [fields[n]["widget"]] if fields[n].get("widget") else list((fields[n].get("widgets") or {}).values())
         if r and ws:
             on_page.setdefault(ws[0].get("page"), []).append((n, r))
-    for t in out:
-        if t["source"] != "finder" or t["status"] != "active" or t.get("kept"):
-            continue
-        mine_ = {c["name"] for c in t["grid"]}
-        rs = [r for n, r in on_page.get(t["page"], []) if n in mine_]
-        if not rs:
-            continue
-        bb = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
-        other = sum(1 for n, r in on_page.get(t["page"], []) if n not in mine_
-                    and bb[0] < (r[0] + r[2]) / 2 < bb[2] and bb[1] < (r[1] + r[3]) / 2 < bb[3])
-        if other >= len(mine_):
-            t["status"], t["aside_why"] = "split", f"covers {other} other fields, more than its {len(mine_)} cells"
-    if changed:
-        _save_set(bid, rec)
-    return out
+    return on_page
+
+
+def aside_why(grid: list[dict], on_page: dict[int, list]) -> str | None:
+    """Why a finder grid is set aside, or None: the Grids tab's suggestions and the grids labeling hands the
+    labeler (Andrew, 2026-10-23: "might as well try the new grids rules"; grids are more efficient than blocks for
+    actual grids, but the finder's are too aggressive)."""
+    # small (Andrew, 2026-10-23: "i_829_check_p4-T1 is a frivolous grid": child 1's and child 2's addresses side by
+    # side, 3 x 2, two blocks really): under 3 x 3 and under 12 cells, as labeling leaves small tables out
+    rows, cols = len({c["row"] for c in grid}), len({c["col"] for c in grid})
+    if (rows < 3 or cols < 3) and len(grid) < 12:
+        return f"small: {rows} x {cols}"
+    # its outline holds as many other fields as its own cells (Andrew, 2026-10-23: "a grid can include a field
+    # within the space it covers without it being in the grid ... that's ok to a point"; I-829 p4: 6 cells over 8
+    # other fields): mostly grids cutting across blocks (VA 21-686c p9: 24 prior-marriage city boxes over six
+    # marriages, 38 other fields inside; I-730 p5: prior spouses with the native language)
+    mine = {c["name"] for c in grid}
+    page = grid[0]["page"] if grid else None
+    rs = [r for n, r in on_page.get(page, []) if n in mine]
+    if not rs:
+        return None
+    bb = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
+    other = sum(1 for n, r in on_page.get(page, []) if n not in mine
+                and bb[0] < (r[0] + r[2]) / 2 < bb[2] and bb[1] < (r[1] + r[3]) / 2 < bb[3])
+    if other >= len(mine):
+        return f"covers {other} other fields, more than its {len(mine)} cells"
+    return None
 
 
 def uniform(bp: dict, g: list[dict]) -> bool:

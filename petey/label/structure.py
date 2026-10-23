@@ -7,7 +7,10 @@ form, each slot's caption repeating; it replaced eval/block_groups.find, the blo
 widgets as enumerated, with no names. Where both read the same fields, the block wins: a table half inside a block is
 left out, as before (Andrew, 2026-10-22, when SIA read ACORD 90 NY's coverage x vehicle tables as "vehicles 1-2" /
 "vehicles 3-4" blocks: "that would get sorted out in the labeler anyways ... this whole system is about accuracy and
-consistency in labels"). A block reaches the labeler on a page where 2+ of its copies are. What the labeler gets
+consistency in labels"), unless the table passes the Grids tab's set-asides (not small, not covering as many other
+fields as it holds: grid_check.aside_why) and the blocks lie mostly inside it; then the table wins (2026-10-23: "grids
+are definitely more efficient than blocks for actual grids"). A block reaches the labeler on a page where 2+ of its
+copies are. What the labeler gets
 from them:
 
     batches     a table or block group is never split across two calls (ACORD 90 NY, 2026-10-19: the vehicle
@@ -52,33 +55,48 @@ def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
     import grid_naming as G
     bp = _stub(blank, entries)
     out: dict[int, dict] = {}
+    from petey.validate import grid_check
+    path_of = {w["id"]: (w.get("path") or "") for w in entries}
+    on_page = grid_check.fields_on_page(bp)
     found = []
     for g in G.grids(bp, blocks=False):
         nrow, ncol = len({c["row"] for c in g}), len({c["col"] for c in g})
-        if nrow >= 2 and ncol >= 2 and len(g) >= 4:
-            found.append(g)
+        if nrow < 2 or ncol < 2 or len(g) < 4 or grid_check.aside_why(g, on_page):
+            continue                            # the Grids tab's set-asides: small, or covering more than it holds
+        cells = [{"id": int(c["name"][1:]), "row": c["row"], "col": c["col"]} for c in g]
+        t = {"rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1, "cells": cells,
+             "hint": axis_hint(cells, path_of)}
+        # small and odd tables are left out (Andrew, 2026-10-19: "ignore smaller and odd tables -- there's a lot of
+        # big ones that are low-hanging fruit"): a table is handed to the labeler when it is 3 x 3 or more, or two
+        # lines of 12+ cells with publisher evidence of which axis repeats (ACORD 90 NY's two-vehicle rows); the
+        # rest get their labels cell by cell as before
+        if (t["rows"] >= 3 and t["cols"] >= 3) or (len(cells) >= 12 and t["hint"].get("axis")):
+            found.append((g, t))
     groups = _blocks(bp)
     inside = [{c["name"] for c in g} for g in groups]
-    tables = [g for g in found if not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in inside)]
-    path_of = {w["id"]: (w.get("path") or "") for w in entries}
-    for g in tables:
-        page = g[0]["page"]
-        cells = [{"id": int(c["name"][1:]), "row": c["row"], "col": c["col"]} for c in g]
-        out.setdefault(page, {"tables": [], "blocks": []})["tables"].append(
-            {"rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1, "cells": cells,
-             "hint": axis_hint(cells, path_of)})
+    # a grid that passes those rules wins over the blocks lying mostly inside it (Andrew, 2026-10-23: "grids are
+    # definitely more efficient than blocks for actual grids"; 1095-B's covered individuals and VA 20-0996's rows,
+    # read as grids before SIA, came back as blocks the labeler named mostly one by one); otherwise the block wins,
+    # as before. Only what the labeler is handed: the blocks are found and saved as usual
+    dropped: set[int] = set()
+    tables = []
+    for g, t in found:
+        names = {c["name"] for c in g}
+        over = [i for i, ns in enumerate(inside) if ns & names and i not in dropped]
+        if over and all(len(inside[i] & names) >= 0.5 * len(inside[i]) for i in over):
+            dropped.update(over)
+            tables.append((g, t))
+        elif not any(len(names & inside[i]) >= 0.5 * len(g) for i in over):
+            tables.append((g, t))
+    groups = [g for i, g in enumerate(groups) if i not in dropped]
+    for g, t in tables:
+        out.setdefault(g[0]["page"], {"tables": [], "blocks": []})["tables"].append(t)
     for g in groups:
         page = g[0]["page"]
         out.setdefault(page, {"tables": [], "blocks": []})["blocks"].append(
             {"blocks": max(c["row"] for c in g) + 1, "slots": max(c["col"] for c in g) + 1,
              "cells": [{"id": int(c["name"][1:]), "block": c["row"], "slot": c["col"]} for c in g]})
-    # small and odd tables are left out (Andrew, 2026-10-19: "ignore smaller and odd tables -- there's a lot of big
-    # ones that are low-hanging fruit"): a table is handed to the labeler when it is 3 x 3 or more, or two lines of
-    # 12+ cells with publisher evidence of which axis repeats (ACORD 90 NY's two-vehicle rows); the rest get their
-    # labels cell by cell as before
     for page, st in out.items():
-        st["tables"] = [t for t in st["tables"] if (t["rows"] >= 3 and t["cols"] >= 3)
-                        or (len(t["cells"]) >= 12 and t["hint"].get("axis"))]
         for k, t in enumerate(st["tables"], 1):
             t["id"] = f"T{k}"
         for k, b in enumerate(st["blocks"], 1):
