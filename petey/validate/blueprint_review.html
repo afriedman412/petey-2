@@ -498,7 +498,7 @@ async function init() {
   catch (e) { $('#pick').innerHTML = ''; $('#panel').innerHTML = `<p class="err">Could not load the blueprint list: ${esc(e.message)}</p>`; return; }
   zoom = parseFloat(store('br_zoom')) || zoom;
   $('#listorder').value = store('br_listorder') || 'name';
-  const [hm, hb] = decodeURIComponent(location.hash.slice(1)).split('/');
+  const [hm, hb, hf] = decodeURIComponent(location.hash.slice(1)).split('/');   // #review/<form>/<field code or name>
   mode = MODE[hm] ? hm : (store('br_mode') || 'review');
   renderTabs(); renderPicker(); renderModebar();
   $('#pick').addEventListener('change', () => openBlueprint($('#pick').value));
@@ -531,7 +531,10 @@ async function init() {
   bindCanvas();
   $('#brand').onclick = () => showHome(true);
   const first = hb && LIST.some(b => b.id === hb) ? hb : null;
-  if (first) { $('#pick').value = first; openBlueprint(first); } else showHome(true);
+  // a link to a field (Andrew, 2026-10-24: "give the full field id and link to them in review"): the form opens in
+  // Review on the field's page with the field selected
+  if (first) { $('#pick').value = first; openBlueprint(first).then(() => { if (hf && mode === 'review') MODE.review.focus(hf); }); }
+  else showHome(true);
 }
 
 // the reboot button: the server re-execs itself on the same port (edited Python loads); wait for it to answer
@@ -1635,6 +1638,7 @@ MODE.review = (() => {
       select(here || names[0]);
     },
     load,
+    focus(key) { const f = BP && BP.fields.find(x => String(x.id) === key || x.name === key); if (f) select(f.name); },
     pages: () => BP ? BP.pages : [],
     startPage: () => BP.fields.length ? BP.fields[0].page : 1,
     // a field counts on every page it has a box on (a group merged across pages: CMS-855A pp. 8-9, 2026-10-14)
