@@ -16,7 +16,7 @@ authoring:
   labels: llm
   when: '2026-10-06 23:05:33'
 fields:
-  veteran_1_nm:
+  veteran_nm_1:
     x_petey_id: '3_1'
     type: string
     widget:
@@ -50,6 +50,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: veteran
+      suffix: nm
+      iteration: '1'
   preferred_nm:
     x_petey_id: '3_4'
     type: string
@@ -81,7 +85,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
-  veteran_1_ssn:
+    x_petey_identifiers:
+      subject: preferred
+      suffix: nm
+  veteran_ssn_1:
     x_petey_id: '3_3'
     type: string
     semantic_type: ssn
@@ -126,6 +133,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: veteran
+      suffix: ssn
+      iteration: '1'
   sex:
     x_petey_id: '3_2'
     type: category
@@ -162,6 +173,8 @@ fields:
       choices:
         '0': FEMALE
         '1': MALE
+    x_petey_identifiers:
+      subject: sex
   birth_dt:
     x_petey_id: '3_5'
     type: date
@@ -191,6 +204,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: birth
+      suffix: dt
   home_phone_nbr:
     x_petey_id: '3_6'
     type: string
@@ -237,6 +253,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: home_phone
+      suffix: nbr
   mobile_phone_nbr:
     x_petey_id: '3_7'
     type: string
@@ -283,6 +302,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: mobile_phone
+      suffix: nbr
   mailing_address_line_1_txt:
     x_petey_id: '3_8'
     type: string
@@ -299,6 +321,9 @@ fields:
     description: 6. A. MAILING ADDRESS. STREET.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_address_line_1
+      suffix: txt
   mailing_address_city_nm:
     x_petey_id: '3_9'
     type: string
@@ -313,6 +338,9 @@ fields:
       widget_type: text
       path: F[0].P3[0].MailingAddress_City[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_address_city
+      suffix: nm
   mailing_address_state_cd:
     x_petey_id: '3_10'
     type: string
@@ -344,6 +372,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: mailing_address_state
+      suffix: cd
   mailing_address_zip_cd:
     x_petey_id: '3_11'
     type: string
@@ -361,6 +392,9 @@ fields:
     description: 6D. ZIP CODE.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_address_zip
+      suffix: cd
   mailing_address_county_nm:
     x_petey_id: '3_12'
     type: string
@@ -386,6 +420,9 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: mailing_address_county
+      suffix: nm
   home_address_line_1_txt:
     x_petey_id: '3_13'
     type: string
@@ -402,6 +439,9 @@ fields:
     description: 7. A. HOME ADDRESS. STREET.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: home_address_line_1
+      suffix: txt
   home_address_city_nm:
     x_petey_id: '3_14'
     type: string
@@ -416,6 +456,9 @@ fields:
       widget_type: text
       path: F[0].P3[0].City[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: home_address_city
+      suffix: nm
   home_address_state_cd:
     x_petey_id: '3_15'
     type: string
@@ -447,6 +490,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: home_address_state
+      suffix: cd
   home_address_zip_cd:
     x_petey_id: '3_16'
     type: string
@@ -464,6 +510,9 @@ fields:
     description: 7D. ZIP CODE.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: home_address_zip
+      suffix: cd
   home_address_county_nm:
     x_petey_id: '3_17'
     type: string
@@ -489,6 +538,9 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: home_address_county
+      suffix: nm
   email_address_txt:
     x_petey_id: '3_18'
     type: string
@@ -522,6 +574,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: email_address
+      suffix: txt
   marital_status:
     x_petey_id: '3_19'
     type: category
@@ -598,6 +653,8 @@ fields:
         '2': SEPARATED
         '3': WIDOWED
         '4': DIVORCED
+    x_petey_identifiers:
+      subject: marital_status
   next_of_kin_nm:
     x_petey_id: '3_20'
     type: string
@@ -629,6 +686,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: next_of_kin
+      suffix: nm
   next_of_kin_address_txt:
     x_petey_id: '3_21'
     type: string
@@ -660,6 +720,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: next_of_kin_address
+      suffix: txt
   next_of_kin_relationship_txt:
     x_petey_id: '3_22'
     type: string
@@ -691,6 +754,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      subject: next_of_kin_relationship
+      suffix: txt
   next_of_kin_phone_nbr:
     x_petey_id: '3_23'
     type: string
@@ -737,6 +803,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: next_of_kin_phone
+      suffix: nbr
   emergency_contact_nm:
     x_petey_id: '3_24'
     type: string
@@ -768,6 +837,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: emergency_contact
+      suffix: nm
   emergency_contact_phone_nbr:
     x_petey_id: '3_25'
     type: string
@@ -814,6 +886,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: emergency_contact_phone
+      suffix: nbr
   health_insurance_company_info_txt:
     x_petey_id: '3_26'
     type: string
@@ -861,6 +936,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: info -> info_txt'
+    x_petey_identifiers:
+      subject: health_insurance_company_info
+      suffix: txt
   policy_holder_nm:
     x_petey_id: '3_27'
     type: string
@@ -892,6 +970,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: policy_holder
+      suffix: nm
   policy_nbr:
     x_petey_id: '3_28'
     type: string
@@ -923,6 +1004,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: policy
+      suffix: nbr
   group_cd:
     x_petey_id: '3_29'
     type: string
@@ -938,6 +1022,9 @@ fields:
     description: 4. GROUP CODE.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: group
+      suffix: cd
   eligible_for_medicaid_ind:
     x_petey_id: '3_30'
     type: category
@@ -974,6 +1061,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: eligible_for_medicaid_ind
   enrolled_in_medicare_part_a_ind:
     x_petey_id: '3_31'
     type: category
@@ -1010,6 +1099,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: enrolled_in_medicare_part_a_ind
   medicare_part_a_effective_dt:
     x_petey_id: '3_32'
     type: date
@@ -1040,6 +1131,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: medicare_part_a_effective
+      suffix: dt
   medicare_nbr:
     x_petey_id: '3_33'
     type: string
@@ -1071,7 +1165,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
-  veteran_2_nm:
+    x_petey_identifiers:
+      subject: medicare
+      suffix: nbr
+  veteran_nm_2:
     x_petey_id: '4_1'
     type: string
     widget:
@@ -1103,7 +1200,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  veteran_2_ssn:
+    x_petey_identifiers:
+      subject: veteran
+      suffix: nm
+      iteration: '2'
+  veteran_ssn_2:
     x_petey_id: '4_2'
     type: string
     semantic_type: ssn
@@ -1148,6 +1249,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: veteran
+      suffix: ssn
+      iteration: '2'
   last_branch_of_service_txt:
     x_petey_id: '4_3'
     type: string
@@ -1179,6 +1284,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: last_branch_of_service
+      suffix: txt
   last_entry_dt:
     x_petey_id: '4_4'
     type: date
@@ -1209,6 +1317,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: last_entry
+      suffix: dt
   future_discharge_dt:
     x_petey_id: '4_5'
     type: date
@@ -1239,6 +1350,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: future_discharge
+      suffix: dt
   last_discharge_dt:
     x_petey_id: '4_6'
     type: date
@@ -1269,6 +1383,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: last_discharge
+      suffix: dt
   discharge_type_txt:
     x_petey_id: '4_7'
     type: string
@@ -1300,6 +1417,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: discharge_type
+      suffix: txt
   military_service_nbr:
     x_petey_id: '4_8'
     type: string
@@ -1331,6 +1451,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: military_service
+      suffix: nbr
   purple_heart_award_recipient_ind:
     x_petey_id: '4_9'
     type: category
@@ -1367,6 +1490,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: purple_heart_award_recipient_ind
   prisoner_of_war_ind:
     x_petey_id: '4_11'
     type: category
@@ -1403,6 +1528,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: prisoner_of_war_ind
   combat_theater_service_after_1998_ind:
     x_petey_id: '4_13'
     type: category
@@ -1439,6 +1566,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: combat_theater_service_after_1998_ind
   military_disability_discharge_ind:
     x_petey_id: '4_10'
     type: category
@@ -1475,6 +1604,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: military_disability_discharge_ind
   sw_asia_gulf_war_service_ind:
     x_petey_id: '4_12'
     type: category
@@ -1511,6 +1642,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: sw_asia_gulf_war_service_ind
   va_service_connected_rating_ind:
     x_petey_id: '4_14'
     type: category
@@ -1547,6 +1680,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: va_service_connected_rating_ind
   ionizing_radiation_service_ind:
     x_petey_id: '4_15'
     type: category
@@ -1583,6 +1718,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: ionizing_radiation_service_ind
   gulf_war_hazard_service_ind:
     x_petey_id: '4_17'
     type: category
@@ -1619,6 +1756,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: gulf_war_hazard_service_ind
   gulf_war_hazard_served_from_dt:
     x_petey_id: '4_20'
     type: string
@@ -1663,6 +1802,9 @@ fields:
         description: '3B. WHEN DID YOU SERVE IN THESE LOCATIONS? NOTE: Please provide
           an approximate time-frame. FROM. Enter 2 digit month and 4 digit year.'
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: gulf_war_hazard_served_from
+      suffix: dt
   gulf_war_hazard_served_to_dt:
     x_petey_id: '4_21'
     type: string
@@ -1704,6 +1846,9 @@ fields:
         semantic_type: iso_date
         description: 3B. TO. Enter 2 digit month and 4 digit year.
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: gulf_war_hazard_served_to
+      suffix: dt
   deployed_in_support_of_operations_ind:
     x_petey_id: '4_23'
     type: category
@@ -1740,6 +1885,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: deployed_in_support_of_operations_ind
   herbicide_service_ind:
     x_petey_id: '4_16'
     type: category
@@ -1776,6 +1923,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: herbicide_service_ind
   herbicide_served_from_dt:
     x_petey_id: '4_18'
     type: string
@@ -1819,6 +1968,9 @@ fields:
         description: '3D. WHEN DID YOU SERVE IN THESE LOCATIONS? NOTE: Please provide
           an approximate time-frame. FROM. Enter 2 digit month and 4 digit year.'
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: herbicide_served_from
+      suffix: dt
   herbicide_served_to_dt:
     x_petey_id: '4_19'
     type: string
@@ -1860,6 +2012,9 @@ fields:
         semantic_type: iso_date
         description: 3D. TO. Enter 2 digit month and 4 digit year.
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: herbicide_served_to
+      suffix: dt
   military_exposure_other_specify_txt:
     x_petey_id: '4_24'
     type: string
@@ -1891,6 +2046,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: military_exposure_other_specify
+      suffix: txt
   military_exposure_from_dt:
     x_petey_id: '4_25'
     type: string
@@ -1933,6 +2091,9 @@ fields:
         description: '3E. WHEN WERE YOU EXPOSED? NOTE: Please provide an approximate
           time-frame. Enter 2 digit month and 4 digit year.'
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: military_exposure_from
+      suffix: dt
   military_exposure_to_dt:
     x_petey_id: '4_26'
     type: string
@@ -1974,6 +2135,9 @@ fields:
         semantic_type: iso_date
         description: 3E. TO. Enter 2 digit month and 4 digit year.
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: military_exposure_to
+      suffix: dt
   spouse_nm:
     x_petey_id: '4_27'
     type: string
@@ -2006,6 +2170,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: spouse
+      suffix: nm
   spouse_ssn:
     x_petey_id: '4_29'
     type: string
@@ -2036,6 +2203,9 @@ fields:
         - text{999999999}|text{999-99-9999}|text{999 99 9999}
       message: Invalid Social Security Number. Enter 9 digit social security number.
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse
+      suffix: ssn
   spouse_birth_dt:
     x_petey_id: '4_30'
     type: date
@@ -2066,6 +2236,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_birth
+      suffix: dt
   spouse_sex:
     x_petey_id: '4_28'
     type: category
@@ -2102,6 +2275,8 @@ fields:
       choices:
         '0': MALE
         '1': FEMALE
+    x_petey_identifiers:
+      subject: spouse_sex
   marriage_dt:
     x_petey_id: '4_31'
     type: date
@@ -2132,6 +2307,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: marriage
+      suffix: dt
   spouse_address_and_telephone_nbr:
     x_petey_id: '4_32'
     type: string
@@ -2180,6 +2358,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: spouse_address_and_telephone
+      suffix: nbr
   child_nm:
     x_petey_id: '4_33'
     type: string
@@ -2211,6 +2392,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: child
+      suffix: nm
   child_birth_dt:
     x_petey_id: '4_35'
     type: date
@@ -2241,6 +2425,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: child_birth
+      suffix: dt
   child_ssn:
     x_petey_id: '4_36'
     type: string
@@ -2271,6 +2458,9 @@ fields:
         - text{999999999}|text{999-99-9999}|text{999 99 9999}
       message: Invalid Social Security Number. Enter 9 digit social security number.
     label_source: llm
+    x_petey_identifiers:
+      subject: child
+      suffix: ssn
   child_became_dependent_dt:
     x_petey_id: '4_38'
     type: date
@@ -2301,6 +2491,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: child_became_dependent
+      suffix: dt
   child_relationship:
     x_petey_id: '4_39'
     type: category
@@ -2363,6 +2556,8 @@ fields:
         '1': STEPSON
         '2': DAUGHTER
         '3': SON
+    x_petey_identifiers:
+      subject: child_relationship
   child_permanently_and_totally_disabled_ind:
     x_petey_id: '4_34'
     type: category
@@ -2399,6 +2594,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: child_permanently_and_totally_disabled_ind
   child_attended_school_last_calendar_year_ind:
     x_petey_id: '4_37'
     type: category
@@ -2435,6 +2632,8 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
+    x_petey_identifiers:
+      subject: child_attended_school_last_calendar_year_ind
   child_education_training_expenses_amt:
     x_petey_id: '4_40'
     type: number
@@ -2454,6 +2653,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: child_education_training_expenses
+      suffix: amt
   provided_support_if_not_living_with_you_ind:
     x_petey_id: '4_41'
     type: category
@@ -2490,7 +2692,9 @@ fields:
       choices:
         '0': 'YES'
         '1': 'NO'
-  veteran_3_nm:
+    x_petey_identifiers:
+      subject: provided_support_if_not_living_with_you_ind
+  veteran_nm_3:
     x_petey_id: '5_1'
     type: string
     widget:
@@ -2522,7 +2726,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  veteran_3_ssn:
+    x_petey_identifiers:
+      subject: veteran
+      suffix: nm
+      iteration: '3'
+  veteran_ssn_3:
     x_petey_id: '5_2'
     type: string
     semantic_type: ssn
@@ -2567,6 +2775,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: veteran
+      suffix: ssn
+      iteration: '3'
   veteran_gross_employment_income_amt:
     x_petey_id: '5_3'
     type: number
@@ -2599,6 +2811,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: veteran_gross_employment_income
+      suffix: amt
   spouse_gross_employment_income_amt:
     x_petey_id: '5_4'
     type: number
@@ -2627,6 +2842,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: spouse_gross_employment_income
+      suffix: amt
   child_1_gross_employment_income_amt:
     x_petey_id: '5_5'
     type: number
@@ -2671,6 +2889,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: child_1_gross_employment_income
+      suffix: amt
   veteran_farm_business_net_income_amt:
     x_petey_id: '5_6'
     type: number
@@ -2698,6 +2919,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: veteran_farm_business_net_income
+      suffix: amt
   spouse_farm_business_net_income_amt:
     x_petey_id: '5_7'
     type: number
@@ -2724,6 +2948,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: spouse_farm_business_net_income
+      suffix: amt
   child_1_farm_business_net_income_amt:
     x_petey_id: '5_8'
     type: number
@@ -2766,6 +2993,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: child_1_farm_business_net_income
+      suffix: amt
   veteran_other_income_amt:
     x_petey_id: '5_9'
     type: number
@@ -2794,6 +3024,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: veteran_other_income
+      suffix: amt
   spouse_other_income_amt:
     x_petey_id: '5_10'
     type: number
@@ -2820,6 +3053,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: spouse_other_income
+      suffix: amt
   child_1_other_income_amt:
     x_petey_id: '5_11'
     type: number
@@ -2862,6 +3098,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: child_1_other_income
+      suffix: amt
   non_reimbursed_medical_expenses_amt:
     x_petey_id: '5_12'
     type: number
@@ -2894,6 +3133,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: non_reimbursed_medical_expenses
+      suffix: amt
   funeral_and_burial_expenses_amt:
     x_petey_id: '5_13'
     type: number
@@ -2924,6 +3166,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: funeral_and_burial_expenses
+      suffix: amt
   educational_expenses_amt:
     x_petey_id: '5_14'
     type: number
@@ -2954,6 +3199,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: educational_expenses
+      suffix: amt
   applicant_signature:
     x_petey_id: '5_15'
     type: string
@@ -2974,6 +3222,9 @@ fields:
       field. Please print the document and sign in ink.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: applicant
+      suffix: signature
   signature_dt:
     x_petey_id: '5_16'
     type: date
@@ -3003,6 +3254,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
   military_exposure_air_pollutants_ind:
     x_petey_id: '4_22'
     type: category
@@ -3214,6 +3468,8 @@ fields:
       - military_exposure_air_pollutants_ind::mustard_gas
       - military_exposure_air_pollutants_ind::warfare_agents
       - military_exposure_air_pollutants_ind::other
+    x_petey_identifiers:
+      subject: military_exposure_air_pollutants_ind
 x_petey_dedup_log:
   duplicate_labels_reassigned: 4
   collisions:

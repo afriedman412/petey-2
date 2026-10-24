@@ -17,7 +17,7 @@ authoring:
   labels: llm
   when: '2026-10-06 22:26:29'
 fields:
-  case_1_nbr:
+  case_nbr_1:
     x_petey_id: '1_19'
     type: string
     widget:
@@ -48,6 +48,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '1'
   attorney_state_cd:
     x_petey_id: '1_6'
     type: string
@@ -79,6 +83,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: attorney_state
+      suffix: cd
   attorney_zip_cd:
     x_petey_id: '1_7'
     type: string
@@ -101,6 +108,9 @@ fields:
         format:
         - text{99999-9999}
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_zip
+      suffix: cd
   attorney_city_nm:
     x_petey_id: '1_5'
     type: string
@@ -115,6 +125,9 @@ fields:
       widget_type: text
       path: EJ-130[0].Page1[0].StdP1Header[0].AttyInfo[0].AttyCity[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_city
+      suffix: nm
   attorney_street_address_txt:
     x_petey_id: '1_4'
     type: string
@@ -147,6 +160,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_street_address
+      suffix: txt
   attorney_firm_nm:
     x_petey_id: '1_3'
     type: string
@@ -189,6 +205,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_firm
+      suffix: nm
   attorney_nm:
     x_petey_id: '1_2'
     type: string
@@ -218,6 +237,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney
+      suffix: nm
   attorney_state_bar_nbr:
     x_petey_id: '1_1'
     type: string
@@ -269,6 +291,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
   attorney_telephone_nbr:
     x_petey_id: '1_8'
     type: string
@@ -309,6 +334,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_telephone
+      suffix: nbr
   attorney_fax_nbr:
     x_petey_id: '1_9'
     type: string
@@ -347,6 +375,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_fax
+      suffix: nbr
   attorney_email_address_txt:
     x_petey_id: '1_10'
     type: string
@@ -380,6 +411,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_email_address
+      suffix: txt
   attorney_for_nm:
     x_petey_id: '1_11'
     type: string
@@ -411,6 +445,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_for
+      suffix: nm
   court_county_nm:
     x_petey_id: '1_13'
     type: string
@@ -453,6 +490,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_county
+      suffix: nm
   court_branch_nm:
     x_petey_id: '1_17'
     type: string
@@ -495,6 +535,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_branch
+      suffix: nm
   court_city_and_zip_cd:
     x_petey_id: '1_16'
     type: string
@@ -539,6 +582,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: zip_code -> zip_cd'
+    x_petey_identifiers:
+      subject: court_city_and_zip
+      suffix: cd
   court_street_address_txt:
     x_petey_id: '1_14'
     type: string
@@ -571,6 +617,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_street_address
+      suffix: txt
   court_mailing_address_txt:
     x_petey_id: '1_15'
     type: string
@@ -602,7 +651,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
-  plaintiff_petitioner_1_nm:
+    x_petey_identifiers:
+      subject: court_mailing_address
+      suffix: txt
+  plaintiff_petitioner_nm_1:
     x_petey_id: '1_18'
     type: string
     widget:
@@ -633,7 +685,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  defendant_respondent_1_nm:
+    x_petey_identifiers:
+      subject: plaintiff_petitioner
+      suffix: nm
+      iteration: '1'
+  defendant_respondent_nm_1:
     x_petey_id: '1_20'
     type: string
     widget:
@@ -664,6 +720,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: defendant_respondent
+      suffix: nm
+      iteration: '1'
   sheriff_or_marshal_county_nm:
     x_petey_id: '1_24'
     type: string
@@ -706,6 +766,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: sheriff_or_marshal_county
+      suffix: nm
   judgment_creditor_nm:
     x_petey_id: '1_25'
     type: string
@@ -735,6 +798,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: judgment_creditor
+      suffix: nm
   judgment_debtor_name_and_address_txt:
     x_petey_id: '1_27'
     type: string
@@ -769,6 +835,9 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      subject: judgment_debtor_name_and_address
+      suffix: txt
   more_than_one_judgment_debtor_ind:
     x_petey_id: '1_29'
     type: boolean
@@ -787,6 +856,9 @@ fields:
       labeled "Attachment 4."
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: more_than_one_judgment_debtor
+      suffix: ind
   judgment_debtor_additional_names_affidavit_of_identity_ind:
     x_petey_id: '1_28'
     type: boolean
@@ -804,6 +876,9 @@ fields:
       affidavit of identity (Code Civ. Proc., § 680.135).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: judgment_debtor_additional_names_affidavit_of_identity
+      suffix: ind
   judgment_entered_dt:
     x_petey_id: '1_30'
     type: date
@@ -825,6 +900,9 @@ fields:
         format:
         - date{MMMM D, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: judgment_entered
+      suffix: dt
   judgment_renewed_ind:
     x_petey_id: '1_31'
     type: boolean
@@ -841,6 +919,9 @@ fields:
     description: The judgment has been renewed. (Complete items 6a and 6b.)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: judgment_renewed
+      suffix: ind
   judgment_renewed_dates_txt:
     x_petey_id: '1_32'
     type: string
@@ -872,7 +953,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  joint_debtor_declared_bound_1_ind:
+    x_petey_identifiers:
+      subject: judgment_renewed_dates
+      suffix: txt
+  joint_debtor_declared_bound_ind_1:
     x_petey_id: '1_34'
     type: boolean
     semantic_type: indicator
@@ -906,7 +990,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  case_2_nbr:
+    x_petey_identifiers:
+      subject: joint_debtor_declared_bound
+      suffix: ind
+      iteration: '1'
+  case_nbr_2:
     x_petey_id: '2_2'
     type: string
     widget:
@@ -937,6 +1025,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '2'
   defendant_respondent_txt:
     x_petey_id: '2_3'
     type: string
@@ -968,6 +1060,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: defendant_respondent
+      suffix: txt
   plaintiff_petitioner_txt:
     x_petey_id: '2_1'
     type: string
@@ -999,6 +1094,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: plaintiff_petitioner
+      suffix: txt
   notice_of_sale_requested_person_1_name_address_txt:
     x_petey_id: '2_5'
     type: string
@@ -1032,6 +1130,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: notice_of_sale_requested_person
+      block_iteration: '1'
+      subject: name_address
+      suffix: txt
   notice_of_sale_requested_person_2_name_address_txt:
     x_petey_id: '2_6'
     type: string
@@ -1065,6 +1168,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: notice_of_sale_requested_person
+      block_iteration: '2'
+      subject: name_address
+      suffix: txt
   writ_of_possession_or_sale_ind:
     x_petey_id: '2_7'
     type: boolean
@@ -1083,6 +1191,9 @@ fields:
       23.)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: writ_of_possession_or_sale
+      suffix: ind
   sister_state_judgment_ind:
     x_petey_id: '2_8'
     type: boolean
@@ -1099,6 +1210,9 @@ fields:
     description: This writ is issued on a sister-state judgment.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sister_state_judgment
+      suffix: ind
   total_judgment_amt:
     x_petey_id: '2_9'
     type: number
@@ -1122,6 +1236,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: total_judgment
+      suffix: amt
   costs_after_judgment_amt:
     x_petey_id: '2_10'
     type: number
@@ -1145,6 +1262,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: costs_after_judgment
+      suffix: amt
   subtotal_amt:
     x_petey_id: '2_11'
     type: number
@@ -1168,6 +1288,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: subtotal
+      suffix: amt
   credits_to_principal_amt:
     x_petey_id: '2_12'
     type: number
@@ -1191,6 +1314,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: credits_to_principal
+      suffix: amt
   principal_remaining_due_amt:
     x_petey_id: '2_13'
     type: number
@@ -1214,6 +1340,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: principal_remaining_due
+      suffix: amt
   accrued_interest_remaining_due_amt:
     x_petey_id: '2_14'
     type: number
@@ -1237,6 +1366,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: accrued_interest_remaining_due
+      suffix: amt
   issuance_fee_amt:
     x_petey_id: '2_15'
     type: number
@@ -1260,6 +1392,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: issuance_fee
+      suffix: amt
   total_amount_due_amt:
     x_petey_id: '2_16'
     type: number
@@ -1283,6 +1418,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: total_amount_due
+      suffix: amt
   daily_interest_amt:
     x_petey_id: '2_17'
     type: number
@@ -1306,6 +1444,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: daily_interest
+      suffix: amt
   court_costs_amt:
     x_petey_id: '2_18'
     type: number
@@ -1330,6 +1471,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: court_costs
+      suffix: amt
   amounts_different_for_each_debtor_ind:
     x_petey_id: '2_19'
     type: boolean
@@ -1348,6 +1492,9 @@ fields:
       amounts for each debtor. Label each amount with the applicable item number.)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: amounts_different_for_each_debtor
+      suffix: ind
   clerk_dt:
     x_petey_id: '2_20'
     type: date
@@ -1367,6 +1514,9 @@ fields:
         format:
         - date{MMMM D, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: clerk
+      suffix: dt
   deputy_clerk_nm:
     x_petey_id: '2_21'
     type: string
@@ -1396,7 +1546,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  case_3_nbr:
+    x_petey_identifiers:
+      subject: deputy_clerk
+      suffix: nm
+  case_nbr_3:
     x_petey_id: '3_2'
     type: string
     widget:
@@ -1427,7 +1580,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
-  defendant_respondent_2_nm:
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '3'
+  defendant_respondent_nm_2:
     x_petey_id: '3_3'
     type: string
     widget:
@@ -1458,7 +1615,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  plaintiff_petitioner_2_nm:
+    x_petey_identifiers:
+      subject: defendant_respondent
+      suffix: nm
+      iteration: '2'
+  plaintiff_petitioner_nm_2:
     x_petey_id: '3_1'
     type: string
     widget:
@@ -1489,6 +1650,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: plaintiff_petitioner
+      suffix: nm
+      iteration: '2'
   judgment_for_other_description_txt:
     x_petey_id: '3_5'
     type: string
@@ -1521,6 +1686,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: judgment_for_other_description
+      suffix: txt
   joint_debtor_info_txt:
     x_petey_id: '3_7'
     type: string
@@ -1553,7 +1721,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: info -> info_txt'
-  joint_debtor_declared_bound_2_ind:
+    x_petey_identifiers:
+      subject: joint_debtor_info
+      suffix: txt
+  joint_debtor_declared_bound_ind_2:
     x_petey_id: '3_6'
     type: boolean
     semantic_type: indicator
@@ -1586,6 +1757,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: joint_debtor_declared_bound
+      suffix: ind
+      iteration: '2'
   joint_debtors_attachment_22_ind:
     x_petey_id: '3_9'
     type: boolean
@@ -1604,6 +1779,9 @@ fields:
       on an attached sheet of paper labeled "Attachment 22."
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: joint_debtors_attachment_22
+      suffix: ind
   joint_debtor_declared_bound_dt:
     x_petey_id: '3_8'
     type: date
@@ -1625,6 +1803,9 @@ fields:
         format:
         - date{MMMM D, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: joint_debtor_declared_bound
+      suffix: dt
   writ_possession_or_sale_ind:
     x_petey_id: '3_10'
     type: boolean
@@ -1642,6 +1823,9 @@ fields:
       entered for the following:'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: writ_possession_or_sale
+      suffix: ind
   possession_real_property_ind:
     x_petey_id: '3_11'
     type: boolean
@@ -1658,6 +1842,9 @@ fields:
     description: 'Possession of real property: The complaint was filed on'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: possession_real_property
+      suffix: ind
   complaint_filed_dt:
     x_petey_id: '3_12'
     type: date
@@ -1677,6 +1864,9 @@ fields:
         format:
         - date{MMMM D, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: complaint_filed
+      suffix: dt
   unlawful_detainer_foreclosure_sale_ind:
     x_petey_id: '3_14'
     type: boolean
@@ -1697,6 +1887,9 @@ fields:
       was served.) (See Code Civ. Proc., §§ 415.46 & 1174.3(a)(2).)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: unlawful_detainer_foreclosure_sale
+      suffix: ind
   daily_rental_value_amt:
     x_petey_id: '3_15'
     type: number
@@ -1721,6 +1914,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: daily_rental_value
+      suffix: amt
   objection_hearing_dates_txt:
     x_petey_id: '3_16'
     type: string
@@ -1753,6 +1949,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: objection_hearing_dates
+      suffix: txt
   possession_personal_property_ind:
     x_petey_id: '3_17'
     type: boolean
@@ -1769,6 +1968,9 @@ fields:
     description: Possession of personal property.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: possession_personal_property
+      suffix: ind
   possession_personal_property_value_ind:
     x_petey_id: '3_18'
     type: boolean
@@ -1786,6 +1988,9 @@ fields:
       specified in the judgment or supplemental order.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: possession_personal_property_value
+      suffix: ind
   sale_personal_property_ind:
     x_petey_id: '3_19'
     type: boolean
@@ -1802,6 +2007,9 @@ fields:
     description: Sale of personal property.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sale_personal_property
+      suffix: ind
   sale_real_property_ind:
     x_petey_id: '3_20'
     type: boolean
@@ -1818,6 +2026,9 @@ fields:
     description: Sale of real property.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sale_real_property
+      suffix: ind
   property_description_txt:
     x_petey_id: '3_22'
     type: string
@@ -1850,7 +2061,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
-  case_4_nbr:
+    x_petey_identifiers:
+      subject: property_description
+      suffix: txt
+  case_nbr_4:
     x_petey_id: '4_2'
     type: string
     widget:
@@ -1881,7 +2095,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
-  plaintiff_petitioner_3_nm:
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '4'
+  plaintiff_petitioner_nm_3:
     x_petey_id: '4_1'
     type: string
     widget:
@@ -1912,7 +2130,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  defendant_respondent_3_nm:
+    x_petey_identifiers:
+      subject: plaintiff_petitioner
+      suffix: nm
+      iteration: '3'
+  defendant_respondent_nm_3:
     x_petey_id: '4_3'
     type: string
     widget:
@@ -1943,6 +2165,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant_respondent
+      suffix: nm
+      iteration: '3'
   case_type:
     x_petey_id: '1_22'
     type: category
@@ -1984,6 +2210,8 @@ fields:
       from:
       - case_type::limited_civil_case
       - case_type::unlimited_civil_case
+    x_petey_identifiers:
+      subject: case_type
   filer_role:
     x_petey_id: '1_12'
     type: category
@@ -2032,6 +2260,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: filer_role
   writ_type:
     x_petey_id: '1_21'
     type: category
@@ -2115,6 +2345,8 @@ fields:
       - possession_type::personal_property
       - writ_type::sale
       - possession_type::real_property
+    x_petey_identifiers:
+      subject: writ_type
   judgment_creditor_type:
     x_petey_id: '1_26'
     type: category
@@ -2150,6 +2382,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: judgment_creditor_type
   period_of_enforceability:
     x_petey_id: '1_33'
     type: category
@@ -2187,6 +2421,8 @@ fields:
       from:
       - period_of_enforceability::10_years
       - period_of_enforceability::5_years
+    x_petey_identifiers:
+      subject: period_of_enforceability
   notice_of_sale:
     x_petey_id: '2_4'
     type: category
@@ -2228,6 +2464,8 @@ fields:
       from:
       - notice_of_sale::not_requested
       - notice_of_sale::requested
+    x_petey_identifiers:
+      subject: notice_of_sale
   judgment_for:
     x_petey_id: '3_4'
     type: category
@@ -2296,6 +2534,8 @@ fields:
       - judgment_for::child_or_spousal_support
       - judgment_for::personal_debt
       - judgment_for::other
+    x_petey_identifiers:
+      subject: judgment_for
   prejudgment_claim:
     x_petey_id: '3_13'
     type: category
@@ -2342,6 +2582,8 @@ fields:
       from:
       - prejudgment_claim::served_in_compliance
       - prejudgment_claim::not_served_in_compliance
+    x_petey_identifiers:
+      subject: prejudgment_claim
   property_described:
     x_petey_id: '3_21'
     type: category
@@ -2379,6 +2621,8 @@ fields:
       from:
       - property_described::below
       - property_described::attachment_23e
+    x_petey_identifiers:
+      subject: property_described
 x_petey_dedup_log:
   duplicate_labels_reassigned: 8
   collisions:

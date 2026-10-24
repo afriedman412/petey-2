@@ -49,6 +49,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: subject
+      suffix: nm
   subject_ssn:
     x_petey_id: '1_2'
     type: string
@@ -64,6 +67,9 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].P1_SSN1_FLD[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: subject
+      suffix: ssn
   subject_birth_dt:
     x_petey_id: '1_3'
     type: date
@@ -85,6 +91,9 @@ fields:
         format:
         - date{MM/DD/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: subject_birth
+      suffix: dt
   ssa_dds_additional_info_txt:
     x_petey_id: '1_4'
     type: string
@@ -124,6 +133,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: info -> info_txt'
+    x_petey_identifiers:
+      subject: ssa_dds_additional_info
+      suffix: txt
   managing_benefits_only_ind:
     x_petey_id: '1_5'
     type: boolean
@@ -148,6 +160,9 @@ fields:
       only if this applies).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: managing_benefits_only
+      suffix: ind
   individual_signature:
     x_petey_id: '1_8'
     type: string
@@ -174,6 +189,9 @@ fields:
       and sign
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: individual
+      suffix: signature
   other_personal_representative_explanation_txt:
     x_petey_id: '1_7'
     type: string
@@ -205,6 +223,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: other_personal_representative_explanation
+      suffix: txt
   representative_signature:
     x_petey_id: '1_9'
     type: string
@@ -222,6 +243,9 @@ fields:
       and sign
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: representative
+      suffix: signature
   signature_dt:
     x_petey_id: '1_10'
     type: date
@@ -241,6 +265,9 @@ fields:
         format:
         - date{MM/DD/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
   address_line_1_txt:
     x_petey_id: '1_11'
     type: string
@@ -257,6 +284,9 @@ fields:
     description: Street Address
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: address_line_1
+      suffix: txt
   phone_nbr:
     x_petey_id: '1_12'
     type: string
@@ -290,6 +320,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: phone
+      suffix: nbr
   city_nm:
     x_petey_id: '1_13'
     type: string
@@ -304,6 +337,9 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].P1_City_FLD[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: city
+      suffix: nm
   state_cd:
     x_petey_id: '1_14'
     type: string
@@ -319,6 +355,9 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].P1_State_FLD[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: state
+      suffix: cd
   zip_cd:
     x_petey_id: '1_15'
     type: string
@@ -334,7 +373,10 @@ fields:
       widget_type: text
       path: form1[0].Page1[0].P1_Zip_FLD[0]
     label_source: llm
-  witness_1_signature:
+    x_petey_identifiers:
+      subject: zip
+      suffix: cd
+  witness_signature_1:
     x_petey_id: '1_16'
     type: string
     widget:
@@ -367,6 +409,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: witness
+      suffix: signature
+      iteration: '1'
   witness_1_phone_or_address_txt:
     x_petey_id: '1_18'
     type: string
@@ -413,7 +459,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; address -> address_txt'
-  witness_2_signature:
+    x_petey_identifiers:
+      block_prefix: witness
+      block_iteration: '1'
+      subject: phone_or_address
+      suffix: txt
+  witness_signature_2:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -445,6 +496,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: witness
+      suffix: signature
+      iteration: '2'
   witness_2_phone_or_address_txt:
     x_petey_id: '1_19'
     type: string
@@ -490,6 +545,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: witness
+      block_iteration: '2'
+      subject: phone_or_address
+      suffix: txt
   authority_to_sign_parent_of_minor_ind:
     x_petey_id: '1_6'
     type: category
@@ -593,6 +653,8 @@ fields:
       - authority_to_sign_parent_of_minor_ind::parent_of_minor
       - authority_to_sign_parent_of_minor_ind::guardian
       - authority_to_sign_parent_of_minor_ind::other_personal_representative
+    x_petey_identifiers:
+      subject: authority_to_sign_parent_of_minor_ind
 x_petey_emit_fixes:
   description_from_tooltip: 1
 x_petey_page_check:

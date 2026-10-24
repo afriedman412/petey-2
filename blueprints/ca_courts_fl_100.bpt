@@ -33,6 +33,9 @@ fields:
       or paternity. (Attach a copy if available.)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: voluntary_declaration_parentage_signed
+      suffix: ind
   amended_petition_ind:
     x_petey_id: '1_19'
     type: boolean
@@ -47,6 +50,9 @@ fields:
       widget_type: checkbox
       path: FL-100[0].Page1[0].CaptionP1_sf[0].FormTitle[0].Amended_cb[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: amended_petition
+      suffix: ind
   petition_type:
     x_petey_id: '1_67'
     type: category
@@ -100,6 +106,8 @@ fields:
       - petition_legal_separation_ind
       - petition_nullity_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: petition_type
   dissolution:
     x_petey_id: '1_68'
     type: category
@@ -137,6 +145,8 @@ fields:
       from:
       - dissolution_marriage_ind
       - dissolution_domestic_partnership_ind
+    x_petey_identifiers:
+      subject: dissolution
   nullity:
     x_petey_id: '1_70'
     type: category
@@ -174,6 +184,8 @@ fields:
       from:
       - nullity_marriage_ind
       - nullity_domestic_partnership_ind
+    x_petey_identifiers:
+      subject: nullity
   legal_separation:
     x_petey_id: '1_69'
     type: category
@@ -211,6 +223,8 @@ fields:
       from:
       - legal_separation_marriage_ind
       - legal_separation_domestic_partnership_ind
+    x_petey_identifiers:
+      subject: legal_separation
   attorney_for_nm:
     x_petey_id: '1_11'
     type: string
@@ -242,6 +256,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: attorney_for
+      suffix: nm
   attorney_email_address_txt:
     x_petey_id: '1_10'
     type: string
@@ -275,6 +292,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_email_address
+      suffix: txt
   attorney_fax_nbr:
     x_petey_id: '1_9'
     type: string
@@ -313,6 +333,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: attorney_fax
+      suffix: nbr
   attorney_telephone_nbr:
     x_petey_id: '1_8'
     type: string
@@ -353,6 +376,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: attorney_telephone
+      suffix: nbr
   attorney_zip_cd:
     x_petey_id: '1_7'
     type: string
@@ -368,6 +394,9 @@ fields:
       widget_type: text
       path: FL-100[0].Page1[0].CaptionP1_sf[0].AttyInfo[0].AttyZip_ft[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_zip
+      suffix: cd
   attorney_state_cd:
     x_petey_id: '1_6'
     type: string
@@ -383,6 +412,9 @@ fields:
       widget_type: text
       path: FL-100[0].Page1[0].CaptionP1_sf[0].AttyInfo[0].AttyState_ft[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_state
+      suffix: cd
   attorney_city_nm:
     x_petey_id: '1_5'
     type: string
@@ -397,6 +429,9 @@ fields:
       widget_type: text
       path: FL-100[0].Page1[0].CaptionP1_sf[0].AttyInfo[0].AttyCity_ft[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_city
+      suffix: nm
   attorney_street_address_txt:
     x_petey_id: '1_4'
     type: string
@@ -429,6 +464,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_street_address
+      suffix: txt
   attorney_firm_nm:
     x_petey_id: '1_3'
     type: string
@@ -471,6 +509,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_firm
+      suffix: nm
   attorney_nm:
     x_petey_id: '1_2'
     type: string
@@ -500,6 +541,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney
+      suffix: nm
   attorney_state_bar_nbr:
     x_petey_id: '1_1'
     type: string
@@ -551,6 +595,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
   court_county_nm:
     x_petey_id: '1_12'
     type: string
@@ -593,6 +640,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_county
+      suffix: nm
   court_branch_nm:
     x_petey_id: '1_16'
     type: string
@@ -634,6 +684,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_branch
+      suffix: nm
   court_city_and_zip_cd:
     x_petey_id: '1_15'
     type: string
@@ -662,6 +715,9 @@ fields:
         pattern: ^\d{5}(-\d{4})?$
         description: 'CITY AND ZIP CODE:'
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: court_city_and_zip
+      suffix: cd
   court_street_address_txt:
     x_petey_id: '1_13'
     type: string
@@ -694,6 +750,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_street_address
+      suffix: txt
   court_mailing_address_txt:
     x_petey_id: '1_14'
     type: string
@@ -725,7 +784,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
-  respondent_1_nm:
+    x_petey_identifiers:
+      subject: court_mailing_address
+      suffix: txt
+  respondent_nm_1:
     x_petey_id: '1_18'
     type: string
     widget:
@@ -754,7 +816,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  petitioner_1_nm:
+    x_petey_identifiers:
+      subject: respondent
+      suffix: nm
+      iteration: '1'
+  petitioner_nm_1:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -783,7 +849,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  case_1_nbr:
+    x_petey_identifiers:
+      subject: petitioner
+      suffix: nm
+      iteration: '1'
+  case_nbr_1:
     x_petey_id: '1_23'
     type: string
     widget:
@@ -814,6 +884,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '1'
   legal_relationship:
     x_petey_id: '1_71'
     type: multi_category
@@ -865,6 +939,8 @@ fields:
       - legal_relationship_married_ind
       - legal_relationship_domestic_partner_ca_ind
       - legal_relationship_domestic_partner_not_ca_ind
+    x_petey_identifiers:
+      subject: legal_relationship
   residence_requirement:
     x_petey_id: '1_66'
     type: category
@@ -902,6 +978,8 @@ fields:
       from:
       - residence_requirement::residence_requirement_petitioner_ind
       - residence_requirement::residence_requirement_respondent_ind
+    x_petey_identifiers:
+      subject: residence_requirement
   marriage_dt:
     x_petey_id: '1_40'
     type: date
@@ -923,6 +1001,9 @@ fields:
         format:
         - date{MMMM DD, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: marriage
+      suffix: dt
   marriage_separation_dt:
     x_petey_id: '1_41'
     type: date
@@ -944,6 +1025,9 @@ fields:
         format:
         - date{MMMM DD, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: marriage_separation
+      suffix: dt
   marriage_duration_years_txt:
     x_petey_id: '1_42'
     type: string
@@ -973,6 +1057,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: marriage_duration_years
+      suffix: txt
   statistical_facts_marriage_ind:
     x_petey_id: '1_39'
     type: boolean
@@ -987,6 +1074,9 @@ fields:
       widget_type: checkbox
       path: FL-100[0].Page1[0].CheckBox61[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: statistical_facts_marriage
+      suffix: ind
   statistical_facts_domestic_partnership_ind:
     x_petey_id: '1_44'
     type: boolean
@@ -1001,6 +1091,9 @@ fields:
       widget_type: checkbox
       path: FL-100[0].Page1[0].CheckBox61[1]
     label_source: llm
+    x_petey_identifiers:
+      subject: statistical_facts_domestic_partnership
+      suffix: ind
   domestic_partnership_separation_dt:
     x_petey_id: '1_46'
     type: date
@@ -1022,6 +1115,9 @@ fields:
         format:
         - date{MMMM D, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: domestic_partnership_separation
+      suffix: dt
   domestic_partnership_registration_dt:
     x_petey_id: '1_45'
     type: date
@@ -1041,6 +1137,9 @@ fields:
         format:
         - date{MMMM DD, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: domestic_partnership_registration
+      suffix: dt
   no_minor_children_ind:
     x_petey_id: '1_49'
     type: boolean
@@ -1057,6 +1156,9 @@ fields:
     description: There are no minor children.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: no_minor_children
+      suffix: ind
   minor_children_are_ind:
     x_petey_id: '1_50'
     type: boolean
@@ -1073,7 +1175,10 @@ fields:
     description: 'The minor children are:'
     x_petey_description_source: tooltip
     label_source: llm
-  child_1_nm:
+    x_petey_identifiers:
+      subject: minor_children_are
+      suffix: ind
+  child_nm_1:
     x_petey_id: '1_51'
     type: string
     widget:
@@ -1104,7 +1209,12 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  child_4_nm:
+    x_petey_identifiers:
+      subject: child
+      suffix: nm
+      iteration: '1'
+      grid: p1-G1
+  child_nm_4:
     x_petey_id: '1_60'
     type: string
     widget:
@@ -1135,7 +1245,12 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  child_3_nm:
+    x_petey_identifiers:
+      subject: child
+      suffix: nm
+      iteration: '4'
+      grid: p1-G1
+  child_nm_3:
     x_petey_id: '1_57'
     type: string
     widget:
@@ -1166,7 +1281,12 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  child_2_nm:
+    x_petey_identifiers:
+      subject: child
+      suffix: nm
+      iteration: '3'
+      grid: p1-G1
+  child_nm_2:
     x_petey_id: '1_54'
     type: string
     widget:
@@ -1197,6 +1317,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: child
+      suffix: nm
+      iteration: '2'
+      grid: p1-G1
   child_1_age_txt:
     x_petey_id: '1_53'
     type: string
@@ -1226,6 +1351,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: age
+      suffix: txt
+      grid: p1-G1
   child_4_age_txt:
     x_petey_id: '1_62'
     type: string
@@ -1255,6 +1386,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: age
+      suffix: txt
+      grid: p1-G1
   child_3_age_txt:
     x_petey_id: '1_59'
     type: string
@@ -1284,6 +1421,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: age
+      suffix: txt
+      grid: p1-G1
   child_2_age_txt:
     x_petey_id: '1_56'
     type: string
@@ -1313,6 +1456,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: age
+      suffix: txt
+      grid: p1-G1
   child_1_birth_dt:
     x_petey_id: '1_52'
     type: date
@@ -1332,6 +1481,12 @@ fields:
         format:
         - date{MM/DD/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: birth
+      suffix: dt
+      grid: p1-G1
   child_4_birth_dt:
     x_petey_id: '1_61'
     type: date
@@ -1351,6 +1506,12 @@ fields:
         format:
         - date{MM/DD/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: birth
+      suffix: dt
+      grid: p1-G1
   child_3_birth_dt:
     x_petey_id: '1_58'
     type: date
@@ -1370,6 +1531,12 @@ fields:
         format:
         - date{MM/DD/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: birth
+      suffix: dt
+      grid: p1-G1
   child_2_birth_dt:
     x_petey_id: '1_55'
     type: date
@@ -1389,6 +1556,12 @@ fields:
         format:
         - date{MM/DD/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: birth
+      suffix: dt
+      grid: p1-G1
   child_not_yet_born_ind:
     x_petey_id: '1_64'
     type: boolean
@@ -1405,6 +1578,9 @@ fields:
     description: a child who is not yet born.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: child_not_yet_born
+      suffix: ind
   minor_children_attachment_4b_ind:
     x_petey_id: '1_63'
     type: boolean
@@ -1421,6 +1597,9 @@ fields:
     description: continued on Attachment 4b.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: minor_children_attachment_4b
+      suffix: ind
   residence_requirement_ca_domestic_partnership_ind:
     x_petey_id: '1_35'
     type: boolean
@@ -1439,6 +1618,9 @@ fields:
       here.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: residence_requirement_ca_domestic_partnership
+      suffix: ind
   residence_requirement_same_sex_married_ca_ind:
     x_petey_id: '1_36'
     type: boolean
@@ -1457,6 +1639,9 @@ fields:
       Petition is filed in the county where we married.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: residence_requirement_same_sex_married_ca
+      suffix: ind
   respondent_residence_specify_txt:
     x_petey_id: '1_38'
     type: string
@@ -1488,6 +1673,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: respondent_residence_specify
+      suffix: txt
   petitioner_residence_specify_txt:
     x_petey_id: '1_37'
     type: string
@@ -1519,6 +1707,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: petitioner_residence_specify
+      suffix: txt
   marriage_duration_months_txt:
     x_petey_id: '1_43'
     type: string
@@ -1548,6 +1739,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: marriage_duration_months
+      suffix: txt
   domestic_partnership_duration_months_txt:
     x_petey_id: '1_48'
     type: string
@@ -1577,6 +1771,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: domestic_partnership_duration_months
+      suffix: txt
   domestic_partnership_duration_years_txt:
     x_petey_id: '1_47'
     type: string
@@ -1606,6 +1803,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: domestic_partnership_duration_years
+      suffix: txt
   legal_grounds_nullity_void_ind:
     x_petey_id: '2_8'
     type: boolean
@@ -1622,6 +1822,9 @@ fields:
     description: Nullity of void marriage or domestic partnership based on
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: legal_grounds_nullity_void
+      suffix: ind
   legal_grounds_nullity_void:
     x_petey_id: '2_61'
     type: category
@@ -1659,6 +1862,8 @@ fields:
       from:
       - legal_grounds_nullity_void_incest_ind
       - legal_grounds_nullity_void_bigamy_ind
+    x_petey_identifiers:
+      subject: legal_grounds_nullity_void
   legal_grounds_nullity_voidable_ind:
     x_petey_id: '2_11'
     type: boolean
@@ -1675,6 +1880,9 @@ fields:
     description: Nullity of voidable marriage or domestic partnership based on
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: legal_grounds_nullity_voidable
+      suffix: ind
   legal_grounds_nullity_voidable:
     x_petey_id: '2_62'
     type: category
@@ -1786,6 +1994,8 @@ fields:
           legal_grounds_nullity_voidable_age_ind:
             caption: petitioner's age
       record: runs/hand_review/je__ca_courts_fl_100.json
+    x_petey_identifiers:
+      subject: legal_grounds_nullity_voidable
   legal_grounds:
     x_petey_id: '2_55'
     type: category
@@ -1823,6 +2033,8 @@ fields:
       from:
       - legal_grounds_legal_separation_ind
       - legal_grounds_divorce_ind
+    x_petey_identifiers:
+      subject: legal_grounds
   legal_grounds_divorce_or_legal_separation:
     x_petey_id: '2_60'
     type: category
@@ -1862,6 +2074,8 @@ fields:
       - legal_grounds_irreconcilable_differences_ind
       - legal_grounds_permanent_legal_incapacity_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: legal_grounds_divorce_or_legal_separation
   child_visitation_attachment:
     x_petey_id: '2_63'
     type: category
@@ -1957,6 +2171,8 @@ fields:
       - child_visitation_fl_341e_ind
       - child_visitation_attachment_6c1_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: child_visitation_attachment
   child_support_other_txt:
     x_petey_id: '2_28'
     type: string
@@ -1973,6 +2189,9 @@ fields:
     description: Other (specify)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: child_support_other
+      suffix: txt
   child_support_other_ind:
     x_petey_id: '2_27'
     type: boolean
@@ -1989,6 +2208,9 @@ fields:
     description: 'Other (specify):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: child_support_other
+      suffix: ind
   terminate_spousal_support:
     x_petey_id: '2_57'
     type: category
@@ -2026,6 +2248,8 @@ fields:
       from:
       - terminate_spousal_support_respondent_ind
       - terminate_spousal_support_petitioner_ind
+    x_petey_identifiers:
+      subject: terminate_spousal_support
   spousal_or_domestic_partner_support_order:
     x_petey_id: '2_64'
     type: category
@@ -2093,6 +2317,8 @@ fields:
       - reserve_spousal_support_ind
       - spousal_support_other_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: spousal_or_domestic_partner_support_order
   spousal_support_payable:
     x_petey_id: '2_56'
     type: category
@@ -2130,6 +2356,8 @@ fields:
       from:
       - spousal_support_payable::spousal_support_payable_petitioner_ind
       - spousal_support_payable::spousal_support_payable_respondent_ind
+    x_petey_identifiers:
+      subject: spousal_support_payable
   reserve_spousal_support:
     x_petey_id: '2_58'
     type: category
@@ -2167,6 +2395,8 @@ fields:
       from:
       - reserve_spousal_support_respondent_ind
       - reserve_spousal_support_petitioner_ind
+    x_petey_identifiers:
+      subject: reserve_spousal_support
   spousal_support_other_txt:
     x_petey_id: '2_39'
     type: string
@@ -2183,6 +2413,9 @@ fields:
     description: Other (specify)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spousal_support_other
+      suffix: txt
   separate_property:
     x_petey_id: '2_59'
     type: category
@@ -2220,6 +2453,8 @@ fields:
       from:
       - separate_property::separate_property_attachment_9b_ind
       - separate_property::separate_property_fl_160_ind
+    x_petey_identifiers:
+      subject: separate_property
   confirm_separate_property_ind:
     x_petey_id: '2_41'
     type: boolean
@@ -2236,6 +2471,9 @@ fields:
     description: Confirm as separate property the assets and debts in
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: confirm_separate_property
+      suffix: ind
   separate_property_following_list_ind:
     x_petey_id: '2_44'
     type: boolean
@@ -2252,7 +2490,10 @@ fields:
     description: the following list.
     x_petey_description_source: tooltip
     label_source: llm
-  separate_property_item_desc_1_txt:
+    x_petey_identifiers:
+      subject: separate_property_following_list
+      suffix: ind
+  separate_property_item_desc_txt_1:
     x_petey_id: '2_45'
     type: string
     semantic_type: description
@@ -2282,7 +2523,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: desc -> desc_txt; first of a numbered set gets 1'
-  separate_property_item_desc_2_txt:
+    x_petey_identifiers:
+      subject: separate_property_item_desc
+      suffix: txt
+      iteration: '1'
+  separate_property_item_desc_txt_2:
     x_petey_id: '2_49'
     type: string
     semantic_type: description
@@ -2312,7 +2557,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: desc -> desc_txt; number moved before the suffix'
-  separate_property_item_desc_3_txt:
+    x_petey_identifiers:
+      subject: separate_property_item_desc
+      suffix: txt
+      iteration: '2'
+  separate_property_item_desc_txt_3:
     x_petey_id: '2_47'
     type: string
     semantic_type: description
@@ -2342,7 +2591,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: desc -> desc_txt; number moved before the suffix'
-  separate_property_confirm_to_1_txt:
+    x_petey_identifiers:
+      subject: separate_property_item_desc
+      suffix: txt
+      iteration: '3'
+  separate_property_confirm_to_txt_1:
     x_petey_id: '2_46'
     type: string
     widget:
@@ -2371,7 +2624,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); first of a numbered set gets 1'
-  separate_property_confirm_to_2_txt:
+    x_petey_identifiers:
+      subject: separate_property_confirm_to
+      suffix: txt
+      iteration: '1'
+  separate_property_confirm_to_txt_2:
     x_petey_id: '2_50'
     type: string
     widget:
@@ -2400,7 +2657,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  separate_property_item_desc_4_txt:
+    x_petey_identifiers:
+      subject: separate_property_confirm_to
+      suffix: txt
+      iteration: '2'
+  separate_property_item_desc_txt_4:
     x_petey_id: '2_51'
     type: string
     semantic_type: description
@@ -2430,7 +2691,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: desc -> desc_txt; number moved before the suffix'
-  separate_property_confirm_to_3_txt:
+    x_petey_identifiers:
+      subject: separate_property_item_desc
+      suffix: txt
+      iteration: '4'
+  separate_property_confirm_to_txt_3:
     x_petey_id: '2_52'
     type: string
     widget:
@@ -2459,7 +2724,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  separate_property_item_desc_5_txt:
+    x_petey_identifiers:
+      subject: separate_property_confirm_to
+      suffix: txt
+      iteration: '3'
+  separate_property_item_desc_txt_5:
     x_petey_id: '2_53'
     type: string
     semantic_type: description
@@ -2489,7 +2758,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: desc -> desc_txt; number moved before the suffix'
-  separate_property_confirm_to_4_txt:
+    x_petey_identifiers:
+      subject: separate_property_item_desc
+      suffix: txt
+      iteration: '5'
+  separate_property_confirm_to_txt_4:
     x_petey_id: '2_54'
     type: string
     widget:
@@ -2518,7 +2791,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  separate_property_confirm_to_5_txt:
+    x_petey_identifiers:
+      subject: separate_property_confirm_to
+      suffix: txt
+      iteration: '4'
+  separate_property_confirm_to_txt_5:
     x_petey_id: '2_48'
     type: string
     widget:
@@ -2547,6 +2824,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: separate_property_confirm_to
+      suffix: txt
+      iteration: '5'
   separate_property_none_ind:
     x_petey_id: '2_40'
     type: boolean
@@ -2564,7 +2845,10 @@ fields:
       by the court.
     x_petey_description_source: tooltip
     label_source: llm
-  case_2_nbr:
+    x_petey_identifiers:
+      subject: separate_property_none
+      suffix: ind
+  case_nbr_2:
     x_petey_id: '2_3'
     type: string
     widget:
@@ -2595,6 +2879,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '2'
   respondent_nm:
     x_petey_id: '2_2'
     type: string
@@ -2624,6 +2912,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: respondent
+      suffix: nm
   petitioner_nm:
     x_petey_id: '2_1'
     type: string
@@ -2653,7 +2944,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  case_3_nbr:
+    x_petey_identifiers:
+      subject: petitioner
+      suffix: nm
+  case_nbr_3:
     x_petey_id: '3_2'
     type: string
     widget:
@@ -2684,7 +2978,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
-  respondent_2_nm:
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '3'
+  respondent_nm_2:
     x_petey_id: '3_3'
     type: string
     widget:
@@ -2713,7 +3011,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  petitioner_2_nm:
+    x_petey_identifiers:
+      subject: respondent
+      suffix: nm
+      iteration: '2'
+  petitioner_nm_2:
     x_petey_id: '3_1'
     type: string
     widget:
@@ -2742,6 +3044,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: petitioner
+      suffix: nm
+      iteration: '2'
   petitioner_signature_dt:
     x_petey_id: '3_17'
     type: date
@@ -2761,6 +3067,9 @@ fields:
         format:
         - date{MMMM DD, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: petitioner_signature
+      suffix: dt
   petitioner_printed_nm:
     x_petey_id: '3_18'
     type: string
@@ -2792,6 +3101,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: petitioner_printed
+      suffix: nm
   community_property_none_ind:
     x_petey_id: '3_4'
     type: boolean
@@ -2809,6 +3121,9 @@ fields:
       the court.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: community_property_none
+      suffix: ind
   community_property:
     x_petey_id: '3_21'
     type: category
@@ -2846,6 +3161,8 @@ fields:
       from:
       - community_property::community_property_attachment_10b_ind
       - community_property::community_property_fl_160_ind
+    x_petey_identifiers:
+      subject: community_property
   determine_community_property_rights_ind:
     x_petey_id: '3_5'
     type: boolean
@@ -2863,6 +3180,9 @@ fields:
       All such assets and debts are listed
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: determine_community_property_rights
+      suffix: ind
   community_property_specify_txt:
     x_petey_id: '3_9'
     type: string
@@ -2879,6 +3199,9 @@ fields:
     description: as follows (specify)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: community_property_specify
+      suffix: txt
   community_property_as_follows_ind:
     x_petey_id: '3_8'
     type: boolean
@@ -2895,6 +3218,9 @@ fields:
     description: 'as follows (specify):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: community_property_as_follows
+      suffix: ind
   attorney_fees_costs_payable_ind:
     x_petey_id: '3_10'
     type: boolean
@@ -2911,6 +3237,9 @@ fields:
     description: Attorney's fees and costs payable by
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_fees_costs_payable
+      suffix: ind
   petitioner_former_name_restored_ind:
     x_petey_id: '3_12'
     type: boolean
@@ -2927,6 +3256,9 @@ fields:
     description: Petitioner's former name be restored to
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: petitioner_former_name_restored
+      suffix: ind
   petitioner_former_nm:
     x_petey_id: '3_13'
     type: string
@@ -2956,6 +3288,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: petitioner_former
+      suffix: nm
   other_requests_specify_txt:
     x_petey_id: '3_15'
     type: string
@@ -2972,6 +3307,9 @@ fields:
     description: Other (specify)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_requests_specify
+      suffix: txt
   other_requests_attachment_11c_ind:
     x_petey_id: '3_16'
     type: boolean
@@ -2988,6 +3326,9 @@ fields:
     description: Continued on Attachment 11c.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_requests_attachment_11c
+      suffix: ind
   other_requests_ind:
     x_petey_id: '3_14'
     type: boolean
@@ -3004,6 +3345,9 @@ fields:
     description: 'Other (specify):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_requests
+      suffix: ind
   attorney_signature_dt:
     x_petey_id: '3_19'
     type: date
@@ -3023,6 +3367,9 @@ fields:
         format:
         - date{MMMM DD, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_signature
+      suffix: dt
   attorney_printed_nm:
     x_petey_id: '3_20'
     type: string
@@ -3054,6 +3401,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_printed
+      suffix: nm
   child_legal_custody:
     x_petey_id: '2_18'
     type: category
@@ -3119,6 +3469,8 @@ fields:
       - child_legal_custody::respondent
       - child_legal_custody::joint
       - child_legal_custody::other
+    x_petey_identifiers:
+      subject: child_legal_custody
   child_physical_custody:
     x_petey_id: '2_19'
     type: category
@@ -3184,6 +3536,8 @@ fields:
       - child_physical_custody::respondent
       - child_physical_custody::joint
       - child_physical_custody::other
+    x_petey_identifiers:
+      subject: child_physical_custody
   child_visitation:
     x_petey_id: '2_20'
     type: category
@@ -3228,6 +3582,8 @@ fields:
         on_state: '1'
         caption: Respondent
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: child_visitation
   attorney_fees_payable_by:
     x_petey_id: '3_11'
     type: category
@@ -3259,6 +3615,8 @@ fields:
         on_state: '1'
         caption: Petitioner
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: attorney_fees_payable_by
 x_petey_dedup_log:
   duplicate_labels_reassigned: 12
   collisions:

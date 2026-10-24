@@ -108,11 +108,18 @@ def _membership(bid: str, bp: dict) -> tuple[dict[str, dict], dict[str, str]]:
     return out, twice
 
 
+# a number after one of these words labels a line of the form (line 14, row 3, box 26, item 7b), so it stays in the
+# subject with its word, as address_line_1 does (the naming standard, 2026-10-24)
+LINE_WORDS = {"line", "row", "box", "item", "page", "part", "question", "q", "col", "column", "section", "step",
+              "schedule", "lines", "rows"}
+
+
 def read(name: str, spec: dict, parts: dict[str, str], member: dict | None, series: dict) -> tuple[dict, list[str]]:
     """(identifiers, flags) for one field from its name and what is known about it."""
     group = _is_group(spec)
     toks, flags = name.split("_"), []
-    ident: dict = {"subject": None, "suffix": None, "iteration": None, "part": None}
+    ident: dict = {"block_prefix": None, "block_iteration": None, "subject": None, "suffix": None, "iteration": None,
+                   "part": None}
     if name in parts and not group:
         ident["part"] = toks[-1]
         toks = toks[:-1]
@@ -149,7 +156,16 @@ def read(name: str, spec: dict, parts: dict[str, str], member: dict | None, seri
             pick = vary[0]
         elif len(vary) > 1:
             flags.append(f"{len(vary)} numbers vary ({', '.join(toks[i] for i in vary)}): which one iterates?")
-    if pick is not None:
+    if pick is not None and pick > 0 and toks[pick - 1] in LINE_WORDS:
+        pick = None                 # a line's label, not a count: it stays with its word (address_line_1, row_14)
+    if pick is not None and 0 < pick < len(toks) - 1:
+        # field words between the number and the suffix: the number is a block's, after the block's subject (the
+        # naming standard, Andrew 2026-10-24: employment_2_to_dt is employment 2's "to" date, family_member_3_given_nm
+        # the third family member's given name); a number directly before the suffix is the field's own
+        # (procedure_1_cd -> procedure_cd_1)
+        ident["block_prefix"], ident["block_iteration"] = "_".join(toks[:pick]), toks[pick]
+        toks = toks[pick + 1:]
+    elif pick is not None:
         ident["iteration"] = toks[pick]
         toks = toks[:pick] + toks[pick + 1:]
     ident["subject"] = "_".join(toks)

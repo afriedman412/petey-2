@@ -17,7 +17,7 @@ authoring:
   labels: llm
   when: '2026-10-06 19:20:17'
 fields:
-  case_1_nbr:
+  case_nbr_1:
     x_petey_id: '1_19'
     type: string
     widget:
@@ -48,6 +48,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '1'
   attorney_state_bar_nbr:
     x_petey_id: '1_1'
     type: string
@@ -98,6 +102,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
   attorney_nm:
     x_petey_id: '1_2'
     type: string
@@ -127,6 +134,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney
+      suffix: nm
   attorney_firm_nm:
     x_petey_id: '1_3'
     type: string
@@ -166,6 +176,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_firm
+      suffix: nm
   attorney_street_address_txt:
     x_petey_id: '1_4'
     type: string
@@ -198,6 +211,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_street_address
+      suffix: txt
   attorney_city_nm:
     x_petey_id: '1_5'
     type: string
@@ -228,6 +244,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_city
+      suffix: nm
   attorney_state_cd:
     x_petey_id: '1_6'
     type: string
@@ -243,6 +262,9 @@ fields:
       widget_type: text
       path: UD-105[0].Page1[0].P1Caption[0].AttyPartyInfo[0].State[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_state
+      suffix: cd
   attorney_zip_cd:
     x_petey_id: '1_7'
     type: string
@@ -265,6 +287,9 @@ fields:
         format:
         - text{99999-9999}
     label_source: llm
+    x_petey_identifiers:
+      subject: attorney_zip
+      suffix: cd
   attorney_phone_nbr:
     x_petey_id: '1_8'
     type: string
@@ -305,6 +330,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_phone
+      suffix: nbr
   attorney_fax_nbr:
     x_petey_id: '1_9'
     type: string
@@ -343,6 +371,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_fax
+      suffix: nbr
   attorney_email_address_txt:
     x_petey_id: '1_10'
     type: string
@@ -376,6 +407,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_email_address
+      suffix: txt
   attorney_for_nm:
     x_petey_id: '1_11'
     type: string
@@ -407,6 +441,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_for
+      suffix: nm
   court_county_nm:
     x_petey_id: '1_12'
     type: string
@@ -449,6 +486,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_county
+      suffix: nm
   court_street_address_txt:
     x_petey_id: '1_13'
     type: string
@@ -481,6 +521,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_street_address
+      suffix: txt
   court_mailing_address_txt:
     x_petey_id: '1_14'
     type: string
@@ -512,6 +555,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_mailing_address
+      suffix: txt
   court_city_zip_cd:
     x_petey_id: '1_15'
     type: string
@@ -540,6 +586,9 @@ fields:
         pattern: ^\d{5}(-\d{4})?$
         description: 'CITY AND ZIP CODE:'
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: court_city_zip
+      suffix: cd
   court_branch_nm:
     x_petey_id: '1_16'
     type: string
@@ -582,7 +631,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
-  plaintiff_1_nm:
+    x_petey_identifiers:
+      subject: court_branch
+      suffix: nm
+  plaintiff_nm_1:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -611,7 +663,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  defendant_1_nm:
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '1'
+  defendant_nm_1:
     x_petey_id: '1_18'
     type: string
     widget:
@@ -640,6 +696,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '1'
   answering_defendants_txt:
     x_petey_id: '1_20'
     type: string
@@ -672,6 +732,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: answering_defendants
+      suffix: txt
   general_denial_ind:
     x_petey_id: '1_21'
     type: boolean
@@ -689,6 +752,9 @@ fields:
       than $1,000.) Defendant generally denies each statement of the complaint.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: general_denial
+      suffix: ind
   specific_denials_ind:
     x_petey_id: '1_22'
     type: boolean
@@ -707,6 +773,9 @@ fields:
       of the complaint are true EXCEPT:'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: specific_denials
+      suffix: ind
   specific_denials_false_statements_txt:
     x_petey_id: '1_24'
     type: string
@@ -725,6 +794,9 @@ fields:
       needed, on form MC-025):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: specific_denials_false_statements
+      suffix: txt
   attachment_2b1_ind:
     x_petey_id: '1_23'
     type: boolean
@@ -741,6 +813,9 @@ fields:
     description: Explanation is on form MC-025, titled as Attachment 2b(1).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: attachment_2b1
+      suffix: ind
   specific_denials_uninformed_statements_txt:
     x_petey_id: '1_26'
     type: string
@@ -759,6 +834,9 @@ fields:
       from the complaint or explain below or, if more room needed, on form MC-025):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: specific_denials_uninformed_statements
+      suffix: txt
   attachment_2b2_ind:
     x_petey_id: '1_25'
     type: boolean
@@ -775,6 +853,9 @@ fields:
     description: Explanation is on form MC-025, titled as Attachment 2b(2).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: attachment_2b2
+      suffix: ind
   breach_warranty_habitability_ind:
     x_petey_id: '1_27'
     type: boolean
@@ -792,6 +873,9 @@ fields:
       provide habitable premises.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: breach_warranty_habitability
+      suffix: ind
   repair_and_deduct_ind:
     x_petey_id: '1_28'
     type: boolean
@@ -809,6 +893,9 @@ fields:
       deducted the cost from the rent, and plaintiff did not give proper credit.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: repair_and_deduct
+      suffix: ind
   rent_tendered_refused_ind:
     x_petey_id: '1_29'
     type: boolean
@@ -825,6 +912,9 @@ fields:
     description: (Nonpayment of rent only)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: rent_tendered_refused
+      suffix: ind
   rent_tendered_refused_dt:
     x_petey_id: '1_30'
     type: date
@@ -844,6 +934,9 @@ fields:
         format:
         - date{MMMM D, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: rent_tendered_refused
+      suffix: dt
   rent_due_over_one_year_ago_ind:
     x_petey_id: '1_31'
     type: boolean
@@ -861,6 +954,9 @@ fields:
       on nonpayment of rent due more than one year ago.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: rent_due_over_one_year_ago
+      suffix: ind
   waived_changed_canceled_notice_ind:
     x_petey_id: '1_32'
     type: boolean
@@ -877,6 +973,9 @@ fields:
     description: Plaintiff waived, changed, or canceled the notice to quit.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: waived_changed_canceled_notice
+      suffix: ind
   retaliatory_eviction_ind:
     x_petey_id: '1_33'
     type: boolean
@@ -894,7 +993,10 @@ fields:
       to retaliate against defendant.
     x_petey_description_source: tooltip
     label_source: llm
-  case_2_nbr:
+    x_petey_identifiers:
+      subject: retaliatory_eviction
+      suffix: ind
+  case_nbr_2:
     x_petey_id: '2_2'
     type: string
     widget:
@@ -925,7 +1027,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
-  plaintiff_2_nm:
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '2'
+  plaintiff_nm_2:
     x_petey_id: '2_1'
     type: string
     widget:
@@ -954,7 +1060,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  defendant_2_nm:
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '2'
+  defendant_nm_2:
     x_petey_id: '2_3'
     type: string
     widget:
@@ -983,6 +1093,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '2'
   defense_arbitrary_discrimination_ind:
     x_petey_id: '2_4'
     type: boolean
@@ -1001,6 +1115,9 @@ fields:
       the Constitution or the laws of the United States or California.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_arbitrary_discrimination
+      suffix: ind
   defense_rent_control_ordinance_ind:
     x_petey_id: '2_5'
     type: boolean
@@ -1019,6 +1136,9 @@ fields:
       of passage):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_rent_control_ordinance
+      suffix: ind
   rent_control_ordinance_description_txt:
     x_petey_id: '2_6'
     type: string
@@ -1051,6 +1171,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: rent_control_ordinance_description
+      suffix: txt
   defense_tenant_protection_act_ind:
     x_petey_id: '2_7'
     type: boolean
@@ -1070,6 +1193,9 @@ fields:
       support each.)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act
+      suffix: ind
   defense_tenant_protection_act_just_cause_ind:
     x_petey_id: '2_8'
     type: boolean
@@ -1087,6 +1213,9 @@ fields:
       in the written notice to terminate.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_just_cause
+      suffix: ind
   defense_tenant_protection_act_opportunity_to_cure_ind:
     x_petey_id: '2_9'
     type: boolean
@@ -1105,6 +1234,9 @@ fields:
       under Civil Code section 1946.2(c).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_opportunity_to_cure
+      suffix: ind
   defense_tenant_protection_act_relocation_assistance_ind:
     x_petey_id: '2_10'
     type: boolean
@@ -1122,6 +1254,9 @@ fields:
       of Civil Code section 1946.2(d).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_relocation_assistance
+      suffix: ind
   defense_tenant_protection_act_unlawful_rent_increase_ind:
     x_petey_id: '2_11'
     type: boolean
@@ -1139,6 +1274,9 @@ fields:
       Civil Code section 1947.12, and the only unpaid rent is the unauthorized amount.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_unlawful_rent_increase
+      suffix: ind
   defense_tenant_protection_act_other_ind:
     x_petey_id: '2_12'
     type: boolean
@@ -1156,6 +1294,9 @@ fields:
       defeats the complaint.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_tenant_protection_act_other
+      suffix: ind
   defense_rent_accepted_after_notice_ind:
     x_petey_id: '2_13'
     type: boolean
@@ -1173,6 +1314,9 @@ fields:
       after the date the notice to quit expired.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_rent_accepted_after_notice
+      suffix: ind
   defense_domestic_violence_or_crime_victim_ind:
     x_petey_id: '2_14'
     type: boolean
@@ -1200,6 +1344,9 @@ fields:
       evidence that verifies that the abuse or violence occurred.)'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_domestic_violence_or_crime_victim
+      suffix: ind
   defense_domestic_violence_non_resident_perpetrator_ind:
     x_petey_id: '2_15'
     type: boolean
@@ -1217,6 +1364,9 @@ fields:
       in the dwelling unit.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_domestic_violence_non_resident_perpetrator
+      suffix: ind
   defense_domestic_violence_resident_perpetrator_ind:
     x_petey_id: '2_16'
     type: boolean
@@ -1235,6 +1385,9 @@ fields:
       Procedure section 1161.3(d)(2).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_domestic_violence_resident_perpetrator
+      suffix: ind
   defense_emergency_assistance_called_ind:
     x_petey_id: '2_17'
     type: boolean
@@ -1254,6 +1407,9 @@ fields:
       when defendant or the other person believed that assistance was necessary.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_emergency_assistance_called
+      suffix: ind
   defense_rental_assistance_basis_ind:
     x_petey_id: '2_18'
     type: boolean
@@ -1271,6 +1427,9 @@ fields:
       on nonpayment of rent or other financial obligations and (check all that apply)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_basis
+      suffix: ind
   defense_rental_assistance_received_or_pending_ind:
     x_petey_id: '2_19'
     type: boolean
@@ -1290,6 +1449,9 @@ fields:
       §§ 50897.1(d)(2)(B) and 50897.3(e)(2).)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_received_or_pending
+      suffix: ind
   defense_rental_assistance_pending_accruing_rent_ind:
     x_petey_id: '2_20'
     type: boolean
@@ -1309,6 +1471,9 @@ fields:
       and 50897.3(e)(2).)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_pending_accruing_rent
+      suffix: ind
   defense_rental_assistance_late_fees_only_ind:
     x_petey_id: '2_21'
     type: boolean
@@ -1327,6 +1492,9 @@ fields:
       governmental rental assistance. (Health & Saf. Code, § 50897.1(e)(2)(B).)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_rental_assistance_late_fees_only
+      suffix: ind
   defense_covid_19_ordinance_violation_ind:
     x_petey_id: '2_22'
     type: boolean
@@ -1360,6 +1528,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: defense_covid_19_ordinance_violation
+      suffix: ind
   defense_cares_act_notice_violation_ind:
     x_petey_id: '2_23'
     type: boolean
@@ -1377,6 +1548,9 @@ fields:
       did not provide 30 days' notice to vacate.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_cares_act_notice_violation
+      suffix: ind
   defense_improperly_applied_payments_ind:
     x_petey_id: '2_24'
     type: boolean
@@ -1395,6 +1569,9 @@ fields:
       30, 2021 (Code Civ. Proc., § 1179.04.5), as follows (check all that apply):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_improperly_applied_payments
+      suffix: ind
   defense_applied_security_deposit_without_agreement_ind:
     x_petey_id: '2_25'
     type: boolean
@@ -1412,6 +1589,9 @@ fields:
       obligations due, without tenant’s written agreement.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: defense_applied_security_deposit_without_agreement
+      suffix: ind
   defense_applied_monthly_payment_without_agreement_ind:
     x_petey_id: '2_26'
     type: boolean
@@ -1430,7 +1610,10 @@ fields:
       than to the prospective month’s rent, without tenant’s written agreement.
     x_petey_description_source: tooltip
     label_source: llm
-  case_3_nbr:
+    x_petey_identifiers:
+      subject: defense_applied_monthly_payment_without_agreement
+      suffix: ind
+  case_nbr_3:
     x_petey_id: '3_2'
     type: string
     widget:
@@ -1461,7 +1644,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
-  plaintiff_3_nm:
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '3'
+  plaintiff_nm_3:
     x_petey_id: '3_1'
     type: string
     widget:
@@ -1490,7 +1677,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  defendant_3_nm:
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '3'
+  defendant_nm_3:
     x_petey_id: '3_3'
     type: string
     widget:
@@ -1519,6 +1710,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '3'
   refused_third_party_payment_ind:
     x_petey_id: '3_4'
     type: boolean
@@ -1536,6 +1731,9 @@ fields:
       (Civ. Code, § 1947.3; Gov. Code, § 12955.)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: refused_third_party_payment
+      suffix: ind
   refused_reasonable_accommodation_ind:
     x_petey_id: '3_5'
     type: boolean
@@ -1553,6 +1751,9 @@ fields:
       accommodation that was requested. (Cal. Code Regs., tit. 2, § 12176(c).)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: refused_reasonable_accommodation
+      suffix: ind
   other_defenses_ind:
     x_petey_id: '3_6'
     type: boolean
@@ -1569,6 +1770,9 @@ fields:
     description: Other defenses and objections are stated in item 3t.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_defenses
+      suffix: ind
   facts_supporting_defenses_txt:
     x_petey_id: '3_8'
     type: string
@@ -1586,6 +1790,9 @@ fields:
       more room needed, on form MC-025):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: facts_supporting_defenses
+      suffix: txt
   facts_on_mc025_attachment_ind:
     x_petey_id: '3_7'
     type: boolean
@@ -1616,6 +1823,9 @@ fields:
         semantic_type: indicator
         pattern: null
       record: runs/hand_review/je__ca_courts_ud_105.json
+    x_petey_identifiers:
+      subject: facts_on_mc025_attachment
+      suffix: ind
   vacated_premises_ind:
     x_petey_id: '3_9'
     type: boolean
@@ -1632,6 +1842,9 @@ fields:
     description: Defendant vacated the premises on
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: vacated_premises
+      suffix: ind
   vacated_premises_dt:
     x_petey_id: '3_10'
     type: date
@@ -1651,6 +1864,9 @@ fields:
         format:
         - date{MMMM D, YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: vacated_premises
+      suffix: dt
   fair_rental_value_excessive_ind:
     x_petey_id: '3_11'
     type: boolean
@@ -1668,6 +1884,9 @@ fields:
       excessive (explain below or, if more room needed, on form MC-025).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: fair_rental_value_excessive
+      suffix: ind
   attachment_4b_ind:
     x_petey_id: '3_12'
     type: boolean
@@ -1684,6 +1903,9 @@ fields:
     description: Explanation is on form MC-025, titled as Attachment 4b.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: attachment_4b
+      suffix: ind
   fair_rental_value_excessive_txt:
     x_petey_id: '3_13'
     type: string
@@ -1698,6 +1920,9 @@ fields:
       widget_type: text
       path: UD-105[0].Page3[0].List4[0].Lib[0].FillField10[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: fair_rental_value_excessive
+      suffix: txt
   other_statements_ind:
     x_petey_id: '3_14'
     type: boolean
@@ -1714,6 +1939,9 @@ fields:
     description: 'Other (specify below or, if more room needed, on form MC-025):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_statements
+      suffix: ind
   other_statements_on_mc025_ind:
     x_petey_id: '3_15'
     type: boolean
@@ -1743,6 +1971,9 @@ fields:
         semantic_type: indicator
         pattern: null
       record: runs/hand_review/je__ca_courts_ud_105.json
+    x_petey_identifiers:
+      subject: other_statements_on_mc025
+      suffix: ind
   other_statements_txt:
     x_petey_id: '3_16'
     type: string
@@ -1759,6 +1990,9 @@ fields:
     description: specify other
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_statements
+      suffix: txt
   request_attorney_fees_ind:
     x_petey_id: '3_17'
     type: boolean
@@ -1775,6 +2009,9 @@ fields:
     description: reasonable attorney fees.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: request_attorney_fees
+      suffix: ind
   request_other_ind:
     x_petey_id: '3_19'
     type: boolean
@@ -1791,6 +2028,9 @@ fields:
     description: 'Other (specify below or on form MC-025):'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: request_other
+      suffix: ind
   other_requests_on_mc025_ind:
     x_petey_id: '3_20'
     type: boolean
@@ -1821,6 +2061,9 @@ fields:
         semantic_type: indicator
         pattern: null
       record: runs/hand_review/je__ca_courts_ud_105.json
+    x_petey_identifiers:
+      subject: other_requests_on_mc025
+      suffix: ind
   request_other_txt:
     x_petey_id: '3_21'
     type: string
@@ -1837,6 +2080,9 @@ fields:
     description: specify other
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: request_other
+      suffix: txt
   request_repairs_and_rent_reduction_ind:
     x_petey_id: '3_18'
     type: boolean
@@ -1856,6 +2102,9 @@ fields:
       corrected.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: request_repairs_and_rent_reduction
+      suffix: ind
   pages_attached_ind:
     x_petey_id: '3_22'
     type: boolean
@@ -1872,6 +2121,9 @@ fields:
     description: Pages attached
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: pages_attached
+      suffix: ind
   attached_pages_cnt:
     x_petey_id: '3_23'
     type: integer
@@ -1888,7 +2140,10 @@ fields:
     description: '(specify number of pages):'
     x_petey_description_source: tooltip
     label_source: llm
-  case_4_nbr:
+    x_petey_identifiers:
+      subject: attached_pages
+      suffix: cnt
+  case_nbr_4:
     x_petey_id: '4_2'
     type: string
     widget:
@@ -1919,7 +2174,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr; number moved before the suffix'
-  plaintiff_4_nm:
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '4'
+  plaintiff_nm_4:
     x_petey_id: '4_1'
     type: string
     widget:
@@ -1948,7 +2207,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  defendant_4_nm:
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
+      iteration: '4'
+  defendant_nm_4:
     x_petey_id: '4_3'
     type: string
     widget:
@@ -1977,6 +2240,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
+      iteration: '4'
   assistant_nm:
     x_petey_id: '4_5'
     type: string
@@ -2008,6 +2275,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: assistant
+      suffix: nm
   assistant_phone_nbr:
     x_petey_id: '4_6'
     type: string
@@ -2050,6 +2320,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: assistant_phone
+      suffix: nbr
   assistant_address_txt:
     x_petey_id: '4_7'
     type: string
@@ -2081,6 +2354,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: assistant_address
+      suffix: txt
   assistant_county_of_registration_txt:
     x_petey_id: '4_8'
     type: string
@@ -2112,6 +2388,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: assistant_county_of_registration
+      suffix: txt
   assistant_registration_nbr:
     x_petey_id: '4_9'
     type: string
@@ -2143,6 +2422,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: assistant_registration
+      suffix: nbr
   assistant_expiration_dt:
     x_petey_id: '4_10'
     type: date
@@ -2164,7 +2446,10 @@ fields:
         format:
         - date{MMM D, YYYY}
     label_source: llm
-  defendant_or_attorney_1_nm:
+    x_petey_identifiers:
+      subject: assistant_expiration
+      suffix: dt
+  defendant_or_attorney_nm_1:
     x_petey_id: '4_11'
     type: string
     widget:
@@ -2195,7 +2480,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  defendant_or_attorney_2_nm:
+    x_petey_identifiers:
+      subject: defendant_or_attorney
+      suffix: nm
+      iteration: '1'
+  defendant_or_attorney_nm_2:
     x_petey_id: '4_12'
     type: string
     widget:
@@ -2226,7 +2515,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  defendant_or_attorney_3_nm:
+    x_petey_identifiers:
+      subject: defendant_or_attorney
+      suffix: nm
+      iteration: '2'
+  defendant_or_attorney_nm_3:
     x_petey_id: '4_13'
     type: string
     widget:
@@ -2257,7 +2550,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  verification_1_dt:
+    x_petey_identifiers:
+      subject: defendant_or_attorney
+      suffix: nm
+      iteration: '3'
+  verification_dt_1:
     x_petey_id: '4_14'
     type: date
     semantic_type: iso_date
@@ -2292,7 +2589,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  verification_defendant_1_nm:
+    x_petey_identifiers:
+      subject: verification
+      suffix: dt
+      iteration: '1'
+  verification_defendant_nm_1:
     x_petey_id: '4_15'
     type: string
     widget:
@@ -2323,7 +2624,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  verification_2_dt:
+    x_petey_identifiers:
+      subject: verification_defendant
+      suffix: nm
+      iteration: '1'
+  verification_dt_2:
     x_petey_id: '4_16'
     type: date
     semantic_type: iso_date
@@ -2358,7 +2663,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  verification_defendant_2_nm:
+    x_petey_identifiers:
+      subject: verification
+      suffix: dt
+      iteration: '2'
+  verification_defendant_nm_2:
     x_petey_id: '4_17'
     type: string
     widget:
@@ -2389,7 +2698,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  verification_3_dt:
+    x_petey_identifiers:
+      subject: verification_defendant
+      suffix: nm
+      iteration: '2'
+  verification_dt_3:
     x_petey_id: '4_18'
     type: date
     semantic_type: iso_date
@@ -2424,7 +2737,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  verification_defendant_3_nm:
+    x_petey_identifiers:
+      subject: verification
+      suffix: dt
+      iteration: '3'
+  verification_defendant_nm_3:
     x_petey_id: '4_19'
     type: string
     widget:
@@ -2455,6 +2772,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: verification_defendant
+      suffix: nm
+      iteration: '3'
   unlawful_detainer_assistant:
     x_petey_id: '4_4'
     type: category
@@ -2492,6 +2813,8 @@ fields:
       from:
       - unlawful_detainer_assistant::did_not
       - unlawful_detainer_assistant::did
+    x_petey_identifiers:
+      subject: unlawful_detainer_assistant
 x_petey_dedup_log:
   duplicate_labels_reassigned: 15
   collisions:

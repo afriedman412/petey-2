@@ -32,6 +32,8 @@ fields:
     description: FHA Case No.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: fha_case_no
   mortgagee_case_no:
     x_petey_id: '1_2'
     type: string
@@ -47,6 +49,8 @@ fields:
     description: Mortgagee Case No.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_case_no
   mortgagee_id:
     x_petey_id: '1_3'
     type: string
@@ -62,6 +66,8 @@ fields:
     description: Mortgagee ID
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_id
   mortgagee_name_address_telephone:
     x_petey_id: '1_6'
     type: string
@@ -92,6 +98,8 @@ fields:
         pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
         description: Mortgage Name, Address (including Zip Code), and Telephone Number
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: mortgagee_name_address_telephone
   sponsor_id:
     x_petey_id: '1_4'
     type: string
@@ -105,6 +113,8 @@ fields:
       widget_type: text
       path: Sponsor ID
     label_source: llm
+    x_petey_identifiers:
+      subject: sponsor_id
   sponsor_name_address:
     x_petey_id: '1_7'
     type: string
@@ -132,6 +142,8 @@ fields:
         semantic_type: person_name
         description: Name and Address of Sponsor
       judged: 'kept: 2 -> 1'
+    x_petey_identifiers:
+      subject: sponsor_name_address
   agent_id:
     x_petey_id: '1_5'
     type: string
@@ -145,6 +157,8 @@ fields:
       widget_type: text
       path: Agent ID
     label_source: llm
+    x_petey_identifiers:
+      subject: agent_id
   agent_name_address:
     x_petey_id: '1_8'
     type: string
@@ -176,6 +190,8 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: agent_name_address
   borrower_name_present_address:
     x_petey_id: '1_9'
     type: string
@@ -207,6 +223,8 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_name_present_address
   property_address:
     x_petey_id: '1_10'
     type: string
@@ -222,7 +240,9 @@ fields:
     description: Property Address
     x_petey_description_source: tooltip
     label_source: llm
-  third_party_originator_business_name:
+    x_petey_identifiers:
+      subject: property_address
+  third_party_originator_business_nm:
     x_petey_id: '1_11'
     type: string
     semantic_type: business_name
@@ -238,6 +258,9 @@ fields:
     description: Name of Third-Party Originator
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: third_party_originator_business
+      suffix: nm
   third_party_originator_nmls_id:
     x_petey_id: '1_12'
     type: string
@@ -253,6 +276,8 @@ fields:
     description: NMLS ID of Third-Party Originator
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: third_party_originator_nmls_id
   borrower_nm:
     x_petey_id: '1_13'
     type: string
@@ -284,6 +309,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower
+      suffix: nm
   borrower_dob_dt:
     x_petey_id: '1_15'
     type: date
@@ -300,6 +328,9 @@ fields:
     description: Date of Birth
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: borrower_dob
+      suffix: dt
   borrower_ssn:
     x_petey_id: '1_17'
     type: string
@@ -317,6 +348,9 @@ fields:
     description: Social Security Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: borrower
+      suffix: ssn
   co_borrower_nm:
     x_petey_id: '1_14'
     type: string
@@ -348,6 +382,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: co_borrower
+      suffix: nm
   co_borrower_dob_dt:
     x_petey_id: '1_16'
     type: date
@@ -364,6 +401,9 @@ fields:
     description: Co-Borrower's Date of Birth
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower_dob
+      suffix: dt
   co_borrower_ssn:
     x_petey_id: '1_18'
     type: string
@@ -381,6 +421,9 @@ fields:
     description: Co-Borrower's Social Security Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower
+      suffix: ssn
   borrower_signature:
     x_petey_id: '1_19'
     type: string
@@ -396,6 +439,9 @@ fields:
     description: Signature(s) of Borrower(s)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: borrower
+      suffix: signature
   borrower_signature_dt:
     x_petey_id: '1_20'
     type: date
@@ -410,6 +456,9 @@ fields:
       widget_type: text
       path: Date S
     label_source: llm
+    x_petey_identifiers:
+      subject: borrower_signature
+      suffix: dt
   co_borrower_signature:
     x_petey_id: '1_21'
     type: string
@@ -425,6 +474,9 @@ fields:
     description: Signature(s) of Co-Borrower(s)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower
+      suffix: signature
   co_borrower_signature_dt:
     x_petey_id: '1_22'
     type: date
@@ -439,6 +491,9 @@ fields:
       widget_type: text
       path: Date S_2
     label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower_signature
+      suffix: dt
   borrower_nm_2:
     x_petey_id: '2_1'
     type: string
@@ -470,6 +525,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_nm
+      iteration: '2'
   fha_case_no_2:
     x_petey_id: '2_2'
     type: string
@@ -485,6 +543,9 @@ fields:
     description: FHA Case No.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: fha_case_no
+      iteration: '2'
   borrower_signature_2:
     x_petey_id: '2_3'
     type: string
@@ -500,6 +561,8 @@ fields:
     description: Signature(s) of Borrower(s)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: borrower_signature_2
   borrower_signature_dt_2:
     x_petey_id: '2_4'
     type: date
@@ -514,6 +577,8 @@ fields:
       widget_type: text
       path: Date S_3
     label_source: llm
+    x_petey_identifiers:
+      subject: borrower_signature_dt_2
   co_borrower_signature_2:
     x_petey_id: '2_5'
     type: string
@@ -529,6 +594,8 @@ fields:
     description: Signature(s) of Co-Borrower(s)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower_signature_2
   co_borrower_signature_dt_2:
     x_petey_id: '2_6'
     type: date
@@ -543,6 +610,8 @@ fields:
       widget_type: text
       path: Date S_4
     label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower_signature_dt_2
   borrower_nm_3:
     x_petey_id: '3_1'
     type: string
@@ -574,6 +643,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_nm
+      iteration: '3'
   fha_case_no_3:
     x_petey_id: '3_2'
     type: string
@@ -589,6 +661,9 @@ fields:
     description: FHA Case No.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: fha_case_no
+      iteration: '3'
   date_approval_expires_dt:
     x_petey_id: '3_4'
     type: date
@@ -605,6 +680,9 @@ fields:
     description: Date Approval Expires
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: date_approval_expires
+      suffix: dt
   date_mortgage_approved_dt:
     x_petey_id: '3_3'
     type: date
@@ -621,6 +699,9 @@ fields:
     description: Date Mortgage Approved
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: date_mortgage_approved
+      suffix: dt
   mortgagee_representative_signature:
     x_petey_id: '3_5'
     type: string
@@ -636,6 +717,9 @@ fields:
     description: Mortgagee Representative Signature
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_representative
+      suffix: signature
   mortgagee_representative_printed_nm:
     x_petey_id: '3_6'
     type: string
@@ -667,6 +751,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: mortgagee_representative_printed
+      suffix: nm
   mortgagee_representative_title:
     x_petey_id: '3_7'
     type: string
@@ -680,7 +767,9 @@ fields:
       widget_type: text
       path: Title
     label_source: llm
-  borrower_underwriting_de_id_number:
+    x_petey_identifiers:
+      subject: mortgagee_representative_title
+  borrower_underwriting_de_id_nbr:
     x_petey_id: '3_9'
     type: string
     widget:
@@ -695,6 +784,9 @@ fields:
     description: DE’s ID Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: borrower_underwriting_de_id
+      suffix: nbr
   borrower_underwriting_de_signature:
     x_petey_id: '3_8'
     type: string
@@ -710,7 +802,10 @@ fields:
     description: Direct Endorsement Underwriter Signature
     x_petey_description_source: tooltip
     label_source: llm
-  property_underwriting_de_id_number:
+    x_petey_identifiers:
+      subject: borrower_underwriting_de
+      suffix: signature
+  property_underwriting_de_id_nbr:
     x_petey_id: '3_11'
     type: string
     widget:
@@ -725,6 +820,9 @@ fields:
     description: DE's ID Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: property_underwriting_de_id
+      suffix: nbr
   property_underwriting_de_signature:
     x_petey_id: '3_10'
     type: string
@@ -740,6 +838,9 @@ fields:
     description: Direct Endorsement Underwriter Signature
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: property_underwriting_de
+      suffix: signature
   borrower_nm_4:
     x_petey_id: '4_1'
     type: string
@@ -771,6 +872,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_nm
+      iteration: '4'
   fha_case_no_4:
     x_petey_id: '4_2'
     type: string
@@ -786,7 +890,10 @@ fields:
     description: FHA Case No.
     x_petey_description_source: tooltip
     label_source: llm
-  mortgagee_business_name:
+    x_petey_identifiers:
+      subject: fha_case_no
+      iteration: '4'
+  mortgagee_business_nm:
     x_petey_id: '4_3'
     type: string
     semantic_type: business_name
@@ -800,6 +907,9 @@ fields:
       widget_type: text
       path: Mortgagee
     label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_business
+      suffix: nm
   mortgagee_representative_nm:
     x_petey_id: '4_4'
     type: string
@@ -831,6 +941,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: mortgagee_representative
+      suffix: nm
   mortgagee_representative_title_2:
     x_petey_id: '4_5'
     type: string
@@ -846,6 +959,8 @@ fields:
     description: Title of Mortgagee’s Representative
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_representative_title_2
   mortgagee_representative_signature_2:
     x_petey_id: '4_6'
     type: string
@@ -861,6 +976,8 @@ fields:
     description: Signature of the Mortgagee’s Representative
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_representative_signature_2
   signature_dt:
     x_petey_id: '4_7'
     type: date
@@ -875,6 +992,9 @@ fields:
       widget_type: text
       path: Date
     label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
 x_petey_dedup_log:
   duplicate_labels_reassigned: 12
   collisions:

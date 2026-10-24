@@ -48,10 +48,22 @@ class TestReadIdentifiers:
         ident, flags = FI.read("veteran_ssn_1", {"type": "string"}, {"veteran_ssn_1": "ssn"}, None, FI._series_index([]))
         assert ident == {"subject": "veteran", "suffix": "ssn", "part": "1"} and flags == []
 
-    def test_the_varying_number_is_the_iteration(self):
+    def test_a_number_before_field_words_is_the_blocks(self):
+        """The naming standard (2026-10-24): parent_2_first_nm is the second parent's first name."""
         names = ["parent_1_first_nm", "parent_2_first_nm"]
         ident, _ = FI.read("parent_2_first_nm", {"type": "string"}, {}, None, FI._series_index(names))
-        assert ident == {"subject": "parent_first", "suffix": "nm", "iteration": "2"}
+        assert ident == {"block_prefix": "parent", "block_iteration": "2", "subject": "first", "suffix": "nm"}
+
+    def test_a_number_before_the_suffix_is_the_fields(self):
+        names = ["procedure_1_cd", "procedure_2_cd"]
+        ident, _ = FI.read("procedure_2_cd", {"type": "string"}, {}, None, FI._series_index(names))
+        assert ident == {"subject": "procedure", "suffix": "cd", "iteration": "2"}
+        assert FI.print_name(ident) == "procedure_cd_2"
+
+    def test_a_line_label_stays_with_its_word(self):
+        names = ["liabilities_row_13_amt", "liabilities_row_14_amt"]
+        ident, _ = FI.read("liabilities_row_14_amt", {"type": "number"}, {}, None, FI._series_index(names))
+        assert FI.print_name(ident) == "liabilities_row_14_amt"
 
     def test_no_suffix_is_flagged_under_the_standard(self):
         _, flags = FI.read("gross_rents", {"type": "number"}, {}, None, FI._series_index([]))

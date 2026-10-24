@@ -45,6 +45,9 @@ fields:
       message: Invalid IRS Number. Enter 9 -11 digit number with a dash after first
         two digits.
     label_source: llm
+    x_petey_identifiers:
+      subject: selected_number_irs
+      suffix: ein
   selected_number_ssn:
     x_petey_id: '1_5'
     type: string
@@ -74,6 +77,9 @@ fields:
         - text{999-99-9999}
       message: Invalid Social Security Number. Enter 9 digit social security number.
     label_source: llm
+    x_petey_identifiers:
+      subject: selected_number
+      suffix: ssn
   selected_number_cbp_assigned_nbr:
     x_petey_id: '1_6'
     type: string
@@ -117,6 +123,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: selected_number_cbp_assigned
+      suffix: nbr
   request_cbp_assigned_number_ind:
     x_petey_id: '1_9'
     type: boolean
@@ -135,6 +144,9 @@ fields:
       number and indicate reason(s). Check all reasons that apply.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: request_cbp_assigned_number
+      suffix: ind
   importer_business_private_party_nm:
     x_petey_id: '1_2'
     type: string
@@ -166,6 +178,9 @@ fields:
           AND IDENTIFICATION NUMBER. * 1. A. [Elements designated with an asterisk
           are required data fields]. Importer / Business / Private Party Name.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: importer_business_private_party
+      suffix: nm
   mailing_address_line_1_txt:
     x_petey_id: '1_20'
     type: string
@@ -184,6 +199,9 @@ fields:
       with an asterisk are required data fields].
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_address_line_1
+      suffix: txt
   mailing_city_nm:
     x_petey_id: '1_21'
     type: string
@@ -201,6 +219,9 @@ fields:
       City.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_city
+      suffix: nm
   mailing_zip_cd:
     x_petey_id: '1_24'
     type: string
@@ -239,6 +260,9 @@ fields:
         pattern: ^\d{5}\-\d{4}$
         description: 2 A. Zip Code.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: mailing_zip
+      suffix: cd
   mailing_state_province_nm:
     x_petey_id: '1_22'
     type: string
@@ -257,6 +281,9 @@ fields:
       State / Province.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_state_province
+      suffix: nm
   mailing_country_iso_cd:
     x_petey_id: '1_25'
     type: string
@@ -273,6 +300,9 @@ fields:
     description: 2 A. Country I S O Code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_country_iso
+      suffix: cd
   mailing_address_line_2_txt:
     x_petey_id: '1_23'
     type: string
@@ -289,6 +319,9 @@ fields:
     description: 2 A. Street Address 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: mailing_address_line_2
+      suffix: txt
   cbp_assigned_nbr:
     x_petey_id: '1_11'
     type: string
@@ -320,7 +353,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
-  program_1_cd:
+    x_petey_identifiers:
+      subject: cbp_assigned
+      suffix: nbr
+  program_cd_1:
     x_petey_id: '1_16'
     type: string
     widget:
@@ -351,7 +387,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  program_2_cd:
+    x_petey_identifiers:
+      subject: program
+      suffix: cd
+      iteration: '1'
+  program_cd_2:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -382,7 +422,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  program_3_cd:
+    x_petey_identifiers:
+      subject: program
+      suffix: cd
+      iteration: '2'
+  program_cd_3:
     x_petey_id: '1_18'
     type: string
     widget:
@@ -413,7 +457,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  program_4_cd:
+    x_petey_identifiers:
+      subject: program
+      suffix: cd
+      iteration: '3'
+  program_cd_4:
     x_petey_id: '1_19'
     type: string
     widget:
@@ -444,6 +492,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: program
+      suffix: cd
+      iteration: '4'
   div_aka_dba_nm:
     x_petey_id: '1_7'
     type: string
@@ -471,6 +523,9 @@ fields:
         semantic_type: person_name
         description: 1D. D I V / A. K A. / D B A. Name.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: div_aka_dba
+      suffix: nm
   id_utilization_other_description_txt:
     x_petey_id: '1_15'
     type: string
@@ -503,6 +558,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: id_utilization_other_description
+      suffix: txt
   mailing_address_type_other_description_txt:
     x_petey_id: '1_27'
     type: string
@@ -535,6 +593,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: mailing_address_type_other_description
+      suffix: txt
   physical_address_type_other_description_txt:
     x_petey_id: '1_35'
     type: string
@@ -567,6 +628,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: physical_address_type_other_description
+      suffix: txt
   physical_address_line_2_txt:
     x_petey_id: '1_31'
     type: string
@@ -583,6 +647,9 @@ fields:
     description: 2B. Street Address 2.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: physical_address_line_2
+      suffix: txt
   physical_country_iso_cd:
     x_petey_id: '1_33'
     type: string
@@ -599,6 +666,9 @@ fields:
     description: 2B. Country I S O Code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: physical_country_iso
+      suffix: cd
   physical_state_province_nm:
     x_petey_id: '1_30'
     type: string
@@ -617,6 +687,9 @@ fields:
       State / Province.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: physical_state_province
+      suffix: nm
   physical_zip_cd:
     x_petey_id: '1_32'
     type: string
@@ -654,6 +727,9 @@ fields:
         pattern: ^\d{5}\-\d{4}$
         description: 2B. Zip Code.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: physical_zip
+      suffix: cd
   physical_city_nm:
     x_petey_id: '1_29'
     type: string
@@ -671,6 +747,9 @@ fields:
       City.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: physical_city
+      suffix: nm
   physical_address_line_1_txt:
     x_petey_id: '1_28'
     type: string
@@ -689,6 +768,9 @@ fields:
       with an asterisk are required data fields]. *Street Address 1.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: physical_address_line_1
+      suffix: txt
   business_description_txt:
     x_petey_id: '2_6'
     type: string
@@ -721,6 +803,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: business_description
+      suffix: txt
   duns_nbr:
     x_petey_id: '2_8'
     type: string
@@ -752,6 +837,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: duns
+      suffix: nbr
   filer_cd:
     x_petey_id: '2_9'
     type: string
@@ -768,6 +856,9 @@ fields:
       that will be used when conducting business with C B P.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: filer
+      suffix: cd
   naics_cd:
     x_petey_id: '2_7'
     type: string
@@ -786,6 +877,9 @@ fields:
       (N A. I C S) code for this business.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: naics
+      suffix: cd
   year_established_txt:
     x_petey_id: '2_10'
     type: string
@@ -819,6 +913,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: year_established
+      suffix: txt
   primary_bank_nm:
     x_petey_id: '2_20'
     type: string
@@ -862,7 +959,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
-  related_business_1_nm:
+    x_petey_identifiers:
+      subject: primary_bank
+      suffix: nm
+  related_business_nm_1:
     x_petey_id: '2_11'
     type: string
     semantic_type: business_name
@@ -905,6 +1005,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: related_business
+      suffix: nm
+      iteration: '1'
+      grid: p2-G1
   related_business_1_id_nbr:
     x_petey_id: '2_13'
     type: string
@@ -936,7 +1041,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
-  related_business_2_nm:
+    x_petey_identifiers:
+      block_prefix: related_business
+      block_iteration: '1'
+      subject: id
+      suffix: nbr
+      grid: p2-G1
+  related_business_nm_2:
     x_petey_id: '2_14'
     type: string
     semantic_type: business_name
@@ -979,6 +1090,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: related_business
+      suffix: nm
+      iteration: '2'
+      grid: p2-G1
   related_business_3_id_nbr:
     x_petey_id: '2_19'
     type: string
@@ -1010,7 +1126,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
-  related_business_3_nm:
+    x_petey_identifiers:
+      block_prefix: related_business
+      block_iteration: '3'
+      subject: id
+      suffix: nbr
+      grid: p2-G1
+  related_business_nm_3:
     x_petey_id: '2_17'
     type: string
     semantic_type: business_name
@@ -1053,6 +1175,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: related_business
+      suffix: nm
+      iteration: '3'
+      grid: p2-G1
   primary_bank_routing_nbr:
     x_petey_id: '2_21'
     type: string
@@ -1084,6 +1211,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: primary_bank_routing
+      suffix: nbr
   articles_of_incorporation_locator_nbr:
     x_petey_id: '2_25'
     type: string
@@ -1115,6 +1245,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: id -> nbr'
+    x_petey_identifiers:
+      subject: articles_of_incorporation_locator
+      suffix: nbr
   articles_of_incorporation_reference_nbr:
     x_petey_id: '2_26'
     type: string
@@ -1146,6 +1279,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: articles_of_incorporation_reference
+      suffix: nbr
   primary_bank_city_nm:
     x_petey_id: '2_22'
     type: string
@@ -1163,6 +1299,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: primary_bank_city
+      suffix: nm
   primary_bank_state_cd:
     x_petey_id: '2_23'
     type: string
@@ -1181,6 +1320,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: primary_bank_state
+      suffix: cd
   primary_bank_country_cd:
     x_petey_id: '2_24'
     type: string
@@ -1198,6 +1340,9 @@ fields:
     description: 3G. Country I S O Code.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: primary_bank_country
+      suffix: cd
   related_business_2_id_nbr:
     x_petey_id: '2_16'
     type: string
@@ -1229,6 +1374,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: related_business
+      block_iteration: '2'
+      subject: id
+      suffix: nbr
+      grid: p2-G1
   officer_2_passport_expiration_dt:
     x_petey_id: '2_49'
     type: date
@@ -1259,7 +1410,12 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
-  officer_2_ssn:
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: passport_expiration
+      suffix: dt
+  officer_ssn_2:
     x_petey_id: '2_46'
     type: string
     semantic_type: ssn
@@ -1290,6 +1446,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: officer
+      suffix: ssn
+      iteration: '2'
   officer_2_passport_nbr:
     x_petey_id: '2_47'
     type: string
@@ -1321,6 +1481,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: passport
+      suffix: nbr
   officer_2_title_txt:
     x_petey_id: '2_39'
     type: string
@@ -1352,6 +1517,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: title
+      suffix: txt
   officer_2_email_address_txt:
     x_petey_id: '2_45'
     type: string
@@ -1385,6 +1555,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: email_address
+      suffix: txt
   officer_2_passport_country_of_issuance_cd:
     x_petey_id: '2_48'
     type: string
@@ -1417,6 +1592,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: passport_country_of_issuance
+      suffix: cd
   officer_2_phone_nbr:
     x_petey_id: '2_43'
     type: string
@@ -1459,6 +1639,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: phone
+      suffix: nbr
   officer_1_phone_nbr:
     x_petey_id: '2_31'
     type: string
@@ -1501,6 +1686,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: phone
+      suffix: nbr
   officer_1_passport_country_of_issuance_cd:
     x_petey_id: '2_36'
     type: string
@@ -1533,6 +1723,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: passport_country_of_issuance
+      suffix: cd
   officer_1_email_address_txt:
     x_petey_id: '2_33'
     type: string
@@ -1566,6 +1761,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: email_address
+      suffix: txt
   officer_1_title_txt:
     x_petey_id: '2_27'
     type: string
@@ -1601,6 +1801,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: title
+      suffix: txt
   officer_1_passport_nbr:
     x_petey_id: '2_35'
     type: string
@@ -1632,7 +1837,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
-  officer_1_ssn:
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: passport
+      suffix: nbr
+  officer_ssn_1:
     x_petey_id: '2_34'
     type: string
     semantic_type: ssn
@@ -1663,6 +1873,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: officer
+      suffix: ssn
+      iteration: '1'
   officer_1_passport_expiration_dt:
     x_petey_id: '2_37'
     type: date
@@ -1693,6 +1907,11 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: passport_expiration
+      suffix: dt
   officer_1_phone_ext_txt:
     x_petey_id: '2_32'
     type: string
@@ -1738,6 +1957,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: phone_ext
+      suffix: txt
   officer_2_phone_ext_txt:
     x_petey_id: '2_44'
     type: string
@@ -1783,6 +2007,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: phone_ext
+      suffix: txt
   officer_3_phone_nbr:
     x_petey_id: '2_55'
     type: string
@@ -1825,6 +2054,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: phone
+      suffix: nbr
   officer_3_passport_country_of_issuance_cd:
     x_petey_id: '2_60'
     type: string
@@ -1857,6 +2091,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: passport_country_of_issuance
+      suffix: cd
   officer_3_last_nm:
     x_petey_id: '2_52'
     type: string
@@ -1889,6 +2128,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: last
+      suffix: nm
   officer_3_email_address_txt:
     x_petey_id: '2_57'
     type: string
@@ -1922,6 +2166,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: email_address
+      suffix: txt
   officer_3_title_txt:
     x_petey_id: '2_51'
     type: string
@@ -1953,6 +2202,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: title
+      suffix: txt
   officer_3_passport_nbr:
     x_petey_id: '2_59'
     type: string
@@ -1984,7 +2238,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
-  officer_3_ssn:
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: passport
+      suffix: nbr
+  officer_ssn_3:
     x_petey_id: '2_58'
     type: string
     semantic_type: ssn
@@ -2013,6 +2272,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: officer
+      suffix: ssn
+      iteration: '3'
   officer_3_passport_expiration_dt:
     x_petey_id: '2_61'
     type: date
@@ -2043,6 +2306,11 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: passport_expiration
+      suffix: dt
   officer_3_phone_ext_txt:
     x_petey_id: '2_56'
     type: string
@@ -2087,6 +2355,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: phone_ext
+      suffix: txt
   officer_3_first_nm:
     x_petey_id: '2_53'
     type: string
@@ -2119,6 +2392,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: first
+      suffix: nm
   officer_3_middle_initial:
     x_petey_id: '2_54'
     type: string
@@ -2134,6 +2412,11 @@ fields:
     description: 3J. Middle Initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '3'
+      subject: middle
+      suffix: initial
   officer_1_middle_initial:
     x_petey_id: '2_30'
     type: string
@@ -2149,6 +2432,11 @@ fields:
     description: 3J. Middle Initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: middle
+      suffix: initial
   officer_1_first_nm:
     x_petey_id: '2_29'
     type: string
@@ -2181,6 +2469,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: first
+      suffix: nm
   officer_1_last_nm:
     x_petey_id: '2_28'
     type: string
@@ -2213,6 +2506,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '1'
+      subject: last
+      suffix: nm
   officer_2_middle_initial:
     x_petey_id: '2_42'
     type: string
@@ -2228,6 +2526,11 @@ fields:
     description: 3J. Middle Initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: middle
+      suffix: initial
   officer_2_first_nm:
     x_petey_id: '2_41'
     type: string
@@ -2260,6 +2563,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: first
+      suffix: nm
   officer_2_last_nm:
     x_petey_id: '2_40'
     type: string
@@ -2292,6 +2600,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: officer
+      block_iteration: '2'
+      subject: last
+      suffix: nm
   phone_nbr:
     x_petey_id: '2_1'
     type: string
@@ -2335,6 +2648,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: phone
+      suffix: nbr
   email_address_txt:
     x_petey_id: '2_4'
     type: string
@@ -2369,6 +2685,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: email_address
+      suffix: txt
   website_address_txt:
     x_petey_id: '2_5'
     type: string
@@ -2400,6 +2719,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: website_address
+      suffix: txt
   fax_nbr:
     x_petey_id: '2_3'
     type: string
@@ -2442,6 +2764,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: fax
+      suffix: nbr
   phone_ext_txt:
     x_petey_id: '2_2'
     type: string
@@ -2488,6 +2813,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: phone_ext
+      suffix: txt
   certifier_last_nm:
     x_petey_id: '3_13'
     type: string
@@ -2525,7 +2853,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
-  broker_1_nm:
+    x_petey_identifiers:
+      subject: certifier_last
+      suffix: nm
+  broker_nm_1:
     x_petey_id: '3_20'
     type: string
     semantic_type: business_name
@@ -2568,6 +2899,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: broker
+      suffix: nm
+      iteration: '1'
   certifier_phone_nbr:
     x_petey_id: '3_18'
     type: string
@@ -2610,6 +2945,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: certifier_phone
+      suffix: nbr
   broker_phone_nbr:
     x_petey_id: '3_23'
     type: string
@@ -2651,6 +2989,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: broker_phone
+      suffix: nbr
   certification_dt:
     x_petey_id: '3_19'
     type: date
@@ -2681,6 +3022,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: certification
+      suffix: dt
   entry_4_passport_expiration_dt:
     x_petey_id: '3_11'
     type: date
@@ -2722,6 +3066,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: entry_4_passport_expiration
+      suffix: dt
   entry_4_ssn:
     x_petey_id: '3_8'
     type: string
@@ -2767,6 +3114,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: entry_4
+      suffix: ssn
   entry_4_passport_nbr:
     x_petey_id: '3_9'
     type: string
@@ -2801,6 +3151,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; number -> nbr'
+    x_petey_identifiers:
+      subject: entry_4_passport
+      suffix: nbr
   entry_4_company_position_title_txt:
     x_petey_id: '3_1'
     type: string
@@ -2847,6 +3200,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: entry_4_company_position_title
+      suffix: txt
   entry_4_direct_email_txt:
     x_petey_id: '3_7'
     type: string
@@ -2883,6 +3239,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: entry_4_direct_email
+      suffix: txt
   entry_4_last_nm:
     x_petey_id: '3_2'
     type: string
@@ -2918,6 +3277,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: entry_4_last
+      suffix: nm
   entry_4_passport_country_of_issuance_cd:
     x_petey_id: '3_10'
     type: string
@@ -2953,6 +3315,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_cd (type)'
+    x_petey_identifiers:
+      subject: entry_4_passport_country_of_issuance
+      suffix: cd
   entry_4_direct_phone_nbr:
     x_petey_id: '3_5'
     type: string
@@ -2994,6 +3359,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; number -> nbr'
+    x_petey_identifiers:
+      subject: entry_4_direct_phone
+      suffix: nbr
   entry_4_phone_extension_txt:
     x_petey_id: '3_6'
     type: string
@@ -3042,6 +3410,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: entry_4_phone_extension
+      suffix: txt
   certifier_signature:
     x_petey_id: '3_16'
     type: string
@@ -3058,6 +3429,9 @@ fields:
       data fields]. This is a digital signature field.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: certifier
+      suffix: signature
   certifier_first_nm:
     x_petey_id: '3_14'
     type: string
@@ -3090,6 +3464,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: certifier_first
+      suffix: nm
   certifier_middle_initial:
     x_petey_id: '3_15'
     type: string
@@ -3105,6 +3482,9 @@ fields:
     description: '*4. Middle Initial.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: certifier_middle
+      suffix: initial
   certifier_title_txt:
     x_petey_id: '3_17'
     type: string
@@ -3137,6 +3517,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: certifier_title
+      suffix: txt
   entry_4_first_nm:
     x_petey_id: '3_3'
     type: string
@@ -3172,6 +3555,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: entry_4_first
+      suffix: nm
   entry_4_middle_initial:
     x_petey_id: '3_4'
     type: string
@@ -3206,7 +3592,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
-  broker_2_nm:
+    x_petey_identifiers:
+      subject: entry_4_middle
+      suffix: initial
+  broker_nm_2:
     x_petey_id: '3_21'
     type: string
     widget:
@@ -3237,7 +3626,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  broker_3_nm:
+    x_petey_identifiers:
+      subject: broker
+      suffix: nm
+      iteration: '2'
+  broker_nm_3:
     x_petey_id: '3_22'
     type: string
     widget:
@@ -3268,6 +3661,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: broker
+      suffix: nm
+      iteration: '3'
   number_type:
     x_petey_id: '1_3'
     type: category
@@ -3348,6 +3745,8 @@ fields:
         description: 1I. How will the identification number be utilized? Select all
           options that will apply. Importer of Record.
       judged: 'kept: 1 -> 1'
+    x_petey_identifiers:
+      subject: number_type
   type_of_action:
     x_petey_id: '1_1'
     type: category
@@ -3396,6 +3795,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: type_of_action
   company_type:
     x_petey_id: '1_12'
     type: category
@@ -3509,6 +3910,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: company_type
   annual_entries:
     x_petey_id: '1_13'
     type: category
@@ -3593,6 +3996,8 @@ fields:
       - annual_entries::25_or_more_per_year
       - annual_entries::infrequent_personal_shipments
       - annual_entries::do_not_intend_to_import
+    x_petey_identifiers:
+      subject: annual_entries
   mailing_address_type:
     x_petey_id: '1_26'
     type: category
@@ -3719,6 +4124,8 @@ fields:
       - mailing_address_type::post_office_box
       - mailing_address_type::other
       - mailing_address_type::retail_location
+    x_petey_identifiers:
+      subject: mailing_address_type
   id_utilization:
     x_petey_id: '1_14'
     type: category
@@ -3793,6 +4200,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: id_utilization
   name_type:
     x_petey_id: '1_8'
     type: category
@@ -3844,6 +4253,8 @@ fields:
       - name_type::dba
       - name_type::div
       - name_type::aka
+    x_petey_identifiers:
+      subject: name_type
   cbp_number_reason:
     x_petey_id: '1_10'
     type: category
@@ -3928,6 +4339,8 @@ fields:
       - cbp_number_reason::have_ssn_wish_cbp_number
       - cbp_number_reason::not_applied_irs_or_ssn
       - cbp_number_reason::no_irs_number
+    x_petey_identifiers:
+      subject: cbp_number_reason
   physical_address_type:
     x_petey_id: '1_34'
     type: category
@@ -4025,6 +4438,8 @@ fields:
       - physical_address_type::warehouse
       - physical_address_type::corporate_office
       - physical_address_type::residence
+    x_petey_identifiers:
+      subject: physical_address_type
   related_business_2_status:
     x_petey_id: '2_15'
     type: category
@@ -4060,6 +4475,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: related_business
+      block_iteration: '2'
+      subject: status
+      grid: p2-G1
   related_business_3_status:
     x_petey_id: '2_18'
     type: category
@@ -4095,6 +4515,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: related_business
+      block_iteration: '3'
+      subject: status
+      grid: p2-G1
   related_business_1_status:
     x_petey_id: '2_12'
     type: category
@@ -4133,6 +4558,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: related_business
+      block_iteration: '1'
+      subject: status
+      grid: p2-G1
   officer_2_passport_type:
     x_petey_id: '2_50'
     type: category
@@ -4194,6 +4624,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: officer_2_passport_type
   officer_1_passport_type:
     x_petey_id: '2_38'
     type: category
@@ -4255,6 +4687,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: officer_1_passport_type
   officer_3_passport_type:
     x_petey_id: '2_62'
     type: category
@@ -4316,6 +4750,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: officer_3_passport_type
   entry_4_passport_type:
     x_petey_id: '3_12'
     type: category
@@ -4393,6 +4829,8 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: entry_4_passport_type
 x_petey_dedup_log:
   duplicate_labels_reassigned: 2
   collisions:

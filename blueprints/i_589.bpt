@@ -25,7 +25,7 @@ authoring:
   labels: llm
   when: '2026-10-07 01:29:49'
 fields:
-  alien_registration_number:
+  alien_registration_nbr:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -41,6 +41,9 @@ fields:
       (A. Number), if any.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: alien_registration
+      suffix: nbr
   ssn:
     x_petey_id: '1_3'
     type: string
@@ -103,6 +106,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: last
+      suffix: nm
   other_names_used_txt:
     x_petey_id: '1_8'
     type: string
@@ -135,7 +141,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  residence_street_address_1_txt:
+    x_petey_identifiers:
+      subject: other_names_used
+      suffix: txt
+  residence_street_address_txt_1:
     x_petey_id: '1_9'
     type: string
     semantic_type: street_address
@@ -169,7 +178,11 @@ fields:
       kind: name
       why: 'naming standard: address -> address_txt; first of a numbered set gets
         1'
-  residence_city_1_nm:
+    x_petey_identifiers:
+      subject: residence_street_address
+      suffix: txt
+      iteration: '1'
+  residence_city_nm_1:
     x_petey_id: '1_11'
     type: string
     semantic_type: city
@@ -202,6 +215,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_nm (type); first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: residence_city
+      suffix: nm
+      iteration: '1'
   date_of_birth_dt:
     x_petey_id: '1_26'
     type: date
@@ -243,6 +260,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_dt (type)'
+    x_petey_identifiers:
+      subject: date_of_birth
+      suffix: dt
   present_nationality_txt:
     x_petey_id: '1_28'
     type: string
@@ -275,6 +295,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: present_nationality
+      suffix: txt
   first_nm:
     x_petey_id: '1_6'
     type: string
@@ -307,6 +330,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: first
+      suffix: nm
   middle_nm:
     x_petey_id: '1_7'
     type: string
@@ -338,6 +364,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: middle
+      suffix: nm
   residence_telephone_nbr_area:
     x_petey_id: '1_14'
     type: string
@@ -375,6 +404,10 @@ fields:
       kind: name
       why: 'naming standard: telephone -> telephone_nbr; part ''area'' of one phone
         value after the suffix'
+    x_petey_identifiers:
+      subject: residence_telephone
+      suffix: nbr
+      part: area
   residence_telephone_nbr_local:
     x_petey_id: '1_15'
     type: string
@@ -412,6 +445,10 @@ fields:
       kind: name
       why: 'naming standard: telephone -> telephone_nbr; part ''local'' of one phone
         value after the suffix'
+    x_petey_identifiers:
+      subject: residence_telephone
+      suffix: nbr
+      part: local
   residence_apt_nbr:
     x_petey_id: '1_10'
     type: string
@@ -444,6 +481,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: residence_apt
+      suffix: nbr
   residence_state_cd:
     x_petey_id: '1_12'
     type: string
@@ -478,6 +518,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: residence_state
+      suffix: cd
   residence_zip_cd:
     x_petey_id: '1_13'
     type: string
@@ -512,6 +555,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: zip_code -> zip_cd'
+    x_petey_identifiers:
+      subject: residence_zip
+      suffix: cd
   mailing_apt_nbr:
     x_petey_id: '1_20'
     type: string
@@ -544,6 +590,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: mailing_apt
+      suffix: nbr
   mailing_street_address_txt:
     x_petey_id: '1_19'
     type: string
@@ -577,6 +626,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: mailing_street_address
+      suffix: txt
   mailing_zip_cd:
     x_petey_id: '1_23'
     type: string
@@ -611,6 +663,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: zip_code -> zip_cd'
+    x_petey_identifiers:
+      subject: mailing_zip
+      suffix: cd
   mailing_city_nm:
     x_petey_id: '1_21'
     type: string
@@ -644,6 +699,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_nm (type)'
+    x_petey_identifiers:
+      subject: mailing_city
+      suffix: nm
   mailing_state_cd:
     x_petey_id: '1_22'
     type: string
@@ -678,6 +736,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: mailing_state
+      suffix: cd
   city_and_country_of_birth_cd:
     x_petey_id: '1_27'
     type: string
@@ -722,6 +783,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: city_and_country_of_birth
+      suffix: cd
   nationality_at_birth_txt:
     x_petey_id: '1_29'
     type: string
@@ -753,6 +817,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: nationality_at_birth
+      suffix: txt
   race_ethnic_tribal_group_txt:
     x_petey_id: '1_30'
     type: string
@@ -785,6 +852,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: race_ethnic_tribal_group
+      suffix: txt
   religion_txt:
     x_petey_id: '1_31'
     type: string
@@ -816,6 +886,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: religion
+      suffix: txt
   date_last_left_country_dt:
     x_petey_id: '1_33'
     type: date
@@ -858,6 +931,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_dt (type)'
+    x_petey_identifiers:
+      subject: date_last_left_country
+      suffix: dt
   i94_nbr:
     x_petey_id: '1_34'
     type: string
@@ -890,7 +966,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
-  entry_1_dt:
+    x_petey_identifiers:
+      subject: i94
+      suffix: nbr
+  entry_dt_1:
     x_petey_id: '1_35'
     type: date
     semantic_type: iso_date
@@ -933,6 +1012,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; date -> dt'
+    x_petey_identifiers:
+      subject: entry
+      suffix: dt
+      iteration: '1'
+      grid: p1-G1
   entry_1_place_txt:
     x_petey_id: '1_36'
     type: string
@@ -965,6 +1049,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: entry
+      block_iteration: '1'
+      subject: place
+      suffix: txt
+      grid: p1-G1
   entry_1_status_txt:
     x_petey_id: '1_37'
     type: string
@@ -997,7 +1087,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
-  entry_2_dt:
+    x_petey_identifiers:
+      block_prefix: entry
+      block_iteration: '1'
+      subject: status
+      suffix: txt
+      grid: p1-G1
+  entry_dt_2:
     x_petey_id: '1_39'
     type: date
     semantic_type: iso_date
@@ -1040,6 +1136,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; date -> dt'
+    x_petey_identifiers:
+      subject: entry
+      suffix: dt
+      iteration: '2'
+      grid: p1-G1
   entry_2_place_txt:
     x_petey_id: '1_40'
     type: string
@@ -1071,6 +1172,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: entry
+      block_iteration: '2'
+      subject: place
+      suffix: txt
+      grid: p1-G1
   entry_2_status_txt:
     x_petey_id: '1_41'
     type: string
@@ -1102,7 +1209,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
-  entry_3_dt:
+    x_petey_identifiers:
+      block_prefix: entry
+      block_iteration: '2'
+      subject: status
+      suffix: txt
+      grid: p1-G1
+  entry_dt_3:
     x_petey_id: '1_42'
     type: date
     semantic_type: iso_date
@@ -1145,6 +1258,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; date -> dt'
+    x_petey_identifiers:
+      subject: entry
+      suffix: dt
+      iteration: '3'
+      grid: p1-G1
   entry_3_place_txt:
     x_petey_id: '1_43'
     type: string
@@ -1176,6 +1294,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: entry
+      block_iteration: '3'
+      subject: place
+      suffix: txt
+      grid: p1-G1
   entry_3_status_txt:
     x_petey_id: '1_44'
     type: string
@@ -1207,6 +1331,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: entry
+      block_iteration: '3'
+      subject: status
+      suffix: txt
+      grid: p1-G1
   passport_travel_doc_country_of_issuance_cd:
     x_petey_id: '1_46'
     type: string
@@ -1240,6 +1370,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: passport_travel_doc_country_of_issuance
+      suffix: cd
   passport_nbr:
     x_petey_id: '1_45'
     type: string
@@ -1271,6 +1404,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: passport
+      suffix: nbr
   travel_document_nbr:
     x_petey_id: '1_47'
     type: string
@@ -1302,6 +1438,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: travel_document
+      suffix: nbr
   withholding_of_removal_convention_against_torture_ind:
     x_petey_id: '1_1'
     type: boolean
@@ -1319,6 +1458,9 @@ fields:
       removal under the Convention Against Torture.'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: withholding_of_removal_convention_against_torture
+      suffix: ind
   mailing_telephone_nbr_area:
     x_petey_id: '1_17'
     type: string
@@ -1357,6 +1499,10 @@ fields:
       kind: name
       why: 'naming standard: telephone -> telephone_nbr; part ''area'' of one phone
         value after the suffix'
+    x_petey_identifiers:
+      subject: mailing_telephone
+      suffix: nbr
+      part: area
   mailing_telephone_nbr_local:
     x_petey_id: '1_18'
     type: string
@@ -1394,6 +1540,10 @@ fields:
       kind: name
       why: 'naming standard: telephone -> telephone_nbr; part ''local'' of one phone
         value after the suffix'
+    x_petey_identifiers:
+      subject: mailing_telephone
+      suffix: nbr
+      part: local
   entry_1_date_status_expires_dt:
     x_petey_id: '1_38'
     type: date
@@ -1436,6 +1586,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_dt (type)'
+    x_petey_identifiers:
+      subject: entry_1_date_status_expires
+      suffix: dt
   passport_travel_doc_expiration_dt:
     x_petey_id: '1_48'
     type: date
@@ -1477,6 +1630,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: date -> dt'
+    x_petey_identifiers:
+      subject: passport_travel_doc_expiration
+      suffix: dt
   mailing_in_care_of_nm:
     x_petey_id: '1_16'
     type: string
@@ -1510,6 +1666,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: mailing_in_care_of
+      suffix: nm
   native_language_txt:
     x_petey_id: '1_49'
     type: string
@@ -1542,6 +1701,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: native_language
+      suffix: txt
   other_fluent_languages_txt:
     x_petey_id: '1_50'
     type: string
@@ -1574,6 +1736,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_fluent_languages
+      suffix: txt
   uscis_online_account_nbr:
     x_petey_id: '1_4'
     type: string
@@ -1608,6 +1773,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: uscis_online_account
+      suffix: nbr
   spouse_alien_registration_nbr:
     x_petey_id: '2_8'
     type: string
@@ -1640,6 +1808,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: spouse_alien_registration
+      suffix: nbr
   spouse_last_nm:
     x_petey_id: '2_12'
     type: string
@@ -1673,6 +1844,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: spouse_last
+      suffix: nm
   spouse_marriage_dt:
     x_petey_id: '2_16'
     type: date
@@ -1698,6 +1872,9 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_marriage
+      suffix: dt
   spouse_nationality_txt:
     x_petey_id: '2_19'
     type: string
@@ -1730,6 +1907,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_nationality
+      suffix: txt
   spouse_location_txt:
     x_petey_id: '2_22'
     type: string
@@ -1761,6 +1941,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_location
+      suffix: txt
   spouse_last_entry_place_txt:
     x_petey_id: '2_24'
     type: string
@@ -1793,6 +1976,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_last_entry_place
+      suffix: txt
   spouse_current_status_txt:
     x_petey_id: '2_28'
     type: string
@@ -1825,6 +2011,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_current_status
+      suffix: txt
   spouse_passport_id_nbr:
     x_petey_id: '2_9'
     type: string
@@ -1857,6 +2046,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: spouse_passport_id
+      suffix: nbr
   spouse_dob_dt:
     x_petey_id: '2_10'
     type: date
@@ -1898,6 +2090,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: dob -> dob_dt'
+    x_petey_identifiers:
+      subject: spouse_dob
+      suffix: dt
   spouse_ssn:
     x_petey_id: '2_11'
     type: string
@@ -1928,6 +2123,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: spouse
+      suffix: ssn
   spouse_first_nm:
     x_petey_id: '2_13'
     type: string
@@ -1961,6 +2159,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: spouse_first
+      suffix: nm
   spouse_middle_nm:
     x_petey_id: '2_14'
     type: string
@@ -1993,6 +2194,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: spouse_middle
+      suffix: nm
   spouse_other_names_txt:
     x_petey_id: '2_15'
     type: string
@@ -2025,6 +2229,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_other_names
+      suffix: txt
   spouse_marriage_place_txt:
     x_petey_id: '2_17'
     type: string
@@ -2057,6 +2264,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_marriage_place
+      suffix: txt
   spouse_birth_city_country_cd:
     x_petey_id: '2_18'
     type: string
@@ -2090,6 +2300,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd'
+    x_petey_identifiers:
+      subject: spouse_birth_city_country
+      suffix: cd
   spouse_race_ethnic_tribal_group_txt:
     x_petey_id: '2_20'
     type: string
@@ -2122,6 +2335,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_race_ethnic_tribal_group
+      suffix: txt
   spouse_last_entry_dt:
     x_petey_id: '2_25'
     type: date
@@ -2148,6 +2364,9 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_last_entry
+      suffix: dt
   spouse_i94_nbr:
     x_petey_id: '2_26'
     type: string
@@ -2180,6 +2399,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: spouse_i94
+      suffix: nbr
   spouse_last_admitted_status_txt:
     x_petey_id: '2_27'
     type: string
@@ -2212,6 +2434,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_last_admitted_status
+      suffix: txt
   spouse_authorized_stay_expiration_dt:
     x_petey_id: '2_29'
     type: date
@@ -2238,6 +2463,9 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_authorized_stay_expiration
+      suffix: dt
   spouse_previous_arrival_dt:
     x_petey_id: '2_30'
     type: date
@@ -2263,6 +2491,9 @@ fields:
         ui:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_previous_arrival
+      suffix: dt
   not_married_ind:
     x_petey_id: '2_7'
     type: boolean
@@ -2280,6 +2511,9 @@ fields:
       Select I am not married. (Skip to "Your Children" below).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: not_married
+      suffix: ind
   children_cnt:
     x_petey_id: '2_33'
     type: integer
@@ -2298,6 +2532,9 @@ fields:
       sheets of paper and documentation if you have more than four children.)'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: children
+      suffix: cnt
   child_1_last_nm:
     x_petey_id: '2_39'
     type: string
@@ -2331,6 +2568,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: last
+      suffix: nm
   child_1_birth_city_country_cd:
     x_petey_id: '2_43'
     type: string
@@ -2364,6 +2606,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; country -> country_cd'
+    x_petey_identifiers:
+      subject: child_1_birth_city_country
+      suffix: cd
   child_1_first_nm:
     x_petey_id: '2_40'
     type: string
@@ -2397,6 +2642,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: first
+      suffix: nm
   child_1_middle_nm:
     x_petey_id: '2_41'
     type: string
@@ -2429,6 +2679,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: middle
+      suffix: nm
   child_1_dob_dt:
     x_petey_id: '2_42'
     type: date
@@ -2472,6 +2727,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; dob -> dob_dt'
+    x_petey_identifiers:
+      subject: child_1_dob
+      suffix: dt
   child_1_nationality_txt:
     x_petey_id: '2_44'
     type: string
@@ -2504,6 +2762,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: child_1_nationality
+      suffix: txt
   child_1_race_ethnic_tribal_group_txt:
     x_petey_id: '2_45'
     type: string
@@ -2536,6 +2797,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: race_ethnic_tribal_group
+      suffix: txt
   child_1_last_entry_place_txt:
     x_petey_id: '2_49'
     type: string
@@ -2569,6 +2835,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: child_1_last_entry_place
+      suffix: txt
   child_1_last_entry_dt:
     x_petey_id: '2_50'
     type: date
@@ -2611,6 +2880,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: last_entry
+      suffix: dt
   child_1_i94_nbr:
     x_petey_id: '2_51'
     type: string
@@ -2643,6 +2917,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: i94
+      suffix: nbr
   child_1_last_admitted_status_txt:
     x_petey_id: '2_52'
     type: string
@@ -2676,6 +2955,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: child_1_last_admitted_status
+      suffix: txt
   child_1_current_status_txt:
     x_petey_id: '2_53'
     type: string
@@ -2709,6 +2991,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: current_status
+      suffix: txt
   child_1_authorized_stay_expiration_dt:
     x_petey_id: '2_54'
     type: date
@@ -2752,6 +3039,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: authorized_stay_expiration
+      suffix: dt
   child_1_alien_registration_nbr:
     x_petey_id: '2_35'
     type: string
@@ -2784,6 +3076,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: alien_registration
+      suffix: nbr
   child_1_passport_id_nbr:
     x_petey_id: '2_36'
     type: string
@@ -2816,6 +3113,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: passport_id
+      suffix: nbr
   child_1_marital_status_txt:
     x_petey_id: '2_37'
     type: string
@@ -2848,7 +3150,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
-  child_1_ssn:
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '1'
+      subject: marital_status
+      suffix: txt
+  child_ssn_1:
     x_petey_id: '2_38'
     type: string
     semantic_type: ssn
@@ -2894,6 +3201,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: child
+      suffix: ssn
+      iteration: '1'
   child_1_location_txt:
     x_petey_id: '2_47'
     type: string
@@ -2926,6 +3237,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: child_1_location
+      suffix: txt
   eoir_use_only_txt:
     x_petey_id: '2_1'
     type: string
@@ -2957,6 +3271,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: eoir_use_only
+      suffix: txt
   uscis_asylum_officer_id_nbr:
     x_petey_id: '2_4'
     type: string
@@ -2988,6 +3305,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: uscis_asylum_officer_id
+      suffix: nbr
   uscis_approval_dt:
     x_petey_id: '2_3'
     type: date
@@ -3014,6 +3334,9 @@ fields:
         ui:
         - date{MM/DD/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: uscis_approval
+      suffix: dt
   uscis_denial_dt:
     x_petey_id: '2_5'
     type: date
@@ -3037,6 +3360,9 @@ fields:
         format: *id001
         ui: *id002
     label_source: llm
+    x_petey_identifiers:
+      subject: uscis_denial
+      suffix: dt
   uscis_referral_dt:
     x_petey_id: '2_6'
     type: date
@@ -3060,6 +3386,9 @@ fields:
         format: *id001
         ui: *id002
     label_source: llm
+    x_petey_identifiers:
+      subject: uscis_referral
+      suffix: dt
   uscis_interview_dt:
     x_petey_id: '2_2'
     type: date
@@ -3083,6 +3412,9 @@ fields:
         format: *id001
         ui: *id002
     label_source: llm
+    x_petey_identifiers:
+      subject: uscis_interview
+      suffix: dt
   child_2_last_nm:
     x_petey_id: '3_8'
     type: string
@@ -3119,6 +3451,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: last
+      suffix: nm
+      grid: p3-G1
   child_2_birth_city_and_country_cd:
     x_petey_id: '3_9'
     type: string
@@ -3155,6 +3493,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: birth_city_and_country
+      suffix: cd
+      grid: p3-G1
   child_2_first_nm:
     x_petey_id: '3_5'
     type: string
@@ -3191,6 +3535,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: first
+      suffix: nm
+      grid: p3-G1
   child_2_middle_nm:
     x_petey_id: '3_6'
     type: string
@@ -3226,6 +3576,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: middle
+      suffix: nm
+      grid: p3-G1
   child_2_birth_dt:
     x_petey_id: '3_7'
     type: date
@@ -3252,6 +3608,12 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: birth
+      suffix: dt
+      grid: p3-G1
   child_2_nationality_citizenship_txt:
     x_petey_id: '3_10'
     type: string
@@ -3287,6 +3649,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: nationality_citizenship
+      suffix: txt
+      grid: p3-G1
   child_2_place_of_last_entry_txt:
     x_petey_id: '3_15'
     type: string
@@ -3323,6 +3691,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: place_of_last_entry
+      suffix: txt
+      grid: p3-G1
   child_2_last_entry_dt:
     x_petey_id: '3_16'
     type: date
@@ -3350,6 +3724,12 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: last_entry
+      suffix: dt
+      grid: p3-G1
   child_2_i94_nbr:
     x_petey_id: '3_17'
     type: string
@@ -3385,6 +3765,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: i94
+      suffix: nbr
+      grid: p3-G1
   child_2_status_when_last_admitted_txt:
     x_petey_id: '3_18'
     type: string
@@ -3421,6 +3807,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: status_when_last_admitted
+      suffix: txt
+      grid: p3-G1
   child_2_current_status_txt:
     x_petey_id: '3_19'
     type: string
@@ -3457,6 +3849,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: current_status
+      suffix: txt
   child_2_authorized_stay_expiration_dt:
     x_petey_id: '3_20'
     type: date
@@ -3485,6 +3882,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: authorized_stay_expiration
+      suffix: dt
   child_2_alien_registration_nbr:
     x_petey_id: '3_1'
     type: string
@@ -3520,6 +3922,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: alien_registration
+      suffix: nbr
+      grid: p3-G1
   child_2_passport_id_nbr:
     x_petey_id: '3_2'
     type: string
@@ -3555,6 +3963,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: passport_id
+      suffix: nbr
+      grid: p3-G1
   child_2_marital_status_txt:
     x_petey_id: '3_3'
     type: string
@@ -3590,7 +4004,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  child_2_ssn:
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: marital_status
+      suffix: txt
+      grid: p3-G1
+  child_ssn_2:
     x_petey_id: '3_4'
     type: string
     semantic_type: ssn
@@ -3621,6 +4041,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: child
+      suffix: ssn
+      iteration: '2'
+      grid: p3-G1
   child_2_location_outside_us_txt:
     x_petey_id: '3_13'
     type: string
@@ -3656,6 +4081,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: location_outside_us
+      suffix: txt
   child_3_last_nm:
     x_petey_id: '3_27'
     type: string
@@ -3692,6 +4122,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: last
+      suffix: nm
+      grid: p3-G2
   child_3_birth_city_and_country_cd:
     x_petey_id: '3_31'
     type: string
@@ -3728,6 +4164,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: birth_city_and_country
+      suffix: cd
+      grid: p3-G2
   child_3_first_nm:
     x_petey_id: '3_28'
     type: string
@@ -3764,6 +4206,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: first
+      suffix: nm
+      grid: p3-G2
   child_3_middle_nm:
     x_petey_id: '3_29'
     type: string
@@ -3799,6 +4247,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: middle
+      suffix: nm
+      grid: p3-G2
   child_3_birth_dt:
     x_petey_id: '3_30'
     type: date
@@ -3825,6 +4279,12 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: birth
+      suffix: dt
+      grid: p3-G2
   child_3_nationality_citizenship_txt:
     x_petey_id: '3_32'
     type: string
@@ -3860,6 +4320,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: nationality_citizenship
+      suffix: txt
+      grid: p3-G2
   child_3_race_ethnic_tribal_group_txt:
     x_petey_id: '3_33'
     type: string
@@ -3895,6 +4361,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: race_ethnic_tribal_group
+      suffix: txt
+      grid: p3-G2
   child_3_place_of_last_entry_txt:
     x_petey_id: '3_37'
     type: string
@@ -3931,6 +4403,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: place_of_last_entry
+      suffix: txt
+      grid: p3-G2
   child_3_last_entry_dt:
     x_petey_id: '3_38'
     type: date
@@ -3958,6 +4436,12 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: last_entry
+      suffix: dt
+      grid: p3-G2
   child_3_i94_nbr:
     x_petey_id: '3_39'
     type: string
@@ -3993,6 +4477,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: i94
+      suffix: nbr
+      grid: p3-G2
   child_3_status_when_last_admitted_txt:
     x_petey_id: '3_40'
     type: string
@@ -4029,6 +4519,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: status_when_last_admitted
+      suffix: txt
+      grid: p3-G2
   child_3_current_status_txt:
     x_petey_id: '3_41'
     type: string
@@ -4065,6 +4561,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: current_status
+      suffix: txt
   child_3_authorized_stay_expiration_dt:
     x_petey_id: '3_42'
     type: date
@@ -4093,6 +4594,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: authorized_stay_expiration
+      suffix: dt
   child_3_alien_registration_nbr:
     x_petey_id: '3_23'
     type: string
@@ -4128,6 +4634,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: alien_registration
+      suffix: nbr
+      grid: p3-G2
   child_3_passport_id_nbr:
     x_petey_id: '3_24'
     type: string
@@ -4163,6 +4675,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: passport_id
+      suffix: nbr
+      grid: p3-G2
   child_3_marital_status_txt:
     x_petey_id: '3_25'
     type: string
@@ -4198,7 +4716,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  child_3_ssn:
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: marital_status
+      suffix: txt
+      grid: p3-G2
+  child_ssn_3:
     x_petey_id: '3_26'
     type: string
     semantic_type: ssn
@@ -4229,6 +4753,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: child
+      suffix: ssn
+      iteration: '3'
+      grid: p3-G2
   child_3_location_outside_us_txt:
     x_petey_id: '3_35'
     type: string
@@ -4264,6 +4793,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '3'
+      subject: location_outside_us
+      suffix: txt
   child_4_last_nm:
     x_petey_id: '3_49'
     type: string
@@ -4300,6 +4834,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: last
+      suffix: nm
+      grid: p3-G3
   child_4_birth_city_and_country_cd:
     x_petey_id: '3_53'
     type: string
@@ -4336,6 +4876,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: birth_city_and_country
+      suffix: cd
+      grid: p3-G3
   child_4_first_nm:
     x_petey_id: '3_50'
     type: string
@@ -4372,6 +4918,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: first
+      suffix: nm
+      grid: p3-G3
   child_4_middle_nm:
     x_petey_id: '3_51'
     type: string
@@ -4407,6 +4959,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: middle
+      suffix: nm
+      grid: p3-G3
   child_4_birth_dt:
     x_petey_id: '3_52'
     type: date
@@ -4433,6 +4991,12 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: birth
+      suffix: dt
+      grid: p3-G3
   child_4_nationality_citizenship_txt:
     x_petey_id: '3_54'
     type: string
@@ -4468,6 +5032,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: nationality_citizenship
+      suffix: txt
+      grid: p3-G3
   child_4_race_ethnic_tribal_group_txt:
     x_petey_id: '3_55'
     type: string
@@ -4503,6 +5073,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: race_ethnic_tribal_group
+      suffix: txt
+      grid: p3-G3
   child_4_place_of_last_entry_txt:
     x_petey_id: '3_59'
     type: string
@@ -4539,6 +5115,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: place_of_last_entry
+      suffix: txt
+      grid: p3-G3
   child_4_last_entry_dt:
     x_petey_id: '3_60'
     type: date
@@ -4566,6 +5148,12 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: last_entry
+      suffix: dt
+      grid: p3-G3
   child_4_i94_nbr:
     x_petey_id: '3_61'
     type: string
@@ -4607,6 +5195,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: i94
+      suffix: nbr
+      grid: p3-G3
   child_4_status_when_last_admitted_txt:
     x_petey_id: '3_62'
     type: string
@@ -4643,6 +5237,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: status_when_last_admitted
+      suffix: txt
+      grid: p3-G3
   child_4_current_status_txt:
     x_petey_id: '3_63'
     type: string
@@ -4679,6 +5279,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: current_status
+      suffix: txt
   child_4_authorized_stay_expiration_dt:
     x_petey_id: '3_64'
     type: date
@@ -4707,6 +5312,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: authorized_stay_expiration
+      suffix: dt
   child_4_alien_registration_nbr:
     x_petey_id: '3_45'
     type: string
@@ -4742,6 +5352,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: alien_registration
+      suffix: nbr
+      grid: p3-G3
   child_4_passport_id_nbr:
     x_petey_id: '3_46'
     type: string
@@ -4777,6 +5393,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: passport_id
+      suffix: nbr
+      grid: p3-G3
   child_4_marital_status_txt:
     x_petey_id: '3_47'
     type: string
@@ -4812,7 +5434,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  child_4_ssn:
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: marital_status
+      suffix: txt
+      grid: p3-G3
+  child_ssn_4:
     x_petey_id: '3_48'
     type: string
     semantic_type: ssn
@@ -4843,6 +5471,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: child
+      suffix: ssn
+      iteration: '4'
+      grid: p3-G3
   child_4_location_outside_us_txt:
     x_petey_id: '3_57'
     type: string
@@ -4879,6 +5512,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '4'
+      subject: location_outside_us
+      suffix: txt
   child_2_race_ethnic_tribal_group_txt:
     x_petey_id: '3_11'
     type: string
@@ -4914,7 +5552,13 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  last_address_street_address_1_txt:
+    x_petey_identifiers:
+      block_prefix: child
+      block_iteration: '2'
+      subject: race_ethnic_tribal_group
+      suffix: txt
+      grid: p3-G1
+  last_address_street_address_txt_1:
     x_petey_id: '4_1'
     type: string
     semantic_type: street_address
@@ -4956,7 +5600,12 @@ fields:
       kind: name
       why: 'naming standard: address -> address_txt; first of a numbered set gets
         1'
-  last_address_street_address_2_txt:
+    x_petey_identifiers:
+      subject: last_address_street_address
+      suffix: txt
+      iteration: '1'
+      grid: p4-G1
+  last_address_street_address_txt_2:
     x_petey_id: '4_7'
     type: string
     semantic_type: street_address
@@ -4997,7 +5646,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt; number moved before the suffix'
-  last_address_city_1_nm:
+    x_petey_identifiers:
+      subject: last_address_street_address
+      suffix: txt
+      iteration: '2'
+      grid: p4-G1
+  last_address_city_nm_1:
     x_petey_id: '4_2'
     type: string
     semantic_type: city
@@ -5037,7 +5691,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_nm (type); first of a numbered set gets 1'
-  last_address_city_2_nm:
+    x_petey_identifiers:
+      subject: last_address_city
+      suffix: nm
+      iteration: '1'
+      grid: p4-G1
+  last_address_city_nm_2:
     x_petey_id: '4_8'
     type: string
     semantic_type: city
@@ -5077,7 +5736,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_nm (type); number moved before the suffix'
-  last_address_province_or_state_1_cd:
+    x_petey_identifiers:
+      subject: last_address_city
+      suffix: nm
+      iteration: '2'
+      grid: p4-G1
+  last_address_province_or_state_cd_1:
     x_petey_id: '4_3'
     type: string
     semantic_type: state_abbr
@@ -5118,7 +5782,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd; first of a numbered set gets 1'
-  last_address_province_or_state_2_cd:
+    x_petey_identifiers:
+      subject: last_address_province_or_state
+      suffix: cd
+      iteration: '1'
+      grid: p4-G1
+  last_address_province_or_state_cd_2:
     x_petey_id: '4_9'
     type: string
     semantic_type: state_abbr
@@ -5159,7 +5828,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd; number moved before the suffix'
-  last_address_country_1_cd:
+    x_petey_identifiers:
+      subject: last_address_province_or_state
+      suffix: cd
+      iteration: '2'
+      grid: p4-G1
+  last_address_country_cd_1:
     x_petey_id: '4_4'
     type: string
     semantic_type: country
@@ -5199,7 +5873,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd; first of a numbered set gets 1'
-  last_address_country_2_cd:
+    x_petey_identifiers:
+      subject: last_address_country
+      suffix: cd
+      iteration: '1'
+      grid: p4-G1
+  last_address_country_cd_2:
     x_petey_id: '4_10'
     type: string
     semantic_type: country
@@ -5239,7 +5918,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd; number moved before the suffix'
-  last_address_from_1_dt:
+    x_petey_identifiers:
+      subject: last_address_country
+      suffix: cd
+      iteration: '2'
+      grid: p4-G1
+  last_address_from_dt_1:
     x_petey_id: '4_5'
     type: date
     semantic_type: iso_date
@@ -5285,7 +5969,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  last_address_from_2_dt:
+    x_petey_identifiers:
+      subject: last_address_from
+      suffix: dt
+      iteration: '1'
+      grid: p4-G1
+  last_address_from_dt_2:
     x_petey_id: '4_11'
     type: date
     semantic_type: iso_date
@@ -5331,7 +6020,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  last_address_to_1_dt:
+    x_petey_identifiers:
+      subject: last_address_from
+      suffix: dt
+      iteration: '2'
+      grid: p4-G1
+  last_address_to_dt_1:
     x_petey_id: '4_6'
     type: date
     semantic_type: iso_date
@@ -5377,7 +6071,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  last_address_to_2_dt:
+    x_petey_identifiers:
+      subject: last_address_to
+      suffix: dt
+      iteration: '1'
+      grid: p4-G1
+  last_address_to_dt_2:
     x_petey_id: '4_12'
     type: date
     semantic_type: iso_date
@@ -5423,7 +6122,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_street_address_2_txt:
+    x_petey_identifiers:
+      subject: last_address_to
+      suffix: dt
+      iteration: '2'
+      grid: p4-G1
+  residence_street_address_txt_2:
     x_petey_id: '4_19'
     type: string
     semantic_type: street_address
@@ -5461,7 +6165,12 @@ fields:
       by: claude
       kind: chat
       why: Second row of the residences table.
-  residence_city_2_nm:
+    x_petey_identifiers:
+      subject: residence_street_address
+      suffix: txt
+      iteration: '2'
+      grid: p4-G2
+  residence_city_nm_2:
     x_petey_id: '4_20'
     type: string
     semantic_type: city
@@ -5499,7 +6208,12 @@ fields:
       by: claude
       kind: chat
       why: Second row of the residences table.
-  residence_province_or_state_1_cd:
+    x_petey_identifiers:
+      subject: residence_city
+      suffix: nm
+      iteration: '2'
+      grid: p4-G2
+  residence_province_or_state_cd_1:
     x_petey_id: '4_15'
     type: string
     semantic_type: state_abbr
@@ -5538,7 +6252,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd; first of a numbered set gets 1'
-  residence_province_or_state_2_cd:
+    x_petey_identifiers:
+      subject: residence_province_or_state
+      suffix: cd
+      iteration: '1'
+      grid: p4-G2
+  residence_province_or_state_cd_2:
     x_petey_id: '4_21'
     type: string
     semantic_type: state_abbr
@@ -5577,7 +6296,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd; number moved before the suffix'
-  residence_country_1_cd:
+    x_petey_identifiers:
+      subject: residence_province_or_state
+      suffix: cd
+      iteration: '2'
+      grid: p4-G2
+  residence_country_cd_1:
     x_petey_id: '4_16'
     type: string
     semantic_type: country
@@ -5615,7 +6339,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd; first of a numbered set gets 1'
-  residence_country_2_cd:
+    x_petey_identifiers:
+      subject: residence_country
+      suffix: cd
+      iteration: '1'
+      grid: p4-G2
+  residence_country_cd_2:
     x_petey_id: '4_22'
     type: string
     semantic_type: country
@@ -5653,7 +6382,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd; number moved before the suffix'
-  residence_from_1_dt:
+    x_petey_identifiers:
+      subject: residence_country
+      suffix: cd
+      iteration: '2'
+      grid: p4-G2
+  residence_from_dt_1:
     x_petey_id: '4_17'
     type: date
     semantic_type: iso_date
@@ -5697,7 +6431,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  residence_from_2_dt:
+    x_petey_identifiers:
+      subject: residence_from
+      suffix: dt
+      iteration: '1'
+      grid: p4-G2
+  residence_from_dt_2:
     x_petey_id: '4_23'
     type: date
     semantic_type: iso_date
@@ -5741,7 +6480,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_to_1_dt:
+    x_petey_identifiers:
+      subject: residence_from
+      suffix: dt
+      iteration: '2'
+      grid: p4-G2
+  residence_to_dt_1:
     x_petey_id: '4_18'
     type: date
     semantic_type: iso_date
@@ -5784,7 +6528,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  residence_to_2_dt:
+    x_petey_identifiers:
+      subject: residence_to
+      suffix: dt
+      iteration: '1'
+      grid: p4-G2
+  residence_to_dt_2:
     x_petey_id: '4_24'
     type: date
     semantic_type: iso_date
@@ -5827,7 +6576,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_street_address_3_txt:
+    x_petey_identifiers:
+      subject: residence_to
+      suffix: dt
+      iteration: '2'
+      grid: p4-G2
+  residence_street_address_txt_3:
     x_petey_id: '4_25'
     type: string
     semantic_type: street_address
@@ -5865,7 +6619,12 @@ fields:
       by: claude
       kind: chat
       why: Third row of the residences table.
-  residence_city_3_nm:
+    x_petey_identifiers:
+      subject: residence_street_address
+      suffix: txt
+      iteration: '3'
+      grid: p4-G2
+  residence_city_nm_3:
     x_petey_id: '4_26'
     type: string
     semantic_type: city
@@ -5903,7 +6662,12 @@ fields:
       by: claude
       kind: chat
       why: Third row of the residences table.
-  residence_province_or_state_3_cd:
+    x_petey_identifiers:
+      subject: residence_city
+      suffix: nm
+      iteration: '3'
+      grid: p4-G2
+  residence_province_or_state_cd_3:
     x_petey_id: '4_27'
     type: string
     semantic_type: state_abbr
@@ -5942,7 +6706,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd; number moved before the suffix'
-  residence_country_3_cd:
+    x_petey_identifiers:
+      subject: residence_province_or_state
+      suffix: cd
+      iteration: '3'
+      grid: p4-G2
+  residence_country_cd_3:
     x_petey_id: '4_28'
     type: string
     semantic_type: country
@@ -5980,7 +6749,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd; number moved before the suffix'
-  residence_from_3_dt:
+    x_petey_identifiers:
+      subject: residence_country
+      suffix: cd
+      iteration: '3'
+      grid: p4-G2
+  residence_from_dt_3:
     x_petey_id: '4_29'
     type: date
     semantic_type: iso_date
@@ -6024,7 +6798,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_to_3_dt:
+    x_petey_identifiers:
+      subject: residence_from
+      suffix: dt
+      iteration: '3'
+      grid: p4-G2
+  residence_to_dt_3:
     x_petey_id: '4_30'
     type: date
     semantic_type: iso_date
@@ -6067,7 +6846,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_street_address_4_txt:
+    x_petey_identifiers:
+      subject: residence_to
+      suffix: dt
+      iteration: '3'
+      grid: p4-G2
+  residence_street_address_txt_4:
     x_petey_id: '4_31'
     type: string
     semantic_type: street_address
@@ -6105,7 +6889,12 @@ fields:
       by: claude
       kind: chat
       why: Fourth row of the residences table.
-  residence_city_4_nm:
+    x_petey_identifiers:
+      subject: residence_street_address
+      suffix: txt
+      iteration: '4'
+      grid: p4-G2
+  residence_city_nm_4:
     x_petey_id: '4_32'
     type: string
     semantic_type: city
@@ -6143,7 +6932,12 @@ fields:
       by: claude
       kind: chat
       why: Fourth row of the residences table.
-  residence_province_or_state_4_cd:
+    x_petey_identifiers:
+      subject: residence_city
+      suffix: nm
+      iteration: '4'
+      grid: p4-G2
+  residence_province_or_state_cd_4:
     x_petey_id: '4_33'
     type: string
     semantic_type: state_abbr
@@ -6182,7 +6976,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd; number moved before the suffix'
-  residence_country_4_cd:
+    x_petey_identifiers:
+      subject: residence_province_or_state
+      suffix: cd
+      iteration: '4'
+      grid: p4-G2
+  residence_country_cd_4:
     x_petey_id: '4_34'
     type: string
     semantic_type: country
@@ -6220,7 +7019,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd; number moved before the suffix'
-  residence_from_4_dt:
+    x_petey_identifiers:
+      subject: residence_country
+      suffix: cd
+      iteration: '4'
+      grid: p4-G2
+  residence_from_dt_4:
     x_petey_id: '4_35'
     type: date
     semantic_type: iso_date
@@ -6264,7 +7068,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_to_4_dt:
+    x_petey_identifiers:
+      subject: residence_from
+      suffix: dt
+      iteration: '4'
+      grid: p4-G2
+  residence_to_dt_4:
     x_petey_id: '4_36'
     type: date
     semantic_type: iso_date
@@ -6307,7 +7116,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_street_address_5_txt:
+    x_petey_identifiers:
+      subject: residence_to
+      suffix: dt
+      iteration: '4'
+      grid: p4-G2
+  residence_street_address_txt_5:
     x_petey_id: '4_37'
     type: string
     semantic_type: street_address
@@ -6345,7 +7159,12 @@ fields:
       by: claude
       kind: chat
       why: Fifth row of the residences table.
-  residence_city_5_nm:
+    x_petey_identifiers:
+      subject: residence_street_address
+      suffix: txt
+      iteration: '5'
+      grid: p4-G2
+  residence_city_nm_5:
     x_petey_id: '4_38'
     type: string
     semantic_type: city
@@ -6383,7 +7202,12 @@ fields:
       by: claude
       kind: chat
       why: Fifth row of the residences table.
-  residence_province_or_state_5_cd:
+    x_petey_identifiers:
+      subject: residence_city
+      suffix: nm
+      iteration: '5'
+      grid: p4-G2
+  residence_province_or_state_cd_5:
     x_petey_id: '4_39'
     type: string
     semantic_type: state_abbr
@@ -6422,7 +7246,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state -> state_cd; number moved before the suffix'
-  residence_country_5_cd:
+    x_petey_identifiers:
+      subject: residence_province_or_state
+      suffix: cd
+      iteration: '5'
+      grid: p4-G2
+  residence_country_cd_5:
     x_petey_id: '4_40'
     type: string
     semantic_type: country
@@ -6460,7 +7289,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd; number moved before the suffix'
-  residence_from_5_dt:
+    x_petey_identifiers:
+      subject: residence_country
+      suffix: cd
+      iteration: '5'
+      grid: p4-G2
+  residence_from_dt_5:
     x_petey_id: '4_41'
     type: date
     semantic_type: iso_date
@@ -6504,7 +7338,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  residence_to_5_dt:
+    x_petey_identifiers:
+      subject: residence_from
+      suffix: dt
+      iteration: '5'
+      grid: p4-G2
+  residence_to_dt_5:
     x_petey_id: '4_42'
     type: date
     semantic_type: iso_date
@@ -6547,7 +7386,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  school_1_nm:
+    x_petey_identifiers:
+      subject: residence_to
+      suffix: dt
+      iteration: '5'
+      grid: p4-G2
+  school_nm_1:
     x_petey_id: '4_43'
     type: string
     widget:
@@ -6598,7 +7442,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  school_2_nm:
+    x_petey_identifiers:
+      subject: school
+      suffix: nm
+      iteration: '1'
+      grid: p4-G3
+  school_nm_2:
     x_petey_id: '4_48'
     type: string
     widget:
@@ -6649,7 +7498,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  school_type_1_txt:
+    x_petey_identifiers:
+      subject: school
+      suffix: nm
+      iteration: '2'
+      grid: p4-G3
+  school_type_txt_1:
     x_petey_id: '4_44'
     type: string
     widget:
@@ -6686,7 +7540,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); first of a numbered set gets 1'
-  school_type_2_txt:
+    x_petey_identifiers:
+      subject: school_type
+      suffix: txt
+      iteration: '1'
+      grid: p4-G3
+  school_type_txt_2:
     x_petey_id: '4_49'
     type: string
     widget:
@@ -6723,7 +7582,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  school_location_1_txt:
+    x_petey_identifiers:
+      subject: school_type
+      suffix: txt
+      iteration: '2'
+      grid: p4-G3
+  school_location_txt_1:
     x_petey_id: '4_45'
     type: string
     widget:
@@ -6760,7 +7624,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); first of a numbered set gets 1'
-  school_location_2_txt:
+    x_petey_identifiers:
+      subject: school_location
+      suffix: txt
+      iteration: '1'
+      grid: p4-G3
+  school_location_txt_2:
     x_petey_id: '4_50'
     type: string
     widget:
@@ -6797,7 +7666,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  school_attended_from_1_dt:
+    x_petey_identifiers:
+      subject: school_location
+      suffix: txt
+      iteration: '2'
+      grid: p4-G3
+  school_attended_from_dt_1:
     x_petey_id: '4_46'
     type: date
     semantic_type: iso_date
@@ -6840,7 +7714,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  school_attended_from_2_dt:
+    x_petey_identifiers:
+      subject: school_attended_from
+      suffix: dt
+      iteration: '1'
+      grid: p4-G3
+  school_attended_from_dt_2:
     x_petey_id: '4_51'
     type: date
     semantic_type: iso_date
@@ -6883,7 +7762,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  school_attended_to_1_dt:
+    x_petey_identifiers:
+      subject: school_attended_from
+      suffix: dt
+      iteration: '2'
+      grid: p4-G3
+  school_attended_to_dt_1:
     x_petey_id: '4_47'
     type: date
     semantic_type: iso_date
@@ -6926,7 +7810,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  school_attended_to_2_dt:
+    x_petey_identifiers:
+      subject: school_attended_to
+      suffix: dt
+      iteration: '1'
+      grid: p4-G3
+  school_attended_to_dt_2:
     x_petey_id: '4_52'
     type: date
     semantic_type: iso_date
@@ -6969,7 +7858,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  school_3_nm:
+    x_petey_identifiers:
+      subject: school_attended_to
+      suffix: dt
+      iteration: '2'
+      grid: p4-G3
+  school_nm_3:
     x_petey_id: '4_53'
     type: string
     widget:
@@ -7020,7 +7914,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  school_type_3_txt:
+    x_petey_identifiers:
+      subject: school
+      suffix: nm
+      iteration: '3'
+      grid: p4-G3
+  school_type_txt_3:
     x_petey_id: '4_54'
     type: string
     widget:
@@ -7057,7 +7956,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  school_location_3_txt:
+    x_petey_identifiers:
+      subject: school_type
+      suffix: txt
+      iteration: '3'
+      grid: p4-G3
+  school_location_txt_3:
     x_petey_id: '4_55'
     type: string
     widget:
@@ -7094,7 +7998,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  school_attended_from_3_dt:
+    x_petey_identifiers:
+      subject: school_location
+      suffix: txt
+      iteration: '3'
+      grid: p4-G3
+  school_attended_from_dt_3:
     x_petey_id: '4_56'
     type: date
     semantic_type: iso_date
@@ -7137,7 +8046,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  school_attended_to_3_dt:
+    x_petey_identifiers:
+      subject: school_attended_from
+      suffix: dt
+      iteration: '3'
+      grid: p4-G3
+  school_attended_to_dt_3:
     x_petey_id: '4_57'
     type: date
     semantic_type: iso_date
@@ -7180,7 +8094,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  school_4_nm:
+    x_petey_identifiers:
+      subject: school_attended_to
+      suffix: dt
+      iteration: '3'
+      grid: p4-G3
+  school_nm_4:
     x_petey_id: '4_58'
     type: string
     widget:
@@ -7231,7 +8150,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
-  school_type_4_txt:
+    x_petey_identifiers:
+      subject: school
+      suffix: nm
+      iteration: '4'
+      grid: p4-G3
+  school_type_txt_4:
     x_petey_id: '4_59'
     type: string
     widget:
@@ -7268,7 +8192,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  school_location_4_txt:
+    x_petey_identifiers:
+      subject: school_type
+      suffix: txt
+      iteration: '4'
+      grid: p4-G3
+  school_location_txt_4:
     x_petey_id: '4_60'
     type: string
     widget:
@@ -7305,7 +8234,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); number moved before the suffix'
-  school_attended_from_4_dt:
+    x_petey_identifiers:
+      subject: school_location
+      suffix: txt
+      iteration: '4'
+      grid: p4-G3
+  school_attended_from_dt_4:
     x_petey_id: '4_61'
     type: date
     semantic_type: iso_date
@@ -7348,7 +8282,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  school_attended_to_4_dt:
+    x_petey_identifiers:
+      subject: school_attended_from
+      suffix: dt
+      iteration: '4'
+      grid: p4-G3
+  school_attended_to_dt_4:
     x_petey_id: '4_62'
     type: date
     semantic_type: iso_date
@@ -7391,7 +8330,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  employer_name_and_address_1_txt:
+    x_petey_identifiers:
+      subject: school_attended_to
+      suffix: dt
+      iteration: '4'
+      grid: p4-G3
+  employer_name_and_address_txt_1:
     x_petey_id: '4_63'
     type: string
     semantic_type: name_and_address
@@ -7430,7 +8374,12 @@ fields:
       kind: name
       why: 'naming standard: address -> address_txt; first of a numbered set gets
         1'
-  employer_name_and_address_2_txt:
+    x_petey_identifiers:
+      subject: employer_name_and_address
+      suffix: txt
+      iteration: '1'
+      grid: p4-G4
+  employer_name_and_address_txt_2:
     x_petey_id: '4_67'
     type: string
     semantic_type: name_and_address
@@ -7468,7 +8417,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt; number moved before the suffix'
-  occupation_1_txt:
+    x_petey_identifiers:
+      subject: employer_name_and_address
+      suffix: txt
+      iteration: '2'
+      grid: p4-G4
+  occupation_txt_1:
     x_petey_id: '4_64'
     type: string
     widget:
@@ -7505,7 +8459,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type); first of a numbered set gets 1'
-  occupation_2_txt:
+    x_petey_identifiers:
+      subject: occupation
+      suffix: txt
+      iteration: '1'
+      grid: p4-G4
+  occupation_txt_2:
     x_petey_id: '4_68'
     type: string
     widget:
@@ -7542,7 +8501,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  employment_from_1_dt:
+    x_petey_identifiers:
+      subject: occupation
+      suffix: txt
+      iteration: '2'
+      grid: p4-G4
+  employment_from_dt_1:
     x_petey_id: '4_65'
     type: date
     semantic_type: iso_date
@@ -7586,7 +8550,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  employment_from_2_dt:
+    x_petey_identifiers:
+      subject: employment_from
+      suffix: dt
+      iteration: '1'
+      grid: p4-G4
+  employment_from_dt_2:
     x_petey_id: '4_69'
     type: date
     semantic_type: iso_date
@@ -7630,7 +8599,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  employment_to_1_dt:
+    x_petey_identifiers:
+      subject: employment_from
+      suffix: dt
+      iteration: '2'
+      grid: p4-G4
+  employment_to_dt_1:
     x_petey_id: '4_66'
     type: date
     semantic_type: iso_date
@@ -7674,7 +8648,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  employment_to_2_dt:
+    x_petey_identifiers:
+      subject: employment_to
+      suffix: dt
+      iteration: '1'
+      grid: p4-G4
+  employment_to_dt_2:
     x_petey_id: '4_70'
     type: date
     semantic_type: iso_date
@@ -7718,7 +8697,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  employer_name_and_address_3_txt:
+    x_petey_identifiers:
+      subject: employment_to
+      suffix: dt
+      iteration: '2'
+      grid: p4-G4
+  employer_name_and_address_txt_3:
     x_petey_id: '4_71'
     type: string
     semantic_type: name_and_address
@@ -7756,7 +8740,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt; number moved before the suffix'
-  occupation_3_txt:
+    x_petey_identifiers:
+      subject: employer_name_and_address
+      suffix: txt
+      iteration: '3'
+      grid: p4-G4
+  occupation_txt_3:
     x_petey_id: '4_72'
     type: string
     widget:
@@ -7793,7 +8782,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  employment_from_3_dt:
+    x_petey_identifiers:
+      subject: occupation
+      suffix: txt
+      iteration: '3'
+      grid: p4-G4
+  employment_from_dt_3:
     x_petey_id: '4_73'
     type: date
     semantic_type: iso_date
@@ -7837,7 +8831,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  employment_to_3_dt:
+    x_petey_identifiers:
+      subject: employment_from
+      suffix: dt
+      iteration: '3'
+      grid: p4-G4
+  employment_to_dt_3:
     x_petey_id: '4_74'
     type: date
     semantic_type: iso_date
@@ -7881,6 +8880,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: employment_to
+      suffix: dt
+      iteration: '3'
+      grid: p4-G4
   mother_full_nm:
     x_petey_id: '4_75'
     type: string
@@ -7918,6 +8922,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: mother_full
+      suffix: nm
+      grid: p4-G5
   father_full_nm:
     x_petey_id: '4_79'
     type: string
@@ -7955,6 +8963,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: father_full
+      suffix: nm
+      grid: p4-G5
   sibling_1_full_nm:
     x_petey_id: '4_83'
     type: string
@@ -7992,6 +9004,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: sibling_1_full
+      suffix: nm
+      grid: p4-G5
   mother_birth_city_and_country_cd:
     x_petey_id: '4_76'
     type: string
@@ -8045,6 +9061,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd'
+    x_petey_identifiers:
+      subject: mother_birth_city_and_country
+      suffix: cd
+      grid: p4-G5
   father_birth_city_and_country_cd:
     x_petey_id: '4_80'
     type: string
@@ -8097,6 +9117,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: country -> country_cd'
+    x_petey_identifiers:
+      subject: father_birth_city_and_country
+      suffix: cd
+      grid: p4-G5
   sibling_1_birth_city_and_country_cd:
     x_petey_id: '4_84'
     type: string
@@ -8149,6 +9173,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; country -> country_cd'
+    x_petey_identifiers:
+      subject: sibling_1_birth_city_and_country
+      suffix: cd
+      grid: p4-G5
   mother_deceased_ind:
     x_petey_id: '4_78'
     type: boolean
@@ -8171,6 +9199,10 @@ fields:
       kind: check
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: mother_deceased
+      suffix: ind
+      grid: p4-G5
   father_deceased_ind:
     x_petey_id: '4_82'
     type: boolean
@@ -8193,6 +9225,10 @@ fields:
       kind: check
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: father_deceased
+      suffix: ind
+      grid: p4-G5
   sibling_1_deceased_ind:
     x_petey_id: '4_86'
     type: boolean
@@ -8231,6 +9267,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: sibling_1_deceased
+      suffix: ind
+      grid: p4-G5
   sibling_2_full_nm:
     x_petey_id: '4_87'
     type: string
@@ -8268,6 +9308,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: sibling_2_full
+      suffix: nm
+      grid: p4-G5
   sibling_2_birth_city_and_country_cd:
     x_petey_id: '4_88'
     type: string
@@ -8320,6 +9364,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; country -> country_cd'
+    x_petey_identifiers:
+      subject: sibling_2_birth_city_and_country
+      suffix: cd
+      grid: p4-G5
   sibling_2_deceased_ind:
     x_petey_id: '4_90'
     type: boolean
@@ -8358,6 +9406,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: sibling_2_deceased
+      suffix: ind
+      grid: p4-G5
   sibling_3_full_nm:
     x_petey_id: '4_91'
     type: string
@@ -8395,6 +9447,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: sibling_3_full
+      suffix: nm
+      grid: p4-G5
   sibling_3_birth_city_and_country_cd:
     x_petey_id: '4_92'
     type: string
@@ -8447,6 +9503,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; country -> country_cd'
+    x_petey_identifiers:
+      subject: sibling_3_birth_city_and_country
+      suffix: cd
+      grid: p4-G5
   sibling_3_deceased_ind:
     x_petey_id: '4_94'
     type: boolean
@@ -8485,6 +9545,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: sibling_3_deceased
+      suffix: ind
+      grid: p4-G5
   sibling_4_full_nm:
     x_petey_id: '4_95'
     type: string
@@ -8522,6 +9586,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: sibling_4_full
+      suffix: nm
+      grid: p4-G5
   sibling_4_birth_city_and_country_cd:
     x_petey_id: '4_96'
     type: string
@@ -8574,6 +9642,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; country -> country_cd'
+    x_petey_identifiers:
+      subject: sibling_4_birth_city_and_country
+      suffix: cd
+      grid: p4-G5
   sibling_4_deceased_ind:
     x_petey_id: '4_98'
     type: boolean
@@ -8612,6 +9684,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: sibling_4_deceased
+      suffix: ind
+      grid: p4-G5
   mother_current_location_txt:
     x_petey_id: '4_77'
     type: string
@@ -8649,6 +9725,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: mother_current_location
+      suffix: txt
+      grid: p4-G5
   father_current_location_txt:
     x_petey_id: '4_81'
     type: string
@@ -8686,6 +9766,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: father_current_location
+      suffix: txt
+      grid: p4-G5
   sibling_1_current_location_txt:
     x_petey_id: '4_85'
     type: string
@@ -8723,6 +9807,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: sibling_1_current_location
+      suffix: txt
+      grid: p4-G5
   sibling_2_current_location_txt:
     x_petey_id: '4_89'
     type: string
@@ -8760,6 +9848,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: sibling_2_current_location
+      suffix: txt
+      grid: p4-G5
   sibling_3_current_location_txt:
     x_petey_id: '4_93'
     type: string
@@ -8797,6 +9889,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: sibling_3_current_location
+      suffix: txt
+      grid: p4-G5
   sibling_4_current_location_txt:
     x_petey_id: '4_97'
     type: string
@@ -8834,6 +9930,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: sibling_4_current_location
+      suffix: txt
+      grid: p4-G5
   experienced_past_harm_explanation_txt:
     x_petey_id: '5_3'
     type: string
@@ -8872,6 +9972,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: experienced_past_harm_explanation
+      suffix: txt
   fear_harm_on_return_explanation_txt:
     x_petey_id: '5_5'
     type: string
@@ -8909,6 +10012,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: fear_harm_on_return_explanation
+      suffix: txt
   accused_arrested_convicted_outside_us_explanation_txt:
     x_petey_id: '6_2'
     type: string
@@ -8946,6 +10052,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: accused_arrested_convicted_outside_us_explanation
+      suffix: txt
   belonged_to_organizations_explanation_txt:
     x_petey_id: '6_4'
     type: string
@@ -8987,6 +10096,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: belonged_to_organizations_explanation
+      suffix: txt
   continue_participate_in_organizations_explanation_txt:
     x_petey_id: '6_6'
     type: string
@@ -9025,6 +10137,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: continue_participate_in_organizations_explanation
+      suffix: txt
   afraid_of_torture_explanation_txt:
     x_petey_id: '6_8'
     type: string
@@ -9062,6 +10177,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: afraid_of_torture_explanation
+      suffix: txt
   applied_refugee_asylum_withholding_explanation_txt:
     x_petey_id: '7_2'
     type: string
@@ -9105,6 +10223,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: applied_refugee_asylum_withholding_explanation
+      suffix: txt
   other_country_travel_status_explanation_txt:
     x_petey_id: '7_5'
     type: string
@@ -9161,6 +10282,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: other_country_travel_status_explanation
+      suffix: txt
   participated_causing_harm_suffering_explanation_txt:
     x_petey_id: '7_7'
     type: string
@@ -9200,6 +10324,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: participated_causing_harm_suffering_explanation
+      suffix: txt
   returned_to_country_where_harmed_explanation_txt:
     x_petey_id: '8_2'
     type: string
@@ -9253,6 +10380,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: returned_to_country_where_harmed_explanation
+      suffix: txt
   filing_more_than_one_year_after_arrival_explanation_txt:
     x_petey_id: '8_4'
     type: string
@@ -9295,6 +10425,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: filing_more_than_one_year_after_arrival_explanation
+      suffix: txt
   applicant_or_family_committed_crime_in_us_explanation_txt:
     x_petey_id: '8_6'
     type: string
@@ -9337,6 +10470,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: applicant_or_family_committed_crime_in_us_explanation
+      suffix: txt
   applicant_complete_nm:
     x_petey_id: '9_1'
     type: string
@@ -9371,6 +10507,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: applicant_complete
+      suffix: nm
   applicant_native_alphabet_nm:
     x_petey_id: '9_2'
     type: string
@@ -9405,7 +10544,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  assisting_person_1_nm:
+    x_petey_identifiers:
+      subject: applicant_native_alphabet
+      suffix: nm
+  assisting_person_nm_1:
     x_petey_id: '9_4'
     type: string
     widget:
@@ -9440,6 +10582,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: assisting_person
+      suffix: nm
+      iteration: '1'
   assisting_person_1_relationship_txt:
     x_petey_id: '9_5'
     type: string
@@ -9475,7 +10621,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: relationship -> relationship_txt'
-  assisting_person_2_nm:
+    x_petey_identifiers:
+      block_prefix: assisting_person
+      block_iteration: '1'
+      subject: relationship
+      suffix: txt
+  assisting_person_nm_2:
     x_petey_id: '9_6'
     type: string
     widget:
@@ -9510,6 +10661,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: assisting_person
+      suffix: nm
+      iteration: '2'
   assisting_person_2_relationship_txt:
     x_petey_id: '9_7'
     type: string
@@ -9545,7 +10700,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: relationship -> relationship_txt'
-  applicant_1_signature:
+    x_petey_identifiers:
+      block_prefix: assisting_person
+      block_iteration: '2'
+      subject: relationship
+      suffix: txt
+  applicant_signature_1:
     x_petey_id: '9_10'
     type: string
     widget:
@@ -9593,6 +10753,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: applicant
+      suffix: signature
+      iteration: '1'
   preparer_signature:
     x_petey_id: '9_12'
     type: string
@@ -9621,6 +10785,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: preparer
+      suffix: signature
   preparer_nm:
     x_petey_id: '9_13'
     type: string
@@ -9656,6 +10823,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: preparer
+      suffix: nm
   preparer_unit_nbr:
     x_petey_id: '9_17'
     type: string
@@ -9691,6 +10861,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: apt_num -> unit_nbr'
+    x_petey_identifiers:
+      subject: preparer_unit
+      suffix: nbr
   preparer_city_nm:
     x_petey_id: '9_18'
     type: string
@@ -9711,6 +10884,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: preparer_city
+      suffix: nm
   preparer_state_cd:
     x_petey_id: '9_19'
     type: string
@@ -9732,6 +10908,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: preparer_state
+      suffix: cd
   preparer_zip_cd:
     x_petey_id: '9_20'
     type: string
@@ -9758,6 +10937,9 @@ fields:
         ui:
         - text{99999}
     label_source: llm
+    x_petey_identifiers:
+      subject: preparer_zip
+      suffix: cd
   preparer_address_line_1_txt:
     x_petey_id: '9_16'
     type: string
@@ -9778,6 +10960,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: preparer_address_line_1
+      suffix: txt
   preparer_phone_nbr_local:
     x_petey_id: '9_15'
     type: string
@@ -9818,6 +11003,10 @@ fields:
       kind: name
       why: 'naming standard: phone -> phone_nbr; part ''local'' of one phone value
         after the suffix'
+    x_petey_identifiers:
+      subject: preparer_phone
+      suffix: nbr
+      part: local
   preparer_phone_nbr_area:
     x_petey_id: '9_14'
     type: string
@@ -9858,6 +11047,10 @@ fields:
       kind: name
       why: 'naming standard: phone -> phone_nbr; part ''area'' of one phone value
         after the suffix'
+    x_petey_identifiers:
+      subject: preparer_phone
+      suffix: nbr
+      part: area
   attorney_state_bar_nbr:
     x_petey_id: '9_22'
     type: string
@@ -9908,6 +11101,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
   g_28_attached_ind:
     x_petey_id: '9_21'
     type: boolean
@@ -9929,6 +11125,9 @@ fields:
       kind: check
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: g_28_attached
+      suffix: ind
   attorney_uscis_online_account_nbr:
     x_petey_id: '9_23'
     type: string
@@ -9974,6 +11173,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: attorney_uscis_online_account
+      suffix: nbr
   applicant_signature_dt:
     x_petey_id: '9_11'
     type: date
@@ -9999,6 +11201,9 @@ fields:
         ui:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: applicant_signature
+      suffix: dt
   part_f_first_correction_nbr:
     x_petey_id: '10_1'
     type: string
@@ -10035,6 +11240,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: part_f_first_correction
+      suffix: nbr
   part_f_last_correction_nbr:
     x_petey_id: '10_2'
     type: string
@@ -10071,6 +11279,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: part_f_last_correction
+      suffix: nbr
   part_f_signature_dt:
     x_petey_id: '10_5'
     type: date
@@ -10097,6 +11308,9 @@ fields:
         ui:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: part_f_signature
+      suffix: dt
   part_f_asylum_officer_signature:
     x_petey_id: '10_7'
     type: string
@@ -10117,6 +11331,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: part_f_asylum_officer
+      suffix: signature
   part_f_native_alphabet_nm:
     x_petey_id: '10_6'
     type: string
@@ -10152,6 +11369,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: part_f_native_alphabet
+      suffix: nm
   part_f_applicant_signature:
     x_petey_id: '10_4'
     type: string
@@ -10172,6 +11392,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: part_f_applicant
+      suffix: signature
   part_g_first_correction_nbr:
     x_petey_id: '10_8'
     type: string
@@ -10208,6 +11431,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: part_g_first_correction
+      suffix: nbr
   part_g_last_correction_nbr:
     x_petey_id: '10_9'
     type: string
@@ -10244,6 +11470,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: part_g_last_correction
+      suffix: nbr
   part_g_signature_dt:
     x_petey_id: '10_12'
     type: date
@@ -10270,6 +11499,9 @@ fields:
         ui:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: part_g_signature
+      suffix: dt
   part_g_immigration_judge_signature:
     x_petey_id: '10_14'
     type: string
@@ -10290,6 +11522,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: part_g_immigration_judge
+      suffix: signature
   part_g_native_alphabet_nm:
     x_petey_id: '10_13'
     type: string
@@ -10325,6 +11560,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: part_g_native_alphabet
+      suffix: nm
   part_g_applicant_signature:
     x_petey_id: '10_11'
     type: string
@@ -10345,6 +11583,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: part_g_applicant
+      suffix: signature
   applicant_alien_registration_nbr:
     x_petey_id: '11_1'
     type: string
@@ -10379,7 +11620,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
-  signature_1_dt:
+    x_petey_identifiers:
+      subject: applicant_alien_registration
+      suffix: nbr
+  signature_dt_1:
     x_petey_id: '11_2'
     type: date
     semantic_type: iso_date
@@ -10421,7 +11665,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  applicant_1_nm:
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+      iteration: '1'
+  applicant_nm_1:
     x_petey_id: '11_3'
     type: string
     widget:
@@ -10455,7 +11703,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  applicant_2_signature:
+    x_petey_identifiers:
+      subject: applicant
+      suffix: nm
+      iteration: '1'
+  applicant_signature_2:
     x_petey_id: '11_4'
     type: string
     widget:
@@ -10490,6 +11742,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: applicant
+      suffix: signature
+      iteration: '2'
   additional_child_1_last_nm:
     x_petey_id: '11_9'
     type: string
@@ -10510,6 +11766,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: last
+      suffix: nm
   additional_child_1_birth_city_country_nm:
     x_petey_id: '11_13'
     type: string
@@ -10541,6 +11802,11 @@ fields:
         description: Supplement. A. List All of Your Children, Regardless of Age or
           Marital Status. 9. Additional Child 1. Enter City and Country of Birth.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: birth_city_country
+      suffix: nm
   additional_child_1_first_nm:
     x_petey_id: '11_10'
     type: string
@@ -10561,6 +11827,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: first
+      suffix: nm
   additional_child_1_middle_nm:
     x_petey_id: '11_11'
     type: string
@@ -10596,6 +11867,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: middle
+      suffix: nm
   additional_child_1_birth_dt:
     x_petey_id: '11_12'
     type: date
@@ -10623,6 +11899,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: birth
+      suffix: dt
   additional_child_1_citizenship_country_nm:
     x_petey_id: '11_14'
     type: string
@@ -10643,6 +11924,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: citizenship_country
+      suffix: nm
   additional_child_1_ethnic_tribal_group_txt:
     x_petey_id: '11_15'
     type: string
@@ -10663,6 +11949,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: ethnic_tribal_group
+      suffix: txt
   additional_child_1_last_entry_place_txt:
     x_petey_id: '11_19'
     type: string
@@ -10684,6 +11975,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: last_entry_place
+      suffix: txt
   additional_child_1_last_entry_dt:
     x_petey_id: '11_20'
     type: date
@@ -10711,6 +12007,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: last_entry
+      suffix: dt
   additional_child_1_i94_nbr:
     x_petey_id: '11_21'
     type: string
@@ -10747,6 +12048,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: i94
+      suffix: nbr
   additional_child_1_status_last_admitted_txt:
     x_petey_id: '11_22'
     type: string
@@ -10768,6 +12074,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: status_last_admitted
+      suffix: txt
   additional_child_1_current_status_txt:
     x_petey_id: '11_23'
     type: string
@@ -10788,6 +12099,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: current_status
+      suffix: txt
   additional_child_1_stay_expiration_dt:
     x_petey_id: '11_24'
     type: date
@@ -10816,6 +12132,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: stay_expiration
+      suffix: dt
   additional_child_1_alien_registration_nbr:
     x_petey_id: '11_5'
     type: string
@@ -10853,6 +12174,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: alien_registration
+      suffix: nbr
   additional_child_1_passport_id_nbr:
     x_petey_id: '11_6'
     type: string
@@ -10889,6 +12215,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: passport_id
+      suffix: nbr
   additional_child_1_marital_status_txt:
     x_petey_id: '11_7'
     type: string
@@ -10910,7 +12241,12 @@ fields:
       kind: text
       join: shape
     label_source: llm
-  additional_child_1_ssn:
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: marital_status
+      suffix: txt
+  additional_child_ssn_1:
     x_petey_id: '11_8'
     type: string
     semantic_type: ssn
@@ -10933,6 +12269,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: additional_child
+      suffix: ssn
+      iteration: '1'
   additional_child_1_location_txt:
     x_petey_id: '11_17'
     type: string
@@ -10953,6 +12293,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '1'
+      subject: location
+      suffix: txt
   additional_child_2_last_nm:
     x_petey_id: '11_31'
     type: string
@@ -10973,6 +12318,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: last
+      suffix: nm
   additional_child_2_birth_city_country_nm:
     x_petey_id: '11_35'
     type: string
@@ -11004,6 +12354,11 @@ fields:
         description: Supplement. A. List All of Your Children, Regardless of Age or
           Marital Status. 9. Additional Child 2. Enter City and Country of Birth.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: birth_city_country
+      suffix: nm
   additional_child_2_first_nm:
     x_petey_id: '11_32'
     type: string
@@ -11024,6 +12379,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: first
+      suffix: nm
   additional_child_2_middle_nm:
     x_petey_id: '11_33'
     type: string
@@ -11059,6 +12419,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: middle
+      suffix: nm
   additional_child_2_birth_dt:
     x_petey_id: '11_34'
     type: date
@@ -11084,6 +12449,11 @@ fields:
         ui: *id004
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: birth
+      suffix: dt
   additional_child_2_citizenship_country_nm:
     x_petey_id: '11_36'
     type: string
@@ -11104,6 +12474,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: citizenship_country
+      suffix: nm
   additional_child_2_ethnic_tribal_group_txt:
     x_petey_id: '11_37'
     type: string
@@ -11124,6 +12499,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: ethnic_tribal_group
+      suffix: txt
   additional_child_2_last_entry_place_txt:
     x_petey_id: '11_41'
     type: string
@@ -11158,6 +12538,11 @@ fields:
           Marital Status. 14. Additional Child 1. If child is in the U.S., Enter Place
           of Last Entry into the U. S.
       judged: 'kept: 1 -> 1'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: last_entry_place
+      suffix: txt
   additional_child_2_last_entry_dt:
     x_petey_id: '11_42'
     type: date
@@ -11185,6 +12570,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: last_entry
+      suffix: dt
   additional_child_2_i94_nbr:
     x_petey_id: '11_43'
     type: string
@@ -11221,6 +12611,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: i94
+      suffix: nbr
   additional_child_2_status_last_admitted_txt:
     x_petey_id: '11_44'
     type: string
@@ -11242,6 +12637,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: status_last_admitted
+      suffix: txt
   additional_child_2_current_status_txt:
     x_petey_id: '11_45'
     type: string
@@ -11262,6 +12662,11 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: current_status
+      suffix: txt
   additional_child_2_stay_expiration_dt:
     x_petey_id: '11_46'
     type: date
@@ -11290,6 +12695,11 @@ fields:
         - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM/DD/YY}|date{MMDDYY}
       message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: stay_expiration
+      suffix: dt
   additional_child_2_alien_registration_nbr:
     x_petey_id: '11_27'
     type: string
@@ -11326,6 +12736,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: alien_registration
+      suffix: nbr
   additional_child_2_passport_id_nbr:
     x_petey_id: '11_28'
     type: string
@@ -11362,6 +12777,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: passport_id
+      suffix: nbr
   additional_child_2_marital_status_txt:
     x_petey_id: '11_29'
     type: string
@@ -11383,7 +12803,12 @@ fields:
       kind: text
       join: shape
     label_source: llm
-  additional_child_2_ssn:
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: marital_status
+      suffix: txt
+  additional_child_ssn_2:
     x_petey_id: '11_30'
     type: string
     semantic_type: ssn
@@ -11406,6 +12831,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: additional_child
+      suffix: ssn
+      iteration: '2'
   additional_child_2_location_txt:
     x_petey_id: '11_39'
     type: string
@@ -11426,7 +12855,12 @@ fields:
       kind: text
       join: shape
     label_source: llm
-  applicant_3_signature:
+    x_petey_identifiers:
+      block_prefix: additional_child
+      block_iteration: '2'
+      subject: location
+      suffix: txt
+  applicant_signature_3:
     x_petey_id: '12_4'
     type: string
     widget:
@@ -11462,7 +12896,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  signature_2_dt:
+    x_petey_identifiers:
+      subject: applicant
+      suffix: signature
+      iteration: '3'
+  signature_dt_2:
     x_petey_id: '12_2'
     type: date
     semantic_type: iso_date
@@ -11504,6 +12942,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+      iteration: '2'
   alien_registration_num:
     x_petey_id: '12_1'
     type: string
@@ -11532,7 +12974,9 @@ fields:
         type.
       model: claude-sonnet-4-6
       contested: a witness says this widget's text belongs to another field
-  applicant_2_nm:
+    x_petey_identifiers:
+      subject: alien_registration_num
+  applicant_nm_2:
     x_petey_id: '12_3'
     type: string
     widget:
@@ -11567,6 +13011,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: applicant
+      suffix: nm
+      iteration: '2'
   part_nbr:
     x_petey_id: '12_5'
     type: string
@@ -11603,6 +13051,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: part
+      suffix: nbr
   question_nbr:
     x_petey_id: '12_6'
     type: string
@@ -11639,6 +13090,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: question
+      suffix: nbr
   additional_information_txt:
     x_petey_id: '12_7'
     type: string
@@ -11660,6 +13114,9 @@ fields:
       kind: text
       join: shape
     label_source: llm
+    x_petey_identifiers:
+      subject: additional_information
+      suffix: txt
   sex:
     x_petey_id: '1_24'
     type: category
@@ -11701,6 +13158,8 @@ fields:
       from:
       - sex::male
       - sex::female
+    x_petey_identifiers:
+      subject: sex
   marital_status:
     x_petey_id: '1_25'
     type: category
@@ -11770,6 +13229,8 @@ fields:
       - marital_status::married
       - marital_status::divorced
       - marital_status::widowed
+    x_petey_identifiers:
+      subject: marital_status
   immigration_court_proceedings:
     x_petey_id: '1_32'
     type: category
@@ -11827,6 +13288,8 @@ fields:
       - immigration_court_proceedings::never
       - immigration_court_proceedings::past
       - immigration_court_proceedings::currently
+    x_petey_identifiers:
+      subject: immigration_court_proceedings
   fluent_in_english:
     x_petey_id: '1_51'
     type: category
@@ -11863,6 +13326,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: fluent_in_english
   spouse_sex:
     x_petey_id: '2_21'
     type: category
@@ -11905,6 +13370,8 @@ fields:
       from:
       - spouse_sex::male
       - spouse_sex::female
+    x_petey_identifiers:
+      subject: spouse_sex
   spouse_in_us:
     x_petey_id: '2_23'
     type: category
@@ -11947,6 +13414,8 @@ fields:
       from:
       - spouse_in_us::no
       - spouse_in_us::yes
+    x_petey_identifiers:
+      subject: spouse_in_us
   spouse_in_immigration_court:
     x_petey_id: '2_31'
     type: category
@@ -11983,6 +13452,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: spouse_in_immigration_court
   spouse_included_in_application:
     x_petey_id: '2_32'
     type: category
@@ -12026,6 +13497,8 @@ fields:
       from:
       - spouse_included_in_application::yes
       - spouse_included_in_application::no
+    x_petey_identifiers:
+      subject: spouse_included_in_application
   has_children:
     x_petey_id: '2_34'
     type: category
@@ -12068,6 +13541,8 @@ fields:
       from:
       - has_children::yes
       - has_children::no
+    x_petey_identifiers:
+      subject: has_children
   child_1_sex:
     x_petey_id: '2_46'
     type: category
@@ -12120,6 +13595,8 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: child_1_sex
   child_1_in_immigration_court:
     x_petey_id: '2_55'
     type: category
@@ -12173,6 +13650,8 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: child_1_in_immigration_court
   child_1_included_in_application:
     x_petey_id: '2_56'
     type: category
@@ -12232,6 +13711,8 @@ fields:
       from:
       - child_1_included_in_application::yes
       - child_1_included_in_application::no
+    x_petey_identifiers:
+      subject: child_1_included_in_application
   child_1_in_us:
     x_petey_id: '2_48'
     type: category
@@ -12290,6 +13771,8 @@ fields:
       from:
       - child_1_in_us::yes
       - child_1_in_us::no
+    x_petey_identifiers:
+      subject: child_1_in_us
   child_2_in_immigration_court_proceedings:
     x_petey_id: '3_21'
     type: category
@@ -12333,6 +13816,8 @@ fields:
       from:
       - child_2_in_immigration_court_proceedings::yes
       - child_2_in_immigration_court_proceedings::no
+    x_petey_identifiers:
+      subject: child_2_in_immigration_court_proceedings
   child_2_included_in_application:
     x_petey_id: '3_22'
     type: category
@@ -12376,6 +13861,8 @@ fields:
       from:
       - child_2_included_in_application::yes
       - child_2_included_in_application::no
+    x_petey_identifiers:
+      subject: child_2_included_in_application
   child_2_sex:
     x_petey_id: '3_12'
     type: category
@@ -12418,6 +13905,8 @@ fields:
       from:
       - child_2_sex::male
       - child_2_sex::female
+    x_petey_identifiers:
+      subject: child_2_sex
   child_3_sex:
     x_petey_id: '3_34'
     type: category
@@ -12460,6 +13949,8 @@ fields:
       from:
       - child_3_sex::male
       - child_3_sex::female
+    x_petey_identifiers:
+      subject: child_3_sex
   child_3_in_immigration_court_proceedings:
     x_petey_id: '3_43'
     type: category
@@ -12503,6 +13994,8 @@ fields:
       from:
       - child_3_in_immigration_court_proceedings::yes
       - child_3_in_immigration_court_proceedings::no
+    x_petey_identifiers:
+      subject: child_3_in_immigration_court_proceedings
   child_3_included_in_application:
     x_petey_id: '3_44'
     type: category
@@ -12546,6 +14039,8 @@ fields:
       from:
       - child_3_included_in_application::yes
       - child_3_included_in_application::no
+    x_petey_identifiers:
+      subject: child_3_included_in_application
   child_4_sex:
     x_petey_id: '3_56'
     type: category
@@ -12588,6 +14083,8 @@ fields:
       from:
       - child_4_sex::male
       - child_4_sex::female
+    x_petey_identifiers:
+      subject: child_4_sex
   child_4_in_immigration_court_proceedings:
     x_petey_id: '3_65'
     type: category
@@ -12631,6 +14128,8 @@ fields:
       from:
       - child_4_in_immigration_court_proceedings::yes
       - child_4_in_immigration_court_proceedings::no
+    x_petey_identifiers:
+      subject: child_4_in_immigration_court_proceedings
   child_4_included_in_application:
     x_petey_id: '3_66'
     type: category
@@ -12674,6 +14173,8 @@ fields:
       from:
       - child_4_included_in_application::yes
       - child_4_included_in_application::no
+    x_petey_identifiers:
+      subject: child_4_included_in_application
   child_4_in_us:
     x_petey_id: '3_58'
     type: category
@@ -12716,6 +14217,8 @@ fields:
       from:
       - child_4_in_us::yes
       - child_4_in_us::no
+    x_petey_identifiers:
+      subject: child_4_in_us
   child_2_in_us:
     x_petey_id: '3_14'
     type: category
@@ -12758,6 +14261,8 @@ fields:
       from:
       - child_2_in_us::yes
       - child_2_in_us::no
+    x_petey_identifiers:
+      subject: child_2_in_us
   child_3_in_us:
     x_petey_id: '3_36'
     type: category
@@ -12816,6 +14321,8 @@ fields:
       from:
       - child_3_in_us::yes
       - child_3_in_us::no
+    x_petey_identifiers:
+      subject: child_3_in_us
   asylum_basis:
     x_petey_id: '5_1'
     type: category
@@ -12918,6 +14425,8 @@ fields:
       - asylum_basis::membership_in_particular_social_group
       - asylum_basis::torture_convention
       - asylum_basis::race
+    x_petey_identifiers:
+      subject: asylum_basis
   experienced_past_harm:
     x_petey_id: '5_2'
     type: category
@@ -12965,6 +14474,8 @@ fields:
       from:
       - experienced_past_harm::yes
       - experienced_past_harm::no
+    x_petey_identifiers:
+      subject: experienced_past_harm
   fear_harm_on_return:
     x_petey_id: '5_4'
     type: category
@@ -13011,6 +14522,8 @@ fields:
       from:
       - fear_harm_on_return::yes
       - fear_harm_on_return::no
+    x_petey_identifiers:
+      subject: fear_harm_on_return
   accused_arrested_convicted_outside_us:
     x_petey_id: '6_1'
     type: category
@@ -13055,6 +14568,8 @@ fields:
       from:
       - accused_arrested_convicted_outside_us::yes
       - accused_arrested_convicted_outside_us::no
+    x_petey_identifiers:
+      subject: accused_arrested_convicted_outside_us
   belonged_to_organizations:
     x_petey_id: '6_3'
     type: category
@@ -13101,6 +14616,8 @@ fields:
       from:
       - belonged_to_organizations::yes
       - belonged_to_organizations::no
+    x_petey_identifiers:
+      subject: belonged_to_organizations
   continue_participate_in_organizations:
     x_petey_id: '6_5'
     type: category
@@ -13144,6 +14661,8 @@ fields:
       from:
       - continue_participate_in_organizations::yes
       - continue_participate_in_organizations::no
+    x_petey_identifiers:
+      subject: continue_participate_in_organizations
   afraid_of_torture:
     x_petey_id: '6_7'
     type: category
@@ -13187,6 +14706,8 @@ fields:
       from:
       - afraid_of_torture::yes
       - afraid_of_torture::no
+    x_petey_identifiers:
+      subject: afraid_of_torture
   applied_refugee_asylum_withholding:
     x_petey_id: '7_1'
     type: category
@@ -13231,6 +14752,8 @@ fields:
       from:
       - applied_refugee_asylum_withholding::yes
       - applied_refugee_asylum_withholding::no
+    x_petey_identifiers:
+      subject: applied_refugee_asylum_withholding
   travel_through_reside_other_country:
     x_petey_id: '7_3'
     type: category
@@ -13275,6 +14798,8 @@ fields:
       from:
       - travel_through_reside_other_country::yes
       - travel_through_reside_other_country::no
+    x_petey_identifiers:
+      subject: travel_through_reside_other_country
   applied_lawful_status_other_country:
     x_petey_id: '7_4'
     type: category
@@ -13319,6 +14844,8 @@ fields:
       from:
       - applied_lawful_status_other_country::yes
       - applied_lawful_status_other_country::no
+    x_petey_identifiers:
+      subject: applied_lawful_status_other_country
   participated_causing_harm_suffering:
     x_petey_id: '7_6'
     type: category
@@ -13364,6 +14891,8 @@ fields:
       from:
       - participated_causing_harm_suffering::yes
       - participated_causing_harm_suffering::no
+    x_petey_identifiers:
+      subject: participated_causing_harm_suffering
   returned_to_country_where_harmed:
     x_petey_id: '8_1'
     type: category
@@ -13407,6 +14936,8 @@ fields:
       from:
       - returned_to_country_where_harmed::yes
       - returned_to_country_where_harmed::no
+    x_petey_identifiers:
+      subject: returned_to_country_where_harmed
   filing_more_than_one_year_after_arrival:
     x_petey_id: '8_3'
     type: category
@@ -13450,6 +14981,8 @@ fields:
       from:
       - filing_more_than_one_year_after_arrival::yes
       - filing_more_than_one_year_after_arrival::no
+    x_petey_identifiers:
+      subject: filing_more_than_one_year_after_arrival
   applicant_or_family_committed_crime_in_us:
     x_petey_id: '8_5'
     type: category
@@ -13494,6 +15027,8 @@ fields:
       from:
       - applicant_or_family_committed_crime_in_us::yes
       - applicant_or_family_committed_crime_in_us::no
+    x_petey_identifiers:
+      subject: applicant_or_family_committed_crime_in_us
   spouse_parent_child_assisted:
     x_petey_id: '9_3'
     type: category
@@ -13537,6 +15072,8 @@ fields:
       from:
       - spouse_parent_child_assisted::yes
       - spouse_parent_child_assisted::no
+    x_petey_identifiers:
+      subject: spouse_parent_child_assisted
   other_preparer:
     x_petey_id: '9_8'
     type: category
@@ -13580,6 +15117,8 @@ fields:
       from:
       - other_preparer::yes
       - other_preparer::no
+    x_petey_identifiers:
+      subject: other_preparer
   provided_assistance_list:
     x_petey_id: '9_9'
     type: category
@@ -13623,6 +15162,8 @@ fields:
       from:
       - provided_assistance_list::yes
       - provided_assistance_list::no
+    x_petey_identifiers:
+      subject: provided_assistance_list
   part_f_contents:
     x_petey_id: '10_3'
     type: category
@@ -13670,6 +15211,8 @@ fields:
       from:
       - part_f_contents::all_true
       - part_f_contents::not_all_true
+    x_petey_identifiers:
+      subject: part_f_contents
   part_g_contents:
     x_petey_id: '10_10'
     type: category
@@ -13716,6 +15259,8 @@ fields:
       from:
       - part_g_contents::all_true
       - part_g_contents::not_all_true
+    x_petey_identifiers:
+      subject: part_g_contents
   additional_child_1_sex:
     x_petey_id: '11_16'
     type: category
@@ -13758,6 +15303,8 @@ fields:
       from:
       - additional_child_1_sex::male
       - additional_child_1_sex::female
+    x_petey_identifiers:
+      subject: additional_child_1_sex
   additional_child_1_in_immigration_court_proceedings_ind:
     x_petey_id: '11_25'
     type: category
@@ -13801,6 +15348,8 @@ fields:
       from:
       - additional_child_1_in_immigration_court_proceedings_ind::yes
       - additional_child_1_in_immigration_court_proceedings_ind::no
+    x_petey_identifiers:
+      subject: additional_child_1_in_immigration_court_proceedings_ind
   additional_child_1_included_in_application_ind:
     x_petey_id: '11_26'
     type: category
@@ -13844,6 +15393,8 @@ fields:
       from:
       - additional_child_1_included_in_application_ind::yes
       - additional_child_1_included_in_application_ind::no
+    x_petey_identifiers:
+      subject: additional_child_1_included_in_application_ind
   additional_child_1_in_us_ind:
     x_petey_id: '11_18'
     type: category
@@ -13887,6 +15438,8 @@ fields:
       from:
       - additional_child_1_in_us_ind::yes
       - additional_child_1_in_us_ind::no
+    x_petey_identifiers:
+      subject: additional_child_1_in_us_ind
   additional_child_2_sex:
     x_petey_id: '11_38'
     type: category
@@ -13929,6 +15482,8 @@ fields:
       from:
       - additional_child_2_sex::male
       - additional_child_2_sex::female
+    x_petey_identifiers:
+      subject: additional_child_2_sex
   additional_child_2_in_immigration_court_proceedings_ind:
     x_petey_id: '11_47'
     type: category
@@ -13972,6 +15527,8 @@ fields:
       from:
       - additional_child_2_in_immigration_court_proceedings_ind::yes
       - additional_child_2_in_immigration_court_proceedings_ind::no
+    x_petey_identifiers:
+      subject: additional_child_2_in_immigration_court_proceedings_ind
   additional_child_2_included_in_application_ind:
     x_petey_id: '11_48'
     type: category
@@ -14015,6 +15572,8 @@ fields:
       from:
       - additional_child_2_included_in_application_ind::yes
       - additional_child_2_included_in_application_ind::no
+    x_petey_identifiers:
+      subject: additional_child_2_included_in_application_ind
   additional_child_2_in_us_ind:
     x_petey_id: '11_40'
     type: category
@@ -14058,6 +15617,8 @@ fields:
       from:
       - additional_child_2_in_us_ind::yes
       - additional_child_2_in_us_ind::no
+    x_petey_identifiers:
+      subject: additional_child_2_in_us_ind
 x_petey_dedup_log:
   duplicate_labels_reassigned: 59
   collisions:

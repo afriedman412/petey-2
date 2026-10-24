@@ -48,6 +48,9 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      subject: taxpayer_name_and_address
+      suffix: txt
   address_different_than_last_return_ind:
     x_petey_id: '1_4'
     type: boolean
@@ -65,6 +68,9 @@ fields:
       check here.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: address_different_than_last_return
+      suffix: ind
   county_of_residence_txt:
     x_petey_id: '1_9'
     type: string
@@ -96,6 +102,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: county_of_residence
+      suffix: txt
   taxpayer_ssn:
     x_petey_id: '1_2'
     type: string
@@ -123,6 +132,9 @@ fields:
         ui:
         - text{999-99-9999}
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: ssn
   spouse_ssn:
     x_petey_id: '1_3'
     type: string
@@ -150,6 +162,9 @@ fields:
         ui:
         - text{999-99-9999}
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse
+      suffix: ssn
   taxpayer_home_phone_nbr:
     x_petey_id: '1_5'
     type: string
@@ -194,6 +209,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: taxpayer_home_phone
+      suffix: nbr
   taxpayer_work_phone_nbr:
     x_petey_id: '1_7'
     type: string
@@ -234,6 +252,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: taxpayer_work_phone
+      suffix: nbr
   taxpayer_cell_phone_nbr:
     x_petey_id: '1_10'
     type: string
@@ -274,6 +295,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: taxpayer_cell_phone
+      suffix: nbr
   spouse_home_phone_nbr:
     x_petey_id: '1_6'
     type: string
@@ -316,6 +340,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: spouse_home_phone
+      suffix: nbr
   spouse_work_phone_nbr:
     x_petey_id: '1_8'
     type: string
@@ -356,6 +383,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: spouse_work_phone
+      suffix: nbr
   spouse_cell_phone_nbr:
     x_petey_id: '1_11'
     type: string
@@ -396,6 +426,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: spouse_cell_phone
+      suffix: nbr
   household_members_under_65_cnt:
     x_petey_id: '1_12'
     type: string
@@ -424,6 +457,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - part_by_maxlen:3
+    x_petey_identifiers:
+      subject: household_members_under_65
+      suffix: cnt
   household_members_65_and_over_cnt:
     x_petey_id: '1_13'
     type: string
@@ -451,6 +487,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - part_by_maxlen:3
+    x_petey_identifiers:
+      subject: household_members_65_and_over
+      suffix: cnt
   business_nm:
     x_petey_id: '1_14'
     type: string
@@ -484,6 +523,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: business
+      suffix: nm
   business_ein:
     x_petey_id: '1_15'
     type: string
@@ -522,6 +564,9 @@ fields:
         pattern: ^\d{3}\-\d{2}\-\d{4}$
         description: Business E I N.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: business
+      suffix: ein
   business_type_txt:
     x_petey_id: '1_16'
     type: string
@@ -551,6 +596,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: business_type
+      suffix: txt
   employees_cnt:
     x_petey_id: '1_17'
     type: integer
@@ -567,6 +615,9 @@ fields:
     description: Number of Employees (not counting owner).
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: employees
+      suffix: cnt
   investment_1_institution_name_address_txt:
     x_petey_id: '1_28'
     type: string
@@ -620,6 +671,12 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '1'
+      subject: institution_name_address
+      suffix: txt
+      grid: p1-G7
   investment_1_account_nbr:
     x_petey_id: '1_29'
     type: string
@@ -653,6 +710,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '1'
+      subject: account
+      suffix: nbr
+      grid: p1-G7
   investment_1_account_type_txt:
     x_petey_id: '1_30'
     type: string
@@ -684,6 +747,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '1'
+      subject: account_type
+      suffix: txt
+      grid: p1-G7
   investment_1_current_bal_amt:
     x_petey_id: '1_31'
     type: number
@@ -725,6 +794,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '1'
+      subject: current_bal
+      suffix: amt
+      grid: p1-G7
   investment_1_business_account_ind:
     x_petey_id: '1_32'
     type: boolean
@@ -757,6 +832,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '1'
+      subject: business_account
+      suffix: ind
+      grid: p1-G7
   investment_2_institution_name_address_txt:
     x_petey_id: '1_33'
     type: string
@@ -804,6 +885,12 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '2'
+      subject: institution_name_address
+      suffix: txt
+      grid: p1-G7
   investment_2_account_nbr:
     x_petey_id: '1_34'
     type: string
@@ -840,6 +927,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '2'
+      subject: account
+      suffix: nbr
+      grid: p1-G7
   investment_2_account_type_txt:
     x_petey_id: '1_35'
     type: string
@@ -874,6 +967,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '2'
+      subject: account_type
+      suffix: txt
+      grid: p1-G7
   investment_2_current_bal_amt:
     x_petey_id: '1_36'
     type: number
@@ -914,6 +1013,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '2'
+      subject: current_bal
+      suffix: amt
+      grid: p1-G7
   investment_2_business_account_ind:
     x_petey_id: '1_37'
     type: boolean
@@ -949,6 +1054,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: investment
+      block_iteration: '2'
+      subject: business_account
+      suffix: ind
+      grid: p1-G7
   bank_account_1_institution_name_address_txt:
     x_petey_id: '1_18'
     type: string
@@ -999,6 +1110,12 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '1'
+      subject: institution_name_address
+      suffix: txt
+      grid: p1-G6
   bank_account_1_account_nbr:
     x_petey_id: '1_19'
     type: string
@@ -1032,6 +1149,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '1'
+      subject: account
+      suffix: nbr
+      grid: p1-G6
   bank_account_1_account_type_txt:
     x_petey_id: '1_20'
     type: string
@@ -1063,6 +1186,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '1'
+      subject: account_type
+      suffix: txt
+      grid: p1-G6
   bank_account_1_current_bal_amt:
     x_petey_id: '1_21'
     type: number
@@ -1104,6 +1233,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '1'
+      subject: current_bal
+      suffix: amt
+      grid: p1-G6
   bank_account_1_business_account_ind:
     x_petey_id: '1_22'
     type: boolean
@@ -1136,6 +1271,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '1'
+      subject: business_account
+      suffix: ind
+      grid: p1-G6
   bank_account_2_institution_name_address_txt:
     x_petey_id: '1_23'
     type: string
@@ -1183,6 +1324,12 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '2'
+      subject: institution_name_address
+      suffix: txt
+      grid: p1-G6
   bank_account_2_account_nbr:
     x_petey_id: '1_24'
     type: string
@@ -1219,6 +1366,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '2'
+      subject: account
+      suffix: nbr
+      grid: p1-G6
   bank_account_2_account_type_txt:
     x_petey_id: '1_25'
     type: string
@@ -1253,6 +1406,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '2'
+      subject: account_type
+      suffix: txt
+      grid: p1-G6
   bank_account_2_current_bal_amt:
     x_petey_id: '1_26'
     type: number
@@ -1293,6 +1452,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '2'
+      subject: current_bal
+      suffix: amt
+      grid: p1-G6
   bank_account_2_business_account_ind:
     x_petey_id: '1_27'
     type: boolean
@@ -1328,6 +1493,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: bank_account
+      block_iteration: '2'
+      subject: business_account
+      suffix: ind
+      grid: p1-G6
   real_estate_1_description_txt:
     x_petey_id: '1_48'
     type: string
@@ -1362,6 +1533,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; description -> description_txt'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: description
+      suffix: txt
+      grid: p1-G9
   real_estate_1_monthly_payment_amt:
     x_petey_id: '1_49'
     type: number
@@ -1403,6 +1580,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: monthly_payment
+      suffix: amt
+      grid: p1-G9
   real_estate_1_year_purchased_qty:
     x_petey_id: '1_53'
     type: number
@@ -1441,6 +1624,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_qty (type)'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: year_purchased
+      suffix: qty
+      grid: p1-G9
   real_estate_1_purchase_price_amt:
     x_petey_id: '1_54'
     type: number
@@ -1482,6 +1671,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: purchase_price
+      suffix: amt
+      grid: p1-G9
   real_estate_1_year_refinanced_qty:
     x_petey_id: '1_56'
     type: number
@@ -1520,6 +1715,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_qty (type)'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: year_refinanced
+      suffix: qty
+      grid: p1-G9
   real_estate_1_refinance_amt:
     x_petey_id: '1_57'
     type: number
@@ -1561,6 +1762,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: refinance
+      suffix: amt
+      grid: p1-G9
   real_estate_1_current_value_amt:
     x_petey_id: '1_50'
     type: number
@@ -1602,6 +1809,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: current_value
+      suffix: amt
+      grid: p1-G9
   real_estate_1_balance_owed_amt:
     x_petey_id: '1_51'
     type: number
@@ -1643,6 +1856,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: balance_owed
+      suffix: amt
+      grid: p1-G9
   real_estate_1_equity_amt:
     x_petey_id: '1_52'
     type: number
@@ -1684,6 +1903,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: equity
+      suffix: amt
+      grid: p1-G9
   real_estate_2_description_txt:
     x_petey_id: '1_58'
     type: string
@@ -1716,6 +1941,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; description -> description_txt'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: description
+      suffix: txt
+      grid: p1-G9
   real_estate_2_monthly_payment_amt:
     x_petey_id: '1_59'
     type: number
@@ -1757,6 +1988,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: monthly_payment
+      suffix: amt
+      grid: p1-G9
   real_estate_2_year_purchased_qty:
     x_petey_id: '1_63'
     type: number
@@ -1795,6 +2032,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_qty (type)'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: year_purchased
+      suffix: qty
+      grid: p1-G9
   real_estate_2_purchase_price_amt:
     x_petey_id: '1_64'
     type: number
@@ -1836,6 +2079,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: purchase_price
+      suffix: amt
+      grid: p1-G9
   real_estate_2_year_refinanced_qty:
     x_petey_id: '1_66'
     type: number
@@ -1874,6 +2123,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_qty (type)'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: year_refinanced
+      suffix: qty
+      grid: p1-G9
   real_estate_2_refinance_amt:
     x_petey_id: '1_67'
     type: number
@@ -1915,6 +2170,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: refinance
+      suffix: amt
+      grid: p1-G9
   real_estate_2_current_value_amt:
     x_petey_id: '1_60'
     type: number
@@ -1956,6 +2217,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: current_value
+      suffix: amt
+      grid: p1-G9
   real_estate_2_balance_owed_amt:
     x_petey_id: '1_61'
     type: number
@@ -1997,6 +2264,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: balance_owed
+      suffix: amt
+      grid: p1-G9
   real_estate_2_equity_amt:
     x_petey_id: '1_62'
     type: number
@@ -2038,6 +2311,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: equity
+      suffix: amt
+      grid: p1-G9
   other_asset_1_description_txt:
     x_petey_id: '1_68'
     type: string
@@ -2074,6 +2353,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; description -> description_txt'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: description
+      suffix: txt
+      grid: p1-G10
   other_asset_1_monthly_payment_amt:
     x_petey_id: '1_69'
     type: number
@@ -2115,6 +2400,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: monthly_payment
+      suffix: amt
+      grid: p1-G10
   other_asset_1_year_purchased_qty:
     x_petey_id: '1_70'
     type: number
@@ -2153,6 +2444,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_qty (type)'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: year_purchased
+      suffix: qty
+      grid: p1-G10
   other_asset_1_final_payment_month:
     x_petey_id: '1_71'
     type: number
@@ -2190,6 +2487,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: final_payment
+      suffix: month
+      grid: p1-G10
   other_asset_1_final_payment_yr:
     x_petey_id: '1_72'
     type: string
@@ -2242,6 +2545,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; year -> yr'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: final_payment
+      suffix: yr
+      grid: p1-G10
   other_asset_1_current_value_amt:
     x_petey_id: '1_73'
     type: number
@@ -2283,6 +2592,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: current_value
+      suffix: amt
+      grid: p1-G10
   other_asset_1_balance_owed_amt:
     x_petey_id: '1_74'
     type: number
@@ -2324,6 +2639,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: balance_owed
+      suffix: amt
+      grid: p1-G10
   other_asset_1_equity_amt:
     x_petey_id: '1_75'
     type: number
@@ -2365,6 +2686,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '1'
+      subject: equity
+      suffix: amt
+      grid: p1-G10
   other_asset_2_description_txt:
     x_petey_id: '1_76'
     type: string
@@ -2397,6 +2724,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; description -> description_txt'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: description
+      suffix: txt
+      grid: p1-G10
   other_asset_2_monthly_payment_amt:
     x_petey_id: '1_77'
     type: number
@@ -2438,6 +2771,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: monthly_payment
+      suffix: amt
+      grid: p1-G10
   other_asset_2_year_purchased_qty:
     x_petey_id: '1_78'
     type: number
@@ -2476,6 +2815,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_qty (type)'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: year_purchased
+      suffix: qty
+      grid: p1-G10
   other_asset_2_final_payment_month:
     x_petey_id: '1_79'
     type: number
@@ -2513,6 +2858,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: final_payment
+      suffix: month
+      grid: p1-G10
   other_asset_2_final_payment_yr:
     x_petey_id: '1_80'
     type: string
@@ -2565,6 +2916,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; year -> yr'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: final_payment
+      suffix: yr
+      grid: p1-G10
   other_asset_2_current_value_amt:
     x_petey_id: '1_81'
     type: number
@@ -2606,6 +2963,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: current_value
+      suffix: amt
+      grid: p1-G10
   other_asset_2_balance_owed_amt:
     x_petey_id: '1_82'
     type: number
@@ -2647,6 +3010,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: balance_owed
+      suffix: amt
+      grid: p1-G10
   other_asset_2_equity_amt:
     x_petey_id: '1_83'
     type: number
@@ -2688,6 +3057,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: other_asset
+      block_iteration: '2'
+      subject: equity
+      suffix: amt
+      grid: p1-G10
   credit_card_1_type_txt:
     x_petey_id: '1_84'
     type: string
@@ -2720,6 +3095,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '1'
+      subject: type
+      suffix: txt
+      grid: p1-G11
   credit_card_1_credit_limit_amt:
     x_petey_id: '1_85'
     type: number
@@ -2761,6 +3142,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '1'
+      subject: credit_limit
+      suffix: amt
+      grid: p1-G11
   credit_card_1_balance_owed_amt:
     x_petey_id: '1_86'
     type: number
@@ -2802,6 +3189,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '1'
+      subject: balance_owed
+      suffix: amt
+      grid: p1-G11
   credit_card_1_min_monthly_payment_amt:
     x_petey_id: '1_87'
     type: number
@@ -2843,6 +3236,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '1'
+      subject: min_monthly_payment
+      suffix: amt
+      grid: p1-G11
   credit_card_2_type_txt:
     x_petey_id: '1_88'
     type: string
@@ -2874,6 +3273,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '2'
+      subject: type
+      suffix: txt
+      grid: p1-G11
   credit_card_2_credit_limit_amt:
     x_petey_id: '1_89'
     type: number
@@ -2915,6 +3320,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '2'
+      subject: credit_limit
+      suffix: amt
+      grid: p1-G11
   credit_card_2_balance_owed_amt:
     x_petey_id: '1_90'
     type: number
@@ -2956,6 +3367,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '2'
+      subject: balance_owed
+      suffix: amt
+      grid: p1-G11
   credit_card_2_min_monthly_payment_amt:
     x_petey_id: '1_91'
     type: number
@@ -2997,6 +3414,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: credit_card
+      block_iteration: '2'
+      subject: min_monthly_payment
+      suffix: amt
+      grid: p1-G11
   digital_asset_1_currency_type_txt:
     x_petey_id: '1_38'
     type: string
@@ -3031,6 +3454,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '1'
+      subject: currency_type
+      suffix: txt
+      grid: p1-G8
   digital_asset_1_wallet_exchange_nm:
     x_petey_id: '1_39'
     type: string
@@ -3076,6 +3505,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '1'
+      subject: wallet_exchange
+      suffix: nm
+      grid: p1-G8
   digital_asset_1_setup_email_txt:
     x_petey_id: '1_40'
     type: string
@@ -3110,6 +3545,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '1'
+      subject: setup_email
+      suffix: txt
+      grid: p1-G8
   digital_asset_1_location_txt:
     x_petey_id: '1_41'
     type: string
@@ -3142,6 +3583,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '1'
+      subject: location
+      suffix: txt
+      grid: p1-G8
   digital_asset_1_amount_and_value_txt:
     x_petey_id: '1_42'
     type: string
@@ -3187,6 +3634,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '1'
+      subject: amount_and_value
+      suffix: txt
+      grid: p1-G8
   digital_asset_2_currency_type_txt:
     x_petey_id: '1_43'
     type: string
@@ -3218,6 +3671,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '2'
+      subject: currency_type
+      suffix: txt
+      grid: p1-G8
   digital_asset_2_wallet_exchange_nm:
     x_petey_id: '1_44'
     type: string
@@ -3263,6 +3722,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '2'
+      subject: wallet_exchange
+      suffix: nm
+      grid: p1-G8
   digital_asset_2_setup_email_txt:
     x_petey_id: '1_45'
     type: string
@@ -3297,6 +3762,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '2'
+      subject: setup_email
+      suffix: txt
+      grid: p1-G8
   digital_asset_2_location_txt:
     x_petey_id: '1_46'
     type: string
@@ -3329,6 +3800,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '2'
+      subject: location
+      suffix: txt
+      grid: p1-G8
   digital_asset_2_amount_and_value_txt:
     x_petey_id: '1_47'
     type: string
@@ -3374,6 +3851,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: digital_asset
+      block_iteration: '2'
+      subject: amount_and_value
+      suffix: txt
+      grid: p1-G8
   accounts_receivable_row_1_nm:
     x_petey_id: '2_1'
     type: string
@@ -3409,6 +3892,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: accounts_receivable_row_1
+      suffix: nm
   accounts_receivable_row_1_address_txt:
     x_petey_id: '2_2'
     type: string
@@ -3458,6 +3944,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; address -> address_txt'
+    x_petey_identifiers:
+      subject: accounts_receivable_row_1_address
+      suffix: txt
   accounts_receivable_row_1_amount_owed_amt:
     x_petey_id: '2_3'
     type: number
@@ -3499,6 +3988,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: accounts_receivable_row_1_amount_owed
+      suffix: amt
   accounts_receivable_row_2_nm:
     x_petey_id: '2_4'
     type: string
@@ -3533,6 +4025,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      subject: accounts_receivable_row_2
+      suffix: nm
   accounts_receivable_row_2_address_txt:
     x_petey_id: '2_5'
     type: string
@@ -3582,6 +4077,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; address -> address_txt'
+    x_petey_identifiers:
+      subject: accounts_receivable_row_2_address
+      suffix: txt
   accounts_receivable_row_2_amount_owed_amt:
     x_petey_id: '2_6'
     type: number
@@ -3624,6 +4122,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: accounts_receivable_row_2_amount_owed
+      suffix: amt
   accounts_receivable_additional_sheets_amt:
     x_petey_id: '2_7'
     type: number
@@ -3650,6 +4151,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: accounts_receivable_additional_sheets
+      suffix: amt
   accounts_receivable_total_amt:
     x_petey_id: '2_8'
     type: number
@@ -3674,6 +4178,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: accounts_receivable_total
+      suffix: amt
   individual_or_business_on_account_nm:
     x_petey_id: '2_9'
     type: string
@@ -3702,6 +4209,9 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/je__irs_433_f.json
+    x_petey_identifiers:
+      subject: individual_or_business_on_account
+      suffix: nm
   credit_card_row_1_type_txt:
     x_petey_id: '2_10'
     type: string
@@ -3736,6 +4246,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: credit_card_row_1_type
+      suffix: txt
+      grid: p2-G2
   credit_card_row_1_issuing_bank_txt:
     x_petey_id: '2_11'
     type: string
@@ -3785,6 +4299,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: credit_card_row_1_issuing_bank
+      suffix: txt
+      grid: p2-G2
   credit_card_row_1_merchant_account_nbr:
     x_petey_id: '2_12'
     type: string
@@ -3838,6 +4356,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; number -> nbr'
+    x_petey_identifiers:
+      subject: credit_card_row_1_merchant_account
+      suffix: nbr
+      grid: p2-G2
   credit_card_row_2_type_txt:
     x_petey_id: '2_13'
     type: string
@@ -3872,6 +4394,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: credit_card_row_2_type
+      suffix: txt
+      grid: p2-G2
   credit_card_row_2_issuing_bank_txt:
     x_petey_id: '2_14'
     type: string
@@ -3919,6 +4445,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: credit_card_row_2_issuing_bank
+      suffix: txt
+      grid: p2-G2
   credit_card_row_2_merchant_account_nbr:
     x_petey_id: '2_15'
     type: string
@@ -3970,6 +4500,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; number -> nbr'
+    x_petey_identifiers:
+      subject: credit_card_row_2_merchant_account
+      suffix: nbr
+      grid: p2-G2
   credit_card_row_3_type_txt:
     x_petey_id: '2_16'
     type: string
@@ -4004,6 +4538,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: credit_card_row_3_type
+      suffix: txt
+      grid: p2-G2
   credit_card_row_3_issuing_bank_txt:
     x_petey_id: '2_17'
     type: string
@@ -4051,6 +4589,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: credit_card_row_3_issuing_bank
+      suffix: txt
+      grid: p2-G2
   credit_card_row_3_merchant_account_nbr:
     x_petey_id: '2_18'
     type: string
@@ -4102,6 +4644,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; number -> nbr'
+    x_petey_identifiers:
+      subject: credit_card_row_3_merchant_account
+      suffix: nbr
+      grid: p2-G2
   taxpayer_current_employer_name_and_address_txt:
     x_petey_id: '2_19'
     type: string
@@ -4138,6 +4684,9 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      subject: taxpayer_current_employer_name_and_address
+      suffix: txt
   taxpayer_gross_pay_amt:
     x_petey_id: '2_23'
     type: number
@@ -4163,6 +4712,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: taxpayer_gross_pay
+      suffix: amt
   taxpayer_fed_taxes_per_pay_period_amt:
     x_petey_id: '2_25'
     type: number
@@ -4188,6 +4740,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: taxpayer_fed_taxes_per_pay_period
+      suffix: amt
   taxpayer_state_taxes_per_pay_period_amt:
     x_petey_id: '2_26'
     type: number
@@ -4211,6 +4766,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: taxpayer_state_taxes_per_pay_period
+      suffix: amt
   taxpayer_local_taxes_per_pay_period_amt:
     x_petey_id: '2_27'
     type: number
@@ -4234,6 +4792,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: taxpayer_local_taxes_per_pay_period
+      suffix: amt
   taxpayer_how_long_at_current_employer_txt:
     x_petey_id: '2_31'
     type: string
@@ -4265,6 +4826,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: taxpayer_how_long_at_current_employer
+      suffix: txt
   spouse_current_employer_name_and_address_txt:
     x_petey_id: '2_20'
     type: string
@@ -4298,6 +4862,9 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      subject: spouse_current_employer_name_and_address
+      suffix: txt
   spouse_gross_pay_amt:
     x_petey_id: '2_24'
     type: number
@@ -4323,6 +4890,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: spouse_gross_pay
+      suffix: amt
   spouse_fed_taxes_per_pay_period_amt:
     x_petey_id: '2_28'
     type: number
@@ -4348,6 +4918,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: spouse_fed_taxes_per_pay_period
+      suffix: amt
   spouse_state_taxes_per_pay_period_amt:
     x_petey_id: '2_29'
     type: number
@@ -4371,6 +4944,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: spouse_state_taxes_per_pay_period
+      suffix: amt
   spouse_local_taxes_per_pay_period_amt:
     x_petey_id: '2_30'
     type: number
@@ -4394,6 +4970,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: spouse_local_taxes_per_pay_period
+      suffix: amt
   spouse_how_long_at_current_employer_txt:
     x_petey_id: '2_32'
     type: string
@@ -4425,6 +5004,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_how_long_at_current_employer
+      suffix: txt
   alimony_income_amt:
     x_petey_id: '2_33'
     type: number
@@ -4452,6 +5034,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: alimony_income
+      suffix: amt
   child_support_income_amt:
     x_petey_id: '2_36'
     type: number
@@ -4477,6 +5062,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: child_support_income
+      suffix: amt
   net_self_employment_income_amt:
     x_petey_id: '2_39'
     type: number
@@ -4502,6 +5090,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: net_self_employment_income
+      suffix: amt
   net_rental_income_amt:
     x_petey_id: '2_34'
     type: number
@@ -4527,6 +5118,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: net_rental_income
+      suffix: amt
   unemployment_income_amt:
     x_petey_id: '2_37'
     type: number
@@ -4552,6 +5146,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: unemployment_income
+      suffix: amt
   pension_income_amt:
     x_petey_id: '2_40'
     type: number
@@ -4577,6 +5174,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: pension_income
+      suffix: amt
   interest_dividends_income_amt:
     x_petey_id: '2_35'
     type: number
@@ -4602,6 +5202,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: interest_dividends_income
+      suffix: amt
   social_security_income_amt:
     x_petey_id: '2_38'
     type: number
@@ -4627,6 +5230,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: social_security_income
+      suffix: amt
   other_income_description_txt:
     x_petey_id: '2_41'
     type: string
@@ -4657,6 +5263,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: other_income_description
+      suffix: txt
   other_income_amt:
     x_petey_id: '2_42'
     type: number
@@ -4682,6 +5291,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_income
+      suffix: amt
   food_actual_amt:
     x_petey_id: '2_47'
     type: number
@@ -4707,6 +5319,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: food_actual
+      suffix: amt
+      grid: p2-G3
   food_irs_allowed_amt:
     x_petey_id: '2_48'
     type: number
@@ -4730,6 +5346,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: food_irs_allowed
+      suffix: amt
+      grid: p2-G3
   housekeeping_supplies_actual_amt:
     x_petey_id: '2_49'
     type: number
@@ -4753,6 +5373,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housekeeping_supplies_actual
+      suffix: amt
+      grid: p2-G3
   housekeeping_supplies_irs_allowed_amt:
     x_petey_id: '2_50'
     type: number
@@ -4776,6 +5400,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housekeeping_supplies_irs_allowed
+      suffix: amt
+      grid: p2-G3
   clothing_actual_amt:
     x_petey_id: '2_53'
     type: number
@@ -4799,6 +5427,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: clothing_actual
+      suffix: amt
+      grid: p2-G3
   clothing_irs_allowed_amt:
     x_petey_id: '2_54'
     type: number
@@ -4822,6 +5454,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: clothing_irs_allowed
+      suffix: amt
+      grid: p2-G3
   personal_care_actual_amt:
     x_petey_id: '2_55'
     type: number
@@ -4845,6 +5481,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: personal_care_actual
+      suffix: amt
+      grid: p2-G3
   personal_care_irs_allowed_amt:
     x_petey_id: '2_56'
     type: number
@@ -4868,6 +5508,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: personal_care_irs_allowed
+      suffix: amt
+      grid: p2-G3
   miscellaneous_actual_amt:
     x_petey_id: '2_57'
     type: number
@@ -4891,6 +5535,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: miscellaneous_actual
+      suffix: amt
+      grid: p2-G3
   miscellaneous_irs_allowed_amt:
     x_petey_id: '2_58'
     type: number
@@ -4914,6 +5562,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: miscellaneous_irs_allowed
+      suffix: amt
+      grid: p2-G3
   food_personal_care_total_actual_amt:
     x_petey_id: '2_61'
     type: number
@@ -4937,6 +5589,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: food_personal_care_total_actual
+      suffix: amt
+      grid: p2-G3
   food_personal_care_total_irs_allowed_amt:
     x_petey_id: '2_62'
     type: number
@@ -4960,6 +5616,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: food_personal_care_total_irs_allowed
+      suffix: amt
+      grid: p2-G3
   transportation_auto_actual_amt:
     x_petey_id: '2_69'
     type: number
@@ -4984,6 +5644,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: transportation_auto_actual
+      suffix: amt
+      grid: p2-G3
   transportation_auto_irs_allowed_amt:
     x_petey_id: '2_70'
     type: number
@@ -5008,6 +5672,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: transportation_auto_irs_allowed
+      suffix: amt
+      grid: p2-G3
   transportation_public_actual_amt:
     x_petey_id: '2_75'
     type: number
@@ -5031,6 +5699,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: transportation_public_actual
+      suffix: amt
+      grid: p2-G3
   transportation_public_irs_allowed_amt:
     x_petey_id: '2_76'
     type: number
@@ -5054,6 +5726,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: transportation_public_irs_allowed
+      suffix: amt
+      grid: p2-G3
   transportation_total_actual_amt:
     x_petey_id: '2_79'
     type: number
@@ -5077,6 +5753,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: transportation_total_actual
+      suffix: amt
+      grid: p2-G3
   transportation_total_irs_allowed_amt:
     x_petey_id: '2_80'
     type: number
@@ -5100,6 +5780,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: transportation_total_irs_allowed
+      suffix: amt
+      grid: p2-G3
   housing_rent_actual_amt:
     x_petey_id: '2_83'
     type: number
@@ -5123,6 +5807,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_rent_actual
+      suffix: amt
+      grid: p2-G3
   housing_rent_irs_allowed_amt:
     x_petey_id: '2_84'
     type: number
@@ -5146,6 +5834,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_rent_irs_allowed
+      suffix: amt
+      grid: p2-G3
   housing_utilities_actual_amt:
     x_petey_id: '2_87'
     type: number
@@ -5169,6 +5861,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_utilities_actual
+      suffix: amt
+      grid: p2-G3
   housing_utilities_irs_allowed_amt:
     x_petey_id: '2_88'
     type: number
@@ -5192,6 +5888,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_utilities_irs_allowed
+      suffix: amt
+      grid: p2-G3
   housing_telephone_cable_actual_amt:
     x_petey_id: '2_91'
     type: number
@@ -5215,6 +5915,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_telephone_cable_actual
+      suffix: amt
+      grid: p2-G3
   housing_telephone_cable_irs_allowed_amt:
     x_petey_id: '2_92'
     type: number
@@ -5238,6 +5942,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_telephone_cable_irs_allowed
+      suffix: amt
+      grid: p2-G3
   housing_real_estate_taxes_insurance_actual_amt:
     x_petey_id: '2_95'
     type: number
@@ -5262,6 +5970,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_real_estate_taxes_insurance_actual
+      suffix: amt
+      grid: p2-G3
   housing_real_estate_taxes_insurance_irs_allowed_amt:
     x_petey_id: '2_96'
     type: number
@@ -5286,6 +5998,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_real_estate_taxes_insurance_irs_allowed
+      suffix: amt
+      grid: p2-G3
   housing_maintenance_repairs_actual_amt:
     x_petey_id: '2_103'
     type: number
@@ -5309,6 +6025,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_maintenance_repairs_actual
+      suffix: amt
+      grid: p2-G3
   housing_maintenance_repairs_irs_allowed_amt:
     x_petey_id: '2_104'
     type: number
@@ -5332,6 +6052,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_maintenance_repairs_irs_allowed
+      suffix: amt
+      grid: p2-G3
   housing_total_actual_amt:
     x_petey_id: '2_108'
     type: number
@@ -5355,6 +6079,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_total_actual
+      suffix: amt
+      grid: p2-G3
   housing_total_irs_allowed_amt:
     x_petey_id: '2_109'
     type: number
@@ -5378,6 +6106,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: housing_total_irs_allowed
+      suffix: amt
+      grid: p2-G3
   health_insurance_actual_amt:
     x_petey_id: '2_43'
     type: number
@@ -5401,6 +6133,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: health_insurance_actual
+      suffix: amt
+      grid: p2-G4
   health_insurance_irs_allowed_amt:
     x_petey_id: '2_44'
     type: number
@@ -5424,6 +6160,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: health_insurance_irs_allowed
+      suffix: amt
+      grid: p2-G4
   out_of_pocket_health_care_actual_amt:
     x_petey_id: '2_45'
     type: number
@@ -5448,6 +6188,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: out_of_pocket_health_care_actual
+      suffix: amt
+      grid: p2-G4
   out_of_pocket_health_care_irs_allowed_amt:
     x_petey_id: '2_46'
     type: number
@@ -5471,6 +6215,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: out_of_pocket_health_care_irs_allowed
+      suffix: amt
+      grid: p2-G4
   medical_total_actual_amt:
     x_petey_id: '2_51'
     type: number
@@ -5494,6 +6242,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: medical_total_actual
+      suffix: amt
+      grid: p2-G4
   medical_total_irs_allowed_amt:
     x_petey_id: '2_52'
     type: number
@@ -5517,6 +6269,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: medical_total_irs_allowed
+      suffix: amt
+      grid: p2-G4
   child_dependent_care_actual_amt:
     x_petey_id: '2_59'
     type: number
@@ -5540,6 +6296,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: child_dependent_care_actual
+      suffix: amt
+      grid: p2-G4
   child_dependent_care_irs_allowed_amt:
     x_petey_id: '2_60'
     type: number
@@ -5563,6 +6323,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: child_dependent_care_irs_allowed
+      suffix: amt
+      grid: p2-G4
   estimated_tax_payments_actual_amt:
     x_petey_id: '2_63'
     type: number
@@ -5586,6 +6350,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: estimated_tax_payments_actual
+      suffix: amt
+      grid: p2-G4
   estimated_tax_payments_irs_allowed_amt:
     x_petey_id: '2_64'
     type: number
@@ -5609,6 +6377,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: estimated_tax_payments_irs_allowed
+      suffix: amt
+      grid: p2-G4
   term_life_insurance_actual_amt:
     x_petey_id: '2_65'
     type: number
@@ -5632,6 +6404,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: term_life_insurance_actual
+      suffix: amt
+      grid: p2-G4
   term_life_insurance_irs_allowed_amt:
     x_petey_id: '2_66'
     type: number
@@ -5655,6 +6431,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: term_life_insurance_irs_allowed
+      suffix: amt
+      grid: p2-G4
   retirement_employer_required_actual_amt:
     x_petey_id: '2_67'
     type: number
@@ -5678,6 +6458,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: retirement_employer_required_actual
+      suffix: amt
+      grid: p2-G4
   retirement_employer_required_irs_allowed_amt:
     x_petey_id: '2_68'
     type: number
@@ -5701,6 +6485,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: retirement_employer_required_irs_allowed
+      suffix: amt
+      grid: p2-G4
   retirement_voluntary_actual_amt:
     x_petey_id: '2_71'
     type: number
@@ -5724,6 +6512,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: retirement_voluntary_actual
+      suffix: amt
+      grid: p2-G4
   retirement_voluntary_irs_allowed_amt:
     x_petey_id: '2_72'
     type: number
@@ -5747,6 +6539,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: retirement_voluntary_irs_allowed
+      suffix: amt
+      grid: p2-G4
   union_dues_actual_amt:
     x_petey_id: '2_73'
     type: number
@@ -5770,6 +6566,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: union_dues_actual
+      suffix: amt
+      grid: p2-G4
   union_dues_irs_allowed_amt:
     x_petey_id: '2_74'
     type: number
@@ -5793,6 +6593,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: union_dues_irs_allowed
+      suffix: amt
+      grid: p2-G4
   delinquent_state_local_taxes_actual_amt:
     x_petey_id: '2_77'
     type: number
@@ -5817,6 +6621,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: delinquent_state_local_taxes_actual
+      suffix: amt
+      grid: p2-G4
   delinquent_state_local_taxes_irs_allowed_amt:
     x_petey_id: '2_78'
     type: number
@@ -5841,6 +6649,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: delinquent_state_local_taxes_irs_allowed
+      suffix: amt
+      grid: p2-G4
   student_loans_actual_amt:
     x_petey_id: '2_81'
     type: number
@@ -5864,6 +6676,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: student_loans_actual
+      suffix: amt
+      grid: p2-G4
   student_loans_irs_allowed_amt:
     x_petey_id: '2_82'
     type: number
@@ -5887,6 +6703,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: student_loans_irs_allowed
+      suffix: amt
+      grid: p2-G4
   court_ordered_child_support_actual_amt:
     x_petey_id: '2_85'
     type: number
@@ -5910,6 +6730,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: court_ordered_child_support_actual
+      suffix: amt
+      grid: p2-G4
   court_ordered_child_support_irs_allowed_amt:
     x_petey_id: '2_86'
     type: number
@@ -5933,6 +6757,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: court_ordered_child_support_irs_allowed
+      suffix: amt
+      grid: p2-G4
   court_ordered_alimony_actual_amt:
     x_petey_id: '2_89'
     type: number
@@ -5956,6 +6784,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: court_ordered_alimony_actual
+      suffix: amt
+      grid: p2-G4
   court_ordered_alimony_irs_allowed_amt:
     x_petey_id: '2_90'
     type: number
@@ -5979,6 +6811,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: court_ordered_alimony_irs_allowed
+      suffix: amt
+      grid: p2-G4
   other_court_ordered_payments_actual_amt:
     x_petey_id: '2_93'
     type: number
@@ -6002,6 +6838,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_court_ordered_payments_actual
+      suffix: amt
+      grid: p2-G4
   other_court_ordered_payments_irs_allowed_amt:
     x_petey_id: '2_94'
     type: number
@@ -6025,6 +6865,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_court_ordered_payments_irs_allowed
+      suffix: amt
+      grid: p2-G4
   other_expenses_row_1_specify_txt:
     x_petey_id: '2_97'
     type: string
@@ -6056,6 +6900,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: other_expenses_row_1_specify
+      suffix: txt
   other_expenses_row_1_actual_amt:
     x_petey_id: '2_98'
     type: number
@@ -6095,6 +6942,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: other_expenses_row_1_actual
+      suffix: amt
+      grid: p2-G4
   other_expenses_row_1_irs_allowed_amt:
     x_petey_id: '2_99'
     type: number
@@ -6134,6 +6985,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: other_expenses_row_1_irs_allowed
+      suffix: amt
+      grid: p2-G4
   other_expenses_row_2_specify_txt:
     x_petey_id: '2_100'
     type: string
@@ -6165,6 +7020,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: other_expenses_row_2_specify
+      suffix: txt
   other_expenses_row_2_actual_amt:
     x_petey_id: '2_101'
     type: number
@@ -6204,6 +7062,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: other_expenses_row_2_actual
+      suffix: amt
+      grid: p2-G4
   other_expenses_row_2_irs_allowed_amt:
     x_petey_id: '2_102'
     type: number
@@ -6243,6 +7105,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: other_expenses_row_2_irs_allowed
+      suffix: amt
+      grid: p2-G4
   other_expenses_row_3_specify_txt:
     x_petey_id: '2_105'
     type: string
@@ -6274,6 +7140,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; +_txt (type)'
+    x_petey_identifiers:
+      subject: other_expenses_row_3_specify
+      suffix: txt
   other_expenses_row_3_actual_amt:
     x_petey_id: '2_106'
     type: number
@@ -6313,6 +7182,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: other_expenses_row_3_actual
+      suffix: amt
+      grid: p2-G4
   other_expenses_row_3_irs_allowed_amt:
     x_petey_id: '2_107'
     type: number
@@ -6352,6 +7225,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      subject: other_expenses_row_3_irs_allowed
+      suffix: amt
+      grid: p2-G4
   other_expenses_total_actual_amt:
     x_petey_id: '2_110'
     type: number
@@ -6375,6 +7252,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_expenses_total_actual
+      suffix: amt
+      grid: p2-G4
   other_expenses_total_irs_allowed_amt:
     x_petey_id: '2_111'
     type: number
@@ -6398,6 +7279,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_expenses_total_irs_allowed
+      suffix: amt
+      grid: p2-G4
   taxpayer_signature:
     x_petey_id: '2_112'
     type: string
@@ -6413,6 +7298,9 @@ fields:
     description: Your Signature.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: signature
   spouse_signature:
     x_petey_id: '2_113'
     type: string
@@ -6428,6 +7316,9 @@ fields:
     description: Spouse’s Signature.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse
+      suffix: signature
   signature_dt:
     x_petey_id: '2_114'
     type: date
@@ -6454,6 +7345,9 @@ fields:
         - date{MM/DD/YYYY}
       message: Date must be entered in MM/DD/YYYY format.
     label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
   real_estate_1_property_type:
     x_petey_id: '1_55'
     type: category
@@ -6505,6 +7399,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '1'
+      subject: property_type
+      grid: p1-G9
   real_estate_2_property_type:
     x_petey_id: '1_65'
     type: category
@@ -6556,6 +7455,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: real_estate
+      block_iteration: '2'
+      subject: property_type
+      grid: p1-G9
   taxpayer_pay_frequency:
     x_petey_id: '2_21'
     type: category
@@ -6617,6 +7521,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: taxpayer_pay_frequency
   spouse_pay_frequency:
     x_petey_id: '2_22'
     type: category
@@ -6678,6 +7584,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: spouse_pay_frequency
 x_petey_dropped_widgets:
   count: 1
   widgets:

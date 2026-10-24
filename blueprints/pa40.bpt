@@ -34,6 +34,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: ssn
   spouse_ssn:
     x_petey_id: '1_3'
     type: string
@@ -53,6 +56,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: spouse
+      suffix: ssn
   taxpayer_last_nm:
     x_petey_id: '1_6'
     type: string
@@ -85,6 +91,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: taxpayer_last
+      suffix: nm
   taxpayer_suffix_txt:
     x_petey_id: '1_7'
     type: string
@@ -116,6 +125,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: taxpayer_suffix
+      suffix: txt
   taxpayer_first_nm:
     x_petey_id: '1_10'
     type: string
@@ -148,6 +160,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: taxpayer_first
+      suffix: nm
   taxpayer_middle_initial:
     x_petey_id: '1_11'
     type: string
@@ -163,6 +178,9 @@ fields:
     description: Use all caps to enter the taxpayer’s middle initial
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer_middle
+      suffix: initial
   spouse_first_nm:
     x_petey_id: '1_13'
     type: string
@@ -195,6 +213,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: spouse_first
+      suffix: nm
   spouse_middle_initial:
     x_petey_id: '1_14'
     type: string
@@ -210,6 +231,9 @@ fields:
     description: Use all caps to enter the spouse’s middle initial
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_middle
+      suffix: initial
   spouse_last_nm:
     x_petey_id: '1_16'
     type: string
@@ -243,6 +267,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: spouse_last
+      suffix: nm
   spouse_suffix_txt:
     x_petey_id: '1_17'
     type: string
@@ -274,6 +301,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_suffix
+      suffix: txt
   address_line_1_txt:
     x_petey_id: '1_20'
     type: string
@@ -290,6 +320,9 @@ fields:
     description: Use all caps to enter the first Line of address
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: address_line_1
+      suffix: txt
   address_line_2_txt:
     x_petey_id: '1_24'
     type: string
@@ -306,6 +339,9 @@ fields:
     description: Use all caps to enter the second line of address
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: address_line_2
+      suffix: txt
   city_nm:
     x_petey_id: '1_26'
     type: string
@@ -322,6 +358,9 @@ fields:
     description: Use all caps to enter the city or post office
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: city
+      suffix: nm
   state_cd:
     x_petey_id: '1_27'
     type: string
@@ -355,6 +394,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: state
+      suffix: cd
   zip_cd:
     x_petey_id: '1_28'
     type: string
@@ -372,6 +414,9 @@ fields:
     description: Enter the five-digit ZIP code for an address in the United States
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: zip
+      suffix: cd
   country_cd:
     x_petey_id: '1_30'
     type: string
@@ -389,6 +434,9 @@ fields:
     description: Enter the two-character country code if a foreign country address
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: country
+      suffix: cd
   daytime_phone_nbr:
     x_petey_id: '1_31'
     type: string
@@ -440,6 +488,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: daytime_phone
+      suffix: nbr
   school_district_cd:
     x_petey_id: '1_32'
     type: string
@@ -457,6 +508,9 @@ fields:
       Booklet
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: school_district
+      suffix: cd
   extension_filed_ind:
     x_petey_id: '1_1'
     type: boolean
@@ -471,6 +525,9 @@ fields:
       widget_type: checkbox
       path: Extension
     label_source: llm
+    x_petey_identifiers:
+      subject: extension_filed
+      suffix: ind
   is_amended_return_ind:
     x_petey_id: '1_4'
     type: boolean
@@ -485,6 +542,9 @@ fields:
       widget_type: checkbox
       path: Amended Return
     label_source: llm
+    x_petey_identifiers:
+      subject: is_amended_return
+      suffix: ind
   residency_status:
     x_petey_id: '1_5'
     type: category
@@ -560,6 +620,8 @@ fields:
           '3':
             caption: Part-Year Resident from __ /__ /2025 to __ /__ /2025
       record: runs/hand_review/je__pa40.json
+    x_petey_identifiers:
+      subject: residency_status
   part_year_residency_start_dt:
     x_petey_id: '1_9'
     type: date
@@ -577,6 +639,9 @@ fields:
       the MM/DD format
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: part_year_residency_start
+      suffix: dt
   part_year_residency_end_dt:
     x_petey_id: '1_8'
     type: date
@@ -594,6 +659,9 @@ fields:
       MM/DD format
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: part_year_residency_end
+      suffix: dt
   filing_status:
     x_petey_id: '1_12'
     type: category
@@ -673,6 +741,8 @@ fields:
       - filing_status::3
       - filing_status::4
       - deceased_ind
+    x_petey_identifiers:
+      subject: filing_status
   final_return_reason_txt:
     x_petey_id: '1_15'
     type: string
@@ -689,6 +759,9 @@ fields:
     description: 'Final Return. Indicate reason:'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: final_return_reason
+      suffix: txt
   taxpayer_deceased_ind:
     x_petey_id: '1_19'
     type: boolean
@@ -703,6 +776,9 @@ fields:
       widget_type: checkbox
       path: Taxpayer
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer_deceased
+      suffix: ind
   taxpayer_death_dt:
     x_petey_id: '1_21'
     type: date
@@ -719,6 +795,9 @@ fields:
     description: Enter the taxpayer’s date of death using the MM/DD format
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer_death
+      suffix: dt
   spouse_deceased_ind:
     x_petey_id: '1_22'
     type: boolean
@@ -733,6 +812,9 @@ fields:
       widget_type: checkbox
       path: Spouse
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_deceased
+      suffix: ind
   spouse_death_dt:
     x_petey_id: '1_23'
     type: date
@@ -749,6 +831,9 @@ fields:
     description: Enter the spouse’s date of death using the MM/DD format
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_death
+      suffix: dt
   farmer_ind:
     x_petey_id: '1_25'
     type: boolean
@@ -763,6 +848,9 @@ fields:
       widget_type: checkbox
       path: Farmers
     label_source: llm
+    x_petey_identifiers:
+      subject: farmer
+      suffix: ind
   school_district_nm:
     x_petey_id: '1_29'
     type: string
@@ -779,6 +867,9 @@ fields:
       of the tax year
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: school_district
+      suffix: nm
   taxpayer_occupation_txt:
     x_petey_id: '1_33'
     type: string
@@ -810,6 +901,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: taxpayer_occupation
+      suffix: txt
   spouse_occupation_txt:
     x_petey_id: '1_34'
     type: string
@@ -841,6 +935,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: spouse_occupation
+      suffix: txt
   line_1a_gross_compensation_amt:
     x_petey_id: '1_35'
     type: number
@@ -859,6 +956,9 @@ fields:
       sources. See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_1a_gross_compensation
+      suffix: amt
   line_1b_unreimbursed_business_expenses_amt:
     x_petey_id: '1_36'
     type: number
@@ -876,6 +976,9 @@ fields:
       III, Line(s) H of the PA-40 Schedule(s) UE included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_1b_unreimbursed_business_expenses
+      suffix: amt
   line_1c_net_compensation_amt:
     x_petey_id: '1_37'
     type: number
@@ -893,6 +996,9 @@ fields:
       enter an amount less than zero.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_1c_net_compensation
+      suffix: amt
   line_2_interest_income_amt:
     x_petey_id: '1_38'
     type: number
@@ -911,6 +1017,9 @@ fields:
       income if not required to include PA-40 Schedule A
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_2_interest_income
+      suffix: amt
   line_3_dividend_capital_gains_amt:
     x_petey_id: '1_39'
     type: number
@@ -929,6 +1038,9 @@ fields:
       of the federal dividend income if not required to include PA-40 Schedule B
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_3_dividend_capital_gains
+      suffix: amt
   line_4_loss_ind:
     x_petey_id: '1_41'
     type: boolean
@@ -943,6 +1055,9 @@ fields:
       widget_type: checkbox
       path: 4. Loss
     label_source: llm
+    x_petey_identifiers:
+      subject: line_4_loss
+      suffix: ind
   line_4_business_income_amt:
     x_petey_id: '1_40'
     type: number
@@ -962,6 +1077,9 @@ fields:
       return. See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_4_business_income
+      suffix: amt
   line_5_loss_ind:
     x_petey_id: '1_43'
     type: boolean
@@ -976,6 +1094,9 @@ fields:
       widget_type: checkbox
       path: 5. Loss
     label_source: llm
+    x_petey_identifiers:
+      subject: line_5_loss
+      suffix: ind
   line_5_property_gain_loss_amt:
     x_petey_id: '1_42'
     type: number
@@ -994,6 +1115,9 @@ fields:
       See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_5_property_gain_loss
+      suffix: amt
   line_6_loss_ind:
     x_petey_id: '1_45'
     type: boolean
@@ -1008,6 +1132,9 @@ fields:
       widget_type: checkbox
       path: 6. Loss
     label_source: llm
+    x_petey_identifiers:
+      subject: line_6_loss
+      suffix: ind
   line_6_rents_royalties_amt:
     x_petey_id: '1_44'
     type: number
@@ -1026,6 +1153,9 @@ fields:
       See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_6_rents_royalties
+      suffix: amt
   line_7_estate_trust_income_amt:
     x_petey_id: '1_46'
     type: number
@@ -1043,6 +1173,9 @@ fields:
       Schedule J included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_7_estate_trust_income
+      suffix: amt
   line_8_gambling_lottery_winnings_amt:
     x_petey_id: '1_47'
     type: number
@@ -1060,6 +1193,9 @@ fields:
       PA-40 Schedule T included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_8_gambling_lottery_winnings
+      suffix: amt
   line_9_total_pa_taxable_income_amt:
     x_petey_id: '1_48'
     type: number
@@ -1077,6 +1213,9 @@ fields:
       enter the result here
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_9_total_pa_taxable_income
+      suffix: amt
   line_10_other_deductions_cd:
     x_petey_id: '1_49'
     type: string
@@ -1092,6 +1231,9 @@ fields:
     description: Enter code per instructions
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_10_other_deductions
+      suffix: cd
   line_10_other_deductions_amt:
     x_petey_id: '1_50'
     type: number
@@ -1109,6 +1251,9 @@ fields:
       O included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_10_other_deductions
+      suffix: amt
   line_11_adjusted_pa_taxable_income_amt:
     x_petey_id: '1_51'
     type: number
@@ -1125,6 +1270,9 @@ fields:
     description: 11. – Subtract Line 10 from Line 9 and enter the result here
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_11_adjusted_pa_taxable_income
+      suffix: amt
   taxpayer_nm:
     x_petey_id: '2_1'
     type: string
@@ -1157,6 +1305,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: nm
   pa_tax_liability_amt:
     x_petey_id: '2_2'
     type: number
@@ -1173,6 +1324,9 @@ fields:
     description: 12. – Multiply Line 11 by 3.07% (0.0307) and enter the result here
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: pa_tax_liability
+      suffix: amt
   total_pa_tax_withheld_amt:
     x_petey_id: '2_3'
     type: number
@@ -1191,6 +1345,9 @@ fields:
       15 of Form(s) 1099-MISC and/or Box 5 of Form(s) 1099-NEC. See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_pa_tax_withheld
+      suffix: amt
   prior_year_credit_amt:
     x_petey_id: '2_4'
     type: number
@@ -1208,7 +1365,10 @@ fields:
       the previous tax year’s PA-40 return
     x_petey_description_source: tooltip
     label_source: llm
-  include_rev_459b_ind:
+    x_petey_identifiers:
+      subject: prior_year_credit
+      suffix: amt
+  include_rev_ind_459b:
     x_petey_id: '2_6'
     type: boolean
     semantic_type: indicator
@@ -1222,6 +1382,10 @@ fields:
       widget_type: checkbox
       path: Form REV-459B
     label_source: llm
+    x_petey_identifiers:
+      subject: include_rev
+      suffix: ind
+      iteration: 459b
   estimated_installment_pmts_amt:
     x_petey_id: '2_5'
     type: number
@@ -1239,6 +1403,9 @@ fields:
       tax year
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: estimated_installment_pmts
+      suffix: amt
   extension_pmt_amt:
     x_petey_id: '2_7'
     type: number
@@ -1256,6 +1423,9 @@ fields:
       year
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: extension_pmt
+      suffix: amt
   nonresident_tax_withheld_amt:
     x_petey_id: '2_8'
     type: number
@@ -1274,6 +1444,9 @@ fields:
       with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: nonresident_tax_withheld
+      suffix: amt
   total_estimated_pmts_and_credits_amt:
     x_petey_id: '2_9'
     type: number
@@ -1290,6 +1463,9 @@ fields:
     description: 18. – Add Lines 14, 15, 16 and 17 and enter the result
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_estimated_pmts_and_credits
+      suffix: amt
   tax_forgiveness_filing_status:
     x_petey_id: '2_11'
     type: category
@@ -1347,6 +1523,8 @@ fields:
       - tax_forgiveness_filing_status::1
       - tax_forgiveness_filing_status::2
       - tax_forgiveness_filing_status::3
+    x_petey_identifiers:
+      subject: tax_forgiveness_filing_status
   schedule_sp_dependents_cnt:
     x_petey_id: '2_10'
     type: integer
@@ -1364,6 +1542,9 @@ fields:
       2, of the PA-40 Schedule SP included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: schedule_sp_dependents
+      suffix: cnt
   schedule_sp_eligibility_income_amt:
     x_petey_id: '2_12'
     type: number
@@ -1382,6 +1563,9 @@ fields:
       11 of the PA-40 Schedule SP included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: schedule_sp_eligibility_income
+      suffix: amt
   tax_forgiveness_credit_amt:
     x_petey_id: '2_13'
     type: number
@@ -1399,6 +1583,9 @@ fields:
       IV, Line 16, of the PA-40 Schedule SP included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: tax_forgiveness_credit
+      suffix: amt
   resident_credit_amt:
     x_petey_id: '2_14'
     type: number
@@ -1416,6 +1603,9 @@ fields:
       Line 6 of all PA-40/PA-41 Schedules G-L included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: resident_credit
+      suffix: amt
   total_other_credits_amt:
     x_petey_id: '2_15'
     type: number
@@ -1433,6 +1623,9 @@ fields:
       PA-40 Schedule OC included with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_other_credits
+      suffix: amt
   total_pmts_and_credits_amt:
     x_petey_id: '2_16'
     type: number
@@ -1450,6 +1643,9 @@ fields:
       result
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_pmts_and_credits
+      suffix: amt
   use_tax_amt:
     x_petey_id: '2_17'
     type: number
@@ -1467,6 +1663,9 @@ fields:
       worksheet. See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: use_tax
+      suffix: amt
   tax_due_amt:
     x_petey_id: '2_18'
     type: number
@@ -1484,6 +1683,9 @@ fields:
       the difference here
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: tax_due
+      suffix: amt
   penalties_and_interest_cd:
     x_petey_id: '2_20'
     type: string
@@ -1499,7 +1701,10 @@ fields:
     description: 27. – Enter the appropriate code. See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
-  include_rev_1630_ind:
+    x_petey_identifiers:
+      subject: penalties_and_interest
+      suffix: cd
+  include_rev_ind_1630:
     x_petey_id: '2_21'
     type: boolean
     semantic_type: indicator
@@ -1516,6 +1721,10 @@ fields:
       with the return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: include_rev
+      suffix: ind
+      iteration: '1630'
   penalties_and_interest_amt:
     x_petey_id: '2_19'
     type: number
@@ -1532,6 +1741,9 @@ fields:
     description: 27. – Enter the total amount of penalties and interest. See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: penalties_and_interest
+      suffix: amt
   total_payment_due_amt:
     x_petey_id: '2_22'
     type: number
@@ -1548,6 +1760,9 @@ fields:
     description: 28. – Enter the total payment due amount. See the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: total_payment_due
+      suffix: amt
   overpayment_amt:
     x_petey_id: '2_23'
     type: number
@@ -1565,6 +1780,9 @@ fields:
       27, enter the difference here
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: overpayment
+      suffix: amt
   refund_amt:
     x_petey_id: '2_24'
     type: number
@@ -1581,6 +1799,9 @@ fields:
     description: 30. – Enter the amount of Line 29 to be refunded
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: refund
+      suffix: amt
   credit_to_next_year_estimated_tax_amt:
     x_petey_id: '2_25'
     type: number
@@ -1598,6 +1819,9 @@ fields:
       tax payments
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: credit_to_next_year_estimated_tax
+      suffix: amt
   line_32_donation_cd:
     x_petey_id: '2_26'
     type: string
@@ -1614,6 +1838,9 @@ fields:
       the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_32_donation
+      suffix: cd
   line_32_donation_amt:
     x_petey_id: '2_27'
     type: number
@@ -1630,6 +1857,9 @@ fields:
     description: 32. – Enter the amount of Line 29 to be donated to a donation organization
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_32_donation
+      suffix: amt
   line_33_donation_cd:
     x_petey_id: '2_28'
     type: string
@@ -1646,6 +1876,9 @@ fields:
       the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_33_donation
+      suffix: cd
   line_33_donation_amt:
     x_petey_id: '2_29'
     type: number
@@ -1662,6 +1895,9 @@ fields:
     description: 33. – Enter the amount of Line 29 to be donated to a donation organization
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_33_donation
+      suffix: amt
   line_34_donation_cd:
     x_petey_id: '2_30'
     type: string
@@ -1678,6 +1914,9 @@ fields:
       the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_34_donation
+      suffix: cd
   line_34_donation_amt:
     x_petey_id: '2_31'
     type: number
@@ -1694,6 +1933,9 @@ fields:
     description: 34. – Enter the amount of Line 29 to be donated to a donation organization
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_34_donation
+      suffix: amt
   line_35_donation_cd:
     x_petey_id: '2_33'
     type: string
@@ -1710,6 +1952,9 @@ fields:
       the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_35_donation
+      suffix: cd
   line_35_donation_amt:
     x_petey_id: '2_32'
     type: number
@@ -1726,6 +1971,9 @@ fields:
     description: 35. – Enter the amount of Line 29 to be donated to a donation organization
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_35_donation
+      suffix: amt
   line_36_donation_cd:
     x_petey_id: '2_34'
     type: string
@@ -1742,6 +1990,9 @@ fields:
       the instructions.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_36_donation
+      suffix: cd
   line_36_donation_amt:
     x_petey_id: '2_35'
     type: number
@@ -1758,6 +2009,9 @@ fields:
     description: 36. – Enter the amount of Line 29 to be donated to a donation organization
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: line_36_donation
+      suffix: amt
   signature_dt:
     x_petey_id: '2_37'
     type: date
@@ -1775,6 +2029,9 @@ fields:
       in the MM/DD/YY format
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
   efile_opt_out_ind:
     x_petey_id: '2_36'
     type: boolean
@@ -1793,6 +2050,9 @@ fields:
       filed return
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: efile_opt_out
+      suffix: ind
   preparer_ptin:
     x_petey_id: '2_38'
     type: string
@@ -1809,6 +2069,9 @@ fields:
       PTIN
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: preparer
+      suffix: ptin
   preparer_nm:
     x_petey_id: '2_40'
     type: string
@@ -1841,6 +2104,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: preparer
+      suffix: nm
   preparer_phone_nbr:
     x_petey_id: '2_41'
     type: string
@@ -1875,6 +2141,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: preparer_phone
+      suffix: nbr
   preparer_firm_ein:
     x_petey_id: '2_39'
     type: string
@@ -1893,6 +2162,9 @@ fields:
       firm’s FEIN
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: preparer_firm
+      suffix: ein
 x_petey_dropped_widgets:
   count: 19
   widgets:

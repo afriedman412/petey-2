@@ -49,6 +49,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: claimant
+      suffix: nm
   claimant_ssn:
     x_petey_id: '1_2'
     type: string
@@ -66,6 +69,9 @@ fields:
     description: CLAIMANT Social Security Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: claimant
+      suffix: ssn
   claim_nbr:
     x_petey_id: '1_3'
     type: string
@@ -97,6 +103,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: claim
+      suffix: nbr
   reasons_for_reconsideration_txt:
     x_petey_id: '1_4'
     type: string
@@ -131,6 +140,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: reasons_for_reconsideration
+      suffix: txt
   claimant_signature:
     x_petey_id: '1_5'
     type: string
@@ -146,6 +158,9 @@ fields:
     description: CONTACT INFORMATION. Claimant Signature - optional.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: claimant
+      suffix: signature
   claimant_address_txt:
     x_petey_id: '1_7'
     type: string
@@ -177,6 +192,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: claimant_address
+      suffix: txt
   claimant_city_state_zip_cd:
     x_petey_id: '1_9'
     type: string
@@ -210,6 +228,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: zip -> zip_cd'
+    x_petey_identifiers:
+      subject: claimant_city_state_zip
+      suffix: cd
   claimant_phone_nbr:
     x_petey_id: '1_11'
     type: string
@@ -243,6 +264,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: claimant_phone
+      suffix: nbr
   claimant_signature_dt:
     x_petey_id: '1_12'
     type: date
@@ -257,6 +281,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Date_FLD[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: claimant_signature
+      suffix: dt
   representative_nm:
     x_petey_id: '1_6'
     type: string
@@ -288,6 +315,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: representative
+      suffix: nm
   representative_address_txt:
     x_petey_id: '1_8'
     type: string
@@ -319,6 +349,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: representative_address
+      suffix: txt
   representative_city_state_zip_cd:
     x_petey_id: '1_10'
     type: string
@@ -352,6 +385,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: zip -> zip_cd'
+    x_petey_identifiers:
+      subject: representative_city_state_zip
+      suffix: cd
   representative_phone_nbr:
     x_petey_id: '1_13'
     type: string
@@ -385,6 +421,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: representative_phone
+      suffix: nbr
   representative_signature_dt:
     x_petey_id: '1_14'
     type: date
@@ -399,6 +438,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].ClaimantsRepDate_FLD[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: representative_signature
+      suffix: dt
   ssa_office_address_and_date_appeal_received_txt:
     x_petey_id: '1_19'
     type: string
@@ -444,6 +486,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: ssa_office_address_and_date_appeal_received
+      suffix: txt
   appeal_type:
     x_petey_id: '1_15'
     type: category
@@ -515,6 +560,8 @@ fields:
       - appeal_type::case_review
       - appeal_type::informal_conference
       - appeal_type::formal_conference
+    x_petey_identifiers:
+      subject: appeal_type
   initial_determination_made:
     x_petey_id: '1_16'
     type: category
@@ -557,6 +604,8 @@ fields:
       from:
       - initial_determination_made::yes
       - initial_determination_made::no
+    x_petey_identifiers:
+      subject: initial_determination_made
   request_filed_timely:
     x_petey_id: '1_18'
     type: category
@@ -592,6 +641,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: request_filed_timely
   field_office_development:
     x_petey_id: '1_17'
     type: category
@@ -647,6 +698,8 @@ fields:
       - field_office_development::no_further_development_required
       - field_office_development::required_development_attached
       - field_office_development::required_development_pending
+    x_petey_identifiers:
+      subject: field_office_development
   recipient_appealed_within_10_days_ind:
     x_petey_id: '1_20'
     type: category
@@ -749,6 +802,8 @@ fields:
       - recipient_appealed_within_10_days_ind::within_10_days
       - recipient_appealed_within_10_days_ind::after_10_days_good_cause
       - payment_continuation_applies_ind
+    x_petey_identifiers:
+      subject: recipient_appealed_within_10_days_ind
 x_petey_emit_fixes:
   wide_widget_short_pattern: 2
   description_from_tooltip: 5

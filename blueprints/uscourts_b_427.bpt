@@ -15,7 +15,7 @@ authoring:
   labels: llm
   when: '2026-10-06 22:04:45'
 fields:
-  debtor_1_nm:
+  debtor_nm_1:
     x_petey_id: '1_1'
     type: string
     widget:
@@ -44,7 +44,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
-  debtor_2_nm:
+    x_petey_identifiers:
+      subject: debtor
+      suffix: nm
+      iteration: '1'
+  debtor_nm_2:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -73,6 +77,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: debtor
+      suffix: nm
+      iteration: '2'
   court_district_txt:
     x_petey_id: '1_3'
     type: string
@@ -376,6 +384,9 @@ fields:
         caption: Western District of Wisconsin
       District of Wyoming:
         caption: District of Wyoming
+    x_petey_identifiers:
+      subject: court_district
+      suffix: txt
   case_nbr:
     x_petey_id: '1_4'
     type: string
@@ -405,6 +416,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
   creditor_nm:
     x_petey_id: '1_5'
     type: string
@@ -449,6 +463,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: creditor
+      suffix: nm
   debt_on_filing_date_amt:
     x_petey_id: '1_6'
     type: number
@@ -467,6 +484,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: debt_on_filing_date
+      suffix: amt
   reaffirmation_agreement_debt_amt:
     x_petey_id: '1_7'
     type: number
@@ -485,6 +505,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: reaffirmation_agreement_debt
+      suffix: amt
   reaffirmation_monthly_pmt_amt:
     x_petey_id: '1_8'
     type: number
@@ -503,6 +526,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: reaffirmation_monthly_pmt
+      suffix: amt
   reaffirmation_pmt_months_cnt:
     x_petey_id: '1_9'
     type: integer
@@ -519,6 +545,9 @@ fields:
     description: Number of months
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: reaffirmation_pmt_months
+      suffix: cnt
   before_filing_interest_rate_pct:
     x_petey_id: '1_10'
     type: number
@@ -535,6 +564,9 @@ fields:
     description: Current interest rate
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: before_filing_interest_rate
+      suffix: pct
   reaffirmation_interest_rate_pct:
     x_petey_id: '1_11'
     type: number
@@ -551,6 +583,9 @@ fields:
     description: New interest rate
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: reaffirmation_interest_rate
+      suffix: pct
   interest_rate_type:
     x_petey_id: '1_12'
     type: category
@@ -592,6 +627,8 @@ fields:
       from:
       - interest_rate_type::no
       - interest_rate_type::yes
+    x_petey_identifiers:
+      subject: interest_rate_type
   collateral_secures_debt_ind:
     x_petey_id: '1_13'
     type: category
@@ -632,6 +669,8 @@ fields:
       from:
       - collateral_secures_debt_ind::no
       - collateral_secures_debt_ind::yes
+    x_petey_identifiers:
+      subject: collateral_secures_debt_ind
   collateral_description_txt:
     x_petey_id: '1_14'
     type: string
@@ -648,6 +687,9 @@ fields:
     description: Describe the collateral
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: collateral_description
+      suffix: txt
   collateral_current_market_value_amt:
     x_petey_id: '1_15'
     type: number
@@ -666,6 +708,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: collateral_current_market_value
+      suffix: amt
   creditor_asserts_debt_nondischargeable_ind:
     x_petey_id: '1_16'
     type: category
@@ -707,6 +752,8 @@ fields:
       from:
       - creditor_asserts_debt_nondischargeable_ind::no
       - creditor_asserts_debt_nondischargeable_ind::yes
+    x_petey_identifiers:
+      subject: creditor_asserts_debt_nondischargeable_ind
   schedule_i_combined_monthly_income_amt:
     x_petey_id: '1_17'
     type: number
@@ -725,6 +772,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: schedule_i_combined_monthly_income
+      suffix: amt
   reaffirmation_monthly_income_amt:
     x_petey_id: '1_18'
     type: number
@@ -743,6 +793,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: reaffirmation_monthly_income
+      suffix: amt
   schedule_j_monthly_expenses_amt:
     x_petey_id: '1_19'
     type: number
@@ -761,6 +814,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: schedule_j_monthly_expenses
+      suffix: amt
   reaffirmation_monthly_expenses_amt:
     x_petey_id: '1_20'
     type: number
@@ -779,6 +835,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: reaffirmation_monthly_expenses
+      suffix: amt
   schedule_j_unlisted_reaffirmed_debts_monthly_pmt_amt:
     x_petey_id: '1_21'
     type: number
@@ -797,6 +856,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: schedule_j_unlisted_reaffirmed_debts_monthly_pmt
+      suffix: amt
   reaffirmation_unlisted_reaffirmed_debts_monthly_pmt_amt:
     x_petey_id: '1_22'
     type: number
@@ -815,6 +877,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: reaffirmation_unlisted_reaffirmed_debts_monthly_pmt
+      suffix: amt
   scheduled_net_monthly_income_amt:
     x_petey_id: '1_23'
     type: number
@@ -833,6 +898,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: scheduled_net_monthly_income
+      suffix: amt
   present_net_monthly_income_amt:
     x_petey_id: '1_24'
     type: number
@@ -851,6 +919,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: present_net_monthly_income
+      suffix: amt
   debtor_1_2_nm:
     x_petey_id: '2_1'
     type: string
@@ -882,6 +953,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: debtor_1_2
+      suffix: nm
   income_amounts_different_ind:
     x_petey_id: '2_2'
     type: category
@@ -922,6 +996,8 @@ fields:
       from:
       - income_amounts_different_ind::no
       - income_amounts_different_ind::yes
+    x_petey_identifiers:
+      subject: income_amounts_different_ind
   income_amounts_different_explanation_txt_1:
     x_petey_id: '2_3'
     type: string
@@ -954,6 +1030,10 @@ fields:
       kind: name
       why: 'naming standard: explanation -> explanation_txt; part ''1'' of one lines
         value after the suffix'
+    x_petey_identifiers:
+      subject: income_amounts_different_explanation
+      suffix: txt
+      part: '1'
   income_amounts_different_explanation_txt_2:
     x_petey_id: '2_4'
     type: string
@@ -998,6 +1078,10 @@ fields:
       kind: name
       why: 'naming standard: explanation -> explanation_txt; part ''2'' of one lines
         value after the suffix'
+    x_petey_identifiers:
+      subject: income_amounts_different_explanation
+      suffix: txt
+      part: '2'
   expense_amounts_different_ind:
     x_petey_id: '2_5'
     type: category
@@ -1038,6 +1122,8 @@ fields:
       from:
       - expense_amounts_different_ind::no
       - expense_amounts_different_ind::yes
+    x_petey_identifiers:
+      subject: expense_amounts_different_ind
   expense_amounts_different_explanation_txt_1:
     x_petey_id: '2_6'
     type: string
@@ -1070,6 +1156,10 @@ fields:
       kind: name
       why: 'naming standard: explanation -> explanation_txt; part ''1'' of one lines
         value after the suffix'
+    x_petey_identifiers:
+      subject: expense_amounts_different_explanation
+      suffix: txt
+      part: '1'
   expense_amounts_different_explanation_txt_2:
     x_petey_id: '2_7'
     type: string
@@ -1102,6 +1192,10 @@ fields:
       kind: name
       why: 'naming standard: explanation -> explanation_txt; part ''2'' of one lines
         value after the suffix'
+    x_petey_identifiers:
+      subject: expense_amounts_different_explanation
+      suffix: txt
+      part: '2'
   net_monthly_income_less_than_zero_ind:
     x_petey_id: '2_8'
     type: category
@@ -1142,6 +1236,8 @@ fields:
       from:
       - net_monthly_income_less_than_zero_ind::no
       - net_monthly_income_less_than_zero_ind::yes
+    x_petey_identifiers:
+      subject: net_monthly_income_less_than_zero_ind
   hardship_presumption_explanation_txt_1:
     x_petey_id: '2_9'
     type: string
@@ -1174,6 +1270,10 @@ fields:
       kind: name
       why: 'naming standard: explanation -> explanation_txt; part ''1'' of one lines
         value after the suffix'
+    x_petey_identifiers:
+      subject: hardship_presumption_explanation
+      suffix: txt
+      part: '1'
   hardship_presumption_explanation_txt_2:
     x_petey_id: '2_10'
     type: string
@@ -1206,7 +1306,11 @@ fields:
       kind: name
       why: 'naming standard: explanation -> explanation_txt; part ''2'' of one lines
         value after the suffix'
-  debtor_1_signature:
+    x_petey_identifiers:
+      subject: hardship_presumption_explanation
+      suffix: txt
+      part: '2'
+  debtor_signature_1:
     x_petey_id: '2_11'
     type: string
     widget:
@@ -1219,7 +1323,11 @@ fields:
       widget_type: text
       path: Debtor1 Sig 10
     label_source: llm
-  debtor_2_signature:
+    x_petey_identifiers:
+      subject: debtor
+      suffix: signature
+      iteration: '1'
+  debtor_signature_2:
     x_petey_id: '2_12'
     type: string
     widget:
@@ -1232,6 +1340,10 @@ fields:
       widget_type: text
       path: Debtor2 Sig 10
     label_source: llm
+    x_petey_identifiers:
+      subject: debtor
+      suffix: signature
+      iteration: '2'
   attorney_represented_debtor_ind:
     x_petey_id: '2_13'
     type: category
@@ -1269,6 +1381,8 @@ fields:
       from:
       - attorney_represented_debtor_ind::no
       - attorney_represented_debtor_ind::yes
+    x_petey_identifiers:
+      subject: attorney_represented_debtor_ind
   attorney_executed_declaration_ind:
     x_petey_id: '2_14'
     type: category
@@ -1302,6 +1416,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: attorney_executed_declaration_ind
   filer_signature:
     x_petey_id: '2_15'
     type: string
@@ -1315,6 +1431,9 @@ fields:
       widget_type: text
       path: PetitionerSig 13a
     label_source: llm
+    x_petey_identifiers:
+      subject: filer
+      suffix: signature
   signature_dt:
     x_petey_id: '2_16'
     type: date
@@ -1329,6 +1448,9 @@ fields:
       widget_type: text
       path: Date 13a
     label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
   printed_nm:
     x_petey_id: '2_17'
     type: string
@@ -1358,6 +1480,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: printed
+      suffix: nm
   filer_role:
     x_petey_id: '2_18'
     type: category
@@ -1395,6 +1520,8 @@ fields:
       from:
       - filer_role::debtor
       - filer_role::creditor
+    x_petey_identifiers:
+      subject: filer_role
 x_petey_dedup_log:
   duplicate_labels_reassigned: 1
   collisions:

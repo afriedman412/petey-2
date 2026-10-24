@@ -55,6 +55,9 @@ fields:
       kind: type
       why: the pattern of its semantic type (ssn)
     pattern: ^\d{3}-\d{2}-\d{4}$
+    x_petey_identifiers:
+      subject: petitioner
+      suffix: ssn
   g28_attached_ind:
     x_petey_id: '1_1'
     type: boolean
@@ -73,7 +76,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  volag_number:
+    x_petey_identifiers:
+      subject: g28_attached
+      suffix: ind
+  volag_nbr:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -90,7 +96,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  attorney_state_bar_number:
+    x_petey_identifiers:
+      subject: volag
+      suffix: nbr
+  attorney_state_bar_nbr:
     x_petey_id: '1_3'
     type: string
     widget:
@@ -124,7 +133,10 @@ fields:
       kind: type
       why: An attorney's state bar number is an identifier, not a two-letter state
         code; the state_abbr type and ^[A-Z]{2}$ pattern would reject real bar numbers.
-  attorney_uscis_online_account_number:
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
+  attorney_uscis_online_account_nbr:
     x_petey_id: '1_4'
     type: string
     semantic_type: account_number
@@ -144,6 +156,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: attorney_uscis_online_account
+      suffix: nbr
   group_p1:
     x_petey_id: '1_20'
     type: category
@@ -233,6 +248,8 @@ fields:
           child_adopted_ind:
             caption: Child Adopted
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: group_p1
   sibling_related_by_adoption:
     x_petey_id: '1_21'
     type: category
@@ -270,6 +287,8 @@ fields:
       from:
       - sibling_related_by_adoption_yes_ind
       - sibling_related_by_adoption_no_ind
+    x_petey_identifiers:
+      subject: sibling_related_by_adoption
   gained_status_through_adoption:
     x_petey_id: '1_22'
     type: category
@@ -307,6 +326,8 @@ fields:
       from:
       - gained_status_through_adoption_yes_ind
       - gained_status_through_adoption_no_ind
+    x_petey_identifiers:
+      subject: gained_status_through_adoption
   petitioner_family_nm:
     x_petey_id: '1_12'
     type: string
@@ -340,6 +361,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: petitioner_family
+      suffix: nm
   petitioner_given_nm:
     x_petey_id: '1_13'
     type: string
@@ -373,6 +397,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: petitioner_given
+      suffix: nm
   petitioner_middle_nm:
     x_petey_id: '1_15'
     type: string
@@ -406,7 +433,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  petitioner_a_number:
+    x_petey_identifiers:
+      subject: petitioner_middle
+      suffix: nm
+  petitioner_a_nbr:
     x_petey_id: '1_5'
     type: string
     widget:
@@ -423,6 +453,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: petitioner_a
+      suffix: nbr
   petitioner_uscis:
     x_petey_id: '1_7'
     type: string
@@ -453,6 +486,8 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: petitioner_uscis
   date_of_birth_dt:
     x_petey_id: '2_15'
     type: date
@@ -472,6 +507,9 @@ fields:
     description: Part 2. Information About You (Petitioner). Other Information. 8.
       Enter Date of Birth. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: date_of_birth
+      suffix: dt
   country_of_birth_txt:
     x_petey_id: '2_13'
     type: string
@@ -490,6 +528,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: country_of_birth
+      suffix: txt
   mailing_street_number_and_name_txt:
     x_petey_id: '2_22'
     type: string
@@ -508,6 +549,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: mailing_street_number_and_name
+      suffix: txt
   mailing_unit_number_txt:
     x_petey_id: '2_24'
     type: string
@@ -526,6 +570,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: mailing_unit_number
+      suffix: txt
   mailing_city_nm:
     x_petey_id: '2_28'
     type: string
@@ -544,6 +591,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: mailing_city
+      suffix: nm
   mailing_province_txt:
     x_petey_id: '2_33'
     type: string
@@ -562,6 +612,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: mailing_province
+      suffix: txt
   mailing_postal_code_txt:
     x_petey_id: '2_34'
     type: string
@@ -596,6 +649,9 @@ fields:
       kind: type
       why: Item 10.H is a foreign Postal Code (the US ZIP is the box beside it); the
         US ZIP semantic type and ^\d{5}(-\d{4})?$ pattern would reject foreign codes.
+    x_petey_identifiers:
+      subject: mailing_postal_code
+      suffix: txt
   mailing_zip_cd:
     x_petey_id: '2_31'
     type: string
@@ -615,6 +671,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: mailing_zip
+      suffix: cd
   mailing_state_abbreviation_cd:
     x_petey_id: '2_30'
     type: category
@@ -693,6 +752,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: mailing_state_abbreviation
+      suffix: cd
   mailing_country_txt:
     x_petey_id: '2_37'
     type: string
@@ -711,6 +773,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: mailing_country
+      suffix: txt
   mailing_in_care_of_nm:
     x_petey_id: '2_19'
     type: string
@@ -744,6 +809,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: mailing_in_care_of
+      suffix: nm
   physical_address_2_street_number_and_name_txt:
     x_petey_id: '2_18'
     type: string
@@ -780,6 +848,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.A street (widget
         Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
         physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_street_number_and_name
+      suffix: txt
   physical_address_2_unit_number_txt:
     x_petey_id: '2_20'
     type: string
@@ -816,6 +887,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.B apt/ste/flr
         number (widget Pt2Line14_*); the name says address 1, which is item 12 (its
         dates are already physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_unit_number
+      suffix: txt
   physical_address_2_city_nm:
     x_petey_id: '2_23'
     type: string
@@ -852,6 +926,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.C city (widget
         Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
         physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_city
+      suffix: nm
   physical_address_2_state_abbreviation_cd:
     x_petey_id: '2_26'
     type: category
@@ -948,6 +1025,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.D state (widget
         Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
         physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_state_abbreviation
+      suffix: cd
   physical_address_2_zip_cd:
     x_petey_id: '2_27'
     type: string
@@ -985,6 +1065,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.E ZIP (widget
         Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
         physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_zip
+      suffix: cd
   physical_address_2_province_txt:
     x_petey_id: '2_29'
     type: string
@@ -1021,6 +1104,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.F province (widget
         Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
         physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_province
+      suffix: txt
   physical_address_2_country_txt:
     x_petey_id: '2_35'
     type: string
@@ -1057,6 +1143,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.H country (widget
         Pt2Line14_*); the name says address 1, which is item 12 (its dates are already
         physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_country
+      suffix: txt
   physical_address_2_postal_code_txt:
     x_petey_id: '2_32'
     type: string
@@ -1092,6 +1181,9 @@ fields:
       why: Tooltip says Address History Physical Address 2, item 14.G postal code
         (widget Pt2Line14_*); the name says address 1, which is item 12 (its dates
         are already physical_address_2_date_from_dt / _to_dt).
+    x_petey_identifiers:
+      subject: physical_address_2_postal_code
+      suffix: txt
   physical_address_1_date_from_dt:
     x_petey_id: '2_16'
     type: date
@@ -1112,6 +1204,11 @@ fields:
       Address 1. 13. A. Enter Date From. Enter as 2 digit month, 2 digit day and 4
       digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: physical_address
+      block_iteration: '1'
+      subject: date_from
+      suffix: dt
   physical_address_2_date_from_dt:
     x_petey_id: '2_36'
     type: date
@@ -1132,6 +1229,11 @@ fields:
       Address 2. 15. A. Enter Date From. Enter as 2 digit month, 2 digit day and 4
       digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: physical_address
+      block_iteration: '2'
+      subject: date_from
+      suffix: dt
   physical_address_2_date_to_dt:
     x_petey_id: '2_38'
     type: date
@@ -1152,6 +1254,9 @@ fields:
       Address 2. 15. B. Enter Date To. Enter as 2 digit month, 2 digit day and 4 digit
       year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: physical_address_2_date_to
+      suffix: dt
   physical_address_1_street_number_and_name_12a_txt:
     x_petey_id: '2_2'
     type: string
@@ -1173,6 +1278,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: physical_address_1_street_number_and_name_12a
+      suffix: txt
   physical_address_1_12b_unit_number_txt:
     x_petey_id: '2_4'
     type: string
@@ -1191,6 +1299,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: physical_address_1_12b_unit_number
+      suffix: txt
   physical_address_1_12c_city_nm:
     x_petey_id: '2_7'
     type: string
@@ -1209,6 +1320,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: physical_address_1_12c_city
+      suffix: nm
   physical_address_1_12d_state_abbreviation_cd:
     x_petey_id: '2_8'
     type: category
@@ -1287,6 +1401,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: physical_address_1_12d_state_abbreviation
+      suffix: cd
   physical_address_1_12e_zip_cd:
     x_petey_id: '2_9'
     type: string
@@ -1306,6 +1423,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: physical_address_1_12e_zip
+      suffix: cd
   physical_address_1_12f_province_txt:
     x_petey_id: '2_10'
     type: string
@@ -1324,6 +1444,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: physical_address_1_12f_province
+      suffix: txt
   physical_address_1_12h_country_txt:
     x_petey_id: '2_14'
     type: string
@@ -1342,6 +1465,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: physical_address_1_12h_country
+      suffix: txt
   physical_address_1_12g_postal_code_txt:
     x_petey_id: '2_12'
     type: string
@@ -1376,6 +1502,9 @@ fields:
       kind: type
       why: Item 12.G is a foreign Postal Code (the US ZIP is the box beside it); the
         US ZIP semantic type and ^\d{5}(-\d{4})?$ pattern would reject foreign codes.
+    x_petey_identifiers:
+      subject: physical_address_1_12g_postal_code
+      suffix: txt
   city_town_village_of_birth_nm:
     x_petey_id: '2_11'
     type: string
@@ -1394,6 +1523,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: city_town_village_of_birth
+      suffix: nm
   other_name_family_nm:
     x_petey_id: '2_1'
     type: string
@@ -1428,6 +1560,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: other_name_family
+      suffix: nm
   other_name_given_nm:
     x_petey_id: '2_3'
     type: string
@@ -1461,6 +1596,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: other_name_given
+      suffix: nm
   other_name_middle_nm:
     x_petey_id: '2_6'
     type: string
@@ -1494,6 +1632,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: other_name_middle
+      suffix: nm
   times_married_cnt:
     x_petey_id: '2_40'
     type: integer
@@ -1512,6 +1653,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: times_married
+      suffix: cnt
   spouse_1_family_nm:
     x_petey_id: '3_15'
     type: string
@@ -1547,6 +1691,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '1'
+      subject: family
+      suffix: nm
   spouse_1_given_nm:
     x_petey_id: '3_16'
     type: string
@@ -1580,6 +1729,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '1'
+      subject: given
+      suffix: nm
   spouse_1_middle_nm:
     x_petey_id: '3_18'
     type: string
@@ -1613,6 +1767,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '1'
+      subject: middle
+      suffix: nm
   spouse_2_marriage_ended_dt:
     x_petey_id: '3_25'
     type: date
@@ -1650,6 +1809,11 @@ fields:
       kind: wrong
       why: 'Tooltip: Names of All Your Spouses, Spouse 2, item 23 Date Marriage Ended
         (widget Pt2Line23_DateMarriageEnded).'
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '2'
+      subject: marriage_ended
+      suffix: dt
   spouse_2_middle_nm:
     x_petey_id: '3_24'
     type: string
@@ -1684,6 +1848,11 @@ fields:
       kind: wrong
       why: 'Tooltip: Spouse 2, item 22.C Middle Name (widget Pt2Line22c_MiddleName);
         its neighbours are spouse_2_family_nm / spouse_2_given_nm.'
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '2'
+      subject: middle
+      suffix: nm
   spouse_2_given_nm:
     x_petey_id: '3_23'
     type: string
@@ -1717,6 +1886,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '2'
+      subject: given
+      suffix: nm
   spouse_2_family_nm:
     x_petey_id: '3_21'
     type: string
@@ -1750,6 +1924,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '2'
+      subject: family
+      suffix: nm
   spouse_1_marriage_ended_dt:
     x_petey_id: '3_20'
     type: date
@@ -1787,6 +1966,11 @@ fields:
       kind: clarity
       why: 'Tooltip: Spouse 1, item 21 Date Marriage Ended; the ''_21'' suffix only
         exists because spouse 2''s date took the clean name.'
+    x_petey_identifiers:
+      block_prefix: spouse
+      block_iteration: '1'
+      subject: marriage_ended
+      suffix: dt
   current_marriage_dt:
     x_petey_id: '3_2'
     type: date
@@ -1807,6 +1991,9 @@ fields:
       18. Enter Date of Current Marriage (if currently married). Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: current_marriage
+      suffix: dt
   parent_1_family_nm:
     x_petey_id: '3_29'
     type: string
@@ -1841,6 +2028,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '1'
+      subject: family
+      suffix: nm
   parent_1_given_nm:
     x_petey_id: '3_30'
     type: string
@@ -1875,6 +2067,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '1'
+      subject: given
+      suffix: nm
   parent_1_middle_nm:
     x_petey_id: '3_31'
     type: string
@@ -1909,6 +2106,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '1'
+      subject: middle
+      suffix: nm
   parent_1_birth_dt:
     x_petey_id: '3_33'
     type: date
@@ -1929,6 +2131,11 @@ fields:
       Parents. Parent One's Information. 25. Enter Date of Birth. Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '1'
+      subject: birth
+      suffix: dt
   parent_1_city_of_residence:
     x_petey_id: '3_3'
     type: string
@@ -1965,6 +2172,10 @@ fields:
       why: 'Tooltip: Information About Your Parents, Parent One''s Information, item
         28 City/Town/Village of Residence; it is parent 1''s, not the petitioner''s
         (the petitioner''s own country of birth is item 7, country_of_birth_txt).'
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '1'
+      subject: city_of_residence
   parent_1_country_of_residence:
     x_petey_id: '3_4'
     type: string
@@ -2001,6 +2212,10 @@ fields:
       why: 'Tooltip: Information About Your Parents, Parent One''s Information, item
         29 Country of Residence; it is parent 1''s, not the petitioner''s (the petitioner''s
         own country of birth is item 7, country_of_birth_txt).'
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '1'
+      subject: country_of_residence
   parent_1_country_of_birth:
     x_petey_id: '3_1'
     type: string
@@ -2037,6 +2252,10 @@ fields:
       why: 'Tooltip: Information About Your Parents, Parent One''s Information, item
         27 Country of Birth; it is parent 1''s, not the petitioner''s (the petitioner''s
         own country of birth is item 7, country_of_birth_txt).'
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '1'
+      subject: country_of_birth
   parent_2_given_nm:
     x_petey_id: '3_9'
     type: string
@@ -2071,6 +2290,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '2'
+      subject: given
+      suffix: nm
   parent_2_middle_nm:
     x_petey_id: '3_11'
     type: string
@@ -2105,6 +2329,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '2'
+      subject: middle
+      suffix: nm
   parent_2_family_nm:
     x_petey_id: '3_8'
     type: string
@@ -2139,6 +2368,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '2'
+      subject: family
+      suffix: nm
   parent_2_birth_dt:
     x_petey_id: '3_12'
     type: date
@@ -2159,6 +2393,11 @@ fields:
       Parents. Parent Two's Information. 31. Enter Date of Birth. Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '2'
+      subject: birth
+      suffix: dt
   parent_2_city_of_residence:
     x_petey_id: '3_17'
     type: string
@@ -2177,6 +2416,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '2'
+      subject: city_of_residence
   parent_2_country_of_residence:
     x_petey_id: '3_19'
     type: string
@@ -2195,6 +2438,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '2'
+      subject: country_of_residence
   parent_2_country_of_birth:
     x_petey_id: '3_14'
     type: string
@@ -2213,6 +2460,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      block_prefix: parent
+      block_iteration: '2'
+      subject: country_of_birth
   certificate_number_txt:
     x_petey_id: '3_32'
     type: string
@@ -2232,6 +2483,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: certificate_number
+      suffix: txt
   obtained_certificate:
     x_petey_id: '3_37'
     type: category
@@ -2269,6 +2523,8 @@ fields:
       from:
       - obtained_certificate_yes_ind
       - obtained_certificate_no_ind
+    x_petey_identifiers:
+      subject: obtained_certificate
   certificate_issuance_dt:
     x_petey_id: '3_36'
     type: date
@@ -2290,6 +2546,9 @@ fields:
       following. 39. C. Enter Date of Issuance. Enter as 2 digit month, 2 digit day
       and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: certificate_issuance
+      suffix: dt
   certificate_place_of_issuance_txt:
     x_petey_id: '3_34'
     type: string
@@ -2309,6 +2568,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: certificate_place_of_issuance
+      suffix: txt
   marriage_place_city_nm:
     x_petey_id: '3_5'
     type: string
@@ -2327,6 +2589,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: marriage_place_city
+      suffix: nm
   marriage_place_state_txt:
     x_petey_id: '3_6'
     type: category
@@ -2405,6 +2670,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: marriage_place_state
+      suffix: txt
   marriage_place_province_txt:
     x_petey_id: '3_7'
     type: string
@@ -2423,6 +2691,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: marriage_place_province
+      suffix: txt
   marriage_place_country_txt:
     x_petey_id: '3_10'
     type: string
@@ -2441,6 +2712,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: marriage_place_country
+      suffix: txt
   class_of_admission_cd:
     x_petey_id: '4_3'
     type: string
@@ -2459,6 +2733,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: class_of_admission
+      suffix: cd
   date_of_admission_dt:
     x_petey_id: '4_8'
     type: date
@@ -2480,6 +2757,9 @@ fields:
       Numbers 40. A. through 41. 40. B. Enter Date of Admission. Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: date_of_admission
+      suffix: dt
   place_of_admission_city_nm:
     x_petey_id: '4_13'
     type: string
@@ -2499,6 +2779,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: place_of_admission_city
+      suffix: nm
   employer1_street_address_line_1_txt:
     x_petey_id: '4_22'
     type: string
@@ -2535,6 +2818,9 @@ fields:
         applied to it after Claude''s pass renamed fields (the tooltip says 43.A Street
         Number and Name)'
     semantic_type: street_address
+    x_petey_identifiers:
+      subject: employer1_street_address_line_1
+      suffix: txt
   employer1_apt_ind:
     x_petey_id: '4_25'
     type: boolean
@@ -2553,6 +2839,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer1_apt
+      suffix: ind
   employer1_ste_ind:
     x_petey_id: '4_26'
     type: boolean
@@ -2571,6 +2860,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer1_ste
+      suffix: ind
   employer1_flr_ind:
     x_petey_id: '4_27'
     type: boolean
@@ -2589,6 +2881,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer1_flr
+      suffix: ind
   employer1_unit_number_txt:
     x_petey_id: '4_23'
     type: string
@@ -2607,6 +2902,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer1_unit_number
+      suffix: txt
   employer1_city_nm:
     x_petey_id: '4_28'
     type: string
@@ -2643,6 +2941,9 @@ fields:
       why: 'repair: an old correction filed under this field''s previous name was
         applied to it after Claude''s pass renamed fields (the tooltip says 43.C City
         or Town)'
+    x_petey_identifiers:
+      subject: employer1_city
+      suffix: nm
   employer1_province_txt:
     x_petey_id: '4_32'
     type: string
@@ -2661,6 +2962,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer1_province
+      suffix: txt
   employer1_postal_cd:
     x_petey_id: '4_33'
     type: string
@@ -2695,6 +2999,9 @@ fields:
       kind: type
       why: Items 43.G / 47.G are foreign Postal Codes (the US ZIP is a separate box);
         the US ZIP semantic type and pattern would reject foreign codes.
+    x_petey_identifiers:
+      subject: employer1_postal
+      suffix: cd
   employer1_zip_cd:
     x_petey_id: '4_30'
     type: string
@@ -2714,6 +3021,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer1_zip
+      suffix: cd
   employer1_state_abbreviation_cd:
     x_petey_id: '4_29'
     type: category
@@ -2792,6 +3102,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: employer1_state_abbreviation
+      suffix: cd
   employer1_country_cd:
     x_petey_id: '4_36'
     type: string
@@ -2827,7 +3140,10 @@ fields:
       kind: type
       why: Item 43.H 'Country' is a country name written in full, not a two-letter
         code; the ^[A-Z]{2}$ pattern would reject it.
-  employer1_business_name:
+    x_petey_identifiers:
+      subject: employer1_country
+      suffix: cd
+  employer1_business_nm:
     x_petey_id: '4_21'
     type: string
     semantic_type: business_name
@@ -2866,6 +3182,9 @@ fields:
       why: Widget Pt2Line40_EmployerOrCompName, printed 'Name of Employer/Company',
         tooltip is the Employment History intro ending at Employer 1's name; the employer
         1 block is shifted by one (street is the next box).
+    x_petey_identifiers:
+      subject: employer1_business
+      suffix: nm
   employer2_street_address_line_1_txt:
     x_petey_id: '4_2'
     type: string
@@ -2884,6 +3203,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_street_address_line_1
+      suffix: txt
   employer2_apt_ind:
     x_petey_id: '4_5'
     type: boolean
@@ -2902,6 +3224,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_apt
+      suffix: ind
   employer2_ste_ind:
     x_petey_id: '4_6'
     type: boolean
@@ -2920,6 +3245,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_ste
+      suffix: ind
   employer2_flr_ind:
     x_petey_id: '4_7'
     type: boolean
@@ -2938,6 +3266,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_flr
+      suffix: ind
   employer2_unit_number_txt:
     x_petey_id: '4_4'
     type: string
@@ -2956,6 +3287,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_unit_number
+      suffix: txt
   employer2_city_nm:
     x_petey_id: '4_9'
     type: string
@@ -2974,6 +3308,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_city
+      suffix: nm
   employer2_province_txt:
     x_petey_id: '4_12'
     type: string
@@ -2992,6 +3329,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_province
+      suffix: txt
   employer2_postal_cd:
     x_petey_id: '4_14'
     type: string
@@ -3026,6 +3366,9 @@ fields:
       kind: type
       why: Items 43.G / 47.G are foreign Postal Codes (the US ZIP is a separate box);
         the US ZIP semantic type and pattern would reject foreign codes.
+    x_petey_identifiers:
+      subject: employer2_postal
+      suffix: cd
   employer2_zip_cd:
     x_petey_id: '4_11'
     type: string
@@ -3045,6 +3388,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_zip
+      suffix: cd
   employer2_state_abbreviation_cd:
     x_petey_id: '4_10'
     type: category
@@ -3123,6 +3469,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: employer2_state_abbreviation
+      suffix: cd
   employer2_country:
     x_petey_id: '4_16'
     type: string
@@ -3154,6 +3503,8 @@ fields:
         semantic_type: text
         pattern: null
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: employer2_country
   employer2_occupation_txt:
     x_petey_id: '4_18'
     type: string
@@ -3188,6 +3539,9 @@ fields:
       kind: wrong
       why: Widget Pt2Line46_Occupation, tooltip Employer 2 item 48 Enter Your Occupation;
         employer 2's company name is item 46 (employer2_business_name).
+    x_petey_identifiers:
+      subject: employer2_occupation
+      suffix: txt
   employer2_date_from_dt:
     x_petey_id: '4_19'
     type: date
@@ -3207,6 +3561,9 @@ fields:
     description: Part 2. Information About You (Petitioner). Employment History. Employer
       2. 49. A. Enter Date From. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: employer2_date_from
+      suffix: dt
   employer2_date_to_dt:
     x_petey_id: '4_20'
     type: date
@@ -3226,6 +3583,9 @@ fields:
     description: Part 2. Information About You (Petitioner). Employment History. Employer
       2. 49. B. Enter Date To. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: employer2_date_to
+      suffix: dt
   height_feet_txt:
     x_petey_id: '4_34'
     type: category
@@ -3248,6 +3608,9 @@ fields:
     - '8'
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: height_feet
+      suffix: txt
   height_inches_txt:
     x_petey_id: '4_35'
     type: category
@@ -3275,7 +3638,10 @@ fields:
     - '11'
     x_petey_retype:
     - dropdown
-  weight_pounds_1_txt:
+    x_petey_identifiers:
+      subject: height_inches
+      suffix: txt
+  weight_pounds_txt_1:
     x_petey_id: '4_37'
     type: string
     semantic_type: text
@@ -3293,7 +3659,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  weight_pounds_2_txt:
+    x_petey_identifiers:
+      subject: weight_pounds
+      suffix: txt
+      iteration: '1'
+  weight_pounds_txt_2:
     x_petey_id: '4_38'
     type: string
     semantic_type: text
@@ -3311,7 +3681,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  weight_pounds_3_txt:
+    x_petey_identifiers:
+      subject: weight_pounds
+      suffix: txt
+      iteration: '2'
+  weight_pounds_txt_3:
     x_petey_id: '4_39'
     type: string
     semantic_type: text
@@ -3329,7 +3703,11 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  employer2_business_name:
+    x_petey_identifiers:
+      subject: weight_pounds
+      suffix: txt
+      iteration: '3'
+  employer2_business_nm:
     x_petey_id: '4_1'
     type: string
     semantic_type: business_name
@@ -3347,6 +3725,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer2_business
+      suffix: nm
   employer1_occupation_txt:
     x_petey_id: '4_40'
     type: string
@@ -3365,6 +3746,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: employer1_occupation
+      suffix: txt
   employer1_date_from_dt:
     x_petey_id: '4_42'
     type: date
@@ -3384,6 +3768,9 @@ fields:
     description: Part 2. Information About You (Petitioner). Employment History. Employer
       1. 45. A. Enter Date From. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: employer1_date_from
+      suffix: dt
   place_of_admission_state_abbreviation_cd:
     x_petey_id: '4_15'
     type: category
@@ -3462,7 +3849,10 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
-  beneficiary_alien_registration_number:
+    x_petey_identifiers:
+      subject: place_of_admission_state_abbreviation
+      suffix: cd
+  beneficiary_alien_registration_nbr:
     x_petey_id: '5_6'
     type: string
     widget:
@@ -3479,7 +3869,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  beneficiary_uscis_online_account_number:
+    x_petey_identifiers:
+      subject: beneficiary_alien_registration
+      suffix: nbr
+  beneficiary_uscis_online_account_nbr:
     x_petey_id: '5_10'
     type: string
     semantic_type: account_number
@@ -3498,6 +3891,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_uscis_online_account
+      suffix: nbr
   beneficiary_family_nm:
     x_petey_id: '5_14'
     type: string
@@ -3531,6 +3927,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: beneficiary_family
+      suffix: nm
   beneficiary_given_nm:
     x_petey_id: '5_15'
     type: string
@@ -3564,6 +3963,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: beneficiary_given
+      suffix: nm
   beneficiary_middle_nm:
     x_petey_id: '5_16'
     type: string
@@ -3597,6 +3999,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: beneficiary_middle
+      suffix: nm
   other_name_family_nm_2:
     x_petey_id: '5_21'
     type: string
@@ -3631,6 +4036,8 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: other_name_family_nm_2
   other_name_given_nm_2:
     x_petey_id: '5_24'
     type: string
@@ -3664,6 +4071,8 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: other_name_given_nm_2
   other_name_middle_nm_2:
     x_petey_id: '5_25'
     type: string
@@ -3697,6 +4106,8 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: other_name_middle_nm_2
   beneficiary_birth_city_nm:
     x_petey_id: '5_29'
     type: string
@@ -3715,6 +4126,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_birth_city
+      suffix: nm
   beneficiary_birth_country_cd:
     x_petey_id: '5_32'
     type: string
@@ -3733,6 +4147,9 @@ fields:
     description: Part 4. Information About Beneficiary. Other Information About Beneficiary.
       7. Enter Country of Birth.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: beneficiary_birth_country
+      suffix: cd
   beneficiary_physical_address_province:
     x_petey_id: '5_9'
     type: string
@@ -3768,6 +4185,8 @@ fields:
       why: 'Tooltip: Beneficiary''s Physical Address item 11.F Province; the rest
         of the item 11 block is named beneficiary_physical_address_*, while plain
         physical_address_* is also used for the item 12 address.'
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_province
   beneficiary_physical_address_postal_cd:
     x_petey_id: '5_11'
     type: string
@@ -3803,6 +4222,9 @@ fields:
       why: 'Tooltip: Beneficiary''s Physical Address item 11.G Postal Code (foreign),
         named like the rest of the item 11 block; US ZIP type/pattern dropped since
         this is the non-US postal code.'
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_postal
+      suffix: cd
   beneficiary_physical_address_country:
     x_petey_id: '5_13'
     type: string
@@ -3839,7 +4261,9 @@ fields:
       why: 'Tooltip: Beneficiary''s Physical Address item 11.H Country, a country
         name in full (the ^[A-Z]{2}$ code pattern would reject it); named like the
         rest of the item 11 block.'
-  beneficiary_us_address_street_number_and_name:
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_country
+  beneficiary_us_address_street_number_and_nm:
     x_petey_id: '5_17'
     type: string
     semantic_type: street_address
@@ -3878,7 +4302,10 @@ fields:
       why: 'Tooltip: item 12.A street of ''the address in the United States where
         the beneficiary intends to live'' (Other Address and Contact Information);
         it is not the beneficiary''s physical address (item 11).'
-  beneficiary_us_address_unit_number:
+    x_petey_identifiers:
+      subject: beneficiary_us_address_street_number_and
+      suffix: nm
+  beneficiary_us_address_unit_nbr:
     x_petey_id: '5_18'
     type: string
     widget:
@@ -3913,6 +4340,9 @@ fields:
       why: 'Tooltip: item 12.B apt/ste/flr number of ''the address in the United States
         where the beneficiary intends to live'' (Other Address and Contact Information);
         it is not the beneficiary''s physical address (item 11).'
+    x_petey_identifiers:
+      subject: beneficiary_us_address_unit
+      suffix: nbr
   beneficiary_us_address_city_nm:
     x_petey_id: '5_20'
     type: string
@@ -3949,6 +4379,9 @@ fields:
       why: 'Tooltip: item 12.C city of ''the address in the United States where the
         beneficiary intends to live'' (Other Address and Contact Information); it
         is not the beneficiary''s physical address (item 11).'
+    x_petey_identifiers:
+      subject: beneficiary_us_address_city
+      suffix: nm
   beneficiary_us_address_zip_cd:
     x_petey_id: '5_23'
     type: string
@@ -3986,6 +4419,9 @@ fields:
       why: 'Tooltip: item 12.E ZIP of ''the address in the United States where the
         beneficiary intends to live'' (Other Address and Contact Information); it
         is not the beneficiary''s physical address (item 11).'
+    x_petey_identifiers:
+      subject: beneficiary_us_address_zip
+      suffix: cd
   beneficiary_us_address_state_abbreviation_cd:
     x_petey_id: '5_22'
     type: category
@@ -4082,6 +4518,9 @@ fields:
       why: 'Tooltip: item 12.D state of ''the address in the United States where the
         beneficiary intends to live'' (Other Address and Contact Information); it
         is not the beneficiary''s physical address (item 11).'
+    x_petey_identifiers:
+      subject: beneficiary_us_address_state_abbreviation
+      suffix: cd
   foreign_address_postal_cd:
     x_petey_id: '5_33'
     type: string
@@ -4116,7 +4555,10 @@ fields:
       kind: type
       why: Item 13.E is the beneficiary's address outside the US; a US ZIP semantic
         type and pattern would reject foreign postal codes.
-  foreign_address_unit_number:
+    x_petey_identifiers:
+      subject: foreign_address_postal
+      suffix: cd
+  foreign_address_unit_nbr:
     x_petey_id: '5_27'
     type: string
     widget:
@@ -4133,7 +4575,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  foreign_address_street_number_and_name:
+    x_petey_identifiers:
+      subject: foreign_address_unit
+      suffix: nbr
+  foreign_address_street_number_and_nm:
     x_petey_id: '5_26'
     type: string
     semantic_type: street_address
@@ -4153,6 +4598,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: foreign_address_street_number_and
+      suffix: nm
   foreign_address_city_nm:
     x_petey_id: '5_30'
     type: string
@@ -4171,6 +4619,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: foreign_address_city
+      suffix: nm
   foreign_address_country_cd:
     x_petey_id: '5_36'
     type: string
@@ -4189,6 +4640,9 @@ fields:
     description: Part 4. Information About Beneficiary. Other Address and Contact
       Information. 13. F. Enter Country.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: foreign_address_country
+      suffix: cd
   foreign_address_province:
     x_petey_id: '5_31'
     type: string
@@ -4206,6 +4660,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: foreign_address_province
   beneficiary_physical_address_line_1_txt:
     x_petey_id: '5_2'
     type: string
@@ -4226,7 +4682,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  beneficiary_physical_address_unit_number:
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_line_1
+      suffix: txt
+  beneficiary_physical_address_unit_nbr:
     x_petey_id: '5_3'
     type: string
     widget:
@@ -4243,6 +4702,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_unit
+      suffix: nbr
   beneficiary_physical_address_city_nm:
     x_petey_id: '5_5'
     type: string
@@ -4261,6 +4723,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_city
+      suffix: nm
   beneficiary_physical_address_zip_cd:
     x_petey_id: '5_8'
     type: string
@@ -4280,6 +4745,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_zip
+      suffix: cd
   beneficiary_physical_address_state_abbreviation_cd:
     x_petey_id: '5_7'
     type: category
@@ -4358,6 +4826,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_state_abbreviation
+      suffix: cd
   beneficiary_birth_dt:
     x_petey_id: '5_34'
     type: date
@@ -4377,7 +4848,10 @@ fields:
     description: Part 4. Information About Beneficiary. Other Information About Beneficiary.
       8. Enter Date of Birth. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
-  beneficiary_daytime_telephone_number:
+    x_petey_identifiers:
+      subject: beneficiary_birth
+      suffix: dt
+  beneficiary_daytime_telephone_nbr:
     x_petey_id: '5_38'
     type: string
     semantic_type: phone
@@ -4396,6 +4870,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_daytime_telephone
+      suffix: nbr
   beneficiary_ssn:
     x_petey_id: '5_12'
     type: string
@@ -4416,6 +4893,9 @@ fields:
     description: Part 4. Information About Beneficiary. 3. Enter U.S. Social Security
       Number, if any.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: beneficiary
+      suffix: ssn
   beneficiary_marriage_place_province:
     x_petey_id: '6_17'
     type: string
@@ -4446,6 +4926,8 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: beneficiary_marriage_place_province
   beneficiary_times_married:
     x_petey_id: '6_6'
     type: integer
@@ -4482,7 +4964,9 @@ fields:
       why: Part 4 item 17 'How many times has the beneficiary been married? Enter
         Number of Times Married' is a count (the petitioner's twin times_married_cnt
         is integer/count).
-  beneficiary_mobile_telephone_number:
+    x_petey_identifiers:
+      subject: beneficiary_times_married
+  beneficiary_mobile_telephone_nbr:
     x_petey_id: '6_2'
     type: string
     semantic_type: phone
@@ -4501,6 +4985,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_mobile_telephone
+      suffix: nbr
   beneficiary_email_address:
     x_petey_id: '6_3'
     type: string
@@ -4520,6 +5007,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: beneficiary_email_address
   beneficiary_current_marriage_dt:
     x_petey_id: '6_11'
     type: date
@@ -4557,6 +5046,9 @@ fields:
       kind: clarity
       why: 'Tooltip: Part 4 item 19, the beneficiary''s Date of Current Marriage;
         the petitioner''s own is current_marriage_dt, so the bare name invites a mix-up.'
+    x_petey_identifiers:
+      subject: beneficiary_current_marriage
+      suffix: dt
   beneficiary_spouse2_family_nm:
     x_petey_id: '6_32'
     type: string
@@ -4592,6 +5084,9 @@ fields:
       why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 23.A; ''spouse1_''
         vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
         so the beneficiary''s spouses need the prefix.'
+    x_petey_identifiers:
+      subject: beneficiary_spouse2_family
+      suffix: nm
   beneficiary_spouse2_given_nm:
     x_petey_id: '6_33'
     type: string
@@ -4627,6 +5122,9 @@ fields:
       why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 23.B; ''spouse1_''
         vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
         so the beneficiary''s spouses need the prefix.'
+    x_petey_identifiers:
+      subject: beneficiary_spouse2_given
+      suffix: nm
   beneficiary_spouse2_middle_nm:
     x_petey_id: '6_34'
     type: string
@@ -4662,6 +5160,9 @@ fields:
       why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 23.C; ''spouse1_''
         vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
         so the beneficiary''s spouses need the prefix.'
+    x_petey_identifiers:
+      subject: beneficiary_spouse2_middle
+      suffix: nm
   beneficiary_spouse1_family_nm:
     x_petey_id: '6_24'
     type: string
@@ -4699,6 +5200,9 @@ fields:
       why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 21.A; ''spouse1_''
         vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
         so the beneficiary''s spouses need the prefix.'
+    x_petey_identifiers:
+      subject: beneficiary_spouse1_family
+      suffix: nm
   beneficiary_spouse1_given_nm:
     x_petey_id: '6_26'
     type: string
@@ -4734,6 +5238,9 @@ fields:
       why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 21.B; ''spouse1_''
         vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
         so the beneficiary''s spouses need the prefix.'
+    x_petey_identifiers:
+      subject: beneficiary_spouse1_given
+      suffix: nm
   beneficiary_spouse1_middle_nm:
     x_petey_id: '6_28'
     type: string
@@ -4769,6 +5276,9 @@ fields:
       why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 21.C; ''spouse1_''
         vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
         so the beneficiary''s spouses need the prefix.'
+    x_petey_identifiers:
+      subject: beneficiary_spouse1_middle
+      suffix: nm
   beneficiary_spouse1_marriage_ended_dt:
     x_petey_id: '6_30'
     type: date
@@ -4807,6 +5317,9 @@ fields:
       why: 'Tooltip: Part 4 Names of Beneficiary''s Spouses, item 22; ''spouse1_''
         vs the petitioner''s ''spouse_1_'' (Part 2 item 20) differ only by an underscore,
         so the beneficiary''s spouses need the prefix.'
+    x_petey_identifiers:
+      subject: beneficiary_spouse1_marriage_ended
+      suffix: dt
   beneficiary_spouse2_marriage_ended_dt:
     x_petey_id: '6_1'
     type: date
@@ -4845,6 +5358,9 @@ fields:
       why: 'Tooltip: Names of Beneficiary''s Spouses, Spouse 2, item 24 Date Marriage
         Ended; ''person0'' is meaningless (persons 1-5 are the beneficiary''s family,
         items 25-44).'
+    x_petey_identifiers:
+      subject: beneficiary_spouse2_marriage_ended
+      suffix: dt
   person1_relationship:
     x_petey_id: '6_8'
     type: string
@@ -4862,6 +5378,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person1_relationship
   beneficiary_marital_status:
     x_petey_id: '6_35'
     type: category
@@ -4955,6 +5473,8 @@ fields:
       - beneficiary_marital_status_widowed_ind
       - beneficiary_marital_status_separated_ind
       - beneficiary_marital_status_annulled_ind
+    x_petey_identifiers:
+      subject: beneficiary_marital_status
   person1_family_nm:
     x_petey_id: '6_4'
     type: string
@@ -4989,6 +5509,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person1_family
+      suffix: nm
   person1_given_nm:
     x_petey_id: '6_5'
     type: string
@@ -5022,6 +5545,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person1_given
+      suffix: nm
   person1_middle_nm:
     x_petey_id: '6_7'
     type: string
@@ -5055,6 +5581,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person1_middle
+      suffix: nm
   person1_birth_dt:
     x_petey_id: '6_9'
     type: date
@@ -5075,6 +5604,9 @@ fields:
       Family. Person 1. 27. Enter Date of Birth. Enter as 2 digit month, 2 digit day
       and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: person1_birth
+      suffix: dt
   person1_country_of_birth:
     x_petey_id: '6_10'
     type: string
@@ -5093,6 +5625,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person1_country_of_birth
   person2_relationship:
     x_petey_id: '6_18'
     type: string
@@ -5110,6 +5644,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person2_relationship
   person2_birth_dt:
     x_petey_id: '6_19'
     type: date
@@ -5130,6 +5666,9 @@ fields:
       Family. Person 2. 31. Enter Date of Birth. Enter as 2 digit month, 2 digit day
       and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: person2_birth
+      suffix: dt
   person2_country_of_birth:
     x_petey_id: '6_21'
     type: string
@@ -5148,6 +5687,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person2_country_of_birth
   person2_family_nm:
     x_petey_id: '6_12'
     type: string
@@ -5181,6 +5722,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person2_family
+      suffix: nm
   person2_given_nm:
     x_petey_id: '6_14'
     type: string
@@ -5214,6 +5758,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person2_given
+      suffix: nm
   person2_middle_nm:
     x_petey_id: '6_16'
     type: string
@@ -5247,6 +5794,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person2_middle
+      suffix: nm
   person3_given_nm:
     x_petey_id: '6_23'
     type: string
@@ -5280,6 +5830,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person3_given
+      suffix: nm
   person3_middle_nm:
     x_petey_id: '6_25'
     type: string
@@ -5313,6 +5866,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person3_middle
+      suffix: nm
   person3_family_nm:
     x_petey_id: '6_22'
     type: string
@@ -5346,6 +5902,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person3_family
+      suffix: nm
   person3_country_of_birth:
     x_petey_id: '6_31'
     type: string
@@ -5364,6 +5923,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person3_country_of_birth
   person3_birth_dt:
     x_petey_id: '6_29'
     type: date
@@ -5384,6 +5945,9 @@ fields:
       Family. Person 3. 35. Enter Date of Birth. Enter as 2 digit month, 2 digit day
       and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: person3_birth
+      suffix: dt
   person3_relationship:
     x_petey_id: '6_27'
     type: string
@@ -5401,6 +5965,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person3_relationship
   beneficiary_marriage_place_city_nm:
     x_petey_id: '6_13'
     type: string
@@ -5436,6 +6002,9 @@ fields:
       kind: clarity
       why: 'Tooltip: Part 4 item 20.A, Place of Beneficiary''s Current Marriage; the
         petitioner''s is marriage_place_city_nm.'
+    x_petey_identifiers:
+      subject: beneficiary_marriage_place_city
+      suffix: nm
   beneficiary_marriage_place_state:
     x_petey_id: '6_15'
     type: category
@@ -5530,6 +6099,8 @@ fields:
       by: claude
       kind: clarity
       why: 'Tooltip: Part 4 item 20.B, Place of Beneficiary''s Current Marriage, state.'
+    x_petey_identifiers:
+      subject: beneficiary_marriage_place_state
   beneficiary_marriage_place_country:
     x_petey_id: '6_20'
     type: string
@@ -5565,6 +6136,8 @@ fields:
       kind: wrong
       why: Widget Pt4Line20d_Country, tooltip item 20.D Enter Country; swapped with
         the province box above it.
+    x_petey_identifiers:
+      subject: beneficiary_marriage_place_country
   person4_middle_nm:
     x_petey_id: '7_6'
     type: string
@@ -5598,6 +6171,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person4_middle
+      suffix: nm
   person4_given_nm:
     x_petey_id: '7_4'
     type: string
@@ -5631,6 +6207,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person4_given
+      suffix: nm
   person4_family_nm:
     x_petey_id: '7_3'
     type: string
@@ -5664,6 +6243,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person4_family
+      suffix: nm
   person4_country_of_birth:
     x_petey_id: '7_9'
     type: string
@@ -5682,6 +6264,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person4_country_of_birth
   person4_dob_dt:
     x_petey_id: '7_8'
     type: date
@@ -5702,6 +6286,9 @@ fields:
       Family. Person 4. 39. Enter Date of Birth. Enter as 2 digit month, 2 digit day
       and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: person4_dob
+      suffix: dt
   person4_relationship:
     x_petey_id: '7_7'
     type: string
@@ -5719,6 +6306,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person4_relationship
   person5_family_nm:
     x_petey_id: '7_12'
     type: string
@@ -5752,6 +6341,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person5_family
+      suffix: nm
   person5_given_nm:
     x_petey_id: '7_17'
     type: string
@@ -5785,6 +6377,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person5_given
+      suffix: nm
   person5_middle_nm:
     x_petey_id: '7_19'
     type: string
@@ -5818,6 +6413,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: person5_middle
+      suffix: nm
   person5_relationship:
     x_petey_id: '7_22'
     type: string
@@ -5835,6 +6433,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person5_relationship
   person5_country_of_birth:
     x_petey_id: '7_26'
     type: string
@@ -5853,6 +6453,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: person5_country_of_birth
   person5_dob_dt:
     x_petey_id: '7_24'
     type: date
@@ -5873,6 +6475,9 @@ fields:
       Family. Person 5. 43. Enter Date of Birth. Enter as 2 digit month, 2 digit day
       and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: person5_dob
+      suffix: dt
   beneficiary_ever_in_us_ind:
     x_petey_id: '7_46'
     type: category
@@ -5912,6 +6517,8 @@ fields:
       - beneficiary_ever_in_us_yes_ind
       - beneficiary_ever_in_us_no_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: beneficiary_ever_in_us_ind
   authorized_stay_expiration_dt:
     x_petey_id: '7_42'
     type: date
@@ -5934,6 +6541,9 @@ fields:
       as shown on Form I - 94 or Form I - 95 or type or print "D / S" for Duration
       of Status. Enter as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: authorized_stay_expiration
+      suffix: dt
   beneficiary_class_of_admission_cd:
     x_petey_id: '7_33'
     type: category
@@ -6268,6 +6878,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Entry Information item 46.A ''He or she
         arrived as a (Class of Admission)''; the petitioner''s own class of admission
         (Part 2 item 40.a) is class_of_admission_cd.'
+    x_petey_identifiers:
+      subject: beneficiary_class_of_admission
+      suffix: cd
   date_of_arrival_dt:
     x_petey_id: '7_37'
     type: date
@@ -6289,6 +6902,9 @@ fields:
       46. A. through 46. D. 46. C. Enter Date of Arrival. Enter as 2 digit month,
       2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: date_of_arrival
+      suffix: dt
   passport_nbr:
     x_petey_id: '7_44'
     type: string
@@ -6306,6 +6922,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: passport
+      suffix: nbr
   travel_document_nbr:
     x_petey_id: '7_1'
     type: string
@@ -6323,6 +6942,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: travel_document
+      suffix: nbr
   country_of_issuance:
     x_petey_id: '7_2'
     type: string
@@ -6341,6 +6963,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: country_of_issuance
   passport_expiration_dt:
     x_petey_id: '7_5'
     type: date
@@ -6361,6 +6985,9 @@ fields:
       50. Enter Expiration Date for Passport or Travel Document. Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: passport_expiration
+      suffix: dt
   beneficiary_employer_nm:
     x_petey_id: '7_10'
     type: string
@@ -6401,6 +7028,9 @@ fields:
         of Current Employer; the petitioner has employer1_/employer2_ blocks, so the
         beneficiary''s employer needs the prefix (bare apt_ind/ste_ind/flr_ind say
         nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer
+      suffix: nm
   beneficiary_employer_address_line_1_txt:
     x_petey_id: '7_11'
     type: string
@@ -6437,6 +7067,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.B street;
         the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
         needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer_address_line_1
+      suffix: txt
   beneficiary_employer_unit_type:
     x_petey_id: '7_45'
     type: category
@@ -6490,6 +7123,8 @@ fields:
       - beneficiary_employer_ste_ind
       - beneficiary_employer_flr_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: beneficiary_employer_unit_type
   beneficiary_employer_unit_nbr:
     x_petey_id: '7_13'
     type: string
@@ -6525,6 +7160,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.C apt/ste/flr
         number; the petitioner has employer1_/employer2_ blocks, so the beneficiary''s
         employer needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer_unit
+      suffix: nbr
   beneficiary_employer_city_nm:
     x_petey_id: '7_18'
     type: string
@@ -6561,6 +7199,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.D city;
         the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
         needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer_city
+      suffix: nm
   beneficiary_employer_state_abbreviation_cd:
     x_petey_id: '7_20'
     type: category
@@ -6657,6 +7298,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.E state;
         the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
         needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer_state_abbreviation
+      suffix: cd
   beneficiary_employer_zip_cd:
     x_petey_id: '7_21'
     type: string
@@ -6694,6 +7338,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.F ZIP;
         the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
         needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer_zip
+      suffix: cd
   beneficiary_employer_province:
     x_petey_id: '7_23'
     type: string
@@ -6729,6 +7376,8 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.G province;
         the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
         needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer_province
   beneficiary_employment_began_dt:
     x_petey_id: '7_28'
     type: date
@@ -6767,6 +7416,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 52 Date Employment
         Began; the petitioner has employer1_/employer2_ blocks, so the beneficiary''s
         employer needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employment_began
+      suffix: dt
   beneficiary_ever_in_immigration_proceedings_ind:
     x_petey_id: '7_47'
     type: category
@@ -6806,6 +7458,8 @@ fields:
       - beneficiary_in_immigration_proceedings_yes_ind
       - beneficiary_in_immigration_proceedings_no_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: beneficiary_ever_in_immigration_proceedings_ind
   immigration_proceedings_type:
     x_petey_id: '7_48'
     type: category
@@ -6873,6 +7527,8 @@ fields:
       - proceedings_rescission_ind
       - proceedings_other_judicial_ind
       name_from: labeler
+    x_petey_identifiers:
+      subject: immigration_proceedings_type
   proceedings_city_nm:
     x_petey_id: '7_40'
     type: string
@@ -6891,6 +7547,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: proceedings_city
+      suffix: nm
   beneficiary_employer_postal_cd:
     x_petey_id: '7_25'
     type: string
@@ -6926,6 +7585,9 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information item 51.H Postal
         Code (foreign; the ZIP is 51.F), so the US ZIP type/pattern is dropped; prefixed
         like the rest of the beneficiary''s employer block.'
+    x_petey_identifiers:
+      subject: beneficiary_employer_postal
+      suffix: cd
   beneficiary_employer_country:
     x_petey_id: '7_27'
     type: string
@@ -6962,6 +7624,8 @@ fields:
       why: 'Tooltip: Part 4 Beneficiary''s Employment Information, item 51.I country;
         the petitioner has employer1_/employer2_ blocks, so the beneficiary''s employer
         needs the prefix (bare apt_ind/ste_ind/flr_ind say nothing).'
+    x_petey_identifiers:
+      subject: beneficiary_employer_country
   proceedings_state_abbreviation_cd:
     x_petey_id: '7_41'
     type: category
@@ -7040,6 +7704,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: proceedings_state_abbreviation
+      suffix: cd
   proceedings_dt:
     x_petey_id: '7_43'
     type: date
@@ -7060,6 +7727,9 @@ fields:
       Beneficiary. 56. Enter Date. Enter as 2 digit month, 2 digit day and 4 digit
       year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: proceedings
+      suffix: dt
   form_i94_arrival_departure_record_nbr:
     x_petey_id: '7_34'
     type: string
@@ -7078,6 +7748,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: form_i94_arrival_departure_record
+      suffix: nbr
   beneficiary_native_middle_nm:
     x_petey_id: '8_6'
     type: string
@@ -7111,6 +7784,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: beneficiary_native_middle
+      suffix: nm
   beneficiary_native_family_nm:
     x_petey_id: '8_3'
     type: string
@@ -7146,6 +7822,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: beneficiary_native_family
+      suffix: nm
   beneficiary_native_given_nm:
     x_petey_id: '8_4'
     type: string
@@ -7179,6 +7858,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: beneficiary_native_given
+      suffix: nm
   beneficiary_native_address_unit_nbr:
     x_petey_id: '8_8'
     type: string
@@ -7214,6 +7896,9 @@ fields:
       why: 'Tooltip: Part 4 item 58.B apt/ste/flr number of the name and foreign address
         written in the beneficiary''s native script (after 57, beneficiary_native_*_nm);
         the ''_2'' names collide in meaning with the item 13 foreign address.'
+    x_petey_identifiers:
+      subject: beneficiary_native_address_unit
+      suffix: nbr
   beneficiary_native_address_city_nm:
     x_petey_id: '8_9'
     type: string
@@ -7250,6 +7935,9 @@ fields:
       why: 'Tooltip: Part 4 item 58.C city of the name and foreign address written
         in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
         ''_2'' names collide in meaning with the item 13 foreign address.'
+    x_petey_identifiers:
+      subject: beneficiary_native_address_city
+      suffix: nm
   beneficiary_native_address_province_txt:
     x_petey_id: '8_10'
     type: string
@@ -7286,6 +7974,9 @@ fields:
       why: 'Tooltip: Part 4 item 58.D province of the name and foreign address written
         in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
         ''_2'' names collide in meaning with the item 13 foreign address.'
+    x_petey_identifiers:
+      subject: beneficiary_native_address_province
+      suffix: txt
   beneficiary_native_address_country_txt:
     x_petey_id: '8_13'
     type: string
@@ -7322,6 +8013,9 @@ fields:
       why: 'Tooltip: Part 4 item 58.F country of the name and foreign address written
         in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
         ''_2'' names collide in meaning with the item 13 foreign address.'
+    x_petey_identifiers:
+      subject: beneficiary_native_address_country
+      suffix: txt
   beneficiary_native_address_postal_cd:
     x_petey_id: '8_11'
     type: string
@@ -7357,6 +8051,9 @@ fields:
       why: 'Tooltip: Part 4 item 58.E postal code of the name and foreign address
         written in the beneficiary''s native script (after 57, beneficiary_native_*_nm);
         the ''_2'' names collide in meaning with the item 13 foreign address.'
+    x_petey_identifiers:
+      subject: beneficiary_native_address_postal
+      suffix: cd
   beneficiary_native_address_street_number_and_name_txt:
     x_petey_id: '8_7'
     type: string
@@ -7393,6 +8090,9 @@ fields:
       why: 'Tooltip: Part 4 item 58.A street of the name and foreign address written
         in the beneficiary''s native script (after 57, beneficiary_native_*_nm); the
         ''_2'' names collide in meaning with the item 13 foreign address.'
+    x_petey_identifiers:
+      subject: beneficiary_native_address_street_number_and_name
+      suffix: txt
   last_lived_together_unit_nbr:
     x_petey_id: '8_18'
     type: string
@@ -7410,6 +8110,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_unit
+      suffix: nbr
   last_lived_together_street_number_and_name_txt:
     x_petey_id: '8_16'
     type: string
@@ -7430,6 +8133,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_street_number_and_name
+      suffix: txt
   last_lived_together_city_nm:
     x_petey_id: '8_21'
     type: string
@@ -7448,6 +8154,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_city
+      suffix: nm
   last_lived_together_zip_cd:
     x_petey_id: '8_24'
     type: string
@@ -7467,6 +8176,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_zip
+      suffix: cd
   last_lived_together_state_abbreviation_cd:
     x_petey_id: '8_23'
     type: category
@@ -7545,6 +8257,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: last_lived_together_state_abbreviation
+      suffix: cd
   last_lived_together_date_from_dt:
     x_petey_id: '8_30'
     type: date
@@ -7565,6 +8280,9 @@ fields:
       Beneficiary. 60. A. Enter Date From. Enter as 2 digit month, 2 digit day and
       4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_date_from
+      suffix: dt
   last_lived_together_date_to_dt:
     x_petey_id: '8_32'
     type: date
@@ -7585,6 +8303,9 @@ fields:
       Beneficiary. 60. B. Enter Date To. Enter as 2 digit month, 2 digit day and 4
       digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_date_to
+      suffix: dt
   last_lived_together_province_txt:
     x_petey_id: '8_26'
     type: string
@@ -7603,6 +8324,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_province
+      suffix: txt
   last_lived_together_country_cd:
     x_petey_id: '8_29'
     type: string
@@ -7621,6 +8345,9 @@ fields:
     description: Part 4. Information About Beneficiary. Additional Information About
       Beneficiary. 59. H. Enter Country.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: last_lived_together_country
+      suffix: cd
   last_lived_together_postal_cd:
     x_petey_id: '8_28'
     type: string
@@ -7655,6 +8382,9 @@ fields:
       kind: type
       why: Item 59.G Postal Code is the non-US code (59.E is the ZIP); the US ZIP
         semantic type and pattern would reject foreign codes.
+    x_petey_identifiers:
+      subject: last_lived_together_postal
+      suffix: cd
   consulate_city_nm:
     x_petey_id: '8_1'
     type: string
@@ -7675,6 +8405,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: consulate_city
+      suffix: nm
   consulate_province_txt:
     x_petey_id: '8_2'
     type: string
@@ -7695,6 +8428,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: consulate_province
+      suffix: txt
   consulate_country_cd:
     x_petey_id: '8_5'
     type: string
@@ -7719,6 +8455,9 @@ fields:
       In these situations, the designated U.S. Embassy or U.S. Consulate has discretion
       over whether or not to accept the beneficiary''s case.'
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: consulate_country
+      suffix: cd
   prior_petition_beneficiary_family_nm:
     x_petey_id: '8_14'
     type: string
@@ -7752,6 +8491,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: prior_petition_beneficiary_family
+      suffix: nm
   prior_petition_beneficiary_given_nm:
     x_petey_id: '8_15'
     type: string
@@ -7784,6 +8526,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: prior_petition_beneficiary_given
+      suffix: nm
   prior_petition_beneficiary_middle_nm:
     x_petey_id: '8_17'
     type: string
@@ -7816,6 +8561,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: prior_petition_beneficiary_middle
+      suffix: nm
   prior_petition_result_txt:
     x_petey_id: '8_27'
     type: string
@@ -7834,6 +8582,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: prior_petition_result
+      suffix: txt
   prior_petition_date_filed_dt:
     x_petey_id: '8_25'
     type: date
@@ -7853,6 +8604,9 @@ fields:
     description: Part 5. Other Information. 4. Enter Date Filed. Enter as 2 digit
       month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: prior_petition_date_filed
+      suffix: dt
   prior_petition_city_nm:
     x_petey_id: '8_19'
     type: string
@@ -7870,6 +8624,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: prior_petition_city
+      suffix: nm
   prior_petition_state_abbreviation_cd:
     x_petey_id: '8_22'
     type: category
@@ -7948,6 +8705,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: prior_petition_state_abbreviation
+      suffix: cd
   adjustment_of_status_city_nm:
     x_petey_id: '8_36'
     type: string
@@ -7968,6 +8728,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: adjustment_of_status_city
+      suffix: nm
   adjustment_of_status_state_abbreviation_cd:
     x_petey_id: '8_37'
     type: category
@@ -8046,6 +8809,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: adjustment_of_status_state_abbreviation
+      suffix: cd
   relative1_relationship_txt:
     x_petey_id: '8_35'
     type: string
@@ -8063,6 +8829,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: relative1_relationship
+      suffix: txt
   relative1_family_nm:
     x_petey_id: '8_31'
     type: string
@@ -8097,6 +8866,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: relative1_family
+      suffix: nm
   relative1_given_nm:
     x_petey_id: '8_33'
     type: string
@@ -8130,6 +8902,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: relative1_given
+      suffix: nm
   relative1_middle_nm:
     x_petey_id: '8_34'
     type: string
@@ -8162,6 +8937,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: relative1_middle
+      suffix: nm
   petitioner_daytime_phone_num:
     x_petey_id: '9_1'
     type: string
@@ -8183,6 +8961,8 @@ fields:
       and Signature. Petitioner's Contact Information. 3. Enter Petitioner's Daytime
       Telephone Number.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: petitioner_daytime_phone_num
   petitioner_email_address_txt:
     x_petey_id: '9_6'
     type: string
@@ -8203,6 +8983,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: petitioner_email_address
+      suffix: txt
   petitioner_mobile_phone_num:
     x_petey_id: '9_4'
     type: string
@@ -8224,6 +9007,8 @@ fields:
       and Signature. Petitioner's Contact Information. 4. Enter Petitioner's Mobile
       Telephone Number, if any.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: petitioner_mobile_phone_num
   relative2_middle_nm:
     x_petey_id: '9_5'
     type: string
@@ -8258,6 +9043,9 @@ fields:
       why: 'Tooltip: Part 5 Other Information, Relative 2, item 8.C Middle Name (widget
         Pt4Line8*/9); it is the second relative you are filing separate petitions
         for (relative1_* is items 6-7), not the petitioner.'
+    x_petey_identifiers:
+      subject: relative2_middle
+      suffix: nm
   relative2_given_nm:
     x_petey_id: '9_3'
     type: string
@@ -8294,6 +9082,9 @@ fields:
       why: 'Tooltip: Part 5 Other Information, Relative 2, item 8.B Given Name (widget
         Pt4Line8*/9); it is the second relative you are filing separate petitions
         for (relative1_* is items 6-7), not the petitioner.'
+    x_petey_identifiers:
+      subject: relative2_given
+      suffix: nm
   relative2_family_nm:
     x_petey_id: '9_2'
     type: string
@@ -8330,6 +9121,9 @@ fields:
       why: 'Tooltip: Part 5 Other Information, Relative 2, item 8.A Family Name (widget
         Pt4Line8*/9); it is the second relative you are filing separate petitions
         for (relative1_* is items 6-7), not the petitioner.'
+    x_petey_identifiers:
+      subject: relative2_family
+      suffix: nm
   relative2_relationship_txt:
     x_petey_id: '9_7'
     type: string
@@ -8365,6 +9159,9 @@ fields:
       why: 'Tooltip: Part 5 Other Information, Relative 2, item 9 Relationship (widget
         Pt4Line8*/9); it is the second relative you are filing separate petitions
         for (relative1_* is items 6-7), not the petitioner.'
+    x_petey_identifiers:
+      subject: relative2_relationship
+      suffix: txt
   reads_english_ind:
     x_petey_id: '9_8'
     type: boolean
@@ -8387,6 +9184,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: reads_english
+      suffix: ind
   interpreter_read_petition_ind:
     x_petey_id: '9_9'
     type: boolean
@@ -8409,6 +9209,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_read_petition
+      suffix: ind
   interpreter_language_txt:
     x_petey_id: '9_10'
     type: string
@@ -8427,6 +9230,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_language
+      suffix: txt
   preparer_prepared_petition_ind:
     x_petey_id: '9_12'
     type: boolean
@@ -8448,6 +9254,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_prepared_petition
+      suffix: ind
   preparer_nm:
     x_petey_id: '9_13'
     type: string
@@ -8481,6 +9290,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: preparer
+      suffix: nm
   petitioner_signature_dt:
     x_petey_id: '9_14'
     type: date
@@ -8501,6 +9313,9 @@ fields:
       and Signature. Petitioner's Signature. 6. B. Enter Date of Signature. Enter
       as 2 digit month, 2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: petitioner_signature
+      suffix: dt
   petitioner_signature_txt:
     x_petey_id: '9_11'
     type: string
@@ -8522,6 +9337,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: petitioner_signature
+      suffix: txt
   interpreter_given_nm:
     x_petey_id: '10_3'
     type: string
@@ -8555,6 +9373,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: interpreter_given
+      suffix: nm
   interpreter_family_nm:
     x_petey_id: '10_2'
     type: string
@@ -8589,7 +9410,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  interpreter_business_name:
+    x_petey_identifiers:
+      subject: interpreter_family
+      suffix: nm
+  interpreter_business_nm:
     x_petey_id: '10_4'
     type: string
     semantic_type: business_name
@@ -8608,6 +9432,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_business
+      suffix: nm
   interpreter_city_nm:
     x_petey_id: '10_10'
     type: string
@@ -8626,6 +9453,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_city
+      suffix: nm
   interpreter_address_line_1_txt:
     x_petey_id: '10_7'
     type: string
@@ -8644,6 +9474,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_address_line_1
+      suffix: txt
   interpreter_unit_txt:
     x_petey_id: '10_8'
     type: string
@@ -8662,6 +9495,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_unit
+      suffix: txt
   interpreter_postal_cd:
     x_petey_id: '10_14'
     type: string
@@ -8696,6 +9532,9 @@ fields:
       kind: type
       why: Item 3.G Postal Code is the non-US code (3.E is the ZIP); US ZIP type/pattern
         would reject foreign codes.
+    x_petey_identifiers:
+      subject: interpreter_postal
+      suffix: cd
   interpreter_zip_cd:
     x_petey_id: '10_12'
     type: string
@@ -8715,6 +9554,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_zip
+      suffix: cd
   interpreter_state_abbreviation_cd:
     x_petey_id: '10_11'
     type: category
@@ -8793,6 +9635,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: interpreter_state_abbreviation
+      suffix: cd
   interpreter_country_nm:
     x_petey_id: '10_16'
     type: string
@@ -8811,6 +9656,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_country
+      suffix: nm
   interpreter_province_txt:
     x_petey_id: '10_13'
     type: string
@@ -8829,6 +9677,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_province
+      suffix: txt
   interpreter_certification_language_txt:
     x_petey_id: '10_1'
     type: string
@@ -8872,6 +9723,9 @@ fields:
       why: 'Tooltip: Part 7 Interpreter''s Certification, ''I am fluent in English
         and (language)'' (widget Pt7_NameofLanguage); the ''_2'' hides that it is
         the interpreter''s certification, not Part 6 item 1.b.'
+    x_petey_identifiers:
+      subject: interpreter_certification_language
+      suffix: txt
   interpreter_signature_dt:
     x_petey_id: '10_6'
     type: date
@@ -8892,6 +9746,9 @@ fields:
       Interpreter's Signature. 7. B. Enter Date of Signature. Enter as 2 digit month,
       2 digit day and 4 digit year.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: interpreter_signature
+      suffix: dt
   interpreter_signature:
     x_petey_id: '10_5'
     type: string
@@ -8911,7 +9768,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  preparer_given_name:
+    x_petey_identifiers:
+      subject: interpreter
+      suffix: signature
+  preparer_given_nm:
     x_petey_id: '10_17'
     type: string
     semantic_type: business_name
@@ -8943,7 +9803,10 @@ fields:
         semantic_type: business_name
         pattern: null
       record: runs/hand_review/lib__i130.json
-  preparer_business_name:
+    x_petey_identifiers:
+      subject: preparer_given
+      suffix: nm
+  preparer_business_nm:
     x_petey_id: '10_18'
     type: string
     widget:
@@ -8974,6 +9837,9 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: preparer_business
+      suffix: nm
   preparer_family_nm:
     x_petey_id: '10_15'
     type: string
@@ -9006,6 +9872,9 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: preparer_family
+      suffix: nm
   interpreter_daytime_phone_txt:
     x_petey_id: '10_19'
     type: string
@@ -9027,6 +9896,9 @@ fields:
       Interpreter's Contact Information. 4. Enter Interpreter's Daytime Telephone
       Number.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: interpreter_daytime_phone
+      suffix: txt
   interpreter_email_address_txt:
     x_petey_id: '10_24'
     type: string
@@ -9047,6 +9919,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: interpreter_email_address
+      suffix: txt
   interpreter_mobile_phone_txt:
     x_petey_id: '10_21'
     type: string
@@ -9068,6 +9943,9 @@ fields:
       Interpreter's Contact Information. 5. Enter Interpreter's Mobile Telephone Number,
       if any.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: interpreter_mobile_phone
+      suffix: txt
   preparer_city_nm:
     x_petey_id: '10_25'
     type: string
@@ -9099,6 +9977,9 @@ fields:
         semantic_type: null
         pattern: null
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: preparer_city
+      suffix: nm
   preparer_street_address:
     x_petey_id: '10_20'
     type: string
@@ -9131,6 +10012,8 @@ fields:
         semantic_type: street_address
         pattern: null
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: preparer_street_address
   preparer_unit_txt:
     x_petey_id: '10_22'
     type: string
@@ -9150,6 +10033,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_unit
+      suffix: txt
   preparer_postal_cd:
     x_petey_id: '10_29'
     type: string
@@ -9185,6 +10071,9 @@ fields:
       kind: type
       why: Item 3.G Postal Code is the non-US code (3.E is the ZIP); US ZIP type/pattern
         would reject foreign codes.
+    x_petey_identifiers:
+      subject: preparer_postal
+      suffix: cd
   preparer_zip_cd_2:
     x_petey_id: '10_27'
     type: string
@@ -9205,6 +10094,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_zip_cd_2
   preparer_state_abbreviation_cd:
     x_petey_id: '10_26'
     type: category
@@ -9283,6 +10174,9 @@ fields:
     - WY
     x_petey_retype:
     - dropdown
+    x_petey_identifiers:
+      subject: preparer_state_abbreviation
+      suffix: cd
   preparer_country_nm:
     x_petey_id: '10_30'
     type: string
@@ -9302,6 +10196,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_country
+      suffix: nm
   preparer_province_txt:
     x_petey_id: '10_28'
     type: string
@@ -9321,7 +10218,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  preparer_mobile_telephone_number:
+    x_petey_identifiers:
+      subject: preparer_province
+      suffix: txt
+  preparer_mobile_telephone_nbr:
     x_petey_id: '11_2'
     type: string
     semantic_type: phone
@@ -9342,7 +10242,10 @@ fields:
       Preparing this Petition, if Other Than the Petitioner. Preparer's Contact Information.
       5. Enter Preparer's Mobile Telephone Number, if any.
     x_petey_description_source: tooltip
-  preparer_daytime_telephone_number:
+    x_petey_identifiers:
+      subject: preparer_mobile_telephone
+      suffix: nbr
+  preparer_daytime_telephone_nbr:
     x_petey_id: '11_1'
     type: string
     semantic_type: phone
@@ -9363,6 +10266,9 @@ fields:
       Preparing this Petition, if Other Than the Petitioner. Preparer's Contact Information.
       4. Enter Preparer's Daytime Telephone Number.
     x_petey_description_source: tooltip
+    x_petey_identifiers:
+      subject: preparer_daytime_telephone
+      suffix: nbr
   preparer_email_address:
     x_petey_id: '11_3'
     type: string
@@ -9383,6 +10289,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_email_address
   preparer_not_attorney_or_accredited_representative_ind:
     x_petey_id: '11_4'
     type: boolean
@@ -9403,6 +10311,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_not_attorney_or_accredited_representative
+      suffix: ind
   preparer_is_attorney_or_accredited_representative_ind:
     x_petey_id: '11_5'
     type: boolean
@@ -9424,6 +10335,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer_is_attorney_or_accredited_representative
+      suffix: ind
   representation_extends_beyond_preparation_ind:
     x_petey_id: '11_6'
     type: boolean
@@ -9448,6 +10362,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: representation_extends_beyond_preparation
+      suffix: ind
   representation_does_not_extend_beyond_preparation_ind:
     x_petey_id: '11_7'
     type: boolean
@@ -9469,6 +10386,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: representation_does_not_extend_beyond_preparation
+      suffix: ind
   preparer_signature:
     x_petey_id: '11_8'
     type: string
@@ -9489,6 +10409,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: preparer
+      suffix: signature
   preparer_signature_dt:
     x_petey_id: '11_9'
     type: date
@@ -9510,7 +10433,10 @@ fields:
       8. B. Enter Date of Signature. Enter as 2 digit month, 2 digit day and 4 digit
       year.
     x_petey_description_source: tooltip
-  part9_petitioner_a_number:
+    x_petey_identifiers:
+      subject: preparer_signature
+      suffix: dt
+  part9_petitioner_a_nbr:
     x_petey_id: '12_8'
     type: string
     widget:
@@ -9545,7 +10471,10 @@ fields:
       kind: clarity
       why: 'Tooltip: Part 9 Additional Information item 2 A-Number, read-only, pre-populated
         from the petitioner''s Part 2 entry; a bare ''a_number'' does not say whose.'
-  item_3a_page_number:
+    x_petey_identifiers:
+      subject: part9_petitioner_a
+      suffix: nbr
+  item_3a_page_nbr:
     x_petey_id: '12_9'
     type: string
     widget:
@@ -9561,7 +10490,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_3b_part_number:
+    x_petey_identifiers:
+      subject: item_3a_page
+      suffix: nbr
+  item_3b_part_nbr:
     x_petey_id: '12_10'
     type: string
     widget:
@@ -9577,7 +10509,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_3c_item_number:
+    x_petey_identifiers:
+      subject: item_3b_part
+      suffix: nbr
+  item_3c_item_nbr:
     x_petey_id: '12_11'
     type: string
     widget:
@@ -9593,6 +10528,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: item_3c_item
+      suffix: nbr
   item_3d_additional_info_txt:
     x_petey_id: '12_15'
     type: string
@@ -9610,7 +10548,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_4a_page_number:
+    x_petey_identifiers:
+      subject: item_3d_additional_info
+      suffix: txt
+  item_4a_page_nbr:
     x_petey_id: '12_17'
     type: string
     widget:
@@ -9626,7 +10567,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_4b_part_number:
+    x_petey_identifiers:
+      subject: item_4a_page
+      suffix: nbr
+  item_4b_part_nbr:
     x_petey_id: '12_18'
     type: string
     widget:
@@ -9642,7 +10586,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_4c_item_number:
+    x_petey_identifiers:
+      subject: item_4b_part
+      suffix: nbr
+  item_4c_item_nbr:
     x_petey_id: '12_19'
     type: string
     widget:
@@ -9658,6 +10605,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: item_4c_item
+      suffix: nbr
   item_4d_additional_info_txt:
     x_petey_id: '12_23'
     type: string
@@ -9675,7 +10625,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_5a_page_number:
+    x_petey_identifiers:
+      subject: item_4d_additional_info
+      suffix: txt
+  item_5a_page_nbr:
     x_petey_id: '12_1'
     type: string
     widget:
@@ -9691,7 +10644,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_5b_part_number:
+    x_petey_identifiers:
+      subject: item_5a_page
+      suffix: nbr
+  item_5b_part_nbr:
     x_petey_id: '12_2'
     type: string
     widget:
@@ -9707,7 +10663,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_5c_item_number:
+    x_petey_identifiers:
+      subject: item_5b_part
+      suffix: nbr
+  item_5c_item_nbr:
     x_petey_id: '12_3'
     type: string
     widget:
@@ -9723,7 +10682,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_6a_page_number:
+    x_petey_identifiers:
+      subject: item_5c_item
+      suffix: nbr
+  item_6a_page_nbr:
     x_petey_id: '12_12'
     type: string
     widget:
@@ -9739,7 +10701,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_6b_part_number:
+    x_petey_identifiers:
+      subject: item_6a_page
+      suffix: nbr
+  item_6b_part_nbr:
     x_petey_id: '12_13'
     type: string
     widget:
@@ -9755,7 +10720,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_6c_item_number:
+    x_petey_identifiers:
+      subject: item_6b_part
+      suffix: nbr
+  item_6c_item_nbr:
     x_petey_id: '12_14'
     type: string
     widget:
@@ -9771,6 +10739,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: item_6c_item
+      suffix: nbr
   part9_petitioner_family_nm:
     x_petey_id: '12_5'
     type: string
@@ -9812,6 +10783,9 @@ fields:
       why: 'Tooltip: Part 9 Additional Information item 1.A Family Name, read-only,
         pre-populated from the petitioner''s Part 2 entry; a bare ''family_nm'' does
         not say whose.'
+    x_petey_identifiers:
+      subject: part9_petitioner_family
+      suffix: nm
   part9_petitioner_given_nm:
     x_petey_id: '12_6'
     type: string
@@ -9847,6 +10821,9 @@ fields:
       why: 'Tooltip: Part 9 Additional Information item 1.B Given Name, read-only,
         pre-populated from the petitioner''s Part 2 entry; a bare ''given_nm'' does
         not say whose.'
+    x_petey_identifiers:
+      subject: part9_petitioner_given
+      suffix: nm
   part9_petitioner_middle_nm:
     x_petey_id: '12_7'
     type: string
@@ -9882,6 +10859,9 @@ fields:
       why: 'Tooltip: Part 9 Additional Information item 1.C Middle Name, read-only,
         pre-populated from the petitioner''s Part 2 entry; a bare ''middle_nm'' does
         not say whose.'
+    x_petey_identifiers:
+      subject: part9_petitioner_middle
+      suffix: nm
   item_6d_additional_info_txt:
     x_petey_id: '12_16'
     type: string
@@ -9899,6 +10879,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: item_6d_additional_info
+      suffix: txt
   item_5d_additional_info_txt:
     x_petey_id: '12_4'
     type: string
@@ -9916,7 +10899,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_7a_page_number:
+    x_petey_identifiers:
+      subject: item_5d_additional_info
+      suffix: txt
+  item_7a_page_nbr:
     x_petey_id: '12_20'
     type: string
     widget:
@@ -9932,7 +10918,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_7b_part_number:
+    x_petey_identifiers:
+      subject: item_7a_page
+      suffix: nbr
+  item_7b_part_nbr:
     x_petey_id: '12_21'
     type: string
     widget:
@@ -9948,7 +10937,10 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  item_7c_item_number:
+    x_petey_identifiers:
+      subject: item_7b_part
+      suffix: nbr
+  item_7c_item_nbr:
     x_petey_id: '12_22'
     type: string
     widget:
@@ -9964,6 +10956,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: item_7c_item
+      suffix: nbr
   item_7d_additional_info_txt:
     x_petey_id: '12_24'
     type: string
@@ -9981,6 +10976,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: item_7d_additional_info
+      suffix: txt
   relationship_type:
     x_petey_id: '1_6'
     type: category
@@ -10069,6 +11067,8 @@ fields:
       kind: caption
       why: Captions are the export value 'Y'; Part 1 item 1 boxes are printed Spouse,
         Parent, Brother/Sister, Child (tooltips 'Select Spouse' etc.).
+    x_petey_identifiers:
+      subject: relationship_type
   sex:
     x_petey_id: '2_17'
     type: category
@@ -10125,6 +11125,8 @@ fields:
       kind: caption
       why: Captions are the export value 'Y'; Part 2 item 9 boxes are printed Male
         and Female.
+    x_petey_identifiers:
+      subject: sex
   mailing_same_as_physical:
     x_petey_id: '2_39'
     type: category
@@ -10180,6 +11182,8 @@ fields:
       by: claude
       kind: caption
       why: Captions are export values Y/N; item 11 boxes are printed Yes and No.
+    x_petey_identifiers:
+      subject: mailing_same_as_physical
   mailing_unit_type:
     x_petey_id: '2_25'
     type: category
@@ -10252,6 +11256,8 @@ fields:
       kind: caption
       why: Captions are export values (APT/STE/FLR with stray spaces); item 10.C boxes
         are printed Apt., Ste., Flr.
+    x_petey_identifiers:
+      subject: mailing_unit_type
   physical_address_2_unit_type:
     x_petey_id: '2_21'
     type: category
@@ -10327,6 +11333,8 @@ fields:
         dates are already physical_address_2_date_from_dt / _to_dt). Captions are
         export values (APT/STE/FLR with stray spaces); item 14.B boxes are printed
         Apt., Ste., Flr.
+    x_petey_identifiers:
+      subject: physical_address_2_unit_type
   physical_address_1_12b_unit_type:
     x_petey_id: '2_5'
     type: category
@@ -10399,6 +11407,8 @@ fields:
       kind: caption
       why: Captions are export values (APT/STE/FLR with stray spaces); item 12.B boxes
         are printed Apt., Ste., Flr.
+    x_petey_identifiers:
+      subject: physical_address_1_12b_unit_type
   marital_status:
     x_petey_id: '2_41'
     type: category
@@ -10515,6 +11525,8 @@ fields:
           divorced_ind:
             caption: Divorced
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: marital_status
   petitioner_status:
     x_petey_id: '3_22'
     type: category
@@ -10567,6 +11579,8 @@ fields:
           lawful_permanent_resident_ind:
             caption: Lawful Permanent Resident
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: petitioner_status
   citizenship_acquired:
     x_petey_id: '3_26'
     type: category
@@ -10639,6 +11653,8 @@ fields:
       kind: caption
       why: Captions are the export value 'Y'; item 37 boxes are printed Birth in the
         United States, Naturalization, Parents.
+    x_petey_identifiers:
+      subject: citizenship_acquired
   parent_1_sex:
     x_petey_id: '3_35'
     type: category
@@ -10694,6 +11710,8 @@ fields:
       by: claude
       kind: caption
       why: Captions are the export value 'Y'; item 26 boxes are printed Male and Female.
+    x_petey_identifiers:
+      subject: parent_1_sex
   parent_2_sex:
     x_petey_id: '3_13'
     type: category
@@ -10749,6 +11767,8 @@ fields:
       by: claude
       kind: caption
       why: Captions are the export value 'Y'; item 32 boxes are printed Male and Female.
+    x_petey_identifiers:
+      subject: parent_2_sex
   gained_lpr_through_marriage:
     x_petey_id: '4_17'
     type: category
@@ -10804,6 +11824,8 @@ fields:
       by: claude
       kind: caption
       why: Captions are export values Y/N; item 41 boxes are printed Yes and No.
+    x_petey_identifiers:
+      subject: gained_lpr_through_marriage
   ethnicity:
     x_petey_id: '4_24'
     type: category
@@ -10856,6 +11878,8 @@ fields:
           hispanic_or_latino_ind:
             caption: Hispanic Or Latino
       record: runs/hand_review/lib__i130.json
+    x_petey_identifiers:
+      subject: ethnicity
   race:
     x_petey_id: '4_31'
     type: category
@@ -10959,6 +11983,8 @@ fields:
       by: claude
       kind: caption
       why: captions were export codes (BLK, AA); now as printed at each box
+    x_petey_identifiers:
+      subject: race
   eye_color:
     x_petey_id: '4_41'
     type: category
@@ -11136,6 +12162,8 @@ fields:
       by: claude
       kind: caption
       why: captions were export codes (BLK, AA); now as printed at each box
+    x_petey_identifiers:
+      subject: eye_color
   beneficiary_us_address_unit_type:
     x_petey_id: '5_19'
     type: category
@@ -11210,6 +12238,8 @@ fields:
         where the beneficiary intends to live'' (Other Address and Contact Information);
         it is not the beneficiary''s physical address (item 11). Captions are export
         values with stray spaces; item 12.B boxes are printed Apt., Ste., Flr.'
+    x_petey_identifiers:
+      subject: beneficiary_us_address_unit_type
   foreign_address_unit_type:
     x_petey_id: '5_28'
     type: category
@@ -11288,6 +12318,8 @@ fields:
       by: claude
       kind: caption
       why: captions were export codes; now as printed at each box
+    x_petey_identifiers:
+      subject: foreign_address_unit_type
   beneficiary_native_address_unit_type:
     x_petey_id: '8_38'
     type: category
@@ -11366,6 +12398,8 @@ fields:
       by: claude
       kind: caption
       why: captions were export codes; now as printed at each box
+    x_petey_identifiers:
+      subject: beneficiary_native_address_unit_type
   beneficiary_physical_address_unit_type:
     x_petey_id: '5_4'
     type: category
@@ -11438,6 +12472,8 @@ fields:
       kind: caption
       why: Captions are export values; Part 4 item 11.B boxes are printed Apt., Ste.,
         Flr.
+    x_petey_identifiers:
+      subject: beneficiary_physical_address_unit_type
   beneficiary_sex:
     x_petey_id: '5_35'
     type: category
@@ -11494,6 +12530,8 @@ fields:
       kind: caption
       why: Captions are the export value 'Y'; Part 4 item 9 boxes are printed Male
         and Female.
+    x_petey_identifiers:
+      subject: beneficiary_sex
   hair_color:
     x_petey_id: '5_1'
     type: category
@@ -11662,6 +12700,8 @@ fields:
       kind: caption
       why: Captions are export codes (BLD, BLK, BND...); Part 3 item 6 boxes are printed
         Bald (No hair), Black, Blond, Brown, Gray, Red, Sandy, White, Unknown/Other.
+    x_petey_identifiers:
+      subject: hair_color
   prior_petition_filed:
     x_petey_id: '5_37'
     type: category
@@ -11734,6 +12774,8 @@ fields:
       kind: caption
       why: Captions are export values Y/N/U; Part 4 item 10 boxes are printed Yes,
         No, Unknown.
+    x_petey_identifiers:
+      subject: prior_petition_filed
   last_lived_together_unit_type:
     x_petey_id: '8_20'
     type: category
@@ -11806,6 +12848,8 @@ fields:
       kind: caption
       why: Captions are export values with stray spaces; item 59.B boxes are printed
         Apt., Ste., Flr.
+    x_petey_identifiers:
+      subject: last_lived_together_unit_type
   previously_filed_petition_ind:
     x_petey_id: '8_12'
     type: category
@@ -11862,6 +12906,8 @@ fields:
       kind: caption
       why: Captions are export values Y/N; Part 5 item 1 boxes are printed Yes and
         No.
+    x_petey_identifiers:
+      subject: previously_filed_petition_ind
   interpreter_unit_type:
     x_petey_id: '10_9'
     type: category
@@ -11934,6 +12980,8 @@ fields:
       kind: caption
       why: Captions are export values; Part 7 item 3.B boxes are printed Apt., Ste.,
         Flr.
+    x_petey_identifiers:
+      subject: interpreter_unit_type
   preparer_unit_type:
     x_petey_id: '10_23'
     type: category
@@ -12006,6 +13054,8 @@ fields:
       kind: caption
       why: Captions are export values; Part 8 item 3.B boxes are printed Apt., Ste.,
         Flr.
+    x_petey_identifiers:
+      subject: preparer_unit_type
 x_petey_dedup_log:
   duplicate_labels_reassigned: 13
   collisions:

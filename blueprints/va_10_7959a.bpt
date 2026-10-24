@@ -51,6 +51,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: patient_last
+      suffix: nm
   patient_first_nm:
     x_petey_id: '1_2'
     type: string
@@ -88,6 +91,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: patient_first
+      suffix: nm
   patient_middle_initial:
     x_petey_id: '1_3'
     type: string
@@ -103,6 +109,9 @@ fields:
     description: Middle Initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: patient_middle
+      suffix: initial
   champva_member_nbr:
     x_petey_id: '1_4'
     type: string
@@ -146,6 +155,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: champva_member
+      suffix: nbr
   new_address_ind:
     x_petey_id: '1_5'
     type: boolean
@@ -162,6 +174,9 @@ fields:
     description: Check if new address.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: new_address
+      suffix: ind
   patient_address_line_1_txt:
     x_petey_id: '1_6'
     type: string
@@ -178,6 +193,9 @@ fields:
     description: Street Address.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: patient_address_line_1
+      suffix: txt
   patient_city_nm:
     x_petey_id: '1_7'
     type: string
@@ -192,6 +210,9 @@ fields:
       widget_type: text
       path: form1[0].#subform[0].City-ptnt[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: patient_city
+      suffix: nm
   patient_state_cd:
     x_petey_id: '1_8'
     type: string
@@ -207,6 +228,9 @@ fields:
       widget_type: text
       path: form1[0].#subform[0].State-ptnt[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: patient_state
+      suffix: cd
   patient_zip_cd:
     x_petey_id: '1_9'
     type: string
@@ -251,6 +275,9 @@ fields:
         description: Zip Code. Enter 5 digit zip code, with optional hyphen and last
           4 digits.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: patient_zip
+      suffix: cd
   patient_birth_dt:
     x_petey_id: '1_10'
     type: date
@@ -280,6 +307,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: patient_birth
+      suffix: dt
   patient_phone_nbr:
     x_petey_id: '1_11'
     type: string
@@ -326,6 +356,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: patient_phone
+      suffix: nbr
   patient_email_address_txt:
     x_petey_id: '1_12'
     type: string
@@ -359,6 +392,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: patient_email_address
+      suffix: txt
   is_covered_by_ohi_ind:
     x_petey_id: '1_13'
     type: category
@@ -396,6 +432,8 @@ fields:
       choices:
         '0': Yes (check type and provide coverage information below)
         '1': No (proceed to Section III)
+    x_petey_identifiers:
+      subject: is_covered_by_ohi_ind
   ohi_coverage_type:
     x_petey_id: '1_14'
     type: category
@@ -459,6 +497,8 @@ fields:
         '1': Private (non group)
         '2': Medicare (Part A or B)
         '3': 'Other (Specify):'
+    x_petey_identifiers:
+      subject: ohi_coverage_type
   ohi_coverage_type_other_specify_txt:
     x_petey_id: '1_15'
     type: string
@@ -490,6 +530,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: ohi_coverage_type_other_specify
+      suffix: txt
   ohi_1_insurance_nm:
     x_petey_id: '1_16'
     type: string
@@ -533,6 +576,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: insurance
+      suffix: nm
   ohi_1_policy_nbr:
     x_petey_id: '1_18'
     type: string
@@ -564,6 +612,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: policy
+      suffix: nbr
   ohi_1_effective_dt:
     x_petey_id: '1_20'
     type: date
@@ -610,6 +663,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: effective
+      suffix: dt
   ohi_1_termination_dt:
     x_petey_id: '1_21'
     type: date
@@ -656,6 +714,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: termination
+      suffix: dt
   ohi_1_phone_nbr:
     x_petey_id: '1_24'
     type: string
@@ -702,6 +765,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '1'
+      subject: phone
+      suffix: nbr
   ohi_2_insurance_nm:
     x_petey_id: '1_17'
     type: string
@@ -745,6 +813,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; name -> nm'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: insurance
+      suffix: nm
   ohi_2_policy_nbr:
     x_petey_id: '1_19'
     type: string
@@ -776,6 +849,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: policy
+      suffix: nbr
   ohi_2_effective_dt:
     x_petey_id: '1_22'
     type: date
@@ -822,6 +900,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: effective
+      suffix: dt
   ohi_2_termination_dt:
     x_petey_id: '1_23'
     type: date
@@ -868,6 +951,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: termination
+      suffix: dt
   ohi_2_phone_nbr:
     x_petey_id: '1_25'
     type: string
@@ -914,6 +1002,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number split off; num -> nbr'
+    x_petey_identifiers:
+      block_prefix: ohi
+      block_iteration: '2'
+      subject: phone
+      suffix: nbr
   is_treatment_work_related_ind:
     x_petey_id: '1_26'
     type: category
@@ -950,6 +1043,8 @@ fields:
       choices:
         '0': 'Yes'
         '1': 'No'
+    x_petey_identifiers:
+      subject: is_treatment_work_related_ind
   is_treatment_outside_work_injury_ind:
     x_petey_id: '1_27'
     type: category
@@ -986,6 +1081,8 @@ fields:
       choices:
         '0': 'Yes'
         '1': 'No'
+    x_petey_identifiers:
+      subject: is_treatment_outside_work_injury_ind
   sponsor_last_nm:
     x_petey_id: '1_28'
     type: string
@@ -1018,6 +1115,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: sponsor_last
+      suffix: nm
   sponsor_first_nm:
     x_petey_id: '1_29'
     type: string
@@ -1048,6 +1148,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: sponsor_first
+      suffix: nm
   sponsor_middle_initial:
     x_petey_id: '1_30'
     type: string
@@ -1063,6 +1166,9 @@ fields:
     description: Middle Initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sponsor_middle
+      suffix: initial
   claimant_signature:
     x_petey_id: '1_31'
     type: string
@@ -1080,6 +1186,9 @@ fields:
       Signature. This is a digital signature field.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: claimant
+      suffix: signature
   signature_dt:
     x_petey_id: '1_32'
     type: date
@@ -1112,6 +1221,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
   signer_last_nm:
     x_petey_id: '1_33'
     type: string
@@ -1142,6 +1254,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: signer_last
+      suffix: nm
   signer_first_nm:
     x_petey_id: '1_34'
     type: string
@@ -1172,6 +1287,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: signer_first
+      suffix: nm
   signer_middle_initial:
     x_petey_id: '1_35'
     type: string
@@ -1187,6 +1305,9 @@ fields:
     description: Middle Initial.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: signer_middle
+      suffix: initial
   signer_relationship_to_patient_txt:
     x_petey_id: '1_36'
     type: string
@@ -1218,6 +1339,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: signer_relationship_to_patient
+      suffix: txt
   signer_address_line_1_txt:
     x_petey_id: '1_37'
     type: string
@@ -1234,6 +1358,9 @@ fields:
     description: Street Address.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: signer_address_line_1
+      suffix: txt
   signer_city_nm:
     x_petey_id: '1_38'
     type: string
@@ -1248,6 +1375,9 @@ fields:
       widget_type: text
       path: form1[0].#subform[0].SignatureCity[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: signer_city
+      suffix: nm
   signer_state_cd:
     x_petey_id: '1_39'
     type: string
@@ -1263,6 +1393,9 @@ fields:
       widget_type: text
       path: form1[0].#subform[0].SignatureState[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: signer_state
+      suffix: cd
   signer_zip_cd:
     x_petey_id: '1_40'
     type: string
@@ -1307,6 +1440,9 @@ fields:
         description: Zip Code. Enter 5 digit zip code, with optional hyphen and last
           4 digits.
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: signer_zip
+      suffix: cd
   signer_phone_nbr:
     x_petey_id: '1_41'
     type: string
@@ -1353,6 +1489,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: signer_phone
+      suffix: nbr
   signer_email_address_txt:
     x_petey_id: '1_42'
     type: string
@@ -1386,6 +1525,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: signer_email_address
+      suffix: txt
 x_petey_xfa_log:
   joined: 42
   required: 4

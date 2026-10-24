@@ -14,7 +14,7 @@ authoring:
   labels: llm
   when: '2026-10-14 19:12:42'
 fields:
-  submission_identification_number:
+  submission_identification_nbr:
     x_petey_id: '1_1'
     type: string
     widget:
@@ -27,7 +27,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_01[0]
     label_source: llm
-  taxpayer_name:
+    x_petey_identifiers:
+      subject: submission_identification
+      suffix: nbr
+  taxpayer_nm:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -40,6 +43,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_02[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: nm
   taxpayer_ssn:
     x_petey_id: '1_3'
     type: string
@@ -55,7 +61,10 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_03[0]
     label_source: llm
-  spouse_name:
+    x_petey_identifiers:
+      subject: taxpayer
+      suffix: ssn
+  spouse_nm:
     x_petey_id: '1_4'
     type: string
     widget:
@@ -68,6 +77,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_04[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse
+      suffix: nm
   spouse_ssn:
     x_petey_id: '1_5'
     type: string
@@ -83,6 +95,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].f1_05[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse
+      suffix: ssn
   tax_yr:
     x_petey_id: '1_6'
     type: string
@@ -98,6 +113,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].PARTI[0].f1_06[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: tax
+      suffix: yr
   adjusted_gross_income_amt:
     x_petey_id: '1_7'
     type: number
@@ -114,6 +132,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - whole_dollar
+    x_petey_identifiers:
+      subject: adjusted_gross_income
+      suffix: amt
   total_tax_amt:
     x_petey_id: '1_8'
     type: number
@@ -130,6 +151,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - whole_dollar
+    x_petey_identifiers:
+      subject: total_tax
+      suffix: amt
   federal_income_tax_withheld_amt:
     x_petey_id: '1_9'
     type: number
@@ -146,6 +170,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - whole_dollar
+    x_petey_identifiers:
+      subject: federal_income_tax_withheld
+      suffix: amt
   refund_amt:
     x_petey_id: '1_10'
     type: number
@@ -162,6 +189,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - whole_dollar
+    x_petey_identifiers:
+      subject: refund
+      suffix: amt
   amount_you_owe_amt:
     x_petey_id: '1_11'
     type: number
@@ -178,7 +208,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - whole_dollar
-  taxpayer_ero_firm_name:
+    x_petey_identifiers:
+      subject: amount_you_owe
+      suffix: amt
+  taxpayer_ero_firm_nm:
     x_petey_id: '1_14'
     type: string
     widget:
@@ -191,6 +224,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].TaxpayersPIN_ReadOrder[0].f1_12[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: taxpayer_ero_firm
+      suffix: nm
   taxpayer_pin:
     x_petey_id: '1_12'
     type: string
@@ -204,7 +240,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].Pin[0].f1_13[0]
     label_source: llm
-  spouse_ero_firm_name:
+    x_petey_identifiers:
+      subject: taxpayer_pin
+  spouse_ero_firm_nm:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -217,6 +255,9 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].SpousesPIN_ReadOrder[0].f1_14[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_ero_firm
+      suffix: nm
   spouse_pin:
     x_petey_id: '1_15'
     type: string
@@ -230,6 +271,8 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].PIN[0].f1_15[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: spouse_pin
   ero_efin_pin:
     x_petey_id: '1_18'
     type: string
@@ -243,6 +286,8 @@ fields:
       widget_type: text
       path: topmostSubform[0].Page1[0].EROPin[0].f1_16[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: ero_efin_pin
   taxpayer_pin_type:
     x_petey_id: '1_13'
     type: category
@@ -270,6 +315,8 @@ fields:
         widget_type: checkbox
         path: topmostSubform[0].Page1[0].c1_1[0]
         on_state: '2'
+    x_petey_identifiers:
+      subject: taxpayer_pin_type
   spouse_pin_type:
     x_petey_id: '1_16'
     type: category
@@ -297,6 +344,8 @@ fields:
         widget_type: checkbox
         path: topmostSubform[0].Page1[0].c1_2[0]
         on_state: '2'
+    x_petey_identifiers:
+      subject: spouse_pin_type
 x_petey_emit_fixes:
   whole_dollar: 5
 x_petey_page_check:

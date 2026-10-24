@@ -29,6 +29,9 @@ fields:
       widget_type: text
       path: Form1099-LTC[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: calendar
+      suffix: yr
   void:
     x_petey_id: '1_21'
     type: category
@@ -66,6 +69,8 @@ fields:
       from:
       - void_ind
       - corrected_ind
+    x_petey_identifiers:
+      subject: void
   payer_name_address_phone_txt:
     x_petey_id: '1_3'
     type: string
@@ -95,6 +100,9 @@ fields:
         semantic_type: phone
         pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: payer_name_address_phone
+      suffix: txt
   payer_tin:
     x_petey_id: '1_7'
     type: string
@@ -110,6 +118,9 @@ fields:
       widget_type: text
       path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_3[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: payer
+      suffix: tin
   policyholder_tin:
     x_petey_id: '1_8'
     type: string
@@ -125,6 +136,9 @@ fields:
       widget_type: text
       path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_4[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: policyholder
+      suffix: tin
   policyholder_nm:
     x_petey_id: '1_11'
     type: string
@@ -154,6 +168,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: policyholder
+      suffix: nm
   policyholder_street_address_txt:
     x_petey_id: '1_13'
     type: string
@@ -168,6 +185,9 @@ fields:
       widget_type: text
       path: Form1099-LTC[0].CopyA[0].LeftCol[0].f1_6[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: policyholder_street_address
+      suffix: txt
   policyholder_city_state_zip_cd:
     x_petey_id: '1_15'
     type: string
@@ -199,6 +219,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: zip_txt -> zip_cd'
+    x_petey_identifiers:
+      subject: policyholder_city_state_zip
+      suffix: cd
   account_nbr:
     x_petey_id: '1_18'
     type: string
@@ -230,6 +253,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number_txt -> nbr'
+    x_petey_identifiers:
+      subject: account
+      suffix: nbr
   gross_long_term_care_benefits_paid_amt:
     x_petey_id: '1_4'
     type: number
@@ -246,6 +272,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: gross_long_term_care_benefits_paid
+      suffix: amt
   accelerated_death_benefits_paid_amt:
     x_petey_id: '1_6'
     type: number
@@ -262,6 +291,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: accelerated_death_benefits_paid
+      suffix: amt
   insured_tin:
     x_petey_id: '1_9'
     type: string
@@ -277,6 +309,9 @@ fields:
       widget_type: text
       path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_11[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: insured
+      suffix: tin
   insured_nm:
     x_petey_id: '1_12'
     type: string
@@ -306,6 +341,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: insured
+      suffix: nm
   insured_street_address_txt:
     x_petey_id: '1_14'
     type: string
@@ -320,6 +358,9 @@ fields:
       widget_type: text
       path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_13[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: insured_street_address
+      suffix: txt
   insured_city_state_zip_cd:
     x_petey_id: '1_16'
     type: string
@@ -351,6 +392,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: zip_txt -> zip_cd'
+    x_petey_identifiers:
+      subject: insured_city_state_zip
+      suffix: cd
   qualified_contract_ind:
     x_petey_id: '1_19'
     type: boolean
@@ -365,6 +409,9 @@ fields:
       widget_type: checkbox
       path: Form1099-LTC[0].CopyA[0].RightCol[0].c1_3[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: qualified_contract
+      suffix: ind
   date_certified_dt:
     x_petey_id: '1_20'
     type: date
@@ -379,6 +426,9 @@ fields:
       widget_type: text
       path: Form1099-LTC[0].CopyA[0].RightCol[0].f1_15[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: date_certified
+      suffix: dt
   payment_type:
     x_petey_id: '1_10'
     type: category
@@ -416,6 +466,8 @@ fields:
       from:
       - payment_type::per_diem
       - payment_type::reimbursed_amount
+    x_petey_identifiers:
+      subject: payment_type
   insured_status:
     x_petey_id: '1_17'
     type: category
@@ -453,6 +505,8 @@ fields:
       from:
       - insured_status::chronically_ill
       - insured_status::terminally_ill
+    x_petey_identifiers:
+      subject: insured_status
 x_petey_copy_pages_log:
   threshold: 0.85
   canonical_pages:

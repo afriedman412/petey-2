@@ -23,7 +23,7 @@ authoring:
   labels: llm
   when: '2026-10-06 20:01:16'
 fields:
-  debtor_1_name:
+  debtor_1_nm:
     x_petey_id: '1_1'
     type: string
     widget:
@@ -52,7 +52,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  debtor_2_name:
+    x_petey_identifiers:
+      block_prefix: debtor
+      block_iteration: '1'
+      suffix: nm
+  debtor_2_nm:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -81,7 +85,11 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
-  court_district_name:
+    x_petey_identifiers:
+      block_prefix: debtor
+      block_iteration: '2'
+      suffix: nm
+  court_district_nm:
     x_petey_id: '1_3'
     type: string
     widget:
@@ -207,7 +215,10 @@ fields:
     - District of Wyoming
     x_petey_retype:
     - dropdown
-  case_number:
+    x_petey_identifiers:
+      subject: court_district
+      suffix: nm
+  case_nbr:
     x_petey_id: '1_4'
     type: string
     widget:
@@ -220,6 +231,9 @@ fields:
       widget_type: text
       path: Case number
     label_source: llm
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
   is_amended_filing_ind:
     x_petey_id: '1_5'
     type: boolean
@@ -236,6 +250,9 @@ fields:
     description: Check if this is an
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: is_amended_filing
+      suffix: ind
   owns_real_estate_ind:
     x_petey_id: '1_6'
     type: category
@@ -287,6 +304,8 @@ fields:
           'yes':
             key: 'Yes'
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: owns_real_estate_ind
   property_1_address_line_1_txt:
     x_petey_id: '1_8'
     type: string
@@ -333,6 +352,11 @@ fields:
       widget_type: text
       path: City
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: city
+      suffix: nm
   property_1_state_abbreviation_cd:
     x_petey_id: '1_13'
     type: string
@@ -348,6 +372,11 @@ fields:
       widget_type: text
       path: State
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: state_abbreviation
+      suffix: cd
   property_1_zip_cd:
     x_petey_id: '1_14'
     type: string
@@ -363,6 +392,11 @@ fields:
       widget_type: text
       path: ZIP Code
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: zip
+      suffix: cd
   property_1_county_nm:
     x_petey_id: '1_18'
     type: string
@@ -389,6 +423,11 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 2 -> 2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: county
+      suffix: nm
   property_1_type_other_txt:
     x_petey_id: '1_15'
     type: string
@@ -403,6 +442,11 @@ fields:
       widget_type: text
       path: undefined_4
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: type_other
+      suffix: txt
   property_1_entire_property_current_val_amt:
     x_petey_id: '1_10'
     type: number
@@ -419,6 +463,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: entire_property_current_val
+      suffix: amt
   property_1_portion_owned_current_val_amt:
     x_petey_id: '1_11'
     type: number
@@ -435,6 +484,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: portion_owned_current_val
+      suffix: amt
   property_1_ownership_interest_description:
     x_petey_id: '1_16'
     type: string
@@ -451,6 +505,10 @@ fields:
     description: the entireties, or a life estate), if known
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: ownership_interest_description
   property_1_interest_holder:
     x_petey_id: '1_17'
     type: category
@@ -508,6 +566,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: property_1_interest_holder
   property_1_community_property_ind:
     x_petey_id: '1_19'
     type: boolean
@@ -524,7 +584,12 @@ fields:
     description: Check if this is community property
     x_petey_description_source: tooltip
     label_source: llm
-  property_1_identification_number:
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: community_property
+      suffix: ind
+  property_1_identification_nbr:
     x_petey_id: '1_20'
     type: string
     widget:
@@ -539,6 +604,11 @@ fields:
     description: property identification number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '1'
+      subject: identification
+      suffix: nbr
   property_2_address_line_1_txt:
     x_petey_id: '1_22'
     type: string
@@ -583,6 +653,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: entire_property_current_val
+      suffix: amt
   property_2_portion_owned_current_val_amt:
     x_petey_id: '1_25'
     type: number
@@ -599,6 +674,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: portion_owned_current_val
+      suffix: amt
   property_2_city_nm:
     x_petey_id: '1_26'
     type: string
@@ -613,6 +693,11 @@ fields:
       widget_type: text
       path: City_2
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: city
+      suffix: nm
   property_2_state_abbreviation_cd:
     x_petey_id: '1_27'
     type: string
@@ -628,6 +713,11 @@ fields:
       widget_type: text
       path: State_2
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: state_abbreviation
+      suffix: cd
   property_2_zip_cd:
     x_petey_id: '1_28'
     type: string
@@ -643,6 +733,11 @@ fields:
       widget_type: text
       path: ZIP Code_2
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: zip
+      suffix: cd
   property_2_type_other_txt:
     x_petey_id: '1_29'
     type: string
@@ -657,6 +752,11 @@ fields:
       widget_type: text
       path: undefined_8
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: type_other
+      suffix: txt
   property_2_ownership_interest_description:
     x_petey_id: '1_30'
     type: string
@@ -686,6 +786,10 @@ fields:
         semantic_type: description
         description: Who has an interest in the property? Check one
       judged: 'kept: 3 -> 3'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: ownership_interest_description
   property_2_county_nm:
     x_petey_id: '1_31'
     type: string
@@ -711,6 +815,11 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 2 -> 2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: county
+      suffix: nm
   property_2_interest_holder:
     x_petey_id: '1_32'
     type: category
@@ -820,6 +929,8 @@ fields:
         Check one.' boxes (Debtor 1 only / Debtor 2 only / Debtor 1 and Debtor 2 only
         / At least one of the debtors and another); current ones include a typo ('Dentor
         2') or a glyph ('\uf071\uf020')
+    x_petey_identifiers:
+      subject: property_2_interest_holder
   property_2_community_property_ind:
     x_petey_id: '1_33'
     type: boolean
@@ -836,7 +947,12 @@ fields:
     description: Check if this is community property
     x_petey_description_source: tooltip
     label_source: llm
-  property_2_identification_number:
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: community_property
+      suffix: ind
+  property_2_identification_nbr:
     x_petey_id: '1_34'
     type: string
     widget:
@@ -851,6 +967,11 @@ fields:
     description: property identification number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '2'
+      subject: identification
+      suffix: nbr
   property_3_address_line_1_txt:
     x_petey_id: '2_1'
     type: string
@@ -949,6 +1070,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: entire_property_current_val
+      suffix: amt
   property_3_portion_owned_current_val_amt:
     x_petey_id: '2_5'
     type: number
@@ -983,6 +1109,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: portion_owned_current_val
+      suffix: amt
   property_3_city_nm:
     x_petey_id: '2_6'
     type: string
@@ -1015,6 +1146,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: city
+      suffix: nm
   property_3_state_abbreviation_cd:
     x_petey_id: '2_7'
     type: string
@@ -1048,6 +1184,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: state_abbreviation
+      suffix: cd
   property_3_zip_cd:
     x_petey_id: '2_8'
     type: string
@@ -1081,6 +1222,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: zip
+      suffix: cd
   property_3_type_other_txt:
     x_petey_id: '2_9'
     type: string
@@ -1113,6 +1259,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: type_other
+      suffix: txt
   property_1_3_ownership_interest_nature_txt:
     x_petey_id: '2_10'
     type: string
@@ -1142,6 +1293,9 @@ fields:
         semantic_type: text
         description: Who has an interest in the property? Check one
       judged: 'kept: 3 -> 3'
+    x_petey_identifiers:
+      subject: property_1_3_ownership_interest_nature
+      suffix: txt
   property_3_county_nm:
     x_petey_id: '2_11'
     type: string
@@ -1185,6 +1339,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: county
+      suffix: nm
   property_3_interest_holder:
     x_petey_id: '2_12'
     type: category
@@ -1294,6 +1453,8 @@ fields:
       why: 'Line 1.3 ''Who has an interest'' group: property_N_ pattern of lines 1.1/1.2,
         and captions as printed (current ones include ''Debtor1'' and a ''\uf071\uf020''
         glyph for ''At least one of the debtors and another'')'
+    x_petey_identifiers:
+      subject: property_3_interest_holder
   property_3_community_property_ind:
     x_petey_id: '2_13'
     type: boolean
@@ -1328,7 +1489,12 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
-  property_3_identification_number:
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: community_property
+      suffix: ind
+  property_3_identification_nbr:
     x_petey_id: '2_14'
     type: string
     widget:
@@ -1361,6 +1527,11 @@ fields:
       why: 'Line 1.3 (third property, page 2): ''property_1_3_'' reads as property
         1 next to property_1_ (line 1.1) and property_2_ (line 1.2); renamed to the
         property_N_ pattern of lines 1.1/1.2'
+    x_petey_identifiers:
+      block_prefix: property
+      block_iteration: '3'
+      subject: identification
+      suffix: nbr
   part_1_total_portion_value_amt:
     x_petey_id: '2_15'
     type: number
@@ -1408,6 +1579,9 @@ fields:
         semantic_type: money
         pattern: null
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: part_1_total_portion_value
+      suffix: amt
   has_cars_vans_trucks_ind:
     x_petey_id: '2_16'
     type: category
@@ -1437,6 +1611,8 @@ fields:
         path: Check 3
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_cars_vans_trucks_ind
   vehicle_3_1_make_txt:
     x_petey_id: '2_17'
     type: string
@@ -1451,6 +1627,11 @@ fields:
       widget_type: text
       path: 3 1
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '1'
+      subject: make
+      suffix: txt
   vehicle_3_1_model_txt:
     x_petey_id: '2_18'
     type: string
@@ -1465,6 +1646,11 @@ fields:
       widget_type: text
       path: 3 2
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '1'
+      subject: model
+      suffix: txt
   vehicle_3_1_interest_holder:
     x_petey_id: '2_19'
     type: category
@@ -1522,7 +1708,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  vehicle_3_1_yr:
+    x_petey_identifiers:
+      subject: vehicle_3_1_interest_holder
+  vehicle_3_yr_1:
     x_petey_id: '2_20'
     type: string
     semantic_type: year
@@ -1537,6 +1725,10 @@ fields:
       widget_type: text
       path: 3 3
     label_source: llm
+    x_petey_identifiers:
+      subject: vehicle_3
+      suffix: yr
+      iteration: '1'
   vehicle_3_1_mileage:
     x_petey_id: '2_21'
     type: integer
@@ -1569,6 +1761,10 @@ fields:
       kind: type
       why: '''Approximate mileage'' on a line 3 vehicle is a whole number, not free
         text'
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '1'
+      subject: mileage
   vehicle_3_1_other_info_txt:
     x_petey_id: '2_25'
     type: string
@@ -1585,6 +1781,11 @@ fields:
     description: Other information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '1'
+      subject: other_info
+      suffix: txt
   vehicle_3_1_community_property_ind:
     x_petey_id: '2_24'
     type: boolean
@@ -1601,6 +1802,11 @@ fields:
     description: Check if this is community property (see
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '1'
+      subject: community_property
+      suffix: ind
   vehicle_3_1_entire_value_amt:
     x_petey_id: '2_22'
     type: number
@@ -1617,6 +1823,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '1'
+      subject: entire_value
+      suffix: amt
   vehicle_3_1_portion_value_amt:
     x_petey_id: '2_23'
     type: number
@@ -1633,6 +1844,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '1'
+      subject: portion_value
+      suffix: amt
   vehicle_3_2_make_txt:
     x_petey_id: '2_26'
     type: string
@@ -1649,6 +1865,11 @@ fields:
     description: If you own or have more than one, describe here
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '2'
+      subject: make
+      suffix: txt
   vehicle_3_2_model_txt:
     x_petey_id: '2_27'
     type: string
@@ -1663,6 +1884,11 @@ fields:
       widget_type: text
       path: '1_2'
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '2'
+      subject: model
+      suffix: txt
   vehicle_3_2_interest_holder:
     x_petey_id: '2_28'
     type: category
@@ -1720,7 +1946,9 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-  vehicle_3_2_yr:
+    x_petey_identifiers:
+      subject: vehicle_3_2_interest_holder
+  vehicle_3_yr_2:
     x_petey_id: '2_29'
     type: string
     semantic_type: year
@@ -1735,6 +1963,10 @@ fields:
       widget_type: text
       path: '2_2'
     label_source: llm
+    x_petey_identifiers:
+      subject: vehicle_3
+      suffix: yr
+      iteration: '2'
   vehicle_3_2_mileage:
     x_petey_id: '2_30'
     type: integer
@@ -1767,6 +1999,10 @@ fields:
       kind: type
       why: '''Approximate mileage'' on a line 3 vehicle is a whole number, not free
         text'
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '2'
+      subject: mileage
   vehicle_3_2_other_info_txt:
     x_petey_id: '2_34'
     type: string
@@ -1783,6 +2019,11 @@ fields:
     description: Other information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '2'
+      subject: other_info
+      suffix: txt
   vehicle_3_2_community_property_ind:
     x_petey_id: '2_33'
     type: boolean
@@ -1799,6 +2040,11 @@ fields:
     description: Check if this is community property (see
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '2'
+      subject: community_property
+      suffix: ind
   vehicle_3_2_entire_value_amt:
     x_petey_id: '2_31'
     type: number
@@ -1815,6 +2061,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '2'
+      subject: entire_value
+      suffix: amt
   vehicle_3_2_portion_value_amt:
     x_petey_id: '2_32'
     type: number
@@ -1831,6 +2082,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: vehicle_3
+      block_iteration: '2'
+      subject: portion_value
+      suffix: amt
   line_3_3_make:
     x_petey_id: '3_1'
     type: string
@@ -1844,6 +2100,10 @@ fields:
       widget_type: text
       path: '1_3'
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: make
   line_3_3_model:
     x_petey_id: '3_2'
     type: string
@@ -1857,6 +2117,10 @@ fields:
       widget_type: text
       path: '2_3'
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: model
   line_3_3_property_interest:
     x_petey_id: '3_3'
     type: category
@@ -1966,6 +2230,8 @@ fields:
         Check one.' boxes (Debtor 1 only / Debtor 2 only / Debtor 1 and Debtor 2 only
         / At least one of the debtors and another); current ones include a typo ('Dentor
         2') or a glyph ('\uf071\uf020')
+    x_petey_identifiers:
+      subject: line_3_3_property_interest
   line_3_3_year:
     x_petey_id: '3_4'
     type: string
@@ -1981,6 +2247,10 @@ fields:
       widget_type: text
       path: '3_2'
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: year
   line_3_3_mileage:
     x_petey_id: '3_5'
     type: integer
@@ -2013,6 +2283,10 @@ fields:
       kind: type
       why: '''Approximate mileage'' on a line 3 vehicle is a whole number, not free
         text'
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: mileage
   line_3_3_other_info:
     x_petey_id: '3_8'
     type: string
@@ -2028,6 +2302,10 @@ fields:
     description: Other information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: other_info
   line_3_3_community_property_ind:
     x_petey_id: '3_9'
     type: boolean
@@ -2044,6 +2322,11 @@ fields:
     description: Check if this is community property (see
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: community_property
+      suffix: ind
   line_3_3_entire_property_amt:
     x_petey_id: '3_6'
     type: number
@@ -2060,6 +2343,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: entire_property
+      suffix: amt
   line_3_3_portion_owned_amt:
     x_petey_id: '3_7'
     type: number
@@ -2076,6 +2364,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '3'
+      subject: portion_owned
+      suffix: amt
   line_3_4_make:
     x_petey_id: '3_10'
     type: string
@@ -2089,6 +2382,10 @@ fields:
       widget_type: text
       path: '1_4'
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: make
   line_3_4_model:
     x_petey_id: '3_11'
     type: string
@@ -2102,6 +2399,10 @@ fields:
       widget_type: text
       path: '2_4'
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: model
   line_3_4_property_interest:
     x_petey_id: '3_12'
     type: category
@@ -2211,6 +2512,8 @@ fields:
         Check one.' boxes (Debtor 1 only / Debtor 2 only / Debtor 1 and Debtor 2 only
         / At least one of the debtors and another); current ones include a typo ('Dentor
         2') or a glyph ('\uf071\uf020')
+    x_petey_identifiers:
+      subject: line_3_4_property_interest
   line_3_4_year:
     x_petey_id: '3_13'
     type: string
@@ -2226,6 +2529,10 @@ fields:
       widget_type: text
       path: '3_3'
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: year
   line_3_4_mileage:
     x_petey_id: '3_14'
     type: integer
@@ -2258,6 +2565,10 @@ fields:
       kind: type
       why: '''Approximate mileage'' on a line 3 vehicle is a whole number, not free
         text'
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: mileage
   line_3_4_community_property_ind:
     x_petey_id: '3_18'
     type: boolean
@@ -2274,6 +2585,11 @@ fields:
     description: Check if this is community property (see
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: community_property
+      suffix: ind
   line_3_4_entire_property_amt:
     x_petey_id: '3_15'
     type: number
@@ -2290,6 +2606,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: entire_property
+      suffix: amt
   line_3_4_portion_owned_amt:
     x_petey_id: '3_16'
     type: number
@@ -2306,6 +2627,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: portion_owned
+      suffix: amt
   line_3_4_other_info:
     x_petey_id: '3_17'
     type: string
@@ -2321,6 +2647,10 @@ fields:
     description: Other information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_3
+      block_iteration: '4'
+      subject: other_info
   line_4_has_recreational_vehicles_ind:
     x_petey_id: '3_19'
     type: category
@@ -2384,6 +2714,8 @@ fields:
       kind: caption
       why: Line 4 boxes are printed 'No' and 'Yes'; captions are the PDF export names
         'No_2'/'Yes_2'
+    x_petey_identifiers:
+      subject: line_4_has_recreational_vehicles_ind
   line_4_1_make:
     x_petey_id: '3_20'
     type: string
@@ -2397,6 +2729,10 @@ fields:
       widget_type: text
       path: Make
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '1'
+      subject: make
   line_4_1_model:
     x_petey_id: '3_21'
     type: string
@@ -2410,6 +2746,10 @@ fields:
       widget_type: text
       path: Model
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '1'
+      subject: model
   line_4_1_property_interest:
     x_petey_id: '3_22'
     type: category
@@ -2503,6 +2843,8 @@ fields:
       why: Captions as printed beside the line 4.1 'Who has an interest' boxes (Debtor
         1 only / Debtor 2 only / Debtor 1 and Debtor 2 only / At least one of the
         debtors and another)
+    x_petey_identifiers:
+      subject: line_4_1_property_interest
   line_4_1_year:
     x_petey_id: '3_23'
     type: string
@@ -2518,6 +2860,10 @@ fields:
       widget_type: text
       path: Year
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '1'
+      subject: year
   line_4_1_other_info:
     x_petey_id: '3_24'
     type: string
@@ -2533,6 +2879,10 @@ fields:
     description: Other information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '1'
+      subject: other_info
   line_4_1_community_property_ind:
     x_petey_id: '3_27'
     type: boolean
@@ -2549,6 +2899,11 @@ fields:
     description: Check if this is community property (see
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '1'
+      subject: community_property
+      suffix: ind
   line_4_1_entire_property_amt:
     x_petey_id: '3_25'
     type: number
@@ -2565,6 +2920,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '1'
+      subject: entire_property
+      suffix: amt
   line_4_1_portion_owned_amt:
     x_petey_id: '3_26'
     type: number
@@ -2581,6 +2941,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '1'
+      subject: portion_owned
+      suffix: amt
   line_4_2_make:
     x_petey_id: '3_28'
     type: string
@@ -2594,6 +2959,10 @@ fields:
       widget_type: text
       path: Make_2
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '2'
+      subject: make
   line_4_2_model:
     x_petey_id: '3_29'
     type: string
@@ -2607,6 +2976,10 @@ fields:
       widget_type: text
       path: Model_2
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '2'
+      subject: model
   line_4_2_property_interest:
     x_petey_id: '3_30'
     type: category
@@ -2716,6 +3089,8 @@ fields:
         Check one.' boxes (Debtor 1 only / Debtor 2 only / Debtor 1 and Debtor 2 only
         / At least one of the debtors and another); current ones include a typo ('Dentor
         2') or a glyph ('\uf071\uf020')
+    x_petey_identifiers:
+      subject: line_4_2_property_interest
   line_4_2_year:
     x_petey_id: '3_31'
     type: string
@@ -2731,6 +3106,10 @@ fields:
       widget_type: text
       path: Year_2
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '2'
+      subject: year
   line_4_2_other_info:
     x_petey_id: '3_32'
     type: string
@@ -2746,6 +3125,10 @@ fields:
     description: Other information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '2'
+      subject: other_info
   line_4_2_entire_property_amt:
     x_petey_id: '3_33'
     type: number
@@ -2762,6 +3145,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '2'
+      subject: entire_property
+      suffix: amt
   line_4_2_portion_owned_amt:
     x_petey_id: '3_34'
     type: number
@@ -2778,6 +3166,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '2'
+      subject: portion_owned
+      suffix: amt
   line_4_2_community_property_ind:
     x_petey_id: '3_35'
     type: boolean
@@ -2794,6 +3187,11 @@ fields:
     description: Check if this is community property (see
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: line_4
+      block_iteration: '2'
+      subject: community_property
+      suffix: ind
   line_5_part_2_total_amt:
     x_petey_id: '3_36'
     type: number
@@ -2841,6 +3239,9 @@ fields:
         semantic_type: money
         pattern: null
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: line_5_part_2_total
+      suffix: amt
   household_goods_furnishings_ind:
     x_petey_id: '4_1'
     type: category
@@ -2870,6 +3271,8 @@ fields:
         path: 6 check
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: household_goods_furnishings_ind
   household_goods_furnishings_desc:
     x_petey_id: '4_2'
     type: string
@@ -2886,6 +3289,8 @@ fields:
     description: Describe household goods and furnishings
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: household_goods_furnishings_desc
   household_goods_furnishings_amt:
     x_petey_id: '4_3'
     type: number
@@ -2902,6 +3307,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: household_goods_furnishings
+      suffix: amt
   electronics_ind:
     x_petey_id: '4_4'
     type: category
@@ -2931,6 +3339,8 @@ fields:
         path: 7 check
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: electronics_ind
   electronics_desc:
     x_petey_id: '4_5'
     type: string
@@ -2947,6 +3357,8 @@ fields:
     description: Describe electronics
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: electronics_desc
   electronics_amt:
     x_petey_id: '4_6'
     type: number
@@ -2963,6 +3375,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: electronics
+      suffix: amt
   collectibles_ind:
     x_petey_id: '4_7'
     type: category
@@ -2992,6 +3407,8 @@ fields:
         path: 8 check
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: collectibles_ind
   collectibles_desc:
     x_petey_id: '4_8'
     type: string
@@ -3008,6 +3425,8 @@ fields:
     description: Describe collectibles of value
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: collectibles_desc
   collectibles_amt:
     x_petey_id: '4_9'
     type: number
@@ -3024,6 +3443,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: collectibles
+      suffix: amt
   sports_hobbies_equipment_ind:
     x_petey_id: '4_10'
     type: category
@@ -3054,6 +3476,8 @@ fields:
         on_state: 'On'
         caption: Yes. Describe
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: sports_hobbies_equipment_ind
   sports_hobbies_equipment_desc:
     x_petey_id: '4_11'
     type: string
@@ -3070,6 +3494,8 @@ fields:
     description: Describe equipment for sports and hobbies
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sports_hobbies_equipment_desc
   sports_hobbies_equipment_amt:
     x_petey_id: '4_12'
     type: number
@@ -3086,6 +3512,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: sports_hobbies_equipment
+      suffix: amt
   firearms_ind:
     x_petey_id: '4_13'
     type: category
@@ -3115,6 +3544,8 @@ fields:
         path: 10 check
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: firearms_ind
   firearms_desc:
     x_petey_id: '4_14'
     type: string
@@ -3131,6 +3562,8 @@ fields:
     description: Describe firearms
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: firearms_desc
   firearms_amt:
     x_petey_id: '4_15'
     type: number
@@ -3147,6 +3580,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: firearms
+      suffix: amt
   clothes_ind:
     x_petey_id: '4_16'
     type: category
@@ -3176,6 +3612,8 @@ fields:
         path: 11 check
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: clothes_ind
   clothes_desc:
     x_petey_id: '4_17'
     type: string
@@ -3192,6 +3630,8 @@ fields:
     description: Describe clothes
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: clothes_desc
   clothes_amt:
     x_petey_id: '4_18'
     type: number
@@ -3208,6 +3648,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: clothes
+      suffix: amt
   jewelry_ind:
     x_petey_id: '4_19'
     type: category
@@ -3237,6 +3680,8 @@ fields:
         path: 12 check
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: jewelry_ind
   jewelry_desc:
     x_petey_id: '4_21'
     type: string
@@ -3253,6 +3698,8 @@ fields:
     description: Describe jewelry
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: jewelry_desc
   jewelry_amt:
     x_petey_id: '4_20'
     type: number
@@ -3269,6 +3716,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: jewelry
+      suffix: amt
   non_farm_animals_ind:
     x_petey_id: '4_22'
     type: category
@@ -3298,6 +3748,8 @@ fields:
         path: check 13
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: non_farm_animals_ind
   non_farm_animals_desc:
     x_petey_id: '4_24'
     type: string
@@ -3326,6 +3778,8 @@ fields:
         semantic_type: description
         description: Describe jewelry
       judged: 'kept: 2 -> 2'
+    x_petey_identifiers:
+      subject: non_farm_animals_desc
   non_farm_animals_amt:
     x_petey_id: '4_23'
     type: number
@@ -3342,6 +3796,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: non_farm_animals
+      suffix: amt
   other_personal_household_items_ind:
     x_petey_id: '4_25'
     type: category
@@ -3371,6 +3828,8 @@ fields:
         path: check 14
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: other_personal_household_items_ind
   other_personal_household_items_desc:
     x_petey_id: '4_26'
     type: string
@@ -3387,6 +3846,8 @@ fields:
     description: Describe any other personal items you did not already list
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_personal_household_items_desc
   other_personal_household_items_amt:
     x_petey_id: '4_27'
     type: number
@@ -3403,6 +3864,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_personal_household_items
+      suffix: amt
   part_3_total_amt:
     x_petey_id: '4_28'
     type: number
@@ -3447,6 +3911,9 @@ fields:
         semantic_type: money
         pattern: null
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: part_3_total
+      suffix: amt
   has_cash_ind:
     x_petey_id: '5_1'
     type: category
@@ -3476,6 +3943,8 @@ fields:
         path: Check 16
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_cash_ind
   cash_amt:
     x_petey_id: '5_2'
     type: number
@@ -3492,6 +3961,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: cash
+      suffix: amt
   has_deposits_of_money_ind:
     x_petey_id: '5_3'
     type: category
@@ -3521,6 +3993,8 @@ fields:
         path: Check 17
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_deposits_of_money_ind
   line_17_1_checking_account_institution_nm:
     x_petey_id: '5_4'
     type: string
@@ -3565,6 +4039,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_1_checking_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_1_checking_account_amt:
     x_petey_id: '5_5'
     type: number
@@ -3581,6 +4059,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_1_checking_account
+      suffix: amt
+      grid: p5-G1
   line_17_2_checking_account_institution_nm:
     x_petey_id: '5_6'
     type: string
@@ -3624,6 +4106,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_2_checking_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_2_checking_account_amt:
     x_petey_id: '5_7'
     type: number
@@ -3640,6 +4126,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_2_checking_account
+      suffix: amt
+      grid: p5-G1
   line_17_3_savings_account_institution_nm:
     x_petey_id: '5_8'
     type: string
@@ -3684,6 +4174,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_3_savings_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_3_savings_account_amt:
     x_petey_id: '5_9'
     type: number
@@ -3700,6 +4194,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_3_savings_account
+      suffix: amt
+      grid: p5-G1
   line_17_4_savings_account_institution_nm:
     x_petey_id: '5_10'
     type: string
@@ -3744,6 +4242,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_4_savings_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_4_savings_account_amt:
     x_petey_id: '5_11'
     type: number
@@ -3760,6 +4262,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_4_savings_account
+      suffix: amt
+      grid: p5-G1
   line_17_5_certificates_of_deposit_institution_nm:
     x_petey_id: '5_12'
     type: string
@@ -3804,6 +4310,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_5_certificates_of_deposit_institution
+      suffix: nm
+      grid: p5-G1
   line_17_5_certificates_of_deposit_amt:
     x_petey_id: '5_13'
     type: number
@@ -3820,6 +4330,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_5_certificates_of_deposit
+      suffix: amt
+      grid: p5-G1
   line_17_6_other_financial_account_institution_nm:
     x_petey_id: '5_14'
     type: string
@@ -3864,6 +4378,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_6_other_financial_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_6_other_financial_account_amt:
     x_petey_id: '5_15'
     type: number
@@ -3880,6 +4398,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_6_other_financial_account
+      suffix: amt
+      grid: p5-G1
   line_17_7_other_financial_account_institution_nm:
     x_petey_id: '5_16'
     type: string
@@ -3924,6 +4446,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_7_other_financial_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_7_other_financial_account_amt:
     x_petey_id: '5_17'
     type: number
@@ -3940,6 +4466,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_7_other_financial_account
+      suffix: amt
+      grid: p5-G1
   line_17_8_other_financial_account_institution_nm:
     x_petey_id: '5_18'
     type: string
@@ -3984,6 +4514,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_8_other_financial_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_8_other_financial_account_amt:
     x_petey_id: '5_19'
     type: number
@@ -4000,6 +4534,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_8_other_financial_account
+      suffix: amt
+      grid: p5-G1
   line_17_9_other_financial_account_institution_nm:
     x_petey_id: '5_20'
     type: string
@@ -4044,6 +4582,10 @@ fields:
       by: claude
       kind: type
       why: organization_name is not a semantic type; the institution's name is business_name
+    x_petey_identifiers:
+      subject: line_17_9_other_financial_account_institution
+      suffix: nm
+      grid: p5-G1
   line_17_9_other_financial_account_amt:
     x_petey_id: '5_21'
     type: number
@@ -4060,6 +4602,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_17_9_other_financial_account
+      suffix: amt
+      grid: p5-G1
   has_bonds_mutual_funds_stocks_ind:
     x_petey_id: '5_22'
     type: category
@@ -4089,6 +4635,8 @@ fields:
         path: Check 18
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_bonds_mutual_funds_stocks_ind
   bonds_stocks_institution_issuer_nm:
     x_petey_id: '5_23'
     type: string
@@ -4133,6 +4681,9 @@ fields:
       kind: type
       why: Line 18 'Institution or issuer name' (brokerage / fund issuer); organization_name
         is not a valid semantic type
+    x_petey_identifiers:
+      subject: bonds_stocks_institution_issuer
+      suffix: nm
   bonds_stocks_amt:
     x_petey_id: '5_24'
     type: number
@@ -4149,6 +4700,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: bonds_stocks
+      suffix: amt
   bonds_stocks_institution_issuer_nm_2:
     x_petey_id: '5_25'
     type: string
@@ -4193,6 +4747,9 @@ fields:
       kind: type
       why: Line 18 'Institution or issuer name' (brokerage / fund issuer); organization_name
         is not a valid semantic type
+    x_petey_identifiers:
+      subject: bonds_stocks_institution_issuer_nm
+      iteration: '2'
   bonds_stocks_amt_2:
     x_petey_id: '5_26'
     type: number
@@ -4209,6 +4766,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: bonds_stocks_amt
+      iteration: '2'
   bonds_stocks_institution_issuer_nm_3:
     x_petey_id: '5_27'
     type: string
@@ -4253,6 +4813,9 @@ fields:
       kind: type
       why: Line 18 'Institution or issuer name' (brokerage / fund issuer); organization_name
         is not a valid semantic type
+    x_petey_identifiers:
+      subject: bonds_stocks_institution_issuer_nm
+      iteration: '3'
   bonds_stocks_amt_3:
     x_petey_id: '5_28'
     type: number
@@ -4269,6 +4832,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: bonds_stocks_amt
+      iteration: '3'
   has_non_publicly_traded_business_interests_ind:
     x_petey_id: '5_29'
     type: category
@@ -4298,6 +4864,8 @@ fields:
         path: check 19
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_non_publicly_traded_business_interests_ind
   business_interest_entity_nm:
     x_petey_id: '5_30'
     type: string
@@ -4362,6 +4930,10 @@ fields:
     description: Name of entity
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: business_interest_entity_nm
+      iteration: '2'
+      grid: p5-G3
   business_interest_ownership_pct_2:
     x_petey_id: '5_34'
     type: number
@@ -4378,6 +4950,10 @@ fields:
     description: '% of ownership'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: business_interest_ownership_pct
+      iteration: '2'
+      grid: p5-G3
   business_interest_amt_2:
     x_petey_id: '5_35'
     type: number
@@ -4394,6 +4970,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: business_interest_amt
+      iteration: '2'
+      grid: p5-G3
   business_interest_entity_nm_3:
     x_petey_id: '5_36'
     type: string
@@ -4410,6 +4990,10 @@ fields:
     description: Name pf entity
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: business_interest_entity_nm
+      iteration: '3'
+      grid: p5-G3
   business_interest_ownership_pct_3:
     x_petey_id: '5_37'
     type: number
@@ -4426,6 +5010,10 @@ fields:
     description: '% of ownership'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: business_interest_ownership_pct
+      iteration: '3'
+      grid: p5-G3
   business_interest_amt_3:
     x_petey_id: '5_38'
     type: number
@@ -4442,6 +5030,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: business_interest_amt
+      iteration: '3'
+      grid: p5-G3
   has_bonds_and_negotiable_instruments_ind:
     x_petey_id: '6_1'
     type: category
@@ -4471,7 +5063,9 @@ fields:
         path: check 20
         on_state: 'yes'
         caption: 'Yes'
-  bonds_issuer_name:
+    x_petey_identifiers:
+      subject: has_bonds_and_negotiable_instruments_ind
+  bonds_issuer_nm:
     x_petey_id: '6_2'
     type: string
     semantic_type: business_name
@@ -4495,6 +5089,9 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: bonds_issuer
+      suffix: nm
   bonds_amt:
     x_petey_id: '6_3'
     type: number
@@ -4511,7 +5108,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  bonds_issuer_name_2:
+    x_petey_identifiers:
+      subject: bonds
+      suffix: amt
+  bonds_issuer_nm_2:
     x_petey_id: '6_4'
     type: string
     semantic_type: business_name
@@ -4535,6 +5135,10 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: bonds_issuer
+      iteration: '2'
+      suffix: nm
   bonds_amt_2:
     x_petey_id: '6_5'
     type: number
@@ -4551,7 +5155,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  bonds_issuer_name_3:
+    x_petey_identifiers:
+      subject: bonds_amt
+      iteration: '2'
+  bonds_issuer_nm_3:
     x_petey_id: '6_6'
     type: string
     semantic_type: business_name
@@ -4575,6 +5182,10 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: bonds_issuer
+      iteration: '3'
+      suffix: nm
   bonds_amt_3:
     x_petey_id: '6_7'
     type: number
@@ -4591,6 +5202,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: bonds_amt
+      iteration: '3'
   has_retirement_or_pension_accounts_ind:
     x_petey_id: '6_8'
     type: category
@@ -4620,7 +5234,9 @@ fields:
         path: check 21
         on_state: 'yes'
         caption: 'Yes'
-  retirement_401k_institution_name:
+    x_petey_identifiers:
+      subject: has_retirement_or_pension_accounts_ind
+  retirement_401k_institution_nm:
     x_petey_id: '6_9'
     type: string
     semantic_type: business_name
@@ -4647,6 +5263,9 @@ fields:
         semantic_type: person_name
         description: 401(k) or similar plan
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: retirement_401k_institution
+      suffix: nm
   retirement_401k_amt:
     x_petey_id: '6_10'
     type: number
@@ -4663,7 +5282,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  pension_plan_institution_name:
+    x_petey_identifiers:
+      subject: retirement_401k
+      suffix: amt
+  pension_plan_institution_nm:
     x_petey_id: '6_11'
     type: string
     semantic_type: business_name
@@ -4691,6 +5313,9 @@ fields:
         semantic_type: person_name
         description: Pension plan name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: pension_plan_institution
+      suffix: nm
   pension_plan_amt:
     x_petey_id: '6_12'
     type: number
@@ -4707,7 +5332,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  ira_institution_name:
+    x_petey_identifiers:
+      subject: pension_plan
+      suffix: amt
+  ira_institution_nm:
     x_petey_id: '6_13'
     type: string
     semantic_type: business_name
@@ -4731,6 +5359,9 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: ira_institution
+      suffix: nm
   ira_amt:
     x_petey_id: '6_14'
     type: number
@@ -4747,7 +5378,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  retirement_account_institution_name:
+    x_petey_identifiers:
+      subject: ira
+      suffix: amt
+  retirement_account_institution_nm:
     x_petey_id: '6_15'
     type: string
     semantic_type: business_name
@@ -4773,6 +5407,9 @@ fields:
         semantic_type: person_name
         description: Retirement account name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: retirement_account_institution
+      suffix: nm
   retirement_account_amt:
     x_petey_id: '6_16'
     type: number
@@ -4789,7 +5426,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  keogh_institution_name:
+    x_petey_identifiers:
+      subject: retirement_account
+      suffix: amt
+  keogh_institution_nm:
     x_petey_id: '6_17'
     type: string
     semantic_type: business_name
@@ -4812,6 +5452,9 @@ fields:
         type: string
         semantic_type: person_name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: keogh_institution
+      suffix: nm
   keogh_amt:
     x_petey_id: '6_18'
     type: number
@@ -4828,7 +5471,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  additional_retirement_account_institution_name:
+    x_petey_identifiers:
+      subject: keogh
+      suffix: amt
+  additional_retirement_account_institution_nm:
     x_petey_id: '6_19'
     type: string
     semantic_type: business_name
@@ -4854,6 +5500,9 @@ fields:
         semantic_type: person_name
         description: Additional account
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: additional_retirement_account_institution
+      suffix: nm
   additional_retirement_account_amt:
     x_petey_id: '6_20'
     type: number
@@ -4870,6 +5519,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: additional_retirement_account
+      suffix: amt
   additional_retirement_account_institution_name_2:
     x_petey_id: '6_21'
     type: string
@@ -4896,6 +5548,8 @@ fields:
         semantic_type: person_name
         description: Additional account
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: additional_retirement_account_institution_name_2
   additional_retirement_account_amt_2:
     x_petey_id: '6_22'
     type: number
@@ -4912,6 +5566,8 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: additional_retirement_account_amt_2
   has_security_deposits_or_prepayments_ind:
     x_petey_id: '6_23'
     type: category
@@ -4941,7 +5597,9 @@ fields:
         path: check 22
         on_state: 'yes'
         caption: 'Yes'
-  security_deposit_electric_institution_name:
+    x_petey_identifiers:
+      subject: has_security_deposits_or_prepayments_ind
+  security_deposit_electric_institution_nm:
     x_petey_id: '6_24'
     type: string
     semantic_type: business_name
@@ -4968,6 +5626,9 @@ fields:
         semantic_type: person_name
         description: Institution name or individual
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: security_deposit_electric_institution
+      suffix: nm
   security_deposit_electric_amt:
     x_petey_id: '6_25'
     type: number
@@ -4984,7 +5645,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  security_deposit_gas_institution_name:
+    x_petey_identifiers:
+      subject: security_deposit_electric
+      suffix: amt
+  security_deposit_gas_institution_nm:
     x_petey_id: '6_26'
     type: string
     semantic_type: business_name
@@ -5011,6 +5675,9 @@ fields:
         semantic_type: person_name
         description: Institution name or individual
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: security_deposit_gas_institution
+      suffix: nm
   security_deposit_gas_amt:
     x_petey_id: '6_27'
     type: number
@@ -5027,7 +5694,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  security_deposit_heating_oil_institution_name:
+    x_petey_identifiers:
+      subject: security_deposit_gas
+      suffix: amt
+  security_deposit_heating_oil_institution_nm:
     x_petey_id: '6_28'
     type: string
     semantic_type: business_name
@@ -5054,6 +5724,9 @@ fields:
         semantic_type: person_name
         description: Institution name or individual
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: security_deposit_heating_oil_institution
+      suffix: nm
   security_deposit_heating_oil_amt:
     x_petey_id: '6_29'
     type: number
@@ -5070,7 +5743,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  security_deposit_rental_unit_institution_name:
+    x_petey_identifiers:
+      subject: security_deposit_heating_oil
+      suffix: amt
+  security_deposit_rental_unit_institution_nm:
     x_petey_id: '6_30'
     type: string
     semantic_type: business_name
@@ -5097,6 +5773,9 @@ fields:
         semantic_type: person_name
         description: Institution name or individual
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: security_deposit_rental_unit_institution
+      suffix: nm
   security_deposit_rental_unit_amt:
     x_petey_id: '6_31'
     type: number
@@ -5113,7 +5792,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  prepaid_rent_institution_name:
+    x_petey_identifiers:
+      subject: security_deposit_rental_unit
+      suffix: amt
+  prepaid_rent_institution_nm:
     x_petey_id: '6_32'
     type: string
     semantic_type: business_name
@@ -5140,6 +5822,9 @@ fields:
         semantic_type: person_name
         description: Institution name or individual
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: prepaid_rent_institution
+      suffix: nm
   prepaid_rent_amt:
     x_petey_id: '6_33'
     type: number
@@ -5156,7 +5841,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  security_deposit_telephone_institution_name:
+    x_petey_identifiers:
+      subject: prepaid_rent
+      suffix: amt
+  security_deposit_telephone_institution_nm:
     x_petey_id: '6_34'
     type: string
     semantic_type: business_name
@@ -5186,6 +5874,9 @@ fields:
         pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
         description: Institution name or individual
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: security_deposit_telephone_institution
+      suffix: nm
   security_deposit_telephone_amt:
     x_petey_id: '6_35'
     type: number
@@ -5202,7 +5893,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  security_deposit_water_institution_name:
+    x_petey_identifiers:
+      subject: security_deposit_telephone
+      suffix: amt
+  security_deposit_water_institution_nm:
     x_petey_id: '6_36'
     type: string
     semantic_type: business_name
@@ -5236,6 +5930,9 @@ fields:
       why: Line 22.7 Water 'Institution name or individual' (utility, landlord, lessor),
         same as the other six line 22 rows which are business_name; person_name is
         being removed
+    x_petey_identifiers:
+      subject: security_deposit_water_institution
+      suffix: nm
   security_deposit_water_amt:
     x_petey_id: '6_37'
     type: number
@@ -5252,7 +5949,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  security_deposit_rented_furniture_institution_name:
+    x_petey_identifiers:
+      subject: security_deposit_water
+      suffix: amt
+  security_deposit_rented_furniture_institution_nm:
     x_petey_id: '6_38'
     type: string
     semantic_type: business_name
@@ -5286,6 +5986,9 @@ fields:
       why: Line 22.8 Rented furniture 'Institution name or individual' (utility, landlord,
         lessor), same as the other six line 22 rows which are business_name; person_name
         is being removed
+    x_petey_identifiers:
+      subject: security_deposit_rented_furniture_institution
+      suffix: nm
   security_deposit_rented_furniture_amt:
     x_petey_id: '6_39'
     type: number
@@ -5302,7 +6005,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  security_deposit_other_institution_name:
+    x_petey_identifiers:
+      subject: security_deposit_rented_furniture
+      suffix: amt
+  security_deposit_other_institution_nm:
     x_petey_id: '6_40'
     type: string
     semantic_type: business_name
@@ -5336,6 +6042,9 @@ fields:
       why: Line 22.9 Other 'Institution name or individual' (utility, landlord, lessor),
         same as the other six line 22 rows which are business_name; person_name is
         being removed
+    x_petey_identifiers:
+      subject: security_deposit_other_institution
+      suffix: nm
   security_deposit_other_amt:
     x_petey_id: '6_41'
     type: number
@@ -5352,6 +6061,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: security_deposit_other
+      suffix: amt
   has_annuities_ind:
     x_petey_id: '6_42'
     type: category
@@ -5381,6 +6093,8 @@ fields:
         path: check 23
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_annuities_ind
   annuity_issuer_name_and_description:
     x_petey_id: '6_43'
     type: string
@@ -5408,6 +6122,8 @@ fields:
         semantic_type: person_name
         description: Issuer name and description
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: annuity_issuer_name_and_description
   annuity_amt:
     x_petey_id: '6_44'
     type: number
@@ -5424,6 +6140,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: annuity
+      suffix: amt
   annuity_issuer_name_and_description_2:
     x_petey_id: '6_45'
     type: string
@@ -5451,6 +6170,9 @@ fields:
         semantic_type: person_name
         description: Issuer name and description
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: annuity_issuer_name_and_description
+      iteration: '2'
   annuity_amt_2:
     x_petey_id: '6_46'
     type: number
@@ -5467,6 +6189,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: annuity_amt
+      iteration: '2'
   annuity_issuer_name_and_description_3:
     x_petey_id: '6_47'
     type: string
@@ -5494,6 +6219,9 @@ fields:
         semantic_type: person_name
         description: Issuer name and description
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: annuity_issuer_name_and_description
+      iteration: '3'
   annuity_amt_3:
     x_petey_id: '6_48'
     type: number
@@ -5510,6 +6238,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: annuity_amt
+      iteration: '3'
   education_ira_ind:
     x_petey_id: '7_1'
     type: category
@@ -5539,6 +6270,8 @@ fields:
         path: check 24
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: education_ira_ind
   education_ira_description:
     x_petey_id: '7_2'
     type: string
@@ -5556,6 +6289,8 @@ fields:
       any interests.11 U.S.C. § 521(c [1]
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: education_ira_description
   education_ira_amt:
     x_petey_id: '7_3'
     type: number
@@ -5572,6 +6307,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: education_ira
+      suffix: amt
   education_ira_description_2:
     x_petey_id: '7_4'
     type: string
@@ -5589,6 +6327,8 @@ fields:
       any interests.11 U.S.C. § 521(c [1]
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: education_ira_description_2
   education_ira_amt_2:
     x_petey_id: '7_5'
     type: number
@@ -5622,6 +6362,8 @@ fields:
     x_petey_retype:
     - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: education_ira_amt_2
   trusts_equitable_future_interests_ind:
     x_petey_id: '7_6'
     type: category
@@ -5651,6 +6393,8 @@ fields:
         path: check 25
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: trusts_equitable_future_interests_ind
   trusts_equitable_future_interests_description:
     x_petey_id: '7_7'
     type: string
@@ -5667,6 +6411,8 @@ fields:
     description: information about them
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: trusts_equitable_future_interests_description
   trusts_equitable_future_interests_amt:
     x_petey_id: '7_8'
     type: number
@@ -5683,6 +6429,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: trusts_equitable_future_interests
+      suffix: amt
   intellectual_property_ind:
     x_petey_id: '7_9'
     type: category
@@ -5712,6 +6461,8 @@ fields:
         path: check 26
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: intellectual_property_ind
   intellectual_property_description:
     x_petey_id: '7_10'
     type: string
@@ -5728,6 +6479,8 @@ fields:
     description: information about them
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: intellectual_property_description
   intellectual_property_amt:
     x_petey_id: '7_11'
     type: number
@@ -5744,6 +6497,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: intellectual_property
+      suffix: amt
   licenses_franchises_intangibles_ind:
     x_petey_id: '7_12'
     type: category
@@ -5773,6 +6529,8 @@ fields:
         path: check 27
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: licenses_franchises_intangibles_ind
   licenses_franchises_intangibles_description:
     x_petey_id: '7_13'
     type: string
@@ -5789,6 +6547,8 @@ fields:
     description: information about them
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: licenses_franchises_intangibles_description
   licenses_franchises_intangibles_amt:
     x_petey_id: '7_14'
     type: number
@@ -5805,6 +6565,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: licenses_franchises_intangibles
+      suffix: amt
   tax_refunds_owed_ind:
     x_petey_id: '7_15'
     type: category
@@ -5835,6 +6598,8 @@ fields:
         on_state: 'On'
         caption: Yes. Give specific information
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: tax_refunds_owed_ind
   tax_refunds_description:
     x_petey_id: '7_16'
     type: string
@@ -5851,6 +6616,8 @@ fields:
     description: information about them
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: tax_refunds_description
   tax_refunds_federal_amt:
     x_petey_id: '7_17'
     type: number
@@ -5867,6 +6634,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: tax_refunds_federal
+      suffix: amt
   tax_refunds_state_amt:
     x_petey_id: '7_18'
     type: number
@@ -5883,6 +6653,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: tax_refunds_state
+      suffix: amt
   tax_refunds_local_amt:
     x_petey_id: '7_19'
     type: number
@@ -5899,6 +6672,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: tax_refunds_local
+      suffix: amt
   family_support_owed_ind:
     x_petey_id: '7_20'
     type: category
@@ -5929,6 +6705,8 @@ fields:
         on_state: 'On'
         caption: Yes. Give specific information
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: family_support_owed_ind
   family_support_description:
     x_petey_id: '7_21'
     type: string
@@ -5945,6 +6723,8 @@ fields:
     description: Specific information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: family_support_description
   family_support_alimony_amt:
     x_petey_id: '7_22'
     type: number
@@ -5961,6 +6741,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: family_support_alimony
+      suffix: amt
   family_support_maintenance_amt:
     x_petey_id: '7_23'
     type: number
@@ -5977,6 +6760,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: family_support_maintenance
+      suffix: amt
   family_support_support_amt:
     x_petey_id: '7_24'
     type: number
@@ -5993,6 +6779,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: family_support_support
+      suffix: amt
   family_support_divorce_settlement_amt:
     x_petey_id: '7_25'
     type: number
@@ -6009,6 +6798,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: family_support_divorce_settlement
+      suffix: amt
   family_support_property_settlement_amt:
     x_petey_id: '7_26'
     type: number
@@ -6025,6 +6817,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: family_support_property_settlement
+      suffix: amt
   other_amounts_owed_ind:
     x_petey_id: '7_27'
     type: category
@@ -6054,6 +6849,8 @@ fields:
         path: check 30
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: other_amounts_owed_ind
   other_amounts_owed_description:
     x_petey_id: '7_28'
     type: string
@@ -6068,6 +6865,8 @@ fields:
       widget_type: text
       path: undefined_107
     label_source: llm
+    x_petey_identifiers:
+      subject: other_amounts_owed_description
   other_amounts_owed_amt:
     x_petey_id: '7_29'
     type: number
@@ -6084,6 +6883,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_amounts_owed
+      suffix: amt
   interests_in_insurance_policies_ind:
     x_petey_id: '8_1'
     type: category
@@ -6113,7 +6915,9 @@ fields:
         path: check 31
         on_state: 'yes'
         caption: 'Yes'
-  insurance_policy1_company_name:
+    x_petey_identifiers:
+      subject: interests_in_insurance_policies_ind
+  insurance_policy1_company_nm:
     x_petey_id: '8_2'
     type: string
     semantic_type: business_name
@@ -6129,7 +6933,11 @@ fields:
     description: Company name [1]
     x_petey_description_source: tooltip
     label_source: llm
-  insurance_policy1_beneficiary_name:
+    x_petey_identifiers:
+      subject: insurance_policy1_company
+      grid: p8-G1
+      suffix: nm
+  insurance_policy1_beneficiary_nm:
     x_petey_id: '8_3'
     type: string
     widget:
@@ -6160,6 +6968,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: insurance_policy1_beneficiary
+      grid: p8-G1
+      suffix: nm
   insurance_policy1_surrender_or_refund_amt:
     x_petey_id: '8_4'
     type: number
@@ -6176,7 +6988,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  insurance_policy2_company_name:
+    x_petey_identifiers:
+      subject: insurance_policy1_surrender_or_refund
+      suffix: amt
+      grid: p8-G1
+  insurance_policy2_company_nm:
     x_petey_id: '8_5'
     type: string
     semantic_type: business_name
@@ -6192,7 +7008,11 @@ fields:
     description: Company name [2]
     x_petey_description_source: tooltip
     label_source: llm
-  insurance_policy2_beneficiary_name:
+    x_petey_identifiers:
+      subject: insurance_policy2_company
+      grid: p8-G1
+      suffix: nm
+  insurance_policy2_beneficiary_nm:
     x_petey_id: '8_6'
     type: string
     widget:
@@ -6223,6 +7043,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: insurance_policy2_beneficiary
+      grid: p8-G1
+      suffix: nm
   insurance_policy2_surrender_or_refund_amt:
     x_petey_id: '8_7'
     type: number
@@ -6239,7 +7063,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  insurance_policy3_company_name:
+    x_petey_identifiers:
+      subject: insurance_policy2_surrender_or_refund
+      suffix: amt
+      grid: p8-G1
+  insurance_policy3_company_nm:
     x_petey_id: '8_8'
     type: string
     semantic_type: business_name
@@ -6255,7 +7083,11 @@ fields:
     description: Company name [3]
     x_petey_description_source: tooltip
     label_source: llm
-  insurance_policy3_beneficiary_name:
+    x_petey_identifiers:
+      subject: insurance_policy3_company
+      grid: p8-G1
+      suffix: nm
+  insurance_policy3_beneficiary_nm:
     x_petey_id: '8_9'
     type: string
     widget:
@@ -6286,6 +7118,10 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: insurance_policy3_beneficiary
+      grid: p8-G1
+      suffix: nm
   insurance_policy3_surrender_or_refund_amt:
     x_petey_id: '8_10'
     type: number
@@ -6302,6 +7138,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: insurance_policy3_surrender_or_refund
+      suffix: amt
+      grid: p8-G1
   interest_in_property_due_from_deceased_ind:
     x_petey_id: '8_11'
     type: category
@@ -6331,6 +7171,9 @@ fields:
         path: check 32
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: interest_in_property_due_from_deceased_ind
+      grid: p8-G2
   interest_in_property_due_from_deceased_desc:
     x_petey_id: '8_12'
     type: string
@@ -6347,6 +7190,9 @@ fields:
     description: specific information
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: interest_in_property_due_from_deceased_desc
+      grid: p8-G2
   interest_in_property_due_from_deceased_amt:
     x_petey_id: '8_13'
     type: number
@@ -6363,6 +7209,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: interest_in_property_due_from_deceased
+      suffix: amt
+      grid: p8-G2
   claims_against_third_parties_ind:
     x_petey_id: '8_14'
     type: category
@@ -6392,6 +7242,8 @@ fields:
         path: check 33
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: claims_against_third_parties_ind
   claims_against_third_parties_desc:
     x_petey_id: '8_15'
     type: string
@@ -6408,6 +7260,8 @@ fields:
     description: Describe each
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: claims_against_third_parties_desc
   claims_against_third_parties_amt:
     x_petey_id: '8_16'
     type: number
@@ -6424,6 +7278,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: claims_against_third_parties
+      suffix: amt
   other_contingent_and_unliquidated_claims_ind:
     x_petey_id: '8_17'
     type: category
@@ -6454,6 +7311,9 @@ fields:
         on_state: 'On'
         caption: Yes. Describe each claim
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: other_contingent_and_unliquidated_claims_ind
+      grid: p8-G2
   other_contingent_and_unliquidated_claims_desc:
     x_petey_id: '8_18'
     type: string
@@ -6470,6 +7330,9 @@ fields:
     description: Describe each
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_contingent_and_unliquidated_claims_desc
+      grid: p8-G2
   other_contingent_and_unliquidated_claims_amt:
     x_petey_id: '8_19'
     type: number
@@ -6486,6 +7349,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_contingent_and_unliquidated_claims
+      suffix: amt
+      grid: p8-G2
   other_financial_assets_ind:
     x_petey_id: '8_20'
     type: category
@@ -6515,6 +7382,9 @@ fields:
         path: check 35
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: other_financial_assets_ind
+      grid: p8-G2
   other_financial_assets_desc:
     x_petey_id: '8_21'
     type: string
@@ -6529,6 +7399,9 @@ fields:
       widget_type: text
       path: '35'
     label_source: llm
+    x_petey_identifiers:
+      subject: other_financial_assets_desc
+      grid: p8-G2
   other_financial_assets_amt:
     x_petey_id: '8_22'
     type: number
@@ -6545,6 +7418,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_financial_assets
+      suffix: amt
+      grid: p8-G2
   part4_total_amt:
     x_petey_id: '8_23'
     type: number
@@ -6591,6 +7468,9 @@ fields:
         semantic_type: money
         pattern: null
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: part4_total
+      suffix: amt
   business_related_property_ind:
     x_petey_id: '8_24'
     type: category
@@ -6620,6 +7500,8 @@ fields:
         path: check 37
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: business_related_property_ind
   accounts_receivable_or_commissions_ind:
     x_petey_id: '8_25'
     type: category
@@ -6649,6 +7531,8 @@ fields:
         path: check 38
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: accounts_receivable_or_commissions_ind
   accounts_receivable_or_commissions_desc:
     x_petey_id: '8_26'
     type: string
@@ -6663,6 +7547,8 @@ fields:
       widget_type: text
       path: 38 Accounts receivable or commissions already earned
     label_source: llm
+    x_petey_identifiers:
+      subject: accounts_receivable_or_commissions_desc
   accounts_receivable_or_commissions_amt:
     x_petey_id: '8_27'
     type: number
@@ -6679,6 +7565,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: accounts_receivable_or_commissions
+      suffix: amt
   office_equipment_furnishings_supplies_ind:
     x_petey_id: '8_28'
     type: category
@@ -6708,6 +7597,8 @@ fields:
         path: check 39
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: office_equipment_furnishings_supplies_ind
   office_equipment_furnishings_supplies_desc:
     x_petey_id: '8_29'
     type: string
@@ -6722,6 +7613,8 @@ fields:
       widget_type: text
       path: 39 Office equipment furnishings and supplies
     label_source: llm
+    x_petey_identifiers:
+      subject: office_equipment_furnishings_supplies_desc
   office_equipment_furnishings_supplies_amt:
     x_petey_id: '8_30'
     type: number
@@ -6738,6 +7631,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: office_equipment_furnishings_supplies
+      suffix: amt
   business_machinery_equipment_tools_ind:
     x_petey_id: '9_1'
     type: category
@@ -6767,6 +7663,8 @@ fields:
         path: check 40
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: business_machinery_equipment_tools_ind
   business_machinery_equipment_tools_description:
     x_petey_id: '9_2'
     type: string
@@ -6781,6 +7679,8 @@ fields:
       widget_type: text
       path: 40 Machinery fixtures equipment and tools of your trade
     label_source: llm
+    x_petey_identifiers:
+      subject: business_machinery_equipment_tools_description
   business_machinery_equipment_tools_amt:
     x_petey_id: '9_3'
     type: number
@@ -6797,6 +7697,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: business_machinery_equipment_tools
+      suffix: amt
   inventory_ind:
     x_petey_id: '9_4'
     type: category
@@ -6826,6 +7729,8 @@ fields:
         path: check 41
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: inventory_ind
   inventory_description:
     x_petey_id: '9_5'
     type: string
@@ -6840,6 +7745,8 @@ fields:
       widget_type: text
       path: 41 Inventory
     label_source: llm
+    x_petey_identifiers:
+      subject: inventory_description
   inventory_amt:
     x_petey_id: '9_6'
     type: number
@@ -6856,6 +7763,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: inventory
+      suffix: amt
   partnership_joint_venture_interest_ind:
     x_petey_id: '9_7'
     type: category
@@ -6885,7 +7795,9 @@ fields:
         path: check 42
         on_state: 'yes'
         caption: 'Yes'
-  partnership_joint_venture_1_entity_name:
+    x_petey_identifiers:
+      subject: partnership_joint_venture_interest_ind
+  partnership_joint_venture_1_entity_nm:
     x_petey_id: '9_8'
     type: string
     semantic_type: entity_name
@@ -6901,6 +7813,12 @@ fields:
     description: Name of entity [1]
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: partnership_joint_venture
+      block_iteration: '1'
+      subject: entity
+      grid: p9-G1
+      suffix: nm
   partnership_joint_venture_1_ownership_pct:
     x_petey_id: '9_9'
     type: number
@@ -6915,7 +7833,13 @@ fields:
       widget_type: text
       path: undefined_130
     label_source: llm
-  partnership_joint_venture_1_amt:
+    x_petey_identifiers:
+      block_prefix: partnership_joint_venture
+      block_iteration: '1'
+      subject: ownership
+      suffix: pct
+      grid: p9-G1
+  partnership_joint_venture_amt_1:
     x_petey_id: '9_10'
     type: number
     semantic_type: money
@@ -6931,7 +7855,12 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  partnership_joint_venture_2_entity_name:
+    x_petey_identifiers:
+      subject: partnership_joint_venture
+      suffix: amt
+      iteration: '1'
+      grid: p9-G1
+  partnership_joint_venture_2_entity_nm:
     x_petey_id: '9_11'
     type: string
     semantic_type: entity_name
@@ -6947,6 +7876,12 @@ fields:
     description: Name of entity [2]
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: partnership_joint_venture
+      block_iteration: '2'
+      subject: entity
+      grid: p9-G1
+      suffix: nm
   partnership_joint_venture_2_ownership_pct:
     x_petey_id: '9_12'
     type: number
@@ -6961,7 +7896,13 @@ fields:
       widget_type: text
       path: undefined_131
     label_source: llm
-  partnership_joint_venture_2_amt:
+    x_petey_identifiers:
+      block_prefix: partnership_joint_venture
+      block_iteration: '2'
+      subject: ownership
+      suffix: pct
+      grid: p9-G1
+  partnership_joint_venture_amt_2:
     x_petey_id: '9_13'
     type: number
     semantic_type: money
@@ -6977,7 +7918,12 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
-  partnership_joint_venture_3_entity_name:
+    x_petey_identifiers:
+      subject: partnership_joint_venture
+      suffix: amt
+      iteration: '2'
+      grid: p9-G1
+  partnership_joint_venture_3_entity_nm:
     x_petey_id: '9_14'
     type: string
     semantic_type: entity_name
@@ -6993,6 +7939,12 @@ fields:
     description: Name of entity [3]
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: partnership_joint_venture
+      block_iteration: '3'
+      subject: entity
+      grid: p9-G1
+      suffix: nm
   partnership_joint_venture_3_ownership_pct:
     x_petey_id: '9_15'
     type: number
@@ -7007,7 +7959,13 @@ fields:
       widget_type: text
       path: undefined_133
     label_source: llm
-  partnership_joint_venture_3_amt:
+    x_petey_identifiers:
+      block_prefix: partnership_joint_venture
+      block_iteration: '3'
+      subject: ownership
+      suffix: pct
+      grid: p9-G1
+  partnership_joint_venture_amt_3:
     x_petey_id: '9_16'
     type: number
     semantic_type: money
@@ -7023,6 +7981,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: partnership_joint_venture
+      suffix: amt
+      iteration: '3'
+      grid: p9-G1
   customer_mailing_lists_ind:
     x_petey_id: '9_17'
     type: category
@@ -7052,6 +8015,8 @@ fields:
         path: check 43
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: customer_mailing_lists_ind
   customer_mailing_lists_pii_ind:
     x_petey_id: '9_18'
     type: category
@@ -7081,6 +8046,8 @@ fields:
         path: check 43_1
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: customer_mailing_lists_pii_ind
   customer_mailing_lists_description:
     x_petey_id: '9_19'
     type: string
@@ -7095,6 +8062,8 @@ fields:
       widget_type: text
       path: 43 Identifiable information
     label_source: llm
+    x_petey_identifiers:
+      subject: customer_mailing_lists_description
   customer_mailing_lists_amt:
     x_petey_id: '9_20'
     type: number
@@ -7111,6 +8080,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: customer_mailing_lists
+      suffix: amt
   other_business_property_ind:
     x_petey_id: '9_21'
     type: category
@@ -7140,6 +8112,8 @@ fields:
         path: check 44
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: other_business_property_ind
   other_business_property_1_description:
     x_petey_id: '9_22'
     type: string
@@ -7154,7 +8128,12 @@ fields:
       widget_type: text
       path: '44.1'
     label_source: llm
-  other_business_property_1_amt:
+    x_petey_identifiers:
+      block_prefix: other_business_property
+      block_iteration: '1'
+      subject: description
+      grid: p9-G2
+  other_business_property_amt_1:
     x_petey_id: '9_23'
     type: number
     semantic_type: money
@@ -7170,6 +8149,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_business_property
+      suffix: amt
+      iteration: '1'
+      grid: p9-G2
   other_business_property_2_description:
     x_petey_id: '9_24'
     type: string
@@ -7184,7 +8168,12 @@ fields:
       widget_type: text
       path: '44.2'
     label_source: llm
-  other_business_property_2_amt:
+    x_petey_identifiers:
+      block_prefix: other_business_property
+      block_iteration: '2'
+      subject: description
+      grid: p9-G2
+  other_business_property_amt_2:
     x_petey_id: '9_25'
     type: number
     semantic_type: money
@@ -7200,6 +8189,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_business_property
+      suffix: amt
+      iteration: '2'
+      grid: p9-G2
   other_business_property_3_description:
     x_petey_id: '9_26'
     type: string
@@ -7214,7 +8208,12 @@ fields:
       widget_type: text
       path: '44.3'
     label_source: llm
-  other_business_property_3_amt:
+    x_petey_identifiers:
+      block_prefix: other_business_property
+      block_iteration: '3'
+      subject: description
+      grid: p9-G2
+  other_business_property_amt_3:
     x_petey_id: '9_27'
     type: number
     semantic_type: money
@@ -7230,6 +8229,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_business_property
+      suffix: amt
+      iteration: '3'
+      grid: p9-G2
   other_business_property_4_description:
     x_petey_id: '9_28'
     type: string
@@ -7244,7 +8248,12 @@ fields:
       widget_type: text
       path: '44.4'
     label_source: llm
-  other_business_property_4_amt:
+    x_petey_identifiers:
+      block_prefix: other_business_property
+      block_iteration: '4'
+      subject: description
+      grid: p9-G2
+  other_business_property_amt_4:
     x_petey_id: '9_29'
     type: number
     semantic_type: money
@@ -7260,6 +8269,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_business_property
+      suffix: amt
+      iteration: '4'
+      grid: p9-G2
   other_business_property_5_description:
     x_petey_id: '9_30'
     type: string
@@ -7274,7 +8288,12 @@ fields:
       widget_type: text
       path: '44.5'
     label_source: llm
-  other_business_property_5_amt:
+    x_petey_identifiers:
+      block_prefix: other_business_property
+      block_iteration: '5'
+      subject: description
+      grid: p9-G2
+  other_business_property_amt_5:
     x_petey_id: '9_31'
     type: number
     semantic_type: money
@@ -7290,6 +8309,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_business_property
+      suffix: amt
+      iteration: '5'
+      grid: p9-G2
   other_business_property_6_description:
     x_petey_id: '9_32'
     type: string
@@ -7304,7 +8328,12 @@ fields:
       widget_type: text
       path: '44.6'
     label_source: llm
-  other_business_property_6_amt:
+    x_petey_identifiers:
+      block_prefix: other_business_property
+      block_iteration: '6'
+      subject: description
+      grid: p9-G2
+  other_business_property_amt_6:
     x_petey_id: '9_33'
     type: number
     semantic_type: money
@@ -7320,6 +8349,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_business_property
+      suffix: amt
+      iteration: '6'
+      grid: p9-G2
   part_5_total_amt:
     x_petey_id: '9_34'
     type: number
@@ -7336,6 +8370,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: part_5_total
+      suffix: amt
   farm_commercial_fishing_property_ind:
     x_petey_id: '9_35'
     type: category
@@ -7365,6 +8402,8 @@ fields:
         path: check 46
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: farm_commercial_fishing_property_ind
   farm_animals_ind:
     x_petey_id: '9_36'
     type: category
@@ -7413,6 +8452,8 @@ fields:
           'On':
             key: 'yes'
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: farm_animals_ind
   farm_animals_description:
     x_petey_id: '9_37'
     type: string
@@ -7427,6 +8468,8 @@ fields:
       widget_type: text
       path: 47 Farm Animals
     label_source: llm
+    x_petey_identifiers:
+      subject: farm_animals_description
   farm_animals_amt:
     x_petey_id: '9_38'
     type: number
@@ -7443,6 +8486,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: farm_animals
+      suffix: amt
   has_crops_ind:
     x_petey_id: '10_1'
     type: category
@@ -7472,6 +8518,8 @@ fields:
         path: check 48
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_crops_ind
   crops_description:
     x_petey_id: '10_2'
     type: string
@@ -7488,6 +8536,8 @@ fields:
     description: 48. Crops—either growing or harvested
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: crops_description
   crops_amt:
     x_petey_id: '10_3'
     type: number
@@ -7504,6 +8554,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: crops
+      suffix: amt
   has_farm_fishing_equipment_ind:
     x_petey_id: '10_4'
     type: category
@@ -7533,6 +8586,8 @@ fields:
         path: check 49
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_farm_fishing_equipment_ind
   farm_fishing_equipment_description:
     x_petey_id: '10_5'
     type: string
@@ -7547,6 +8602,8 @@ fields:
       widget_type: text
       path: '49'
     label_source: llm
+    x_petey_identifiers:
+      subject: farm_fishing_equipment_description
   farm_fishing_equipment_amt:
     x_petey_id: '10_6'
     type: number
@@ -7563,6 +8620,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: farm_fishing_equipment
+      suffix: amt
   has_farm_fishing_supplies_ind:
     x_petey_id: '10_7'
     type: category
@@ -7592,6 +8652,8 @@ fields:
         path: check 50
         on_state: 'yes'
         caption: 'Yes'
+    x_petey_identifiers:
+      subject: has_farm_fishing_supplies_ind
   farm_fishing_supplies_description:
     x_petey_id: '10_8'
     type: string
@@ -7606,6 +8668,8 @@ fields:
       widget_type: text
       path: '50'
     label_source: llm
+    x_petey_identifiers:
+      subject: farm_fishing_supplies_description
   farm_fishing_supplies_amt:
     x_petey_id: '10_9'
     type: number
@@ -7622,6 +8686,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: farm_fishing_supplies
+      suffix: amt
   has_other_farm_fishing_property_ind:
     x_petey_id: '10_10'
     type: category
@@ -7652,6 +8719,8 @@ fields:
         on_state: 'On'
         caption: Yes. Give specific
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: has_other_farm_fishing_property_ind
   other_farm_fishing_property_description:
     x_petey_id: '10_11'
     type: string
@@ -7666,6 +8735,8 @@ fields:
       widget_type: text
       path: '51'
     label_source: llm
+    x_petey_identifiers:
+      subject: other_farm_fishing_property_description
   other_farm_fishing_property_amt:
     x_petey_id: '10_12'
     type: number
@@ -7682,6 +8753,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_farm_fishing_property
+      suffix: amt
   part_6_farm_fishing_property_total_amt:
     x_petey_id: '10_13'
     type: number
@@ -7698,6 +8772,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: part_6_farm_fishing_property_total
+      suffix: amt
   has_other_property_ind:
     x_petey_id: '10_14'
     type: category
@@ -7728,6 +8805,8 @@ fields:
         on_state: 'On'
         caption: Yes. Give specific
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: has_other_property_ind
   other_property_item1_amt:
     x_petey_id: '10_16'
     type: number
@@ -7744,6 +8823,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_property_item1
+      suffix: amt
   other_property_description:
     x_petey_id: '10_15'
     type: string
@@ -7760,6 +8842,8 @@ fields:
     description: 'Examples: Season tickets, country club membership'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_property_description
   other_property_item2_amt:
     x_petey_id: '10_17'
     type: number
@@ -7776,6 +8860,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_property_item2
+      suffix: amt
   other_property_item3_amt:
     x_petey_id: '10_18'
     type: number
@@ -7792,6 +8879,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: other_property_item3
+      suffix: amt
   part_7_other_property_total_amt:
     x_petey_id: '10_19'
     type: number
@@ -7808,6 +8898,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: part_7_other_property_total
+      suffix: amt
   line_55_part_1_total_real_estate_amt:
     x_petey_id: '10_20'
     type: string
@@ -7840,6 +8933,9 @@ fields:
     - part_by_name:id_part
     - part_by_name:id_part
     pattern: ^\d{1,5}$
+    x_petey_identifiers:
+      subject: line_55_part_1_total_real_estate
+      suffix: amt
   line_56_part_2_total_vehicles_amt:
     x_petey_id: '10_21'
     type: string
@@ -7872,6 +8968,9 @@ fields:
     - part_by_name:id_part
     - part_by_name:id_part
     pattern: ^\d{1,5}$
+    x_petey_identifiers:
+      subject: line_56_part_2_total_vehicles
+      suffix: amt
   line_57_part_3_total_personal_household_items_amt:
     x_petey_id: '10_22'
     type: string
@@ -7906,6 +9005,9 @@ fields:
     - part_by_name:id_part
     - part_by_name:id_part
     pattern: ^\d{1,5}$
+    x_petey_identifiers:
+      subject: line_57_part_3_total_personal_household_items
+      suffix: amt
   line_58_part_4_total_financial_assets_amt:
     x_petey_id: '10_23'
     type: number
@@ -7922,6 +9024,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_58_part_4_total_financial_assets
+      suffix: amt
   line_59_part_5_total_business_property_amt:
     x_petey_id: '10_24'
     type: number
@@ -7938,6 +9043,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_59_part_5_total_business_property
+      suffix: amt
   line_60_part_6_total_farm_fishing_property_amt:
     x_petey_id: '10_25'
     type: number
@@ -7954,6 +9062,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_60_part_6_total_farm_fishing_property
+      suffix: amt
   line_61_part_7_total_other_property_amt:
     x_petey_id: '10_26'
     type: number
@@ -7970,6 +9081,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_61_part_7_total_other_property
+      suffix: amt
   line_62_total_personal_property_amt:
     x_petey_id: '10_27'
     type: number
@@ -7986,6 +9100,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_62_total_personal_property
+      suffix: amt
   line_63_total_property_amt:
     x_petey_id: '10_28'
     type: number
@@ -8002,6 +9119,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: line_63_total_property
+      suffix: amt
   property_1_type:
     x_petey_id: '1_7'
     type: multi_category
@@ -8160,6 +9280,8 @@ fields:
           other:
             caption: ''
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: property_1_type
   property_2_type:
     x_petey_id: '1_21'
     type: category
@@ -8319,6 +9441,8 @@ fields:
           timeshare:
             caption: Timeshare
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: property_2_type
   property_1_3_type:
     x_petey_id: '2_2'
     type: multi_category
@@ -8489,6 +9613,8 @@ fields:
           other:
             caption: Other
       record: runs/hand_review/je__uscourts_b_106a_b.json
+    x_petey_identifiers:
+      subject: property_1_3_type
 x_petey_dedup_log:
   duplicate_labels_reassigned: 22
   collisions:

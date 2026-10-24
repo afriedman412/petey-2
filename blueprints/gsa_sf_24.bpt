@@ -46,6 +46,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: bond_executed
+      suffix: dt
   principal_name_and_address_txt:
     x_petey_id: '1_2'
     type: string
@@ -91,6 +94,9 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      subject: principal_name_and_address
+      suffix: txt
   state_of_incorporation_cd:
     x_petey_id: '1_5'
     type: string
@@ -124,6 +130,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: state_of_incorporation
+      suffix: cd
   sureties_name_and_address_txt:
     x_petey_id: '1_6'
     type: string
@@ -169,6 +178,9 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      subject: sureties_name_and_address
+      suffix: txt
   penal_sum_percent_of_bid_price_pct:
     x_petey_id: '1_9'
     type: number
@@ -207,6 +219,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_pct (type)'
+    x_petey_identifiers:
+      subject: penal_sum_percent_of_bid_price
+      suffix: pct
   penal_sum_thousands_amt:
     x_petey_id: '1_11'
     type: number
@@ -228,6 +243,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: penal_sum_thousands
+      suffix: amt
   penal_sum_hundreds_amt:
     x_petey_id: '1_12'
     type: number
@@ -249,6 +267,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: penal_sum_hundreds
+      suffix: amt
   bid_dt:
     x_petey_id: '1_7'
     type: date
@@ -279,6 +300,9 @@ fields:
           DD YY}
       message: Invalid Date. Enter 2 digit month, 2 digit day and 4 digit year.
     label_source: llm
+    x_petey_identifiers:
+      subject: bid
+      suffix: dt
   invitation_nbr:
     x_petey_id: '1_8'
     type: string
@@ -308,6 +332,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: invitation
+      suffix: nbr
   bid_identification_for:
     x_petey_id: '1_14'
     type: category
@@ -339,6 +366,8 @@ fields:
         caption: Supplies
       Services:
         caption: Services
+    x_petey_identifiers:
+      subject: bid_identification_for
   penal_sum_millions_amt:
     x_petey_id: '1_10'
     type: number
@@ -357,6 +386,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: penal_sum_millions
+      suffix: amt
   penal_sum_cents_amt:
     x_petey_id: '1_13'
     type: string
@@ -388,6 +420,9 @@ fields:
         semantic_type: money_whole_dollar
         description: Enter the Cents Not to Exceed Amount.
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: penal_sum_cents
+      suffix: amt
   other_organization_type_txt:
     x_petey_id: '1_4'
     type: string
@@ -419,7 +454,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
-  individual_surety_2_nm:
+    x_petey_identifiers:
+      subject: other_organization_type
+      suffix: txt
+  individual_surety_nm_2:
     x_petey_id: '2_15'
     type: string
     widget:
@@ -450,6 +488,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: nm
+      iteration: '2'
   individual_surety_2_additional_signature:
     x_petey_id: '2_13'
     type: string
@@ -466,7 +508,12 @@ fields:
       Surety, if applicable.
     x_petey_description_source: tooltip
     label_source: llm
-  individual_surety_2_signature:
+    x_petey_identifiers:
+      block_prefix: individual_surety
+      block_iteration: '2'
+      subject: additional
+      suffix: signature
+  individual_surety_signature_2:
     x_petey_id: '2_12'
     type: string
     widget:
@@ -481,6 +528,10 @@ fields:
     description: Sign here if you are the Second Individual Surety, if applicable.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: signature
+      iteration: '2'
   individual_surety_1_additional_signature:
     x_petey_id: '2_11'
     type: string
@@ -497,7 +548,12 @@ fields:
       Surety.
     x_petey_description_source: tooltip
     label_source: llm
-  individual_surety_1_signature:
+    x_petey_identifiers:
+      block_prefix: individual_surety
+      block_iteration: '1'
+      subject: additional
+      suffix: signature
+  individual_surety_signature_1:
     x_petey_id: '2_10'
     type: string
     widget:
@@ -512,7 +568,11 @@ fields:
     description: Sign here if you are the First Individual Surety.
     x_petey_description_source: tooltip
     label_source: llm
-  individual_surety_1_nm:
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: signature
+      iteration: '1'
+  individual_surety_nm_1:
     x_petey_id: '2_14'
     type: string
     widget:
@@ -543,6 +603,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: individual_surety
+      suffix: nm
+      iteration: '1'
   principal_1_name_and_title_txt:
     x_petey_id: '2_7'
     type: string
@@ -574,6 +638,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '1'
+      subject: name_and_title
+      suffix: txt
+      grid: p2-G3
   principal_2_name_and_title_txt:
     x_petey_id: '2_8'
     type: string
@@ -605,6 +675,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '2'
+      subject: name_and_title
+      suffix: txt
+      grid: p2-G3
   principal_3_name_and_title_txt:
     x_petey_id: '2_9'
     type: string
@@ -636,6 +712,12 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '3'
+      subject: name_and_title
+      suffix: txt
+      grid: p2-G3
   principal_3_additional_signature:
     x_petey_id: '2_6'
     type: string
@@ -652,7 +734,13 @@ fields:
       if applicable.
     x_petey_description_source: tooltip
     label_source: llm
-  principal_3_signature:
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '3'
+      subject: additional
+      suffix: signature
+      grid: p2-G3
+  principal_signature_3:
     x_petey_id: '2_3'
     type: string
     widget:
@@ -667,7 +755,12 @@ fields:
     description: Sign here if you are the Third Principal, if applicable.
     x_petey_description_source: tooltip
     label_source: llm
-  principal_2_signature:
+    x_petey_identifiers:
+      subject: principal
+      suffix: signature
+      iteration: '3'
+      grid: p2-G3
+  principal_signature_2:
     x_petey_id: '2_2'
     type: string
     widget:
@@ -682,6 +775,11 @@ fields:
     description: Sign here if you are the Second Principal, if applicable.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: principal
+      suffix: signature
+      iteration: '2'
+      grid: p2-G3
   principal_2_additional_signature:
     x_petey_id: '2_5'
     type: string
@@ -698,6 +796,12 @@ fields:
       if applicable.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '2'
+      subject: additional
+      suffix: signature
+      grid: p2-G3
   principal_1_additional_signature:
     x_petey_id: '2_4'
     type: string
@@ -713,7 +817,13 @@ fields:
     description: Sign here if an additional signature is needed for the First Principal.
     x_petey_description_source: tooltip
     label_source: llm
-  principal_1_signature:
+    x_petey_identifiers:
+      block_prefix: principal
+      block_iteration: '1'
+      subject: additional
+      suffix: signature
+      grid: p2-G3
+  principal_signature_1:
     x_petey_id: '2_1'
     type: string
     widget:
@@ -728,6 +838,11 @@ fields:
     description: Sign here if you are the First Principal.
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: principal
+      suffix: signature
+      iteration: '1'
+      grid: p2-G3
   surety_a_2_name_and_title_txt:
     x_petey_id: '2_24'
     type: string
@@ -794,6 +909,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: b
+      subject: state_of_incorporation
+      suffix: cd
   surety_b_liability_limit_amt:
     x_petey_id: '2_27'
     type: number
@@ -813,6 +933,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: b
+      subject: liability_limit
+      suffix: amt
   surety_b_2_additional_signature:
     x_petey_id: '2_31'
     type: string
@@ -1065,6 +1190,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: c
+      subject: name_and_address
+      suffix: txt
   surety_c_1_additional_signature:
     x_petey_id: '2_38'
     type: string
@@ -1163,6 +1293,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: c
+      subject: state_of_incorporation
+      suffix: cd
   surety_c_liability_limit_amt:
     x_petey_id: '2_36'
     type: number
@@ -1182,6 +1317,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: c
+      subject: liability_limit
+      suffix: amt
   surety_c_2_additional_signature:
     x_petey_id: '2_40'
     type: string
@@ -1242,6 +1382,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: d
+      subject: name_and_address
+      suffix: txt
   surety_d_1_signature:
     x_petey_id: '2_46'
     type: string
@@ -1388,6 +1533,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: d
+      subject: state_of_incorporation
+      suffix: cd
   surety_d_liability_limit_amt:
     x_petey_id: '2_45'
     type: number
@@ -1407,6 +1557,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: d
+      subject: liability_limit
+      suffix: amt
   surety_d_2_additional_signature:
     x_petey_id: '2_49'
     type: string
@@ -1442,6 +1597,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: a
+      subject: liability_limit
+      suffix: amt
   surety_a_state_of_incorporation_cd:
     x_petey_id: '2_17'
     type: string
@@ -1476,6 +1636,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: a
+      subject: state_of_incorporation
+      suffix: cd
   surety_a_name_and_address_txt:
     x_petey_id: '2_16'
     type: string
@@ -1520,6 +1685,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: a
+      subject: name_and_address
+      suffix: txt
   surety_b_1_name_and_title_txt:
     x_petey_id: '2_32'
     type: string
@@ -1628,6 +1798,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: b
+      subject: name_and_address
+      suffix: txt
   surety_f_rep_1_name_and_title_txt:
     x_petey_id: '3_17'
     type: string
@@ -1760,6 +1935,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: f
+      subject: name_and_address
+      suffix: txt
   surety_f_state_of_incorporation_cd:
     x_petey_id: '3_11'
     type: string
@@ -1797,6 +1977,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: f
+      subject: state_of_incorporation
+      suffix: cd
   surety_f_rep_2_signature:
     x_petey_id: '3_15'
     type: string
@@ -1892,6 +2077,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: f
+      subject: liability_limit
+      suffix: amt
   surety_g_name_and_address_txt:
     x_petey_id: '3_19'
     type: string
@@ -1939,6 +2129,11 @@ fields:
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
     semantic_type: name_and_address
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: g
+      subject: name_and_address
+      suffix: txt
   surety_g_rep_1_signature:
     x_petey_id: '3_22'
     type: string
@@ -2135,6 +2330,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: g
+      subject: state_of_incorporation
+      suffix: cd
   surety_g_liability_limit_amt:
     x_petey_id: '3_21'
     type: number
@@ -2157,6 +2357,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: g
+      subject: liability_limit
+      suffix: amt
   surety_e_state_of_incorporation_cd:
     x_petey_id: '3_2'
     type: string
@@ -2194,6 +2399,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: e
+      subject: state_of_incorporation
+      suffix: cd
   surety_e_liability_limit_amt:
     x_petey_id: '3_3'
     type: number
@@ -2216,6 +2426,11 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: e
+      subject: liability_limit
+      suffix: amt
   surety_e_rep_2_additional_signature:
     x_petey_id: '3_7'
     type: string
@@ -2421,6 +2636,11 @@ fields:
       kind: type
       why: 'a name with its mailing address in one box: the new name_and_address semantic
         type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: surety
+      block_iteration: e
+      subject: name_and_address
+      suffix: txt
   maximum_dollar_limitation_amt:
     x_petey_id: '3_28'
     type: number
@@ -2440,6 +2660,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: maximum_dollar_limitation
+      suffix: amt
   organization_type:
     x_petey_id: '1_3'
     type: category
@@ -2510,6 +2733,8 @@ fields:
         on_state: '1'
         caption: Corporation
         x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: organization_type
 x_petey_xfa_log:
   joined: 92
   type: 1

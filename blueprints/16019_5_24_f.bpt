@@ -41,6 +41,9 @@ fields:
         semantic_type: person_name
         description: 1. Legal Name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: legal
+      suffix: nm
   business_trade_nm:
     x_petey_id: '2_2'
     type: string
@@ -68,6 +71,9 @@ fields:
         semantic_type: person_name
         description: 2 .Business Trade Name
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: business_trade
+      suffix: nm
   federal_employer_ein:
     x_petey_id: '2_3'
     type: string
@@ -87,6 +93,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
+    x_petey_identifiers:
+      subject: federal_employer
+      suffix: ein
   social_security_ssn:
     x_petey_id: '2_4'
     type: string
@@ -106,7 +115,10 @@ fields:
     label_source: llm
     x_petey_retype:
     - separators_dropped_by_maxlen:9
-  business_phone_number:
+    x_petey_identifiers:
+      subject: social_security
+      suffix: ssn
+  business_phone_nbr:
     x_petey_id: '2_5'
     type: string
     semantic_type: phone
@@ -138,7 +150,10 @@ fields:
         pattern: ^\d{1,10}$
         description: 5. Business Phone Number
       judged: 'kept: 1 -> 0'
-  louisiana_charter_number:
+    x_petey_identifiers:
+      subject: business_phone
+      suffix: nbr
+  louisiana_charter_nbr:
     x_petey_id: '2_6'
     type: string
     widget:
@@ -153,6 +168,9 @@ fields:
     description: 6. Louisiana Charter Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: louisiana_charter
+      suffix: nbr
   date_entity_began_doing_business_dt:
     x_petey_id: '2_7'
     type: date
@@ -169,6 +187,9 @@ fields:
     description: 7. Date Entity Began Doing Business (mm/dd/yyyy)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: date_entity_began_doing_business
+      suffix: dt
   business_email_address:
     x_petey_id: '2_8'
     type: string
@@ -186,6 +207,8 @@ fields:
     description: 8. Business Email Address
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: business_email_address
   primary_location_of_business:
     x_petey_id: '2_9'
     type: string
@@ -201,6 +224,8 @@ fields:
     description: 9. Primary Location of Business
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: primary_location_of_business
   primary_mailing_address:
     x_petey_id: '2_10'
     type: string
@@ -216,6 +241,8 @@ fields:
     description: 10. Primary Mailing Address
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: primary_mailing_address
   reason_for_applying:
     x_petey_id: '2_11'
     type: category
@@ -249,6 +276,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: reason_for_applying
   organization_type:
     x_petey_id: '2_12'
     type: category
@@ -342,6 +371,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: organization_type
   other_organization_type:
     x_petey_id: '2_13'
     type: string
@@ -357,6 +388,8 @@ fields:
     description: Other Type of Organization
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_organization_type
   llc_sub_entity_type:
     x_petey_id: '2_14'
     type: category
@@ -414,6 +447,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: llc_sub_entity_type
   business_description_principal_activity:
     x_petey_id: '2_15'
     type: string
@@ -430,6 +465,8 @@ fields:
     description: 13. Bussiness Dessscription/Principal Activity
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: business_description_principal_activity
   naics_cd:
     x_petey_id: '2_16'
     type: string
@@ -447,6 +484,9 @@ fields:
     description: 14. NAICS Code
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: naics
+      suffix: cd
   owner1_name_and_title:
     x_petey_id: '2_17'
     type: string
@@ -463,6 +503,8 @@ fields:
     description: 15. Name and Title
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner1_name_and_title
   owner1_social_security_ssn:
     x_petey_id: '2_19'
     type: string
@@ -480,7 +522,10 @@ fields:
     description: 16. Social Security Number
     x_petey_description_source: tooltip
     label_source: llm
-  owner1_additional_phone_number:
+    x_petey_identifiers:
+      subject: owner1_social_security
+      suffix: ssn
+  owner1_additional_phone_nbr:
     x_petey_id: '2_21'
     type: string
     semantic_type: phone
@@ -497,6 +542,9 @@ fields:
     description: 17. Additional Phone Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner1_additional_phone
+      suffix: nbr
   owner1_home_address_line_1_txt:
     x_petey_id: '2_23'
     type: string
@@ -513,6 +561,9 @@ fields:
     description: 18. Home Address Line 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner1_home_address_line_1
+      suffix: txt
   owner1_home_address_line_2_txt:
     x_petey_id: '2_25'
     type: string
@@ -529,6 +580,9 @@ fields:
     description: 18. Home Address Line 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner1_home_address_line_2
+      suffix: txt
   owner2_name_and_title:
     x_petey_id: '2_18'
     type: string
@@ -545,6 +599,8 @@ fields:
     description: 19. Name and Title
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner2_name_and_title
   owner2_social_security_ssn:
     x_petey_id: '2_20'
     type: string
@@ -562,7 +618,10 @@ fields:
     description: 20. Social Security Number
     x_petey_description_source: tooltip
     label_source: llm
-  owner2_additional_phone_number:
+    x_petey_identifiers:
+      subject: owner2_social_security
+      suffix: ssn
+  owner2_additional_phone_nbr:
     x_petey_id: '2_22'
     type: string
     semantic_type: phone
@@ -579,6 +638,9 @@ fields:
     description: 21. Additional Phone Number
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner2_additional_phone
+      suffix: nbr
   owner2_home_address_line_1_txt:
     x_petey_id: '2_24'
     type: string
@@ -595,6 +657,9 @@ fields:
     description: 22. Home Address Line 1
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner2_home_address_line_1
+      suffix: txt
   owner2_home_address_line_2_txt:
     x_petey_id: '2_26'
     type: string
@@ -611,6 +676,9 @@ fields:
     description: 22. Home Address Line 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: owner2_home_address_line_2
+      suffix: txt
   check_if_sales_use_tax_ind:
     x_petey_id: '2_28'
     type: boolean
@@ -627,6 +695,9 @@ fields:
     description: Check if Sales/Use Tax
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: check_if_sales_use_tax
+      suffix: ind
   sales_use_tax_begins_operations_dt:
     x_petey_id: '2_27'
     type: date
@@ -643,6 +714,9 @@ fields:
     description: Date businesss begins operation in lousiana (mm/dd/yyyy)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: sales_use_tax_begins_operations
+      suffix: dt
   sales_use_tax_type:
     x_petey_id: '2_29'
     type: category
@@ -736,6 +810,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sales_use_tax_type
   sales_use_tax_filing_frequency:
     x_petey_id: '2_30'
     type: category
@@ -769,6 +845,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: sales_use_tax_filing_frequency
   check_if_corporation_ind:
     x_petey_id: '2_32'
     type: boolean
@@ -785,6 +863,9 @@ fields:
     description: Check if Corporation
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: check_if_corporation
+      suffix: ind
   corporation_begins_operations_dt:
     x_petey_id: '2_31'
     type: date
@@ -801,6 +882,9 @@ fields:
     description: Date businesss begins operation in lousiana (mm/dd/yyyy)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: corporation_begins_operations
+      suffix: dt
   corporation_filing_frequency:
     x_petey_id: '2_33'
     type: category
@@ -834,6 +918,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: corporation_filing_frequency
   corporation_fiscal_year_filer_dates:
     x_petey_id: '2_34'
     type: string
@@ -851,6 +937,8 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=127
+    x_petey_identifiers:
+      subject: corporation_fiscal_year_filer_dates
   check_if_withholding_tax_ind:
     x_petey_id: '2_36'
     type: boolean
@@ -867,6 +955,9 @@ fields:
     description: Check if Withholding Tax
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: check_if_withholding_tax
+      suffix: ind
   withholding_tax_begins_payroll_dt:
     x_petey_id: '2_35'
     type: date
@@ -883,6 +974,9 @@ fields:
     description: Date business begins payroll withholding from this location
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: withholding_tax_begins_payroll
+      suffix: dt
   withholding_tax_filing_frequency:
     x_petey_id: '2_37'
     type: category
@@ -928,6 +1022,8 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_identifiers:
+      subject: withholding_tax_filing_frequency
   check_if_partnership_tax_ind:
     x_petey_id: '2_39'
     type: boolean
@@ -944,6 +1040,9 @@ fields:
     description: Check if Partnership Tax
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: check_if_partnership_tax
+      suffix: ind
   partnership_tax_begins_requiring_dt:
     x_petey_id: '2_38'
     type: date
@@ -960,6 +1059,9 @@ fields:
     description: Date businesss begins requiring this account
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: partnership_tax_begins_requiring
+      suffix: dt
   check_if_fiduciary_tax_ind:
     x_petey_id: '2_41'
     type: boolean
@@ -976,6 +1078,9 @@ fields:
     description: Check if Fiduciary Tax
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: check_if_fiduciary_tax
+      suffix: ind
   fiduciary_tax_begins_requiring_dt:
     x_petey_id: '2_40'
     type: date
@@ -992,6 +1097,9 @@ fields:
     description: Date businesss begins requiring this account
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: fiduciary_tax_begins_requiring
+      suffix: dt
   check_if_other_tax_type_ind:
     x_petey_id: '2_43'
     type: boolean
@@ -1008,6 +1116,9 @@ fields:
     description: Check if Other Tax Type
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: check_if_other_tax_type
+      suffix: ind
   other_tax_types:
     x_petey_id: '2_42'
     type: string
@@ -1023,6 +1134,8 @@ fields:
     description: Other tax types
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_tax_types
   other_tax_begins_requiring_dt:
     x_petey_id: '2_44'
     type: date
@@ -1039,6 +1152,9 @@ fields:
     description: Date businesss begins requiring this account
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: other_tax_begins_requiring
+      suffix: dt
 x_petey_emit_fixes:
   separators_dropped_by_maxlen: 2
   part_by_maxlen: 1

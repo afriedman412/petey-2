@@ -14,7 +14,7 @@ authoring:
   labels: llm
   when: '2026-10-06 21:30:20'
 fields:
-  debtor_1_nm:
+  debtor_nm_1:
     x_petey_id: '1_1'
     type: string
     widget:
@@ -43,7 +43,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
-  debtor_2_nm:
+    x_petey_identifiers:
+      subject: debtor
+      suffix: nm
+      iteration: '1'
+  debtor_nm_2:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -72,6 +76,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: debtor
+      suffix: nm
+      iteration: '2'
   court_district_txt:
     x_petey_id: '1_3'
     type: string
@@ -375,6 +383,9 @@ fields:
         caption: Western District of Wisconsin
       District of Wyoming:
         caption: District of Wyoming
+    x_petey_identifiers:
+      subject: court_district
+      suffix: txt
   case_nbr:
     x_petey_id: '1_4'
     type: string
@@ -404,6 +415,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
   amended_filing_ind:
     x_petey_id: '1_5'
     type: boolean
@@ -420,6 +434,9 @@ fields:
     description: Check if this is an
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: amended_filing
+      suffix: ind
   paid_non_attorney_preparer_ind:
     x_petey_id: '1_6'
     type: category
@@ -469,6 +486,8 @@ fields:
         - 'yes'
         description: Any creditors clims secured by property
       judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: paid_non_attorney_preparer_ind
   non_attorney_preparer_nm:
     x_petey_id: '1_7'
     type: string
@@ -500,7 +519,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
-  debtor_1_signature:
+    x_petey_identifiers:
+      subject: non_attorney_preparer
+      suffix: nm
+  debtor_signature_1:
     x_petey_id: '1_8'
     type: string
     widget:
@@ -515,7 +537,11 @@ fields:
     description: Signature of Debtor 1
     x_petey_description_source: tooltip
     label_source: llm
-  debtor_2_signature:
+    x_petey_identifiers:
+      subject: debtor
+      suffix: signature
+      iteration: '1'
+  debtor_signature_2:
     x_petey_id: '1_9'
     type: string
     widget:
@@ -530,6 +556,10 @@ fields:
     description: Signature of Debtor 2
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: debtor
+      suffix: signature
+      iteration: '2'
   debtor_1_signature_dt:
     x_petey_id: '1_10'
     type: date
@@ -546,6 +576,11 @@ fields:
     description: Executed on (Date mm/dd/yyyy)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: debtor
+      block_iteration: '1'
+      subject: signature
+      suffix: dt
   debtor_2_signature_dt:
     x_petey_id: '1_11'
     type: date
@@ -562,6 +597,11 @@ fields:
     description: Executed on (date mm/dd/yyyy)
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      block_prefix: debtor
+      block_iteration: '2'
+      subject: signature
+      suffix: dt
 x_petey_dropped_widgets:
   count: 4
   widgets:

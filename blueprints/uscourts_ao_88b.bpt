@@ -333,6 +333,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: court_district
+      suffix: txt
   plaintiff_nm:
     x_petey_id: '1_2'
     type: string
@@ -364,6 +367,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: plaintiff
+      suffix: nm
   civil_action_nbr:
     x_petey_id: '1_3'
     type: string
@@ -393,6 +399,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: civil_action
+      suffix: nbr
   defendant_nm:
     x_petey_id: '1_4'
     type: string
@@ -424,6 +433,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: defendant
+      suffix: nm
   subpoenaed_person_nm:
     x_petey_id: '1_5'
     type: string
@@ -455,6 +467,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: subpoenaed_person
+      suffix: nm
   production_ind:
     x_petey_id: '1_6'
     type: boolean
@@ -469,6 +484,9 @@ fields:
       widget_type: checkbox
       path: check_1
     label_source: llm
+    x_petey_identifiers:
+      subject: production
+      suffix: ind
   material_to_produce_txt:
     x_petey_id: '1_7'
     type: string
@@ -500,6 +518,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: material_to_produce
+      suffix: txt
   production_place_txt:
     x_petey_id: '1_8'
     type: string
@@ -531,6 +552,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: production_place
+      suffix: txt
   production_dt:
     x_petey_id: '1_9'
     type: date
@@ -547,6 +571,9 @@ fields:
     description: 'Format: mm/dd/yyyy h:mm am/pm'
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: production
+      suffix: dt
   inspection_of_premises_ind:
     x_petey_id: '1_10'
     type: boolean
@@ -563,6 +590,9 @@ fields:
     description: Inspection of Premises
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: inspection_of_premises
+      suffix: ind
   inspection_place_txt:
     x_petey_id: '1_11'
     type: string
@@ -594,6 +624,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: inspection_place
+      suffix: txt
   inspection_datetime_txt:
     x_petey_id: '1_12'
     type: string
@@ -651,6 +684,9 @@ fields:
       by: claude
       kind: chat
       why: 'a date and a time in one box: the new datetime type (2026-10-21)'
+    x_petey_identifiers:
+      subject: inspection_datetime
+      suffix: txt
   issue_dt:
     x_petey_id: '1_13'
     type: date
@@ -667,6 +703,9 @@ fields:
     description: Format mm/dd/yyyy
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: issue
+      suffix: dt
   clerk_or_deputy_clerk_signature:
     x_petey_id: '1_14'
     type: string
@@ -682,6 +721,9 @@ fields:
     description: Signature of Deputy Clerk
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: clerk_or_deputy_clerk
+      suffix: signature
   attorney_signature:
     x_petey_id: '1_15'
     type: string
@@ -697,7 +739,10 @@ fields:
     description: Signature of Attorney
     x_petey_description_source: tooltip
     label_source: llm
-  represented_party_1_nm:
+    x_petey_identifiers:
+      subject: attorney
+      suffix: signature
+  represented_party_nm_1:
     x_petey_id: '1_16'
     type: string
     widget:
@@ -728,7 +773,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; first of a numbered set gets 1'
-  represented_party_2_nm:
+    x_petey_identifiers:
+      subject: represented_party
+      suffix: nm
+      iteration: '1'
+  represented_party_nm_2:
     x_petey_id: '1_17'
     type: string
     widget:
@@ -759,6 +808,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: name -> nm; number moved before the suffix'
+    x_petey_identifiers:
+      subject: represented_party
+      suffix: nm
+      iteration: '2'
   attorney_contact_info_txt:
     x_petey_id: '1_18'
     type: string
@@ -790,6 +843,9 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: info -> info_txt'
+    x_petey_identifiers:
+      subject: attorney_contact_info
+      suffix: txt
   individual_to_be_served_nm:
     x_petey_id: '2_1'
     type: string
@@ -821,6 +877,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: individual_to_be_served
+      suffix: nm
   received_dt:
     x_petey_id: '2_2'
     type: date
@@ -837,6 +896,9 @@ fields:
     description: Format mm/dd/yyyy
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: received
+      suffix: dt
   service_method_ind:
     x_petey_id: '2_3'
     type: category
@@ -923,7 +985,9 @@ fields:
       from:
       - service_method_ind::served
       - service_method_ind::Returned
-  manner_of_service_1_txt:
+    x_petey_identifiers:
+      subject: service_method_ind
+  manner_of_service_txt_1:
     x_petey_id: '2_4'
     type: string
     semantic_type: text
@@ -978,7 +1042,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  manner_of_service_2_txt:
+    x_petey_identifiers:
+      subject: manner_of_service
+      suffix: txt
+      iteration: '1'
+  manner_of_service_txt_2:
     x_petey_id: '2_5'
     type: string
     semantic_type: text
@@ -1034,7 +1102,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
-  manner_of_service_3_txt:
+    x_petey_identifiers:
+      subject: manner_of_service
+      suffix: txt
+      iteration: '2'
+  manner_of_service_txt_3:
     x_petey_id: '2_6'
     type: string
     semantic_type: text
@@ -1090,6 +1162,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: manner_of_service
+      suffix: txt
+      iteration: '3'
   service_dt:
     x_petey_id: '2_7'
     type: date
@@ -1106,7 +1182,10 @@ fields:
     description: Format mm/dd/yyyy
     x_petey_description_source: tooltip
     label_source: llm
-  returned_unexecuted_because_1_txt:
+    x_petey_identifiers:
+      subject: service
+      suffix: dt
+  returned_unexecuted_because_txt_1:
     x_petey_id: '2_8'
     type: string
     semantic_type: text
@@ -1138,7 +1217,11 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: first of a numbered set gets 1'
-  returned_unexecuted_because_2_txt:
+    x_petey_identifiers:
+      subject: returned_unexecuted_because
+      suffix: txt
+      iteration: '1'
+  returned_unexecuted_because_txt_2:
     x_petey_id: '2_9'
     type: string
     semantic_type: text
@@ -1170,6 +1253,10 @@ fields:
       by: claude
       kind: name
       why: 'naming standard: number moved before the suffix'
+    x_petey_identifiers:
+      subject: returned_unexecuted_because
+      suffix: txt
+      iteration: '2'
   amount_tendered_amt:
     x_petey_id: '2_10'
     type: number
@@ -1188,6 +1275,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: amount_tendered
+      suffix: amt
   cost_of_travel_amt:
     x_petey_id: '2_11'
     type: number
@@ -1206,6 +1296,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: cost_of_travel
+      suffix: amt
   cost_of_services_amt:
     x_petey_id: '2_12'
     type: number
@@ -1224,6 +1317,9 @@ fields:
     label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: cost_of_services
+      suffix: amt
   server_signature_dt:
     x_petey_id: '2_13'
     type: date
@@ -1240,6 +1336,9 @@ fields:
     description: Format mm/dd/yyyy
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: server_signature
+      suffix: dt
   server_signature:
     x_petey_id: '2_14'
     type: string
@@ -1255,6 +1354,9 @@ fields:
     description: Signature of Server
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: server
+      suffix: signature
   server_nm:
     x_petey_id: '2_15'
     type: string
@@ -1286,6 +1388,9 @@ fields:
       by: claude
       kind: type
       why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: server
+      suffix: nm
   server_address_txt:
     x_petey_id: '2_16'
     type: string
@@ -1313,6 +1418,9 @@ fields:
         semantic_type: text
         description: Address of Server
       judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: server_address
+      suffix: txt
   additional_remarks_regarding_return_of_service_txt:
     x_petey_id: '2_17'
     type: string
@@ -1329,6 +1437,9 @@ fields:
     description: Additional remarks regarding return of service
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_identifiers:
+      subject: additional_remarks_regarding_return_of_service
+      suffix: txt
 x_petey_dedup_log:
   duplicate_labels_reassigned: 4
   collisions:
