@@ -587,6 +587,15 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   drawing recognising a near copy whose labels match as an existing type. Detection already uses printed lines
   (`label_copies`). Tolerant captions in SIA were tried and dropped: +61 right of ~2,700 fields, 6 new real errors.
 
+- **Option names standardized across a block type's copies** (parked 2026-10-24, Andrew: "lets add it to the TO DO
+  ... we can probably let this slide for now"). A block type standardizes its field names but not the options of an
+  option group inside it, so copies of one question report different values: je__uscourts_b_106d_check's "who owes
+  the debt" (1_18, 1_35, 2_75, 2_74, 2_59) has four different sets across claims 1-5, and "nature of lien" (2_73,
+  2_77, 2_79) carries field names as option keys. Idea: an option group is one position of the type; each copy's
+  options take the reference block's names by place (first box to first box), at assign, in run finders, and as a
+  button on the type. Only within one block type. Check first whether an option's key is still the PDF's on-state
+  anywhere (the harness fills by it): there, standardize the caption, not the key.
+
 - **Suggested block types from the block-group finder** (parked 2026-10-21, Andrew: "park that and we can integrate
   it later"). Since block groups went, `eval/block_groups.find` only feeds structure-first labeling and keeps grids
   inside repeated blocks out of the Grids listing. Idea: on the Blocks tab, each group it finds proposed as a block
