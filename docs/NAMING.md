@@ -6,6 +6,33 @@ associations it serves (entities, compound values; `eval/associate.py`) would be
 covers repeating rows of an `array`, not entities, compound values, or rows bound to their own widgets. Goal: names whose
 shape is predictable, so associated fields (entities, compound values) can be read from them.
 
+## The standard (decided 2026-10-24)
+
+Andrew, 2026-10-24, for shipping that weekend; it supersedes the orders below where they differ. One module prints every
+name from its parts: `petey/naming.py` (labeling, block types, the review page's parts editor, `eval/field_identifiers`).
+
+    [block subject]_[block iteration]_[field subject]_[suffix]_[field iteration]_[part]
+
+    child_2_ssn_part1     the second child's SSN, its first box
+    ssn_2_part1           a second SSN outside any block, its first box
+    phone_nbr_2_area      a second phone number's area code
+    first_nm, zip_cd      the suffix before the number, so "first name" and "zip code" read alike
+
+- **The suffix is short, always.** A name never ends in `name` / `number` / `code` before its number and part:
+  `first_nm`, `business_nm`, `account_nbr`, `state_cd`. ("ultimately consistency is what matters")
+- **The field's number comes after the suffix** and **before the part**: it counts the whole value, so phone 2's area
+  code is `phone_nbr_2_area` and all of phone 2's pieces start `phone_nbr_2_`, as all of child 2's fields start
+  `child_2_`.
+- **A part is a word** (`area`, `line`, `month`) **or one token** `part1`, `part2`: never two bare numbers in a row.
+- **A block alone gets no number**; once a second copy exists every copy is numbered, the first `_1_` too
+  (`veteran_first_nm`, but `child_1_first_nm` and `child_2_first_nm`). A number typed for a block by hand stays.
+- **One number per repeat**: a field takes its own number only when it repeats inside its block (no
+  `notify_others_1_1_...`); a position's wording never starts with a number.
+
+Saved names carry no parts on most library blueprints; their long suffix words are made short by
+`naming.short_suffix` (a last word `name` / `number` / `code`, before a trailing number). Names with a number after
+the suffix already follow the standard and are left as they are.
+
 ## Shape
 
     [description]_[iteration, when there is more than one]_[suffix]

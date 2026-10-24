@@ -397,10 +397,10 @@ def _split(label: str) -> tuple[str, str | None]:
 
 
 def print_name(ident: dict) -> str:
-    """[block prefix]_[block iteration]_[subject]_[suffix]_[iteration]_[part], absent parts skipped (docs/NAMING.md
-    "Identifiers"; a block's prefix and number lead, Andrew 2026-10-22: child_2_ssn_1)."""
-    return "_".join(str(ident[k]) for k in ("block_prefix", "block_iteration", "subject", "suffix", "iteration", "part")
-                    if ident.get(k) not in (None, ""))
+    """The standard's name from its parts (petey/naming.py, 2026-10-24): [block prefix]_[block iteration]_[subject]_
+    [suffix]_[iteration]_[part], absent parts skipped, short suffixes."""
+    from petey import naming
+    return naming.print_name(ident)
 
 
 def _slug(s) -> str:

@@ -98,18 +98,18 @@ class TestBlocks:
             {"slot": 1, "label": "name"}, {"slot": 2, "label": "marital_status"},
             {"slot": 3, "label": "will_accompany.yes"}, {"slot": 4, "label": "will_accompany.no"}]}]}
 
-    def test_entity_leads_and_number_last(self):
-        # IMM 5645: child_name_1, not name_1; the number last, as a lone box's say-whose name must match
+    def test_entity_leads_with_its_number(self):
+        # IMM 5645: the entity and its number lead (the naming standard, 2026-10-24), the short suffix
         ps = self.blocks()
         names, parts, left = S.print_cells(ps, self.answer(), ids_of(ps))
-        assert names[0] == "sibling_name_1" and names[5] == "sibling_marital_status_2"
-        assert parts[0] == {"subject": "sibling_name", "iteration": "1"}
+        assert names[0] == "sibling_1_nm" and names[5] == "sibling_2_marital_status"
+        assert parts[0] == {"block_prefix": "sibling", "block_iteration": "1", "subject": "name"}
         assert left == []
 
     def test_a_choice_pair_prints_the_group_and_keeps_the_value(self):
         ps = self.blocks()
         names, parts, _ = S.print_cells(ps, self.answer(), ids_of(ps))
-        assert names[2] == "sibling_will_accompany_1.yes" and names[7] == "sibling_will_accompany_2.no"
+        assert names[2] == "sibling_1_will_accompany.yes" and names[7] == "sibling_2_will_accompany.no"
         assert 2 not in parts                                 # a choice carries no parts (yet)
 
     def test_unanswered_block_is_left(self):

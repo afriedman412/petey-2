@@ -97,13 +97,13 @@ def test_a_lone_block_is_checked_against_its_confirmed_type(monkeypatch, tmp_pat
     except ValueError as e:
         assert "confirm" in str(e)
     bt.confirm("t5", bp, "BT1", ["street_txt", "city_nm", "ind"])
-    assert bt.validate_block("t5", bp, "1_1")["differs"][0]["want"] == "supporter_mailing_street_txt_1"   # empty: next free
+    assert bt.validate_block("t5", bp, "1_1")["ok"]          # alone with its prefix: no number (the standard, 2026-10-24)
     for c in ("1_1", "1_4", "1_7"):
         bt.set_parts("t5", c, None, "-")                                   # '-': no iteration
     assert bt.validate_block("t5", bp, "1_1")["ok"]
     res = bt.validate_block("t5", bp, "1_4")
     assert not res["ok"] and res["differs"] == [{"pos": 1, "name": "physical_street_number_txt", "want": "physical_street_txt",
-                                            "ident": {"subject": "physical_street", "suffix": "txt"}}]
+                                            "ident": {"block_prefix": "physical", "subject": "street", "suffix": "txt"}}]
 
 
 def test_a_cancelled_rename_keeps_the_name(monkeypatch, tmp_path):
@@ -173,11 +173,12 @@ def test_names_are_printed_from_parts_as_every_field(monkeypatch, tmp_path):
     bt.confirm("t10", bp, "BT1", ["first_nm", "last_nm", "ind"])
     res = bt.validate_block("t10", bp, "1_4")             # the second block: no number, shares the prefix -> 2
     assert res["prefix"] == "prior_spouse" and res["iteration"] == "2"
-    assert res["differs"][0] == {"pos": 1, "name": "prior_spouse_first_nm", "want": "prior_spouse_first_nm_2",
-                                 "ident": {"subject": "prior_spouse_first", "suffix": "nm", "iteration": "2"}}
+    assert res["differs"][0] == {"pos": 1, "name": "prior_spouse_first_nm", "want": "prior_spouse_2_first_nm",
+                                 "ident": {"block_prefix": "prior_spouse", "block_iteration": "2", "subject": "first",
+                                           "suffix": "nm"}}
     bt.set_parts("t10", "1_1", "beneficiary_prior_spouse", "1")
     res = bt.validate_block("t10", bp, "1_1")
-    assert res["differs"][0]["want"] == "beneficiary_prior_spouse_first_nm_1"
+    assert res["differs"][0]["want"] == "beneficiary_prior_spouse_1_first_nm"
 
 
 def test_a_block_with_fewer_boxes_is_fitted_to_a_type(monkeypatch, tmp_path):
@@ -217,7 +218,7 @@ def test_blocks_named_from_the_type_label_and_numbered(monkeypatch, tmp_path):
     bt.set_label("t12", "BT1", "Prior Spouse")
     bt.set_auto("t12", "BT1", True)
     wants = [d["want"] for d in bt.validate_block("t12", bp, "1_4")["differs"]]
-    assert wants == ["prior_spouse_first_nm_2", "prior_spouse_last_nm_2", "prior_spouse_ind_2"]
+    assert wants == ["prior_spouse_2_first_nm", "prior_spouse_2_last_nm", "prior_spouse_2_ind"]
 
 
 def test_word_variants_still_pair(monkeypatch, tmp_path):
@@ -248,16 +249,18 @@ def test_block_name_clashes(monkeypatch, tmp_path):
     bt.set_label("t14", "BT1", "child")
     bt.set_auto("t14", "BT1", True)
     r = bt.block_renames("t14", bp, "1_1")
-    assert {(d["name"], d["want"]) for d in r["renames"]} >= {("child_first_nm_2", "child_first_nm_1"),
-                                                               ("child_first_nm_1", "child_first_nm_2")}   # the swap
+    assert ("child_first_nm_2", "child_1_first_nm") in {(d["name"], d["want"]) for d in r["renames"]}
+    t = bt.type_renames("t14", bp, "BT1")             # the standard's order: the old swap is no longer one
+    assert {(d["name"], d["want"]) for d in t["renames"]} >= {("child_first_nm_2", "child_1_first_nm"),
+                                                               ("child_first_nm_1", "child_2_first_nm")}
     bt.set_parts("t14", "1_4", None, "1")                                       # both now come to child_1
     t = bt.type_renames("t14", bp, "BT1")
     assert t["same"] == ["BT1-1", "BT1-2"] and t["renames"] == []
     bt.set_parts("t14", "1_4", None, "3")
-    bp["fields"]["child_ind_3"] = {"type": "boolean", "x_petey_id": "1_99", "widget": {"page": 1, "widget_type": "checkbox",
+    bp["fields"]["child_3_ind"] = {"type": "boolean", "x_petey_id": "1_99", "widget": {"page": 1, "widget_type": "checkbox",
                                                                                      "rect": [500, 700, 510, 710]}}
     held = bt.type_renames("t14", bp, "BT1")["held"]
-    assert [(d["name"], d["want"], d["held"]) for d in held] == [("child_ind_1", "child_ind_3", "no block")]
+    assert [(d["name"], d["want"], d["held"]) for d in held] == [("child_ind_1", "child_3_ind", "no block")]
 
 
 def test_a_block_told_apart_by_its_prefix(monkeypatch, tmp_path):
@@ -272,16 +275,16 @@ def test_a_block_told_apart_by_its_prefix(monkeypatch, tmp_path):
     for b in range(3):
         bt.draw("t20", bp, 1, area(b))
     bt.confirm("t20", bp, "BT1", ["nm", "signature_dt", "ind"])
-    res = bt.validate_block("t20", bp, "1_4")             # by number: alone with its prefix -> 1
-    assert res["iteration"] == "1" and res["differs"][0]["want"] == "interpreter_nm_1"
+    res = bt.validate_block("t20", bp, "1_4")             # by number, alone with its prefix: no number (2026-10-24)
+    assert res["iteration"] is None and res["ok"]
     for code in ("1_1", "1_4"):
         bt.set_parts("t20", code, None, None, "prefix")
         res = bt.validate_block("t20", bp, code)
         assert res["ok"] and res["iteration"] is None
-    assert bt.validate_block("t20", bp, "1_7")["differs"][0]["want"] == "child_nm_1"     # still by number
+    assert bt.validate_block("t20", bp, "1_7")["ok"]                                       # by number, alone
     bt.set_parts("t20", "1_4", "preparer", "", "prefix")   # two blocks on one prefix: numbered, in the type's order
-    assert bt.validate_block("t20", bp, "1_1")["differs"][0]["want"] == "preparer_nm_1"
-    assert bt.validate_block("t20", bp, "1_4")["differs"][0]["want"] == "preparer_nm_2"
+    assert bt.validate_block("t20", bp, "1_1")["differs"][0]["want"] == "preparer_1_nm"
+    assert bt.validate_block("t20", bp, "1_4")["differs"][0]["want"] == "preparer_2_nm"
     bt.set_parts("t20", "1_4", "preparer", "-", "prefix")  # ... both set to none: they clash, flagged
     bt.set_parts("t20", "1_1", None, "-", "prefix")
     rec = gc.load_set("t20")
@@ -329,7 +332,7 @@ def test_assign_pairs_by_location_not_by_name(monkeypatch, tmp_path):
     t = next(x for x in gc.load_set("t22")["types"] if x["id"] == "BT1")
     assert t["blocks"][1] == ["1_4", "1_5", "1_6"]
     res = bt.validate_block("t22", bp, "1_4")
-    assert [d["want"] for d in res["differs"]] == ["hired_month_1", "hired_day_1", "hired_yr_1"]
+    assert [d["want"] for d in res["differs"]] == ["hired_month", "hired_day"]      # alone: no number
 
 
 def test_a_block_reads_the_same_in_either_print_order():
@@ -359,8 +362,9 @@ def test_a_type_is_confirmed_with_a_fields_parts(monkeypatch, tmp_path):
                                         {"subject": "birth", "suffix": "dt", "part": "day"}, {"suffix": "ind"}])
     assert out["wordings"] == ["birth_dt_month", "birth_dt_day", "ind"]
     res = bt.validate_block("t23", bp, "1_4")
-    assert [d["want"] for d in res["differs"]] == ["dob_birth_dt_2_month", "dob_birth_dt_2_day", "dob_ind_2"]
-    assert res["differs"][0]["ident"] == {"subject": "dob_birth", "suffix": "dt", "iteration": "2", "part": "month"}
+    assert [d["want"] for d in res["differs"]] == ["dob_2_birth_dt_month", "dob_2_birth_dt_day"]   # dob_2_ind as is
+    assert res["differs"][0]["ident"] == {"block_prefix": "dob", "block_iteration": "2", "subject": "birth", "suffix": "dt",
+                                          "part": "month"}
 
 
 def test_a_field_dropped_on_a_block_fills_its_empty_position(monkeypatch, tmp_path):
@@ -568,7 +572,7 @@ def test_a_new_prefix_takes_the_next_number_free(monkeypatch, tmp_path):
     bt.set_parts("t6", "1_7", "spouse", "", "number")
     (t,) = gc.load_set("t6")["types"]
     parts = bt.block_parts(bp, t)
-    assert parts["1_7"]["prefix"] == "spouse" and parts["1_7"]["iteration"] == "1"
+    assert parts["1_7"]["prefix"] == "spouse" and parts["1_7"]["iteration"] is None     # alone: no number
     assert parts["1_1"]["iteration"] == "1" and parts["1_4"]["iteration"] == "2"
 
 

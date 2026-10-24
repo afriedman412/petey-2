@@ -31,7 +31,9 @@ class TestPrintName:
         ({"subject": "parent_first", "suffix": "nm", "iteration": "2"}, "parent_first_nm_2"),
         ({"subject": "veteran", "suffix": "ssn", "part": "1"}, "veteran_ssn_1"),
         ({"subject": "gross_rents", "iteration": "3"}, "gross_rents_3"),          # simple scheme: no suffix
-        ({"subject": "sibling_name", "iteration": "1", "suffix": ""}, "sibling_name_1"),
+        ({"subject": "sibling_name", "iteration": "1", "suffix": ""}, "sibling_nm_1"),   # the short suffix (2026-10-24)
+        ({"block_prefix": "child", "block_iteration": "2", "subject": "ssn", "part": "part_1"}, "child_2_ssn_part1"),
+        ({"subject": "phone", "suffix": "number", "iteration": "2", "part": "area"}, "phone_nbr_2_area"),
     ])
     def test_order_and_absent_parts(self, ident, want):
         assert FI.print_name(ident) == want

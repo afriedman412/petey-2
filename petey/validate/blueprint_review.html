@@ -459,6 +459,20 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt
 async function j(url, opts) { const r = await fetch(url, opts); if (!r.ok) throw new Error(await r.text()); return r.json(); }
 const send = (method, url, body) => j(url, {method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body || {})});
 const mapi = (m, p = '') => `/api/${m}/${encodeURIComponent(bid)}${p}`;
+// the naming standard's printing (petey/naming.py, 2026-10-24): [block prefix]_[block iteration]_[subject]_[suffix]_
+// [iteration]_[part]; the short suffix (first_name -> first_nm, zip_code -> zip_cd); a part part_1 -> part1
+const SHORT_SUF = {name: 'nm', number: 'nbr', code: 'cd'};
+function stdPrint(p0) {
+  const p = Object.fromEntries(Object.entries(p0).map(([k, v]) => [k, v == null ? '' : String(v).trim()]));
+  if (SHORT_SUF[(p.suffix || '').toLowerCase()]) p.suffix = SHORT_SUF[p.suffix.toLowerCase()];
+  else if (!p.suffix && p.subject) {
+    const w = p.subject.split('_');
+    if (w.length > 1 && SHORT_SUF[w[w.length - 1]]) { p.suffix = SHORT_SUF[w.pop()]; p.subject = w.join('_'); }
+    else if (w.length === 1 && SHORT_SUF[w[0]] && p.block_prefix) { p.suffix = SHORT_SUF[w[0]]; p.subject = ''; }
+  }
+  if (p.part) p.part = p.part.replace(/^part[\s_]+(\d+)$/, 'part$1');
+  return ['block_prefix', 'block_iteration', 'subject', 'suffix', 'iteration', 'part'].map(k => p[k]).filter(Boolean).join('_');
+}
 function localNow() { const d = new Date(), z = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`; }
 function overlap(a, b) {
   const ix = Math.max(0, Math.min(a[2], b[2]) - Math.max(a[0], b[0])), iy = Math.max(0, Math.min(a[3], b[3]) - Math.max(a[1], b[1]));
@@ -1223,7 +1237,7 @@ MODE.review = (() => {
   // part, in that order, absent ones skipped; the name box is read-only and the parts are what the person edits
   const PART_KEYS = ['subject', 'suffix', 'iteration', 'part'];
   const IDS = {open: (() => { try { return localStorage.getItem('ids_open') !== '0'; } catch (e) { return true; } })()};
-  const printParts = p => PART_KEYS.map(k => (p[k] || '').trim()).filter(Boolean).join('_');
+  const printParts = p => stdPrint(Object.fromEntries(PART_KEYS.map(k => [k, p[k] || ''])));
   const partsShown = (f, v) => { const src = v && v.edit && !v.applied && v.edit.identifiers ? v.edit.identifiers : (f.identifiers || {});
     return Object.fromEntries(PART_KEYS.map(k => [k, src[k] == null ? '' : String(src[k])])); };
   const partInputs = () => [...document.querySelectorAll('.ipart')];
@@ -3036,9 +3050,11 @@ MODE.blocks = (() => {
   function blockIdent(prefix, iteration, s) {
     const pt = (prefix || '').split('_').filter(Boolean); let st = (s.subject || '').split('_').filter(Boolean);
     while (pt.length && st.length && pt[pt.length - 1] === st[0] && (st.length > 1 || s.suffix)) st = st.slice(1);
-    return {subject: [...pt, ...st].join('_'), suffix: s.suffix || '', iteration: iteration || '', part: s.part || ''};
+    // the block's prefix and number lead (the naming standard, 2026-10-24; block_types.block_ident on the server)
+    if (!pt.length) return {subject: st.join('_'), suffix: s.suffix || '', iteration: iteration || '', part: s.part || ''};
+    return {block_prefix: pt.join('_'), block_iteration: iteration || '', subject: st.join('_'), suffix: s.suffix || '', part: s.part || ''};
   }
-  const printIdent = i => ['subject', 'suffix', 'iteration', 'part'].map(k => i[k]).filter(Boolean).join('_');
+  const printIdent = i => stdPrint(i);
   const typeSlots = y => y.slots || y.wordings.map(w => ({subject: w}));
   function cellHtml(y, b, k, s) {
     const n = b.names[k];

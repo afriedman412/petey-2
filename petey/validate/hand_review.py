@@ -609,8 +609,8 @@ def _flag_agent():
     return flag_agent
 
 
-# the parts a name prints from, in order: a block's prefix and number first (eval/field_identifiers.ORDERS, 2026-10-22)
-IDENT_KEYS = ("block_prefix", "block_iteration", "subject", "suffix", "iteration", "part")
+# the parts a name prints from, in the standard's order (petey/naming.py, 2026-10-24)
+from petey.naming import ORDER as IDENT_KEYS, print_name as _print_name, standard as _standard  # noqa: E402
 
 
 def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
@@ -631,10 +631,11 @@ def clean_edit(name: str, spec: dict, edit) -> Optional[dict]:
                 ident[k] = v
         if not ident.get("subject") and not ident.get("suffix"):
             raise ValueError("a field needs a subject (what the box is about)")
+        ident = {k: v for k, v in _standard(ident).items() if v}       # short suffix, part1 (petey/naming.py)
         if ident != {k: v for k, v in (spec.get("x_petey_identifiers") or {}).items()
                      if k in IDENT_KEYS and v not in (None, "")}:
             out["identifiers"] = ident
-        new_name = "_".join(ident[k] for k in IDENT_KEYS if ident.get(k))
+        new_name = _print_name(ident)
     if new_name and new_name != name:
         if not _SLUG.match(new_name):
             raise ValueError(f"field name {new_name!r}: lower-case letters, digits and _ only")

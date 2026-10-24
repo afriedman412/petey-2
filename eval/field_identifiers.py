@@ -55,7 +55,11 @@ ORDER = "iteration_last"
 
 
 def print_name(ident: dict, order: str = ORDER) -> str:
-    """The field name from its parts: the parts in order, absent ones skipped, joined by `_`."""
+    """The field name from its parts: the parts in order, absent ones skipped, joined by `_`; the standard's order and
+    rules (petey/naming.py, 2026-10-24) unless another order is asked for."""
+    if order == ORDER:
+        from petey import naming
+        return naming.print_name(ident)
     return "_".join(str(ident[k]) for k in ORDERS[order] if ident.get(k) not in (None, ""))
 
 

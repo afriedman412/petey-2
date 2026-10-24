@@ -602,7 +602,9 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   type (its first block the template, the others its copies), dashed on the page, accepted or dismissed by hand. On
   2026-10-21, 192 of 368 found block groups had every block match the first as a copy (`block_types.copies_in`).
 
-- **Where a block's number goes in a name: decide, then apply in bulk** (Andrew, 2026-10-22: "we can handle this
+- **Where a block's number goes in a name: DECIDED 2026-10-24** (docs/NAMING.md "The standard", petey/naming.py:
+  the block's number after its subject, the field's after the suffix, before the part; short suffixes; a lone block
+  unnumbered; the 9 tests updated). Below, the question as it stood. (Andrew, 2026-10-22: "we can handle this
   in bulk later"; "what matters is that the fields can be fully constructed from the provided inputs"). Two orders
   in play: the validated library puts the block number after the block prefix (`child_2_last_nm`, `child_2_ssn_1`,
   Andrew: "[block prefix]_[block iteration]_[field subject]_[field iteration]"); the 2026-10-19 identifiers decision

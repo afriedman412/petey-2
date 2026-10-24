@@ -1147,16 +1147,20 @@ def slot(w) -> dict:
     out. A wording string is read as a field name is: city_nm -> city + nm, birth_dt_month -> birth + dt + month."""
     if isinstance(w, dict):
         return {k: str(w[k]).strip().strip("_") for k in SLOT_KEYS if str(w.get(k) or "").strip().strip("_")}
+    from petey import naming
     _, sn = _ids()
     toks = [x for x in str(w or "").split("_") if x]
+    while len(toks) > 1 and toks[0].isdigit():   # a wording never starts with a number: it is the block's (B 106D BT4,
+        toks = toks[1:]                          # 2026-10-24: 1_last_4_digits_account_nbr -> notify_others_1_1_...)
     out: dict = {}
-    if len(toks) > 1 and toks[-2] in sn.SUFFIXES and (toks[-1] in sn.PARTS_AFTER or toks[-1].isdigit()):
-        out["part"] = toks.pop()
+    if len(toks) > 1 and (re.fullmatch(r"part\d+", toks[-1])
+                          or toks[-2] in sn.SUFFIXES and (toks[-1] in sn.PARTS_AFTER or toks[-1].isdigit())):
+        out["part"] = toks.pop()                 # part1 is a part with or without a suffix (ssn_part1)
     if toks and toks[-1] in sn.SUFFIXES:
         out["suffix"] = toks.pop()
     if toks:
         out["subject"] = "_".join(toks)
-    return out
+    return {k: v for k, v in naming.standard(out).items() if v}      # short suffix, part1 (the naming standard)
 
 
 def slot_text(s: dict) -> str:
@@ -1240,7 +1244,8 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
     type [field_name]_[block iteration] and for each block: [prefix] ... beneficiary_prior_spouse_1_first_nm"): what
     the person set on the block, else the block's start split into its prefix and a last number. Blocks sharing a
     prefix and carrying no number are numbered 1, 2, ... in the type's order (the PDF's widget order), skipping the
-    numbers the others carry (a block alone with its prefix: 1); '-' set by hand is no iteration."""
+    numbers the others carry; a block alone with its prefix has no number unless one is typed for it (the naming
+    standard, 2026-10-24, petey/naming.py); '-' set by hand is no iteration."""
     names = _names(bp)
     set_ = t.get("parts") or {}
     out = {}
@@ -1262,7 +1267,7 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
         out[_bid(b)] = {"prefix": mine.get("prefix", pre), "iteration": own if own else read, "by": by, "set": bool(mine)}
     if auto:
         for c in out:
-            if out[c]["iteration"] == "-":
+            if out[c]["iteration"] == "-" or len(t["blocks"]) == 1:     # one block: no number (the standard)
                 out[c]["iteration"] = None
         return out
     by_prefix = collections.defaultdict(list)
@@ -1270,9 +1275,12 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
         by_prefix[out[_bid(b)]["prefix"]].append(_bid(b))
     # an empty iteration takes the next number free among the blocks with its prefix, in the type's order (Andrew,
     # 2026-10-21: "if an iteration is empty, give it the next number available"); '-' set by hand is none
+    typed = {_bid(b) for b in t["blocks"] if (set_.get(_bid(b)) or {}).get("iteration")}
     for pre, codes in by_prefix.items():
-        if len(codes) == 1 and out[codes[0]]["by"] == "prefix":    # alone with its prefix: no number (Andrew:
-            continue                                  # "we do want preparer_address_1 and _2 available" when it repeats)
+        if len(codes) == 1:              # alone with its prefix: no number, by number or by prefix (Andrew, 2026-10-24,
+            if codes[0] not in typed:    # the naming standard: "a block alone gets no number"; VA 20-0996's veteran_1_
+                out[codes[0]]["iteration"] = None      # and claimant_1_); one typed by hand stays
+            continue
         taken = {out[c]["iteration"] for c in codes if out[c]["iteration"] and out[c]["iteration"] != "-"}
         n = 1
         for c in codes:
