@@ -33,3 +33,12 @@ def test_a_position_wording_never_starts_with_the_blocks_number():
     assert bt.slot_text(bt.slot("1_last_4_digits_account_nbr")) == "last_4_digits_account_nbr"
     assert bt.slot("first_name") == {"subject": "first", "suffix": "nm"}
     assert bt.slot_text(bt.slot("ssn_part1")) == "ssn_part1"
+
+
+def test_a_positions_own_number_prints_after_the_suffix():
+    """ACORD 80 BT4 (Andrew, 2026-10-25): a block's second and third 'other coverage options' boxes."""
+    s = bt.slot("other_coverage_opts_2_txt")
+    assert s == {"subject": "other_coverage_opts", "suffix": "txt", "iteration": "2"}
+    assert bt.slot({"subject": "other_coverage_opts_3", "suffix": "txt"})["iteration"] == "3"
+    assert bt.slot("address_line_1_txt") == {"subject": "address_line_1", "suffix": "txt"}       # a line's label stays
+    assert naming.print_name(bt.block_ident("coverage_type", "2", s)) == "coverage_type_2_other_coverage_opts_txt_2"

@@ -3072,8 +3072,8 @@ MODE.blocks = (() => {
     const pt = (prefix || '').split('_').filter(Boolean); let st = (s.subject || '').split('_').filter(Boolean);
     while (pt.length && st.length && pt[pt.length - 1] === st[0] && (st.length > 1 || s.suffix)) st = st.slice(1);
     // the block's prefix and number lead (the naming standard, 2026-10-24; block_types.block_ident on the server)
-    if (!pt.length) return {subject: st.join('_'), suffix: s.suffix || '', iteration: iteration || '', part: s.part || ''};
-    return {block_prefix: pt.join('_'), block_iteration: iteration || '', subject: st.join('_'), suffix: s.suffix || '', part: s.part || ''};
+    if (!pt.length) return {subject: [...st, ...(s.iteration ? [s.iteration] : [])].join('_'), suffix: s.suffix || '', iteration: iteration || '', part: s.part || ''};
+    return {block_prefix: pt.join('_'), block_iteration: iteration || '', subject: st.join('_'), suffix: s.suffix || '', iteration: s.iteration || '', part: s.part || ''};
   }
   const printIdent = i => stdPrint(i);
   const typeSlots = y => y.slots || y.wordings.map(w => ({subject: w}));

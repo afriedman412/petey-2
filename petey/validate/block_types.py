@@ -1127,8 +1127,11 @@ def _rest(name: Optional[str], start: str) -> Optional[str]:
     return "_".join(toks[len(shared):]) if len(shared) < len(toks) else toks[-1]
 
 
-SLOT_KEYS = ("subject", "suffix", "part")      # a position's parts; the block gives the iteration (and its prefix
-                                               # starts the subject)
+SLOT_KEYS = ("subject", "suffix", "iteration", "part")   # a position's parts; the block gives its own number and
+                                               # prefix; `iteration` is the field's own number within the block (two
+                                               # "other coverage options" boxes: other_coverage_opts_txt_2), after the
+                                               # suffix as the naming standard has it (2026-10-25)
+LINE_WORDS = {"line", "row", "box", "item", "page", "part", "question", "q", "col", "column", "section", "step"}
 
 
 def _ids():
@@ -1146,7 +1149,12 @@ def slot(w) -> dict:
     same inputs that go into the standalone fields for the block fields"): {subject, suffix, part}, absent ones left
     out. A wording string is read as a field name is: city_nm -> city + nm, birth_dt_month -> birth + dt + month."""
     if isinstance(w, dict):
-        return {k: str(w[k]).strip().strip("_") for k in SLOT_KEYS if str(w.get(k) or "").strip().strip("_")}
+        out = {k: str(w[k]).strip().strip("_") for k in SLOT_KEYS if str(w.get(k) or "").strip().strip("_")}
+        st = out.get("subject", "").split("_")      # a stored subject ending in the field's own number (confirmed
+        if not out.get("iteration") and out.get("suffix") and len(st) > 1 and st[-1].isdigit() \
+                and st[-2] not in LINE_WORDS:       # before 2026-10-25): the number after the suffix, as a wording's
+            out["subject"], out["iteration"] = "_".join(st[:-1]), st[-1]
+        return out
     from petey import naming
     _, sn = _ids()
     toks = [x for x in str(w or "").split("_") if x]
@@ -1158,6 +1166,10 @@ def slot(w) -> dict:
         out["part"] = toks.pop()                 # part1 is a part with or without a suffix (ssn_part1)
     if toks and toks[-1] in sn.SUFFIXES:
         out["suffix"] = toks.pop()
+    # a number left at the end of the subject is the field's own (other_coverage_opts_2_txt: the second such box in
+    # the block), unless it labels a line (address_line_1_txt) (Andrew, 2026-10-25, ACORD 80 BT4)
+    if len(toks) > 1 and toks[-1].isdigit() and toks[-2] not in LINE_WORDS:
+        out["iteration"] = toks.pop()
     if toks:
         out["subject"] = "_".join(toks)
     return {k: v for k, v in naming.standard(out).items() if v}      # short suffix, part1 (the naming standard)
@@ -1306,11 +1318,12 @@ def block_ident(prefix: Optional[str], iteration: Optional[str], s: dict) -> dic
     st = [x for x in (s.get("subject") or "").split("_") if x]
     while pt and st and pt[-1] == st[0] and (len(st) > 1 or s.get("suffix")):
         st = st[1:]
-    if not pt:
+    if not pt:                           # no prefix: the block's number is the field's; the position's own stays
+        st = st + ([s["iteration"]] if s.get("iteration") else [])          # in the subject, as before
         out = {"subject": "_".join(st), "suffix": s.get("suffix"), "iteration": iteration, "part": s.get("part")}
     else:
         out = {"block_prefix": "_".join(pt), "block_iteration": iteration, "subject": "_".join(st),
-               "suffix": s.get("suffix"), "part": s.get("part")}
+               "suffix": s.get("suffix"), "iteration": s.get("iteration"), "part": s.get("part")}
     return {k: v for k, v in out.items() if v}
 
 
