@@ -228,3 +228,17 @@ def test_grids_with_the_same_headings_under_other_titles_keep_apart(monkeypatch)
     monkeypatch.setattr(gc, "grid_title", lambda bp, g, lines: "PART III - MANAGERS")
     alts = gc.row_subject_wordings(bp, g, {}, None)
     assert alts == {0: "managers_name_N_nm"}
+
+
+def test_lines_of_two_printed_rows_read_as_one():
+    """CMS-1500 p1-G8 (Andrew, 2026-10-25: "manually selecting a wording doesn't override 'no majority'"): each
+    service line's shaded strip above it; one column held supplemental info and charges in turn."""
+    rows = []
+    for n in (1, 2, 3):
+        rows.append([f"service_line_{n}_supplemental_info_txt", f"service_line_{n}_epsdt_cd"])
+        rows.append([f"service_line_{n}_charges_amt", f"service_line_{n}_family_plan_cd"])
+    bp, g = _grid(rows)
+    assert not G._on_pattern(g)[0]
+    folded = G.fold_rows(g)
+    assert len({c["row"] for c in folded}) == 3 and len({c["col"] for c in folded}) == 4
+    assert G.on_pattern(g) == (True, "lines of two rows read as one (columns)")

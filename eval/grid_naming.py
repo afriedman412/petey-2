@@ -686,6 +686,61 @@ def unfold(grid: list[dict]) -> list[dict] | None:
     return None
 
 
+def split_stacked(grid: list[dict]) -> list[dict] | None:
+    """A column holding two (or more) fields in every row, the same wordings in each (Andrew, 2026-10-25, CMS-1500
+    p1-G8: each service line's shaded strip above it, supplemental info over charges, EPSDT over family plan, other ID
+    over NPI; picking one wording could only clash), split into one column per wording. None when no column is so."""
+    by = collections.defaultdict(list)
+    for c in grid:
+        by[(c["col"], c["row"])].append(c)
+    cols = sorted({c["col"] for c in grid})
+    split = {}
+    for k in cols:
+        rows = [r for (kk, r) in by if kk == k]
+        sets = [sorted(_numbers_masked(c["name"]) for c in by[(k, r)]) for r in rows]
+        if len(rows) >= 2 and all(len(x) > 1 and len(set(x)) == len(x) for x in sets) and all(x == sets[0] for x in sets):
+            split[k] = sets[0]
+    if not split:
+        return None
+    new_col, n = {}, 0
+    for k in cols:
+        for w in split.get(k, [None]):
+            new_col[(k, w)] = n
+            n += 1
+    return [dict(c, col=new_col[(c["col"], _numbers_masked(c["name"]) if c["col"] in split else None)]) for c in grid]
+
+
+def _numbers_masked(name: str) -> str:
+    """A name with every number as N: its wording whatever it counts (service_line_N_modifier_N_cd)."""
+    return "_".join("N" if t.isdigit() else t for t in name.split("_"))
+
+
+def fold_rows(grid: list[dict]) -> list[dict] | None:
+    """A grid whose lines each take two (or three) printed rows (Andrew, 2026-10-25, CMS-1500 p1-G8: each service
+    line's shaded strip above it, supplemental info / EPSDT / other ID, then the line itself; a column held
+    supplemental info and charges in turn): each run of rows one line, and a column whose wording depends on which
+    row of the run, one column per row. None when no period reads the grid so (every column one wording per row of
+    the run, and some column changing within it)."""
+    rows = sorted({c["row"] for c in grid})
+    at = {r: i for i, r in enumerate(rows)}
+    for period in (2, 3):
+        if len(rows) % period or len(rows) < 2 * period:
+            continue
+        pats = collections.defaultdict(set)
+        for c in grid:
+            pats[(c["col"], at[c["row"]] % period)].add(_numbers_masked(c["name"]))
+        if any(len(v) > 1 for v in pats.values()):
+            continue
+        changes = {k for (k, j) in pats} & {k for (k, j), v in pats.items() if any(pats.get((k, i)) not in (None, v)
+                                                                                  for i in range(period))}
+        if not changes:
+            continue
+        keys = sorted(pats)
+        new_col = {key: n for n, key in enumerate(keys)}
+        return [dict(c, row=at[c["row"]] // period, col=new_col[(c["col"], at[c["row"]] % period)]) for c in grid]
+    return None
+
+
 def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     """The quick code check, before any model (Andrew, 2026-10-15: "there should be a pattern for every column that
     will only vary by iteration, and the iterations should descend by 1"): (passes, how it reads or why not). Passes
@@ -695,10 +750,33 @@ def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     ok, why = _on_pattern(grid)
     if ok:
         return ok, why
-    halves = unfold(grid)                   # halves side by side: read as one (each half's rows under the first's)
+    stacked = split_stacked(grid)           # two fields in each row of a column: one column each
+    if stacked is not None and _on_pattern(stacked)[0]:
+        return True, f"stacked fields split into columns ({_on_pattern(stacked)[1]})"
+    folded = fold_rows(grid)                # each line two printed rows: one line each
+    if folded is not None and _on_pattern(folded)[0]:
+        return True, f"lines of two rows read as one ({_on_pattern(folded)[1]})"
+    halves = unfold(stacked or grid)        # halves side by side: read as one (each half's rows under the first's)
     if halves is not None and _on_pattern(halves)[0]:
         return True, f"halves side by side, read as one ({_on_pattern(halves)[1]})"
     return ok, why
+
+
+def read_as_checked(grid: list[dict]) -> list[dict]:
+    """The grid as the checks read it: as printed, else its stacked columns split, else its halves stacked, the
+    first that is on pattern (as printed when none is)."""
+    if _on_pattern(grid)[0]:
+        return grid
+    stacked = split_stacked(grid)
+    if stacked is not None and _on_pattern(stacked)[0]:
+        return stacked
+    folded = fold_rows(grid)
+    if folded is not None and _on_pattern(folded)[0]:
+        return folded
+    halves = unfold(stacked or grid)
+    if halves is not None and _on_pattern(halves)[0]:
+        return halves
+    return stacked or grid
 
 
 def _on_pattern(grid: list[dict]) -> tuple[bool, str]:

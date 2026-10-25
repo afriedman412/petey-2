@@ -1069,11 +1069,9 @@ def _grid(bp: dict, tid: str, bid: Optional[str] = None):
             return None, None
         # halves side by side read as one, when that is how its names run (grid_naming.unfold, 2026-10-24): the
         # card, the check and standardize then see ACORD 140's blankets 1-4 as four rows, not two rows renumbered
-        g = e["grid"]
-        if not G.on_pattern(g)[1].startswith("halves") or G._on_pattern(g)[0]:
-            pass                                # read as it is printed
-        else:
-            g = G.unfold(g)
+        # read as the checks read it (grid_naming.read_as_checked): as printed, else its stacked columns split (CMS-1500's two
+        # fields a row in one column), else its halves side by side stacked (ACORD 140's blanket list)
+        g = G.read_as_checked(e["grid"])
         # one part of a list across pages: its rows numbered on from the parts before it (`series`)
         from petey.validate.retype import resolve_blank
         blank = resolve_blank(bp)
