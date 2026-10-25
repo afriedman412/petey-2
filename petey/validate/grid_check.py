@@ -902,7 +902,15 @@ def _grid(bp: dict, tid: str, bid: Optional[str] = None):
     """(the table listed under `tid`, its grid) or (None, None)."""
     if bid:
         e = next((e for e in listing(bid, bp) if e["id"] == tid and e["status"] == "active"), None)
-        return ({"id": tid, "page": e["grid"][0]["page"]}, e["grid"]) if e else (None, None)
+        if not e:
+            return None, None
+        # halves side by side read as one, when that is how its names run (grid_naming.unfold, 2026-10-24): the
+        # card, the check and standardize then see ACORD 140's blankets 1-4 as four rows, not two rows renumbered
+        g = e["grid"]
+        halves = G.unfold(g)
+        if halves is not None and G.on_pattern(halves)[0]:
+            g = halves
+        return {"id": tid, "page": g[0]["page"]}, g
     want = next((t for t in tables(bp) if t["id"] == tid), None)
     if not want:
         return None, None

@@ -663,12 +663,40 @@ def _next(a: str, b: str) -> bool:
     return len(a) == len(b) == 1 and a.isalpha() and b.isalpha() and ord(b) == ord(a) + 1
 
 
+def unfold(grid: list[dict]) -> list[dict] | None:
+    """A grid printed in halves (or thirds) side by side, its columns' wordings repeating across its width (Andrew,
+    2026-10-24, ACORD 140's blanket list: blankets 1-2 on the left, 3-4 on the right, each number / amount / type;
+    "this needs a systematic fix because it's not a unique situation"; ACORD 90 NY's vehicles 1-2 / 3-4, SF 3107's
+    children 1-4 / 5-8), read as one: each further half's rows under the first's. None when the columns do not
+    repeat. Cells keep their names; only their row and column change."""
+    cols = sorted({c["col"] for c in grid})
+    if len(cols) < 4:
+        return None
+    word = {}
+    for k in cols:
+        pats = collections.Counter(_pattern(c["name"]) for c in grid if c["col"] == k)
+        word[k] = pats.most_common(1)[0][0] if pats else None
+    rows = max(c["row"] for c in grid) + 1
+    for width in range(1, len(cols) // 2 + 1):
+        if len(cols) % width:
+            continue
+        if all(word[cols[i]] is not None and word[cols[i]] == word[cols[i % width]] for i in range(len(cols))):
+            at = {k: i for i, k in enumerate(cols)}
+            return [dict(c, row=c["row"] + (at[c["col"]] // width) * rows, col=cols[at[c["col"]] % width]) for c in grid]
+    return None
+
+
 def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     """The quick code check, before any model (Andrew, 2026-10-15: "there should be a pattern for every column that
     will only vary by iteration, and the iterations should descend by 1"): (passes, how it reads or why not). Passes
     when, read by columns (or the transpose): every cell carries an iteration, every column one pattern its cells
     differ from only in that iteration, every row one number, the rows numbered top to bottom by steps of 1. A last
     row of totals is left out. The naming standard's shape is not checked here: it is its own step."""
+    halves = unfold(grid)
+    if halves is not None:                  # halves side by side: read as one (each half's rows under the first's)
+        ok, why = on_pattern(halves)
+        if ok:
+            return True, f"halves side by side, read as one ({why})"
     if keyed(grid, strict=True):
         return True, "rows named by role or kind"
     if sum(_number(c["name"]) is not None for c in grid) < 0.5 * len(grid) and keyed(transposed(grid), strict=True):

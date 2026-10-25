@@ -154,3 +154,18 @@ def test_the_off_count_and_the_button_agree_on_a_continued_series():
     F = G._Frame(g)
     assert F.numbers(bp, g, {}, F.basis())[0] == {0: 3, 1: 4}
     assert G.standardize(bp, g, {})["renames"] == {}
+
+
+def test_halves_side_by_side_read_as_one():
+    """ACORD 140's blanket list (Andrew, 2026-10-24: "this needs a systematic fix because it's not a unique
+    situation"): blankets 1-2 on the left, 3-4 on the right, read as four rows, on pattern as named."""
+    import grid_naming as G
+    words = ["blanket_{}_nbr", "blanket_{}_amt", "blanket_type_{}_txt"]
+    grid = [{"name": w.format(r + 1 + 2 * half), "page": 1, "row": r, "col": 3 * half + k}
+            for half in range(2) for r in range(2) for k, w in enumerate(words)]
+    flat = G.unfold(grid)
+    assert sorted((c["row"], c["col"], c["name"]) for c in flat)[:4] == [
+        (0, 0, "blanket_1_nbr"), (0, 1, "blanket_1_amt"), (0, 2, "blanket_type_1_txt"), (1, 0, "blanket_2_nbr")]
+    assert {c["name"]: c["row"] for c in flat}["blanket_4_nbr"] == 3
+    assert G.on_pattern(grid)[0] and "halves" in G.on_pattern(grid)[1]
+    assert G.unfold([dict(c, col=c["col"] % 3) for c in grid if c["col"] < 3]) is None      # one half: nothing to do
