@@ -563,7 +563,7 @@ fields:
   plan_administrator_name_address_txt:
     x_petey_id: '2_3'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 2
       rect:
@@ -577,6 +577,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: plan_administrator_name_address_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: plan_administrator_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: plan_administrator_name_address
       suffix: txt
@@ -1665,7 +1682,7 @@ fields:
     x_petey_identifiers:
       subject: 8b_welfare_feature_cd_19
       grid: p2-G1
-  group_p2_2:
+  pension_schedules_attached:
     x_petey_id: '2_61'
     type: multi_category
     values:
@@ -1741,15 +1758,31 @@ fields:
         x_petey_caption_source: tooltip
     x_petey_grouping:
       source: group_review
-      when: '2026-10-05 23:10:58'
+      when: '2026-10-24 19:56:23'
       from:
-      - 10a1_schedule_r_ind
-      - 10a2_schedule_mb_ind
-      - 10a3_schedule_sb_ind
-      - 10a4_schedule_dcg_ind
-      - 10a5_schedule_mep_ind
+      - group_p2_2::10a1_schedule_r_ind
+      - group_p2_2::10a2_schedule_mb_ind
+      - group_p2_2::10a3_schedule_sb_ind
+      - group_p2_2::10a4_schedule_dcg_ind
+      - group_p2_2::10a5_schedule_mep_ind
+      renamed_from: group_p2_2
+      name_from: labeler
     x_petey_identifiers:
       subject: group_p2_2
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-24 19:59:20'
+      from:
+        name: attached_pension_schedules
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      to:
+        name: pension_schedules_attached
+        type: multi_category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__2025-form-5500.json
   10a4_schedule_dcg_number_attached_cnt:
     x_petey_id: '2_64'
     type: integer
@@ -1770,7 +1803,7 @@ fields:
     x_petey_identifiers:
       subject: 10a4_schedule_dcg_number_attached
       suffix: cnt
-  group_p2_3:
+  general_schedules_attached:
     x_petey_id: '2_62'
     type: multi_category
     values:
@@ -1857,16 +1890,19 @@ fields:
         x_petey_caption_source: tooltip
     x_petey_grouping:
       source: group_review
-      when: '2026-10-05 23:10:58'
+      when: '2026-10-24 19:56:23'
       from:
-      - 10b1_schedule_h_ind
-      - 10b2_schedule_i_ind
-      - 10b3_schedule_a_ind
-      - 10b4_schedule_c_ind
-      - 10b5_schedule_d_ind
-      - 10b6_schedule_g_ind
+      - group_p2_3::10b1_schedule_h_ind
+      - group_p2_3::10b2_schedule_i_ind
+      - group_p2_3::10b3_schedule_a_ind
+      - group_p2_3::10b4_schedule_c_ind
+      - group_p2_3::10b5_schedule_d_ind
+      - group_p2_3::10b6_schedule_g_ind
+      renamed_from: group_p2_3
+      name_from: labeler
     x_petey_identifiers:
       subject: group_p2_3
+    label_source: llm
   10b3_schedule_a_number_attached_cnt:
     x_petey_id: '2_63'
     type: integer
@@ -1887,7 +1923,7 @@ fields:
     x_petey_identifiers:
       subject: 10b3_schedule_a_number_attached
       suffix: cnt
-  form_m1_filing_required_11a_yes_ind:
+  subject_to_form_m1_filing_requirements:
     x_petey_id: '3_1'
     type: category
     description: If the plan provides welfare benefits, was the plan subject to the
@@ -1924,7 +1960,16 @@ fields:
         caption: 'No'
     x_petey_identifiers:
       subject: form_m1_filing_required_11a_yes_ind
-  form_m1_compliance_11b_yes_ind:
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-24 19:56:23'
+      from:
+      - form_m1_filing_required_11a_yes_ind::Yes
+      - form_m1_filing_required_11a_yes_ind::No
+      renamed_from: form_m1_filing_required_11a_yes_ind
+      name_from: labeler
+  is_in_compliance_with_form_m1_filing_requirements:
     x_petey_id: '3_2'
     type: category
     description: Is the plan currently in compliance with the Form M-1 filing requirements?
@@ -1961,6 +2006,15 @@ fields:
         caption: 'No'
     x_petey_identifiers:
       subject: form_m1_compliance_11b_yes_ind
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-24 19:56:23'
+      from:
+      - form_m1_compliance_11b_yes_ind::Yes
+      - form_m1_compliance_11b_yes_ind::No
+      renamed_from: form_m1_compliance_11b_yes_ind
+      name_from: labeler
   receipt_confirmation_cd:
     x_petey_id: '3_3'
     type: string
@@ -2155,14 +2209,14 @@ fields:
         x_petey_caption_source: page_text
     x_petey_identifiers:
       subject: filing_extension
-  9a_funding_arrangement:
+  plan_funding_arrangement:
     x_petey_id: '2_59'
     type: category
     values:
-    - code_412e3_insurance
-    - general_assets_of_sponsor
     - insurance
+    - code_412e3_insurance
     - trust
+    - general_assets_of_sponsor
     widgets:
       insurance:
         page: 2
@@ -2214,14 +2268,25 @@ fields:
         x_petey_caption_source: page_text
     x_petey_identifiers:
       subject: 9a_funding_arrangement
-  9b_benefit_arrangement:
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-24 19:56:23'
+      from:
+      - 9a_funding_arrangement::insurance
+      - 9a_funding_arrangement::code_412e3_insurance
+      - 9a_funding_arrangement::trust
+      - 9a_funding_arrangement::general_assets_of_sponsor
+      renamed_from: 9a_funding_arrangement
+      name_from: labeler
+  plan_benefit_arrangement:
     x_petey_id: '2_60'
     type: category
     values:
-    - code_412e3_insurance
-    - general_assets_of_sponsor
     - insurance
+    - code_412e3_insurance
     - trust
+    - general_assets_of_sponsor
     widgets:
       insurance:
         page: 2
@@ -2273,3 +2338,14 @@ fields:
         x_petey_caption_source: page_text
     x_petey_identifiers:
       subject: 9b_benefit_arrangement
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-24 19:56:23'
+      from:
+      - 9b_benefit_arrangement::insurance
+      - 9b_benefit_arrangement::code_412e3_insurance
+      - 9b_benefit_arrangement::trust
+      - 9b_benefit_arrangement::general_assets_of_sponsor
+      renamed_from: 9b_benefit_arrangement
+      name_from: labeler
