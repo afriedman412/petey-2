@@ -726,8 +726,11 @@ def standardize(bid: str, tid: str, *, apply, pos: Optional[int] = None, line: O
     blank = resolve_blank(bp)
     lines = _lines(blank) if blank else {}
     forced = {pos - 1: wording.replace("_#", "_N")} if pos and wording else None
-    r = G.standardize(bp, g, lines, G.text_match_score(), positions=[pos - 1] if pos else None,
-                      lines_=[line - 1] if line else None, forced=forced)
+    if t.get("series") and not (pos or line):      # "standardize all" on a part of a list across pages: every part
+        r = {**series_renames(bid, bp, t["series"], lines), "why": "one list across pages", "pulled": []}
+    else:
+        r = G.standardize(bp, g, lines, G.text_match_score(), positions=[pos - 1] if pos else None,
+                          lines_=[line - 1] if line else None, forced=forced)
     what = _what(g, pos, line)
     steps = [f"{what}: {r['why']}"] + (
         [f"also renamed, as they held the names: {', '.join(r['pulled'][:4])}{' ...' if len(r['pulled']) > 4 else ''}"]
@@ -824,6 +827,7 @@ def preview(bid: str, tid: str) -> dict:
         return {"id": tid, "pos_axis": "col", "keyed": keyed, "positions": [], "lines": [], "all": None}
     F = G._Frame(g)
     pos_axis, num_axis = ("col", "row") if keyed else (F.pos_axis, F.num_axis)
+    sforced = series_forced(g, t["series"]) if t.get("series") else {}
     score = G.text_match_score()
     plan = lambda r: {"renames": sorted(r["renames"].items()), "left": r["left"], "why": r["why"],   # noqa: E731
                       "pulled": r.get("pulled") or []}
@@ -838,7 +842,10 @@ def preview(bid: str, tid: str) -> dict:
                                             and (F.num_of(c) or "").isdigit() and int(F.num_of(c)) != number[c[num_axis]])
         p = {"pos": k + 1, "wordings": [[w.replace("_N", "_#"), n] for w, n in ws.most_common()], "off": off,
              "locked": locked, "caption": G.position_caption(bp, pcs, "columns" if pos_axis == "col" else "rows", lines)}
-        if not keyed and (len(ws) > 1 or off):
+        if k in sforced:                 # one list across pages: the other part's wording (series)
+            p["plan"] = plan(G.standardize(bp, g, lines, score, positions=[k], forced={k: sforced[k]}))
+            p["series"] = sforced[k].replace("_N", "_#")
+        elif not keyed and (len(ws) > 1 or off):
             p["plan"] = plan(G.standardize(bp, g, lines, score, positions=[k]))
         positions.append(p)
     # a column whose renames run into fields outside the grid has another structure's names (Andrew, 2026-10-24,
@@ -867,8 +874,10 @@ def preview(bid: str, tid: str) -> dict:
                 x["note"] = "printed line numbers, kept as they are" if len(free) < len([c for c in body if c[num_axis] == i]) \
                     else "its cells already carry its number"
         out_lines.append(x)
-    whole = None if keyed else plan(G.standardize(bp, g, lines, score))
-    return {"id": tid, "pos_axis": pos_axis, "keyed": keyed, "summary": info["summary"], "positions": positions,
+    whole = None if keyed else plan({**series_renames(bid, bp, t["series"], lines), "why": "one list across pages",
+                                     "pulled": []} if t.get("series") else G.standardize(bp, g, lines, score))
+    return {"id": tid, "series": t.get("series"), "pos_axis": pos_axis, "keyed": keyed, "summary": info["summary"],
+            "positions": positions,
             "lines": out_lines, "all": whole, "aside": [{"row": r + 1, "why": w} for r, w in sorted(G.aside(g).items())]}
 
 
@@ -898,6 +907,99 @@ def row_subject_wordings(bp: dict, g: list[dict], lines: dict, score=None) -> di
     return out
 
 
+def series(bid: str, bp: dict, tid: str, g: list[dict], lines: dict) -> Optional[dict]:
+    """The list a grid is one part of, across pages (Andrew, 2026-10-24, CBP 7501: line items 1-6 on page 1 and more
+    on page 2 under the same printed column headings; "if its the same data with the same labels they should continue
+    automatically!"): the grids on other pages whose columns carry the same printed headings, in page order.
+    {start: this part's first number (after the rows of the parts before it), wordings: {position: wording, _N for
+    the number} from the part where that column's names are one wording, parts: [ids]}; None when it stands alone."""
+    def heads(grid):
+        F = G._Frame(grid)
+        how = "columns" if F.pos_axis == "col" else "rows"
+        return F, [(G.position_caption(bp, F.at(k), how, lines) or "").strip().lower() for k in F.positions]
+    F0, h0 = heads(g)
+    named = [x for x in h0 if x]
+    if len(named) < 2 or len(named) < 0.6 * len(h0):
+        return None
+    page0 = g[0]["page"]
+    parts, seen_pages = [(page0, tid, g, F0)], {page0}
+    for t in listing(bid, bp):
+        if t["id"] == tid or t["status"] in ("combined",) or not t["grid"]:
+            continue
+        pg = t["grid"][0]["page"]
+        if pg in seen_pages:                        # one part a page (a grid drawn over the finder's is the same part)
+            continue
+        F, h1 = heads(t["grid"])
+        if len(h1) == len(h0) and all(a == b for a, b in zip(h0, h1) if a and b) and \
+                sum(1 for a, b in zip(h0, h1) if a and a == b) >= max(2, 0.6 * len(h0)):
+            parts.append((pg, t["id"], t["grid"], F))
+            seen_pages.add(pg)
+    if len(parts) < 2:
+        return None
+    parts.sort(key=lambda x: x[0])
+    start = 1
+    for pg, i, grid, F in parts:
+        if i == tid:
+            break
+        start += len({c[F.num_axis] for c in F.cells})
+    wordings = {}
+    for k in range(len(h0)):
+        for _pg, _i, grid, F in sorted(parts, key=lambda x: -len(x[3].cells)):     # the part with most rows first
+            ks = sorted(F.positions)
+            if k >= len(ks):
+                continue
+            pats = {F.pat_of(c) for c in F.at(ks[k])}
+            if len(pats) == 1 and next(iter(pats)) and "N" in next(iter(pats)).split("_"):
+                wordings[k] = next(iter(pats))
+                break
+    return {"start": start, "wordings": wordings, "parts": [i for _pg, i, _g, _F in parts]}
+
+
+def series_renames(bid: str, bp: dict, se: dict, lines: dict) -> dict:
+    """{renames, left} for every part of a list across pages at once (`series`): each part numbered on from the parts
+    before it and its columns under the list's wordings; a part's renames may take names another part gives up in the
+    same batch (CBP 7501: page 1's line_no_2 .. _6 held by page 2's first rows, which move to 7 .. 29)."""
+    by_id = {t["id"]: t["grid"] for t in listing(bid, bp)}
+    names = {pid: {c["name"] for c in by_id.get(pid) or []} for pid in se["parts"]}
+    start, ren, left = 1, {}, []
+    for pid in se["parts"]:
+        g = by_id.get(pid)
+        if not g:
+            continue
+        F = G._Frame(g)
+        n_lines = len({c[F.num_axis] for c in F.cells})
+        g = [dict(c, series_start=start) for c in g]
+        others = set().union(*(v for k, v in names.items() if k != pid))
+        bp_part = {**bp, "fields": {n: s for n, s in (bp.get("fields") or {}).items() if n not in others}}
+        r = G.standardize(bp_part, g, lines, G.text_match_score(), forced=series_forced(g, se) or None)
+        ren.update(r["renames"])
+        left += [f"{pid}: {x}" for x in r["left"]]
+        start += n_lines
+    final = collections.Counter(ren.get(n, n) for n in (bp.get("fields") or {}))
+    clash = {o for o, n in ren.items() if final[n] > 1}
+    left += [f"{o} -> {ren[o]}: another field would have this name too" for o in sorted(clash)]
+    return {"renames": {o: n for o, n in ren.items() if o not in clash}, "left": left}
+
+
+def series_forced(g: list[dict], se: dict) -> dict[int, str]:
+    """{position (0-based in the frame): wording} for the columns whose names are not the list's wording yet."""
+    F = G._Frame(g)
+    ks = sorted(F.positions)
+    out = {}
+    for k, w in (se.get("wordings") or {}).items():
+        if k < len(ks) and {F.pat_of(c) for c in F.at(ks[k])} != {w}:
+            out[ks[k]] = w
+    return out
+
+
+def _numbered_from(g: list[dict], start: int) -> bool:
+    """The grid's first line carries `start` (a part of a list across pages numbered on from the parts before)."""
+    F = G._Frame(g)
+    first = min(c[F.num_axis] for c in F.cells)
+    nums = {F.num_of(c) for c in F.cells if c[F.num_axis] == first}
+    return nums == {str(start)}
+
+
 def _grid(bp: dict, tid: str, bid: Optional[str] = None):
     """(the table listed under `tid`, its grid) or (None, None)."""
     if bid:
@@ -911,7 +1013,13 @@ def _grid(bp: dict, tid: str, bid: Optional[str] = None):
             pass                                # read as it is printed
         else:
             g = G.unfold(g)
-        return {"id": tid, "page": g[0]["page"]}, g
+        # one part of a list across pages: its rows numbered on from the parts before it (`series`)
+        from petey.validate.retype import resolve_blank
+        blank = resolve_blank(bp)
+        se = series(bid, bp, tid, g, _lines(blank) if blank and blank.exists() else {})
+        if se:
+            g = [dict(c, series_start=se["start"]) for c in g]
+        return {"id": tid, "page": g[0]["page"], "series": se}, g
     want = next((t for t in tables(bp) if t["id"] == tid), None)
     if not want:
         return None, None
@@ -963,7 +1071,28 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
     if not g:
         return {"status": "gone", "steps": ["the grid is no longer found on the page (renamed or moved?)"]}
     page, steps = t["page"], []
-    if G.on_pattern(g)[0]:
+    se = t.get("series")
+    if se:
+        # one list across pages: each column under the wording of the part where it is one wording, the rows
+        # numbered on from the parts before (code, no model call), then the check goes on with the new names
+        blank0 = resolve_blank(bp)
+        lines0 = _lines(blank0) if blank0 else {}
+        forced = series_forced(g, se)
+        r0 = series_renames(bid, bp, se, lines0)
+        steps.append(f"one list with {', '.join(i for i in se['parts'] if i != tid)} (same printed headings): rows from "
+                     f"{se['start']}" + (f", {len(forced)} column(s) under the list's wording" if forced else ""))
+        if r0["renames"]:
+            out = apply([{"field": o, "edit": {"name": n}, "why": "grids: one list across pages, numbered on and worded "
+                          "as its other part"} for o, n in r0["renames"].items()])
+            steps.append(f"{len(out.get('changes') or [])} rename(s) applied (code, no model call)"
+                         + (f"; not all: {'; '.join(out['errors'][:2])}" if out.get("errors") else ""))
+            bp = h._load(h.working_path(bid))
+            t, g = _grid(bp, tid, bid)
+            if not g:
+                return {"status": "fixed", "steps": steps + ["the grid is no longer found after the renames"],
+                        "applied": out.get("changes") or []}
+        steps += [f"left: {x}" for x in r0["left"][:3]]
+    if G.on_pattern(g)[0] and (not se or _numbered_from(g, se["start"])):
         acc = accept(page, [c["name"] for c in G.body(g)])
         return {"status": "validated", "steps": [f"code check: on pattern; {len(acc)} cell(s) accepted"], "accepted": acc}
     blank = resolve_blank(bp)

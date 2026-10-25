@@ -1251,6 +1251,9 @@ class _Frame:
         toks = [num_of(c) for c in free]
         lettered = any(t and not t.isdigit() for t in toks)
         lines_idx = sorted({c[self.num_axis] for c in cells})
+        s0 = next((c.get("series_start") for c in g if c.get("series_start")), None)
+        if s0:                   # one list across pages (grid_check.series): numbered on from the parts before it,
+            return {i: s0 + n for n, i in enumerate(lines_idx)}, False      # whatever its names carry now
         if lettered:
             return {i: None for i in lines_idx}, True
         offs = collections.Counter(int(num_of(c)) - lines_idx.index(c[self.num_axis])

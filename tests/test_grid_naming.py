@@ -182,3 +182,31 @@ def test_a_grid_continuing_an_earlier_pages_series_numbers_on_from_it():
         bp["fields"][f"item_{r}_amt"] = {"type": "string", "widget": {"page": 1, "widget_type": "text", "rect": [0, 9 * r, 9, 9 * r + 9]}}
     r = G.standardize(bp, g, {})
     assert r["renames"] == {"item_1_txt": "item_6_txt", "item_2_txt": "item_7_txt", "item_3_txt": "item_8_txt"}
+
+
+def test_one_list_across_pages_is_numbered_on_with_one_wording(monkeypatch, tmp_path):
+    """CBP 7501 (Andrew, 2026-10-24: "if its the same data with the same labels they should continue automatically!"):
+    page 1's lines under mixed names, page 2's under one wording each numbered 2-4, the same printed headings."""
+    from petey.validate import grid_check as gc
+    monkeypatch.setattr(gc, "SETS", tmp_path)
+    monkeypatch.setattr(gc, "_set_path", lambda bid: tmp_path / f"{bid}.json")
+    f = {}
+    def box(n, page, x, y):
+        f[n] = {"type": "string", "widget": {"page": page, "widget_type": "text", "rect": [x, y, x + 60, y + 12]}}
+    for r, (a, b) in enumerate([("line_no", "amount_dollars_amt"), ("line_no_row2", "amt_row2_cents")]):
+        box(a, 1, 50, 200 + 30 * r); box(b, 1, 200, 200 + 30 * r)
+    for r in range(3):
+        box(f"line_no_{r + 2}", 2, 50, 200 + 30 * r); box(f"line_amt_{r + 2}", 2, 200, 200 + 30 * r)
+    bp = {"fields": f}
+    monkeypatch.setattr(G, "position_caption", lambda bp, cells, how, lines: "No." if cells[0]["col"] == 0 else "Amount")
+    g1 = [{"name": n, "page": 1, "row": r, "col": c} for r, row in enumerate([["line_no", "amount_dollars_amt"], ["line_no_row2", "amt_row2_cents"]]) for c, n in enumerate(row)]
+    g2 = [{"name": n, "page": 2, "row": r, "col": c} for r in range(3) for c, n in enumerate([f"line_no_{r + 2}", f"line_amt_{r + 2}"])]
+    monkeypatch.setattr(gc, "listing", lambda bid, bp: [{"id": "p1-G1", "status": "active", "grid": g1},
+                                                       {"id": "p2-G1", "status": "active", "grid": g2}])
+    se = gc.series("t", bp, "p1-G1", g1, {})
+    assert se["start"] == 1 and se["parts"] == ["p1-G1", "p2-G1"] and se["wordings"] == {0: "line_no_N", 1: "line_amt_N"}
+    r = gc.series_renames("t", bp, se, {})
+    assert r["left"] == [] and r["renames"] == {
+        "line_no": "line_no_1", "amount_dollars_amt": "line_amt_1", "line_no_row2": "line_no_2", "amt_row2_cents": "line_amt_2",
+        "line_no_2": "line_no_3", "line_amt_2": "line_amt_3", "line_no_3": "line_no_4", "line_amt_3": "line_amt_4",
+        "line_no_4": "line_no_5", "line_amt_4": "line_amt_5"}
