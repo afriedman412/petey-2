@@ -42,3 +42,16 @@ def test_a_positions_own_number_prints_after_the_suffix():
     assert bt.slot({"subject": "other_coverage_opts_3", "suffix": "txt"})["iteration"] == "3"
     assert bt.slot("address_line_1_txt") == {"subject": "address_line_1", "suffix": "txt"}       # a line's label stays
     assert naming.print_name(bt.block_ident("coverage_type", "2", s)) == "coverage_type_2_other_coverage_opts_txt_2"
+
+
+@pytest.mark.parametrize("name, want", [
+    ("child_2_first_name", {"block_prefix": "child", "block_iteration": "2", "subject": "first", "suffix": "nm"}),
+    ("procedure_cd_2", {"subject": "procedure", "suffix": "cd", "iteration": "2"}),
+    ("phone_nbr_2_area", {"subject": "phone", "suffix": "nbr", "iteration": "2", "part": "area"}),
+    ("address_line_1_txt", {"subject": "address_line_1", "suffix": "txt"}),
+    ("employment_2_to_dt", {"block_prefix": "employment", "block_iteration": "2", "subject": "to", "suffix": "dt"}),
+])
+def test_a_proposed_name_reads_into_the_standards_parts(name, want):
+    """Andrew (2026-10-25): '"improve name" should also change "subject"': the proposal fills the parts."""
+    got = naming.parse(name, {"nm", "nbr", "cd", "txt", "dt", "amt", "ind"}, {"area", "line", "month"})
+    assert got == want and naming.print_name(got) == naming.print_name(want)

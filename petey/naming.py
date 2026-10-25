@@ -57,3 +57,32 @@ def short_suffix(name: str) -> str:
     if not m or not m.group(1):
         return name
     return f"{m.group(1)}_{SHORT[m.group(2)]}{m.group(3)}"
+
+
+LINE_WORDS = {"line", "row", "box", "item", "page", "part", "question", "q", "col", "column", "section", "step"}
+
+
+def parse(name: str, suffixes: set, part_words: set = frozenset(), group: bool = False) -> dict:
+    """A name read into its parts in the standard's shape, from the end (Andrew, 2026-10-25: a name proposed by
+    "improve name" fills the parts, '"improve name" should also change "subject"'): a part (a word of `part_words`
+    or part1), the field's number, the suffix (`suffixes`, or name / number / code made short; an option group has
+    none), and in what is left a number followed by field words is the block's (child_2_first_nm), unless it labels
+    a line (address_line_1). child_2_first_name -> child / 2 / first / nm; procedure_cd_2 -> procedure / cd / 2."""
+    import re
+    toks = [t for t in name.split("_") if t]
+    out: dict = {}
+    if len(toks) > 1 and (toks[-1] in part_words or re.fullmatch(r"part\d+", toks[-1])):
+        out["part"] = toks.pop()
+    if len(toks) > 1 and toks[-1].isdigit() and (group or toks[-2] in suffixes or toks[-2] in SHORT):
+        out["iteration"] = toks.pop()
+    if not group and len(toks) > 1 and (toks[-1] in suffixes or toks[-1] in SHORT):
+        out["suffix"] = SHORT.get(toks[-1], toks[-1])
+        toks.pop()
+    for i in range(1, len(toks) - 1):
+        if toks[i].isdigit() and toks[i - 1] not in LINE_WORDS:
+            out["block_prefix"], out["block_iteration"] = "_".join(toks[:i]), toks[i]
+            toks = toks[i + 1:]
+            break
+    if toks:
+        out["subject"] = "_".join(toks)
+    return standard(out)

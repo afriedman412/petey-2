@@ -383,6 +383,20 @@ class Blocks:
         return block_types.remove_block(bid, hand_review._load(self.app.working(bid)), code)
 
 
+def name_parts(bid: str, field: str, new: str) -> dict:
+    """A proposed name read into its parts, as the form's other names are (Andrew, 2026-10-25: '"improve name" should
+    also change "subject"'): eval/field_identifiers.read with the form's names around it, so a block's number after
+    its subject and a field's own number are told apart; in the standard's shape (petey/naming.py)."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+    from standardize_names import PARTS_AFTER, SUFFIXES, _is_group
+    from petey import naming
+    bp = hand_review._load(hand_review.working_path(bid))
+    spec = (bp.get("fields") or {}).get(field) or {}
+    ident = naming.parse(new, set(SUFFIXES), set(PARTS_AFTER), group=_is_group(spec))
+    return {k: v for k, v in ident.items() if v not in (None, "") and k in naming.ORDER}
+
+
 def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
     """`App.overlay` for one blueprint and its verdicts."""
     import sys
@@ -975,7 +989,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: group_review.field_captions(hand_review.working_path(bid), body["name"]), bid)
         if (mode, what) == ("review", "agent_field"):    # "fix captions": one field, answered now, not stored
             from petey.validate import flag_agent
-            return self._route(lambda: flag_agent.propose_field(bid, body["name"], body.get("note") or ""), bid)
+            def field():
+                out = flag_agent.propose_field(bid, body["name"], body.get("note") or "")
+                if out.get("name") and out["name"] != body["name"]:
+                    out["identifiers"] = name_parts(bid, body["name"], out["name"])
+                return out
+            return self._route(field, bid)
         self._send(b"not found", "text/plain", 404)
 
 

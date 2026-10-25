@@ -1239,7 +1239,9 @@ MODE.review = (() => {
   const orig = f => ({name: f.name, type: f.type || '', semantic_type: f.semantic_type || '', pattern: f.pattern || ''});
   // the field name is printed from its parts (docs/NAMING.md "Identifiers", 2026-10-19): subject, suffix, iteration,
   // part, in that order, absent ones skipped; the name box is read-only and the parts are what the person edits
-  const PART_KEYS = ['subject', 'suffix', 'iteration', 'part'];
+  // a block's prefix and number lead (the naming standard, 2026-10-24; the library stores them since): without them a
+  // saved part edit printed employment_2_to_dt as to_dt
+  const PART_KEYS = ['block_prefix', 'block_iteration', 'subject', 'suffix', 'iteration', 'part'];
   const IDS = {open: (() => { try { return localStorage.getItem('ids_open') !== '0'; } catch (e) { return true; } })()};
   const printParts = p => stdPrint(Object.fromEntries(PART_KEYS.map(k => [k, p[k] || ''])));
   const partsShown = (f, v) => { const src = v && v.edit && !v.applied && v.edit.identifiers ? v.edit.identifiers : (f.identifiers || {});
@@ -1249,7 +1251,9 @@ MODE.review = (() => {
   function partsHtml(f, v) {
     const p = partsShown(f, v), id = f.identifiers || {};
     const where = id.grid ? `grid <code>${esc(id.grid)}</code>` : '<i>in no kept grid</i>';
-    const hint = {subject: 'what the box is about, in the form\'s own words', suffix: 'the kind of value (txt, nm, nbr, dt, amt, ind …); an option group has none',
+    const hint = {block_prefix: 'the block it belongs to (child, employment, vehicle); empty when in none',
+                  block_iteration: 'which block (2 for the second child); empty when the block occurs once',
+                  subject: 'what the box is about, in the form\'s own words', suffix: 'the kind of value (txt, nm, nbr, dt, amt, ind …); an option group has none',
                   iteration: 'the Nth field holding this information (3, 4a, b); empty when it occurs once', part: 'which box of a value written in several boxes (month, area, dollars, 1)'};
     const flags = (f.identifier_flags || []).length ? `<span class="lbl sub">read</span><span class="stale">${(f.identifier_flags || []).map(esc).join('; ')}</span>` : '';
     return PART_KEYS.map(k => `<label class="sub" for="i_${k}">${k}</label><input class="ipart" id="i_${k}" data-k="${k}" value="${esc(p[k])}" placeholder="none" spellcheck="false" title="${hint[k]}">`).join('') +
@@ -1423,7 +1427,12 @@ MODE.review = (() => {
     try {
       const out = await send('POST', mapi('review', '/agent_field'), {name: f.name, note: NAME_NOTE});
       if (selected !== f.name) return;
-      if (out.name && out.name !== f.name) { $('#eName').value = out.name; markDirty(); toast(`Proposed: ${out.name}. Check it and save. ${out.reason || ''}`); }
+      if (out.name && out.name !== f.name) {
+        // the parts too (Andrew, 2026-10-25: '"improve name" should also change "subject"'): the name prints from them
+        if (out.identifiers && partInputs().length) { partInputs().forEach(el => { el.value = out.identifiers[el.dataset.k] || ''; }); reprint(); }
+        else $('#eName').value = out.name;
+        markDirty(); toast(`Proposed: ${$('#eName').value}. Check it and save. ${out.reason || ''}`);
+      }
       else toast(`No better name proposed. ${out.reason || ''}`);
     } catch (e) { alert('The agent failed: ' + e.message); }
     btn.disabled = false; btn.textContent = 'improve name';
