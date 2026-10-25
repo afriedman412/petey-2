@@ -20,6 +20,7 @@ an area and ones combined from others, each with its provenance (finder, person,
 """
 from __future__ import annotations
 
+import collections
 import sys
 from pathlib import Path
 from typing import Optional
@@ -845,19 +846,12 @@ def preview(bid: str, tid: str) -> dict:
     # the page's blanket list blanket_1_nbr .. _4_nbr; "we should be able to automate this cleanup"): offered under
     # the grid's row subject, the first column's start (subject_of_insurance_#_blanket_nbr beside
     # subject_of_insurance_#_txt), when that settles it
-    first = positions[0]["wordings"][0][0] if positions and positions[0]["wordings"] else ""
-    row_subject = first.split("_#", 1)[0] if "_#" in first else ""
+    alts = row_subject_wordings(bp, g, lines, score)
     for p in positions:
-        left = (p.get("plan") or {}).get("left") or []
-        if not row_subject or not any("a field outside this grid" in x for x in left):
-            continue
-        w = p["wordings"][0][0]
-        if w.startswith(row_subject + "_#"):
-            continue
-        alt = f"{row_subject}_#_{w.replace('_#', '', 1)}"
-        r = G.standardize(bp, g, lines, score, positions=[p["pos"] - 1], forced={p["pos"] - 1: alt.replace("_#", "_N")})
-        if r["renames"] and not any("outside this grid" in x for x in r["left"]):
-            p["alt"] = {"wording": alt, "plan": plan(r)}
+        if p["pos"] - 1 in alts:
+            alt = alts[p["pos"] - 1]
+            r = G.standardize(bp, g, lines, score, positions=[p["pos"] - 1], forced={p["pos"] - 1: alt})
+            p["alt"] = {"wording": alt.replace("_N", "_#"), "plan": plan(r)}
     info = rows_info(g, body, pos_axis, num_axis)
     out_lines = []
     for ln in info["lines"]:
@@ -876,6 +870,32 @@ def preview(bid: str, tid: str) -> dict:
     whole = None if keyed else plan(G.standardize(bp, g, lines, score))
     return {"id": tid, "pos_axis": pos_axis, "keyed": keyed, "summary": info["summary"], "positions": positions,
             "lines": out_lines, "all": whole, "aside": [{"row": r + 1, "why": w} for r, w in sorted(G.aside(g).items())]}
+
+
+def row_subject_wordings(bp: dict, g: list[dict], lines: dict, score=None) -> dict[int, str]:
+    """{position (0-based): wording, `_N` for the number} for each column whose renames run into fields outside the
+    grid, put under the grid's row subject, the first column's start (Andrew, 2026-10-24, je__acord_140 p1-G2: the
+    blanket each subject of insurance falls under, blanket_5_nbr .. _9_nbr beside the page's blanket list
+    blanket_1_nbr .. _4_nbr: subject_of_insurance_#_blanket_nbr; "we should be able to automate this cleanup", in the
+    code rather than Opus), where that settles every cell of the column."""
+    F = G._Frame(g)
+    pats = {k: collections.Counter(F.pat_of(c) for c in F.at(k)).most_common(1)[0][0] for k in F.positions if F.at(k)}
+    first = pats.get(min(pats)) if pats else ""
+    if not first or "_N" not in first:
+        return {}
+    row_subject = first.split("_N", 1)[0]
+    out = {}
+    for k, w in pats.items():
+        if not w or "_N" not in w or w.startswith(row_subject + "_N"):
+            continue
+        r = G.standardize(bp, g, lines, score, positions=[k])
+        if not any("a field outside this grid" in x for x in r["left"]):
+            continue
+        alt = f"{row_subject}_N_{w.replace('_N', '', 1)}"
+        r2 = G.standardize(bp, g, lines, score, positions=[k], forced={k: alt})
+        if r2["renames"] and not any("outside this grid" in x for x in r2["left"]):
+            out[k] = alt
+    return out
 
 
 def _grid(bp: dict, tid: str, bid: Optional[str] = None):
@@ -942,6 +962,30 @@ def check(bid: str, tid: str, *, accept, apply, ask_opus) -> dict:
     r = G.resolve(bp, g, lines, G.text_match_score())
     steps.append(f"resolver: {r['status']} ({r['why']})")
     forced = {}
+    if r["status"] not in ("fixed", "ok"):
+        # a column holding another set's names, renamed under the grid's row subject first (code, no model call), then
+        # the check goes on with the new names
+        alts = row_subject_wordings(bp, g, lines, G.text_match_score())
+        if alts:
+            ren = {}
+            for k, w in alts.items():
+                ren.update(G.standardize(bp, g, lines, G.text_match_score(), positions=[k], forced={k: w})["renames"])
+            out = apply([{"field": o, "edit": {"name": n}, "why": "grids: a column holding another set's names, under the "
+                          "grid's row subject"} for o, n in ren.items()])
+            steps.append("row subject: " + ", ".join(f"column {k + 1} as {w.replace('_N', '_#')}" for k, w in alts.items())
+                         + f" (code, no model call): {len(out.get('changes') or [])} rename(s) applied"
+                         + (f"; not all: {'; '.join(out['errors'][:2])}" if out.get("errors") else ""))
+            bp = h._load(h.working_path(bid))
+            t, g = _grid(bp, tid, bid)
+            if not g:
+                return {"status": "fixed", "steps": steps + ["the grid is no longer found after the renames"],
+                        "applied": out.get("changes") or []}
+            if G.on_pattern(g)[0]:
+                acc = accept(page, [c["name"] for c in G.body(g)])
+                return {"status": "fixed", "steps": steps + [f"code check: on pattern; {len(acc)} cell(s) accepted"],
+                        "applied": out.get("changes") or [], "accepted": acc}
+            r = G.resolve(bp, g, lines, G.text_match_score())
+            steps.append(f"resolver: {r['status']} ({r['why']})")
     if r["status"] == "unsure" and all(u.get("pos") is not None for u in r["unsure"]):
         for u in r["unsure"]:
             pick = jev_choose(bp, page, u)

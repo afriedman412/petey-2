@@ -709,3 +709,33 @@ def test_a_column_holding_another_sets_names_is_offered_under_the_row_subject(mo
     alt = next(p["alt"] for p in pv["positions"] if p.get("alt"))
     assert alt["wording"] == "subject_of_insurance_#_blanket_nbr"
     assert dict(alt["plan"]["renames"]) == {f"blanket_{r + 4}_nbr": f"subject_of_insurance_{r + 1}_blanket_nbr" for r in range(3)}
+
+
+def test_check_and_validate_settles_that_column_in_code_without_opus(monkeypatch, tmp_path):
+    """Andrew (2026-10-24): "can this be automated into the code instead of having to go to opus"."""
+    use_tmp_records(monkeypatch, tmp_path)
+    f = {}
+    def box(n, i, x, y, w=60):
+        f[n] = {"type": "string", "x_petey_id": f"1_{i}", "widget": {"page": 1, "widget_type": "text", "rect": [x, y, x + w, y + 12]}}
+    for k in range(3):
+        box(f"blanket_{k + 1}_nbr", 1 + k, 50 + 150 * k, 60, 20)
+    for r in range(3):
+        y = 200 + 30 * r
+        box(f"subject_of_insurance_{r + 1}_txt", 10 + 3 * r, 50, y, 120)
+        box(f"subject_of_insurance_{r + 1}_amt", 11 + 3 * r, 200, y)
+        box(f"blanket_{r + 4}_nbr", 12 + 3 * r, 300, y, 20)
+    bp = {"fields": f}
+    monkeypatch.setattr(gc.h, "working_path", lambda bid, *a: tmp_path / "x.bpt")
+    monkeypatch.setattr(gc.h, "_load", lambda p: bp)
+    monkeypatch.setattr(gc, "resolve_blank", lambda bp: None)
+    def apply(edits):
+        for e in edits:
+            bp["fields"][e["edit"]["name"]] = bp["fields"].pop(e["field"])
+        return {"changes": [f"{e['field']} -> {e['edit']['name']}" for e in edits], "errors": []}
+    def opus(*a):
+        raise AssertionError("asked Opus")
+    tid = next(t for t in gc.listing("t31", bp) if len(t["grid"]) == 9)["id"]
+    out = gc.check("t31", tid, accept=lambda page, names: list(names), apply=apply, ask_opus=opus)
+    assert out["status"] == "fixed" and len(out["accepted"]) == 9
+    assert {f"subject_of_insurance_{r + 1}_blanket_nbr" for r in range(3)} <= set(bp["fields"])
+    assert {"blanket_1_nbr", "blanket_2_nbr", "blanket_3_nbr"} <= set(bp["fields"])
