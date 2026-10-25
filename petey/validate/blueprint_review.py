@@ -176,7 +176,8 @@ class Grids:
                 return fn(*a)
             return go
         try:
-            out = grid_check.check(bid, tid, accept=before(lambda page, names: self.app.accept_grid(bid, page, set(names))),
+            out = grid_check.check(bid, tid, accept=before(lambda page, names: self.app.accept_grid(bid, page, set(names),
+                                                                                    vouched=True)),
                                    apply=before(apply), ask_opus=lambda *a: until(lambda: ask_opus(*a), stopped))
         except Cancelled:
             out = {"status": "cancelled", "steps": ["cancelled: nothing written after the cancel"]}
@@ -588,7 +589,7 @@ class App:
                 rest.append(g)
         return edits, cells, rest
 
-    def accept_grid(self, bid: str, page: int, ok: set) -> list[str]:
+    def accept_grid(self, bid: str, page: int, ok: set, vouched: bool = False) -> list[str]:
         """Accept the cells the grid check vouched for (Andrew, 2026-10-15: "automatically accept any grid fields
         checked by the grid validator"; and: "if it's checking for it why doesn't it consider it when accepting?"): a
         cell is accepted when it is in `ok` (the model checked it against the page and confirmed it, or proposed the
@@ -604,7 +605,11 @@ class App:
         for g in [t["grid"] for t in grid_check.listing(bid, bp) if t["status"] == "active"]:   # the kept grids
             # on pattern by the code check, or nothing off it by the older check (2026-10-16: tables named by role or
             # kind pass the code check, and were never accepted)
-            if g[0]["page"] != page or (grid_naming.breaks(g)[1] and not grid_naming.on_pattern(g)[0]):
+            # `vouched`: the grid's own "check & validate" passed it (the code check, or the resolver's "ok"), so its
+            # cells are accepted as the check said (Andrew, 2026-10-24, je__acord_131 p3-G2: rows named by their
+            # questions, two of them descriptions, "they aren't getting validated by check and validate": the
+            # resolver said ok, this gate said off pattern, and nothing was accepted)
+            if g[0]["page"] != page or (not vouched and grid_naming.breaks(g)[1] and not grid_naming.on_pattern(g)[0]):
                 continue
             names += [c["name"] for c in g if c["name"] in ok and not (have.get(c["name"]) or {}).get("verdict")]
         if names:

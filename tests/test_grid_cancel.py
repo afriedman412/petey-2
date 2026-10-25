@@ -89,3 +89,43 @@ def test_a_grid_over_as_many_other_fields_as_cells_is_set_aside(tmp_path, monkey
     (tmp_path / "t2.json").unlink()
     got = lattice_only({k: few[k] for k in list(few)[:3]})          # 3 others to 9 cells: a grid
     assert got and all(t["status"] == "active" for t in got)
+
+
+def test_a_grid_its_check_vouched_for_is_accepted_even_off_the_strict_pattern(monkeypatch):
+    """je__acord_131 p3-G2 (Andrew, 2026-10-24: "they aren't getting validated by check and validate"): rows named by
+    their questions, two of them descriptions; the resolver said ok, the accept step's own pattern gate said no."""
+    cells = [('advertising_agency_services_used_explanation_txt', 0, 0),
+             ('advertising_agency_services_used_ind', 0, 1),
+             ('coverage_provided_under_agency_policy_explanation_txt', 1, 0),
+             ('coverage_provided_under_agency_policy_ind', 1, 1),
+             ('aircraft_owned_leased_operated_explanation_txt', 2, 0),
+             ('aircraft_owned_leased_operated_ind', 2, 1),
+             ('dangerous_cargo_hauled_explanation_txt', 3, 0),
+             ('dangerous_cargo_hauled_ind', 3, 1),
+             ('passengers_carried_for_fee_explanation_txt', 4, 0),
+             ('passengers_carried_for_fee_ind', 4, 1),
+             ('units_not_insured_by_underlying_policies_explanation_txt', 5, 0),
+             ('units_not_insured_by_underlying_policies_ind', 5, 1),
+             ('vehicles_leased_rented_to_others_explanation_txt', 6, 0),
+             ('vehicles_leased_rented_to_others_ind', 6, 1),
+             ('hired_and_non_owned_coverage_provided_explanation_txt', 7, 0),
+             ('hired_and_non_owned_coverage_provided_ind', 7, 1),
+             ('bridge_dam_marine_work_performed_explanation_txt', 8, 0),
+             ('bridge_dam_marine_work_performed_ind', 8, 1),
+             ('typical_jobs_performed_desc_txt', 9, 0),
+             ('contractual_agreements_desc_txt', 10, 0),
+             ('cranes_owned_rented_used_explanation_txt', 11, 0),
+             ('cranes_owned_rented_used_ind', 11, 1),
+             ('subcontractors_carry_lower_limits_explanation_txt', 12, 0),
+             ('subcontractors_carry_lower_limits_ind', 12, 1)]
+    grid = [{"name": n, "page": 3, "row": r, "col": c} for n, r, c in cells]
+    put = {}
+    app = br.App.__new__(br.App)
+    monkeypatch.setattr(br.App, "working", lambda self, bid: None, raising=False)
+    monkeypatch.setattr(br.App, "put_verdicts", lambda self, bid, body: put.update(body["verdicts"]), raising=False)
+    monkeypatch.setattr(br.hand_review, "_load", lambda p: {"fields": {}})
+    monkeypatch.setattr(br.hand_review, "load_verdicts", lambda bid: {})
+    monkeypatch.setattr(grid_check, "listing", lambda bid, bp: [{"status": "active", "grid": grid}])
+    names = {c["name"] for c in grid}
+    assert app.accept_grid("t", 3, names) == []                         # the gate alone: off the strict pattern
+    assert sorted(app.accept_grid("t", 3, names, vouched=True)) == sorted(names) and len(put) == len(names)
