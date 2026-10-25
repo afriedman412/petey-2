@@ -840,6 +840,24 @@ def preview(bid: str, tid: str) -> dict:
         if not keyed and (len(ws) > 1 or off):
             p["plan"] = plan(G.standardize(bp, g, lines, score, positions=[k]))
         positions.append(p)
+    # a column whose renames run into fields outside the grid has another structure's names (Andrew, 2026-10-24,
+    # je__acord_140 p1-G2: "the blanket this subject of insurance falls under", blanket_#_nbr, numbered 5-9 beside
+    # the page's blanket list blanket_1_nbr .. _4_nbr; "we should be able to automate this cleanup"): offered under
+    # the grid's row subject, the first column's start (subject_of_insurance_#_blanket_nbr beside
+    # subject_of_insurance_#_txt), when that settles it
+    first = positions[0]["wordings"][0][0] if positions and positions[0]["wordings"] else ""
+    row_subject = first.split("_#", 1)[0] if "_#" in first else ""
+    for p in positions:
+        left = (p.get("plan") or {}).get("left") or []
+        if not row_subject or not any("a field outside this grid" in x for x in left):
+            continue
+        w = p["wordings"][0][0]
+        if w.startswith(row_subject + "_#"):
+            continue
+        alt = f"{row_subject}_#_{w.replace('_#', '', 1)}"
+        r = G.standardize(bp, g, lines, score, positions=[p["pos"] - 1], forced={p["pos"] - 1: alt.replace("_#", "_N")})
+        if r["renames"] and not any("outside this grid" in x for x in r["left"]):
+            p["alt"] = {"wording": alt, "plan": plan(r)}
     info = rows_info(g, body, pos_axis, num_axis)
     out_lines = []
     for ln in info["lines"]:

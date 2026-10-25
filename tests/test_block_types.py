@@ -683,3 +683,29 @@ def test_fill_blocks_puts_the_field_at_an_empty_position(monkeypatch, tmp_path):
     rec = gc.load_set("t4")
     rec["types"][0]["blocks"][1][1] = None                    # the second block lost its date
     assert bt.fill_blocks(bp, rec) == {"BT1-2": ["child_2_birth_dt"]}
+
+
+def test_a_column_holding_another_sets_names_is_offered_under_the_row_subject(monkeypatch, tmp_path):
+    """ACORD 140 p1-G2 (Andrew, 2026-10-24: "we should be able to automate this cleanup"): the subject-of-insurance
+    grid's blanket column numbered 4-6 beside the page's blanket list blanket_1_nbr .. _3_nbr; renumbering is blocked,
+    so the column is offered as subject_of_insurance_#_blanket_nbr."""
+    use_tmp_records(monkeypatch, tmp_path)
+    f = {}
+    def box(n, i, x, y, w=60):
+        f[n] = {"type": "string", "x_petey_id": f"1_{i}", "widget": {"page": 1, "widget_type": "text", "rect": [x, y, x + w, y + 12]}}
+    for k in range(3):                                   # the blanket list at the top
+        box(f"blanket_{k + 1}_nbr", 1 + k, 50 + 150 * k, 60, 20)
+    for r in range(3):                                   # the grid: subject, amount, blanket
+        y = 200 + 30 * r
+        box(f"subject_of_insurance_{r + 1}_txt", 10 + 3 * r, 50, y, 120)
+        box(f"subject_of_insurance_{r + 1}_amt", 11 + 3 * r, 200, y)
+        box(f"blanket_{r + 4}_nbr", 12 + 3 * r, 300, y, 20)
+    bp = {"fields": f}
+    monkeypatch.setattr(gc.h, "working_path", lambda bid, *a: tmp_path / "x.bpt")
+    monkeypatch.setattr(gc.h, "_load", lambda p: bp)
+    monkeypatch.setattr(gc, "resolve_blank", lambda bp: None)
+    g = next(t for t in gc.listing("t30", bp) if len(t["grid"]) == 9)
+    pv = gc.preview("t30", g["id"])
+    alt = next(p["alt"] for p in pv["positions"] if p.get("alt"))
+    assert alt["wording"] == "subject_of_insurance_#_blanket_nbr"
+    assert dict(alt["plan"]["renames"]) == {f"blanket_{r + 4}_nbr": f"subject_of_insurance_{r + 1}_blanket_nbr" for r in range(3)}

@@ -2697,7 +2697,8 @@ MODE.grids = (() => {
           ${x.caption ? `<span class="help"> · printed "${esc(x.caption)}"</span>` : ''}${x.locked ? '<span class="help"> · printed line numbers, kept</span>' : ''}
           ${x.off ? `<span class="stale"> · ${x.off} cell${x.off === 1 ? '' : 's'} numbered off their ${axis === 'col' ? 'rows' : 'columns'}</span>` : ''}${ok ? ' <span class="good">✓</span>' : ''}
           ${planHtml(t.id, x.plan, 'standardize', `data-std="${esc(t.id)}" data-pos="${x.pos}"`, x.wordings.length > 1 && !pv.keyed
-            ? `<select data-pick="${esc(t.id)}" data-pos="${x.pos}" title="every cell of ${word} ${x.pos} under the wording you pick, each numbered as its ${axis === 'col' ? 'row' : 'column'}"><option value="">or pick the wording…</option>${x.wordings.map(([w, n]) => `<option value="${esc(w)}">${esc(w)} (${n})</option>`).join('')}<option value="?">type another…</option></select>` : '')}</div>`;
+            ? `<select data-pick="${esc(t.id)}" data-pos="${x.pos}" title="every cell of ${word} ${x.pos} under the wording you pick, each numbered as its ${axis === 'col' ? 'row' : 'column'}"><option value="">or pick the wording…</option>${x.wordings.map(([w, n]) => `<option value="${esc(w)}">${esc(w)} (${n})</option>`).join('')}<option value="?">type another…</option></select>` : '')}
+          ${x.alt ? `<div class="gax-act"><button class="btn mini" data-std="${esc(t.id)}" data-pos="${x.pos}" data-wording="${esc(x.alt.wording)}" ${busy.has(t.id) ? 'disabled' : ''} title="its names belong to another set on the page; under the grid's row subject instead:\n${esc(renameList(x.alt.plan.renames))}">standardize as ${esc(x.alt.wording)}: ${x.alt.plan.renames.length} rename${x.alt.plan.renames.length === 1 ? '' : 's'}</button></div>` : ''}</div>`;
       }
       const off = x.plan && (x.plan.renames.length || x.plan.left.length);
       const ed = v => v ? `<code class="gedit" data-eline="${esc(t.id)}" data-line="${x.line}" data-val="${esc(v)}" title="click to edit: the ${word}'s ${x.label != null ? 'label' : 'number'} in each of its cells' names; Enter applies, Esc cancels">${esc(v)}</code>` : '<code>?</code>';
@@ -2742,7 +2743,7 @@ MODE.grids = (() => {
     a.querySelectorAll('[data-stop]').forEach(b => b.onclick = () => stop(b.dataset.stop));
     a.querySelectorAll('[data-notgrid]').forEach(b => b.onclick = () => setAside(b.dataset.notgrid, true));
     a.querySelectorAll('[data-restore]').forEach(b => b.onclick = e => { e.preventDefault(); setAside(b.dataset.restore, false); });
-    a.querySelectorAll('[data-std]').forEach(b => b.onclick = () => standardize(b.dataset.std, b.dataset.pos, b.dataset.line));
+    a.querySelectorAll('[data-std]').forEach(b => b.onclick = () => standardize(b.dataset.std, b.dataset.pos, b.dataset.line, b.dataset.wording));
     a.querySelectorAll('[data-epos], [data-eline]').forEach(el => el.onclick = e => { e.stopPropagation(); editLabel(el); });
     a.querySelectorAll('[data-pick]').forEach(sel => sel.onchange = () => {
       let w = sel.value; if (!w) return;
