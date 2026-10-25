@@ -890,21 +890,62 @@ def row_subject_wordings(bp: dict, g: list[dict], lines: dict, score=None) -> di
     F = G._Frame(g)
     pats = {k: collections.Counter(F.pat_of(c) for c in F.at(k)).most_common(1)[0][0] for k in F.positions if F.at(k)}
     first = pats.get(min(pats)) if pats else ""
-    if not first or "_N" not in first:
-        return {}
-    row_subject = first.split("_N", 1)[0]
+    row_subject = first.split("_N", 1)[0] if first and "_N" in first else ""
+    # failing that, the grid's printed title as its subject (Andrew, 2026-10-24: "grids that aren't connected that
+    # have the same labels are likely to carry the same data about different subjects, so their labels shouldn't
+    # clash"): owners_name_1 beside managers_name_1
+    title = _slug_title(grid_title(bp, g, lines)) if lines is not None else ""
     out = {}
     for k, w in pats.items():
-        if not w or "_N" not in w or w.startswith(row_subject + "_N"):
+        if not w or "_N" not in w:
             continue
         r = G.standardize(bp, g, lines, score, positions=[k])
         if not any("a field outside this grid" in x for x in r["left"]):
             continue
-        alt = f"{row_subject}_N_{w.replace('_N', '', 1)}"
-        r2 = G.standardize(bp, g, lines, score, positions=[k], forced={k: alt})
-        if r2["renames"] and not any("outside this grid" in x for x in r2["left"]):
-            out[k] = alt
+        tries = []
+        if row_subject and not w.startswith(row_subject + "_N"):
+            tries.append(f"{row_subject}_N_{w.replace('_N', '', 1)}")
+        if title and not w.startswith(title + "_"):
+            tries.append(f"{title}_{w}")
+        for alt in tries:
+            r2 = G.standardize(bp, g, lines, score, positions=[k], forced={k: alt})
+            if r2["renames"] and not any("outside this grid" in x for x in r2["left"]):
+                out[k] = alt
+                break
     return out
+
+
+def _slug_title(t: Optional[str]) -> str:
+    """A printed title as a subject: its first three words that say something (PART II - OWNERS -> owners)."""
+    import re
+    stop = {"part", "section", "schedule", "the", "of", "and", "or", "a", "an", "information", "for", "to", "in"}
+    words = [w for w in re.findall(r"[a-z]+", str(t or "").lower()) if w not in stop and len(w) > 1
+             and not re.fullmatch(r"[ivx]+", w)]
+    return "_".join(words[:3])
+
+
+def grid_title(bp: dict, g: list[dict], lines: dict) -> Optional[str]:
+    """The title printed above a grid (`_title`, as the card shows it)."""
+    blank = resolve_blank(bp)
+    if blank and blank.exists() and str(blank) not in _HEADS:
+        from cheap_names import headings
+        _HEADS[str(blank)] = headings(blank)
+    heads = _HEADS.get(str(blank), {}) if blank else {}
+    rs = [r for r in (_rect(bp, c["name"]) for c in g) if r]
+    if not rs:
+        return None
+    page = g[0]["page"]
+    bbox = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
+    F = G._Frame(g)
+    how = "columns" if F.pos_axis == "col" else "rows"
+    caps = [G.position_caption(bp, F.at(k), how, lines) for k in F.positions]
+    return _title(bbox, lines.get(page), heads.get(page), caps)
+
+
+def _same_subject(t0: Optional[str], t1: Optional[str]) -> bool:
+    """Two parts of one list by their printed titles: the same title, or the later one a continuation sheet."""
+    norm = lambda t: " ".join(str(t or "").lower().split())             # noqa: E731
+    return bool(t0 and t1 and norm(t0) == norm(t1)) or "continu" in norm(t1)
 
 
 def series(bid: str, bp: dict, tid: str, g: list[dict], lines: dict) -> Optional[dict]:
@@ -917,23 +958,43 @@ def series(bid: str, bp: dict, tid: str, g: list[dict], lines: dict) -> Optional
         F = G._Frame(grid)
         how = "columns" if F.pos_axis == "col" else "rows"
         return F, [(G.position_caption(bp, F.at(k), how, lines) or "").strip().lower() for k in F.positions]
+    def one_number(grid):              # every row carrying the same number: one entity's fields in rows (I-589's
+        nums = {G._number(c["name"]) for c in grid} - {None}      # child_1_... in four rows), a block, not a list
+        return len(nums) == 1 and len({c["row"] for c in grid}) > 1
     F0, h0 = heads(g)
     named = [x for x in h0 if x]
-    if len(named) < 2 or len(named) < 0.6 * len(h0):
+    if len(named) < 2 or len(named) < 0.6 * len(h0) or one_number(g):
         return None
     page0 = g[0]["page"]
-    parts, seen_pages = [(page0, tid, g, F0)], {page0}
-    for t in listing(bid, bp):
+    # the same headings are not enough (Andrew, 2026-10-24: "grids that aren't connected that have the same labels are
+    # likely to carry the same data about different subjects, so their labels shouldn't clash"): a part is on the next
+    # page (or the one before) and under the same printed title, or the later one says it continues
+    cands = {}
+    for t in sorted(listing(bid, bp), key=lambda t: t["status"] != "active"):     # the active grid first on its page
         if t["id"] == tid or t["status"] in ("combined",) or not t["grid"]:
             continue
         pg = t["grid"][0]["page"]
-        if pg in seen_pages:                        # one part a page (a grid drawn over the finder's is the same part)
+        if pg == page0 or pg in cands:              # one part a page (a grid drawn over the finder's is the same part)
+            continue
+        if one_number(t["grid"]):
             continue
         F, h1 = heads(t["grid"])
         if len(h1) == len(h0) and all(a == b for a, b in zip(h0, h1) if a and b) and \
                 sum(1 for a, b in zip(h0, h1) if a and a == b) >= max(2, 0.6 * len(h0)):
-            parts.append((pg, t["id"], t["grid"], F))
-            seen_pages.add(pg)
+            cands[pg] = (pg, t["id"], t["grid"], F)
+    if not cands:
+        return None
+    titles = {page0: grid_title(bp, g, lines)}
+    parts = [(page0, tid, g, F0)]
+    for step in (1, -1):                            # walk to the next pages, then back to the earlier ones
+        pg, prev = page0 + step, page0
+        while pg in cands:
+            titles[pg] = grid_title(bp, cands[pg][2], lines)
+            early, late = (prev, pg) if step == 1 else (pg, prev)
+            if not _same_subject(titles[early], titles[late]):
+                break
+            parts.append(cands[pg])
+            prev, pg = pg, pg + step
     if len(parts) < 2:
         return None
     parts.sort(key=lambda x: x[0])

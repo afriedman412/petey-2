@@ -203,6 +203,10 @@ def test_one_list_across_pages_is_numbered_on_with_one_wording(monkeypatch, tmp_
     g2 = [{"name": n, "page": 2, "row": r, "col": c} for r in range(3) for c, n in enumerate([f"line_no_{r + 2}", f"line_amt_{r + 2}"])]
     monkeypatch.setattr(gc, "listing", lambda bid, bp: [{"id": "p1-G1", "status": "active", "grid": g1},
                                                        {"id": "p2-G1", "status": "active", "grid": g2}])
+    monkeypatch.setattr(gc, "grid_title", lambda bp, g, lines: "OWNERS" if g[0]["page"] == 1 else "MANAGERS")
+    assert gc.series("t", bp, "p1-G1", g1, {}) is None       # same headings, other subjects: not one list (Andrew:
+                                                              # "the same data about different subjects")
+    monkeypatch.setattr(gc, "grid_title", lambda bp, g, lines: "LINE ITEMS" if g[0]["page"] == 1 else "CONTINUATION SHEET")
     se = gc.series("t", bp, "p1-G1", g1, {})
     assert se["start"] == 1 and se["parts"] == ["p1-G1", "p2-G1"] and se["wordings"] == {0: "line_no_N", 1: "line_amt_N"}
     r = gc.series_renames("t", bp, se, {})
@@ -210,3 +214,17 @@ def test_one_list_across_pages_is_numbered_on_with_one_wording(monkeypatch, tmp_
         "line_no": "line_no_1", "amount_dollars_amt": "line_amt_1", "line_no_row2": "line_no_2", "amt_row2_cents": "line_amt_2",
         "line_no_2": "line_no_3", "line_amt_2": "line_amt_3", "line_no_3": "line_no_4", "line_amt_3": "line_amt_4",
         "line_no_4": "line_no_5", "line_amt_4": "line_amt_5"}
+
+
+def test_grids_with_the_same_headings_under_other_titles_keep_apart(monkeypatch):
+    """Andrew (2026-10-24): "grids that aren't connected that have the same labels are likely to carry the same data
+    about different subjects, so their labels shouldn't clash": the second grid, numbered on to dodge the first's
+    names, takes its own title as its subject."""
+    from petey.validate import grid_check as gc
+    bp, g = _grid([[f"name_{r + 3}_nm", f"phone_{r}_nbr"] for r in (1, 2, 3)])      # names numbered on to dodge
+    for r in (1, 2, 3):                                  # the first grid's names, on another page
+        for w in ("name_{}_nm", "phone_{}_nbr"):
+            bp["fields"][w.format(r)] = {"type": "string", "widget": {"page": 2, "widget_type": "text", "rect": [0, 9 * r, 9, 9 * r + 9]}}
+    monkeypatch.setattr(gc, "grid_title", lambda bp, g, lines: "PART III - MANAGERS")
+    alts = gc.row_subject_wordings(bp, g, {}, None)
+    assert alts == {0: "managers_name_N_nm"}
