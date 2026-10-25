@@ -176,9 +176,13 @@ class Grids:
                 return fn(*a)
             return go
         try:
+            refused: list = []
             out = grid_check.check(bid, tid, accept=before(lambda page, names: self.app.accept_grid(bid, page, set(names),
-                                                                                    vouched=True)),
+                                                                                    refused=refused)),
                                    apply=before(apply), ask_opus=lambda *a: until(lambda: ask_opus(*a), stopped))
+            if refused:
+                out["steps"] = (out.get("steps") or []) + [f"not accepted: {x['grid']}: {x['why']}" for x in refused]
+                out["refused"] = refused
         except Cancelled:
             out = {"status": "cancelled", "steps": ["cancelled: nothing written after the cancel"]}
         finally:
@@ -589,27 +593,38 @@ class App:
                 rest.append(g)
         return edits, cells, rest
 
-    def accept_grid(self, bid: str, page: int, ok: set, vouched: bool = False) -> list[str]:
-        """Accept the cells the grid check vouched for (Andrew, 2026-10-15: "automatically accept any grid fields
+    def accept_grid(self, bid: str, page: int, ok: set, refused: Optional[list] = None) -> list[str]:
+        """Accept the cells a grid check vouched for (Andrew, 2026-10-15: "automatically accept any grid fields
         checked by the grid validator"; and: "if it's checking for it why doesn't it consider it when accepting?"): a
-        cell is accepted when it is in `ok` (the model checked it against the page and confirmed it, or proposed the
-        fix the person applied) and its table (numbered along one side, eval/grid_naming.py) has nothing off its
-        pattern; a field with a verdict already keeps it. Note: "grid check"."""
+        cell is accepted when it is in `ok` and its grid passes the same test "check & validate" uses (the code
+        check, or the resolver's "ok"; 2026-10-24: a stricter gate of its own refused ACORD 131's labelled rows,
+        silently, after the check had passed them); a field with a verdict already keeps it. A grid with vouched
+        cells that fails the test is said in `refused` ({grid, why}), shown under the button pressed. Note: "grid
+        check"."""
         import sys
         sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
         import grid_naming
         from petey.validate import grid_check
+        from petey.validate.retype import resolve_blank
         bp = hand_review._load(self.working(bid))
         have = hand_review.load_verdicts(bid).get("verdicts") or {}
-        names = []
-        for g in [t["grid"] for t in grid_check.listing(bid, bp) if t["status"] == "active"]:   # the kept grids
-            # on pattern by the code check, or nothing off it by the older check (2026-10-16: tables named by role or
-            # kind pass the code check, and were never accepted)
-            # `vouched`: the grid's own "check & validate" passed it (the code check, or the resolver's "ok"), so its
-            # cells are accepted as the check said (Andrew, 2026-10-24, je__acord_131 p3-G2: rows named by their
-            # questions, two of them descriptions, "they aren't getting validated by check and validate": the
-            # resolver said ok, this gate said off pattern, and nothing was accepted)
-            if g[0]["page"] != page or (not vouched and grid_naming.breaks(g)[1] and not grid_naming.on_pattern(g)[0]):
+        names, lines = [], None
+        for t in grid_check.listing(bid, bp):
+            g = t["grid"]
+            if t["status"] != "active" or g[0]["page"] != page or not any(c["name"] in ok for c in g):
+                continue
+            passes, why = grid_naming.on_pattern(g)
+            if not passes:
+                if lines is None:
+                    blank = resolve_blank(bp)
+                    lines = grid_check._lines(blank) if blank and blank.exists() else {}
+                r = grid_naming.resolve(bp, g, lines, grid_naming.text_match_score())
+                passes = r["status"] == "ok"
+                if not passes:
+                    why = r["why"] if r["status"] != "fixed" else f"{len(r['renames'])} cell(s) to rename first ({r['why']})"
+            if not passes:
+                if refused is not None:
+                    refused.append({"grid": t.get("id"), "why": why})
                 continue
             names += [c["name"] for c in g if c["name"] in ok and not (have.get(c["name"]) or {}).get("verdict")]
         if names:
@@ -645,7 +660,8 @@ class App:
             ren = out.get("renamed") or {}
             ok = {ren.get(n, n) for n in body.get("confirmed") or []} | \
                  {ren.get(e.get("field"), e.get("field")) for e in body.get("edits") or []}
-            out["accepted"] = self.accept_grid(bid, int(body["grid_page"]), ok)
+            out["refused"] = []
+            out["accepted"] = self.accept_grid(bid, int(body["grid_page"]), ok, out["refused"])
         self.refresh()
         return {**out, "entry": self.entry(bid)}
 
@@ -875,13 +891,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
             def grid():
                 pg = int(body.get("page") or 1)
                 passed, failed = APP.code_grid(bid, pg)
-                accepted = APP.accept_grid(bid, pg, {c["name"] for g in passed for c in g})
+                refused: list = []
+                accepted = APP.accept_grid(bid, pg, {c["name"] for g in passed for c in g}, refused)
                 if passed and not failed:            # every table on the page passes the code check: no model call
                     n = sum(len(g) for g in passed)
                     return {"reply": f"Page {pg}: {len(passed)} grid(s), {n} cell(s): each column one pattern that "
                                      f"varies only by its iteration, rows numbered by steps of 1 (code check, no "
                                      f"model call).", "edits": [], "groups": [], "remove": [], "errors": [],
-                            "confirmed": [], "cost_usd": 0, "accepted": accepted}
+                            "confirmed": [], "cost_usd": 0, "accepted": accepted, "refused": refused}
                 edits, fixed, rest = APP.code_fix(bid, failed)
                 if failed and not rest:              # the code can renumber every failing table: no model call
                     n = sum(len(g) for g in passed)
@@ -889,13 +906,13 @@ class Handler(http.server.BaseHTTPRequestHandler):
                                      f"rename(s)); tick and apply" + (f"; {len(passed)} grid(s) already right, "
                                      f"{n} cell(s) accepted" if passed else "") + " (no model call).",
                             "edits": edits, "groups": [], "remove": [], "errors": [], "confirmed": fixed,
-                            "cost_usd": 0, "accepted": accepted}
+                            "cost_usd": 0, "accepted": accepted, "refused": refused}
                 req = form_chat.grid_request(bid, pg)     # tables the code cannot fix, or none found: the model,
                 out = {"request": req, **form_chat.ask(bid, (body.get("history") or []) + [{"role": "user", "content": req}],
                                                        only_pages=[pg])}          # with that page only
                 if not (out["edits"] or out["groups"] or out["remove"]):     # nothing to change: accept what it vouched for
-                    accepted += APP.accept_grid(bid, pg, set(out.get("confirmed") or []))
-                out["accepted"] = accepted
+                    accepted += APP.accept_grid(bid, pg, set(out.get("confirmed") or []), refused)
+                out["accepted"], out["refused"] = accepted, refused
                 return out
             return self._route(grid, bid)
         if (mode, what) == ("blocks", "draw"):          # an area drawn: a block (block_types.py, 2026-10-21)

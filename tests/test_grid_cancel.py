@@ -91,9 +91,10 @@ def test_a_grid_over_as_many_other_fields_as_cells_is_set_aside(tmp_path, monkey
     assert got and all(t["status"] == "active" for t in got)
 
 
-def test_a_grid_its_check_vouched_for_is_accepted_even_off_the_strict_pattern(monkeypatch):
-    """je__acord_131 p3-G2 (Andrew, 2026-10-24: "they aren't getting validated by check and validate"): rows named by
-    their questions, two of them descriptions; the resolver said ok, the accept step's own pattern gate said no."""
+def test_grid_cells_are_accepted_on_the_checks_own_test_and_a_refusal_says_why(monkeypatch):
+    """je__acord_131 p3-G2 (Andrew, 2026-10-24: "they aren't getting validated by check and validate"; "what's the
+    point of the stricter check, especially if it fails silently?"): rows named by their questions, two of them
+    descriptions. Accepting uses the check's test (code check or the resolver's ok); a refusal is said."""
     cells = [('advertising_agency_services_used_explanation_txt', 0, 0),
              ('advertising_agency_services_used_ind', 0, 1),
              ('coverage_provided_under_agency_policy_explanation_txt', 1, 0),
@@ -125,7 +126,15 @@ def test_a_grid_its_check_vouched_for_is_accepted_even_off_the_strict_pattern(mo
     monkeypatch.setattr(br.App, "put_verdicts", lambda self, bid, body: put.update(body["verdicts"]), raising=False)
     monkeypatch.setattr(br.hand_review, "_load", lambda p: {"fields": {}})
     monkeypatch.setattr(br.hand_review, "load_verdicts", lambda bid: {})
-    monkeypatch.setattr(grid_check, "listing", lambda bid, bp: [{"status": "active", "grid": grid}])
+    monkeypatch.setattr(grid_check, "listing", lambda bid, bp: [{"id": "p3-G2", "status": "active", "grid": grid}])
+    import grid_naming
+    from petey.validate import retype
+    monkeypatch.setattr(retype, "resolve_blank", lambda bp: None)
     names = {c["name"] for c in grid}
-    assert app.accept_grid("t", 3, names) == []                         # the gate alone: off the strict pattern
-    assert sorted(app.accept_grid("t", 3, names, vouched=True)) == sorted(names) and len(put) == len(names)
+    assert not grid_naming.on_pattern(grid)[0]                          # off the strict pattern ...
+    monkeypatch.setattr(grid_naming, "resolve", lambda *a, **k: {"status": "ok", "why": "lines labelled", "renames": {}})
+    refused = []
+    assert sorted(app.accept_grid("t", 3, names, refused)) == sorted(names) and refused == []   # ... the resolver's ok
+    put.clear()
+    monkeypatch.setattr(grid_naming, "resolve", lambda *a, **k: {"status": "unsure", "why": "column 1 split", "renames": {}})
+    assert app.accept_grid("t", 3, names, refused) == [] and refused == [{"grid": "p3-G2", "why": "column 1 split"}]

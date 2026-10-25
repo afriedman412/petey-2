@@ -860,7 +860,8 @@ function renderChat() {
       const errs = t.out.errors.length ? `<div class="cerr">left out: ${esc(t.out.errors.join('; '))}</div>` : '';
       const res = t.result ? `<div class="cfoot">applied: ${t.result.changes.length} change(s)${t.result.errors.length ? ` · <span class="cerr">${esc(t.result.errors.join('; '))}</span>` : ''}</div>` : '';
       const foot = items.length && !t.applied ? `<div class="cfoot"><button class="btn primary" data-apply="${ti}">apply ticked</button><span>$${t.out.cost_usd}</span></div>` : `<div class="cfoot"><span>$${t.out.cost_usd}</span></div>`;
-      const acc = (t.accepted || []).length ? `<div class="cfoot">accepted ${t.accepted.length} grid cell(s) the check confirmed (note: grid check)</div>` : '';
+      const acc = ((t.accepted || []).length ? `<div class="cfoot">accepted ${t.accepted.length} grid cell(s) the check confirmed (note: grid check)</div>` : '')
+        + (t.refused || []).map(x => `<div class="cerr">not accepted: ${esc(x.grid || 'a grid')}: ${esc(x.why)}</div>`).join('');   // under the button pressed (2026-10-24)
       a = `<div class="ca">${esc(t.out.reply)}${list}${errs}${res || foot}${acc}</div>`;
     }
     return `<div class="cq">${esc(t.req)}</div>${a}`;
@@ -892,6 +893,7 @@ async function checkGrid() {
     const out = await send('POST', mapi('review', '/grid'), {page, history: st.history});
     turn.out = out; turn.picked = new Set(chatItems(out).map(it => it.k));
     if (out.request) st.history.push({role: 'user', content: out.request}, {role: 'assistant', content: out.raw});   // a code-only pass asks no model
+    turn.refused = out.refused || [];
     if ((out.accepted || []).length) { turn.accepted = out.accepted; if (bid === form) await loadMode(); }
   } catch (e) { turn.err = 'The grid check failed: ' + e.message; }
   if (bid === form) renderChat();
@@ -907,6 +909,7 @@ async function applyChat(ti, btn) {
     const out = await send('POST', mapi('review', '/chat_apply'), body);
     t.applied = true; t.result = out; updateEntry(out.entry);
     if ((out.accepted || []).length) t.accepted = out.accepted;
+    t.refused = out.refused || [];
     await loadMode();
     toast(`Chat: ${out.changes.length} change(s) went into the working copy${out.errors.length ? `; ${out.errors.length} not applied` : ''}. Save as usual.`);
   } catch (e) { btn.disabled = false; btn.textContent = 'apply ticked'; alert('Apply failed: ' + e.message); return; }
@@ -2718,7 +2721,7 @@ MODE.grids = (() => {
         ${b && runs[t.id] ? `<button class="btn" data-stop="${esc(t.id)}" title="stop this check: nothing is written after it, and a call to Opus under way is given up">cancel</button>` : ''}
         ${all ? `<button class="btn" data-std="${esc(t.id)}" ${b ? 'disabled' : ''} title="${esc(renameList(pv.all.renames))}">standardize all (${pv.all.renames.length})</button>` : ''}
         <button class="btn" data-notgrid="${esc(t.id)}" title="hidden and kept out of 'check all'; a finder's grid is recorded as its mistake, a combined one gives its parts back; restore below">not a grid</button></div>
-      ${res ? `<div class="gtres"><b>last: ${esc(res.status)}</b>${res.status === 'proposed' ? ' · the proposals are in the chat' : ''}<ul class="gtsteps">${(res.steps || []).map(s => `<li>${esc(say(t, s))}</li>`).join('')}</ul></div>` : ''}
+      ${res ? `<div class="gtres"><b>last: ${esc(res.status)}</b>${res.status === 'proposed' ? ' · the proposals are in the chat' : ''}<ul class="gtsteps">${(res.steps || []).map(s => `<li${s.startsWith('not accepted') ? ' class="stale"' : ''}>${esc(say(t, s))}</li>`).join('')}</ul></div>` : ''}
       ${!pv ? '<p class="help">reading its columns and rows…</p>' : pv.error ? `<p class="err">${esc(pv.error)}</p>`
         : (pv.keyed ? `<p class="help">Rows named by label (applicant, spouse): standardize does not apply; check & validate settles them.</p>` : '') + axisHtml(t, pv, 'col') + axisHtml(t, pv, 'row')}
     </div>`;
