@@ -287,7 +287,12 @@ class Blocks:
         """"run finders" (2026-10-23): SIA's repeated blocks as new block types; the Grids tab's finder then leaves out
         what they hold when it next loads."""
         from petey.validate import block_types
-        return block_types.discover(bid, hand_review._load(self.app.working(bid)))
+        out = block_types.discover(bid, hand_review._load(self.app.working(bid)))
+        try:                                     # the group suggestions too (group_finder, shown on the Groups tab)
+            out["groups_suggested"] = len((self.app.groups.detail(bid) or {}).get("suggested") or [])
+        except Exception:                        # noqa: BLE001
+            out["groups_suggested"] = 0
+        return out
 
     def block_rescan(self, bid: str, page: int) -> dict:
         """The page rescanned (Andrew, 2026-10-22: "we should be able to rescan a page to allow blocks to reform"): each
@@ -842,6 +847,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     APP.review._index[bid]["note"] = n if n.get("text") else None
                 return {"note": n, "entry": APP.entry(bid)}
             return self._route(note, bid)
+        if (mode, what) == ("groups", "notgroup"):           # a suggested group that is not one (group_finder)
+            from petey.validate import group_finder
+            return self._route(lambda: group_finder.dismiss(bid, list(body.get("items") or [])), bid)
         if (mode, what) == ("groups", "units"):
             def units():
                 APP.open_draft(bid)

@@ -708,12 +708,23 @@ class State:
         items, units, info = current_units(bid, bp, sha)
         opt_items, base = option_items(bp)
         option_fields = {it["field"] for it in opt_items.values()}
+        # suggested groups among the loose checkboxes (group_finder, 2026-10-25): shown, never applied by themselves
+        from petey.validate import group_finder
+        loose = {u["items"][0]: items[u["items"][0]] for u in units if len(u.get("items") or []) == 1
+                 and u.get("kind") != "text" and not u.get("locked") and u.get("type") == "boolean"
+                 and items.get(u["items"][0], {}).get("widget_type") in ("checkbox", "radiobutton")}
+        try:
+            suggested = group_finder.find(bp, blank, loose, bid)
+        except Exception as e:                       # noqa: BLE001  the tab works without them
+            suggested = []
+            info = {**info, "suggest_error": str(e)}
         return {"id": bid, "path": str(self.paths[bid]), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
                 # each field's code, for the full field id the card shows as Review's does (2026-10-24)
                 "codes": {n: str(s["x_petey_id"]) for n, s in (bp.get("fields") or {}).items()
                           if isinstance(s, dict) and s.get("x_petey_id") is not None},
+                "suggested": suggested,
                 "info": info}
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:

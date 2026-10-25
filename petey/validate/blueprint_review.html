@@ -1890,6 +1890,21 @@ MODE.groups = (() => {
     }
     afterEdit();
   }
+  // "group them" on a suggestion: the boxes one group, as a drag makes it (applied with the rest when Groups is left)
+  function groupSuggested(x) {
+    if (!x || !x.items.every(id => { const v = unitOf(id); return v && !isGroup(v) && !v.locked; })) return note('Those boxes are no longer all loose.');
+    snapshot();
+    for (const id of x.items) detach(id);
+    const g = {uid: nextUid++, name: x.name ? uniqueName(x.name, null) : suggestName(x.items), type: 'category', items: [...x.items], origin: null, confirmed: false};
+    units.push(g); selected = g.uid;
+    afterEdit();
+  }
+  async function notGroup(i) {
+    const x = BP.suggested[i]; if (!x) return;
+    try { await send('PUT', mapi('groups', '/notgroup'), {items: x.items}); }
+    catch (e) { alert(e.message); return; }
+    BP.suggested.splice(i, 1); panel();
+  }
   // a box taken out of group `src`: a loose box of its own, under its field's name or the group's name and its key
   function looseOf(src, id) {
     const it = item(id), own = it.key === null;
@@ -2110,7 +2125,13 @@ MODE.groups = (() => {
     const groups = listed().filter(isGroup), loose = listed().filter(x => !isGroup(x));
     const combos = units.filter(x => isText(x) && onPage(x)), nLoose = looseText().length;
     const nts = notes.length ? `<div class="warn">${notes.map(esc).join('<br>')}</div>` : '';
-    a.innerHTML = head + nts + currentHtml(u) +
+    // suggested groups among the loose boxes (group_finder, 2026-10-25): the clear cases, never applied by themselves
+    const sugg = (BP.suggested || []).map((x, i) => ({...x, i})).filter(x => x.page === page && x.items.every(id => { const v = unitOf(id); return v && !isGroup(v); }));
+    const suggHtml = sugg.length ? `<div class="gsugg"><h4>Suggested groups on page ${page} (${sugg.length})</h4>${sugg.map(x =>
+      `<div class="gcard"><div class="help">${esc(x.why)}${x.name ? ` · <code>${esc(x.name)}</code>` : ''}</div>
+        <div class="gchips">${x.items.map((id, k) => `<span class="gchip">${esc((x.captions || [])[k] || item(id).field)} <span class="help">${esc(item(id).field)}</span></span>`).join('')}</div>
+        <div class="row"><button class="btn ok mini" data-sg="${x.i}">group them</button><button class="btn mini" data-sgno="${x.i}" title="these boxes are not one question: the suggestion stays away">not a group</button></div></div>`).join('')}</div>` : '';
+    a.innerHTML = head + nts + currentHtml(u) + suggHtml +
       `<div><h4>Groups on page ${page} (${groups.length}) · drop a box on a group to add it</h4>
         ${groups.map(cardHtml).join('') || '<p class="help">none</p>'}</div>
       <div class="tray" id="tray"><h4>Loose boxes on page ${page} (${loose.length}) · drop a box here to take it out of its group or combined field; drop one loose box on another to group them</h4>
@@ -2140,13 +2161,13 @@ MODE.groups = (() => {
         try { await navigator.clipboard.writeText(ref); toast(`Copied ${ref}`); } catch (e) { /* no clipboard: the id is on screen */ }
       };
     }
-    document.querySelectorAll('.gcard').forEach(card => {
+    document.querySelectorAll('.gcard[data-unit]').forEach(card => {         // not the suggestions' cards
       const uid = Number(card.dataset.unit);
       card.querySelector('h3').onclick = () => select(uid);
       if (!unitByUid(uid).locked) asTarget(card, {unit: uid});
     });
     document.querySelectorAll('[data-drag-unit]').forEach(g => g.addEventListener('dragstart', e => dragData(e, 'unit', Number(g.dataset.dragUnit))));
-    document.querySelectorAll('.gchip').forEach(ch => {
+    document.querySelectorAll('.gchip[data-item]').forEach(ch => {
       const id = ch.dataset.item, cu = unitOf(id);
       ch.addEventListener('click', () => select(cu.uid));
       if (cu.locked) return;
@@ -2154,6 +2175,8 @@ MODE.groups = (() => {
       if (!isGroup(cu)) asTarget(ch, {item: id, inTray: true});
     });
     document.querySelectorAll('[data-out]').forEach(x => x.addEventListener('click', e => { e.stopPropagation(); moveItem(x.dataset.out, {tray: true}); }));
+    document.querySelectorAll('[data-sg]').forEach(b => b.onclick = () => groupSuggested(BP.suggested[+b.dataset.sg]));
+    document.querySelectorAll('[data-sgno]').forEach(b => b.onclick = () => notGroup(+b.dataset.sgno));
     asTarget($('#tray'), {tray: true});
   }
   function renderChanges() {
@@ -3221,6 +3244,8 @@ MODE.blocks = (() => {
     const fill = Object.values(pr.filled || {}).reduce((a, v) => a + v.length, 0), found = Object.values(pr.found || {}).reduce((a, v) => a + v.length, 0);
     const grew = Object.entries(pr.grew || {}).map(([t, ns]) => `${t} +${ns.length} position${ns.length === 1 ? '' : 's'}`);
     const prim = [fill ? `${fill} empty position${fill === 1 ? '' : 's'} filled` : '', grew.join(', '), found ? `${found} more cop${found === 1 ? 'y' : 'ies'} found` : ''].filter(Boolean);
+    const gs = out.groups_suggested ? ` Groups: ${out.groups_suggested} suggested on the Groups tab.` : '';
+    setTimeout(() => { if (gs) toast($('#toast').textContent + gs); }, 0);
     toast((prim.length ? `Your blocks: ${prim.join('; ')}. ` : '') + (g.length ? `Grids: ${g.length} (${g.slice(0, 6).join(', ')}${g.length > 6 ? ', …' : ''})${sup.length ? `, in place of blocks ${sup.slice(0, 6).join(', ')}${sup.length > 6 ? ', …' : ''}` : ''}. ` : 'No grids. ')
       + (out.types.length ? `Blocks: ${out.types.length} new block type${out.types.length === 1 ? '' : 's'} (${out.types.join(', ')}), ${out.blocks} blocks, ${out.fields} fields.`
          : 'No new repeated blocks among the fields in no block or grid.'));
