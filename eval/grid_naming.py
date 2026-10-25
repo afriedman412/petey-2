@@ -1023,10 +1023,16 @@ def _variant(a: str, b: str) -> bool:
     return da == db or sa == sb or strip(sa) == strip(sb) or _close(da, db)
 
 
-def _continues(bp: dict, grid_names: set, pats: list[str], start: int) -> bool:
+def _continues(bp: dict, grid_names: set, pats: list[str], start: int, before_page: int | None = None) -> bool:
     """A series begun elsewhere: a field outside the table on the same pattern numbered start - 1 (FAA 8050-1's
-    page 2 signer block before page 3's 2-10)."""
+    page 2 signer block before page 3's 2-10); with `before_page`, only one on an earlier page counts (a series
+    continues from earlier in the form: ACORD 140's subjects of insurance 1-5 on page 1, 6-10 on page 2)."""
     fields = bp.get("fields") or {}
+    if before_page is not None:
+        def page_of(s):
+            w = s.get("widget") or next(iter((s.get("widgets") or {}).values()), {}) or {}
+            return w.get("page")
+        fields = {n: s for n, s in fields.items() if isinstance(s, dict) and (page_of(s) or 0) < before_page}
     want = set()
     for p in pats:
         if "N" not in p.split("_"):
@@ -1253,6 +1259,22 @@ class _Frame:
         tied = [o for o, n in top if n == top[0][1]] if top else [1]
         start = 1 if 1 in tied else min(tied)              # a tie (one column shifted in a two-column table): from 1
         names = {c["name"] for c in g}
+        # a grid continuing a series from an earlier page (Andrew, 2026-10-24, ACORD 140 p2-G2: subjects of insurance
+        # 6-10 under page 1's 1-5; its amount column ran 6-10, the other nine 1-5; "should be easy to detect the
+        # consistent row labels though regardless of number"): any column's start that continues a series ending
+        # just before it elsewhere on the form is every line's, even when most columns start at 1
+        # only a column that itself runs down every line by steps of 1 from that start counts (I-589 p3-G1, a child's
+        # fields stacked and all numbered 2, is not a series)
+        whole = set()
+        for k in {c[self.pos_axis] for c in free}:
+            cs = [c for c in free if c[self.pos_axis] == k]
+            os_ = {int(num_of(c)) - lines_idx.index(c[self.num_axis]) if (num_of(c) or "").isdigit() else None for c in cs}
+            if len(cs) == len(lines_idx) >= 2 and len(os_) == 1 and None not in os_:
+                whole |= os_
+        for o, _n in top:
+            if o > 1 and o != start and o in whole and _continues(bp, names, list(chosen.values()), o,
+                                                                  before_page=cells[0]["page"]):
+                return {i: o + n for n, i in enumerate(lines_idx)}, False
         if start != 1 and not (start > 1 and (_continues(bp, names, list(chosen.values()), start)
                                               or _printed(bp, cells, lines))):
             start = 1                                      # the first line is 1, unless the series began elsewhere

@@ -169,3 +169,16 @@ def test_halves_side_by_side_read_as_one():
     assert {c["name"]: c["row"] for c in flat}["blanket_4_nbr"] == 3
     assert G.on_pattern(grid)[0] and "halves" in G.on_pattern(grid)[1]
     assert G.unfold([dict(c, col=c["col"] % 3) for c in grid if c["col"] < 3]) is None      # one half: nothing to do
+
+
+def test_a_grid_continuing_an_earlier_pages_series_numbers_on_from_it():
+    """ACORD 140 p2-G2 (Andrew, 2026-10-24): subjects of insurance 6-10 under page 1's 1-5; one column ran 6-10, the
+    rest 1-5. The rows are 6-10: the others are renumbered."""
+    bp, g = _grid([[f"item_{r}_txt", f"item_{r + 5}_amt"] for r in (1, 2, 3)])
+    for c in g:
+        bp["fields"][c["name"]]["widget"]["page"] = 2
+        c["page"] = 2
+    for r in range(1, 6):
+        bp["fields"][f"item_{r}_amt"] = {"type": "string", "widget": {"page": 1, "widget_type": "text", "rect": [0, 9 * r, 9, 9 * r + 9]}}
+    r = G.standardize(bp, g, {})
+    assert r["renames"] == {"item_1_txt": "item_6_txt", "item_2_txt": "item_7_txt", "item_3_txt": "item_8_txt"}
