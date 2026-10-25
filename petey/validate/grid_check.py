@@ -907,9 +907,10 @@ def _grid(bp: dict, tid: str, bid: Optional[str] = None):
         # halves side by side read as one, when that is how its names run (grid_naming.unfold, 2026-10-24): the
         # card, the check and standardize then see ACORD 140's blankets 1-4 as four rows, not two rows renumbered
         g = e["grid"]
-        halves = G.unfold(g)
-        if halves is not None and G.on_pattern(halves)[0]:
-            g = halves
+        if not G.on_pattern(g)[1].startswith("halves") or G._on_pattern(g)[0]:
+            pass                                # read as it is printed
+        else:
+            g = G.unfold(g)
         return {"id": tid, "page": g[0]["page"]}, g
     want = next((t for t in tables(bp) if t["id"] == tid), None)
     if not want:

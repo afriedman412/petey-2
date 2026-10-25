@@ -692,11 +692,16 @@ def on_pattern(grid: list[dict]) -> tuple[bool, str]:
     when, read by columns (or the transpose): every cell carries an iteration, every column one pattern its cells
     differ from only in that iteration, every row one number, the rows numbered top to bottom by steps of 1. A last
     row of totals is left out. The naming standard's shape is not checked here: it is its own step."""
-    halves = unfold(grid)
-    if halves is not None:                  # halves side by side: read as one (each half's rows under the first's)
-        ok, why = on_pattern(halves)
-        if ok:
-            return True, f"halves side by side, read as one ({why})"
+    ok, why = _on_pattern(grid)
+    if ok:
+        return ok, why
+    halves = unfold(grid)                   # halves side by side: read as one (each half's rows under the first's)
+    if halves is not None and _on_pattern(halves)[0]:
+        return True, f"halves side by side, read as one ({_on_pattern(halves)[1]})"
+    return ok, why
+
+
+def _on_pattern(grid: list[dict]) -> tuple[bool, str]:
     if keyed(grid, strict=True):
         return True, "rows named by role or kind"
     if sum(_number(c["name"]) is not None for c in grid) < 0.5 * len(grid) and keyed(transposed(grid), strict=True):
