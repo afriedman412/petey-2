@@ -711,6 +711,9 @@ class State:
         return {"id": bid, "path": str(self.paths[bid]), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
+                # each field's code, for the full field id the card shows as Review's does (2026-10-24)
+                "codes": {n: str(s["x_petey_id"]) for n, s in (bp.get("fields") or {}).items()
+                          if isinstance(s, dict) and s.get("x_petey_id") is not None},
                 "info": info}
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:

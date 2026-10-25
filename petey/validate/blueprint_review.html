@@ -128,6 +128,7 @@
   .gax { margin-top:8px; } .gax h4 { margin:0 0 3px; }
   .gax-i { padding:2px 0 2px 8px; border-left:3px solid transparent; font-size:12px; }
   .gax-i.ok { border-left-color:rgba(134,239,172,.35); } .gax-i.off { border-left-color:var(--amber); }
+  .gkind { display:flex; gap:14px; align-items:center; } .fgrid .gkind label { display:inline-flex; gap:5px; align-items:center; color:var(--text); width:auto; white-space:nowrap; padding:0; }
   .gax-i code { font-size:11px; } .gax-i code.gedit { cursor:text; border-bottom:1px dashed var(--border); } .gax-i code.gedit:hover { border-bottom-color:var(--accent, #f97316); }
   .gedit-in { font:11px ui-monospace, monospace; background:var(--surface-2); color:inherit; border:1px solid var(--border); border-radius:4px; padding:1px 4px; } .gax-act { margin:2px 0 3px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
   .gax-act .stale { font-size:11px; flex-basis:100%; } .good { color:var(--green); }
@@ -2049,27 +2050,38 @@ MODE.groups = (() => {
       <div class="row"><button class="btn" id="gSplit">separate again</button></div></div>`;
   }
   function currentHtml(u) {
+    // laid out as Review's selected-field card, without the field data (Andrew, 2026-10-24: "group panel should
+    // basically be the same as the review panel but without the field data"; "group panel needs the full field id too")
     if (!u) return '<p class="help">Nothing selected on this page.</p>';
     if (isText(u)) return textHtml(u);
     const group = isGroup(u), b = baseOf(u), bad = nameCheck(u);
-    const was = b && b.name !== u.name ? ` <span class="help">(was ${esc(b.name)})</span>` : '';
-    const items = u.items.map(id => { const it = item(id);
-      return `<li>${esc(label(id))} <span class="help">${it.key !== null ? esc(it.field) + ' / ' + esc(it.key) : esc(it.field)}${it.on_state ? ' · on ' + esc(it.on_state) : ''}${it.page !== page ? ' · p' + it.page : ''}</span></li>`; }).join('');
-    const what = u.locked ? `<div class="warn">${esc(u.locked)}</div>` :
-      group ? `<div class="row"><label>one of <input type="radio" name="ty" value="category" ${u.type === 'category' ? 'checked' : ''}></label>
-                   <label>any of <input type="radio" name="ty" value="multi_category" ${u.type === 'multi_category' ? 'checked' : ''}></label>
-                   ${u.items.length === 1 ? '<span class="warn">a group of one option</span>' : ''}</div>`
-            : `<div class="help">A loose box: a ${esc(item(u.items[0]).widget_type)} field of its own${item(u.items[0]).appearances ? `, drawn in ${item(u.items[0]).appearances} places` : ''}. Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</div>`;
-    return `<div class="gcur">
-      <h2>${group ? `Group of ${u.items.length}` : 'Loose box'} ${badge(u)}</h2>
-      <input type="text" id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''}>${u.locked ? '' : ` <button class="btn" id="gLabel" title="one call to the labeler with the words on this page" ${busyOn(u, 'label') ? 'disabled' : ''}>${busyOn(u, 'label') ? 'asking…' : 'ask the labeler'}</button>`}${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}${was}
-      ${bad ? `<div class="warn">${bad}</div>` : ''}
-      ${what}${group ? `<ol>${items}</ol>` : ''}
-      ${group && !u.locked ? `<div class="row"><select id="gMergeTo" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"><option value="">merge into another group…</option>${optUnits().filter(x => x !== u && isGroup(x) && !x.locked).map(x => `<option value="${x.uid}">${esc(x.name)} (${x.items.length}, p${[...new Set(x.items.map(i => item(i).page))].join(',')})</option>`).join('')}</select></div>` : ''}
-      ${group && !u.locked ? `<div class="row"><button class="btn" id="gCaps" title="read each box's printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF's form data or set by hand stay" ${busyOn(u, 'caps') ? 'disabled' : ''}>${busyOn(u, 'caps') ? 'reading…' : 're-read captions'}</button></div>` : ''}
-      <div class="row">
+    const was = b && b.name !== u.name ? `<span class="help">was <code>${esc(b.name)}</code></span>` : '';
+    const code = (BP.codes || {})[u.origin] || (BP.codes || {})[item(u.items[0]).field];
+    const ref = code ? `${BP.path.split('/').pop().replace(/\.bpt$/, '')}_${code}` : '';
+    const pages = [...new Set(u.items.map(id => item(id).page))].sort((x, y) => x - y);
+    const rows = u.items.map(id => { const it = item(id);
+      return `<span class="orow"><input class="okey" value="${esc(it.key !== null ? it.key : it.field)}" readonly title="the value extraction returns for this box${it.on_state ? '; the PDF stores ' + esc(it.on_state) : ''}${it.page !== page ? ' (page ' + it.page + ')' : ''}">
+        <input class="ocap" value="${esc(label(id))}" readonly placeholder="no caption" title="the text printed at this box"></span>`; }).join('');
+    const kind = u.locked ? '' : group
+      ? `<span class="lbl">Kind</span><span class="gkind"><label><input type="radio" name="ty" value="category" ${u.type === 'category' ? 'checked' : ''}> one of</label>
+           <label><input type="radio" name="ty" value="multi_category" ${u.type === 'multi_category' ? 'checked' : ''}> any of</label>
+           ${u.items.length === 1 ? '<span class="warn">a group of one option</span>' : ''}</span>`
+      : `<span class="lbl">Box</span><span class="help">a ${esc(item(u.items[0]).widget_type)} field of its own${item(u.items[0]).appearances ? `, drawn in ${item(u.items[0]).appearances} places` : ''}. Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</span>`;
+    return `<div class="fcard sect gcur">
+      <h4 id="gref" title="click to copy the field reference (file_page_n)">${group ? 'Selected group' : 'Selected box'} ${ref ? `<code class="fid">${esc(ref)}</code>` : ''}<span class="help">page ${pages.join(', ')} · ${group ? u.items.length + ' options' : 'loose'}</span> ${badge(u)}</h4>
+      ${u.locked ? `<div class="warn">${esc(u.locked)}</div>` : ''}
+      <div class="fgrid">
+        <label>Field name</label><span class="namerow"><input id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''} spellcheck="false">${u.locked ? '' : `<button class="btn parts" id="gLabel" title="one call to the labeler with the words on this page" ${busyOn(u, 'label') ? 'disabled' : ''}>${busyOn(u, 'label') ? 'asking…' : 'ask the labeler'}</button>`}</span>
+        ${u.name_from || was ? `<span></span><span>${u.name_from ? '<span class="help">from the labeler</span> ' : ''}${was}</span>` : ''}
+        ${bad ? `<span></span><span class="warn">${bad}</span>` : ''}
+        ${kind}
+        ${group ? `<span class="lbl">Options<br><span class="help">key · caption</span></span><span class="otable">${rows}</span>` : ''}
+      </div>
+      <div class="frow">
         <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right' : 'stands alone')}</button>
+        ${group && !u.locked ? `<button class="btn" id="gCaps" title="read each box's printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF's form data or set by hand stay" ${busyOn(u, 'caps') ? 'disabled' : ''}>${busyOn(u, 'caps') ? 'reading…' : 're-read captions'}</button>` : ''}
         ${b && status(u) !== 'as blueprint' ? '<button class="btn" id="gRevert" title="put this unit back as the blueprint has it">back to blueprint</button>' : ''}
+        ${group && !u.locked ? `<select id="gMergeTo" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"><option value="">merge into another group…</option>${optUnits().filter(x => x !== u && isGroup(x) && !x.locked).map(x => `<option value="${x.uid}">${esc(x.name)} (${x.items.length}, p${[...new Set(x.items.map(i => item(i).page))].join(',')})</option>`).join('')}</select>` : ''}
       </div></div>`;
   }
   const listed = () => optUnits().filter(u => onPage(u) && (!unconfOnly || !u.confirmed || u.uid === selected));
@@ -2110,6 +2122,11 @@ MODE.groups = (() => {
       const sp = $('#gSplit'); if (sp) sp.onclick = () => separate(u);
       const gc = $('#gCaps'); if (gc) gc.onclick = () => rereadCaptions(u, gc);
       const gm = $('#gMergeTo'); if (gm) { gm.addEventListener('keydown', e => e.stopPropagation()); gm.onchange = () => mergeInto(u, Number(gm.value)); }
+      const gr = $('#gref'), code = (BP.codes || {})[u.origin] || (BP.codes || {})[item(u.items[0]).field];
+      if (gr && code) gr.onclick = async () => {
+        const ref = `${BP.path.split('/').pop().replace(/\.bpt$/, '')}_${code}`;
+        try { await navigator.clipboard.writeText(ref); toast(`Copied ${ref}`); } catch (e) { /* no clipboard: the id is on screen */ }
+      };
     }
     document.querySelectorAll('.gcard').forEach(card => {
       const uid = Number(card.dataset.unit);

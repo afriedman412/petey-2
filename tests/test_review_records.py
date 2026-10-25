@@ -56,3 +56,22 @@ def test_reset_clears_every_verdict_and_keeps_the_record(tmp_path, monkeypatch):
     out = h.reset_verdicts("t__x")
     assert out["cleared"] == 2 and not h.verdict_path("t__x").exists()
     assert json.loads(open(out["backup"]).read())["verdicts"]["b"]["verdict"] == "flag"
+
+
+def test_the_groups_tab_gets_each_fields_code(tmp_path, monkeypatch):
+    """Andrew (2026-10-24): "group panel needs the full field id too": the Groups data carries every field's code."""
+    import yaml
+    from petey.validate import group_review as gr
+    bpt = tmp_path / "f.bpt"
+    bpt.write_text(yaml.safe_dump({"fields": {
+        "sex": {"type": "category", "x_petey_id": "1_16", "widgets": {
+            "male": {"page": 1, "rect": [0, 0, 10, 10], "widget_type": "checkbox"},
+            "female": {"page": 1, "rect": [20, 0, 30, 10], "widget_type": "checkbox"}}},
+        "name_nm": {"type": "string", "x_petey_id": "1_2", "widget": {"page": 1, "rect": [0, 20, 90, 30],
+                                                                     "widget_type": "text"}}}}))
+    monkeypatch.setattr(gr, "blueprint_paths", lambda: {"t__f": bpt})
+    monkeypatch.setattr(gr, "working_path", lambda bid, paths=None: bpt)
+    monkeypatch.setattr(gr, "resolve_blank", lambda bp: None)
+    monkeypatch.setattr(gr, "RECORDS", tmp_path, raising=False)
+    out = gr.State().detail("t__f")
+    assert out["codes"] == {"sex": "1_16", "name_nm": "1_2"}
