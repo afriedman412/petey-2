@@ -44,6 +44,8 @@ export interface Editing { tid: string; kind: 'pos' | 'line'; at: number; val: s
 
 interface State {
   GD: GridsData | null;
+  /** the form GD is for: everything below is keyed by grid id, and ids (p1-G1) repeat across forms */
+  gdFor: string | null;
   selected: string | null;
   results: Record<string, Result>;
   PV: Record<string, Preview>;
@@ -55,7 +57,7 @@ interface State {
 }
 
 export const useGrids = zustand<State>(() => ({
-  GD: null, selected: null, results: {}, PV: {}, busy: {}, pvBusy: {}, runs: {}, editing: null,
+  GD: null, gdFor: null, selected: null, results: {}, PV: {}, busy: {}, pvBusy: {}, runs: {}, editing: null,
 }));
 const S = useGrids.getState, put = useGrids.setState;
 const setBusy = (tid: string, on: boolean) => { const busy = { ...S().busy }; if (on) busy[tid] = true; else delete busy[tid]; put({ busy }); };
@@ -74,6 +76,8 @@ export const ref = (tid: string) => `${fileStem(S().GD?.path || app().bid || '')
 const T = (tid: string): Partial<Table> => S().GD?.tables.find(x => x.id === tid) || {};
 const posWord = (t: Partial<Table>) => t.reading === 'rows' ? 'row' : 'column';
 const lineWord = (t: Partial<Table>) => t.reading === 'rows' ? 'column' : 'row';
+/** the other columns or rows a standardize (positions) or renumber (lines) button takes cells from, as the grid reads */
+export const pulledWord = (tid: string, what: string) => (what === 'renumber' ? lineWord(T(tid)) : posWord(T(tid))) + 's';
 // the code check's reason in the grid's own terms: positions are its columns (or rows, read the other way round)
 function plainWhy(t: Table) {
   if (t.on_pattern) return 'on pattern';
@@ -91,11 +95,19 @@ export const renameList = (rs: [string, string][], n = 12) => rs.slice(0, n).map
 const leftNote = (out: { left?: string[] }) => (out.left || []).length ? ' ' + out.left!.join('; ') + '.' : '';
 
 // ------------------------------------------------------------------------------------------------------- loading
+// each read of the tab's data starts a new generation of previews: one asked for before it (a rename since, another
+// form) is dropped when it lands, not kept over the new names (2026-10-26)
+let pvGen = 0;
 export async function load(bid: string) {
   const GD: GridsData = await j(mapi('grids', bid));
-  let selected = S().selected;
+  pvGen++;
+  // another form: nothing of the last one's grids carries over, its ids being this one's too (2026-10-26: a check's
+  // "last:" line showed on the next form's grid of the same id)
+  const fresh = S().gdFor !== bid;
+  let selected = fresh ? null : S().selected;
   if (selected && !GD.tables.some(t => t.id === selected && !t.dismissed)) selected = null;
-  put({ GD, PV: {}, selected });
+  put({ GD, gdFor: bid, PV: {}, pvBusy: {}, selected,
+    ...(fresh ? { results: {}, busy: {}, runs: {}, editing: null } : {}) });
   if (selected) loadPreview(selected);
 }
 // the old page's reload() kept the results across loadMode(); load() leaves them alone, so they stay
@@ -112,10 +124,12 @@ export const deselect = () => put({ selected: null, editing: null });
 
 export async function loadPreview(tid: string) {
   if (S().PV[tid] || S().pvBusy[tid]) return;
+  const gen = pvGen;
   put({ pvBusy: { ...S().pvBusy, [tid]: true } });
   let pv: Preview;
   try { pv = await send('POST', mapi('grids', app().bid!, '/preview'), { table: tid }); }
   catch (e) { pv = { error: (e as Error).message, positions: [], lines: [] }; }
+  if (gen !== pvGen) return;                     // read again meanwhile: this one is stale
   const pvBusy = { ...S().pvBusy }; delete pvBusy[tid];
   put({ PV: { ...S().PV, [tid]: pv }, pvBusy });
 }
@@ -184,9 +198,12 @@ export async function setAside(tid: string, on: boolean) {
 }
 
 // a check runs on while you go to another tab or page; its result brings this tab back up at the grid's page
-// (2026-10-20). Cancel stops it (2026-10-21): the card is free at once, the server writes nothing after it.
+// (2026-10-20). Cancel stops it (2026-10-21): the card is free at once, the server writes nothing after it, and the
+// check stops waiting for the server's answer, so "check & validate all" stops at once too (2026-10-26)
+const cancels = new Map<string, () => void>();
 export async function stop(tid: string) {
   if (!S().busy[tid]) return;
+  cancels.get(tid)?.(); cancels.delete(tid);
   setRun(tid, null); setBusy(tid, false);
   setResult(tid, { status: 'cancelled', steps: ['cancelled: nothing written after the cancel'] });
   try { await send('POST', mapi('grids', app().bid!, '/cancel'), { table: tid }); } catch { /* nothing to undo */ }
@@ -197,8 +214,11 @@ export async function run(tid: string): Promise<Result> {
   const form = app().bid!, pg = app().page, token = {};
   setRun(tid, token); setBusy(tid, true);
   let out: Result;
-  try { out = await send('POST', mapi('grids', form, '/check'), { table: tid }); }
-  catch (e) { out = { status: 'error', steps: ['the check failed: ' + (e as Error).message] }; }
+  const cancelled = new Promise<Result>(res => cancels.set(tid, () => res({ status: 'cancelled' })));
+  const check = send<Result>('POST', mapi('grids', form, '/check'), { table: tid })
+    .catch(e => ({ status: 'error', steps: ['the check failed: ' + (e as Error).message] }));
+  out = await Promise.race([check, cancelled]);
+  if (cancels.get(tid) && S().runs[tid] === token) cancels.delete(tid);
   if (S().runs[tid] !== token) { if (out.entry && app().bid === form) updateEntry(out.entry); return { status: 'cancelled' }; }
   setRun(tid, null); setBusy(tid, false); if (app().bid !== form) return out;
   setResult(tid, out); if (out.entry) updateEntry(out.entry);

@@ -108,6 +108,15 @@ def dismiss(bid: str, items: list[str]) -> dict:
     return {"dismissed": sorted(items)}
 
 
+def undismiss(bid: str, items: list[str]) -> dict:
+    """The record taken back: an ungroup undone on the Groups tab (Andrew, 2026-10-26), so the finder may suggest
+    these boxes again."""
+    have = [x for x in dismissed(bid) if x != set(items)]
+    NOT_GROUPS.mkdir(parents=True, exist_ok=True)
+    (NOT_GROUPS / f"{bid}.json").write_text(json.dumps([sorted(x) for x in have], indent=1))
+    return {"undismissed": sorted(items)}
+
+
 def find(bp: dict, blank: Optional[Path], loose: dict[str, dict], bid: Optional[str] = None) -> list[dict]:
     """Suggestions among `loose` ({item id: item}, the Groups tab's loose checkboxes: field, page, rect)."""
     if not loose or not blank or not Path(blank).exists():

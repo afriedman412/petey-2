@@ -5,7 +5,7 @@ import { useEffect, useRef, type MouseEvent as RMouseEvent, type ReactNode } fro
 import { copyText } from '../../lib/dnd';
 import { useApp } from '../../state/app';
 import {
-  applyEdit, asidePage, cancelEdit, colorOf, done, live, onPage, prov, ref, renameList, run, runAll, say, sayFor,
+  applyEdit, asidePage, pulledWord, cancelEdit, colorOf, done, live, onPage, prov, ref, renameList, run, runAll, say, sayFor,
   select, setAside, standardize, startEdit, status, stop, typeEdit, useGrids,
   type Line, type Plan, type Position, type Preview, type Table,
 } from './store';
@@ -29,7 +29,7 @@ function EditInput() {
 function Editable({ tid, kind, at, val, title }: { tid: string; kind: 'pos' | 'line'; at: number; val: string; title: string }) {
   const e = useGrids(st => st.editing);
   if (e && e.tid === tid && e.kind === kind && e.at === at && e.val === val) return <EditInput />;
-  return <code className="gedit" title={title} onClick={ev => { ev.stopPropagation(); startEdit(tid, kind, at, val); }}>{val}</code>;
+  return <code className="gedit" title={title} onClick={ev => { ev.stopPropagation(); startEdit(tid, kind, at, val); }}>{val === '' ? '(empty)' : val}</code>;
 }
 
 // what a button would do, or why there is nothing for it to do
@@ -41,7 +41,7 @@ function PlanView({ tid, plan, what, onDo, picker }: { tid: string; plan?: Plan 
     <div className="gax-act">
       {n > 0 && <button className="btn mini" disabled={b} title={renameList(plan.renames)} onClick={onDo}>{what}: {n} {s(n, 'rename')}</button>}
       {picker}
-      {plan.pulled.length > 0 && <span className="help" title={plan.pulled.join('\n')}>includes {plan.pulled.length} {s(plan.pulled.length, 'cell')} of other {what === 'renumber' ? 'rows' : 'columns'} that held the names</span>}
+      {plan.pulled.length > 0 && <span className="help" title={plan.pulled.join('\n')}>includes {plan.pulled.length} {s(plan.pulled.length, 'cell')} of other {pulledWord(tid, what)} that held the names</span>}
       {plan.left.map((l, i) => <div key={i} className="stale">{sayFor(tid, l)}</div>)}
       {!n && !plan.left.length && <span className="help">nothing to change</span>}
     </div>
@@ -87,7 +87,8 @@ function PosItem({ t, pv, x, word, axis }: { t: Table; pv: Preview; x: Position;
 
 function LineItem({ t, x, word }: { t: Table; x: Line; word: string }) {
   const off = x.plan && (x.plan.renames.length || x.plan.left.length);
-  const ed = (v: string | number | null | undefined) => v
+  // an empty label or the number 0 is still one, and can be edited (2026-10-26); ? only when none was read
+  const ed = (v: string | number | null | undefined) => v != null
     ? <Editable tid={t.id} kind="line" at={x.line} val={String(v)}
       title={`click to edit: the ${word}'s ${x.label != null ? 'label' : 'number'} in each of its cells' names; Enter applies, Esc cancels`} />
     : <code>?</code>;

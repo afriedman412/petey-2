@@ -6,7 +6,7 @@ import { create } from 'zustand';
 import { j, mapi, send } from '../../lib/api';
 import type { PageInfo } from '../../lib/types';
 import { afterPaint, fileStem, stdPrint, type Rect } from '../../lib/util';
-import { gotoPage, loadMode, toast, toastText, updateEntry } from '../../state/actions';
+import { gotoPage, loadMode, toast, updateEntry } from '../../state/actions';
 import { get as app } from '../../state/app';
 
 /** a position of a type: its subject, suffix, iteration (its own number) and part */
@@ -227,10 +227,10 @@ export async function runFinders() {
   const gm: { name: string }[] = out.groups_made || [];
   const gs = (gm.length ? ` Groups: ${gm.length} made first (${gm.slice(0, 6).map(x => x.name).join(', ')}${gm.length > 6 ? ', …' : ''}), new on the Groups tab; u there ungroups one.` : '')
     + (out.groups_error ? ` Groups not made: ${out.groups_error}` : '');
-  setTimeout(() => { if (gs) toast(toastText() + gs); }, 0);
+  // one message, the groups' sentence at its end (2026-10-26: it came a moment later as a second toast)
   toast((prim.length ? `Your blocks: ${prim.join('; ')}. ` : '') + (g.length ? `Grids: ${g.length} (${g.slice(0, 6).join(', ')}${g.length > 6 ? ', …' : ''})${sup.length ? `, in place of blocks ${sup.slice(0, 6).join(', ')}${sup.length > 6 ? ', …' : ''}` : ''}. ` : 'No grids. ')
     + (out.types.length ? `Blocks: ${out.types.length} new block type${out.types.length === 1 ? '' : 's'} (${out.types.join(', ')}), ${out.blocks} blocks, ${out.fields} fields.`
-      : 'No new repeated blocks among the fields in no block or grid.'));
+      : 'No new repeated blocks among the fields in no block or grid.') + gs);
 }
 
 export async function blockDetect() {

@@ -918,7 +918,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(note, bid)
         if (mode, what) == ("groups", "notgroup"):           # a suggested group that is not one (group_finder)
             from petey.validate import group_finder
-            return self._route(lambda: group_finder.dismiss(bid, list(body.get("items") or [])), bid)
+            items = list(body.get("items") or [])            # "on": false takes the record back (an ungroup undone)
+            return self._route(lambda: (group_finder.dismiss if body.get("on", True) else group_finder.undismiss)(bid, items), bid)
         if (mode, what) == ("groups", "units"):
             def units():
                 APP.open_draft(bid)

@@ -126,15 +126,19 @@ const draft = (): Unit[] => JSON.parse(JSON.stringify(S().units));
 const drop = (us: Unit[], u: Unit) => { const i = us.indexOf(u); if (i >= 0) us.splice(i, 1); };
 const strip = (us: Unit[]) => us.map(({ uid: _uid, ...u }) => u);
 
-function snapshot() {
-  const st = [...S().undoStack, JSON.stringify(S().units)];
+// a step undone: the units before it, and the boxes it recorded as not a group (an ungroup), so the undo takes that
+// record back too (Andrew, 2026-10-26: else the finder never suggested the group again)
+function snapshot(notGroup?: string[]) {
+  const st = [...S().undoStack, JSON.stringify({ units: S().units, notGroup })];
   if (st.length > 200) st.shift();
   put({ undoStack: st });
 }
 export function undo() {
   const st = S().undoStack; if (!st.length) return;
-  const us: Unit[] = JSON.parse(st[st.length - 1]);
+  const { units: us, notGroup }: { units: Unit[]; notGroup?: string[] } = JSON.parse(st[st.length - 1]);
   put({ undoStack: st.slice(0, -1) });
+  if (notGroup) send('PUT', mapi('groups', app().bid!, '/notgroup'), { items: notGroup, on: false })
+    .catch(e => note('could not take back the record of the boxes as not a group: ' + (e as Error).message));
   let sel = S().selected;
   if (!unitByUid(sel, us)) sel = optUnits(us).length ? optUnits(us)[0].uid : null;
   afterEdit(us, sel);
@@ -277,7 +281,7 @@ export function ungroup() {
   if (isText(u)) return separate(u.uid);
   // the finder groups these boxes as the tab loads (2026-10-25): ungrouped, they are recorded as not a group
   send('PUT', mapi('groups', app().bid!, '/notgroup'), { items: [...u.items] }).catch(e => note('could not record the boxes as not a group: ' + (e as Error).message));
-  snapshot();
+  snapshot([...u.items]);
   const loose: Unit[] = [];
   for (const id of [...u.items]) { detach(us, id); const x = looseOf(us, u, id); us.push(x); loose.push(x); }
   afterEdit(us, loose[0].uid); note(`${u.name} ungrouped: ${loose.length} loose boxes (z to undo)`);      // afterEdit clears the notes
@@ -368,8 +372,8 @@ export async function rereadCaptions(uid: number) {
     const us = draft(), cur = unitByUid(uid, us);
     if (cur) cur.captions = { ...(cur.captions || {}), ...caps };
     const src = (Object.values<CapReading>(r.captions)[0] || {}).source;
+    afterEdit(us);                                       // it clears the notes: the note after it (2026-10-26)
     note(`captions: ${Object.keys(caps).length} re-read${src ? ' by ' + src : ''}${kept ? `, ${kept} locked kept` : ''}`);
-    afterEdit(us);
   } catch (e) { setBusy(uid, 'caps', false); note('captions failed: ' + (e as Error).message); }
 }
 // "rescan page" (Andrew, 2026-10-25: "would re-scanning group captions and/or group labels in bulk be faster?"):
@@ -418,8 +422,8 @@ export function mergeInto(uid: number, toUid: number) {
   t.items.push(...u.items); t.confirmed = false;
   if (u.captions) t.captions = { ...(t.captions || {}), ...u.captions };
   drop(us, u);
+  afterEdit(us, t.uid);                                  // it clears the notes: the note after it (2026-10-26)
   note(`${u.name} merged into ${t.name} (${t.items.length} boxes)`);
-  afterEdit(us, t.uid);
 }
 export function setDesc(uid: number, d: string) { const us = draft(), u = unitByUid(uid, us); if (!u || (u.description || '') === d) return; snapshot(); u.description = d; afterEdit(us); }
 export function setType(uid: number, type: string) { const us = draft(), u = unitByUid(uid, us); if (!u || u.type === type) return; snapshot(); u.type = type; u.confirmed = false; afterEdit(us); }
@@ -503,8 +507,13 @@ export async function load(bid: string) {
   const ag = BP.auto_grouped || [];
   if (ag.length) notes = [`The finder grouped ${ag.length} set${ag.length === 1 ? '' : 's'} of loose boxes: ${ag.slice(0, 8).map(x => `${x.name} (p${x.page})`).join(', ')}${ag.length > 8 ? ', …' : ''}. "ungroup" (u) takes one apart for good.`];
   sortUnits(units, BP.items);
-  const ou = optUnits(units);
-  put({ BP, units, undoStack: [], PLAN: null, notes, selected: ou.length ? ou[0].uid : null });
+  const ou = optUnits(units), was = S(), same = was.BP?.id === bid;
+  // the group selected before, read again (a save, a reload); else the first on the page shown, else the first
+  // (2026-10-26: the card showed a group from another page); boxes picked stay picked only on the same form
+  const keep = same ? unitByUid(was.selected, was.units) : undefined;
+  const sel = (keep && ou.find(u => u.name === keep.name)) || ou.find(u => u.items.some(id => BP.items[id]?.page === app().page)) || ou[0];
+  const picked = new Set(same ? [...was.picked].filter(id => BP.items[id]) : []);
+  put({ BP, units, undoStack: [], PLAN: null, notes, picked, selected: sel ? sel.uid : null });
   schedulePlan();
 }
 

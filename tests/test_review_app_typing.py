@@ -77,6 +77,7 @@ def test_typing_in_a_part_keeps_every_letter_through_a_reload():
     if not PW.exists() or not Path(CHROME).exists():
         pytest.skip("Playwright venv or Chrome not installed")
     built = br.build_app()
+    assert not built.startswith("build failed"), built      # else the test would run the last build that worked
     if not (br.APP_DIST / "index.html").exists():
         pytest.skip(f"the React page is not built: {built}")
     api = {"api/blueprints": [ENTRY], "api/review/t0": REVIEW, "api/review/t0/removals": {"removed": []},

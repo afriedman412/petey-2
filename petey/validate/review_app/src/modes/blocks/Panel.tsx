@@ -121,7 +121,8 @@ function MxCell({ y, b, k, s }: { y: BType; b: Block; k: number; s: Slot }) {
       <code className={'mxname' + (acc ? ' accd' : '')} title={acc ? 'accepted' : 'not accepted yet'}>{kept ? n : want || n}</code>{acc ? ' ✓' : ''}
       {chg && <span className="was" title="its name now">{n}</span>}
       {d && d.held && <span className="help" title="another field has that name and keeps it">held by {d.held === 'no block' ? 'a field in no block' : d.held}</span>}
-      {d && !kept && <a href="#" className="x" title="cancel this rename: the name stays as it is" onClick={e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.code, k + 1, true); }}>×</a>}
+      {/* only on a name that will change, as the open block's card (2026-10-26) */}
+      {chg && <a href="#" className="x" title="cancel this rename: the name stays as it is" onClick={e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.code, k + 1, true); }}>×</a>}
       {kept && <span className="help">kept · <a href="#" onClick={e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.code, k + 1, false); }}>undo</a></span>}
     </td>
   );

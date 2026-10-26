@@ -12,7 +12,6 @@ export const def = () => MODES[get().mode];
 
 let toastN = 0;
 export function toast(msg: string) { set({ toast: { msg, n: ++toastN } }); }
-export const toastText = () => get().toast?.msg || '';
 
 export function updateEntry(e?: Entry | null) {
   if (!e) return;

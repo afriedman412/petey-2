@@ -38,6 +38,9 @@ def test_yes_no_and_check_one_are_suggested_and_a_plain_run_is_not(tmp_path, mon
     assert not any("golf_ind" in s["items"] for s in got)          # no printed "one": left for a person
     gf.dismiss("t", ["smoker_yes_ind", "smoker_no_ind"])
     assert not any("smoker_yes_ind" in s["items"] for s in gf.find({}, _pdf(tmp_path), loose, "t"))
+    # an ungroup undone takes the record back (2026-10-26): suggested again
+    gf.undismiss("t", ["smoker_no_ind", "smoker_yes_ind"])
+    assert any("smoker_yes_ind" in s["items"] for s in gf.find({}, _pdf(tmp_path), loose, "t"))
 
 
 def _pdf2(tmp_path):
