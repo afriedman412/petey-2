@@ -436,16 +436,15 @@ def ask(client, model: str, effort: str, form_title: str, fields: list[dict]) ->
         system=SYSTEM, messages=[{"role": "user", "content": user}],
         output_config=output_config,
     )
+    from petey.synth.generate import final_message
     if model.startswith("claude-opus-5") or model.startswith("claude-fable"):
         # Refusal fallback: a declined request re-runs server-side on the
         # recommended model instead of coming back empty.
         kwargs["betas"] = ["server-side-fallback-2026-07-01"]
         kwargs["extra_body"] = {"fallbacks": "default"}
-        with client.beta.messages.stream(**kwargs) as stream:
-            resp = stream.get_final_message()
+        resp = final_message(lambda: client.beta.messages.stream(**kwargs), "review")
     else:
-        with client.messages.stream(**kwargs) as stream:
-            resp = stream.get_final_message()
+        resp = final_message(lambda: client.messages.stream(**kwargs), "review")
     usage = {"input_tokens": resp.usage.input_tokens, "output_tokens": resp.usage.output_tokens,
              "stop_reason": resp.stop_reason, "model_served": resp.model}
     if resp.stop_reason == "refusal":

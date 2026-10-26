@@ -7,11 +7,16 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-15 12:01:23'
 fields:
   operator_nm:
     x_petey_id: '1_2'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -22,7 +27,26 @@ fields:
       widget_type: text
       path: operator
     label_source: llm
-  operator_p5_no:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: operator_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: operator_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: operator
+      suffix: nm
+  operator_p5_nbr:
     x_petey_id: '1_1'
     type: string
     widget:
@@ -35,7 +59,26 @@ fields:
       widget_type: text
       path: p-5 no
     label_source: llm
-  rrc_district_and_county:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: operator_p5_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: operator_p5_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: operator_p5
+      suffix: nbr
+  rrc_district_no_and_county_txt:
     x_petey_id: '1_3'
     type: string
     widget:
@@ -48,8 +91,27 @@ fields:
       widget_type: text
       path: district no
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: rrc_district_no_and_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: rrc_district_no_and_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: rrc_district_no_and_county
+      suffix: txt
   mailing_address_line_1_txt:
-    x_petey_id: '1_5'
+    x_petey_id: '1_4'
     type: string
     semantic_type: street_address
     widget:
@@ -62,11 +124,13 @@ fields:
       widget_type: text
       path: address1
     label_source: llm
-  mailing_city_state_zip_txt:
-    x_petey_id: '1_12'
+    x_petey_identifiers:
+      subject: mailing_address_line_1
+      suffix: txt
+  mailing_address_line_2_txt:
+    x_petey_id: '1_6'
     type: string
-    semantic_type: state_abbr
-    pattern: ^[A-Z]{2}$
+    semantic_type: street_address
     widget:
       page: 1
       rect:
@@ -77,10 +141,13 @@ fields:
       widget_type: text
       path: address2
     label_source: llm
-  mailing_address_additional_txt:
-    x_petey_id: '1_17'
+    x_petey_identifiers:
+      subject: mailing_address_line_2
+      suffix: txt
+  mailing_address_line_3_txt:
+    x_petey_id: '1_7'
     type: string
-    semantic_type: text
+    semantic_type: street_address
     widget:
       page: 1
       rect:
@@ -91,257 +158,12 @@ fields:
       widget_type: text
       path: address3
     label_source: llm
-  recovery_method_microemulsion_ind:
-    x_petey_id: '1_6'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 280.2840270996094
-      - 132.3955078125
-      - 294.3686828613281
-      - 146.4801025390625
-      widget_type: text
-      path: used1
-    label_source: llm
-  recovery_method_waterflood_ind:
-    x_petey_id: '1_8'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 280.2840270996094
-      - 146.4801025390625
-      - 294.3686828613281
-      - 160.56475830078125
-      widget_type: text
-      path: used2
-    label_source: llm
-  recovery_method_alkaline_flooding_ind:
+    x_petey_identifiers:
+      subject: mailing_address_line_3
+      suffix: txt
+  change_previous_method_txt:
     x_petey_id: '1_10'
     type: string
-    widget:
-      page: 1
-      rect:
-      - 280.2840270996094
-      - 157.747802734375
-      - 294.3686828613281
-      - 171.83245849609375
-      widget_type: text
-      path: used3
-    label_source: llm
-  recovery_method_cyclic_steam_injection_ind:
-    x_petey_id: '1_13'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 280.2840270996094
-      - 169.0155029296875
-      - 294.3686828613281
-      - 183.10015869140625
-      widget_type: text
-      path: used4
-    label_source: llm
-  recovery_method_in_situ_combustion_ind:
-    x_petey_id: '1_15'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 280.2840270996094
-      - 180.283203125
-      - 294.3686828613281
-      - 194.36785888671875
-      widget_type: text
-      path: used5
-    label_source: llm
-  recovery_method_miscible_fluid_displacement_ind:
-    x_petey_id: '1_18'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 280.1653747558594
-      - 190.9091796875
-      - 294.2149658203125
-      - 204.958740234375
-      widget_type: text
-      path: used6
-    label_source: llm
-  recovery_method_co2_augmented_waterflood_ind:
-    x_petey_id: '1_4'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 397.1864318847656
-      - 122.5362548828125
-      - 408.4541320800781
-      - 133.803955078125
-      widget_type: text
-      path: used7
-    label_source: llm
-  recovery_method_polymer_augmented_waterflood_ind:
-    x_petey_id: '1_7'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 397.1864318847656
-      - 135.21240234375
-      - 408.4541320800781
-      - 146.4801025390625
-      widget_type: text
-      path: used8
-    label_source: llm
-  recovery_method_immiscible_co2_displacement_ind:
-    x_petey_id: '1_9'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 397.1864318847656
-      - 146.4801025390625
-      - 408.4541320800781
-      - 157.747802734375
-      widget_type: text
-      path: used9
-    label_source: llm
-  recovery_method_steam_drive_injection_ind:
-    x_petey_id: '1_11'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 397.1864318847656
-      - 157.747802734375
-      - 408.4541320800781
-      - 169.0155029296875
-      widget_type: text
-      path: used10
-    label_source: llm
-  recovery_method_gas_injection_ind:
-    x_petey_id: '1_14'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 397.1864318847656
-      - 170.4239501953125
-      - 408.4541320800781
-      - 181.691650390625
-      widget_type: text
-      path: used11
-    label_source: llm
-  recovery_method_other_ind:
-    x_petey_id: '1_16'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 397.1864318847656
-      - 181.691650390625
-      - 408.4541320800781
-      - 192.9593505859375
-      widget_type: text
-      path: used12
-    label_source: llm
-  new_project_type_initial_secondary_ind:
-    x_petey_id: '1_19'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 39.43695068359375
-      - 230.98785400390625
-      - 50.70465087890625
-      - 242.25555419921875
-      widget_type: text
-      path: project1
-    label_source: llm
-  new_project_type_tertiary_superseding_secondary_ind:
-    x_petey_id: '1_20'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 218.3116912841797
-      - 229.57940673828125
-      - 229.5793914794922
-      - 240.84710693359375
-      widget_type: text
-      path: project2
-    label_source: llm
-  new_project_type_initial_tertiary_ind:
-    x_petey_id: '1_21'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 407.0456848144531
-      - 229.57940673828125
-      - 418.3133850097656
-      - 240.84710693359375
-      widget_type: text
-      path: project3
-    label_source: llm
-  expanded_project_type_different_secondary_method_ind:
-    x_petey_id: '1_22'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 39.43695068359375
-      - 264.79095458984375
-      - 50.70465087890625
-      - 276.05865478515625
-      widget_type: text
-      path: project4
-    label_source: llm
-  expanded_project_type_expansion_secondary_ind:
-    x_petey_id: '1_23'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 300.0025329589844
-      - 263.38250732421875
-      - 311.2702331542969
-      - 274.65020751953125
-      widget_type: text
-      path: project6
-    label_source: llm
-  expanded_project_type_different_tertiary_method_ind:
-    x_petey_id: '1_24'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 39.43695068359375
-      - 278.8756103515625
-      - 50.70465087890625
-      - 290.1432800292969
-      widget_type: text
-      path: project5
-    label_source: llm
-  expanded_project_type_expansion_tertiary_ind:
-    x_petey_id: '1_25'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 298.59405517578125
-      - 277.46710205078125
-      - 312.6786804199219
-      - 288.7348327636719
-      widget_type: text
-      path: project7
-    label_source: llm
-  previous_method_txt:
-    x_petey_id: '1_26'
-    type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -352,10 +174,28 @@ fields:
       widget_type: text
       path: method
     label_source: llm
-  previous_fluid_injected_txt:
-    x_petey_id: '1_27'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: change_previous_method
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: change_previous_method_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: change_previous_method
+      suffix: txt
+  change_previous_fluid_injected_txt:
+    x_petey_id: '1_11'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -366,140 +206,28 @@ fields:
       widget_type: text
       path: fluid
     label_source: llm
-  fluid_saltwater_ind:
-    x_petey_id: '1_33'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: change_previous_fluid_injected
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: change_previous_fluid_injected_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: change_previous_fluid_injected
+      suffix: txt
+  fluid_to_be_injected_other_txt:
+    x_petey_id: '1_13'
     type: string
-    widget:
-      page: 1
-      rect:
-      - 66.94216918945312
-      - 335.53729248046875
-      - 79.3388671875
-      - 351.2397766113281
-      widget_type: text
-      path: fluid1
-    label_source: llm
-  fluid_brackish_water_ind:
-    x_petey_id: '1_28'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 162.80996704101562
-      - 326.4463806152344
-      - 176.03311157226562
-      - 338.0166320800781
-      widget_type: text
-      path: fluid2
-    label_source: llm
-  fluid_fresh_water_ind:
-    x_petey_id: '1_34'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 163.63641357421875
-      - 338.84307861328125
-      - 176.85955810546875
-      - 350.413330078125
-      widget_type: text
-      path: fluid3
-    label_source: llm
-  fluid_natural_gas_ind:
-    x_petey_id: '1_29'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 250.41329956054688
-      - 325.61993408203125
-      - 261.9835510253906
-      - 338.0166320800781
-      widget_type: text
-      path: fluid4
-    label_source: llm
-  fluid_polymer_ind:
-    x_petey_id: '1_35'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 247.9339599609375
-      - 338.84307861328125
-      - 260.3306579589844
-      - 350.413330078125
-      widget_type: text
-      path: fluid5
-    label_source: llm
-  fluid_air_ind:
-    x_petey_id: '1_30'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 323.967041015625
-      - 326.4463806152344
-      - 338.0166320800781
-      - 339.6695251464844
-      widget_type: text
-      path: fluid6
-    label_source: llm
-  fluid_lpg_ind:
-    x_petey_id: '1_36'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 323.1405944824219
-      - 338.0166320800781
-      - 336.3637390136719
-      - 348.76043701171875
-      widget_type: text
-      path: fluid7
-    label_source: llm
-  fluid_nitrogen_ind:
-    x_petey_id: '1_31'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 369.0171813964844
-      - 326.7633056640625
-      - 380.2848815917969
-      - 338.031005859375
-      widget_type: text
-      path: fluid8
-    label_source: llm
-  fluid_co2_ind:
-    x_petey_id: '1_38'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 370.248046875
-      - 339.6695251464844
-      - 381.81829833984375
-      - 347.9339904785156
-      widget_type: text
-      path: fluid9
-    label_source: llm
-  fluid_other_ind:
-    x_petey_id: '1_32'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 435.5373229980469
-      - 326.4463806152344
-      - 447.93402099609375
-      - 338.84307861328125
-      widget_type: text
-      path: fluid10
-    label_source: llm
-  fluid_other_specify_txt:
-    x_petey_id: '1_37'
-    type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -510,10 +238,28 @@ fields:
       widget_type: text
       path: fluid11
     label_source: llm
-  est_avg_fluid_volume_txt:
-    x_petey_id: '1_39'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: fluid_to_be_injected_other
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: fluid_to_be_injected_other_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: fluid_to_be_injected_other
+      suffix: txt
+  estimated_avg_fluid_injection_volume_txt:
+    x_petey_id: '1_14'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -524,10 +270,28 @@ fields:
       widget_type: text
       path: volume
     label_source: llm
-  est_avg_injection_pressure_amt:
-    x_petey_id: '1_40'
-    type: number
-    semantic_type: money
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: estimated_avg_fluid_injection_volume
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: estimated_avg_fluid_injection_volume_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: estimated_avg_fluid_injection_volume
+      suffix: txt
+  estimated_avg_injection_pressure_psig_txt:
+    x_petey_id: '1_15'
+    type: string
     widget:
       page: 1
       rect:
@@ -538,12 +302,28 @@ fields:
       widget_type: text
       path: pressure
     label_source: llm
-    x_petey_retype:
-    - money
-  est_ultimate_additional_oil_bbls_amt:
-    x_petey_id: '1_41'
-    type: number
-    semantic_type: money
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: estimated_avg_injection_pressure_psig
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: estimated_avg_injection_pressure_psig_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: estimated_avg_injection_pressure_psig
+      suffix: txt
+  est_ultimate_additional_production_txt:
+    x_petey_id: '1_16'
+    type: string
     widget:
       page: 1
       rect:
@@ -554,10 +334,27 @@ fields:
       widget_type: text
       path: production
     label_source: llm
-    x_petey_retype:
-    - money
-  est_total_value_oil_amt:
-    x_petey_id: '1_42'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: est_ultimate_additional_production
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: est_ultimate_additional_production_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: est_ultimate_additional_production
+      suffix: txt
+  est_total_value_additional_production_oil_amt:
+    x_petey_id: '1_17'
     type: number
     semantic_type: money
     widget:
@@ -570,10 +367,11 @@ fields:
       widget_type: text
       path: valueoil
     label_source: llm
-    x_petey_retype:
-    - money
-  est_total_value_gas_amt:
-    x_petey_id: '1_43'
+    x_petey_identifiers:
+      subject: est_total_value_additional_production_oil
+      suffix: amt
+  est_total_value_additional_production_gas_amt:
+    x_petey_id: '1_18'
     type: number
     semantic_type: money
     widget:
@@ -586,26 +384,11 @@ fields:
       widget_type: text
       path: valuegas
     label_source: llm
-    x_petey_retype:
-    - money
-  est_cost_machinery_amt:
-    x_petey_id: '1_44'
-    type: number
-    semantic_type: money
-    widget:
-      page: 1
-      rect:
-      - 32.3946418762207
-      - 407.0456848144531
-      - 240.8470916748047
-      - 421.1302795410156
-      widget_type: text
-      path: costs
-    label_source: llm
-    x_petey_retype:
-    - money
-  est_cost_project_total_amt:
-    x_petey_id: '1_45'
+    x_petey_identifiers:
+      subject: est_total_value_additional_production_gas
+      suffix: amt
+  estimated_costs_machinery_amt:
+    x_petey_id: '1_20'
     type: number
     semantic_type: money
     widget:
@@ -618,10 +401,11 @@ fields:
       widget_type: text
       path: costsmachine
     label_source: llm
-    x_petey_retype:
-    - money
-  est_ultimate_additional_gas_mmcf_amt:
-    x_petey_id: '1_46'
+    x_petey_identifiers:
+      subject: estimated_costs_machinery
+      suffix: amt
+  estimated_costs_project_total_amt:
+    x_petey_id: '1_21'
     type: number
     semantic_type: money
     widget:
@@ -634,10 +418,11 @@ fields:
       widget_type: text
       path: coststotal
     label_source: llm
-    x_petey_retype:
-    - money
-  anticipated_injection_start_dt:
-    x_petey_id: '1_47'
+    x_petey_identifiers:
+      subject: estimated_costs_project_total
+      suffix: amt
+  anticipated_injection_begin_dt:
+    x_petey_id: '1_22'
     type: date
     semantic_type: iso_date
     widget:
@@ -650,38 +435,13 @@ fields:
       widget_type: text
       path: date
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  project_contains_multiple_leases_yes_ind:
-    x_petey_id: '1_51'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 137.19012451171875
-      - 431.40509033203125
-      - 155.3719482421875
-      - 443.8017883300781
-      widget_type: text
-      path: 'yes'
-    label_source: llm
-  project_contains_multiple_leases_no_ind:
-    x_petey_id: '1_52'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 157.02484130859375
-      - 432.2315368652344
-      - 170.24798583984375
-      - 443.8017883300781
-      widget_type: text
-      path: 'no'
-    label_source: llm
-  total_anticipated_producing_wells_amt:
-    x_petey_id: '1_48'
-    type: number
-    semantic_type: money
+    x_petey_identifiers:
+      subject: anticipated_injection_begin
+      suffix: dt
+  total_anticipated_leases_cnt:
+    x_petey_id: '1_23'
+    type: integer
+    semantic_type: count
     widget:
       page: 1
       rect:
@@ -692,12 +452,13 @@ fields:
       widget_type: text
       path: total
     label_source: llm
-    x_petey_retype:
-    - money
-  total_anticipated_injection_wells_amt:
-    x_petey_id: '1_49'
-    type: number
-    semantic_type: money
+    x_petey_identifiers:
+      subject: total_anticipated_leases
+      suffix: cnt
+  total_anticipated_producing_wells_cnt:
+    x_petey_id: '1_24'
+    type: integer
+    semantic_type: count
     widget:
       page: 1
       rect:
@@ -708,12 +469,13 @@ fields:
       widget_type: text
       path: total1
     label_source: llm
-    x_petey_retype:
-    - money
-  total_anticipated_leases_amt:
-    x_petey_id: '1_50'
-    type: number
-    semantic_type: money
+    x_petey_identifiers:
+      subject: total_anticipated_producing_wells
+      suffix: cnt
+  total_anticipated_injection_wells_cnt:
+    x_petey_id: '1_25'
+    type: integer
+    semantic_type: count
     widget:
       page: 1
       rect:
@@ -724,12 +486,12 @@ fields:
       widget_type: text
       path: total2
     label_source: llm
-    x_petey_retype:
-    - money
+    x_petey_identifiers:
+      subject: total_anticipated_injection_wells
+      suffix: cnt
   field_nm:
-    x_petey_id: '1_53'
+    x_petey_id: '1_27'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -740,10 +502,28 @@ fields:
       widget_type: text
       path: field
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: field_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: field_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: field
+      suffix: nm
   lease_or_unit_nm:
-    x_petey_id: '1_54'
+    x_petey_id: '1_28'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -754,8 +534,27 @@ fields:
       widget_type: text
       path: lease
     label_source: llm
-  lease_no:
-    x_petey_id: '1_55'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: lease_or_unit_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: lease_or_unit_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: lease_or_unit
+      suffix: nm
+  lease_nbr:
+    x_petey_id: '1_29'
     type: string
     widget:
       page: 1
@@ -767,36 +566,28 @@ fields:
       widget_type: text
       path: lease no
     label_source: llm
-  unitization_approved_yes_ind:
-    x_petey_id: '1_56'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: lease_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: lease_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: lease
+      suffix: nbr
+  unitization_approval_order_no_and_dt:
+    x_petey_id: '1_31'
     type: string
-    widget:
-      page: 1
-      rect:
-      - 191.5509033203125
-      - 480.28570556640625
-      - 202.818603515625
-      - 491.55340576171875
-      widget_type: text
-      path: unitization1
-    label_source: llm
-  unitization_approved_no_ind:
-    x_petey_id: '1_57'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 215.49476623535156
-      - 478.87725830078125
-      - 229.5793914794922
-      - 492.9618835449219
-      widget_type: text
-      path: unitization2
-    label_source: llm
-  unitization_order_no_and_date_txt:
-    x_petey_id: '1_58'
-    type: date
-    semantic_type: iso_date
     widget:
       page: 1
       rect:
@@ -807,38 +598,27 @@ fields:
       widget_type: text
       path: order no
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  unitization_needed_yes_ind:
-    x_petey_id: '1_59'
+    description: Unitization approval order number and date, as entered for the lease
+      or unit (e.g. 'Order No. 12-3456, 05/01/2023').
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -semantic_type
+      reason: The printed caption asks for the order number AND date, so a filer writes
+        free text containing both; the iso_date type and semantic_type are wrong.
+        The name already says order no. and date, so it stays.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: unitization_approval_order_no_and
+      suffix: dt
+  injection_authority_granted_project_nbr:
+    x_petey_id: '1_34'
     type: string
-    widget:
-      page: 1
-      rect:
-      - 466.20111083984375
-      - 480.28570556640625
-      - 480.28570556640625
-      - 491.55340576171875
-      widget_type: text
-      path: unitization yes
-    label_source: llm
-  unitization_needed_no_ind:
-    x_petey_id: '1_60'
-    type: string
-    widget:
-      page: 1
-      rect:
-      - 491.55340576171875
-      - 480.28570556640625
-      - 505.6380615234375
-      - 491.55340576171875
-      widget_type: text
-      path: unitization no
-    label_source: llm
-  injection_authority_project_no_txt:
-    x_petey_id: '1_62'
-    type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -849,8 +629,27 @@ fields:
       widget_type: text
       path: authority1
     label_source: llm
-  injection_authority_authority_date_txt:
-    x_petey_id: '1_61'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: injection_authority_granted_project_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: injection_authority_granted_project_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: injection_authority_granted_project
+      suffix: nbr
+  injection_authority_granted_dt:
+    x_petey_id: '1_33'
     type: date
     semantic_type: iso_date
     widget:
@@ -863,12 +662,12 @@ fields:
       widget_type: text
       path: authority2
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  injection_authority_wells_line_a_txt:
-    x_petey_id: '1_63'
+    x_petey_identifiers:
+      subject: injection_authority_granted
+      suffix: dt
+  injection_authority_granted_wells_txt:
+    x_petey_id: '1_35'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -879,10 +678,29 @@ fields:
       widget_type: text
       path: authority3
     label_source: llm
-  injection_authority_applied_project_no_txt:
-    x_petey_id: '1_64'
-    type: string
-    semantic_type: text
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: injection_authority_granted_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: injection_authority_granted_wells_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: injection_authority_granted_wells
+      suffix: txt
+  injection_authority_applied_dt:
+    x_petey_id: '1_36'
+    type: date
+    semantic_type: iso_date
     widget:
       page: 1
       rect:
@@ -893,10 +711,12 @@ fields:
       widget_type: text
       path: applied
     label_source: llm
-  injection_authority_applied_date_txt:
-    x_petey_id: '1_65'
-    type: date
-    semantic_type: iso_date
+    x_petey_identifiers:
+      subject: injection_authority_applied
+      suffix: dt
+  injection_authority_applied_project_nbr:
+    x_petey_id: '1_37'
+    type: string
     widget:
       page: 1
       rect:
@@ -907,12 +727,28 @@ fields:
       widget_type: text
       path: authority4
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  injection_authority_wells_line_b_txt:
-    x_petey_id: '1_66'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: injection_authority_applied_project_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: injection_authority_applied_project_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: injection_authority_applied_project
+      suffix: nbr
+  injection_authority_applied_wells_txt:
+    x_petey_id: '1_38'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -923,10 +759,28 @@ fields:
       widget_type: text
       path: authority5
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: injection_authority_applied_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: injection_authority_applied_wells_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: injection_authority_applied_wells
+      suffix: txt
   injection_authority_anticipated_wells_txt:
-    x_petey_id: '1_67'
+    x_petey_id: '1_39'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -937,10 +791,28 @@ fields:
       widget_type: text
       path: authority6
     label_source: llm
-  signature_txt:
-    x_petey_id: '1_68'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: injection_authority_anticipated_wells
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: injection_authority_anticipated_wells_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: injection_authority_anticipated_wells
+      suffix: txt
+  signature:
+    x_petey_id: '1_40'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -951,10 +823,11 @@ fields:
       widget_type: text
       path: signature
     label_source: llm
+    x_petey_identifiers:
+      suffix: signature
   title_txt:
-    x_petey_id: '1_69'
+    x_petey_id: '1_41'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -965,10 +838,28 @@ fields:
       widget_type: text
       path: title
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: title
+      suffix: txt
   printed_nm:
-    x_petey_id: '1_70'
+    x_petey_id: '1_42'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -979,11 +870,30 @@ fields:
       widget_type: text
       path: name
     label_source: llm
-  phone_area_cd:
-    x_petey_id: '1_71'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: printed_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: printed_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: printed
+      suffix: nm
+  phone_nbr_area:
+    x_petey_id: '1_43'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -994,11 +904,32 @@ fields:
       widget_type: text
       path: areacode
     label_source: llm
-  phone_no:
-    x_petey_id: '1_72'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: phone_area_cd
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: phone_nbr_area
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''area'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: phone
+      suffix: nbr
+      part: area
+  phone_nbr_local:
+    x_petey_id: '1_44'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -1009,10 +940,30 @@ fields:
       widget_type: text
       path: phone
     label_source: llm
-  technical_examiner_nm:
-    x_petey_id: '1_74'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: phone_nbr_local
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''local'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: phone
+      suffix: nbr
+      part: local
+  rrc_technical_examiner_txt:
+    x_petey_id: '1_45'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -1023,19 +974,614 @@ fields:
       widget_type: text
       path: examiner
     label_source: llm
-  action_dt:
-    x_petey_id: '1_73'
-    type: date
-    semantic_type: iso_date
-    widget:
-      page: 1
-      rect:
-      - 197.18475341796875
-      - 733.8089599609375
-      - 295.7771301269531
-      - 759.1613159179688
-      widget_type: text
-      path: clear
-    label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: rrc_technical_examiner
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: rrc_technical_examiner_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: rrc_technical_examiner
+      suffix: txt
+  method_of_recovery:
+    x_petey_id: '1_5'
+    type: category
+    values:
+    - waterflood
+    - alkaline_caustic_flooding
+    - cyclic_steam_injection
+    - in_situ_combustion
+    - miscible_fluid_displacement
+    - other
+    - microemulsion_flooding
+    - carbon_dioxide_augmented_waterflooding
+    - polymer_augmented_waterflooding
+    - immiscible_carbon_dioxide_displacement
+    - steam_drive_injection
+    - gas_injection
+    widgets:
+      waterflood:
+        page: 1
+        rect:
+        - 280.2840270996094
+        - 132.3955078125
+        - 294.3686828613281
+        - 146.4801025390625
+        widget_type: text
+        path: used1
+        caption: waterflood
+        x_petey_caption_source: page_text
+      alkaline_caustic_flooding:
+        page: 1
+        rect:
+        - 280.2840270996094
+        - 146.4801025390625
+        - 294.3686828613281
+        - 160.56475830078125
+        widget_type: text
+        path: used2
+        caption: alkaline (caustic) flooding
+        x_petey_caption_source: page_text
+      cyclic_steam_injection:
+        page: 1
+        rect:
+        - 280.2840270996094
+        - 157.747802734375
+        - 294.3686828613281
+        - 171.83245849609375
+        widget_type: text
+        path: used3
+        caption: cyclic steam injection
+        x_petey_caption_source: page_text
+      in_situ_combustion:
+        page: 1
+        rect:
+        - 280.2840270996094
+        - 169.0155029296875
+        - 294.3686828613281
+        - 183.10015869140625
+        widget_type: text
+        path: used4
+        caption: METHOD
+        x_petey_caption_source: page_choice
+      miscible_fluid_displacement:
+        page: 1
+        rect:
+        - 280.2840270996094
+        - 180.283203125
+        - 294.3686828613281
+        - 194.36785888671875
+        widget_type: text
+        path: used5
+        caption: miscible fluid displacement
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 280.1653747558594
+        - 190.9091796875
+        - 294.2149658203125
+        - 204.958740234375
+        widget_type: text
+        path: used6
+        caption: other (specify)
+        x_petey_caption_source: page_text
+      microemulsion_flooding:
+        page: 1
+        rect:
+        - 397.1864318847656
+        - 122.5362548828125
+        - 408.4541320800781
+        - 133.803955078125
+        widget_type: text
+        path: used7
+        caption: microemulsion, or micellar/emulsion, flooding
+        x_petey_caption_source: page_text
+      carbon_dioxide_augmented_waterflooding:
+        page: 1
+        rect:
+        - 397.1864318847656
+        - 135.21240234375
+        - 408.4541320800781
+        - 146.4801025390625
+        widget_type: text
+        path: used8
+        caption: carbon dioxide augmented waterflooding
+        x_petey_caption_source: page_text
+      polymer_augmented_waterflooding:
+        page: 1
+        rect:
+        - 397.1864318847656
+        - 146.4801025390625
+        - 408.4541320800781
+        - 157.747802734375
+        widget_type: text
+        path: used9
+        caption: polymer augmented waterflooding
+        x_petey_caption_source: page_text
+      immiscible_carbon_dioxide_displacement:
+        page: 1
+        rect:
+        - 397.1864318847656
+        - 157.747802734375
+        - 408.4541320800781
+        - 169.0155029296875
+        widget_type: text
+        path: used10
+        caption: immiscible carbon dioxide displacement
+        x_petey_caption_source: page_text
+      steam_drive_injection:
+        page: 1
+        rect:
+        - 397.1864318847656
+        - 170.4239501953125
+        - 408.4541320800781
+        - 181.691650390625
+        widget_type: text
+        path: used11
+        caption: steam drive injection
+        x_petey_caption_source: page_text
+      gas_injection:
+        page: 1
+        rect:
+        - 397.1864318847656
+        - 181.691650390625
+        - 408.4541320800781
+        - 192.9593505859375
+        widget_type: text
+        path: used12
+        caption: gas injection
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:24:18'
+      from:
+      - method_of_recovery::waterflood
+      - method_of_recovery::alkaline_caustic_flooding
+      - method_of_recovery::cyclic_steam_injection
+      - method_of_recovery::in_situ_combustion
+      - method_of_recovery::miscible_fluid_displacement
+      - method_of_recovery::other
+      - method_of_recovery::microemulsion_flooding
+      - method_of_recovery::carbon_dioxide_augmented_waterflooding
+      - method_of_recovery::polymer_augmented_waterflooding
+      - method_of_recovery::immiscible_carbon_dioxide_displacement
+      - method_of_recovery::steam_drive_injection
+      - method_of_recovery::gas_injection
+    x_petey_identifiers:
+      subject: method_of_recovery
+  new_project_type:
+    x_petey_id: '1_8'
+    type: category
+    values:
+    - initial_secondary
+    - initial_tertiary
+    - tertiary_superseding_secondary
+    widgets:
+      initial_secondary:
+        page: 1
+        rect:
+        - 39.43695068359375
+        - 230.98785400390625
+        - 50.70465087890625
+        - 242.25555419921875
+        widget_type: text
+        path: project1
+        caption: initial enhanced recovery project – secondary
+        x_petey_caption_source: page_text
+      tertiary_superseding_secondary:
+        page: 1
+        rect:
+        - 218.3116912841797
+        - 229.57940673828125
+        - 229.5793914794922
+        - 240.84710693359375
+        widget_type: text
+        path: project2
+        caption: tertiary operation superseding secondary project
+        x_petey_caption_source: page_text
+      initial_tertiary:
+        page: 1
+        rect:
+        - 407.0456848144531
+        - 229.57940673828125
+        - 418.3133850097656
+        - 240.84710693359375
+        widget_type: text
+        path: project3
+        caption: initial enhanced recovery project - tertiary
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: new_project_type
+  expanded_project_type:
+    x_petey_id: '1_9'
+    type: category
+    values:
+    - different_secondary_method
+    - expansion_of_secondary
+    - different_tertiary_method
+    - expansion_of_tertiary
+    widgets:
+      different_secondary_method:
+        page: 1
+        rect:
+        - 39.43695068359375
+        - 264.79095458984375
+        - 50.70465087890625
+        - 276.05865478515625
+        widget_type: text
+        path: project4
+        caption: different secondary method for existing secondary project
+        x_petey_caption_source: page_choice
+      expansion_of_secondary:
+        page: 1
+        rect:
+        - 300.0025329589844
+        - 263.38250732421875
+        - 311.2702331542969
+        - 274.65020751953125
+        widget_type: text
+        path: project6
+        caption: expansion of secondary project
+        x_petey_caption_source: page_text
+      different_tertiary_method:
+        page: 1
+        rect:
+        - 39.43695068359375
+        - 278.8756103515625
+        - 50.70465087890625
+        - 290.1432800292969
+        widget_type: text
+        path: project5
+        caption: different tertiary method for existing tertiary project
+        x_petey_caption_source: page_choice
+      expansion_of_tertiary:
+        page: 1
+        rect:
+        - 298.59405517578125
+        - 277.46710205078125
+        - 312.6786804199219
+        - 288.7348327636719
+        widget_type: text
+        path: project7
+        caption: expansion of tertiary project
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:24:18'
+      from:
+      - expanded_project_type::different_secondary_method
+      - expanded_project_type::expansion_of_secondary
+      - expanded_project_type::different_tertiary_method
+      - expanded_project_type::expansion_of_tertiary
+    x_petey_identifiers:
+      subject: expanded_project_type
+  fluid_to_be_injected:
+    x_petey_id: '1_12'
+    type: category
+    values:
+    - saltwater
+    - brackish_water
+    - fresh_water
+    - natural_gas
+    - polymer
+    - air
+    - lpg
+    - nitrogen
+    - co2
+    - other
+    widgets:
+      saltwater:
+        page: 1
+        rect:
+        - 66.94216918945312
+        - 335.53729248046875
+        - 79.3388671875
+        - 351.2397766113281
+        widget_type: text
+        path: fluid1
+        caption: saltwater
+        x_petey_caption_source: page_text
+      brackish_water:
+        page: 1
+        rect:
+        - 162.80996704101562
+        - 326.4463806152344
+        - 176.03311157226562
+        - 338.0166320800781
+        widget_type: text
+        path: fluid2
+        caption: brackish water
+        x_petey_caption_source: page_choice
+      fresh_water:
+        page: 1
+        rect:
+        - 163.63641357421875
+        - 338.84307861328125
+        - 176.85955810546875
+        - 350.413330078125
+        widget_type: text
+        path: fluid3
+        caption: fresh water
+        x_petey_caption_source: page_choice
+      natural_gas:
+        page: 1
+        rect:
+        - 250.41329956054688
+        - 325.61993408203125
+        - 261.9835510253906
+        - 338.0166320800781
+        widget_type: text
+        path: fluid4
+        caption: natural gas
+        x_petey_caption_source: page_text
+      polymer:
+        page: 1
+        rect:
+        - 247.9339599609375
+        - 338.84307861328125
+        - 260.3306579589844
+        - 350.413330078125
+        widget_type: text
+        path: fluid5
+        caption: polymer
+        x_petey_caption_source: page_text
+      air:
+        page: 1
+        rect:
+        - 323.967041015625
+        - 326.4463806152344
+        - 338.0166320800781
+        - 339.6695251464844
+        widget_type: text
+        path: fluid6
+        caption: air
+        x_petey_caption_source: page_text
+      lpg:
+        page: 1
+        rect:
+        - 323.1405944824219
+        - 338.0166320800781
+        - 336.3637390136719
+        - 348.76043701171875
+        widget_type: text
+        path: fluid7
+        caption: LPG
+        x_petey_caption_source: page_text
+      nitrogen:
+        page: 1
+        rect:
+        - 369.0171813964844
+        - 326.7633056640625
+        - 380.2848815917969
+        - 338.031005859375
+        widget_type: text
+        path: fluid8
+        caption: nitrogen
+        x_petey_caption_source: page_text
+      co2:
+        page: 1
+        rect:
+        - 370.248046875
+        - 339.6695251464844
+        - 381.81829833984375
+        - 347.9339904785156
+        widget_type: text
+        path: fluid9
+        caption: CO2
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 435.5373229980469
+        - 326.4463806152344
+        - 447.93402099609375
+        - 338.84307861328125
+        widget_type: text
+        path: fluid10
+        caption: other (specify)
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:24:18'
+      from:
+      - fluid_to_be_injected::saltwater
+      - fluid_to_be_injected::brackish_water
+      - fluid_to_be_injected::fresh_water
+      - fluid_to_be_injected::natural_gas
+      - fluid_to_be_injected::polymer
+      - fluid_to_be_injected::air
+      - fluid_to_be_injected::lpg
+      - fluid_to_be_injected::nitrogen
+      - fluid_to_be_injected::co2
+      - fluid_to_be_injected::other
+    x_petey_identifiers:
+      subject: fluid_to_be_injected
+  contains_more_than_one_lease:
+    x_petey_id: '1_26'
+    type: category
+    values:
+    - 'yes'
+    - 'no'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 137.19012451171875
+        - 431.40509033203125
+        - 155.3719482421875
+        - 443.8017883300781
+        widget_type: text
+        path: 'yes'
+        caption: 'YES'
+        x_petey_caption_source: page_choice
+      'no':
+        page: 1
+        rect:
+        - 157.02484130859375
+        - 432.2315368652344
+        - 170.24798583984375
+        - 443.8017883300781
+        widget_type: text
+        path: 'no'
+        caption: 'NO'
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:24:18'
+      from:
+      - contains_more_than_one_lease::yes
+      - contains_more_than_one_lease::no
+    x_petey_identifiers:
+      subject: contains_more_than_one_lease
+  unitization_agreement_approved:
+    x_petey_id: '1_30'
+    type: category
+    values:
+    - 'yes'
+    - 'no'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 191.5509033203125
+        - 480.28570556640625
+        - 202.818603515625
+        - 491.55340576171875
+        widget_type: text
+        path: unitization1
+        caption: 'YES'
+        x_petey_caption_source: page_choice
+      'no':
+        page: 1
+        rect:
+        - 215.49476623535156
+        - 478.87725830078125
+        - 229.5793914794922
+        - 492.9618835449219
+        widget_type: text
+        path: unitization2
+        caption: 'NO'
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:24:18'
+      from:
+      - unitization_agreement_approved::yes
+      - unitization_agreement_approved::no
+    x_petey_identifiers:
+      subject: unitization_agreement_approved
+  unitization_needed_yes_ind:
+    x_petey_id: '1_32'
+    type: category
+    values:
+    - 'yes'
+    - 'no'
+    widgets:
+      'yes':
+        page: 1
+        rect:
+        - 466.20111083984375
+        - 480.28570556640625
+        - 480.28570556640625
+        - 491.55340576171875
+        widget_type: text
+        path: unitization yes
+        caption: 'YES'
+        x_petey_caption_source: page_choice
+      'no':
+        page: 1
+        rect:
+        - 491.55340576171875
+        - 480.28570556640625
+        - 505.6380615234375
+        - 491.55340576171875
+        widget_type: text
+        path: unitization no
+        caption: 'NO'
+        x_petey_caption_source: page_choice
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: unitization_needed_yes_ind
+      reason: The box is a checkbox labeled 'YES' under 'If NO, is unitization needed?'
+        — a filer marks it with a checkmark, making it a yes indicator; 'unitization_needed_yes_ind'
+        correctly identifies it as the YES checkbox, while 'unitization_needed' is
+        ambiguous between YES and NO boxes.
+      model: claude-sonnet-4-6
+      contested: no caption could be verified at the widget
+    description: Mark when the answer to 'If NO, is unitization needed?' is YES; this
+      is the single-character YES box.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - name
+      reason: The box is a one-character mark box labelled YES (publisher name 'unitization
+        yes'), paired with a separate NO box; the current name cannot tell the two
+        apart and the yes/no category wrongly treats one mark box as holding the whole
+        answer.
+      before:
+        type: category
+        values:
+        - 'no'
+        - 'yes'
+      old_name: unitization_needed
+      adjudicated: proposed
+      judged: 'kept: 3 -> 3'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:24:18'
+      from:
+      - unitization_needed_yes_ind::yes
+      - unitization_needed_yes_ind::no
+    x_petey_identifiers:
+      subject: unitization_needed_yes_ind
+x_petey_dropped_widgets:
+  count: 1
+  widgets:
+  - path: clear
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: null
+x_petey_page_check:
+  when: '2026-10-15 14:35:59'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 45
+  flagged: 4
+  unanswered: 0
+  record: runs/page_check/rrc_h_12__732f2a__ddc06cf1.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: rrc_h_12_20261015_120416
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/rrc_h_12.bpt
+  when: '2026-10-15 12:04:31'
+x_petey_run:
+  record: runs/judge_eval/form_runs/rrc_h_12.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-15 12:04:32'

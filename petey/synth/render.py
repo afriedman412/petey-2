@@ -268,6 +268,94 @@ def _draw_mark(page, rect) -> None:
                    color=(0, 0, 0), width=1.0)
 
 
+_MULTILINE = 1 << 12          # text field flags (PDF 32000-1, table 228)
+_COMB = 1 << 24
+_PAD = 2.0                    # points a viewer keeps clear inside a text field's border, each side
+
+
+def fit_widget(value: str, rect, fontsize: float, *, multiline: bool = False, comb: bool = False) -> str:
+    """The part of `value` a widget shows: what fits its width at its own font size (one line), or its lines (a
+    multi-line field, words wrapped), cut at a word and else a character, as a filer types only what the box takes.
+    2026-10-20: a test value drawn for the page finder's box, wider than the widget inside it, overflowed ACORD 90 NY's
+    22 pt state boxes ("REF97533" read back "EF975") and was scored as the blueprint's miss (69 of ~100 wrong values
+    there). A comb field is left to its MaxLen."""
+    s = str(value)
+    if comb or not s:
+        return s
+    fs = float(fontsize or 0) or 12.0          # auto size: a viewer shrinks; pymupdf draws about 12 pt
+    r = pymupdf.Rect(rect)
+    avail = max(r.width - 2 * _PAD, 1.0)
+    width = lambda t: pymupdf.get_text_length(t, fontname="helv", fontsize=fs)     # noqa: E731
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", s) and width(s) > avail:
+        # a date is written shorter, never cut (the bank's fit_width does the same for the finder's box)
+        y, m, d = s.split("-")
+        for f in (f"{m}/{d}/{y}", f"{m}/{d}/{y[2:]}", f"{int(m)}/{int(d)}/{y[2:]}", f"{m}{d}{y[2:]}"):
+            if width(f) <= avail:
+                return f
+        return f"{m}{d}{y[2:]}"
+    n_lines = max(1, int((r.height - 2 * _PAD + 0.5) // (fs * 1.15))) if multiline else 1
+    lines, cur = [], ""
+    for word in s.split(" "):
+        trial = f"{cur} {word}" if cur else word
+        if width(trial) <= avail:
+            cur = trial
+            continue
+        if cur:
+            lines.append(cur)
+        cur = word
+        if width(cur) > avail:                         # a word longer than a line is not broken: it is cut there
+            while len(cur) > 1 and width(cur) > avail:
+                cur = cur[:-1]
+            lines.append(cur)
+            cur = ""
+            break
+    if cur:
+        lines.append(cur)
+    out = " ".join(lines[:n_lines])
+    return out if s.startswith(out) else s[:len(out)]
+
+
+def widget_cells(case: dict[str, Any], widgets: dict[int, list[dict]], n_pages: int) -> dict[str, list[str]]:
+    """{widget: [case keys]} for every widget that holds more than one of the case's text cells (a widget the page
+    finder split: a comb, a two-line box), the keys in reading order. Only a CELL inside the widget counts; a box
+    larger than the widget is the split rule's business (`_parts_for`)."""
+    from petey.synth.boxes import match_rect, parse_rect_key
+    owners: dict[str, list[tuple[float, float, str]]] = {}
+    for key, value in case.items():
+        page_no, rect = parse_rect_key(key)
+        m = match_rect(rect, widgets.get(page_no, [])) if 1 <= page_no <= n_pages else None
+        if m is None or not isinstance(value, str):
+            continue
+        if (rect[2] - rect[0]) * (rect[3] - rect[1]) < 0.9 * (m["rect"][2] - m["rect"][0]) * (m["rect"][3] - m["rect"][1]):
+            owners.setdefault(f"{page_no}:{m['xref']}", []).append((rect[1], rect[0], key))
+    out = {}
+    for xk, members in owners.items():
+        if len(members) > 1:
+            members.sort(key=lambda t: (round(t[0] / 4), t[1]))
+            out[xk] = [k for _, _, k in members]
+    return out
+
+
+def _join_cells(cells: list[tuple[float, str]]) -> str:
+    """One widget's string from the values drawn for the page cells inside it, in reading order ((top, value)
+    pairs). Cells side by side on one line (a comb the finder split) run together: "1", "2", "3" -> "123". Cells on
+    different lines (a two-line box the finder saw as two) are lines of one answer: joined with a space, and a line
+    that repeats the line above is written once (the bank draws the same kind of value for both lines of an address
+    box: Form 8825's "Omar Fischer, 1120" twice, run together, 2026-10-20)."""
+    lines: list[list[str]] = []
+    last_y: Optional[float] = None
+    for y, v in cells:
+        if last_y is None or round(y / 4) != round(last_y / 4):
+            lines.append([])
+        lines[-1].append(v)
+        last_y = y
+    out: list[str] = []
+    for line in ("".join(parts) for parts in lines):
+        if line and (not out or line != out[-1]):
+            out.append(line)
+    return " ".join(out)
+
+
 def _parts_for(value: str, cls: Optional[str], n: int) -> list[str]:
     """How a filer spreads one value over `n` boxes that the page shows as
     one: a date by month / day / year, an amount by dollars / cents, a
@@ -340,23 +428,11 @@ def render_case(
         # holds their concatenation in reading order; the scorer's join
         # applies the same rule (validate.rect_join).
         joined: dict[str, Any] = {}
-        owners: dict[str, list[tuple[float, float, str]]] = {}
         if not flat:
-            for key, value in case.items():
-                page_no, rect = parse_rect_key(key)
-                m = match_rect(rect, widgets.get(page_no, [])) if 1 <= page_no <= len(doc) else None
-                if m is None or not isinstance(value, str):
-                    continue
-                # only a CELL inside the widget joins (a comb the finder split);
-                # a box larger than the widget is the split rule's business
-                if (rect[2] - rect[0]) * (rect[3] - rect[1]) < 0.9 * (m["rect"][2] - m["rect"][0]) * (m["rect"][3] - m["rect"][1]):
-                    owners.setdefault(f"{page_no}:{m['xref']}", []).append((rect[1], rect[0], key))
-            for xk, members in owners.items():
-                if len(members) > 1:
-                    members.sort(key=lambda t: (round(t[0] / 4), t[1]))
-                    text = "".join(str(case[k]) for _, _, k in members)
-                    for _, _, k in members:
-                        joined[k] = text
+            for members in widget_cells(case, widgets, len(doc)).values():
+                joined_text = _join_cells([(parse_rect_key(k)[1][1], str(case[k])) for k in members])
+                for k in members:
+                    joined[k] = joined_text
         written: set[str] = set()
         marked_on: set[str] = set()
         text_written: dict[str, str] = {}     # "page:xref" -> the value on the page
@@ -410,6 +486,14 @@ def render_case(
                         maxlen = int(wid.text_maxlen or 0)
                         if maxlen and len(part) > maxlen:
                             part = part[:maxlen]
+                        elif not maxlen:            # a part fits its own widget too (ACORD 90 NY's state boxes)
+                            fitted = fit_widget(part, wid.rect, wid.text_fontsize,
+                                                multiline=bool(wid.field_flags & _MULTILINE),
+                                                comb=bool(wid.field_flags & _COMB))
+                            if fitted != part:
+                                report["truncated"].append({"key": key, "wanted": part, "wrote": fitted,
+                                                            "maxlen": None, "width": round(wid.rect.width, 1)})
+                                part = fitted
                         wid.field_value = part
                         wid.update()
                         text_written[xk] = part
@@ -498,6 +582,13 @@ def render_case(
                         s2 = compact[:maxlen]
                         report["truncated"].append({"key": key, "wanted": s, "wrote": s2, "maxlen": maxlen})
                         s = s2
+                    elif not maxlen:
+                        fitted = fit_widget(s, w.rect, w.text_fontsize, multiline=bool(w.field_flags & _MULTILINE),
+                                            comb=bool(w.field_flags & _COMB))
+                        if fitted != s:
+                            report["truncated"].append({"key": key, "wanted": s, "wrote": fitted, "maxlen": None,
+                                                        "width": round(w.rect.width, 1)})
+                            s = fitted
                     w.field_value = s
                     w.update()
                     text_written[xk] = s

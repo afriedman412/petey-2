@@ -298,8 +298,8 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
         kwargs["extra_body"] = {"temperature": 0}   # not a typed parameter in SDK 1.x
     else:
         kwargs["output_config"] = {"effort": "low"}
-    with client.messages.stream(**kwargs) as stream:
-        final = stream.get_final_message()
+    from petey.synth.generate import final_message
+    final = final_message(lambda: client.messages.stream(**kwargs), "judge")
     USAGE["input_tokens"] += final.usage.input_tokens
     USAGE["output_tokens"] += final.usage.output_tokens
     USAGE["calls"] += 1
@@ -310,36 +310,50 @@ def _ask(client, model: str, fields: list[dict], doc_parts: list[dict],
     return out
 
 
+def field_page_of(spec: dict) -> Optional[int]:
+    w = spec.get("widget") or {}
+    if w.get("page"):
+        return int(w["page"])
+    for wb in (spec.get("widgets") or {}).values():
+        if wb.get("page"):
+            return int(wb["page"])
+    return None
+
+
 def extract_llm(
     bpt: dict, pdf: Path, *, parser: str = "pymupdf",
     model: str = DEFAULT_MODEL, client: Any = None, cache_salt: str = "",
 ) -> dict[str, Any]:
-    """`{field_name: value}` for one document, found by meaning."""
+    """`{field_name: value}` for one document, found by meaning. One call per page (2026-10-19: it was one call per
+    120 fields with the whole document in each, cached on the whole document and the whole field list, so any
+    rename or refill missed every page): a page's fields are read against that page's text (or image) and cached on
+    them, so a page nothing changed on is free in the next round; fields on no page are read against the whole
+    document. The pages go out together."""
     pdf = Path(pdf)
-    doc_bytes = pdf.read_bytes()
     with pymupdf.open(str(pdf)) as _d:
         pages = field_pages(bpt, len(_d))
+    blank = None
+    if parser == "pymupdf" and option_boxes(bpt):
+        try:
+            from petey.validate.retype import resolve_blank
+            blank = resolve_blank(bpt)
+        except Exception:
+            blank = None
     if parser == "image":
-        doc_parts = [
-            {"type": "image", "source": {"type": "base64",
-                                         "media_type": "image/png",
-                                         "data": base64.b64encode(p).decode()}}
-            for p in page_images(pdf, pages)
-        ]
+        parts = {p: ({"type": "image", "source": {"type": "base64", "media_type": "image/png",
+                                                  "data": base64.b64encode(png).decode()}}, png)
+                 for p, png in zip(pages, page_images(pdf, pages))}
     elif parser == "pymupdf":
-        blank = None
-        if option_boxes(bpt):
-            try:
-                from petey.validate.retype import resolve_blank
-                blank = resolve_blank(bpt)
-            except Exception:
-                blank = None
         texts = page_texts_with_marks(pdf, blank, bpt, pages) if blank else page_texts(pdf, pages)
-        joined = "\n\n".join(f"=== page {p} ===\n{t}" for p, t in texts)
-        doc_parts = [{"type": "text", "text": "Form content:\n" + joined}]
+        parts = {p: ({"type": "text", "text": f"Form content (page {p} of the document):\n{t}"}, t.encode()) for p, t in texts}
     else:
         raise ValueError(f"unknown parser {parser!r}; use pymupdf or image")
     fields = field_view(bpt)
+    specs = bpt.get("fields") or {}
+    by_page: dict[Optional[int], list[dict]] = {}
+    for f in fields:
+        pg = field_page_of(specs.get(f["name"]) or {})
+        by_page.setdefault(pg if pg in parts else None, []).append(f)
     if client is None and not model.startswith("ollama:"):
         from petey.synth.generate import make_client, provider_for
         if provider_for(model) is not None:             # Gemini, a local model (petey/models.py)
@@ -347,10 +361,20 @@ def extract_llm(
         else:
             import anthropic
             client = anthropic.Anthropic()
+    jobs = []                       # (fields batch, doc parts, key bytes)
+    for pg, fs in by_page.items():
+        if pg is None:              # no page of their own: the whole document, as before
+            doc_parts = [parts[p][0] for p in pages]
+            key = b"".join(parts[p][1] for p in pages)
+        else:
+            doc_parts, key = [parts[pg][0]], parts[pg][1]
+        for i in range(0, len(fs), MAX_FIELDS_PER_CALL):
+            jobs.append((fs[i:i + MAX_FIELDS_PER_CALL], doc_parts, key))
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, min(8, len(jobs)))) as ex:
+        results = list(ex.map(lambda j: _ask(client, model, j[0], j[1], j[2], parser, salt=cache_salt), jobs))
     values: dict[str, Any] = {}
-    for i in range(0, len(fields), MAX_FIELDS_PER_CALL):
-        batch = fields[i:i + MAX_FIELDS_PER_CALL]
-        got = _ask(client, model, batch, doc_parts, doc_bytes, parser, salt=cache_salt)
+    for (batch, _, _), got in zip(jobs, results):
         for f in batch:
             values[f["name"]] = got.get(f["name"])
     return values

@@ -224,12 +224,13 @@ def process(bid: str, log=print) -> int:
     with ThreadPoolExecutor(max_workers=WORKERS) as ex:
         done = {n: a for n, a in zip(names, ex.map(one, names)) if a is not None}
     # merge into the record as it is now (the page may have written since): only the agent's own key
-    cur = hand_review.load_verdicts(bid)
-    for n, a in done.items():
-        v = (cur.get("verdicts") or {}).get(n)
-        if v and (v.get("note") or "").strip() == a["for_note"]:
-            v["agent"] = a
-    hand_review.verdict_path(bid).write_text(json.dumps(cur, indent=1, ensure_ascii=False), encoding="utf-8")
+    with hand_review._VERDICT_LOCK:
+        cur = hand_review.load_verdicts(bid)
+        for n, a in done.items():
+            v = (cur.get("verdicts") or {}).get(n)
+            if v and (v.get("note") or "").strip() == a["for_note"]:
+                v["agent"] = a
+        hand_review._write_verdicts(bid, cur)
     return len(done)
 
 

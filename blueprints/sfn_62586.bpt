@@ -7,8 +7,14 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-15 12:06:01'
 fields:
-  account_number:
+  account_nbr:
     x_petey_id: '1_1'
     type: string
     semantic_type: account_number
@@ -25,10 +31,29 @@ fields:
     description: Account Number (if applicable)
     x_petey_description_source: tooltip
     label_source: llm
-  storage_facility_operator_nm:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: account_num
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: account
+      suffix: nbr
+  storage_facility_operator_business_nm:
     x_petey_id: '1_3'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -41,11 +66,30 @@ fields:
     description: Storage Facility Operator
     x_petey_description_source: tooltip
     label_source: llm
-  telephone_number:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: storage_facility_operator_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: storage_facility_operator_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: storage_facility_operator_business
+      suffix: nm
+  telephone_nbr:
     x_petey_id: '1_4'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
     widget:
       page: 1
       rect:
@@ -57,7 +101,37 @@ fields:
       path: sfn[0].Page1[0].OperatorDetails[0].telephone[0]
     description: Telephone Number
     x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+        validate:
+        - text{999999999}|text{'('999')' 999-9999}
+      message: 'Please enter the Telephone Number in this format: (NNN) NNN-NNNN or
+        NNNNNNNNNN'
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: telephone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: telephone
+      suffix: nbr
   address_line_1_txt:
     x_petey_id: '1_5'
     type: string
@@ -72,6 +146,9 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].OperatorDetails[0].Address[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: address_line_1
+      suffix: txt
   city_nm:
     x_petey_id: '1_6'
     type: string
@@ -86,11 +163,14 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].OperatorDetails[0].City[0]
     label_source: llm
+    x_petey_identifiers:
+      subject: city
+      suffix: nm
   zip_cd:
     x_petey_id: '1_8'
     type: string
     semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
+    pattern: ^(?:\d{5}\-\d{4}|\d{5})$
     widget:
       page: 1
       rect:
@@ -100,8 +180,22 @@ fields:
       - 208.6929931640625
       widget_type: text
       path: sfn[0].Page1[0].OperatorDetails[0].ZipCode[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}|text{99999}
+      pictures:
+        format:
+        - text{99999-9999}|text{99999}
+        validate:
+        - text{99999-9999}|text{99999}
+        ui:
+        - text{99999-9999}|text{99999}
     label_source: llm
-  state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: zip
+      suffix: cd
+  state_cd:
     x_petey_id: '1_7'
     type: string
     semantic_type: state_abbr
@@ -116,7 +210,26 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].OperatorDetails[0].State[0]
     label_source: llm
-  ndic_instrument_number:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: state
+      suffix: cd
+  ndic_instrument_nbr:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -131,7 +244,26 @@ fields:
     description: NDIC Instrument Number
     x_petey_description_source: tooltip
     label_source: llm
-  financial_assurance_type:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: ndic_instrument_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ndic_instrument_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: ndic_instrument
+      suffix: nbr
+  financial_assurance_method:
     x_petey_id: '1_9'
     type: category
     values:
@@ -139,18 +271,6 @@ fields:
     - '1'
     - '2'
     - '3'
-    description: 'One of: 0 = Cash Bond; 1 = Escrow Account; 2 = Trust Fund; 3 = Other
-      Approved Method:'
-    x_petey_description_source: xfa_choices
-    x_petey_retype:
-    - description_from_xfa_choices
-    - option_group:category->category[4]
-    x_petey_xfa:
-      choices:
-        '0': Cash Bond
-        '1': Escrow Account
-        '2': Trust Fund
-        '3': 'Other Approved Method:'
     widgets:
       '0':
         page: 1
@@ -174,6 +294,7 @@ fields:
         path: sfn[0].Page1[0].AssuranceAmounts[0].FinancialAssuranceAmounts[0]
         on_state: '1'
         caption: Escrow Account
+        x_petey_caption_source: hand
       '2':
         page: 1
         rect:
@@ -196,6 +317,48 @@ fields:
         path: sfn[0].Page1[0].AssuranceAmounts[0].FinancialAssuranceAmounts[0]
         on_state: '3'
         caption: 'Other Approved Method:'
+        x_petey_caption_source: hand
+    description: 'One of: 0 = Cash Bond; 1 = Escrow Account; 2 = Trust Fund; 3 = Other
+      Approved Method:'
+    x_petey_description_source: xfa_choices
+    x_petey_xfa:
+      kind: excl
+      choices:
+        '0': Cash Bond
+        '1': Escrow Account
+        '2': Trust Fund
+        '3': 'Other Approved Method:'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:23:40'
+      from:
+      - financial_assurance_method::0
+      - financial_assurance_method::1
+      - financial_assurance_method::2
+      - financial_assurance_method::3
+    x_petey_hand_edit:
+      when: '2026-10-15 19:15:43'
+      from:
+        name: financial_assurance_method
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          '1': The
+          '3': 'Other Approved Method: $'
+      to:
+        name: financial_assurance_method
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          '1':
+            caption: Escrow Account
+          '3':
+            caption: 'Other Approved Method:'
+      record: runs/hand_review/je__sfn_62586.json
+    x_petey_identifiers:
+      subject: financial_assurance_method
   cash_bond_amt:
     x_petey_id: '1_10'
     type: number
@@ -209,9 +372,15 @@ fields:
       - 244.66900634765625
       widget_type: text
       path: sfn[0].Page1[0].AssuranceAmounts[0].CashBond[0]
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.99}
     label_source: llm
-    x_petey_retype:
-    - money
+    x_petey_identifiers:
+      subject: cash_bond
+      suffix: amt
   escrow_account_amt:
     x_petey_id: '1_11'
     type: number
@@ -227,9 +396,15 @@ fields:
       path: sfn[0].Page1[0].AssuranceAmounts[0].EscrowAccount[0]
     description: EscrowAccount
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.99}
     label_source: llm
-    x_petey_retype:
-    - money
+    x_petey_identifiers:
+      subject: escrow_account
+      suffix: amt
   trust_fund_amt:
     x_petey_id: '1_12'
     type: number
@@ -243,10 +418,16 @@ fields:
       - 280.66900634765625
       widget_type: text
       path: sfn[0].Page1[0].AssuranceAmounts[0].TrustFund[0]
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.99}
     label_source: llm
-    x_petey_retype:
-    - money
-  other_approved_method_amt:
+    x_petey_identifiers:
+      subject: trust_fund
+      suffix: amt
+  other_method_amt:
     x_petey_id: '1_13'
     type: number
     semantic_type: money
@@ -259,10 +440,16 @@ fields:
       - 298.66900634765625
       widget_type: text
       path: sfn[0].Page1[0].AssuranceAmounts[0].OtherAmount[0]
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.99}
     label_source: llm
-    x_petey_retype:
-    - money
-  other_approved_method_desc_txt:
+    x_petey_identifiers:
+      subject: other_method
+      suffix: amt
+  other_method_description_txt:
     x_petey_id: '1_14'
     type: string
     semantic_type: description
@@ -278,9 +465,28 @@ fields:
     description: DescribeOther
     x_petey_description_source: tooltip
     label_source: llm
-  ndic_order_number:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: other_method_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: other_method_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: other_method_description
+      suffix: txt
+  ndic_order_nbr:
     x_petey_id: '1_16'
-    type: string
+    type: number
     widget:
       page: 1
       rect:
@@ -292,11 +498,39 @@ fields:
       path: sfn[0].Page1[0].ForCO2Facility[0].NDICOrderNumber[0]
     description: NDIC Order Number
     x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzzz9}
+        validate:
+        - num{zzzzzzzzzzzz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
     label_source: llm
-  carbon_dioxide_storage_facility_nm:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: ndic_order_num
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: ndic_order_nbr
+        type: number
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: ndic_order
+      suffix: nbr
+  storage_facility_name_and_nbr:
     x_petey_id: '1_17'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -309,9 +543,28 @@ fields:
     description: Carbon Dioxide Storage Facility Name and Number
     x_petey_description_source: tooltip
     label_source: llm
-  northstar_facility_number:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: storage_facility_name_and_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: storage_facility_name_and_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: storage_facility_name_and
+      suffix: nbr
+  northstar_facility_nbr:
     x_petey_id: '1_15'
-    type: string
+    type: number
     widget:
       page: 1
       rect:
@@ -323,9 +576,38 @@ fields:
       path: sfn[0].Page1[0].ForCO2Facility[0].NorthSTARFacilityNumber[0]
     description: NorthSTAR Facility Number
     x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzzz9}
+        validate:
+        - num{zzzzzzzzzzzz9}
+        ui:
+        - num{zzzzzzzzzzzz9}
     label_source: llm
-  emergency_remedial_response_amt:
-    x_petey_id: '1_25'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: northstar_facility_num
+        type: number
+        semantic_type: null
+        pattern: null
+      to:
+        name: northstar_facility_nbr
+        type: number
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: northstar_facility
+      suffix: nbr
+  emergency_and_remedial_response_amt:
+    x_petey_id: '1_22'
     type: number
     semantic_type: money
     widget:
@@ -339,43 +621,17 @@ fields:
       path: sfn[0].Page1[0].ForCO2Facility[0].EmergencyResponseAmount[0]
     description: EmergencyResponseAmount
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.zzz}
     label_source: llm
-    x_petey_retype:
-    - money
-  emergency_and_remedial_response_ind:
-    x_petey_id: '1_24'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 29.834999084472656
-      - 467.5069885253906
-      - 38.834999084472656
-      - 476.5069885253906
-      widget_type: checkbox
-      path: sfn[0].Page1[0].ForCO2Facility[0].EmergencyResponse[0]
-    description: Emergency and Remedial Response
-    x_petey_description_source: tooltip
-    label_source: llm
-  post_inj_site_care_and_facility_closure_ind:
-    x_petey_id: '1_22'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 29.834999084472656
-      - 449.5069885253906
-      - 38.834999084472656
-      - 458.5069885253906
-      widget_type: checkbox
-      path: sfn[0].Page1[0].ForCO2Facility[0].PostInjSite[0]
-    description: Post-injection Site Care and Facility Closure
-    x_petey_description_source: tooltip
-    label_source: llm
-  post_inj_site_care_and_facility_closure_amt:
-    x_petey_id: '1_23'
+    x_petey_identifiers:
+      subject: emergency_and_remedial_response
+      suffix: amt
+  post_injection_site_care_and_facility_closure_amt:
+    x_petey_id: '1_20'
     type: number
     semantic_type: money
     widget:
@@ -389,11 +645,17 @@ fields:
       path: sfn[0].Page1[0].ForCO2Facility[0].PostInjSiteAmount[0]
     description: PostInjSiteAmount
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.zzz}
     label_source: llm
-    x_petey_retype:
-    - money
-  inj_well_plugging_amt:
-    x_petey_id: '1_21'
+    x_petey_identifiers:
+      subject: post_injection_site_care_and_facility_closure
+      suffix: amt
+  injection_well_plugging_amt:
+    x_petey_id: '1_19'
     type: number
     semantic_type: money
     widget:
@@ -407,27 +669,17 @@ fields:
       path: sfn[0].Page1[0].ForCO2Facility[0].InjWellAmount[0]
     description: InjWellAmount
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.zzz}
     label_source: llm
-    x_petey_retype:
-    - money
-  inj_well_plugging_ind:
-    x_petey_id: '1_20'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 29.834999084472656
-      - 432.00299072265625
-      - 38.834999084472656
-      - 441.00299072265625
-      widget_type: checkbox
-      path: sfn[0].Page1[0].ForCO2Facility[0].InjectionWellPlugging[0]
-    description: Injection Well Plugging
-    x_petey_description_source: tooltip
-    label_source: llm
+    x_petey_identifiers:
+      subject: injection_well_plugging
+      suffix: amt
   corrective_action_amt:
-    x_petey_id: '1_19'
+    x_petey_id: '1_18'
     type: number
     semantic_type: money
     widget:
@@ -441,27 +693,17 @@ fields:
       path: sfn[0].Page1[0].ForCO2Facility[0].CorrectiveActionAmount[0]
     description: CorrectiveActionAmount
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{z,zzz,zz9.zzz}
     label_source: llm
-    x_petey_retype:
-    - money
-  corrective_action_ind:
-    x_petey_id: '1_18'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 29.834999084472656
-      - 413.5069885253906
-      - 38.834999084472656
-      - 422.5069885253906
-      widget_type: checkbox
-      path: sfn[0].Page1[0].ForCO2Facility[0].CorrectiveAction[0]
-    description: Corrective Action
-    x_petey_description_source: tooltip
-    label_source: llm
+    x_petey_identifiers:
+      subject: corrective_action
+      suffix: amt
   signature:
-    x_petey_id: '1_26'
+    x_petey_id: '1_23'
     type: string
     widget:
       page: 1
@@ -473,10 +715,11 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].Signature[0]
     label_source: llm
+    x_petey_identifiers:
+      suffix: signature
   printed_nm:
-    x_petey_id: '1_27'
+    x_petey_id: '1_24'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -489,10 +732,28 @@ fields:
     description: Printed Name
     x_petey_description_source: tooltip
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: printed_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: printed_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: printed
+      suffix: nm
   title_txt:
-    x_petey_id: '1_28'
+    x_petey_id: '1_25'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -503,8 +764,27 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].Title[0]
     label_source: llm
-  state_of_txt:
-    x_petey_id: '1_29'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: title
+      suffix: txt
+  notary_state_cd:
+    x_petey_id: '1_26'
     type: string
     widget:
       page: 1
@@ -518,10 +798,28 @@ fields:
     label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=125
-  name_of_individual_making_statement_nm:
-    x_petey_id: '1_32'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: notary_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: notary_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: notary_state
+      suffix: cd
+  individual_making_statement_nm:
+    x_petey_id: '1_29'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -534,10 +832,12 @@ fields:
     description: Name of Individual Making Statement
     x_petey_description_source: tooltip
     label_source: llm
-  county_of_txt:
-    x_petey_id: '1_30'
+    x_petey_identifiers:
+      subject: individual_making_statement
+      suffix: nm
+  notary_county_txt:
+    x_petey_id: '1_27'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -548,8 +848,27 @@ fields:
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].Countyof[0]
     label_source: llm
-  signed_sworn_dt:
-    x_petey_id: '1_31'
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: notary_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: notary_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: notary_county
+      suffix: txt
+  notary_signed_dt:
+    x_petey_id: '1_28'
     type: date
     semantic_type: iso_date
     widget:
@@ -561,11 +880,21 @@ fields:
       - 658.6649780273438
       widget_type: text
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].dateAffirmed[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{M/D/YYYY}
+        validate:
+        - date{MM/DD/YYYY}|date{MM-DD-YYYY}|date{M/D/YY}|date{M/D/YYYY}
+        ui:
+        - date{MM/DD/YYYY}|date{MM-DD-YYYY}|date{M/D/YY}|date{M/D/YYYY}
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  commission_expiration_dt:
-    x_petey_id: '1_33'
+    x_petey_identifiers:
+      subject: notary_signed
+      suffix: dt
+  notary_commission_expiration_dt:
+    x_petey_id: '1_30'
     type: date
     semantic_type: iso_date
     widget:
@@ -579,6 +908,151 @@ fields:
       path: sfn[0].Page1[0].SignatureSection[0].NotarySection[0].dateNotaryExpiration[0]
     description: Commission Expiration Date
     x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{M/D/YYYY}
     label_source: llm
+    x_petey_identifiers:
+      subject: notary_commission_expiration
+      suffix: dt
+  emergency_and_remedial_response_ind:
+    x_petey_id: '1_21'
+    type: category
+    values:
+    - emergency_and_remedial_response
+    - post_injection_site_care_and_facility_closure
+    - injection_well_plugging
+    - corrective_action
+    widgets:
+      emergency_and_remedial_response:
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 467.5069885253906
+        - 38.834999084472656
+        - 476.5069885253906
+        widget_type: checkbox
+        path: sfn[0].Page1[0].ForCO2Facility[0].EmergencyResponse[0]
+        on_state: '1'
+        caption: Emergency and Remedial Response
+        x_petey_caption_source: page_text
+      post_injection_site_care_and_facility_closure:
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 449.5069885253906
+        - 38.834999084472656
+        - 458.5069885253906
+        widget_type: checkbox
+        path: sfn[0].Page1[0].ForCO2Facility[0].PostInjSite[0]
+        on_state: '1'
+        caption: Post-injection Site Care and Facility Closure
+        x_petey_caption_source: page_choice
+      injection_well_plugging:
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 432.00299072265625
+        - 38.834999084472656
+        - 441.00299072265625
+        widget_type: checkbox
+        path: sfn[0].Page1[0].ForCO2Facility[0].InjectionWellPlugging[0]
+        on_state: '1'
+        caption: Injection Well Plugging
+        x_petey_caption_source: page_text
+      corrective_action:
+        page: 1
+        rect:
+        - 29.834999084472656
+        - 413.5069885253906
+        - 38.834999084472656
+        - 422.5069885253906
+        widget_type: checkbox
+        path: sfn[0].Page1[0].ForCO2Facility[0].CorrectiveAction[0]
+        on_state: '1'
+        caption: Corrective Action
+        x_petey_caption_source: page_text
+    description: Check if the costs covered include emergency and remedial response
+    x_petey_description_source: tooltip
     x_petey_retype:
-    - pattern_dropped
+    - description_from_tooltip
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: emergency_and_remedial_response_ind
+      reason: The red-outlined box is a checkbox labeled 'Emergency and Remedial Response';
+        a filer checks it to indicate this cost category is covered, making it a boolean
+        indicator—emergency_and_remedial_response_ind fits precisely, while covered_costs
+        is too generic to distinguish it from sibling checkboxes.
+      model: claude-sonnet-4-6
+      contested: no caption could be verified at the widget
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - name
+      reason: 'The widget is a single checkbox whose tooltip and publisher name are
+        ''Emergency and Remedial Response''; it is one of several independent checkboxes,
+        not one multi-value question (the page does not read them as one group). So
+        it is a boolean indicator for this one cost category, and the generic name '
+      before:
+        type: category
+        values:
+        - corrective_action
+        - emergency_and_remedial_response
+        - injection_well_plugging
+        - post_injection_site_care_and_facility_closure
+        description: Emergency and Remedial Response
+      old_name: covered_costs
+      adjudicated: proposed
+      judged: 'kept: 1 -> 1'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 14:23:40'
+      from:
+      - emergency_and_remedial_response_ind::emergency_and_remedial_response
+      - emergency_and_remedial_response_ind::post_injection_site_care_and_facility_closure
+      - emergency_and_remedial_response_ind::injection_well_plugging
+      - emergency_and_remedial_response_ind::corrective_action
+    x_petey_identifiers:
+      subject: emergency_and_remedial_response_ind
+x_petey_xfa_log:
+  joined: 29
+  pattern: 2
+  description: 1
+  type: 2
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 1
+  description_from_tooltip: 1
+x_petey_page_check:
+  when: '2026-10-15 14:36:10'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 30
+  flagged: 2
+  unanswered: 0
+  record: runs/page_check/sfn_62586__3fb770__2cf8554d.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: sfn_62586_20261015_120714
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/sfn_62586.bpt
+  when: '2026-10-15 12:07:22'
+x_petey_run:
+  record: runs/judge_eval/form_runs/sfn_62586.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-15 12:07:22'

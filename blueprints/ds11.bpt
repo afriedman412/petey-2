@@ -1,6 +1,6 @@
 bpt_version: '1.1'
 name: ds11
-form_version: unknown
+form_version: null
 source_pdf: ds11_pdf.pdf
 source_pdf_hash: 87c80090f0959d626303ffd94fe9fae1e1932871
 source_pages:
@@ -8,8 +8,14 @@ source_pages:
 - 6
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-14 19:08:06'
 fields:
-  passport_book_ind:
+  passport_type:
     x_petey_id: '5_1'
     type: category
     values:
@@ -50,9 +56,9 @@ fields:
         path: Selection
         on_state: Both
         caption: Both
-    x_petey_retype:
-    - option_group:boolean->category[3]
-  large_book_ind:
+    x_petey_identifiers:
+      subject: passport_type
+  book_type:
     x_petey_id: '5_2'
     type: category
     values:
@@ -81,12 +87,12 @@ fields:
         path: Regular or Large Book
         on_state: Large
         caption: Large
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  last_first_middle_nm:
+    x_petey_identifiers:
+      subject: book_type
+  last_nm:
     x_petey_id: '5_3'
     type: string
-    semantic_type: person_name
+    semantic_type: last_name
     widget:
       page: 5
       rect:
@@ -96,10 +102,14 @@ fields:
       - 146.46600341796875
       widget_type: text
       path: Applicant Last Name
-  date_of_birth_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: last
+      suffix: nm
+  first_nm:
     x_petey_id: '5_4'
-    type: date
-    semantic_type: birth_date
+    type: string
+    semantic_type: first_name
     widget:
       page: 5
       rect:
@@ -109,12 +119,13 @@ fields:
       - 179.10601806640625
       widget_type: text
       path: Applicant First Name
-    x_petey_retype:
-    - pattern_dropped
-  place_of_birth_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: first
+      suffix: nm
+  middle_nm:
     x_petey_id: '5_5'
     type: string
-    semantic_type: text
     widget:
       page: 5
       rect:
@@ -124,11 +135,13 @@ fields:
       - 179.71600341796875
       widget_type: text
       path: Applicant Middle Name
-  ssn_pt1:
+    label_source: llm
+    x_petey_identifiers:
+      subject: middle
+      suffix: nm
+  dob_month:
     x_petey_id: '5_6'
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,2}$
     widget:
       page: 5
       rect:
@@ -138,13 +151,16 @@ fields:
       - 212.4739990234375
       widget_type: text
       path: Applicant DOB M
+    label_source: llm
+    pattern: ^\d{1,2}$
     x_petey_retype:
-    - part_by_maxlen:2
-  ssn_pt2:
+    - narrow_widget:maxlen=2,width=33
+    x_petey_identifiers:
+      subject: dob
+      suffix: month
+  dob_day:
     x_petey_id: '5_7'
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,2}$
     widget:
       page: 5
       rect:
@@ -154,13 +170,16 @@ fields:
       - 211.2919921875
       widget_type: text
       path: Applicant DOB D
+    label_source: llm
+    pattern: ^\d{1,2}$
     x_petey_retype:
-    - part_by_maxlen:2
-  ssn_pt3:
+    - narrow_widget:maxlen=2,width=32
+    x_petey_identifiers:
+      subject: dob
+      suffix: day
+  dob_year:
     x_petey_id: '5_8'
     type: string
-    semantic_type: id_part
-    pattern: ^\d{1,4}$
     widget:
       page: 5
       rect:
@@ -170,9 +189,13 @@ fields:
       - 211.2919921875
       widget_type: text
       path: Applicant DOB Y
+    label_source: llm
+    pattern: ^\d{1,4}$
     x_petey_retype:
-    - part_by_maxlen:4
-  sex_ind:
+    - narrow_widget:maxlen=4,width=62
+    x_petey_identifiers:
+      subject: dob_year
+  sex:
     x_petey_id: '5_10'
     type: category
     values:
@@ -201,12 +224,11 @@ fields:
         path: Gender
         on_state: F
         caption: F
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  uscis_a_number_txt:
+    x_petey_identifiers:
+      subject: sex
+  place_of_birth:
     x_petey_id: '5_9'
     type: string
-    semantic_type: text
     widget:
       page: 5
       rect:
@@ -216,11 +238,14 @@ fields:
       - 212.0479736328125
       widget_type: text
       path: Applicant Place of Birth
-  ssn_pt1_alt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: place_of_birth
+  ssn_part_1:
     x_petey_id: '5_11'
     type: string
     semantic_type: id_part
-    pattern: ^\d{1,3}$
+    pattern: ^\d{1,5}$
     widget:
       page: 5
       rect:
@@ -230,13 +255,14 @@ fields:
       - 245.98297119140625
       widget_type: text
       path: Applicant SSN 1
-    x_petey_retype:
-    - part_by_maxlen:3
-  ssn_pt2_alt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: ssn_part_1
+  ssn_part_2:
     x_petey_id: '5_12'
     type: string
     semantic_type: id_part
-    pattern: ^\d{1,2}$
+    pattern: ^\d{2}$
     widget:
       page: 5
       rect:
@@ -246,13 +272,27 @@ fields:
       - 245.9429931640625
       widget_type: text
       path: Applicant SSN 2
-    x_petey_retype:
-    - part_by_maxlen:2
-  ssn_pt3_alt:
+    label_source: llm
+    description: Middle two digits of the applicant's Social Security Number.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - description
+      reason: Comb box with maxlen 2 holds exactly the two middle SSN digits; pattern
+        allowing 1-5 digits is too loose. Name correctly identifies the segment.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,5}$
+      judged: 'kept: 3 -> 3'
+    x_petey_identifiers:
+      subject: ssn_part_2
+  ssn_part_3:
     x_petey_id: '5_14'
     type: string
     semantic_type: id_part
-    pattern: ^\d{1,4}$
+    pattern: ^\d{4}$
     widget:
       page: 5
       rect:
@@ -262,13 +302,25 @@ fields:
       - 247.0989990234375
       widget_type: text
       path: Applicant SSN 3
-    x_petey_retype:
-    - part_by_maxlen:4
-  email_address_txt:
+    label_source: llm
+    description: Last four digits of the applicant's Social Security Number.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - description
+      reason: Comb box with maxlen 4 holds the final four SSN digits; tighten pattern.
+        Reader value spanned other boxes.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,5}$
+      judged: 'kept: 3 -> 3'
+    x_petey_identifiers:
+      subject: ssn_part_3
+  uscis_registration_a_nbr:
     x_petey_id: '5_13'
     type: string
-    semantic_type: email
-    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
     widget:
       page: 5
       rect:
@@ -278,8 +330,30 @@ fields:
       - 245.8060302734375
       widget_type: text
       path: Alien Number
-  address_line_1_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: uscis_registration_a
+      suffix: nbr
+  email_address_txt:
     x_petey_id: '5_15'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 5
+      rect:
+      - 397.3800048828125
+      - 225.3590087890625
+      - 585.0029907226562
+      - 247.67901611328125
+      widget_type: text
+      path: Applicant Email
+    label_source: llm
+    x_petey_identifiers:
+      subject: email_address
+      suffix: txt
+  mailing_address_line_1_txt:
+    x_petey_id: '5_16'
     type: string
     semantic_type: street_address
     widget:
@@ -293,12 +367,13 @@ fields:
       path: Applicant Address Street
     description: 'Mailing Address Line 1: Street/RFD#, P.O. Box, or URB'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  in_care_of_nm:
-    x_petey_id: '5_16'
+    label_source: llm
+    x_petey_identifiers:
+      subject: mailing_address_line_1
+      suffix: txt
+  mailing_address_line_2_txt:
+    x_petey_id: '5_17'
     type: string
-    semantic_type: person_name
     widget:
       page: 5
       rect:
@@ -308,8 +383,25 @@ fields:
       - 310.5740051269531
       widget_type: text
       path: Address Line 2
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:38:42'
+      from:
+        name: in_care_of_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: mailing_address_line_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/je__ds11.json
+    x_petey_identifiers:
+      subject: mailing_address_line_2
+      suffix: txt
   city_nm:
-    x_petey_id: '5_17'
+    x_petey_id: '5_18'
     type: string
     semantic_type: city
     widget:
@@ -321,8 +413,12 @@ fields:
       - 343.927001953125
       widget_type: text
       path: Applicant Address City
+    label_source: llm
+    x_petey_identifiers:
+      subject: city
+      suffix: nm
   state_abbreviation_cd:
-    x_petey_id: '5_18'
+    x_petey_id: '5_19'
     type: string
     semantic_type: state_abbr
     pattern: ^[A-Z]{2}$
@@ -335,8 +431,12 @@ fields:
       - 343.1570129394531
       widget_type: text
       path: Applicant Address State
+    label_source: llm
+    x_petey_identifiers:
+      subject: state_abbreviation
+      suffix: cd
   zip_cd:
-    x_petey_id: '5_19'
+    x_petey_id: '5_20'
     type: string
     semantic_type: zip
     pattern: ^\d{5}(-\d{4})?$
@@ -349,11 +449,14 @@ fields:
       - 342.8299865722656
       widget_type: text
       path: Applicant Address Zip Code
-  country_cd:
-    x_petey_id: '5_20'
+    label_source: llm
+    x_petey_identifiers:
+      subject: zip
+      suffix: cd
+  country_nm:
+    x_petey_id: '5_21'
     type: string
-    semantic_type: country_code
-    pattern: ^[A-Z]{2}$
+    semantic_type: country
     widget:
       page: 5
       rect:
@@ -363,10 +466,15 @@ fields:
       - 342.8299865722656
       widget_type: text
       path: Applicant Address Country
-  other_name_a_first_nm:
-    x_petey_id: '5_21'
+    label_source: llm
+    x_petey_identifiers:
+      subject: country
+      suffix: nm
+  primary_phone_area_cd:
+    x_petey_id: '5_22'
     type: string
-    semantic_type: first_name
+    semantic_type: id_part
+    pattern: ^\d{3}$
     widget:
       page: 5
       rect:
@@ -376,10 +484,30 @@ fields:
       - 374.2430114746094
       widget_type: text
       path: Applicant Phone 1
-  other_name_a_middle_nm:
-    x_petey_id: '5_22'
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    description: Area code of the applicant's primary telephone number.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - description
+      reason: 'Publisher ''Applicant Phone 1'', maxlen 3 comb: exactly three digits;
+        reader picked the neighbouring segment.'
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      judged: 'kept: 3 -> 3'
+    x_petey_identifiers:
+      subject: primary_phone_area
+      suffix: cd
+  primary_phone_prefix:
+    x_petey_id: '5_23'
     type: string
-    semantic_type: person_name
+    semantic_type: id_part
+    pattern: ^\d{3}$
     widget:
       page: 5
       rect:
@@ -389,10 +517,30 @@ fields:
       - 374.4729919433594
       widget_type: text
       path: Applicant Phone 2
-  other_name_a_last_nm:
-    x_petey_id: '5_23'
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    description: Three-digit exchange prefix of the applicant's primary telephone
+      number.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - description
+      reason: 'Publisher ''Applicant Phone 2'', maxlen 3 comb: exactly three digits;
+        name already says which segment.'
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      judged: 'kept: 3 -> 3'
+    x_petey_identifiers:
+      subject: primary_phone_prefix
+  primary_phone_line_nbr:
+    x_petey_id: '5_24'
     type: string
-    semantic_type: last_name
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
     widget:
       page: 5
       rect:
@@ -402,10 +550,15 @@ fields:
       - 374.02899169921875
       widget_type: text
       path: Applicant Phone 3
-  other_name_b_first_nm:
-    x_petey_id: '5_24'
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:4
+    x_petey_identifiers:
+      subject: primary_phone_line
+      suffix: nbr
+  other_nm_a:
+    x_petey_id: '5_25'
     type: string
-    semantic_type: first_name
     widget:
       page: 5
       rect:
@@ -415,10 +568,14 @@ fields:
       - 374.1780090332031
       widget_type: text
       path: List all other name you have used
-  other_name_b_last_nm:
-    x_petey_id: '5_25'
+    label_source: llm
+    x_petey_identifiers:
+      subject: other
+      iteration: a
+      suffix: nm
+  other_nm_b:
+    x_petey_id: '5_26'
     type: string
-    semantic_type: last_name
     widget:
       page: 5
       rect:
@@ -428,10 +585,14 @@ fields:
       - 374.2040100097656
       widget_type: text
       path: List all other names you have used
-  applicant_last_name:
+    label_source: llm
+    x_petey_identifiers:
+      subject: other
+      iteration: b
+      suffix: nm
+  applicant_nm:
     x_petey_id: '6_2'
     type: string
-    semantic_type: last_name
     widget:
       page: 6
       rect:
@@ -441,10 +602,14 @@ fields:
       - 54.531982421875
       widget_type: text
       path: Name of Applicant 2
-  applicant_first_name:
+    label_source: llm
+    x_petey_identifiers:
+      subject: applicant
+      suffix: nm
+  applicant_birth_dt:
     x_petey_id: '6_1'
-    type: string
-    semantic_type: first_name
+    type: date
+    semantic_type: birth_date
     widget:
       page: 6
       rect:
@@ -454,10 +619,13 @@ fields:
       - 53.926025390625
       widget_type: text
       path: Applicant DOB 2
-  applicant_dob_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: applicant_birth
+      suffix: dt
+  parent1_first_middle_nm:
     x_petey_id: '6_3'
-    type: date
-    semantic_type: birth_date
+    type: string
     widget:
       page: 6
       rect:
@@ -467,11 +635,14 @@ fields:
       - 93.9520263671875
       widget_type: text
       path: Parent 1 FM Name
-    x_petey_retype:
-    - pattern_dropped
-  place_of_birth:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent1_first_middle
+      suffix: nm
+  parent1_last_name_at_birth:
     x_petey_id: '6_4'
     type: string
+    semantic_type: last_name
     widget:
       page: 6
       rect:
@@ -481,7 +652,10 @@ fields:
       - 95.64599609375
       widget_type: text
       path: Parent 1 Last Name
-  date_of_birth_2_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent1_last_name_at_birth
+  parent1_birth_dt:
     x_petey_id: '6_5'
     type: date
     semantic_type: birth_date
@@ -494,12 +668,13 @@ fields:
       - 128.16400146484375
       widget_type: text
       path: Parent 1 DOB
-    x_petey_retype:
-    - pattern_dropped
-  applicant_name_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent1_birth
+      suffix: dt
+  parent1_place_of_birth:
     x_petey_id: '6_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -509,7 +684,10 @@ fields:
       - 128.27899169921875
       widget_type: text
       path: Parent 1 Place of Birth
-  sex_male_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent1_place_of_birth
+  parent1_sex:
     x_petey_id: '6_7'
     type: category
     values:
@@ -538,9 +716,9 @@ fields:
         path: Parent 1 Gender
         on_state: F
         caption: F
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  sex_female_ind:
+    x_petey_identifiers:
+      subject: parent1_sex
+  parent1_us_citizen_ind:
     x_petey_id: '6_8'
     type: category
     values:
@@ -569,12 +747,11 @@ fields:
         path: Parent 1 US Citizen
         on_state: 'No'
         caption: 'No'
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  applicant_name_3:
+    x_petey_identifiers:
+      subject: parent1_us_citizen_ind
+  parent2_first_middle_nm:
     x_petey_id: '6_9'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -584,10 +761,14 @@ fields:
       - 158.302001953125
       widget_type: text
       path: Parent 2 FM Name
-  applicant_dob_3_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent2_first_middle
+      suffix: nm
+  parent2_last_name_at_birth:
     x_petey_id: '6_10'
-    type: date
-    semantic_type: birth_date
+    type: string
+    semantic_type: last_name
     widget:
       page: 6
       rect:
@@ -597,9 +778,10 @@ fields:
       - 158.156982421875
       widget_type: text
       path: Parent 2 Last Name
-    x_petey_retype:
-    - pattern_dropped
-  applicant_dob_4_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent2_last_name_at_birth
+  parent2_birth_dt:
     x_petey_id: '6_11'
     type: date
     semantic_type: birth_date
@@ -612,12 +794,13 @@ fields:
       - 191.41998291015625
       widget_type: text
       path: Parent 2 DOB
-    x_petey_retype:
-    - pattern_dropped
-  applicant_name_4:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent2_birth
+      suffix: dt
+  parent2_place_of_birth:
     x_petey_id: '6_12'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -627,7 +810,10 @@ fields:
       - 192.76300048828125
       widget_type: text
       path: Parent 2 Place of Birth
-  sex_male_2_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: parent2_place_of_birth
+  parent2_sex:
     x_petey_id: '6_13'
     type: category
     values:
@@ -656,9 +842,9 @@ fields:
         path: Parent 2 Gender
         on_state: F
         caption: F
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  sex_female_2_ind:
+    x_petey_identifiers:
+      subject: parent2_sex
+  parent2_us_citizen_ind:
     x_petey_id: '6_14'
     type: category
     values:
@@ -687,9 +873,9 @@ fields:
         path: Parent 2 US Citizen
         on_state: 'No'
         caption: 'No'
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  travel_with_ind:
+    x_petey_identifiers:
+      subject: parent2_us_citizen_ind
+  applicant_ever_married_ind:
     x_petey_id: '6_15'
     type: category
     values:
@@ -718,12 +904,35 @@ fields:
         path: Ever Married
         on_state: 'No'
         caption: 'No'
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  parent_guardian_nm:
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: applicant_ever_married_ind
+      reason: Caption '11. Have you ever been married? Yes' directly labels this checkbox
+        as being about the applicant's own marriage history, matching 'applicant_ever_married_ind',
+        not the parents' marriage.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    description: Whether the applicant has ever been married (item 11).
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - name
+      reason: Printed caption '11. Have you ever been married?' and publisher name
+        'Ever Married' show the box is about the applicant, not the parents' marriage.
+      before:
+        type: category
+        values:
+        - 'Yes'
+        - 'No'
+      old_name: parents_married_to_each_other_ind
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: applicant_ever_married_ind
+  spouse_full_nm:
     x_petey_id: '6_16'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -733,9 +942,14 @@ fields:
       - 233.92901611328125
       widget_type: text
       path: Full Name of Current Spouse or Most Recent Spouse (Last, first, Middle)
-  parent_guardian_relationship:
+    label_source: llm
+    x_petey_identifiers:
+      subject: spouse_full
+      suffix: nm
+  spouse_birth_dt:
     x_petey_id: '6_17'
-    type: string
+    type: date
+    semantic_type: birth_date
     widget:
       page: 6
       rect:
@@ -745,10 +959,13 @@ fields:
       - 234.52801513671875
       widget_type: text
       path: Current Spouse Date of Birth
-  parent_guardian_dob_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: spouse_birth
+      suffix: dt
+  spouse_place_of_birth:
     x_petey_id: '6_18'
-    type: date
-    semantic_type: birth_date
+    type: string
     widget:
       page: 6
       rect:
@@ -758,9 +975,10 @@ fields:
       - 235.593994140625
       widget_type: text
       path: Current Spouse Place of Birth
-    x_petey_retype:
-    - pattern_dropped
-  parent_guardian_deceased_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: spouse_place_of_birth
+  spouse_us_citizen_ind:
     x_petey_id: '6_21'
     type: category
     values:
@@ -789,12 +1007,12 @@ fields:
         path: Spouse US Citizen
         on_state: 'No'
         caption: 'No'
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  parent_guardian_dob_2_dt:
+    x_petey_identifiers:
+      subject: spouse_us_citizen_ind
+  marriage_dt:
     x_petey_id: '6_19'
     type: date
-    semantic_type: birth_date
+    semantic_type: iso_date
     widget:
       page: 6
       rect:
@@ -804,9 +1022,11 @@ fields:
       - 258.41900634765625
       widget_type: text
       path: Date of Marriage (mm/dd/yyyy)
-    x_petey_retype:
-    - pattern_dropped
-  parent_guardian_2_deceased_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: marriage
+      suffix: dt
+  widowed_or_divorced_ind:
     x_petey_id: '6_22'
     type: category
     values:
@@ -835,12 +1055,34 @@ fields:
         path: Divorced
         on_state: 'No'
         caption: 'No'
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  parent_guardian_2_dob_dt:
+    x_petey_adjudication:
+      verdict: current
+      proposed: divorced_ind
+      reason: The caption 'Have you ever been widowed or divorced?' with a 'Yes' checkbox
+        is directly above/beside this box, so the box indicates yes to widowed OR
+        divorced, matching the current name 'widowed_or_divorced_ind'.
+      model: claude-sonnet-4-6
+      contested: no caption could be verified at the widget
+    description: Checkbox indicating the applicant is divorced from the spouse listed.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Publisher field name 'Divorced' and tooltip 'Divorced No' show this
+        box marks divorced only; the current name also claims widowed, which is a
+        separate checkbox on the form.
+      before:
+        type: category
+        values:
+        - 'Yes'
+        - 'No'
+      judged: 'kept: 3 -> 2'
+    x_petey_identifiers:
+      subject: widowed_or_divorced_ind
+  widowed_or_divorced_dt:
     x_petey_id: '6_20'
     type: date
-    semantic_type: birth_date
+    semantic_type: iso_date
     widget:
       page: 6
       rect:
@@ -850,12 +1092,15 @@ fields:
       - 258.32501220703125
       widget_type: text
       path: Widow/Divorce Date (mm/dd/yyyy)
-    x_petey_retype:
-    - pattern_dropped
-  parent_guardian_2_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: widowed_or_divorced
+      suffix: dt
+  additional_phone_nbr:
     x_petey_id: '6_23'
     type: string
-    semantic_type: person_name
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 6
       rect:
@@ -865,7 +1110,11 @@ fields:
       - 295.406005859375
       widget_type: text
       path: Applicant Additional Contact Phone Numbers
-  parent_guardian_2_cell_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: additional_phone
+      suffix: nbr
+  additional_phone_type:
     x_petey_id: '6_26'
     type: category
     values:
@@ -918,9 +1167,9 @@ fields:
         path: 'Additional #'
         on_state: Other
         caption: Other
-    x_petey_retype:
-    - option_group:boolean->category[4]
-  parent_guardian_2_relationship:
+    x_petey_identifiers:
+      subject: additional_phone_type
+  occupation:
     x_petey_id: '6_24'
     type: string
     widget:
@@ -932,11 +1181,12 @@ fields:
       - 294.1570129394531
       widget_type: text
       path: Occupation
-  parent_guardian_2_phone:
+    label_source: llm
+    x_petey_identifiers:
+      subject: occupation
+  employer_or_school_nm:
     x_petey_id: '6_25'
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
     widget:
       page: 6
       rect:
@@ -946,10 +1196,13 @@ fields:
       - 293.52398681640625
       widget_type: text
       path: Employer or School
-  travel_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: employer_or_school
+      suffix: nm
+  height:
     x_petey_id: '6_27'
-    type: date
-    semantic_type: iso_date
+    type: string
     widget:
       page: 6
       rect:
@@ -959,12 +1212,12 @@ fields:
       - 335.7900085449219
       widget_type: text
       path: Height
-    x_petey_retype:
-    - pattern_dropped
-  return_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: height
+  hair_color:
     x_petey_id: '6_28'
-    type: date
-    semantic_type: iso_date
+    type: string
     widget:
       page: 6
       rect:
@@ -974,12 +1227,12 @@ fields:
       - 335.3420104980469
       widget_type: text
       path: Hair Color
-    x_petey_retype:
-    - pattern_dropped
-  applicant_dob_5_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: hair_color
+  eye_color:
     x_petey_id: '6_29'
-    type: date
-    semantic_type: birth_date
+    type: string
     widget:
       page: 6
       rect:
@@ -989,11 +1242,13 @@ fields:
       - 335.9750061035156
       widget_type: text
       path: Eye Color
-    x_petey_retype:
-    - pattern_dropped
-  countries_to_visit:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eye_color
+  travel_departure_dt:
     x_petey_id: '6_30'
-    type: string
+    type: date
+    semantic_type: iso_date
     widget:
       page: 6
       rect:
@@ -1003,7 +1258,11 @@ fields:
       - 336.2569885253906
       widget_type: text
       path: Travel Departure Date
-  departure_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: travel_departure
+      suffix: dt
+  travel_return_dt:
     x_petey_id: '6_31'
     type: date
     semantic_type: iso_date
@@ -1016,9 +1275,11 @@ fields:
       - 335.7300109863281
       widget_type: text
       path: Travel Return Date
-    x_petey_retype:
-    - pattern_dropped
-  travel_purpose:
+    label_source: llm
+    x_petey_identifiers:
+      subject: travel_return
+      suffix: dt
+  countries_to_be_visited:
     x_petey_id: '6_32'
     type: string
     widget:
@@ -1030,10 +1291,13 @@ fields:
       - 335.6789855957031
       widget_type: text
       path: Countries to be visited
-  emergency_contact_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: countries_to_be_visited
+  permanent_address_line_1_txt:
     x_petey_id: '6_33'
     type: string
-    semantic_type: person_name
+    semantic_type: street_address
     widget:
       page: 6
       rect:
@@ -1043,11 +1307,13 @@ fields:
       - 377.7869873046875
       widget_type: text
       path: Permanent Address Street
-  emergency_contact_phone:
+    label_source: llm
+    x_petey_identifiers:
+      subject: permanent_address_line_1
+      suffix: txt
+  permanent_address_apt_suite_no:
     x_petey_id: '6_34'
     type: string
-    semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
     widget:
       page: 6
       rect:
@@ -1057,9 +1323,13 @@ fields:
       - 379.18798828125
       widget_type: text
       path: Permanent Address Apartment/Unit
-  emergency_contact_address:
+    label_source: llm
+    x_petey_identifiers:
+      subject: permanent_address_apt_suite_no
+  permanent_address_city_nm:
     x_petey_id: '6_35'
     type: string
+    semantic_type: city
     widget:
       page: 6
       rect:
@@ -1069,7 +1339,11 @@ fields:
       - 413.2250061035156
       widget_type: text
       path: Permanent Address City
-  emergency_contact_state_abbreviation_cd:
+    label_source: llm
+    x_petey_identifiers:
+      subject: permanent_address_city
+      suffix: nm
+  permanent_address_state_cd:
     x_petey_id: '6_36'
     type: string
     semantic_type: state_abbr
@@ -1083,7 +1357,11 @@ fields:
       - 413.5610046386719
       widget_type: text
       path: Permanent Address State
-  emergency_contact_zip_cd:
+    label_source: llm
+    x_petey_identifiers:
+      subject: permanent_address_state
+      suffix: cd
+  permanent_address_zip_cd:
     x_petey_id: '6_37'
     type: string
     semantic_type: zip
@@ -1097,10 +1375,13 @@ fields:
       - 413.8370056152344
       widget_type: text
       path: Permanent Address Zip Code
-  most_recent_passport_book_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: permanent_address_zip
+      suffix: cd
+  emergency_contact_nm:
     x_petey_id: '6_38'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -1110,9 +1391,14 @@ fields:
       - 456.42498779296875
       widget_type: text
       path: Emergency Contact Name
-  most_recent_passport_book_number:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact
+      suffix: nm
+  emergency_contact_address_line_1_txt:
     x_petey_id: '6_39'
     type: string
+    semantic_type: street_address
     widget:
       page: 6
       rect:
@@ -1122,10 +1408,13 @@ fields:
       - 457.0790100097656
       widget_type: text
       path: Emergency Contact Address
-  most_recent_passport_book_issue_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact_address_line_1
+      suffix: txt
+  emergency_contact_apt_suite_no:
     x_petey_id: '6_40'
-    type: date
-    semantic_type: iso_date
+    type: string
     widget:
       page: 6
       rect:
@@ -1135,12 +1424,13 @@ fields:
       - 456.42498779296875
       widget_type: text
       path: Emergency Contact Apartment/Unit
-    x_petey_retype:
-    - pattern_dropped
-  most_recent_passport_card_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact_apt_suite_no
+  emergency_contact_city_nm:
     x_petey_id: '6_41'
     type: string
-    semantic_type: person_name
+    semantic_type: city
     widget:
       page: 6
       rect:
@@ -1150,9 +1440,15 @@ fields:
       - 491.0
       widget_type: text
       path: Emergency Contact City
-  most_recent_passport_card_number:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact_city
+      suffix: nm
+  emergency_contact_state_cd:
     x_petey_id: '6_42'
     type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
     widget:
       page: 6
       rect:
@@ -1162,10 +1458,15 @@ fields:
       - 490.9840087890625
       widget_type: text
       path: Emergency Contact State
-  most_recent_passport_card_issue_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact_state
+      suffix: cd
+  emergency_contact_zip_cd:
     x_petey_id: '6_43'
-    type: date
-    semantic_type: iso_date
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
     widget:
       page: 6
       rect:
@@ -1175,12 +1476,15 @@ fields:
       - 490.7309875488281
       widget_type: text
       path: Emergency Contact Zip Code
-    x_petey_retype:
-    - pattern_dropped
-  most_recent_passport_card_expiration_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact_zip
+      suffix: cd
+  emergency_contact_phone_nbr:
     x_petey_id: '6_44'
-    type: date
-    semantic_type: iso_date
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 6
       rect:
@@ -1190,9 +1494,11 @@ fields:
       - 490.46099853515625
       widget_type: text
       path: Emergency Contact Phone
-    x_petey_retype:
-    - pattern_dropped
-  most_recent_passport_card_place_of_issue:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact_phone
+      suffix: nbr
+  emergency_contact_relationship:
     x_petey_id: '6_45'
     type: string
     widget:
@@ -1204,7 +1510,10 @@ fields:
       - 488.49798583984375
       widget_type: text
       path: Relationship to Applicant
-  name_printed_on_card_ind:
+    label_source: llm
+    x_petey_identifiers:
+      subject: emergency_contact_relationship
+  has_applied_or_issued_passport_book_or_card_ind:
     x_petey_id: '6_46'
     type: category
     values:
@@ -1233,12 +1542,11 @@ fields:
         path: Ever Applied or Issued
         on_state: 'No'
         caption: 'No'
-    x_petey_retype:
-    - option_group:boolean->category[2]
-  most_recent_book_nm:
+    x_petey_identifiers:
+      subject: has_applied_or_issued_passport_book_or_card_ind
+  recent_passport_book_nm:
     x_petey_id: '6_47'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -1249,67 +1557,13 @@ fields:
       widget_type: text
       path: Your name as printed on your most recent U.S. passport book and/or passport
         card
-  book:
-    x_petey_id: '6_48'
-    type: category
-    values:
-    - book_submitting_with_application_ind
-    - book_stolen_ind
-    - book_lost_ind
-    - book_in_my_possession_ind
-    widgets:
-      book_submitting_with_application_ind:
-        page: 6
-        rect:
-        - 159.1909942626953
-        - 512.9990234375
-        - 167.83099365234375
-        - 521.6390380859375
-        widget_type: checkbox
-        path: Book Status Submitting
-        on_state: Submitting
-      book_stolen_ind:
-        page: 6
-        rect:
-        - 159.1909942626953
-        - 525.198974609375
-        - 167.83099365234375
-        - 533.8389892578125
-        widget_type: checkbox
-        path: Book Status Stolen
-        on_state: Stolen
-      book_lost_ind:
-        page: 6
-        rect:
-        - 189.44500732421875
-        - 525.198974609375
-        - 198.0850067138672
-        - 533.8389892578125
-        widget_type: checkbox
-        path: Book Status Lost
-        on_state: Lost
-      book_in_my_possession_ind:
-        page: 6
-        rect:
-        - 215.28199768066406
-        - 525.198974609375
-        - 223.9219970703125
-        - 533.8389892578125
-        widget_type: checkbox
-        path: Book Status Possession
-        on_state: Possession
-    x_petey_grouping:
-      source: group_review
-      when: '2026-10-05 23:11:04'
-      from:
-      - book_submitting_with_application_ind
-      - book_stolen_ind
-      - book_lost_ind
-      - book_in_my_possession_ind
-  most_recent_card_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: recent_passport_book
+      suffix: nm
+  recent_passport_card_nm:
     x_petey_id: '6_49'
     type: string
-    semantic_type: person_name
     widget:
       page: 6
       rect:
@@ -1319,64 +1573,11 @@ fields:
       - 535.0029907226562
       widget_type: text
       path: Name as printed on your most recent passport card
-  card:
-    x_petey_id: '6_50'
-    type: category
-    values:
-    - card_submitting_with_application_ind
-    - card_stolen_ind
-    - card_lost_ind
-    - card_in_my_possession_ind
-    widgets:
-      card_submitting_with_application_ind:
-        page: 6
-        rect:
-        - 434.60699462890625
-        - 515.48095703125
-        - 443.24700927734375
-        - 524.1209716796875
-        widget_type: checkbox
-        path: Card Status Submitting
-        on_state: Submitting
-      card_stolen_ind:
-        page: 6
-        rect:
-        - 434.77099609375
-        - 526.2440185546875
-        - 443.4110107421875
-        - 534.884033203125
-        widget_type: checkbox
-        path: Card Status Stolen
-        on_state: Stolen
-      card_lost_ind:
-        page: 6
-        rect:
-        - 466.6260070800781
-        - 526.2440185546875
-        - 475.2659912109375
-        - 534.884033203125
-        widget_type: checkbox
-        path: Card Status Lost
-        on_state: Lost
-      card_in_my_possession_ind:
-        page: 6
-        rect:
-        - 492.82598876953125
-        - 526.2440185546875
-        - 501.46600341796875
-        - 534.884033203125
-        widget_type: checkbox
-        path: Card Status Possession
-        on_state: Possession
-    x_petey_grouping:
-      source: group_review
-      when: '2026-10-05 23:11:04'
-      from:
-      - card_submitting_with_application_ind
-      - card_stolen_ind
-      - card_lost_ind
-      - card_in_my_possession_ind
-  lost_stolen_explanation_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: recent_passport_card
+      suffix: nm
+  lost_or_stolen_passport_explanation_txt:
     x_petey_id: '6_51'
     type: string
     semantic_type: text
@@ -1389,3 +1590,157 @@ fields:
       - 594.81201171875
       widget_type: text
       path: Circumstances of lost/stolen book/card
+    label_source: llm
+    x_petey_identifiers:
+      subject: lost_or_stolen_passport_explanation
+      suffix: txt
+  book_status:
+    x_petey_id: '6_48'
+    type: category
+    values:
+    - in_my_possession
+    - lost
+    - stolen
+    - submitting_with_application
+    widgets:
+      submitting_with_application:
+        page: 6
+        rect:
+        - 159.1909942626953
+        - 512.9990234375
+        - 167.83099365234375
+        - 521.6390380859375
+        widget_type: checkbox
+        path: Book Status Submitting
+        on_state: Submitting
+        caption: Submitting
+      stolen:
+        page: 6
+        rect:
+        - 159.1909942626953
+        - 525.198974609375
+        - 167.83099365234375
+        - 533.8389892578125
+        widget_type: checkbox
+        path: Book Status Stolen
+        on_state: Stolen
+        caption: Stolen
+      lost:
+        page: 6
+        rect:
+        - 189.44500732421875
+        - 525.198974609375
+        - 198.0850067138672
+        - 533.8389892578125
+        widget_type: checkbox
+        path: Book Status Lost
+        on_state: Lost
+        caption: Lost
+      in_my_possession:
+        page: 6
+        rect:
+        - 215.28199768066406
+        - 525.198974609375
+        - 223.9219970703125
+        - 533.8389892578125
+        widget_type: checkbox
+        path: Book Status Possession
+        on_state: Possession
+        caption: Possession
+    x_petey_identifiers:
+      subject: book_status
+  card_status:
+    x_petey_id: '6_50'
+    type: category
+    values:
+    - in_my_possession
+    - lost
+    - stolen
+    - submitting_with_application
+    widgets:
+      submitting_with_application:
+        page: 6
+        rect:
+        - 434.60699462890625
+        - 515.48095703125
+        - 443.24700927734375
+        - 524.1209716796875
+        widget_type: checkbox
+        path: Card Status Submitting
+        on_state: Submitting
+        caption: Submitting
+      stolen:
+        page: 6
+        rect:
+        - 434.77099609375
+        - 526.2440185546875
+        - 443.4110107421875
+        - 534.884033203125
+        widget_type: checkbox
+        path: Card Status Stolen
+        on_state: Stolen
+        caption: Stolen
+      lost:
+        page: 6
+        rect:
+        - 466.6260070800781
+        - 526.2440185546875
+        - 475.2659912109375
+        - 534.884033203125
+        widget_type: checkbox
+        path: Card Status Lost
+        on_state: Lost
+        caption: Lost
+      in_my_possession:
+        page: 6
+        rect:
+        - 492.82598876953125
+        - 526.2440185546875
+        - 501.46600341796875
+        - 534.884033203125
+        widget_type: checkbox
+        path: Card Status Possession
+        on_state: Possession
+        caption: Possession
+    x_petey_identifiers:
+      subject: card_status
+x_petey_dropped_widgets:
+  count: 1
+  widgets:
+  - path: Clear
+    page: 6
+    reason: pushbutton
+    field_type: Button
+    tooltip: null
+x_petey_emit_fixes:
+  date_narrow_widget->string: 3
+  part_by_maxlen: 3
+x_petey_page_check:
+  record: runs/judge_eval/form_runs/ds11.json
+  model: gemini-3.8-flash (round 0), claude-opus-5 (loop)
+  prompt: 2ddd7670
+  when: '2026-10-14 19:14:38'
+  fields: 77
+  checked: 77
+  flagged: 1
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ds11_20261014_191417
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/ds11.bpt
+  when: '2026-10-14 19:14:37'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ds11.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-14 19:14:38'

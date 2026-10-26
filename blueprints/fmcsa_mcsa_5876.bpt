@@ -1,0 +1,1024 @@
+bpt_version: '1.1'
+name: fmcsa_mcsa_5876
+form_version: null
+source_pdf: mcsa-5876.pdf
+source_pdf_hash: 51c2767eee625349a78fce857e6f4aed99b02aab
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 14:40:08'
+fields:
+  driver_last_nm:
+    x_petey_id: '1_1'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 187.0
+      - 144.0
+      - 331.0
+      - 157.0
+      widget_type: text
+      path: cmvLast
+    description: Please enter the CMV driver's last name here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: driver_last
+      suffix: nm
+  driver_first_nm:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 390.0
+      - 144.0
+      - 504.0
+      - 157.0
+      widget_type: text
+      path: cmvFirst
+    description: Please enter the CMV driver's first name here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: driver_first
+      suffix: nm
+  medical_qualification_standard:
+    x_petey_id: '1_3'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 24.0
+        - 164.5
+        - 34.0
+        - 174.5
+        widget_type: radiobutton
+        path: examButton
+        on_state: '0'
+        caption: the Federal Motor Carrier Safety Regulations (49 CFR 391.41-391.49)
+          and, with knowledge of the driving duties, I find this person is qualified,
+          and, if applicable, only when (check all that apply) OR
+        x_petey_caption_source: page_choice
+      '1':
+        page: 1
+        rect:
+        - 24.0
+        - 179.5
+        - 34.0
+        - 189.5
+        widget_type: radiobutton
+        path: examButton
+        on_state: '1'
+        caption: 'the Federal Motor Carrier Safety Regulations (49 CFR 391.41-391.49)
+          with any applicable State variances (which will only be valid for intrastate
+          operations), and, with knowledge of the driving duties, I find this person
+          is qualified, and, if applicable, only when (check all that apply):'
+        x_petey_caption_source: page_choice
+    description: Please check if the following is true
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 12:20:47'
+      from:
+      - qualification_standard::0
+      - qualification_standard::1
+      renamed_from: qualification_standard
+      name_from: labeler
+    x_petey_identifiers:
+      subject: medical_qualification_standard
+  driver_qualification_condition:
+    x_petey_id: '1_29'
+    type: multi_category
+    values:
+    - wearing_corrective_lenses_ind
+    - accompanied_by_waiver_exemption_ind
+    - driving_within_exempt_intracity_zone_ind
+    - wearing_hearing_aid_ind
+    - accompanied_by_spe_certificate_ind
+    - grandfathered_from_state_requirements_ind
+    widgets:
+      wearing_corrective_lenses_ind:
+        page: 1
+        rect:
+        - 38.0
+        - 205.2449951171875
+        - 46.5
+        - 213.7449951171875
+        widget_type: checkbox
+        path: lensBox
+        on_state: 'Yes'
+        caption: Wearing corrective lenses
+        x_petey_caption_source: page_choice
+      accompanied_by_waiver_exemption_ind:
+        page: 1
+        rect:
+        - 161.0
+        - 205.2449951171875
+        - 169.5
+        - 213.7449951171875
+        widget_type: checkbox
+        path: waiverBox
+        on_state: 'Yes'
+        caption: Accompanied by a ______ waiver/exemption
+        x_petey_caption_source: page_choice
+      driving_within_exempt_intracity_zone_ind:
+        page: 1
+        rect:
+        - 474.0
+        - 205.2449951171875
+        - 482.5
+        - 213.7449951171875
+        widget_type: checkbox
+        path: intraBox
+        on_state: 'Yes'
+        caption: Driving within an exempt intracity zone (49 CFR 391.62) (Federal)
+        x_petey_caption_source: page_choice
+      wearing_hearing_aid_ind:
+        page: 1
+        rect:
+        - 38.0
+        - 221.2449951171875
+        - 46.5
+        - 229.7449951171875
+        widget_type: checkbox
+        path: hearBox
+        on_state: 'Yes'
+        caption: Wearing hearing aid
+        x_petey_caption_source: page_choice
+      accompanied_by_spe_certificate_ind:
+        page: 1
+        rect:
+        - 161.0
+        - 221.2449951171875
+        - 169.5
+        - 229.7449951171875
+        widget_type: checkbox
+        path: speBox
+        on_state: 'Yes'
+        caption: Accompanied by a Skill Performance Evaluation (SPE) Certificate
+        x_petey_caption_source: page_choice
+      grandfathered_from_state_requirements_ind:
+        page: 1
+        rect:
+        - 474.0
+        - 221.2449951171875
+        - 482.5
+        - 229.7449951171875
+        widget_type: checkbox
+        path: grandBox
+        on_state: 'Yes'
+        caption: Grandfathered from State requirements (State)
+        x_petey_caption_source: page_choice
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-15 12:20:47'
+      from:
+      - wearing_corrective_lenses::wearing_corrective_lenses_ind
+      - wearing_corrective_lenses::accompanied_by_waiver_exemption_ind
+      - driving_within_exempt_intracity_zone_ind
+      - wearing_hearing_aid::wearing_hearing_aid_ind
+      - wearing_hearing_aid::accompanied_by_spe_certificate_ind
+      - grandfathered_from_state_requirements_ind
+      renamed_from: wearing_corrective_lenses
+      name_from: labeler
+    label_source: llm
+    x_petey_identifiers:
+      subject: driver_qualification_condition
+  waiver_or_exemption_type_txt:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 249.0
+      - 200.5
+      - 381.0
+      - 213.5
+      widget_type: text
+      path: waiverDescribe
+    description: Please specify the waiver or exemption type here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: waiver_or_exemption_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: waiver_or_exemption_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: waiver_or_exemption_type
+      suffix: txt
+  medical_examiner_certificate_expiration_dt:
+    x_petey_id: '1_11'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 573.0
+      - 256.5
+      - 765.0
+      - 268.5
+      widget_type: text
+      path: expDate
+    description: Please enter the medical examiner's certificate expiration date here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: medical_examiner_certificate_expiration
+      suffix: dt
+  medical_examiner_phone_nbr:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: phone
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 393.0
+      - 328.0
+      - 576.0
+      - 341.0
+      widget_type: text
+      path: examPhone
+    description: Please enter the medical examiner's telephone number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: medical_examiner_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: medical_examiner_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: medical_examiner_phone
+      suffix: nbr
+  medical_examiner_signature:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.0
+      - 328.0
+      - 384.0
+      - 341.0
+      widget_type: text
+      path: examSignature
+    description: Please enter the medical examiner's signature here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: medical_examiner
+      suffix: signature
+  certificate_signed_dt:
+    x_petey_id: '1_14'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 585.0
+      - 328.0
+      - 768.0
+      - 341.0
+      widget_type: text
+      path: examDate
+    label_source: llm
+    x_petey_identifiers:
+      subject: certificate_signed
+      suffix: dt
+  medical_examiner_type:
+    x_petey_id: '1_15'
+    type: category
+    values:
+    - '0'
+    - '1'
+    - '2'
+    - '3'
+    - '4'
+    - '5'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 396.0
+        - 349.0
+        - 406.0
+        - 359.0
+        widget_type: radiobutton
+        path: examinerType
+        on_state: '0'
+        caption: MD
+        x_petey_caption_source: page_text
+      '1':
+        page: 1
+        rect:
+        - 441.0
+        - 349.0
+        - 451.0
+        - 359.0
+        widget_type: radiobutton
+        path: examinerType
+        on_state: '1'
+        caption: Physician Assistant
+        x_petey_caption_source: page_text
+      '2':
+        page: 1
+        rect:
+        - 537.0
+        - 349.0
+        - 547.0
+        - 359.0
+        widget_type: radiobutton
+        path: examinerType
+        on_state: '2'
+        caption: Advanced Practice Nurse
+        x_petey_caption_source: page_text
+      '3':
+        page: 1
+        rect:
+        - 396.0
+        - 365.5
+        - 406.0
+        - 375.5
+        widget_type: radiobutton
+        path: examinerType
+        on_state: '3'
+        caption: DO
+        x_petey_caption_source: page_text
+      '4':
+        page: 1
+        rect:
+        - 441.0
+        - 365.5
+        - 451.0
+        - 375.5
+        widget_type: radiobutton
+        path: examinerType
+        on_state: '4'
+        caption: Chiropractor
+        x_petey_caption_source: page_text
+      '5':
+        page: 1
+        rect:
+        - 537.0
+        - 365.5
+        - 547.0
+        - 375.5
+        widget_type: radiobutton
+        path: examinerType
+        on_state: '5'
+        caption: Other Practitioner (specify)
+        x_petey_caption_source: page_text
+    description: Please check one.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: medical_examiner_type
+  other_practitioner_type_txt:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 652.0
+      - 364.0
+      - 759.0
+      - 375.0
+      widget_type: text
+      path: otherPrac
+    description: Specify the other practitioner type when 'Other Practitioner' is
+      selected.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Caption printed for this box is 'Other Practitioner (specify)' and the
+        publisher field name is otherPrac, so the name is correct; only the vague
+        tooltip-derived description (which pointed at medical_examiner_type) needs
+        correcting.
+      before:
+        type: string
+        description: Enter the medical examiner's type here.
+      judged: 'kept: 2 -> 2'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: other_practitioner_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_practitioner_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_practitioner_type
+      suffix: txt
+  medical_examiner_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.0
+      - 361.0
+      - 384.0
+      - 374.0
+      widget_type: text
+      path: examName
+    description: Please enter the medical examiner's name here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:09'
+      from:
+        name: medical_examiner_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: medical_examiner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: medical_examiner
+      suffix: nm
+  medical_examiner_license_certificate_registration_nbr:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.0
+      - 397.0
+      - 384.0
+      - 410.0
+      widget_type: text
+      path: examNumber
+    description: Enter medical examiner’s State License, Certificate, or Registration
+      number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: medical_examiner_license_certificate_registration_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: medical_examiner_license_certificate_registration_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: medical_examiner_license_certificate_registration
+      suffix: nbr
+  medical_examiner_national_registry_nbr:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 585.0
+      - 397.0
+      - 768.0
+      - 410.0
+      widget_type: text
+      path: examRegistry
+    description: Please enter the medical examiner's national registry number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: medical_examiner_national_registry_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: medical_examiner_national_registry_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: medical_examiner_national_registry
+      suffix: nbr
+  medical_examiner_license_state:
+    x_petey_id: '1_19'
+    type: category
+    widget:
+      page: 1
+      rect:
+      - 393.0
+      - 397.0
+      - 576.0
+      - 410.0
+      widget_type: combobox
+      path: examState
+    description: Please use the dropdown box to enter the medical examiner's license
+      issuing state or province.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=183
+    - dropdown
+    values:
+    - Alabama
+    - Alaska
+    - Arizona
+    - Arkansas
+    - California
+    - Colorado
+    - Connecticut
+    - Delaware
+    - District of Columbia
+    - Florida
+    - Georgia
+    - Hawaii
+    - Idaho
+    - Illinois
+    - Indiana
+    - Iowa
+    - Kansas
+    - Kentucky
+    - Louisiana
+    - Maine
+    - Maryland
+    - Massachusetts
+    - Michigan
+    - Minnesota
+    - Mississippi
+    - Missouri
+    - Montana
+    - Nebraska
+    - Nevada
+    - New Hampshire
+    - New Jersey
+    - New Mexico
+    - New York
+    - North Carolina
+    - North Dakota
+    - Ohio
+    - Oklahoma
+    - Oregon
+    - Pennsylvania
+    - Rhode Island
+    - South Carolina
+    - South Dakota
+    - Tennessee
+    - Texas
+    - Utah
+    - Vermont
+    - Virginia
+    - Washington
+    - West Virginia
+    - Wisconsin
+    - Wyoming
+    x_petey_identifiers:
+      subject: medical_examiner_license_state
+  driver_signature:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 24.0
+      - 471.0
+      - 384.0
+      - 484.0
+      widget_type: text
+      path: driverSignature
+    description: Please enter the CMV driver's signature here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: driver
+      suffix: signature
+  driver_license_nbr:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 393.0
+      - 471.0
+      - 576.0
+      - 484.0
+      widget_type: text
+      path: driverNumber
+    description: Please enter the CMV driver's license number here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: driver_license_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: driver_license_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: driver_license
+      suffix: nbr
+  driver_license_state:
+    x_petey_id: '1_23'
+    type: category
+    widget:
+      page: 1
+      rect:
+      - 585.0
+      - 471.0
+      - 768.0
+      - 484.0
+      widget_type: combobox
+      path: examStateTwo
+    description: Please use the dropdown box to enter the medical examiner's license
+      issuing state or province.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=183
+    - dropdown
+    values:
+    - Alabama
+    - Alaska
+    - Arizona
+    - Arkansas
+    - California
+    - Colorado
+    - Connecticut
+    - Delaware
+    - District of Columbia
+    - Florida
+    - Georgia
+    - Hawaii
+    - Idaho
+    - Illinois
+    - Indiana
+    - Iowa
+    - Kansas
+    - Kentucky
+    - Louisiana
+    - Maine
+    - Maryland
+    - Massachusetts
+    - Michigan
+    - Minnesota
+    - Mississippi
+    - Missouri
+    - Montana
+    - Nebraska
+    - Nevada
+    - New Hampshire
+    - New Jersey
+    - New Mexico
+    - New York
+    - North Carolina
+    - North Dakota
+    - Ohio
+    - Oklahoma
+    - Oregon
+    - Pennsylvania
+    - Rhode Island
+    - South Carolina
+    - South Dakota
+    - Tennessee
+    - Texas
+    - Utah
+    - Vermont
+    - Virginia
+    - Washington
+    - West Virginia
+    - Wisconsin
+    - Wyoming
+    - Alberta
+    - British Columbia
+    - Manitoba
+    - New Brunswick
+    - Newfoundland and Labrador
+    - Northwest Territories
+    - Nova Scotia
+    - Nunavut
+    - Ontario
+    - Prince Edward Island
+    - Quebec
+    - Saskatchewan
+    - Yukon
+    x_petey_identifiers:
+      subject: driver_license_state
+  driver_street_address_txt:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 87.0
+      - 504.0
+      - 279.0
+      - 517.0
+      widget_type: text
+      path: cmvStreet
+    description: Please enter the CMV driver's street address here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: driver_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: driver_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: driver_street_address
+      suffix: txt
+  driver_city_nm:
+    x_petey_id: '1_25'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 309.0
+      - 504.0
+      - 432.0
+      - 517.0
+      widget_type: text
+      path: cmvCity
+    description: Please enter the CMV driver's city here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: driver_city
+      suffix: nm
+  driver_state_cd:
+    x_petey_id: '1_26'
+    type: category
+    semantic_type: state_abbr
+    widget:
+      page: 1
+      rect:
+      - 504.0
+      - 504.0
+      - 558.0
+      - 517.0
+      widget_type: combobox
+      path: cmvState
+    description: Please use the dropdown box to enter the CMV driver's state or province.
+    x_petey_description_source: tooltip
+    label_source: llm
+    values:
+    - AK
+    - AL
+    - AR
+    - AZ
+    - CA
+    - CO
+    - CT
+    - DC
+    - DE
+    - FL
+    - GA
+    - HI
+    - IA
+    - ID
+    - IL
+    - IN
+    - KS
+    - KY
+    - LA
+    - MA
+    - MD
+    - ME
+    - MI
+    - MN
+    - MO
+    - MS
+    - MT
+    - NC
+    - ND
+    - NE
+    - NH
+    - NJ
+    - NM
+    - NV
+    - NY
+    - OH
+    - OK
+    - OR
+    - PA
+    - RI
+    - SC
+    - SD
+    - TN
+    - TX
+    - UT
+    - VA
+    - VT
+    - WA
+    - WI
+    - WV
+    - WY
+    - AB
+    - BC
+    - MB
+    - NB
+    - NL
+    - NS
+    - NT
+    - NU
+    - 'ON'
+    - PE
+    - QC
+    - SK
+    - YT
+    x_petey_retype:
+    - dropdown
+    x_petey_hand_edit:
+      when: '2026-10-15 11:04:18'
+      from:
+        name: driver_state_abbreviation_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      to:
+        name: driver_state_cd
+        type: category
+        semantic_type: state_abbr
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: driver_state
+      suffix: cd
+  driver_zip_cd:
+    x_petey_id: '1_27'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 606.0
+      - 504.0
+      - 654.0
+      - 517.0
+      widget_type: text
+      path: cmvZip
+    description: Please enter the CMV driver's zip code here.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: driver_zip
+      suffix: cd
+  is_clp_cdl_applicant_holder:
+    x_petey_id: '1_28'
+    type: category
+    values:
+    - '0'
+    - '1'
+    widgets:
+      '0':
+        page: 1
+        rect:
+        - 663.0
+        - 507.0
+        - 673.0
+        - 517.0
+        widget_type: radiobutton
+        path: clpButton
+        on_state: '0'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      '1':
+        page: 1
+        rect:
+        - 692.7999877929688
+        - 507.0
+        - 702.7999877929688
+        - 517.0
+        widget_type: radiobutton
+        path: clpButton
+        on_state: '1'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    description: Please check one.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: is_clp_cdl_applicant_holder
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 2
+  description_from_tooltip: 3
+x_petey_page_check:
+  when: '2026-10-15 11:06:17'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 26
+  flagged: 2
+  unanswered: 0
+  record: runs/page_check/fmcsa_mcsa_5876__800748__f95005f4.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: fmcsa_mcsa_5876_20261006_144119
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/fmcsa_mcsa_5876.bpt
+  when: '2026-10-06 14:41:29'
+x_petey_run:
+  record: runs/judge_eval/form_runs/fmcsa_mcsa_5876.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 14:41:29'

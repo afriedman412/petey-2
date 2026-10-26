@@ -1,6 +1,6 @@
 bpt_version: '1.1'
 name: 2025-schedule-h
-form_version: '2025'
+form_version: null
 source_pdf: 2025-schedule-h.pdf
 source_pdf_hash: 270bcdf276c278e68753b6bf80b7e2c0613b9fee
 source_pages:
@@ -11,8 +11,14 @@ source_pages:
 - 5
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 10:10:15'
 fields:
-  plan_year_begin_dt:
+  plan_year_beginning_dt:
     x_petey_id: '1_1'
     type: date
     semantic_type: iso_date
@@ -25,11 +31,12 @@ fields:
       - 145.33197021484375
       widget_type: text
       path: Plan Year Begin Date
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Enter the Plan Year Beginning date
     x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan_year_beginning
+      suffix: dt
   plan_year_end_dt:
     x_petey_id: '1_2'
     type: date
@@ -43,15 +50,16 @@ fields:
       - 145.33197021484375
       widget_type: text
       path: Plan Year End Date
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Enter the Plan Year end date
     x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan_year_end
+      suffix: dt
   plan_nm:
     x_petey_id: '1_3'
     type: string
-    semantic_type: person_name
+    semantic_type: organization_name
     widget:
       page: 1
       rect:
@@ -63,9 +71,22 @@ fields:
       path: Plan Name
     description: Enter the Plan Name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  plan_number_cd:
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'A Name of plan' — a plan name is an entity/organization name,
+        not a person_name; name and type otherwise correct.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter the Plan Name
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: plan
+      suffix: nm
+  plan_number_pn:
     x_petey_id: '1_4'
     type: string
     widget:
@@ -79,12 +100,13 @@ fields:
       path: Plan Number
     description: Enter the Three-digit plan number (PN)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  plan_sponsor_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan_number_pn
+  plan_sponsor_business_nm:
     x_petey_id: '1_5'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -96,9 +118,11 @@ fields:
       path: Sponsors Name
     description: Enter the Plan sponsor’s name as shown on line 2a of Form 5500
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  sponsor_ein:
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan_sponsor_business
+      suffix: nm
+  employer_ein:
     x_petey_id: '1_6'
     type: string
     semantic_type: ein
@@ -114,9 +138,11 @@ fields:
       path: EIN
     description: Enter the Employer Identification Number (EIN)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  interest_bearing_cash_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: employer
+      suffix: ein
+  boy_noninterest_bearing_cash_amt:
     x_petey_id: '1_7'
     type: number
     semantic_type: money_whole_dollar
@@ -131,9 +157,12 @@ fields:
       path: nonIntBearCashBoyAmt
     description: Beginning of Year Total noninterest-bearing cash
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  interest_bearing_cash_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_noninterest_bearing_cash
+      suffix: amt
+      grid: p1-G1
+  eoy_noninterest_bearing_cash_amt:
     x_petey_id: '1_8'
     type: number
     semantic_type: money_whole_dollar
@@ -148,9 +177,12 @@ fields:
       path: nonIntBearCashEoyAmt
     description: End of Year Total noninterest-bearing cash
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employer_contributions_receivable_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_noninterest_bearing_cash
+      suffix: amt
+      grid: p1-G1
+  boy_employer_contributions_receivable_amt:
     x_petey_id: '1_9'
     type: number
     semantic_type: money_whole_dollar
@@ -165,9 +197,12 @@ fields:
       path: emplrContribBoyAmt
     description: Beginning of Year Employer contributions
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  employer_contributions_receivable_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_employer_contributions_receivable
+      suffix: amt
+      grid: p1-G1
+  eoy_employer_contributions_receivable_amt:
     x_petey_id: '1_10'
     type: number
     semantic_type: money_whole_dollar
@@ -182,9 +217,12 @@ fields:
       path: emplrContribEoyAmt
     description: End of Year Employer contributions
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  participant_contributions_receivable_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_employer_contributions_receivable
+      suffix: amt
+      grid: p1-G1
+  boy_participant_contributions_receivable_amt:
     x_petey_id: '1_11'
     type: number
     semantic_type: money_whole_dollar
@@ -199,9 +237,12 @@ fields:
       path: partcpContribBoyAmt
     description: Beginning of Year Participant contributions
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  participant_contributions_receivable_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_participant_contributions_receivable
+      suffix: amt
+      grid: p1-G1
+  eoy_participant_contributions_receivable_amt:
     x_petey_id: '1_12'
     type: number
     semantic_type: money_whole_dollar
@@ -216,9 +257,12 @@ fields:
       path: partcpContribEoyAmt
     description: End of Year Participant contributions
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_receivables_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_participant_contributions_receivable
+      suffix: amt
+      grid: p1-G1
+  boy_other_receivables_amt:
     x_petey_id: '1_13'
     type: number
     semantic_type: money_whole_dollar
@@ -233,9 +277,12 @@ fields:
       path: otherReceivablesBoyAmt
     description: Beginning of Year Other receivables
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_receivables_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_other_receivables
+      suffix: amt
+      grid: p1-G1
+  eoy_other_receivables_amt:
     x_petey_id: '1_14'
     type: number
     semantic_type: money_whole_dollar
@@ -250,9 +297,12 @@ fields:
       path: otherReceivablesEoyAmt
     description: End of Year Other receivables
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  1c1_interest_bearing_cash_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_other_receivables
+      suffix: amt
+      grid: p1-G1
+  boy_interest_bearing_cash_amt:
     x_petey_id: '1_15'
     type: number
     semantic_type: money_whole_dollar
@@ -268,9 +318,12 @@ fields:
     description: 'Beginning of Year General investments: Interest-bearing cash (include
       money market accounts & certificates of deposit)'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  1c1_interest_bearing_cash_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_interest_bearing_cash
+      suffix: amt
+      grid: p1-G1
+  eoy_interest_bearing_cash_amt:
     x_petey_id: '1_16'
     type: number
     semantic_type: money_whole_dollar
@@ -286,9 +339,12 @@ fields:
     description: 'End of Year General investments: Interest-bearing cash (include
       money market accounts & certificates of deposit)'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  us_govt_securities_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_interest_bearing_cash
+      suffix: amt
+      grid: p1-G1
+  boy_us_government_securities_amt:
     x_petey_id: '1_17'
     type: number
     semantic_type: money_whole_dollar
@@ -303,9 +359,12 @@ fields:
       path: govtSecBoyAmt
     description: 'Beginning of Year General investments: U.S. Government securities'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  us_govt_securities_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_us_government_securities
+      suffix: amt
+      grid: p1-G1
+  eoy_us_government_securities_amt:
     x_petey_id: '1_18'
     type: number
     semantic_type: money_whole_dollar
@@ -320,9 +379,12 @@ fields:
       path: govtSecEoyAmt
     description: 'End of Year General investments: U.S. Government securities'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_debt_preferred_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_us_government_securities
+      suffix: amt
+      grid: p1-G1
+  boy_corporate_debt_preferred_amt:
     x_petey_id: '1_19'
     type: number
     semantic_type: money_whole_dollar
@@ -338,9 +400,12 @@ fields:
     description: 'Beginning of Year General investments: Corporate debt instruments
       (other than employer securities): Preferred'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_debt_preferred_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_corporate_debt_preferred
+      suffix: amt
+      grid: p1-G1
+  eoy_corporate_debt_preferred_amt:
     x_petey_id: '1_20'
     type: number
     semantic_type: money_whole_dollar
@@ -356,9 +421,12 @@ fields:
     description: 'End of Year General investments: Corporate debt instruments (other
       than employer securities): Preferred'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_debt_other_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_corporate_debt_preferred
+      suffix: amt
+      grid: p1-G1
+  boy_corporate_debt_all_other_amt:
     x_petey_id: '1_21'
     type: number
     semantic_type: money_whole_dollar
@@ -374,9 +442,12 @@ fields:
     description: 'Beginning of Year General investments: Corporate debt instruments
       (other than employer securities): All other'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_debt_other_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_corporate_debt_all_other
+      suffix: amt
+      grid: p1-G1
+  eoy_corporate_debt_all_other_amt:
     x_petey_id: '1_22'
     type: number
     semantic_type: money_whole_dollar
@@ -392,9 +463,12 @@ fields:
     description: 'End of Year General investments: Corporate debt instruments (other
       than employer securities): All other'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_stock_preferred_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_corporate_debt_all_other
+      suffix: amt
+      grid: p1-G1
+  boy_corporate_stocks_preferred_amt:
     x_petey_id: '1_23'
     type: number
     semantic_type: money_whole_dollar
@@ -410,9 +484,12 @@ fields:
     description: 'Beginning of Year General investments: Corporate stocks (other than
       employer securities): Preferred'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_stock_preferred_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_corporate_stocks_preferred
+      suffix: amt
+      grid: p1-G1
+  eoy_corporate_stocks_preferred_amt:
     x_petey_id: '1_24'
     type: number
     semantic_type: money_whole_dollar
@@ -428,9 +505,12 @@ fields:
     description: 'End of Year General investments: Corporate stocks (other than employer
       securities): Preferred'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_stock_common_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_corporate_stocks_preferred
+      suffix: amt
+      grid: p1-G1
+  boy_corporate_stocks_common_amt:
     x_petey_id: '1_25'
     type: number
     semantic_type: money_whole_dollar
@@ -446,9 +526,12 @@ fields:
     description: 'Beginning of Year General investments: Corporate stocks (other than
       employer securities): Common'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  corporate_stock_common_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_corporate_stocks_common
+      suffix: amt
+      grid: p1-G1
+  eoy_corporate_stocks_common_amt:
     x_petey_id: '1_26'
     type: number
     semantic_type: money_whole_dollar
@@ -464,9 +547,12 @@ fields:
     description: 'End of Year General investments: Corporate stocks (other than employer
       securities): Common'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  partnership_joint_venture_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_corporate_stocks_common
+      suffix: amt
+      grid: p1-G1
+  boy_partnership_joint_venture_interests_amt:
     x_petey_id: '1_27'
     type: number
     semantic_type: money_whole_dollar
@@ -482,9 +568,12 @@ fields:
     description: 'Beginning of Year General investments: Partnership/joint venture
       interests'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  partnership_joint_venture_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_partnership_joint_venture_interests
+      suffix: amt
+      grid: p1-G1
+  eoy_partnership_joint_venture_interests_amt:
     x_petey_id: '1_28'
     type: number
     semantic_type: money_whole_dollar
@@ -499,9 +588,12 @@ fields:
       path: jointVentureEoyAmt
     description: 'End of Year General investments: Partnership/joint venture interests'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  real_estate_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_partnership_joint_venture_interests
+      suffix: amt
+      grid: p1-G1
+  boy_real_estate_amt:
     x_petey_id: '1_29'
     type: number
     semantic_type: money_whole_dollar
@@ -516,9 +608,12 @@ fields:
       path: realEstateBoyAmt
     description: 'Beginning of Year General investments: Real estate'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  real_estate_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_real_estate
+      suffix: amt
+      grid: p1-G1
+  eoy_real_estate_amt:
     x_petey_id: '1_30'
     type: number
     semantic_type: money_whole_dollar
@@ -533,9 +628,12 @@ fields:
       path: realEstateEoyAmt
     description: 'End of Year General investments: Real estate'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  loans_other_than_participant_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_real_estate
+      suffix: amt
+      grid: p1-G1
+  boy_loans_amt:
     x_petey_id: '1_31'
     type: number
     semantic_type: money_whole_dollar
@@ -550,9 +648,12 @@ fields:
       path: otherLoansBoyAmt
     description: 'Beginning of Year General investments: Loans'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  loans_other_than_participant_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_loans
+      suffix: amt
+      grid: p1-G1
+  eoy_loans_amt:
     x_petey_id: '1_32'
     type: number
     semantic_type: money_whole_dollar
@@ -567,9 +668,12 @@ fields:
       path: otherLoansEoyAmt
     description: 'End of Year General investments: Loans'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  participant_loans_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_loans
+      suffix: amt
+      grid: p1-G1
+  boy_participant_loans_amt:
     x_petey_id: '1_33'
     type: number
     semantic_type: money_whole_dollar
@@ -584,9 +688,12 @@ fields:
       path: partcpLoansBoyAmt
     description: 'Beginning of Year General investments: Participant loans'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  participant_loans_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_participant_loans
+      suffix: amt
+      grid: p1-G1
+  eoy_participant_loans_amt:
     x_petey_id: '1_34'
     type: number
     semantic_type: money_whole_dollar
@@ -601,9 +708,12 @@ fields:
       path: partcpLoansEoyAmt
     description: 'End of Year General investments: Participant loans'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  common_collective_trusts_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_participant_loans
+      suffix: amt
+      grid: p1-G1
+  boy_interest_in_common_collective_trusts_amt:
     x_petey_id: '1_35'
     type: number
     semantic_type: money_whole_dollar
@@ -619,9 +729,12 @@ fields:
     description: 'Beginning of Year General investments: Value of interest in common/collective
       trusts'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  common_collective_trusts_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_interest_in_common_collective_trusts
+      suffix: amt
+      grid: p1-G1
+  eoy_interest_in_common_collective_trusts_amt:
     x_petey_id: '1_36'
     type: number
     semantic_type: money_whole_dollar
@@ -637,9 +750,12 @@ fields:
     description: 'End of Year General investments: Value of interest in common/collective
       trusts'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  pooled_separate_accounts_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_interest_in_common_collective_trusts
+      suffix: amt
+      grid: p1-G1
+  boy_interest_in_pooled_separate_accounts_amt:
     x_petey_id: '1_37'
     type: number
     semantic_type: money_whole_dollar
@@ -655,9 +771,12 @@ fields:
     description: 'Beginning of Year General investments: Value of interest in pooled
       separate accounts'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  pooled_separate_accounts_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_interest_in_pooled_separate_accounts
+      suffix: amt
+      grid: p1-G1
+  eoy_interest_in_pooled_separate_accounts_amt:
     x_petey_id: '1_38'
     type: number
     semantic_type: money_whole_dollar
@@ -673,9 +792,12 @@ fields:
     description: 'End of Year General investments: Value of interest in pooled separate
       accounts'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  master_trust_investment_accounts_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_interest_in_pooled_separate_accounts
+      suffix: amt
+      grid: p1-G1
+  boy_interest_in_master_trust_investment_accounts_amt:
     x_petey_id: '1_39'
     type: number
     semantic_type: money_whole_dollar
@@ -691,9 +813,12 @@ fields:
     description: 'Beginning of Year General investments: Value of interest in master
       trust investment accounts'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  master_trust_investment_accounts_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_interest_in_master_trust_investment_accounts
+      suffix: amt
+      grid: p1-G1
+  eoy_interest_in_master_trust_investment_accounts_amt:
     x_petey_id: '1_40'
     type: number
     semantic_type: money_whole_dollar
@@ -709,9 +834,12 @@ fields:
     description: 'End of Year General investments: Value of interest in master trust
       investment accounts'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  investment_entities_103_12_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_interest_in_master_trust_investment_accounts
+      suffix: amt
+      grid: p1-G1
+  boy_interest_in_103_12_investment_entities_amt:
     x_petey_id: '1_41'
     type: number
     semantic_type: money_whole_dollar
@@ -727,9 +855,14 @@ fields:
     description: 'Beginning of Year General investments: Value of interest in 103-12
       investment entities'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  investment_entities_103_12_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: boy_interest_in_103
+      block_iteration: '12'
+      subject: investment_entities
+      suffix: amt
+      grid: p1-G1
+  eoy_interest_in_103_12_investment_entities_amt:
     x_petey_id: '1_42'
     type: number
     semantic_type: money_whole_dollar
@@ -745,9 +878,14 @@ fields:
     description: 'End of Year General investments: Value of interest in 103-12 investment
       entities'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  registered_investment_companies_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: eoy_interest_in_103
+      block_iteration: '12'
+      subject: investment_entities
+      suffix: amt
+      grid: p1-G1
+  boy_interest_in_registered_investment_companies_amt:
     x_petey_id: '1_43'
     type: number
     semantic_type: money_whole_dollar
@@ -763,9 +901,12 @@ fields:
     description: 'Beginning of Year General investments: Value of interest in registered
       investment companies'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  registered_investment_companies_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_interest_in_registered_investment_companies
+      suffix: amt
+      grid: p1-G1
+  eoy_interest_in_registered_investment_companies_amt:
     x_petey_id: '1_44'
     type: number
     semantic_type: money_whole_dollar
@@ -781,9 +922,12 @@ fields:
     description: 'End of Year General investments: Value of interest in registered
       investment companies'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  insurance_company_general_account_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_interest_in_registered_investment_companies
+      suffix: amt
+      grid: p1-G1
+  boy_funds_held_insurance_company_general_account_amt:
     x_petey_id: '1_45'
     type: number
     semantic_type: money_whole_dollar
@@ -799,9 +943,12 @@ fields:
     description: 'Beginning of Year General investments: Value of funds held in insurance
       company general account'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  insurance_company_general_account_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_funds_held_insurance_company_general_account
+      suffix: amt
+      grid: p1-G1
+  eoy_funds_held_insurance_company_general_account_amt:
     x_petey_id: '1_46'
     type: number
     semantic_type: money_whole_dollar
@@ -817,9 +964,12 @@ fields:
     description: 'End of Year General investments: Value of funds held in insurance
       company general account'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_assets_begin_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_funds_held_insurance_company_general_account
+      suffix: amt
+      grid: p1-G1
+  boy_general_investments_other_amt:
     x_petey_id: '1_47'
     type: number
     semantic_type: money_whole_dollar
@@ -834,9 +984,12 @@ fields:
       path: othInvstBoyAmt
     description: 'Beginning of Year General investments: Other'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  other_assets_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: boy_general_investments_other
+      suffix: amt
+      grid: p1-G1
+  eoy_general_investments_other_amt:
     x_petey_id: '1_48'
     type: number
     semantic_type: money_whole_dollar
@@ -851,9 +1004,12 @@ fields:
       path: othInvstEoyAmt
     description: 'End of Year General investments: Other'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1d1_employer_securities_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: eoy_general_investments_other
+      suffix: amt
+      grid: p1-G1
+  beg_of_yr_employer_securities_amt:
     x_petey_id: '2_1'
     type: number
     semantic_type: money_whole_dollar
@@ -868,9 +1024,12 @@ fields:
       path: emplrSecBoyAmt
     description: 'Beginning of Year Employer-related investments: Employer securities'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1d1_employer_securities_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_employer_securities
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_employer_securities_amt:
     x_petey_id: '2_2'
     type: number
     semantic_type: money_whole_dollar
@@ -885,9 +1044,12 @@ fields:
       path: emplrSecEoyAmt
     description: 'End of Year Employer-related investments: Employer securities'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1d2_employer_real_property_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_employer_securities
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_employer_real_property_amt:
     x_petey_id: '2_3'
     type: number
     semantic_type: money_whole_dollar
@@ -902,9 +1064,12 @@ fields:
       path: emplrPropBoyAmt
     description: 'Beginning of Year Employer-related investments: Employer real property'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1d2_employer_real_property_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_employer_real_property
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_employer_real_property_amt:
     x_petey_id: '2_4'
     type: number
     semantic_type: money_whole_dollar
@@ -919,9 +1084,12 @@ fields:
       path: emplrPropEoyAmt
     description: 'End of Year Employer-related investments: Employer real property'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1e_buildings_other_property_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_employer_real_property
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_buildings_and_other_property_amt:
     x_petey_id: '2_5'
     type: number
     semantic_type: money_whole_dollar
@@ -936,9 +1104,12 @@ fields:
       path: bldgsUsedBoyAmt
     description: Beginning of Year Buildings and other property used in plan operation
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1e_buildings_other_property_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_buildings_and_other_property
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_buildings_and_other_property_amt:
     x_petey_id: '2_6'
     type: number
     semantic_type: money_whole_dollar
@@ -953,9 +1124,12 @@ fields:
       path: bldgsUsedEoyAmt
     description: End of Year Buildings and other property used in plan operation
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1f_total_assets_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_buildings_and_other_property
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_total_assets_amt:
     x_petey_id: '2_7'
     type: number
     semantic_type: money_whole_dollar
@@ -971,9 +1145,12 @@ fields:
     description: Beginning of Year Total assets (add all amounts in lines 1a through
       1e)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1f_total_assets_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_total_assets
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_total_assets_amt:
     x_petey_id: '2_8'
     type: number
     semantic_type: money_whole_dollar
@@ -988,9 +1165,12 @@ fields:
       path: totAssetsEoyAmt
     description: End of Year Total assets (add all amounts in lines 1a through 1e)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1g_benefit_claims_payable_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_total_assets
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_benefit_claims_payable_amt:
     x_petey_id: '2_9'
     type: number
     semantic_type: money_whole_dollar
@@ -1005,9 +1185,12 @@ fields:
       path: bnftsPayableBoyAmt
     description: Beginning of Year Benefit claims payable
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1g_benefit_claims_payable_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_benefit_claims_payable
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_benefit_claims_payable_amt:
     x_petey_id: '2_10'
     type: number
     semantic_type: money_whole_dollar
@@ -1022,9 +1205,12 @@ fields:
       path: bnftsPayableEoyAmt
     description: End of Year Benefit claims payable
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1h_operating_payables_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_benefit_claims_payable
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_operating_payables_amt:
     x_petey_id: '2_11'
     type: number
     semantic_type: money_whole_dollar
@@ -1039,9 +1225,12 @@ fields:
       path: oprtngPayableBoyAmt
     description: Beginning of Year Operating payables
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1h_operating_payables_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_operating_payables
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_operating_payables_amt:
     x_petey_id: '2_12'
     type: number
     semantic_type: money_whole_dollar
@@ -1056,9 +1245,12 @@ fields:
       path: oprtngPayableEoyAmt
     description: End of Year Operating payables
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1i_acquisition_indebtedness_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_operating_payables
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_acquisition_indebtedness_amt:
     x_petey_id: '2_13'
     type: number
     semantic_type: money_whole_dollar
@@ -1073,9 +1265,12 @@ fields:
       path: acquisIndbtBoyAmt
     description: Beginning of Year Acquisition indebtedness
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1i_acquisition_indebtedness_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_acquisition_indebtedness
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_acquisition_indebtedness_amt:
     x_petey_id: '2_14'
     type: number
     semantic_type: money_whole_dollar
@@ -1090,9 +1285,12 @@ fields:
       path: acquisIndbtEoyAmt
     description: End of Year Acquisition indebtedness
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1j_other_liabilities_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_acquisition_indebtedness
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_other_liabilities_amt:
     x_petey_id: '2_15'
     type: number
     semantic_type: money_whole_dollar
@@ -1107,9 +1305,12 @@ fields:
       path: otherLiabBoyAmt
     description: Beginning of Year Other liabilities
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1j_other_liabilities_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_other_liabilities
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_other_liabilities_amt:
     x_petey_id: '2_16'
     type: number
     semantic_type: money_whole_dollar
@@ -1124,9 +1325,12 @@ fields:
       path: otherLiabEoyAmt
     description: End of Year Other liabilities
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1k_total_liabilities_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_other_liabilities
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_total_liabilities_amt:
     x_petey_id: '2_17'
     type: number
     semantic_type: money_whole_dollar
@@ -1142,9 +1346,12 @@ fields:
     description: Beginning of Year Total liabilities (add all amounts in lines 1g
       through1j)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1k_total_liabilities_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_total_liabilities
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_total_liabilities_amt:
     x_petey_id: '2_18'
     type: number
     semantic_type: money_whole_dollar
@@ -1159,9 +1366,12 @@ fields:
       path: totLiabilitiesEoyAmt
     description: End of Year Total liabilities (add all amounts in lines 1g through1j)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1l_net_assets_beg_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_total_liabilities
+      suffix: amt
+      grid: p2-G1
+  beg_of_yr_net_assets_amt:
     x_petey_id: '2_19'
     type: number
     semantic_type: money_whole_dollar
@@ -1176,9 +1386,12 @@ fields:
       path: netAssetsBoyAmt
     description: Beginning of Year Net assets (subtract line 1k from line 1f)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_1l_net_assets_end_yr_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: beg_of_yr_net_assets
+      suffix: amt
+      grid: p2-G1
+  end_of_yr_net_assets_amt:
     x_petey_id: '2_20'
     type: number
     semantic_type: money_whole_dollar
@@ -1193,9 +1406,12 @@ fields:
       path: netAssetsEoyAmt
     description: End of Year Net assets (subtract line 1k from line 1f)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2a1a_contributions_employers_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: end_of_yr_net_assets
+      suffix: amt
+      grid: p2-G1
+  contributions_from_employers_amt:
     x_petey_id: '2_21'
     type: number
     semantic_type: money_whole_dollar
@@ -1210,9 +1426,11 @@ fields:
       path: emplrContribIncomeAmt
     description: 'Contributions: Received or receivable in cash from: Employers Amount'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2a1b_contributions_participants_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: contributions_from_employers
+      suffix: amt
+  contributions_from_participants_amt:
     x_petey_id: '2_22'
     type: number
     semantic_type: money_whole_dollar
@@ -1227,9 +1445,11 @@ fields:
       path: participantContribAmt
     description: 'Contributions: Received or receivable in cash from: Participants'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2a1c_contributions_others_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: contributions_from_participants
+      suffix: amt
+  contributions_from_others_including_rollovers_amt:
     x_petey_id: '2_23'
     type: number
     semantic_type: money_whole_dollar
@@ -1245,9 +1465,11 @@ fields:
     description: 'Contributions: Received or receivable in cash from: Others (including
       rollovers)'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2a2_noncash_contributions_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: contributions_from_others_including_rollovers
+      suffix: amt
+  noncash_contributions_amt:
     x_petey_id: '2_24'
     type: number
     semantic_type: money_whole_dollar
@@ -1262,9 +1484,11 @@ fields:
       path: nonCashContribBsAmt
     description: 'Contributions: Noncash contributions Amount'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2a3_total_contributions_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: noncash_contributions
+      suffix: amt
+  total_contributions_amt:
     x_petey_id: '2_25'
     type: number
     semantic_type: money_whole_dollar
@@ -1279,9 +1503,11 @@ fields:
       path: totContribAmt
     description: Total contributions. Add lines 2a(1)(A), (B), (C), and line 2a(2)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b1a_interest_bearing_cash_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_contributions
+      suffix: amt
+  interest_bearing_cash_amt:
     x_petey_id: '2_26'
     type: number
     semantic_type: money_whole_dollar
@@ -1296,9 +1522,11 @@ fields:
       path: intBearCashAmt
     description: 'Earnings on investments: Interest: Interest-bearing cash'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b1b_us_government_securities_interest_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: interest_bearing_cash
+      suffix: amt
+  interest_us_government_securities_amt:
     x_petey_id: '2_27'
     type: number
     semantic_type: money_whole_dollar
@@ -1313,9 +1541,11 @@ fields:
       path: intOnGovtSecAmt
     description: 'Earnings on investments: Interest: U.S. Government securities'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b1c_corporate_debt_instruments_interest_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: interest_us_government_securities
+      suffix: amt
+  interest_corporate_debt_instruments_amt:
     x_petey_id: '2_28'
     type: number
     semantic_type: money_whole_dollar
@@ -1330,9 +1560,11 @@ fields:
       path: intOnCorpDebtAmt
     description: 'Earnings on investments: Interest: Corporate debt instruments'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b1d_loans_other_than_participants_interest_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: interest_corporate_debt_instruments
+      suffix: amt
+  interest_loans_other_than_participants_amt:
     x_petey_id: '2_29'
     type: number
     semantic_type: money_whole_dollar
@@ -1347,9 +1579,11 @@ fields:
       path: intOnOthLoansAmt
     description: 'Earnings on investments: Interest: Loans (other than to participants)'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b1e_participant_loans_interest_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: interest_loans_other_than_participants
+      suffix: amt
+  interest_participant_loans_amt:
     x_petey_id: '2_30'
     type: number
     semantic_type: money_whole_dollar
@@ -1364,9 +1598,11 @@ fields:
       path: intOnPartcpLoansAmt
     description: 'Earnings on investments: Interest: Participant loans'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b1f_other_interest_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: interest_participant_loans
+      suffix: amt
+  interest_other_amt:
     x_petey_id: '2_31'
     type: number
     semantic_type: money_whole_dollar
@@ -1381,9 +1617,11 @@ fields:
       path: intOnOthInvstAmt
     description: 'Earnings on investments: Interest: Other'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b1g_total_interest_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: interest_other
+      suffix: amt
+  total_interest_amt:
     x_petey_id: '2_32'
     type: number
     semantic_type: money_whole_dollar
@@ -1399,9 +1637,11 @@ fields:
     description: 'Earnings on investments: Total interest. Add lines 2b(1)(A) through
       (F)'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b2a_preferred_stock_dividends_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_interest
+      suffix: amt
+  dividends_preferred_stock_amt:
     x_petey_id: '2_33'
     type: number
     semantic_type: money_whole_dollar
@@ -1416,9 +1656,11 @@ fields:
       path: divndPrefStockAmt
     description: 'Earnings on investments: Dividends: Preferred stock'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b2b_common_stock_dividends_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: dividends_preferred_stock
+      suffix: amt
+  dividends_common_stock_amt:
     x_petey_id: '2_34'
     type: number
     semantic_type: money_whole_dollar
@@ -1433,9 +1675,11 @@ fields:
       path: divndCommonStockAmt
     description: 'Earnings on investments: Dividends: Common stock'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b2c_registered_investment_company_dividends_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: dividends_common_stock
+      suffix: amt
+  dividends_registered_investment_company_shares_amt:
     x_petey_id: '2_35'
     type: number
     semantic_type: money_whole_dollar
@@ -1451,9 +1695,11 @@ fields:
     description: 'Earnings on investments: Dividends: Registered investment company
       shares'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b2d_total_dividends_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: dividends_registered_investment_company_shares
+      suffix: amt
+  total_dividends_amt:
     x_petey_id: '2_36'
     type: number
     semantic_type: money_whole_dollar
@@ -1469,9 +1715,11 @@ fields:
     description: 'Earnings on investments: Total dividends. Add lines 2b(2)(A), (B),
       and (C)'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b3_rents_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_dividends
+      suffix: amt
+  rents_amt:
     x_petey_id: '2_37'
     type: number
     semantic_type: money_whole_dollar
@@ -1484,7 +1732,11 @@ fields:
       - 608.2960205078125
       widget_type: text
       path: totalRentsAmt
-  line_2b4a_aggregate_proceeds_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: rents
+      suffix: amt
+  net_gain_loss_aggregate_proceeds_amt:
     x_petey_id: '2_38'
     type: number
     semantic_type: money_whole_dollar
@@ -1499,9 +1751,11 @@ fields:
       path: aggregateProceedsAmt
     description: 'Net gain (loss) on sale of assets: Aggregate proceeds'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b4b_aggregate_carrying_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: net_gain_loss_aggregate_proceeds
+      suffix: amt
+  net_gain_loss_aggregate_carrying_amt:
     x_petey_id: '2_39'
     type: number
     semantic_type: money_whole_dollar
@@ -1516,9 +1770,11 @@ fields:
       path: aggregateCostsAmt
     description: 'Net gain (loss) on sale of assets: Aggregate carrying amount'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b4c_net_gain_loss_on_sale_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: net_gain_loss_aggregate_carrying
+      suffix: amt
+  net_gain_loss_on_sale_of_assets_amt:
     x_petey_id: '2_40'
     type: number
     semantic_type: money_whole_dollar
@@ -1533,9 +1789,11 @@ fields:
       path: totGainLossSaleAstAmt
     description: Subtract line 2b(4)(B) from line 2b(4)(A) and enter result
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b5a_unrealized_appreciation_real_estate_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: net_gain_loss_on_sale_of_assets
+      suffix: amt
+  unrealized_appreciation_real_estate_amt:
     x_petey_id: '2_41'
     type: number
     semantic_type: money_whole_dollar
@@ -1550,9 +1808,11 @@ fields:
       path: unrealzdApprctnReAmt
     description: 'Unrealized appreciation (depreciation) of assets: Real estate'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b5b_unrealized_appreciation_other_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: unrealized_appreciation_real_estate
+      suffix: amt
+  unrealized_appreciation_other_amt:
     x_petey_id: '2_42'
     type: number
     semantic_type: money_whole_dollar
@@ -1567,9 +1827,11 @@ fields:
       path: unrealzdApprctnOthAmt
     description: 'Unrealized appreciation (depreciation) of assets: Other'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  line_2b5c_total_unrealized_appreciation_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: unrealized_appreciation_other
+      suffix: amt
+  total_unrealized_appreciation_amt:
     x_petey_id: '2_43'
     type: number
     semantic_type: money_whole_dollar
@@ -1584,9 +1846,11 @@ fields:
       path: totUnrealzdApprctnAmt
     description: Total unrealized appreciation of assets. Add lines 2b(5)(A) and (B)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  net_investment_gain_loss_common_collective_trusts_total_amt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: total_unrealized_appreciation
+      suffix: amt
+  net_investment_gain_loss_common_collective_trusts_amt:
     x_petey_id: '3_1'
     type: number
     semantic_type: money
@@ -1601,10 +1865,13 @@ fields:
       path: gainLossComTrustAmt
     description: Net investment gain (loss) from common/collective trusts
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  net_investment_gain_loss_pooled_separate_accounts_total_amt:
+    x_petey_identifiers:
+      subject: net_investment_gain_loss_common_collective_trusts
+      suffix: amt
+  net_investment_gain_loss_pooled_separate_accounts_amt:
     x_petey_id: '3_2'
     type: number
     semantic_type: money
@@ -1619,10 +1886,13 @@ fields:
       path: gainLossPoolSepAmt
     description: Net investment gain (loss) from pooled separate accounts
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  net_investment_gain_loss_master_trust_investment_accounts_total_amt:
+    x_petey_identifiers:
+      subject: net_investment_gain_loss_pooled_separate_accounts
+      suffix: amt
+  net_investment_gain_loss_master_trust_investment_accounts_amt:
     x_petey_id: '3_3'
     type: number
     semantic_type: money
@@ -1637,10 +1907,13 @@ fields:
       path: gainLossMasterTrAmt
     description: Net investment gain (loss) from master trust investment accounts
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  net_investment_gain_loss_103_12_investment_entities_total_amt:
+    x_petey_identifiers:
+      subject: net_investment_gain_loss_master_trust_investment_accounts
+      suffix: amt
+  net_investment_gain_loss_103_12_investment_entities_amt:
     x_petey_id: '3_4'
     type: number
     semantic_type: money
@@ -1655,10 +1928,13 @@ fields:
       path: gainLoss10312InvstAmt
     description: Net investment gain (loss) from 103-12 investment entities
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  net_investment_gain_loss_registered_investment_companies_total_amt:
+    x_petey_identifiers:
+      subject: net_investment_gain_loss_103_12_investment_entities
+      suffix: amt
+  net_investment_gain_loss_registered_investment_companies_amt:
     x_petey_id: '3_5'
     type: number
     semantic_type: money
@@ -1673,9 +1949,12 @@ fields:
       path: gainLossRegInvstAmt
     description: Net investment gain (loss) from registered investment companies
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: net_investment_gain_loss_registered_investment_companies
+      suffix: amt
   other_income_amt:
     x_petey_id: '3_6'
     type: number
@@ -1691,9 +1970,12 @@ fields:
       path: otherIncomeAmt
     description: Other Income
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: other_income
+      suffix: amt
   total_income_amt:
     x_petey_id: '3_7'
     type: number
@@ -1709,10 +1991,13 @@ fields:
       path: totIncomeAmt
     description: Total income. Add all income amounts in column (b) and enter total
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  benefit_payments_directly_to_participants_amt:
+    x_petey_identifiers:
+      subject: total_income
+      suffix: amt
+  benefit_payments_directly_to_participants_beneficiaries_amt:
     x_petey_id: '3_8'
     type: number
     semantic_type: money
@@ -1727,9 +2012,12 @@ fields:
       path: distribDrtPartcpAmt
     description: Directly to participants or beneficiaries, including direct rollovers
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: benefit_payments_directly_to_participants_beneficiaries
+      suffix: amt
   benefit_payments_to_insurance_carriers_amt:
     x_petey_id: '3_9'
     type: number
@@ -1745,9 +2033,12 @@ fields:
       path: insCarrierBnftsAmt
     description: To insurance carriers for the provision of benefits
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: benefit_payments_to_insurance_carriers
+      suffix: amt
   benefit_payments_other_amt:
     x_petey_id: '3_10'
     type: number
@@ -1761,8 +2052,12 @@ fields:
       - 253.0770263671875
       widget_type: text
       path: othBnftPaymentAmt
+    label_source: llm
     x_petey_retype:
     - money
+    x_petey_identifiers:
+      subject: benefit_payments_other
+      suffix: amt
   total_benefit_payments_amt:
     x_petey_id: '3_11'
     type: number
@@ -1778,9 +2073,12 @@ fields:
       path: totDistribBnftAmt
     description: Total benefit payments. Add lines 2e(1) through (3)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_benefit_payments
+      suffix: amt
   corrective_distributions_amt:
     x_petey_id: '3_12'
     type: number
@@ -1796,9 +2094,12 @@ fields:
       path: totCorrectiveDistribAmt
     description: Corrective distributions (see instructions)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: corrective_distributions
+      suffix: amt
   certain_deemed_distributions_participant_loans_amt:
     x_petey_id: '3_13'
     type: number
@@ -1814,9 +2115,12 @@ fields:
       path: totDeemedDistribPartcpLnsAmt
     description: Certain deemed distributions of participant loans
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: certain_deemed_distributions_participant_loans
+      suffix: amt
   interest_expense_amt:
     x_petey_id: '3_14'
     type: number
@@ -1832,10 +2136,13 @@ fields:
       path: totIntExpenseAmt
     description: Interest expense
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  salaries_and_allowances_amt:
+    x_petey_identifiers:
+      subject: interest_expense
+      suffix: amt
+  admin_expenses_salaries_allowances_amt:
     x_petey_id: '3_15'
     type: number
     semantic_type: money
@@ -1850,10 +2157,13 @@ fields:
       path: salariesAllowancesAmt
     description: 'Administrative expenses: Salaries and allowances'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  contract_administrator_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_salaries_allowances
+      suffix: amt
+  admin_expenses_contract_administrator_fees_amt:
     x_petey_id: '3_16'
     type: number
     semantic_type: money
@@ -1868,10 +2178,13 @@ fields:
       path: contractAdminFeesAmt
     description: 'Administrative expenses: Contract administrator fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  recordkeeping_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_contract_administrator_fees
+      suffix: amt
+  admin_expenses_recordkeeping_fees_amt:
     x_petey_id: '3_17'
     type: number
     semantic_type: money
@@ -1886,10 +2199,13 @@ fields:
       path: othRecordkeepingFeesAmt
     description: 'Administrative expenses: Recordkeeping fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  iqpa_audit_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_recordkeeping_fees
+      suffix: amt
+  admin_expenses_iqpa_audit_fees_amt:
     x_petey_id: '3_18'
     type: number
     semantic_type: money
@@ -1904,10 +2220,13 @@ fields:
       path: iQPAAuditFeesAmt
     description: 'Administrative expenses: IQPA audit fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  investment_advisory_and_management_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_iqpa_audit_fees
+      suffix: amt
+  admin_expenses_investment_advisory_management_fees_amt:
     x_petey_id: '3_19'
     type: number
     semantic_type: money
@@ -1923,10 +2242,13 @@ fields:
     description: 'Administrative expenses: Investment advisory and investment management
       fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  bank_or_trust_company_trustee_custodial_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_investment_advisory_management_fees
+      suffix: amt
+  admin_expenses_bank_trust_company_trustee_custodial_fees_amt:
     x_petey_id: '3_20'
     type: number
     semantic_type: money
@@ -1942,10 +2264,13 @@ fields:
     description: 'Administrative expenses: Bank or trust company trustee/custodial
       fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  actuarial_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_bank_trust_company_trustee_custodial_fees
+      suffix: amt
+  admin_expenses_actuarial_fees_amt:
     x_petey_id: '3_21'
     type: number
     semantic_type: money
@@ -1960,10 +2285,13 @@ fields:
       path: actuarialFeesAmt
     description: 'Administrative expenses: Actuarial fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  legal_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_actuarial_fees
+      suffix: amt
+  admin_expenses_legal_fees_amt:
     x_petey_id: '3_22'
     type: number
     semantic_type: money
@@ -1978,10 +2306,13 @@ fields:
       path: legalFeesAmt
     description: 'Administrative expenses: Legal fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  valuation_appraisal_fees_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_legal_fees
+      suffix: amt
+  admin_expenses_valuation_appraisal_fees_amt:
     x_petey_id: '3_23'
     type: number
     semantic_type: money
@@ -1996,10 +2327,13 @@ fields:
       path: valuationAppraisalFeesAmt
     description: 'Administrative expenses: Valuation/appraisal fees'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_trustee_fees_and_expenses_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_valuation_appraisal_fees
+      suffix: amt
+  admin_expenses_other_trustee_fees_expenses_amt:
     x_petey_id: '3_24'
     type: number
     semantic_type: money
@@ -2014,10 +2348,13 @@ fields:
       path: otherTrusteeFeesExpensesAmt
     description: 'Administrative expenses: Other trustee fees and expenses'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  other_expenses_amt:
+    x_petey_identifiers:
+      subject: admin_expenses_other_trustee_fees_expenses
+      suffix: amt
+  admin_expenses_other_expenses_amt:
     x_petey_id: '3_25'
     type: number
     semantic_type: money
@@ -2032,9 +2369,12 @@ fields:
       path: otherAdminFeesAmt
     description: 'Administrative expenses: Other expenses'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: admin_expenses_other_expenses
+      suffix: amt
   total_administrative_expenses_amt:
     x_petey_id: '3_26'
     type: number
@@ -2050,9 +2390,12 @@ fields:
       path: totAdminExpensesAmt
     description: Total administrative expenses. Add lines 2i(1) through (11)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_administrative_expenses
+      suffix: amt
   total_expenses_amt:
     x_petey_id: '3_27'
     type: number
@@ -2068,9 +2411,12 @@ fields:
       path: totExpensesAmt
     description: Total expenses. Add all expense amounts in column (b) and enter total
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: total_expenses
+      suffix: amt
   net_income_loss_amt:
     x_petey_id: '3_28'
     type: number
@@ -2086,9 +2432,12 @@ fields:
       path: netIncomeAmt
     description: Net income (loss). Subtract line 2j from line 2d
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: net_income_loss
+      suffix: amt
   transfers_of_assets_to_this_plan_amt:
     x_petey_id: '3_29'
     type: number
@@ -2104,9 +2453,12 @@ fields:
       path: totTransfersToAmt
     description: 'Transfers of assets: To this plan'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
+    x_petey_identifiers:
+      subject: transfers_of_assets_to_this_plan
+      suffix: amt
   transfers_of_assets_from_this_plan_amt:
     x_petey_id: '3_30'
     type: number
@@ -2122,13 +2474,188 @@ fields:
       path: totTransfersFromAmt
     description: 'Transfers of assets: from this plan'
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  accountant_nm:
-    x_petey_id: '4_3'
+    x_petey_identifiers:
+      subject: transfers_of_assets_from_this_plan
+      suffix: amt
+  accountant_opinion_type:
+    x_petey_id: '4_37'
+    type: category
+    values:
+    - opinion_unmodified_ind
+    - opinion_qualified_ind
+    - opinion_disclaimer_ind
+    - opinion_adverse_ind
+    widgets:
+      opinion_unmodified_ind:
+        page: 4
+        rect:
+        - 71.71929931640625
+        - 114.469970703125
+        - 79.59429931640625
+        - 127.969970703125
+        widget_type: checkbox
+        path: P2-3a-1
+        on_state: 'Yes'
+        caption: Unmodified
+        x_petey_caption_source: hand
+      opinion_qualified_ind:
+        page: 4
+        rect:
+        - 156.09500122070312
+        - 114.469970703125
+        - 163.97000122070312
+        - 127.969970703125
+        widget_type: checkbox
+        path: P2-3a-2
+        on_state: 'Yes'
+        caption: Qualified
+        x_petey_caption_source: hand
+      opinion_disclaimer_ind:
+        page: 4
+        rect:
+        - 234.0019989013672
+        - 114.469970703125
+        - 241.8769989013672
+        - 127.969970703125
+        widget_type: checkbox
+        path: P2-3a-3
+        on_state: 'Yes'
+        caption: Disclaimer
+        x_petey_caption_source: hand
+      opinion_adverse_ind:
+        page: 4
+        rect:
+        - 317.53399658203125
+        - 114.469970703125
+        - 325.40899658203125
+        - 127.969970703125
+        widget_type: checkbox
+        path: P2-3a-4
+        on_state: 'Yes'
+        caption: Adverse
+        x_petey_caption_source: hand
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-09 20:26:35'
+      from:
+      - opinion_unmodified_ind
+      - opinion_qualified_ind
+      - opinion_disclaimer_ind
+      - opinion_adverse_ind
+    x_petey_hand_edit:
+      when: '2026-10-24 20:14:59'
+      from:
+        name: opinion
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          opinion_unmodified_ind: Mark if the attached opinion is Unmodified
+          opinion_qualified_ind: Mark if the attached opinion is Qualified
+          opinion_disclaimer_ind: Mark if the attached opinion isa disclaimer
+          opinion_adverse_ind: Mark if the attached opinion is Adverse
+      to:
+        name: accountant_opinion_type
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          opinion_unmodified_ind:
+            caption: Unmodified
+          opinion_qualified_ind:
+            caption: Qualified
+          opinion_disclaimer_ind:
+            caption: Disclaimer
+          opinion_adverse_ind:
+            caption: Adverse
+      record: runs/hand_review/je__2025-schedule-h.json
+    x_petey_identifiers:
+      subject: accountant_opinion_type
+  dol_regulation_2520_103:
+    x_petey_id: '4_38'
+    type: category
+    values:
+    - dol_regulation_2520_103_8_ind
+    - dol_regulation_2520_103_12d_ind
+    - dol_regulation_neither_ind
+    widgets:
+      dol_regulation_2520_103_8_ind:
+        page: 4
+        rect:
+        - 53.156700134277344
+        - 153.56402587890625
+        - 61.03160095214844
+        - 167.06402587890625
+        widget_type: checkbox
+        path: P2-3b-1
+        on_state: 'Yes'
+        caption: DOL Regulation 2520.103-8
+        x_petey_caption_source: hand
+      dol_regulation_2520_103_12d_ind:
+        page: 4
+        rect:
+        - 178.53199768066406
+        - 153.56402587890625
+        - 186.40699768066406
+        - 167.06402587890625
+        widget_type: checkbox
+        path: P2-3b-2
+        on_state: 'Yes'
+        caption: DOL Regulation 2520.103-12(d)
+        x_petey_caption_source: hand
+      dol_regulation_neither_ind:
+        page: 4
+        rect:
+        - 317.4389953613281
+        - 153.56402587890625
+        - 325.3139953613281
+        - 167.06402587890625
+        widget_type: checkbox
+        path: P2-3b-3
+        on_state: 'Yes'
+        caption: neither DOL Regulation 2520.103-8 nor DOL Regulation 2520.103-12(d).
+        x_petey_caption_source: hand
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-09 20:26:35'
+      from:
+      - dol_regulation_2520_103_8_ind
+      - dol_regulation_2520_103_12d_ind
+      - dol_regulation_neither_ind
+    x_petey_hand_edit:
+      when: '2026-10-24 20:16:37'
+      from:
+        name: dol_regulation_2520_103
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          dol_regulation_2520_103_8_ind: Mark if DOL Regulation 2520.103-8
+          dol_regulation_2520_103_12d_ind: Mark if DOL Regulation 2520.103-12(d)
+          dol_regulation_neither_ind: Mark if neither DOL Regulation 2520.103-8 nor
+            DOL Regulation 2520.103-12(d)
+      to:
+        name: dol_regulation_2520_103
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          dol_regulation_2520_103_8_ind:
+            caption: DOL Regulation 2520.103-8
+          dol_regulation_2520_103_12d_ind:
+            caption: DOL Regulation 2520.103-12(d)
+          dol_regulation_neither_ind:
+            caption: neither DOL Regulation 2520.103-8 nor DOL Regulation 2520.103-12(d).
+      record: runs/hand_review/je__2025-schedule-h.json
+    x_petey_identifiers:
+      subject: dol_regulation_2520_103
+  accountant_business_nm:
+    x_petey_id: '4_8'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 4
       rect:
@@ -2140,10 +2667,12 @@ fields:
       path: accountantFirmName
     description: Name of Accountant
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: accountant_business
+      suffix: nm
   accountant_ein:
-    x_petey_id: '4_4'
+    x_petey_id: '4_9'
     type: string
     semantic_type: ein
     pattern: ^\d{2}-\d{7}$
@@ -2158,16 +2687,18 @@ fields:
       path: accountantFirmEIN
     description: EIN of Accountant
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  opinion_not_attached:
-    x_petey_id: '4_5'
+    label_source: llm
+    x_petey_identifiers:
+      subject: accountant
+      suffix: ein
+  accountant_opinion_not_attached_reason:
+    x_petey_id: '4_39'
     type: category
     values:
-    - opinion_not_attached_cct_psa_dcg_mtia_ind
-    - opinion_not_attached_next_filing_ind
+    - no_opinion_cct_psa_dcg_mtia_ind
+    - no_opinion_attached_next_form_5500_ind
     widgets:
-      opinion_not_attached_cct_psa_dcg_mtia_ind:
+      no_opinion_cct_psa_dcg_mtia_ind:
         page: 4
         rect:
         - 71.43810272216797
@@ -2177,9 +2708,9 @@ fields:
         widget_type: checkbox
         path: P2-3d-1
         on_state: 'Yes'
-        caption: Mark if This form is filed for a CCT, PSA, DCG or MTIA.
-        x_petey_caption_source: tooltip
-      opinion_not_attached_next_filing_ind:
+        caption: This form is filed for a CCT, PSA, DCG or MTIA.
+        x_petey_caption_source: hand
+      no_opinion_attached_next_form_5500_ind:
         page: 4
         rect:
         - 277.5329895019531
@@ -2189,24 +2720,43 @@ fields:
         widget_type: checkbox
         path: P2-3d-2
         on_state: 'Yes'
-        caption: Mark if It will be attached to the next Form 5500 pursuant to 29
-          CFR 2520.104-50.
-        x_petey_caption_source: tooltip
+        caption: It will be attached to the next Form 5500 pursuant to 29 CFR 2520.104-50.
+        x_petey_caption_source: hand
     x_petey_grouping:
       source: group_review
-      when: '2026-10-05 23:10:58'
+      when: '2026-10-09 20:26:35'
       from:
-      - opinion_not_attached_cct_psa_dcg_mtia_ind
-      - opinion_not_attached_next_filing_ind
-  line_4a_yes_ind:
-    x_petey_id: '4_6'
+      - no_opinion_cct_psa_dcg_mtia_ind
+      - no_opinion_attached_next_form_5500_ind
+    x_petey_hand_edit:
+      when: '2026-10-24 20:16:52'
+      from:
+        name: no_opinion
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          no_opinion_cct_psa_dcg_mtia_ind: Mark if This form is filed for a CCT, PSA,
+            DCG or MTIA.
+          no_opinion_attached_next_form_5500_ind: Mark if It will be attached to the
+            next Form 5500 pursuant to 29 CFR 2520.104-50.
+      to:
+        name: accountant_opinion_not_attached_reason
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          no_opinion_cct_psa_dcg_mtia_ind:
+            caption: This form is filed for a CCT, PSA, DCG or MTIA.
+          no_opinion_attached_next_form_5500_ind:
+            caption: It will be attached to the next Form 5500 pursuant to 29 CFR
+              2520.104-50.
+      record: runs/hand_review/je__2025-schedule-h.json
+    x_petey_identifiers:
+      subject: accountant_opinion_not_attached_reason
+  line4a_yes_no:
+    x_petey_id: '4_12'
     type: category
-    description: Was there a failure to transmit to the plan any participant contributions
-      within the time period described in 29 CFR 2510.3-102? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2233,8 +2783,16 @@ fields:
         path: P4-4a
         on_state: 'No'
         caption: 'No'
-  line_4a_amt:
-    x_petey_id: '4_7'
+    description: Was there a failure to transmit to the plan any participant contributions
+      within the time period described in 29 CFR 2510.3-102? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4a_yes_no
+      grid: p4-G1
+  line4a_yes_amt:
+    x_petey_id: '4_13'
     type: number
     semantic_type: money
     widget:
@@ -2248,19 +2806,16 @@ fields:
       path: failTransmitContribAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4b_yes_ind:
-    x_petey_id: '4_8'
+    x_petey_identifiers:
+      subject: line4a_yes
+      suffix: amt
+      grid: p4-G1
+  line4b_yes_no:
+    x_petey_id: '4_14'
     type: category
-    description: Were any loans by the plan or fixed income obligations due the plan
-      in default as of the close of the plan year or classified during the year as
-      uncollectible? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2287,8 +2842,17 @@ fields:
         path: P4-4b
         on_state: 'No'
         caption: 'No'
-  line_4b_amt:
-    x_petey_id: '4_9'
+    description: Were any loans by the plan or fixed income obligations due the plan
+      in default as of the close of the plan year or classified during the year as
+      uncollectible? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4b_yes_no
+      grid: p4-G1
+  line4b_yes_amt:
+    x_petey_id: '4_15'
     type: number
     semantic_type: money
     widget:
@@ -2302,18 +2866,16 @@ fields:
       path: loansInDefaultAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4c_yes_ind:
-    x_petey_id: '4_10'
+    x_petey_identifiers:
+      subject: line4b_yes
+      suffix: amt
+      grid: p4-G1
+  line4c_yes_no:
+    x_petey_id: '4_16'
     type: category
-    description: Were any leases to which the plan was a party in default or classified
-      during the year as uncollectible? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2340,8 +2902,16 @@ fields:
         path: P4-4c
         on_state: 'No'
         caption: 'No'
-  line_4c_amt:
-    x_petey_id: '4_11'
+    description: Were any leases to which the plan was a party in default or classified
+      during the year as uncollectible? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4c_yes_no
+      grid: p4-G1
+  line4c_yes_amt:
+    x_petey_id: '4_17'
     type: number
     semantic_type: money
     widget:
@@ -2355,18 +2925,16 @@ fields:
       path: leasesInDefaultAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4d_yes_ind:
-    x_petey_id: '4_12'
+    x_petey_identifiers:
+      subject: line4c_yes
+      suffix: amt
+      grid: p4-G1
+  line4d_yes_no:
+    x_petey_id: '4_18'
     type: category
-    description: Were there any nonexempt transactions with any party-in-interest?
-      Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2393,8 +2961,16 @@ fields:
         path: P4-4d
         on_state: 'No'
         caption: 'No'
-  line_4d_amt:
-    x_petey_id: '4_13'
+    description: Were there any nonexempt transactions with any party-in-interest?
+      Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4d_yes_no
+      grid: p4-G1
+  line4d_yes_amt:
+    x_petey_id: '4_19'
     type: number
     semantic_type: money
     widget:
@@ -2408,17 +2984,16 @@ fields:
       path: partyInIntNotRptdAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4e_yes_ind:
-    x_petey_id: '4_14'
+    x_petey_identifiers:
+      subject: line4d_yes
+      suffix: amt
+      grid: p4-G1
+  line4e_yes_no:
+    x_petey_id: '4_20'
     type: category
-    description: Was this plan covered by a fidelity bond? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2445,8 +3020,15 @@ fields:
         path: P4-4e
         on_state: 'No'
         caption: 'No'
-  line_4e_amt:
-    x_petey_id: '4_15'
+    description: Was this plan covered by a fidelity bond? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4e_yes_no
+      grid: p4-G1
+  line4e_yes_amt:
+    x_petey_id: '4_21'
     type: number
     semantic_type: money
     widget:
@@ -2460,18 +3042,16 @@ fields:
       path: planInsFdltyBondAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4f_yes_ind:
-    x_petey_id: '4_16'
+    x_petey_identifiers:
+      subject: line4e_yes
+      suffix: amt
+      grid: p4-G1
+  line4f_yes_no:
+    x_petey_id: '4_22'
     type: category
-    description: Did the plan have a loss, whether or not reimbursed by the plan’s
-      fidelity bond, that was caused by fraud or dishonesty? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2498,8 +3078,16 @@ fields:
         path: P4-4f
         on_state: 'No'
         caption: 'No'
-  line_4f_amt:
-    x_petey_id: '4_17'
+    description: Did the plan have a loss, whether or not reimbursed by the plan’s
+      fidelity bond, that was caused by fraud or dishonesty? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4f_yes_no
+      grid: p4-G1
+  line4f_yes_amt:
+    x_petey_id: '4_23'
     type: number
     semantic_type: money
     widget:
@@ -2513,19 +3101,16 @@ fields:
       path: lossDiscvDurYearAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4g_yes_ind:
-    x_petey_id: '4_18'
+    x_petey_identifiers:
+      subject: line4f_yes
+      suffix: amt
+      grid: p4-G1
+  line4g_yes_no:
+    x_petey_id: '4_24'
     type: category
-    description: Did the plan hold any assets whose current value was neither readily
-      determinable on an established market nor set by an independent third party
-      appraiser? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2552,8 +3137,17 @@ fields:
         path: P4-4g
         on_state: 'No'
         caption: 'No'
-  line_4g_amt:
-    x_petey_id: '4_19'
+    description: Did the plan hold any assets whose current value was neither readily
+      determinable on an established market nor set by an independent third party
+      appraiser? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4g_yes_no
+      grid: p4-G1
+  line4g_yes_amt:
+    x_petey_id: '4_25'
     type: number
     semantic_type: money
     widget:
@@ -2567,19 +3161,16 @@ fields:
       path: assetUndetermValAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4h_yes_ind:
-    x_petey_id: '4_20'
+    x_petey_identifiers:
+      subject: line4g_yes
+      suffix: amt
+      grid: p4-G1
+  line4h_yes_no:
+    x_petey_id: '4_26'
     type: category
-    description: Did the plan receive any noncash contributions whose value was neither
-      readily determinable on an established market nor set by an independent third
-      party appraiser? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2606,8 +3197,17 @@ fields:
         path: P4-4h
         on_state: 'No'
         caption: 'No'
-  line_4h_amt:
-    x_petey_id: '4_21'
+    description: Did the plan receive any noncash contributions whose value was neither
+      readily determinable on an established market nor set by an independent third
+      party appraiser? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4h_yes_no
+      grid: p4-G1
+  line4h_yes_amt:
+    x_petey_id: '4_27'
     type: number
     semantic_type: money
     widget:
@@ -2621,17 +3221,16 @@ fields:
       path: nonCashContribAmt
     description: If Yes, enter amount
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4i_yes_ind:
-    x_petey_id: '4_22'
+    x_petey_identifiers:
+      subject: line4h_yes
+      suffix: amt
+      grid: p4-G1
+  line4i_yes_no:
+    x_petey_id: '4_28'
     type: category
-    description: Did the plan have assets held for investment? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2658,15 +3257,53 @@ fields:
         path: P4-4i
         on_state: 'No'
         caption: 'No'
-  line_4j_yes_ind:
-    x_petey_id: '4_23'
+    description: Did the plan have assets held for investment? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4i_yes_no
+      grid: p4-G1
+  line4j_yes_no:
+    x_petey_id: '4_29'
     type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 4
+        rect:
+        - 422.4410095214844
+        - 573.697998046875
+        - 436.84100341796875
+        - 588.0980224609375
+        widget_type: radiobutton
+        path: P4-4j
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 4
+        rect:
+        - 450.5660095214844
+        - 573.697998046875
+        - 464.96600341796875
+        - 588.0980224609375
+        widget_type: radiobutton
+        path: P4-4j
+        on_state: 'No'
+        caption: 'No'
     description: Were any plan transactions or series of transactions in excess of
       5% of the current value of plan assets? Mark Yes or No.
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
+    x_petey_identifiers:
+      subject: line4j_yes_no
+      grid: p4-G1
+  line4k_yes_no:
+    x_petey_id: '4_30'
+    type: category
     values:
     - 'Yes'
     - 'No'
@@ -2675,34 +3312,36 @@ fields:
         page: 4
         rect:
         - 422.4410095214844
-        - 573.697998046875
+        - 598.698974609375
         - 436.84100341796875
-        - 588.0980224609375
+        - 613.0989990234375
         widget_type: radiobutton
-        path: P4-4j
+        path: P4-4k
         on_state: 'Yes'
         caption: 'Yes'
       'No':
         page: 4
         rect:
         - 450.5660095214844
-        - 573.697998046875
+        - 598.698974609375
         - 464.96600341796875
-        - 588.0980224609375
+        - 613.0989990234375
         widget_type: radiobutton
-        path: P4-4j
+        path: P4-4k
         on_state: 'No'
         caption: 'No'
-  line_4k_yes_ind:
-    x_petey_id: '4_24'
-    type: category
     description: Were all the plan assets either distributed to participants or beneficiaries,
       transferred to another plan, or brought under the control of the PBGC? Mark
       Yes or No.
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
+    x_petey_identifiers:
+      subject: line4k_yes_no
+      grid: p4-G1
+  line4l_yes_no:
+    x_petey_id: '4_31'
+    type: category
     values:
     - 'Yes'
     - 'No'
@@ -2711,61 +3350,34 @@ fields:
         page: 4
         rect:
         - 422.4410095214844
-        - 598.698974609375
+        - 614.60498046875
         - 436.84100341796875
-        - 613.0989990234375
+        - 629.0050048828125
         widget_type: radiobutton
-        path: P4-4k
+        path: P4-4l
         on_state: 'Yes'
         caption: 'Yes'
       'No':
         page: 4
         rect:
         - 450.5660095214844
-        - 598.698974609375
+        - 614.60498046875
         - 464.96600341796875
-        - 613.0989990234375
+        - 629.0050048828125
         widget_type: radiobutton
-        path: P4-4k
+        path: P4-4l
         on_state: 'No'
         caption: 'No'
-  line_4l_yes_ind:
-    x_petey_id: '4_25'
-    type: category
     description: Has the plan failed to provide any benefit when due under the plan?
       Mark Yes or No.
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
-    values:
-    - 'Yes'
-    - 'No'
-    widgets:
-      'Yes':
-        page: 4
-        rect:
-        - 422.4410095214844
-        - 614.60498046875
-        - 436.84100341796875
-        - 629.0050048828125
-        widget_type: radiobutton
-        path: P4-4l
-        on_state: 'Yes'
-        caption: 'Yes'
-      'No':
-        page: 4
-        rect:
-        - 450.5660095214844
-        - 614.60498046875
-        - 464.96600341796875
-        - 629.0050048828125
-        widget_type: radiobutton
-        path: P4-4l
-        on_state: 'No'
-        caption: 'No'
-  line_4l_amt:
-    x_petey_id: '4_26'
+    x_petey_identifiers:
+      subject: line4l_yes_no
+      grid: p4-G1
+  line4l_yes_amt:
+    x_petey_id: '4_32'
     type: number
     semantic_type: money
     widget:
@@ -2777,20 +3389,42 @@ fields:
       - 627.43896484375
       widget_type: text
       path: failProvideBenefitDueAmt
-    description: If Yes, enter amount
+    description: If Yes to line 4l, enter the amount of benefits the plan failed to
+      provide when due
     x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: line4l_yes_amt
+      reason: The red-outlined box sits on row 4l ('Has the plan failed to provide
+        any benefit when due under the plan?'), making line4l_yes_amt the correct
+        name, not line4k_yes_amt.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - name
+      reason: Publisher name failProvideBenefitDueAmt and the vision check agree the
+        box is the amount column of row 4l (failure to provide benefit when due),
+        not row 4k.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: If Yes, enter amount
+      old_name: line4k_yes_amt
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
     x_petey_retype:
-    - description_from_tooltip
     - money
-  line_4m_yes_ind:
-    x_petey_id: '4_27'
+    x_petey_identifiers:
+      subject: line4l_yes
+      suffix: amt
+      grid: p4-G1
+  line4m_yes_no:
+    x_petey_id: '4_33'
     type: category
-    description: If this is an individual account plan, was there a blackout period?
-      Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2817,51 +3451,55 @@ fields:
         path: P4-4m
         on_state: 'No'
         caption: 'No'
-  line_4n_yes_ind:
-    x_petey_id: '4_28'
+    description: If this is an individual account plan, was there a blackout period?
+      Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line4m_yes_no
+      grid: p4-G1
+  line4n_yes_no:
+    x_petey_id: '4_34'
     type: category
+    values:
+    - 'Yes'
+    - 'No'
+    widgets:
+      'Yes':
+        page: 4
+        rect:
+        - 422.4410095214844
+        - 662.41796875
+        - 436.84100341796875
+        - 676.8179931640625
+        widget_type: radiobutton
+        path: P4-4n
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 4
+        rect:
+        - 450.5660095214844
+        - 662.41796875
+        - 464.96600341796875
+        - 676.8179931640625
+        widget_type: radiobutton
+        path: P4-4n
+        on_state: 'No'
+        caption: 'No'
     description: If 4m was answered “Yes,” check the “Yes” box if you either provided
       the required notice or one of the exceptions to providing the notice applied
       under 29 CFR 2520.101-3.
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:boolean->category[2]
-    values:
-    - 'Yes'
-    - 'No'
-    widgets:
-      'Yes':
-        page: 4
-        rect:
-        - 422.4410095214844
-        - 662.41796875
-        - 436.84100341796875
-        - 676.8179931640625
-        widget_type: radiobutton
-        path: P4-4n
-        on_state: 'Yes'
-        caption: 'Yes'
-      'No':
-        page: 4
-        rect:
-        - 450.5660095214844
-        - 662.41796875
-        - 464.96600341796875
-        - 676.8179931640625
-        widget_type: radiobutton
-        path: P4-4n
-        on_state: 'No'
-        caption: 'No'
-  plan_termination_resolution_adopted_ind:
-    x_petey_id: '4_29'
+    x_petey_identifiers:
+      subject: line4n_yes_no
+      grid: p4-G1
+  line5a_yes_no:
+    x_petey_id: '4_35'
     type: category
-    description: Has a resolution to terminate the plan been adopted during the plan
-      year or any prior plan year? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[2]
     values:
     - 'Yes'
     - 'No'
@@ -2888,8 +3526,15 @@ fields:
         path: P4-5a
         on_state: 'No'
         caption: 'No'
+    description: Has a resolution to terminate the plan been adopted during the plan
+      year or any prior plan year? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: line5a_yes_no
   plan_assets_reverted_to_employer_amt:
-    x_petey_id: '4_30'
+    x_petey_id: '4_36'
     type: number
     semantic_type: money
     widget:
@@ -2904,13 +3549,16 @@ fields:
     description: If “Yes,” enter the amount of any plan assets that reverted to the
       employer this year
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
-  5b_row1_plan_nm:
+    x_petey_identifiers:
+      subject: plan_assets_reverted_to_employer
+      suffix: amt
+  plan_nm_1:
     x_petey_id: '5_1'
     type: string
-    semantic_type: person_name
+    semantic_type: organization_name
     widget:
       page: 5
       rect:
@@ -2922,9 +3570,24 @@ fields:
       path: planTransferTransferName_01
     description: Enter name of plan
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  5b_row1_ein:
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Column header 5b(1) 'Name of plan(s)' — a transferee plan name is an
+        entity name, not a person_name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter name of plan
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: plan
+      suffix: nm
+      iteration: '1'
+      grid: p5-G1
+  plan_ein_1:
     x_petey_id: '5_2'
     type: string
     semantic_type: ein
@@ -2938,7 +3601,13 @@ fields:
       - 108.135009765625
       widget_type: text
       path: planTransferTransferEIN_01
-  5b_row1_pn:
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan
+      suffix: ein
+      iteration: '1'
+      grid: p5-G1
+  plan_1_pn:
     x_petey_id: '5_3'
     type: string
     widget:
@@ -2950,10 +3619,16 @@ fields:
       - 108.135009765625
       widget_type: text
       path: planTransferTransferPlanNum_01
-  5b_row2_plan_nm:
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: plan
+      block_iteration: '1'
+      subject: pn
+      grid: p5-G1
+  plan_nm_2:
     x_petey_id: '5_4'
     type: string
-    semantic_type: person_name
+    semantic_type: organization_name
     widget:
       page: 5
       rect:
@@ -2965,9 +3640,23 @@ fields:
       path: planTransferTransferName_02
     description: Enter name of plan
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  5b_row2_ein:
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: 'Same column 5b(1), second row: plan name is an entity name, not a person_name.'
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter name of plan
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: plan
+      suffix: nm
+      iteration: '2'
+      grid: p5-G1
+  plan_ein_2:
     x_petey_id: '5_5'
     type: string
     semantic_type: ein
@@ -2981,7 +3670,13 @@ fields:
       - 131.74700927734375
       widget_type: text
       path: planTransferTransferEIN_02
-  5b_row2_pn:
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan
+      suffix: ein
+      iteration: '2'
+      grid: p5-G1
+  plan_2_pn:
     x_petey_id: '5_6'
     type: string
     widget:
@@ -2993,10 +3688,16 @@ fields:
       - 131.74700927734375
       widget_type: text
       path: planTransferTransferPlanNum_02
-  5b_row3_plan_nm:
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: plan
+      block_iteration: '2'
+      subject: pn
+      grid: p5-G1
+  plan_nm_3:
     x_petey_id: '5_7'
     type: string
-    semantic_type: person_name
+    semantic_type: organization_name
     widget:
       page: 5
       rect:
@@ -3006,11 +3707,27 @@ fields:
       - 168.69598388671875
       widget_type: text
       path: planTransferTransferName_03
-    description: Enter name of plan
+    description: Enter name of the third transferee plan (line 5b(1))
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  5b_row3_ein:
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Column header reads "5b(1) Name of plan(s)"; a plan name is an organization
+        name, not a person name. Name is correct and distinguishes the third copy.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter name of plan
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: plan
+      suffix: nm
+      iteration: '3'
+      grid: p5-G1
+  plan_ein_3:
     x_petey_id: '5_8'
     type: string
     semantic_type: ein
@@ -3024,7 +3741,13 @@ fields:
       - 156.1929931640625
       widget_type: text
       path: planTransferTransferEIN_03
-  5b_row3_pn:
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan
+      suffix: ein
+      iteration: '3'
+      grid: p5-G1
+  plan_3_pn:
     x_petey_id: '5_9'
     type: string
     widget:
@@ -3036,10 +3759,16 @@ fields:
       - 156.1929931640625
       widget_type: text
       path: planTransferTransferPlanNum_03
-  5b_row4_plan_nm:
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: plan
+      block_iteration: '3'
+      subject: pn
+      grid: p5-G1
+  plan_nm_4:
     x_petey_id: '5_10'
     type: string
-    semantic_type: person_name
+    semantic_type: organization_name
     widget:
       page: 5
       rect:
@@ -3049,11 +3778,27 @@ fields:
       - 193.46197509765625
       widget_type: text
       path: planTransferTransferName_04
-    description: Enter name of plan
+    description: Enter name of the fourth transferee plan (line 5b(1))
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  5b_row4_ein:
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Same column "5b(1) Name of plan(s)"; plan names are organization names.
+        Nearby 5c text belongs to the next line, not this box.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Enter name of plan
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: plan
+      suffix: nm
+      iteration: '4'
+      grid: p5-G1
+  plan_ein_4:
     x_petey_id: '5_11'
     type: string
     semantic_type: ein
@@ -3067,7 +3812,13 @@ fields:
       - 180.958984375
       widget_type: text
       path: planTransferTransferEIN_04
-  5b_row4_pn:
+    label_source: llm
+    x_petey_identifiers:
+      subject: plan
+      suffix: ein
+      iteration: '4'
+      grid: p5-G1
+  plan_4_pn:
     x_petey_id: '5_12'
     type: string
     widget:
@@ -3079,129 +3830,15 @@ fields:
       - 180.958984375
       widget_type: text
       path: planTransferTransferPlanNum_04
-  my_paa_confirmation_num:
-    x_petey_id: '5_14'
-    type: string
-    widget:
-      page: 5
-      rect:
-      - 424.6679992675781
-      - 218.7550048828125
-      - 529.5390014648438
-      - 228.7030029296875
-      widget_type: text
-      path: premiumFilingConfirmationNum
-    description: If “Yes” is checked, enter the My PAA confirmation number from the
-      PBGC premium filing for this plan year
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  opinion_type:
-    x_petey_id: '4_1'
-    type: category
-    values:
-    - adverse_ind
-    - disclaimer_ind
-    - qualified_ind
-    - unmodified_ind
-    widgets:
-      unmodified_ind:
-        page: 4
-        rect:
-        - 71.71929931640625
-        - 114.469970703125
-        - 79.59429931640625
-        - 127.969970703125
-        widget_type: checkbox
-        path: P2-3a-1
-        on_state: 'Yes'
-        caption: Unmodified
-        x_petey_caption_source: page_text
-      qualified_ind:
-        page: 4
-        rect:
-        - 156.09500122070312
-        - 114.469970703125
-        - 163.97000122070312
-        - 127.969970703125
-        widget_type: checkbox
-        path: P2-3a-2
-        on_state: 'Yes'
-        caption: Qualified
-        x_petey_caption_source: page_text
-      disclaimer_ind:
-        page: 4
-        rect:
-        - 234.0019989013672
-        - 114.469970703125
-        - 241.8769989013672
-        - 127.969970703125
-        widget_type: checkbox
-        path: P2-3a-3
-        on_state: 'Yes'
-        caption: Disclaimer
-        x_petey_caption_source: page_text
-      adverse_ind:
-        page: 4
-        rect:
-        - 317.53399658203125
-        - 114.469970703125
-        - 325.40899658203125
-        - 127.969970703125
-        widget_type: checkbox
-        path: P2-3a-4
-        on_state: 'Yes'
-        caption: Adverse
-        x_petey_caption_source: page_text
-  erisa_103a3c_audit_regulation:
-    x_petey_id: '4_2'
-    type: category
-    values:
-    - dol_2520_103_12d_ind
-    - dol_2520_103_8_ind
-    - neither_ind
-    widgets:
-      dol_2520_103_8_ind:
-        page: 4
-        rect:
-        - 53.156700134277344
-        - 153.56402587890625
-        - 61.03160095214844
-        - 167.06402587890625
-        widget_type: checkbox
-        path: P2-3b-1
-        on_state: 'Yes'
-        caption: DOL Regulation 2520.103-8 (2)
-        x_petey_caption_source: page_text
-      dol_2520_103_12d_ind:
-        page: 4
-        rect:
-        - 178.53199768066406
-        - 153.56402587890625
-        - 186.40699768066406
-        - 167.06402587890625
-        widget_type: checkbox
-        path: P2-3b-2
-        on_state: 'Yes'
-      neither_ind:
-        page: 4
-        rect:
-        - 317.4389953613281
-        - 153.56402587890625
-        - 325.3139953613281
-        - 167.06402587890625
-        widget_type: checkbox
-        path: P2-3b-3
-        on_state: 'Yes'
-  pbgc_coverage_yes_ind_ind:
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: plan
+      block_iteration: '4'
+      subject: pn
+      grid: p5-G1
+  pbgc_insurance_coverage:
     x_petey_id: '5_13'
     type: category
-    description: Was the plan a defined benefit plan covered under the PBGC insurance
-      program at any time during this plan year? Mark Yes, No or Not determined.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:boolean->category[3]
     values:
     - 'Yes'
     - 'No'
@@ -3240,3 +3877,58 @@ fields:
         path: P4-5c-1
         on_state: Not Determined
         caption: Not Determined
+    description: Was the plan a defined benefit plan covered under the PBGC insurance
+      program at any time during this plan year? Mark Yes, No or Not determined.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: pbgc_insurance_coverage
+  pbgc_my_paa_confirmation_nbr:
+    x_petey_id: '5_14'
+    type: string
+    widget:
+      page: 5
+      rect:
+      - 424.6679992675781
+      - 218.7550048828125
+      - 529.5390014648438
+      - 228.7030029296875
+      widget_type: text
+      path: premiumFilingConfirmationNum
+    description: If “Yes” is checked, enter the My PAA confirmation number from the
+      PBGC premium filing for this plan year
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: pbgc_my_paa_confirmation
+      suffix: nbr
+x_petey_emit_fixes:
+  description_from_tooltip: 16
+x_petey_page_check:
+  when: '2026-10-06 11:14:59'
+  model: claude-opus-5
+  prompt: 216f41cd
+  pages:
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  fields: 171
+  flagged: 4
+  unanswered: 0
+  record: runs/page_check/je__2025-schedule-h__b3b983b4.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: 2025-schedule-h_20261006_111236
+  blueprint: runs/judge_eval/blueprints/2025-schedule-h.bpt
+  when: '2026-10-06 11:14:51'

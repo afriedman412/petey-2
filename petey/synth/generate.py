@@ -373,6 +373,22 @@ def _load_keys() -> None:
                 os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
+def final_message(stream_fn, tag: str = "", tries: int = 3):
+    """`stream_fn()` opens a Messages stream; its final message, the call retried when the connection drops or
+    stalls. The SDK retries only the opening request: a stream that stalls mid-answer raises httpx's own
+    ReadTimeout (2026-10-19: three form runs died of it in round 1, several forms' calls in flight at once)."""
+    import anthropic, httpx2
+    for attempt in range(tries):
+        try:
+            with stream_fn() as s:
+                return s.get_final_message()
+        except (httpx2.TransportError, anthropic.APIConnectionError) as e:
+            if attempt == tries - 1:
+                raise
+            print(f"  [retry] {tag}: {type(e).__name__}, retrying ({attempt + 1} of {tries - 1})", flush=True)
+            time.sleep(10 * (attempt + 1))
+
+
 def make_client(model: str):
     """An SDK client for `model`: Anthropic by default, OpenAI-compatible for
     the vendors in PROVIDERS."""

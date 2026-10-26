@@ -1,0 +1,1281 @@
+bpt_version: '1.1'
+name: cms_1696
+form_version: null
+source_pdf: cms1696.pdf
+source_pdf_hash: cdb9a189f2a7e7e618c5c27b910f4e35b6214cbe
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:36:39'
+fields:
+  appointing_person_nm:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.959999084472656
+      - 167.760009765625
+      - 359.5199890136719
+      - 188.6400146484375
+      widget_type: text
+      path: Name
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: appointing_person_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: appointing_person_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: appointing_person
+      suffix: nm
+  appointing_person_medicare_or_npi:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: other_id
+    pattern: ^[A-Za-z0-9]{10,11}$
+    widget:
+      page: 1
+      rect:
+      - 361.44000244140625
+      - 167.760009765625
+      - 576.0
+      - 188.6400146484375
+      widget_type: text
+      path: Med care Number or National Provider Ident fier
+    description: Medicare Number or National Provider Identifier
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - pattern
+      - description
+      reason: The box accepts either a Medicare Beneficiary Identifier (11 alphanumeric
+        characters) or a 10-digit NPI, so a strict 10-digit NPI pattern and npi semantic
+        type are wrong; description also had OCR damage. Name matches the printed
+        caption.
+      before:
+        type: string
+        semantic_type: npi
+        pattern: ^\d{10}$
+        description: Med care Number or National Provider Ident fier
+      judged: 'kept: 1 -> 1'
+    x_petey_identifiers:
+      subject: appointing_person_medicare_or
+      suffix: npi
+  appointing_person_address_line_1_txt:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 36.959999084472656
+      - 197.8800048828125
+      - 359.5199890136719
+      - 218.8800048828125
+      widget_type: text
+      path: Mailing address
+    description: Mailing address
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: appointing_person_address_line_1
+      suffix: txt
+  appointing_person_phone_nbr_area:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
+    widget:
+      page: 1
+      rect:
+      - 365.760009765625
+      - 201.239990234375
+      - 413.0400085449219
+      - 216.5999755859375
+      widget_type: text
+      path: Phone number w
+    description: Area code of the phone number of the person appointing the representative
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Box and name are right (Section 1 phone, 3-digit comb); only the truncated
+        tooltip-derived description 'Phone number (w' needed repair.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+        description: Phone number (w
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: appointing_person_phone_area_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: appointing_person_phone_nbr_area
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''area'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: appointing_person_phone
+      suffix: nbr
+      part: area
+  appointing_person_phone_nbr_local:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,7}$
+    widget:
+      page: 1
+      rect:
+      - 417.4800109863281
+      - 200.8800048828125
+      - 533.280029296875
+      - 218.8800048828125
+      widget_type: text
+      path: i
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:7
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: appointing_person_phone_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,7}$
+      to:
+        name: appointing_person_phone_nbr_local
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,7}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''local'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: appointing_person_phone
+      suffix: nbr
+      part: local
+  appointing_person_state_cd:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 360.4800109863281
+      - 230.8800048828125
+      - 394.20001220703125
+      - 248.8800048828125
+      widget_type: text
+      path: State
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: appointing_person_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: appointing_person_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: appointing_person_state
+      suffix: cd
+  appointing_person_zip_cd:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
+    widget:
+      page: 1
+      rect:
+      - 432.4800109863281
+      - 230.8800048828125
+      - 518.8469848632812
+      - 248.8800048828125
+      widget_type: text
+      path: ZIP code
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:4
+    x_petey_identifiers:
+      subject: appointing_person_zip
+      suffix: cd
+  appointing_person_email_address_txt:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 36.959999084472656
+      - 258.1199951171875
+      - 359.5199890136719
+      - 279.1199951171875
+      widget_type: text
+      path: Email optional
+    description: Email (optional)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: appointing_person_email_address
+      suffix: txt
+  appointing_person_fax_nbr_area:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
+    widget:
+      page: 1
+      rect:
+      - 365.760009765625
+      - 261.47998046875
+      - 413.0400085449219
+      - 276.84002685546875
+      widget_type: text
+      path: Fax optional
+    description: Area code of the optional fax number of the person appointing the
+      representative
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Name and box agree (Section 1 fax, 3-digit comb); only the truncated
+        description 'Fax (optional' needed repair.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+        description: Fax (optional
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: appointing_person_fax_area_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: appointing_person_fax_nbr_area
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: fax -> fax_nbr; part ''area'' of one phone value after
+        the suffix'
+    x_petey_identifiers:
+      subject: appointing_person_fax
+      suffix: nbr
+      part: area
+  appointing_person_fax_nbr_local:
+    x_petey_id: '1_11'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,7}$
+    widget:
+      page: 1
+      rect:
+      - 417.4800109863281
+      - 261.1199951171875
+      - 533.280029296875
+      - 279.1199951171875
+      widget_type: text
+      path: i_2
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:7
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: appointing_person_fax_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,7}$
+      to:
+        name: appointing_person_fax_nbr_local
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,7}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: fax -> fax_nbr; part ''local'' of one phone value after
+        the suffix'
+    x_petey_identifiers:
+      subject: appointing_person_fax
+      suffix: nbr
+      part: local
+  appointing_person_signature:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.959999084472656
+      - 288.239990234375
+      - 431.5199890136719
+      - 309.239990234375
+      widget_type: text
+      path: Signature
+    label_source: llm
+    x_petey_identifiers:
+      subject: appointing_person
+      suffix: signature
+  appointing_person_signature_dt_month:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 432.4800109863281
+      - 291.1199951171875
+      - 467.0400085449219
+      - 309.239990234375
+      widget_type: text
+      path: Date s
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - narrow_widget:maxlen=2,width=35
+    x_petey_identifiers:
+      subject: appointing_person_signature
+      suffix: dt
+      part: month
+  appointing_person_signature_dt_yr:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 505.55999755859375
+      - 291.8399963378906
+      - 568.5599975585938
+      - 306.4800109863281
+      widget_type: text
+      path: gned mmddyyyy
+    description: gned (mm/dd/yyyy
+    x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - narrow_widget:maxlen=4,width=63
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: appointing_person_signature_dt_year
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: appointing_person_signature_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: part ''yr'' of one date value after the suffix'
+    x_petey_identifiers:
+      subject: appointing_person_signature
+      suffix: dt
+      part: yr
+  representative_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.0
+      - 349.20001220703125
+      - 576.1199951171875
+      - 368.6400146484375
+      widget_type: text
+      path: Professional status or relationship to the person in Section 1 attorney
+        relative etc
+    description: Professional status or relationship to the person in Section 1 (attorney,
+      relative, etc
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: representative_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: representative
+      suffix: nm
+  representative_address_line_1_txt:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 36.959999084472656
+      - 408.1199951171875
+      - 372.9599914550781
+      - 429.0
+      widget_type: text
+      path: Mailing address_2
+    description: Mailing address
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_address_line_1
+      suffix: txt
+  representative_phone_nbr_area:
+    x_petey_id: '1_19'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
+    widget:
+      page: 1
+      rect:
+      - 379.55999755859375
+      - 411.0
+      - 426.8399963378906
+      - 426.3599853515625
+      widget_type: text
+      path: Phone number w_2
+    description: Area code of the representative's phone number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Section 2 phone area-code box; name is correct, only the truncated description
+        needed repair.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+        description: Phone number (w
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_phone_area_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: representative_phone_nbr_area
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''area'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: representative_phone
+      suffix: nbr
+      part: area
+  representative_phone_nbr_prefix:
+    x_petey_id: '1_20'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
+    widget:
+      page: 1
+      rect:
+      - 431.1600036621094
+      - 411.0
+      - 478.32000732421875
+      - 426.3599853515625
+      widget_type: text
+      path: i_3
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_phone_prefix
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: representative_phone_nbr_prefix
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: phone -> phone_nbr; part ''prefix'' of one phone value
+        after the suffix'
+    x_petey_identifiers:
+      subject: representative_phone
+      suffix: nbr
+      part: prefix
+  representative_phone_line_nbr:
+    x_petey_id: '1_21'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
+    widget:
+      page: 1
+      rect:
+      - 483.7200012207031
+      - 411.0
+      - 546.719970703125
+      - 426.3599853515625
+      widget_type: text
+      path: th area code
+    description: th area code
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:4
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_phone_line_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: representative_phone_line_nbr
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: representative_phone_line
+      suffix: nbr
+  representative_state_cd:
+    x_petey_id: '1_23'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 374.3559875488281
+      - 440.8039855957031
+      - 408.1960144042969
+      - 458.8039855957031
+      widget_type: text
+      path: State_2
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_state_abbreviation_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: representative_state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state_abbreviation_cd -> state_cd'
+    x_petey_identifiers:
+      subject: representative_state
+      suffix: cd
+  representative_zip_cd:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 432.9159851074219
+      - 440.8039855957031
+      - 513.916015625
+      - 458.8039855957031
+      widget_type: text
+      path: undefined
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_zip
+      suffix: cd
+  representative_email_address_txt:
+    x_petey_id: '1_25'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 36.2400016784668
+      - 468.4800109863281
+      - 372.9599914550781
+      - 489.4800109863281
+      widget_type: text
+      path: Email optional_2
+    description: Email (optional)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_email_address
+      suffix: txt
+  representative_fax_nbr_area:
+    x_petey_id: '1_26'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
+    widget:
+      page: 1
+      rect:
+      - 379.55999755859375
+      - 471.4800109863281
+      - 426.8399963378906
+      - 486.8399963378906
+      widget_type: text
+      path: Fax optional_2
+    description: Area code of the representative's optional fax number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Section 2 fax area-code box; name correct, truncated description repaired.
+      before:
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+        description: Fax (optional
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_fax_area_cd
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: representative_fax_nbr_area
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: fax -> fax_nbr; part ''area'' of one phone value after
+        the suffix'
+    x_petey_identifiers:
+      subject: representative_fax
+      suffix: nbr
+      part: area
+  representative_fax_nbr_prefix:
+    x_petey_id: '1_27'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,3}$
+    widget:
+      page: 1
+      rect:
+      - 431.1600036621094
+      - 471.4800109863281
+      - 478.32000732421875
+      - 486.8399963378906
+      widget_type: text
+      path: undefined_2
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:3
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_fax_prefix
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      to:
+        name: representative_fax_nbr_prefix
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,3}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: fax -> fax_nbr; part ''prefix'' of one phone value after
+        the suffix'
+    x_petey_identifiers:
+      subject: representative_fax
+      suffix: nbr
+      part: prefix
+  representative_fax_line_nbr:
+    x_petey_id: '1_28'
+    type: string
+    semantic_type: id_part
+    pattern: ^\d{1,4}$
+    widget:
+      page: 1
+      rect:
+      - 483.7200012207031
+      - 471.4800109863281
+      - 546.719970703125
+      - 486.8399963378906
+      widget_type: text
+      path: undefined_3
+    label_source: llm
+    x_petey_retype:
+    - part_by_maxlen:4
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_fax_line_num
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      to:
+        name: representative_fax_line_nbr
+        type: string
+        semantic_type: id_part
+        pattern: ^\d{1,4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: representative_fax_line
+      suffix: nbr
+  representative_signature:
+    x_petey_id: '1_29'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 36.959999084472656
+      - 547.3200073242188
+      - 431.5199890136719
+      - 568.0800170898438
+      widget_type: text
+      path: Signature_2
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative
+      suffix: signature
+      grid: p1-G1
+  representative_signature_dt_month:
+    x_petey_id: '1_31'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 432.4800109863281
+      - 550.0800170898438
+      - 466.20001220703125
+      - 568.0800170898438
+      widget_type: text
+      path: Date s_2
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - narrow_widget:maxlen=2,width=34
+    x_petey_identifiers:
+      subject: representative_signature
+      suffix: dt
+      part: month
+      grid: p1-G1
+  representative_signature_dt_yr:
+    x_petey_id: '1_32'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 505.55999755859375
+      - 551.1600341796875
+      - 568.5599975585938
+      - 565.6799926757812
+      widget_type: text
+      path: gned mmddyyyy_2
+    description: gned (mm/dd/yyyy
+    x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - narrow_widget:maxlen=4,width=63
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_signature_dt_year
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: representative_signature_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: part ''yr'' of one date value after the suffix'
+    x_petey_identifiers:
+      subject: representative_signature
+      suffix: dt
+      part: yr
+      grid: p1-G1
+  waiver_of_fee_signature_dt_month:
+    x_petey_id: '1_34'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 435.7200012207031
+      - 654.5999755859375
+      - 467.1600036621094
+      - 669.9600219726562
+      widget_type: text
+      path: Date s_3
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - narrow_widget:maxlen=2,width=31
+    x_petey_identifiers:
+      subject: waiver_of_fee_signature
+      suffix: dt
+      part: month
+      grid: p1-G1
+  waiver_of_fee_signature_dt_yr:
+    x_petey_id: '1_36'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 506.8800048828125
+      - 654.5999755859375
+      - 569.8800048828125
+      - 669.8399658203125
+      widget_type: text
+      path: gned mmddyyyy_3
+    x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^\d{1,4}$
+    x_petey_retype:
+    - narrow_widget:maxlen=4,width=63
+    - description_from_tooltip
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -description
+      reason: The 4-character comb box is the year part of the Section 3 signature
+        date; the name is right, but the description was a truncated tooltip fragment.
+      before:
+        type: string
+        pattern: ^\d{1,4}$
+        description: gned (mm/dd/yyyy
+      judged: 'kept: 3 -> 3'
+    description: gned (mm/dd/yyyy
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: waiver_of_fee_signature_dt_year
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      to:
+        name: waiver_of_fee_signature_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: part ''yr'' of one date value after the suffix'
+    x_petey_identifiers:
+      subject: waiver_of_fee_signature
+      suffix: dt
+      part: yr
+      grid: p1-G1
+  waiver_of_fee_signature_dt_day:
+    x_petey_id: '1_35'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 471.239990234375
+      - 654.5999755859375
+      - 502.67999267578125
+      - 669.9600219726562
+      widget_type: text
+      path: undefined_4
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - narrow_widget:maxlen=2,width=31
+    x_petey_identifiers:
+      subject: waiver_of_fee_signature
+      suffix: dt
+      part: day
+      grid: p1-G1
+  waiver_of_payment_signature:
+    x_petey_id: '1_37'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 89.16000366210938
+      - 746.1599731445312
+      - 426.6000061035156
+      - 768.47998046875
+      widget_type: text
+      path: Form CMS1696
+    description: Form CMS-1696
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: waiver_of_payment
+      suffix: signature
+  waiver_of_payment_signature_dt_day:
+    x_petey_id: '1_40'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 466.6369934082031
+      - 753.719970703125
+      - 504.4259948730469
+      - 767.3563842773438
+      widget_type: text
+      path: gned mmddyyyy_4
+    x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Name and string/2-digit pattern correctly describe a day segment of
+        the 'Date signed (mm/dd/yyyy)' in Section 4; only the description is a truncated
+        copy of the publisher's tooltip ('gned (mm/dd/yyyy') and must be replaced
+        with a real description. The name_reader mismatch stems from several identica
+      before:
+        type: string
+        pattern: ^\d{1,2}$
+        description: gned (mm/dd/yyyy
+      judged: 'kept: 3 -> 3'
+    description: Day (DD) portion of the date the waiver of payment in Section 4 is
+      signed
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: waiver_of_payment_signature
+      suffix: dt
+      part: day
+      grid: p1-G1
+  waiver_of_payment_signature_dt_yr:
+    x_petey_id: '1_38'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 519.1530151367188
+      - 752.8472900390625
+      - 575.6179809570312
+      - 769.101806640625
+      widget_type: text
+      path: undefined_5
+    label_source: llm
+    pattern: ^\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - -semantic_type
+      reason: Box holds only the 4-digit year of the Section 4 signature date, not
+        a full ISO date.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 4 -> 3'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: waiver_of_payment_signature_dt_year
+        type: string
+        semantic_type: null
+        pattern: ^\d{4}$
+      to:
+        name: waiver_of_payment_signature_dt_yr
+        type: string
+        semantic_type: null
+        pattern: ^\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: part ''yr'' of one date value after the suffix'
+    x_petey_identifiers:
+      subject: waiver_of_payment_signature
+      suffix: dt
+      part: yr
+  waiver_of_payment_signature_dt_month:
+    x_petey_id: '1_39'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 432.04400634765625
+      - 753.239990234375
+      - 460.2439880371094
+      - 766.9199829101562
+      widget_type: text
+      path: '1'
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_retype:
+    - narrow_widget:maxlen=2,width=28
+    x_petey_identifiers:
+      subject: waiver_of_payment_signature
+      suffix: dt
+      part: month
+      grid: p1-G1
+  representative_city_nm:
+    x_petey_id: '1_22'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 45.38169860839844
+      - 436.3630065917969
+      - 366.4360046386719
+      - 458.3630065917969
+      widget_type: text
+      path: Text1
+    label_source: llm
+    x_petey_identifiers:
+      subject: representative_city
+      suffix: nm
+  representative_professional_status_or_relationship_txt:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.527198791503906
+      - 377.0169982910156
+      - 487.7449951171875
+      - 399.0169982910156
+      widget_type: text
+      path: Text2
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:19:31'
+      from:
+        name: representative_professional_status_or_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: representative_professional_status_or_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      subject: representative_professional_status_or_relationship
+      suffix: txt
+  representative_signature_dt_day:
+    x_petey_id: '1_30'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 469.0899963378906
+      - 548.072021484375
+      - 502.58099365234375
+      - 570.072021484375
+      widget_type: text
+      path: Text3
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - -semantic_type
+      reason: Section 2 signature date is split into parts; this narrow box holds
+        the 2-digit day, so iso_date typing is wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 4 -> 3'
+    x_petey_identifiers:
+      subject: representative_signature
+      suffix: dt
+      part: day
+      grid: p1-G1
+  appointing_person_signature_dt_day:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 468.2170104980469
+      - 287.9989929199219
+      - 502.58099365234375
+      - 309.9989929199219
+      widget_type: text
+      path: Text4
+    label_source: llm
+    pattern: ^\d{1,2}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - -semantic_type
+      reason: 'Vision check confirms the name but rejects the type: this box holds
+        only the 2-digit day of the Section 1 signature date.'
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 4 -> 3'
+    x_petey_identifiers:
+      subject: appointing_person_signature
+      suffix: dt
+      part: day
+  appointing_person_city_nm:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 43.19990158081055
+      - 226.47198486328125
+      - 347.6719970703125
+      - 248.47198486328125
+      widget_type: text
+      path: Text5
+    label_source: llm
+    x_petey_identifiers:
+      subject: appointing_person_city
+      suffix: nm
+  waiver_of_fee_signature:
+    x_petey_id: '1_33'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.09080123901367
+      - 647.9990234375
+      - 424.0360107421875
+      - 669.9990234375
+      widget_type: text
+      path: Text6
+    label_source: llm
+    x_petey_identifiers:
+      subject: waiver_of_fee
+      suffix: signature
+x_petey_emit_fixes:
+  part_by_maxlen: 11
+  date_narrow_widget->string: 8
+x_petey_page_check:
+  when: '2026-10-16 13:20:37'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 40
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/cms_1696__1b9d42__f8be66f2.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cms_1696_20261006_214028
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cms_1696.bpt
+  when: '2026-10-06 21:40:43'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cms_1696.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 6
+  review_rounds: 3
+  when: '2026-10-06 21:40:44'

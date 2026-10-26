@@ -1,0 +1,550 @@
+bpt_version: '1.1'
+name: irs_5498_esa
+form_version: null
+source_pdf: f5498e.pdf
+source_pdf_hash: a82650dc2c09c9dac0031fb80c0c7c4a1f4d6986
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:17:32'
+fields:
+  calendar_yr:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: year
+    pattern: ^\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 417.6000061035156
+      - 96.0009765625
+      - 446.3999938964844
+      - 105.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].CopyHeader[0].CalendarYear[0].f1_1[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: calendar
+      suffix: yr
+  void:
+    x_petey_id: '1_23'
+    type: category
+    values:
+    - void_ind
+    - corrected_ind
+    widgets:
+      void_ind:
+        page: 1
+        rect:
+        - 187.1999969482422
+        - 24.5
+        - 197.1999969482422
+        - 34.5
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[0]
+        on_state: '1'
+        caption: VOID
+        x_petey_caption_source: page_text
+      corrected_ind:
+        page: 1
+        rect:
+        - 244.8000030517578
+        - 24.5
+        - 254.8000030517578
+        - 34.5
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].CopyHeader[0].c1_1[1]
+        on_state: '2'
+        caption: CORRECTED
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:27:26'
+      from:
+      - void_ind
+      - corrected_ind
+    x_petey_identifiers:
+      subject: void
+  trustee_nm:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 46.0
+      - 294.45001220703125
+      - 60.0009765625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]
+    label_source: llm
+    description: Name of the trustee or issuer of the Coverdell ESA, as printed in
+      the TRUSTEE'S or ISSUER'S name box.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: The caption reads "TRUSTEE'S or ISSUER'S name", a business/institution
+        name, so person_name is wrong; the name itself correctly identifies the box.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 2 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:35'
+      from:
+        name: trustee_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: trustee_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: trustee
+      suffix: nm
+  trustee_address_line_1_txt:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 70.0009765625
+      - 229.64999389648438
+      - 84.00201416015625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: trustee
+      suffix: txt
+      subject: address_line_1
+  trustee_room_unit_nbr:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 231.39999389648438
+      - 70.0009765625
+      - 294.45001220703125
+      - 84.00201416015625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:35'
+      from:
+        name: trustee_room_suite_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: trustee_room_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: suite_no -> unit_nbr'
+    x_petey_identifiers:
+      block_prefix: trustee
+      suffix: nbr
+      subject: room_unit
+  trustee_city_nm:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 93.9990234375
+      - 136.0500030517578
+      - 108.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: trustee
+      suffix: nm
+      subject: city
+  trustee_state_province_cd:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 137.8000030517578
+      - 93.9990234375
+      - 193.64999389648438
+      - 108.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: trustee
+      suffix: cd
+      subject: state_province
+  trustee_country_cd:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: country_code
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 195.39999389648438
+      - 93.9990234375
+      - 229.64999389648438
+      - 108.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: trustee
+      suffix: cd
+      subject: country
+  trustee_zip_foreign_cd:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 230.39999389648438
+      - 93.9990234375
+      - 295.20001220703125
+      - 108.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_8[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: trustee
+      suffix: cd
+      subject: zip_foreign
+  trustee_tin:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 50.400001525878906
+      - 118.0
+      - 172.8000030517578
+      - 132.0009765625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_9[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: trustee
+      suffix: tin
+  beneficiary_tin:
+    x_petey_id: '1_14'
+    type: string
+    semantic_type: tin
+    pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 172.8000030517578
+      - 118.0
+      - 295.20001220703125
+      - 132.0009765625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_10[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: beneficiary
+      suffix: tin
+  beneficiary_nm:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 142.0009765625
+      - 294.45001220703125
+      - 168.0009765625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_11[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:35'
+      from:
+        name: beneficiary_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: beneficiary
+      suffix: nm
+  beneficiary_address_line_1_txt:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 178.0009765625
+      - 229.64999389648438
+      - 192.00201416015625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_12[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: beneficiary
+      suffix: txt
+      subject: address_line_1
+  beneficiary_unit_nbr:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 231.39999389648438
+      - 178.0009765625
+      - 294.45001220703125
+      - 192.00201416015625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_13[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:35'
+      from:
+        name: beneficiary_apt_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: beneficiary_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: apt_no -> unit_nbr'
+    x_petey_identifiers:
+      block_prefix: beneficiary
+      suffix: nbr
+      subject: unit
+  beneficiary_city_nm:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 201.9990234375
+      - 136.0500030517578
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_14[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: beneficiary
+      suffix: nm
+      subject: city
+  beneficiary_state_province_cd:
+    x_petey_id: '1_19'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 137.8000030517578
+      - 201.9990234375
+      - 193.64999389648438
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_15[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: beneficiary
+      suffix: cd
+      subject: state_province
+  beneficiary_country_cd:
+    x_petey_id: '1_20'
+    type: string
+    semantic_type: country_code
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 195.39999389648438
+      - 201.9990234375
+      - 229.64999389648438
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_16[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: beneficiary
+      suffix: cd
+      subject: country
+  beneficiary_zip_foreign_cd:
+    x_petey_id: '1_21'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}(-\d{4})?$
+    widget:
+      page: 1
+      rect:
+      - 230.39999389648438
+      - 201.9990234375
+      - 295.20001220703125
+      - 216.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_17[0]
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: beneficiary
+      suffix: cd
+      subject: zip_foreign
+  account_nbr:
+    x_petey_id: '1_22'
+    type: string
+    semantic_type: account_number
+    pattern: ^\d{8,17}$
+    widget:
+      page: 1
+      rect:
+      - 52.400001525878906
+      - 226.0
+      - 294.45001220703125
+      - 240.0009765625
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].LeftCol[0].f1_18[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:27:35'
+      from:
+        name: account_number_txt
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      to:
+        name: account_nbr
+        type: string
+        semantic_type: account_number
+        pattern: ^\d{8,17}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number_txt -> nbr'
+    x_petey_identifiers:
+      subject: account
+      suffix: nbr
+  coverdell_esa_contributions_amt:
+    x_petey_id: '1_4'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 309.6000061035156
+      - 60.0009765625
+      - 395.25
+      - 72.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_19[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: coverdell_esa_contributions
+      suffix: amt
+  rollover_contributions_amt:
+    x_petey_id: '1_11'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 309.6000061035156
+      - 96.0009765625
+      - 395.25
+      - 108.0
+      widget_type: text
+      path: topmostSubform[0].CopyA[0].RightCol[0].f1_20[0]
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: rollover_contributions
+      suffix: amt
+x_petey_copy_pages_log:
+  threshold: 0.85
+  canonical_pages:
+  - 1
+  dropped_as_copies:
+    2:
+      canonical: 1
+      similarity: 0.955
+x_petey_page_check:
+  when: '2026-10-16 13:28:08'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 21
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/irs_5498_esa__1ec9b7__8701d12d.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: irs_5498_esa_20261006_221827
+  blueprint: /home/user/petey-2/runs/judge_eval/work/irs_5498_esa.bpt
+  when: '2026-10-06 22:18:33'
+x_petey_run:
+  record: runs/judge_eval/form_runs/irs_5498_esa.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 22:18:34'

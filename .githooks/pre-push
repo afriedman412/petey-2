@@ -4,6 +4,7 @@
 #
 # Installed by `make hooks`, which points core.hooksPath at .githooks/.
 # Emergency bypass: PETEY_ALLOW_MAIN_PUSH=1 git push origin main
+# Also runs the test suite before any push (PETEY_SKIP_TESTS=1 to skip).
 
 PROTECTED="main"
 
@@ -28,5 +29,17 @@ while read -r _local_ref _local_sha remote_ref _remote_sha; do
 		;;
 	esac
 done
+
+# The test suite (tests/, ~2 s, offline) gates every push. Bypass: PETEY_SKIP_TESTS=1 git push
+if [ "$PETEY_SKIP_TESTS" != "1" ]; then
+	root=$(git rev-parse --show-toplevel)
+	if ! (cd "$root" && PYTHONPATH=. venv/bin/python -m pytest -q -p no:cacheprovider >/tmp/petey_prepush_tests.log 2>&1); then
+		echo >&2
+		echo "pre-push: tests failed; nothing pushed. Output: /tmp/petey_prepush_tests.log" >&2
+		tail -15 /tmp/petey_prepush_tests.log >&2
+		echo >&2
+		exit 1
+	fi
+fi
 
 exit 0

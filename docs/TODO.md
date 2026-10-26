@@ -425,6 +425,13 @@ and case sets".
 
 ## Next
 
+- **Review page in React: built, under review (2026-10-26, branch review-react, f35c62b + ad5399f).**
+  petey/validate/review_app (Vite, React, TypeScript), served at /next/ beside the old page at /; the server builds
+  it on start and on reboot when its code changed. Every tab ported; 11 old-page bugs found in the port fixed there
+  only. Left: Andrew uses it on real forms; the old page retired (/ switched to the React page) when he says it
+  matches. Not tried in a browser yet: grid check & validate (Opus), the chat, the labeler / agent buttons, drawing
+  and assigning blocks, dragging boxes between groups.
+
 - **Reviewer on the class and option-group flags.** The reviewer receives `page_class` flags (caption read, page
   class, blueprint type) and, since 2026-09-30 late, `option_group` flags from the inventory check (the page's
   question vs the blueprint's `widgets`, with the widget-layer attribution). Run one review round on I-765 and
@@ -560,6 +567,94 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   fix: when one field name repeats the same on-states in separate blocks, one group per block.
 
 ## Later
+
+- **Labeling speed** (parked 2026-10-26, Andrew: "speed is not a huge issue right now, it can wait until later").
+  Per field (docs/HANDOFF_2026-10-26.md): labeling 2.8 s with pages one after another, 0.85-1.1 s with pages at once
+  (`LABEL_PAGES_AT_ONCE`); whole run 4.4 s. A labeler call's time is the model's thinking, not its output (500-1,600
+  output tokens in 17-173 s; `runs/_calls/auto_label/gemini-3.8-flash/*.json`, `elapsed_s` / `usage`). Two ideas,
+  neither run: (1) **thinking level**: the labeler sends no `reasoning_effort`, so Gemini picks its own; try `low` /
+  `medium` on GSE 1084, CASC 100, Form 8300 and compare names and time per field (thinking off on 2026-10-13, 97a1d62:
+  9 of 12 single boxes right against 12 of 12). (2) **bulk "no answer"**: most cells left to the follow-up call are
+  whole structures the model left out of its answer (CASC 100 p2: "B2: 8 no answer"), and the follow-up waits for its
+  page's first call (311 s once: 137 + 173); list the structure ids the answer must cover.
+
+- **Auto-merge consecutive text lines** (Andrew, 2026-10-21; part of the associations idea): boxes stacked one per
+  printed line that hold one answer (a paragraph over numbered lines, `summary_txt_1` .. `_6`; an address written
+  over two or three lines) found and proposed as one value without dragging them together by hand. Two existing
+  pieces to build on: `petey/validate/associate.py`'s `lines` compound value kind (the rule pass already reads them from the
+  names, on copies only), and the Groups tab's combined text field (teal boxes dragged together by hand: one field
+  over the boxes, the filler splitting the text). Open: detection from the page (same width, stacked, no caption
+  between) rather than the names, and whether the result is a combined field or an association that keeps the
+  boxes.
+
+- **Tables as block types** (parked 2026-10-22, Andrew: "lets park these ideas and see how SIA does in production").
+  What the Grids tab is for: "here are the row labels, here are the column labels" and r x c names at once. A block
+  type's matrix already names that way (each position's wording once = the column labels, each block's prefix or
+  number = the row labels, "rename every block" prints the r x c), so a table is a block type whose blocks are its
+  rows. Missing for that to be as quick as the grid: (1) a table made a block type in one step (each row a block,
+  each column a position) rather than row 1 drawn and the rest detected; (2) position wordings seeded from the
+  printed column headers and block prefixes from the printed row labels (the grid resolver reads both), and a list
+  of row labels pasted at once; (3) tables that repeat across (a column per year) as a type whose blocks are the
+  columns. Then the Grids tab could go. Measured on the way (2026-10-22): grid-finder tables hold 15,090 fields on
+  the forms with types, 3,275 of them also in a block type; 104 tables cancelled by hand, 824 of their fields in
+  block types.
+
+- **Printed labels in assign and drawing** (parked 2026-10-22 with the above): assign's `fit` pairing boxes by the
+  caption printed beside each (with the spouse / child tolerance, `block_types._alike`) instead of by field names;
+  drawing recognising a near copy whose labels match as an existing type. Detection already uses printed lines
+  (`label_copies`). Tolerant captions in SIA were tried and dropped: +61 right of ~2,700 fields, 6 new real errors.
+
+- **Option names standardized across a block type's copies** (parked 2026-10-24, Andrew: "lets add it to the TO DO
+  ... we can probably let this slide for now"). A block type standardizes its field names but not the options of an
+  option group inside it, so copies of one question report different values: je__uscourts_b_106d_check's "who owes
+  the debt" (1_18, 1_35, 2_75, 2_74, 2_59) has four different sets across claims 1-5, and "nature of lien" (2_73,
+  2_77, 2_79) carries field names as option keys. Idea: an option group is one position of the type; each copy's
+  options take the reference block's names by place (first box to first box), at assign, in run finders, and as a
+  button on the type. Only within one block type. Check first whether an option's key is still the PDF's on-state
+  anywhere (the harness fills by it): there, standardize the caption, not the key.
+
+- **Suggested block types from the block-group finder** (parked 2026-10-21, Andrew: "park that and we can integrate
+  it later"). Since block groups went, `block_groups.find` only feeds structure-first labeling and keeps grids
+  inside repeated blocks out of the Grids listing. Idea: on the Blocks tab, each group it finds proposed as a block
+  type (its first block the template, the others its copies), dashed on the page, accepted or dismissed by hand. On
+  2026-10-21, 192 of 368 found block groups had every block match the first as a copy (`block_types.copies_in`).
+
+- **Where a block's number goes in a name: DECIDED 2026-10-24** (docs/NAMING.md "The standard", petey/naming.py:
+  the block's number after its subject, the field's after the suffix, before the part; short suffixes; a lone block
+  unnumbered; the 9 tests updated). Below, the question as it stood. (Andrew, 2026-10-22: "we can handle this
+  in bulk later"; "what matters is that the fields can be fully constructed from the provided inputs"). Two orders
+  in play: the validated library puts the block number after the block prefix (`child_2_last_nm`, `child_2_ssn_1`,
+  Andrew: "[block prefix]_[block iteration]_[field subject]_[field iteration]"); the 2026-10-19 identifiers decision
+  prints the iteration last (`child_last_nm_2`), which the generator's block printer, its labeler prompt example
+  (`child_name_1`) and the block types' matrix followed, so the matrix marks every validated block name as a change.
+  Either order works if every name prints from its stored parts; existing blueprints are not relitigated, this is a
+  generation question. HALF DONE, UNCOMMITTED: a change to the first order (identifier keys `block_prefix` /
+  `block_iteration` printed first, in `field_identifiers.ORDERS`, `hand_review.clean_edit`,
+  `block_types.block_ident`, `petey/label/structure.py`'s `print_name`, its block cells and prompt example) is in the
+  working tree with 9 tests still expecting number-last (tests/test_block_types.py, tests/test_structure_labels.py);
+  the pre-push test gate fails until it is finished or reverted. The review page's JS (`blockIdent` / `printIdent` in
+  the Blocks matrix, Review's `PART_KEYS`) was not changed yet.
+
+- **Block groups: gone** (Andrew, 2026-10-22: "get rid of all vestiges of block groups and associated code"). Done
+  2026-10-22: the review page's block-group code (layout editor, marked blocks, BG ids, the block path of
+  `grid_check.arrange`, `layout` / `set_cells`), `block_group` / `block` in field identifiers, and the last 38
+  block entries and BG id counters in the kept records (archived first in
+  `runs/hand_review/grids/_archive_2026-10-22b/`). The Grids finder now holds back a grid mostly inside one block
+  type's block (164 of the 173 grids the block-group finder hid). The library blueprints carried no `block_group`
+  keys; the 229 fields with block-group iterations were on the scratch copies in `runs/identifiers/`. Still open:
+  `block_groups.find` is the labeler's structure finder before labeling (`petey/label/structure.py`), a
+  separate system, kept until Andrew says otherwise; 17 converted types hold one block (an old group mixed block
+  shapes; I-589 p3 child_4 beside child_2 / child_3): "assign to type", or drag the block onto a sibling, puts each
+  with its siblings.
+
+- **IRS 941-X page 2 as a grid** (Andrew, 2026-10-21: "leave it for now, come back to it"). Two causes found: (1)
+  each cell carries two printed numbers, the line (6-17) and the column (1-4), `line_7_col_1_amt_dollars`; the
+  labelled-rows reading wants a numbered run to start at 1, so it falls to the numbered reading, which takes the
+  column number as the iteration and reads the grid sideways ("column 1 has 11 patterns"). Fix: a run on `line_` /
+  `item_` (printed line numbers) may start anywhere, as printed line numbers are already locked elsewhere. (2) The
+  dollars / cents boxes are named two ways: `col_1_amt` + `col_1_cents_txt` on some rows, `col_1_amt_dollars` +
+  `col_1_amt_cents` (the money split) on the rest; rename the first to the second. All three of the page's grids
+  (p2-T1, p2-T2 and the drawn p2-T3) were set aside on 2026-10-21 13:55.
 
 - Registry lifecycle states and the review list (STRATEGY_v1 §5 step 5) — unchanged.
 

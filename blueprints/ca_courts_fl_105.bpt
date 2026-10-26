@@ -1,0 +1,4590 @@
+bpt_version: '1.1'
+name: ca_courts_fl_105
+form_version: null
+source_pdf: fl105.pdf
+source_pdf_hash: ba5768b6067178c1e369a6f2220c270b11a47280
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:31:30'
+fields:
+  attorney_state_bar_nbr:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 306.0920104980469
+      - 49.32000732421875
+      - 393.9849853515625
+      - 58.32000732421875
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].BarNo_ft[0]
+    description: 'STATE BAR NUMBER:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    pattern: ^\d{1,12}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - -semantic_type
+      reason: A bar number is a digit identifier, not a state abbreviation; XFA declares
+        a numeric string. Name and caption agree.
+      before:
+        type: number
+        semantic_type: state_abbr
+        description: 'STATE BAR NUMBER:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_state_bar_number
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      to:
+        name: attorney_state_bar_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
+  attorney_or_party_nm:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 56.29999923706055
+      - 60.84002685546875
+      - 393.9849853515625
+      - 69.84002685546875
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].AttyName_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_or_party_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_or_party_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_or_party
+      suffix: nm
+  firm_nm:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 72.58300018310547
+      - 72.3599853515625
+      - 393.9849853515625
+      - 81.3599853515625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].AttyFirm_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: firm_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: firm_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: firm
+      suffix: nm
+  street_address_txt:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 93.5790023803711
+      - 83.8800048828125
+      - 393.9849853515625
+      - 92.8800048828125
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].AttyStreet_ft[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: street_address
+      suffix: txt
+  city_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 52.50400161743164
+      - 95.4000244140625
+      - 235.5850067138672
+      - 104.4000244140625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].AttyCity_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+    x_petey_identifiers:
+      subject: city
+      suffix: nm
+  state_cd:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 260.875
+      - 95.4000244140625
+      - 290.5199890136719
+      - 104.4000244140625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].AttyState_ft[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: state
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      to:
+        name: state_cd
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: state
+      suffix: cd
+  zip_cd:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 324.5820007324219
+      - 95.4000244140625
+      - 393.9849853515625
+      - 104.4000244140625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].AttyZip_ft[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: zip_code
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+      to:
+        name: zip_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+    x_petey_identifiers:
+      subject: zip
+      suffix: cd
+  telephone_nbr:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 87.58200073242188
+      - 106.91998291015625
+      - 234.281005859375
+      - 115.91998291015625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].Phone[0]
+    description: 'TELEPHONE NO.:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: telephone_no
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: telephone
+      suffix: nbr
+  fax_nbr:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 263.97601318359375
+      - 106.91998291015625
+      - 393.4599914550781
+      - 115.91998291015625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].Fax[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: fax_no
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: fax
+      suffix: nbr
+  email_address_txt:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 87.58200073242188
+      - 118.44000244140625
+      - 393.9849853515625
+      - 127.44000244140625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].Email[0]
+    description: 'EMAIL ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: email_address
+      suffix: txt
+  attorney_for_nm:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 106.59600067138672
+      - 129.96002197265625
+      - 393.9849853515625
+      - 138.96002197265625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].AttyInfo[0].Name[0]
+    description: 'ATTORNEY FOR (name):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_for_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_for_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_for
+      suffix: nm
+  court_county_nm:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.71299743652344
+      - 144.719970703125
+      - 393.9930114746094
+      - 153.719970703125
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].CrtInfo[0].CrtCounty[0]
+    description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds a county name; 'person_name' is wrong. Name matches caption.
+      before:
+        type: string
+        semantic_type: person_name
+        description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_county_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_county
+      suffix: nm
+  court_street_address_txt:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 155.8800048828125
+      - 393.9930114746094
+      - 164.8800048828125
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].CrtInfo[0].CrtStreet[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: court_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_street_address
+      suffix: txt
+  court_mailing_address_txt:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 167.03997802734375
+      - 393.9930114746094
+      - 176.03997802734375
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].CrtInfo[0].CrtMailingAdd[0]
+    description: 'MAILING ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_mailing_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_mailing_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_mailing_address
+      suffix: txt
+  court_city_and_zip_cd:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 97.01200103759766
+      - 178.20001220703125
+      - 394.0039978027344
+      - 187.20001220703125
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].CrtInfo[0].CrtCityZip[0]
+    description: 'CITY AND ZIP CODE:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      - -pattern
+      reason: Caption 'CITY AND ZIP CODE:' and a 297pt box hold both city and zip,
+        so a bare zip pattern/semantic is wrong.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: 'CITY AND ZIP CODE:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_city_and_zip_code
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_city_and_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+    x_petey_identifiers:
+      subject: court_city_and_zip
+      suffix: cd
+  court_branch_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 189.3599853515625
+      - 393.9930114746094
+      - 198.3599853515625
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].CrtInfo[0].CrtBranch[0]
+    description: 'BRANCH NAME:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: A court branch name is not a person's name; name matches the caption.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'BRANCH NAME:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_branch_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_branch_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_branch
+      suffix: nm
+  petitioner_nm:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 105.98500061035156
+      - 213.25
+      - 393.9849853515625
+      - 222.25
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].ProbateParty[0].Party1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: petitioner_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: petitioner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: petitioner
+      suffix: nm
+  respondent_nm:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 105.88899993896484
+      - 222.7490234375
+      - 393.82598876953125
+      - 242.3790283203125
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].ProbateParty[0].Party2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: respondent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: respondent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: respondent
+      suffix: nm
+  other_party_nm:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 105.98500061035156
+      - 244.92999267578125
+      - 393.9849853515625
+      - 253.92999267578125
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].ProbateParty[0].Party3[0]
+    description: 'OTHER PARTY:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_party_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_party_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: other_party
+      suffix: nm
+  juvenile_child_nm:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 173.9340057373047
+      - 255.3699951171875
+      - 394.0559997558594
+      - 264.3699951171875
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].ProbateParty[0].Party4[0]
+    description: 'CHILD''S NAME (Juvenile cases only):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: juvenile_child_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: juvenile_child_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: juvenile_child
+      suffix: nm
+  guardianship_of_nm:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.584999084472656
+      - 286.6549987792969
+      - 365.18499755859375
+      - 296.55499267578125
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].GuardianParty[0].Party5[0]
+    description: 'GUARDIANSHIP OF (name):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: guardianship_of_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: guardianship_of_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: guardianship_of
+      suffix: nm
+  case_nbr_1:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 399.4209899902344
+      - 277.21099853515625
+      - 572.2210083007812
+      - 291.6000061035156
+      widget_type: text
+      path: FL-105[0].Page1[0].P1Caption[0].CaseNo[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '1'
+  authorized_representative_agency_nm:
+    x_petey_id: '1_24'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 50.71200180053711
+      - 346.4989929199219
+      - 279.2430114746094
+      - 355.4989929199219
+      widget_type: text
+      path: FL-105[0].Page1[0].List1[0].Li1[0].Agencyname[0]
+    description: agency, which is a party to this proceeding to determine custody
+      of a child.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds an agency (organization) name, so 'person_name' is incorrect;
+        name is fine.
+      before:
+        type: string
+        semantic_type: person_name
+        description: agency, which is a party to this proceeding to determine custody
+          of a child.
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: authorized_representative_agency_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: authorized_representative_agency_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: authorized_representative_agency
+      suffix: nm
+  minor_children_count_cnt:
+    x_petey_id: '1_25'
+    type: integer
+    semantic_type: count
+    widget:
+      page: 1
+      rect:
+      - 165.04200744628906
+      - 363.239990234375
+      - 207.94400024414062
+      - 372.26800537109375
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].NumChildren[0]
+    description: There are (specify number)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: minor_children_count
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: minor_children_count_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cnt (type)'
+    x_petey_identifiers:
+      subject: minor_children_count
+      suffix: cnt
+  child_a_full_nm:
+    x_petey_id: '1_26'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 65.42400360107422
+      - 395.12701416015625
+      - 271.7909851074219
+      - 406.37701416015625
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row1[0].TextField7[0]
+    description: a. Full Name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_a_full_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_a_full_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: child_a_full
+      suffix: nm
+      grid: p1-G1
+  child_a_birth_dt:
+    x_petey_id: '1_27'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 277.4630126953125
+      - 395.1289978027344
+      - 379.78900146484375
+      - 406.375
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row1[0].TextField1[0]
+    description: a. Date of birth
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: child_a_birth
+      suffix: dt
+      grid: p1-G1
+  child_a_place_of_birth_txt:
+    x_petey_id: '1_28'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 385.4630126953125
+      - 395.1289978027344
+      - 573.1589965820312
+      - 406.375
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row1[0].TextField2[0]
+    description: a. Place of birth (city and state)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_a_place_of_birth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_a_place_of_birth_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: child_a_place_of_birth
+      suffix: txt
+      grid: p1-G1
+  child_b_full_nm:
+    x_petey_id: '1_29'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 65.42400360107422
+      - 412.0469970703125
+      - 271.7909851074219
+      - 423.2969970703125
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row2[0].TextField8[0]
+    description: b. Full Name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_b_full_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_b_full_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: child_b_full
+      suffix: nm
+      grid: p1-G1
+  child_b_birth_dt:
+    x_petey_id: '1_30'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 277.4630126953125
+      - 412.04901123046875
+      - 379.78900146484375
+      - 423.2950134277344
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row2[0].TextField1[0]
+    description: b. Date of birth
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: child_b_birth
+      suffix: dt
+      grid: p1-G1
+  child_b_place_of_birth_txt:
+    x_petey_id: '1_31'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 385.4630126953125
+      - 412.04901123046875
+      - 573.1589965820312
+      - 423.2950134277344
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row2[0].TextField2[0]
+    description: b. Place of birth (city and state)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_b_place_of_birth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_b_place_of_birth_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: child_b_place_of_birth
+      suffix: txt
+      grid: p1-G1
+  child_c_full_nm:
+    x_petey_id: '1_32'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 65.42400360107422
+      - 428.9670104980469
+      - 271.7909851074219
+      - 440.2170104980469
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row3[0].TextField8[0]
+    description: c. Full Name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_c_full_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_c_full_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: child_c_full
+      suffix: nm
+      grid: p1-G1
+  child_c_birth_dt:
+    x_petey_id: '1_33'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 277.4630126953125
+      - 428.968994140625
+      - 379.78900146484375
+      - 440.2149963378906
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row3[0].TextField1[0]
+    description: c. Date of birth
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: child_c_birth
+      suffix: dt
+      grid: p1-G1
+  child_c_place_of_birth_txt:
+    x_petey_id: '1_34'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 385.4630126953125
+      - 428.968994140625
+      - 573.1589965820312
+      - 440.2149963378906
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row3[0].TextField2[0]
+    description: c. Place of birth (city and state)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_c_place_of_birth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_c_place_of_birth_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: child_c_place_of_birth
+      suffix: txt
+      grid: p1-G1
+  child_d_full_nm:
+    x_petey_id: '1_35'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 65.42400360107422
+      - 445.8869934082031
+      - 271.7909851074219
+      - 457.1369934082031
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row4[0].TextField8[0]
+    description: d. Full Name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_d_full_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_d_full_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: child_d_full
+      suffix: nm
+      grid: p1-G1
+  child_d_birth_dt:
+    x_petey_id: '1_36'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 277.4630126953125
+      - 445.8890075683594
+      - 379.78900146484375
+      - 457.135009765625
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row4[0].TextField1[0]
+    description: d. Date of birth
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: child_d_birth
+      suffix: dt
+      grid: p1-G1
+  child_d_place_of_birth_txt:
+    x_petey_id: '1_37'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 385.4630126953125
+      - 445.8890075683594
+      - 573.1589965820312
+      - 457.135009765625
+      widget_type: text
+      path: FL-105[0].Page1[0].List2[0].Li1[0].Table[0].Row4[0].TextField2[0]
+    description: d. Place of birth (city and state)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: child_d_place_of_birth
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: child_d_place_of_birth_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: child_d_place_of_birth
+      suffix: txt
+      grid: p1-G1
+  additional_children_attachment_ind:
+    x_petey_id: '1_38'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 55.040000915527344
+      - 463.35400390625
+      - 64.04000091552734
+      - 472.35400390625
+      widget_type: checkbox
+      path: FL-105[0].Page1[0].List2[0].Li1[0].CheckBox19[0]
+    description: Check this box if you need to list more children. (On form MC-020
+      or a separate piece of paper, write "FL-105, Attachment 2, Additional Children"
+      at the top, provide all requested information for each additional child, and
+      attach to this form.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: additional_children_attachment
+      suffix: ind
+  children_lived_together_past_5_years_ind:
+    x_petey_id: '1_39'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 69.72899627685547
+      - 490.3340148925781
+      - 78.72899627685547
+      - 499.3340148925781
+      widget_type: checkbox
+      path: FL-105[0].Page1[0].List3[0].Li1[0].OneManyCB[0]
+    description: Check this box if there is only one child or if all of the children
+      listed in item 2 have lived together for the past five years.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: children_lived_together_past_5_years
+      suffix: ind
+  residence_1_from_dt:
+    x_petey_id: '1_43'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 68.23200225830078
+      - 557.636962890625
+      - 127.35800170898438
+      - 569.1430053710938
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row1[0].From1[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 1: From (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Printed caption 'Dates of residence (Month/Year)' means the box holds
+        month and year only, not a full ISO date.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '1'
+      subject: from
+      suffix: dt
+  residence_1_city_state_cd:
+    x_petey_id: '1_40'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 197.8300018310547
+      - 549.3259887695312
+      - 328.9599914550781
+      - 569.14501953125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row1[0].Residence1[0]
+    description: Residence (City, State)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=131
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_1_city_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_1_city_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '1'
+      subject: city_state
+      suffix: cd
+      grid: p1-G2
+  residence_1_person_lived_with_and_address_txt:
+    x_petey_id: '1_41'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 334.6300048828125
+      - 549.3259887695312
+      - 482.32000732421875
+      - 569.14501953125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row1[0].PersonStreet1[0]
+    description: Person child lived with and complete current address
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_1_person_lived_with_and_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_1_person_lived_with_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '1'
+      subject: person_lived_with_and_address
+      suffix: txt
+      grid: p1-G2
+  residence_1_relationship_txt:
+    x_petey_id: '1_42'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 487.989990234375
+      - 549.3259887695312
+      - 573.1619873046875
+      - 569.14501953125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row1[0].Relationship1[0]
+    description: Relationship
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_1_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_1_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '1'
+      subject: relationship
+      suffix: txt
+      grid: p1-G2
+  residence_1_residence_1_residence_confidential_ind:
+    x_petey_id: '1_68'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 203.30299377441406
+      - 572.3090209960938
+      - 212.30299377441406
+      - 581.3090209960938
+      widget_type: checkbox
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row1a[0].Confidential1a3[0].ConfidentialCB[0]
+      on_state: '1'
+    description: Confidential (list state only)
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-18 17:38:55'
+      from:
+      - residence_1::residence_1_residence_confidential_ind
+    x_petey_identifiers:
+      subject: residence_1_residence_1_residence_confidential
+      suffix: ind
+  residence_1_residence_1_person_address_confidential_ind:
+    x_petey_id: '1_69'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 340.27099609375
+      - 572.3090209960938
+      - 349.27099609375
+      - 581.3090209960938
+      widget_type: checkbox
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row1a[0].Confidential1a4[0].ConfidentialCB[0]
+      on_state: '1'
+    description: Confidential (list state only)
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-18 17:38:55'
+      from:
+      - residence_1::residence_1_person_address_confidential_ind
+    x_petey_identifiers:
+      subject: residence_1_residence_1_person_address_confidential
+      suffix: ind
+  residence_2_from_dt:
+    x_petey_id: '1_49'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 68.23200225830078
+      - 593.927978515625
+      - 127.35800170898438
+      - 605.4320068359375
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row2[0].From2[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 2: From (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Column is captioned 'Dates of residence (Month/Year)', so the value
+        is a month/year string, not an ISO date.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '2'
+      subject: from
+      suffix: dt
+  residence_2_to_dt:
+    x_petey_id: '1_50'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 133.03199768066406
+      - 593.927978515625
+      - 192.1580047607422
+      - 605.4320068359375
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row2[0].To2[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 2: To (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Month/Year column; ISO date type and semantic are wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '2'
+      subject: to
+      suffix: dt
+  residence_2_city_state_cd:
+    x_petey_id: '1_46'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 197.8300018310547
+      - 585.614990234375
+      - 328.9599914550781
+      - 605.4340209960938
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row2[0].Residence2[0]
+    description: Residence (City, State)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=131
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_2_city_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_2_city_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '2'
+      subject: city_state
+      suffix: cd
+      grid: p1-G2
+  residence_2_person_lived_with_and_address_txt:
+    x_petey_id: '1_47'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 334.6300048828125
+      - 585.614990234375
+      - 482.32000732421875
+      - 605.4340209960938
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row2[0].PersonStreet2[0]
+    description: Person child lived with and complete current address
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_2_person_lived_with_and_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_2_person_lived_with_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '2'
+      subject: person_lived_with_and_address
+      suffix: txt
+      grid: p1-G2
+  residence_2_relationship_txt:
+    x_petey_id: '1_48'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 487.989990234375
+      - 585.614990234375
+      - 573.1619873046875
+      - 605.4340209960938
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row2[0].Relationship2[0]
+    description: Relationship
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_2_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_2_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '2'
+      subject: relationship
+      suffix: txt
+      grid: p1-G2
+  residence_3_from_dt:
+    x_petey_id: '1_54'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 68.23200225830078
+      - 619.4169921875
+      - 127.35800170898438
+      - 630.9210205078125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row3[0].From3[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 3: From (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Month/Year column; ISO date type and semantic are wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '3'
+      subject: from
+      suffix: dt
+  residence_3_to_dt:
+    x_petey_id: '1_55'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 133.03199768066406
+      - 619.4169921875
+      - 192.1580047607422
+      - 630.9210205078125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row3[0].To3[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 3: To (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Month/Year column; ISO date type and semantic are wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '3'
+      subject: to
+      suffix: dt
+  residence_3_city_state_cd:
+    x_petey_id: '1_51'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 197.8300018310547
+      - 611.10400390625
+      - 328.9599914550781
+      - 630.9229736328125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row3[0].Residence3[0]
+    description: Residence (City, State)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=131
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_3_city_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_3_city_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '3'
+      subject: city_state
+      suffix: cd
+      grid: p1-G2
+  residence_3_person_lived_with_and_address_txt:
+    x_petey_id: '1_52'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 334.6300048828125
+      - 611.10400390625
+      - 482.32000732421875
+      - 630.9229736328125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row3[0].PersonStreet3[0]
+    description: Person child lived with and complete current address
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_3_person_lived_with_and_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_3_person_lived_with_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '3'
+      subject: person_lived_with_and_address
+      suffix: txt
+      grid: p1-G2
+  residence_3_relationship_txt:
+    x_petey_id: '1_53'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 487.989990234375
+      - 611.10400390625
+      - 573.1619873046875
+      - 630.9229736328125
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row3[0].Relationship3[0]
+    description: Relationship
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_3_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_3_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '3'
+      subject: relationship
+      suffix: txt
+      grid: p1-G2
+  residence_4_from_dt:
+    x_petey_id: '1_59'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 68.23200225830078
+      - 644.9039916992188
+      - 127.35800170898438
+      - 656.4100341796875
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row4[0].From4[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 4: From (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Month/Year column; ISO date type and semantic are wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '4'
+      subject: from
+      suffix: dt
+  residence_4_to_dt:
+    x_petey_id: '1_60'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 133.03199768066406
+      - 644.906005859375
+      - 192.1580047607422
+      - 656.4100341796875
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row4[0].To4[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 4: To (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Month/Year column; ISO date type and semantic are wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '4'
+      subject: to
+      suffix: dt
+  residence_4_city_state_cd:
+    x_petey_id: '1_56'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 197.8300018310547
+      - 636.593017578125
+      - 328.9599914550781
+      - 656.4119873046875
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row4[0].Residence4[0]
+    description: Residence (City, State)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=131
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_4_city_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_4_city_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '4'
+      subject: city_state
+      suffix: cd
+      grid: p1-G2
+  residence_4_person_lived_with_and_address_txt:
+    x_petey_id: '1_57'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 334.6300048828125
+      - 636.593017578125
+      - 482.32000732421875
+      - 656.4119873046875
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row4[0].PersonStreet4[0]
+    description: Person child lived with and complete current address
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_4_person_lived_with_and_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_4_person_lived_with_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '4'
+      subject: person_lived_with_and_address
+      suffix: txt
+      grid: p1-G2
+  residence_4_relationship_txt:
+    x_petey_id: '1_58'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 487.989990234375
+      - 636.593017578125
+      - 573.1619873046875
+      - 656.4119873046875
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row4[0].Relationship4[0]
+    description: Relationship
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_4_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_4_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '4'
+      subject: relationship
+      suffix: txt
+      grid: p1-G2
+  residence_5_from_dt:
+    x_petey_id: '1_64'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 68.23200225830078
+      - 670.3930053710938
+      - 127.35800170898438
+      - 681.8989868164062
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row5[0].From5[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 5: From (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Month/Year column; ISO date type and semantic are wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '5'
+      subject: from
+      suffix: dt
+  residence_5_to_dt:
+    x_petey_id: '1_65'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 133.03199768066406
+      - 670.39501953125
+      - 192.1580047607422
+      - 681.8989868164062
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row5[0].To5[0]
+    label_source: llm
+    pattern: ^(0[1-9]|1[0-2])/\d{4}$
+    description: 'Dates of residence, row 5: To (Month/Year)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: Month/Year column; ISO date type and semantic are wrong.
+      before:
+        type: date
+        semantic_type: iso_date
+      judged: 'kept: 3 -> 1'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '5'
+      subject: to
+      suffix: dt
+  residence_5_city_state_cd:
+    x_petey_id: '1_61'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 197.8300018310547
+      - 662.08203125
+      - 328.9599914550781
+      - 681.9010009765625
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row5[0].Residence5[0]
+    description: Residence (City, State)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_retype:
+    - wide_widget_short_pattern:width=131
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_5_city_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_5_city_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '5'
+      subject: city_state
+      suffix: cd
+      grid: p1-G2
+  residence_5_person_lived_with_and_address_txt:
+    x_petey_id: '1_62'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 334.6300048828125
+      - 662.08203125
+      - 482.32000732421875
+      - 681.9010009765625
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row5[0].PersonStreet5[0]
+    description: Person child lived with and complete current address
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_5_person_lived_with_and_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_5_person_lived_with_and_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '5'
+      subject: person_lived_with_and_address
+      suffix: txt
+      grid: p1-G2
+  residence_5_relationship_txt:
+    x_petey_id: '1_63'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 487.989990234375
+      - 662.08203125
+      - 573.1619873046875
+      - 681.9010009765625
+      widget_type: text
+      path: FL-105[0].Page1[0].List3[0].Li1[0].Table3a[0].Row5[0].Relationship5[0]
+    description: Relationship
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: residence_5_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: residence_5_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      block_prefix: residence
+      block_iteration: '5'
+      subject: relationship
+      suffix: txt
+      grid: p1-G2
+  additional_residences_attachment_3a_ind:
+    x_petey_id: '1_66'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 69.72599792480469
+      - 686.9249877929688
+      - 78.72599792480469
+      - 695.9249877929688
+      widget_type: checkbox
+      path: FL-105[0].Page1[0].List3[0].Li1[0].AddlAddyCB[0]
+    description: Additional addresses are listed on Attachment 3a. (Form MC-020 may
+      be used for this purpose.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: additional_residences_attachment_3a
+      suffix: ind
+  children_not_lived_together_attachment_ind:
+    x_petey_id: '1_67'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 69.72899627685547
+      - 700.3759765625
+      - 78.72899627685547
+      - 709.3759765625
+      widget_type: checkbox
+      path: FL-105[0].Page1[0].List3[0].Li2[0].KidsLiveApart[0].OneManyCB[0]
+    description: Check this box if there is more than one child and all the children
+      have not lived together for the past five years. (Attach form FL-105(A)/GC-120(A)
+      and list each other child's current address and their residence history for
+      the past five years.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: children_not_lived_together_attachment
+      suffix: ind
+  case_nm:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 37.584999084472656
+      - 57.41998291015625
+      - 393.9849853515625
+      - 70.91998291015625
+      widget_type: text
+      path: FL-105[0].Page2[0].P2Caption[0].ShortTitle[0].ShortTitle_ft[0]
+    label_source: llm
+    description: 'CASE NAME:'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: A case caption (e.g. 'Marriage of Smith') is neither a person name nor
+        a business name; drop the misleading semantic_type.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: case_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: case
+      suffix: nm
+  case_nbr_2:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 399.6000061035156
+      - 56.53399658203125
+      - 572.4000244140625
+      - 70.91998291015625
+      widget_type: text
+      path: FL-105[0].Page2[0].P2Caption[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: case_number_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_2_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '2'
+  other_proceeding_family_ind:
+    x_petey_id: '2_10'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 165.989013671875
+      - 78.73200225830078
+      - 174.989013671875
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4a[0].PGCell4a[0].FamilyCB[0]
+    description: Proceeding family
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_family
+      suffix: ind
+      grid: p2-G1
+  other_proceeding_family_case_nbr:
+    x_petey_id: '2_4'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 160.48699951171875
+      - 207.4040069580078
+      - 180.01702880859375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4a[0].CaseNo4a[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_family_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_family_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: other_proceeding_family_case
+      suffix: nbr
+      grid: p2-G1
+  other_proceeding_family_court_name_location_txt:
+    x_petey_id: '2_5'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 213.07400512695312
+      - 160.48699951171875
+      - 307.843994140625
+      - 180.01702880859375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4a[0].Court4a[0]
+    description: Court (name, state or tribe, location)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds a court name, state/tribe and location, not a person's name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Court (name, state or tribe, location)
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_family_court_name_location
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_family_court_name_location_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_family_court_name_location
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_family_order_dt:
+    x_petey_id: '2_6'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 313.5140075683594
+      - 160.48699951171875
+      - 367.9639892578125
+      - 180.01702880859375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4a[0].Date4a[0]
+    description: Court order or judgment(date)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_family_order
+      suffix: dt
+      grid: p2-G1
+  other_proceeding_family_child_names_txt:
+    x_petey_id: '2_7'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 373.635986328125
+      - 160.489013671875
+      - 456.1619873046875
+      - 180.0150146484375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4a[0].ChildName4a[0]
+    description: Name of each child
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_family_child_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_family_child_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_family_child_names
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_family_connection_to_case_txt:
+    x_petey_id: '2_8'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 461.83599853515625
+      - 160.489013671875
+      - 516.6420288085938
+      - 180.0150146484375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4a[0].YourRole4a[0]
+    description: Your Connection to the case
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_family_connection_to_case
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_family_connection_to_case_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_family_connection_to_case
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_family_case_status_txt:
+    x_petey_id: '2_9'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 522.3159790039062
+      - 160.489013671875
+      - 573.1619873046875
+      - 180.0150146484375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4a[0].CaseStatus4a[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_family_case_status
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_family_case_status_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_family_case_status
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_probate_guardianship_ind:
+    x_petey_id: '2_17'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 191.34002685546875
+      - 78.73200225830078
+      - 200.34002685546875
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4b[0].PGCell4b[0].PGCB4b[0]
+    description: Probate Guardianship
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_probate_guardianship
+      suffix: ind
+      grid: p2-G1
+  other_proceeding_probate_guardianship_case_nbr:
+    x_petey_id: '2_11'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 185.68701171875
+      - 207.4040069580078
+      - 205.21697998046875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4b[0].CaseNo4b[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_probate_guardianship_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_probate_guardianship_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: other_proceeding_probate_guardianship_case
+      suffix: nbr
+      grid: p2-G1
+  other_proceeding_probate_guardianship_court_name_location_txt:
+    x_petey_id: '2_12'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 213.07400512695312
+      - 185.68701171875
+      - 307.843994140625
+      - 205.21697998046875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4b[0].Court4b[0]
+    description: Court (name, state or tribe, location)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds a court name, state/tribe and location, not a person's name.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Court (name, state or tribe, location)
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_probate_guardianship_court_name_location
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_probate_guardianship_court_name_location_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_probate_guardianship_court_name_location
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_probate_guardianship_order_dt:
+    x_petey_id: '2_13'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 313.5140075683594
+      - 185.68701171875
+      - 367.9639892578125
+      - 205.21697998046875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4b[0].Date4b[0]
+    description: Court order or judgment(date)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_probate_guardianship_order
+      suffix: dt
+      grid: p2-G1
+  other_proceeding_probate_guardianship_child_names_txt:
+    x_petey_id: '2_14'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 373.635986328125
+      - 185.68902587890625
+      - 456.1619873046875
+      - 205.21502685546875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4b[0].ChildName4b[0]
+    description: Name of each child
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_probate_guardianship_child_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_probate_guardianship_child_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_probate_guardianship_child_names
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_probate_guardianship_connection_to_case_txt:
+    x_petey_id: '2_15'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 461.83599853515625
+      - 185.68902587890625
+      - 516.6420288085938
+      - 205.21502685546875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4b[0].YourRole4b[0]
+    description: Your Connection to the case
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_probate_guardianship_connection_to_case
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_probate_guardianship_connection_to_case_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_probate_guardianship_connection_to_case
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_probate_guardianship_case_status_txt:
+    x_petey_id: '2_16'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 522.3159790039062
+      - 185.68902587890625
+      - 573.1619873046875
+      - 205.21502685546875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4b[0].CaseStatus4b[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_probate_guardianship_case_status
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_probate_guardianship_case_status_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_probate_guardianship_case_status
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_other_ind:
+    x_petey_id: '2_24'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 216.7860107421875
+      - 78.73200225830078
+      - 225.7860107421875
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4c[0].PGCell4c[0].OtherCB[0]
+    description: proceeding Other
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_other
+      suffix: ind
+      grid: p2-G1
+  other_proceeding_other_case_nbr:
+    x_petey_id: '2_18'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 210.88702392578125
+      - 207.4040069580078
+      - 230.4169921875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4c[0].CaseNo4c[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_other_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_other_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: other_proceeding_other_case
+      suffix: nbr
+      grid: p2-G1
+  other_proceeding_other_court_name_location_txt:
+    x_petey_id: '2_19'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 213.07400512695312
+      - 210.88702392578125
+      - 307.843994140625
+      - 230.4169921875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4c[0].Court4c[0]
+    description: Court (name, state or tribe, location)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption and tooltip read 'Court (name, state or tribe, location)' —
+        a court entity plus location, not a person's name; name and string type are
+        correct, drop the person_name semantic type.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Court (name, state or tribe, location)
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_other_court_name_location
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_other_court_name_location_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_other_court_name_location
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_other_order_dt:
+    x_petey_id: '2_20'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 313.5140075683594
+      - 210.88702392578125
+      - 367.9639892578125
+      - 230.4169921875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4c[0].Date4c[0]
+    description: Court order or judgment(date)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_other_order
+      suffix: dt
+      grid: p2-G1
+  other_proceeding_other_child_names_txt:
+    x_petey_id: '2_21'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 373.635986328125
+      - 210.88897705078125
+      - 456.1619873046875
+      - 230.41497802734375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4c[0].ChildName4c[0]
+    description: Name of each child
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_other_child_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_other_child_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_other_child_names
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_other_connection_to_case_txt:
+    x_petey_id: '2_22'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 461.83599853515625
+      - 210.88897705078125
+      - 516.6420288085938
+      - 230.41497802734375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4c[0].YourRole4c[0]
+    description: Your Connection to the case
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_other_connection_to_case
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_other_connection_to_case_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_other_connection_to_case
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_other_case_status_txt:
+    x_petey_id: '2_23'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 522.3159790039062
+      - 210.88897705078125
+      - 573.1619873046875
+      - 230.41497802734375
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4abc[0].Row4c[0].CaseStatus4c[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_other_case_status
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_other_case_status_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_other_case_status
+      suffix: txt
+      grid: p2-G1
+  other_proceeding_juvenile_ind:
+    x_petey_id: '2_27'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 267.041015625
+      - 78.73200225830078
+      - 276.041015625
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4de[0].Row4d[0].PGCell4d[0].JuvCB[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_juvenile
+      suffix: ind
+  other_proceeding_juvenile_case_nbr:
+    x_petey_id: '2_25'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 261.67498779296875
+      - 326.2040100097656
+      - 281.2049865722656
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4de[0].Row4d[0].CaseNo4d[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_juvenile_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_juvenile_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: other_proceeding_juvenile_case
+      suffix: nbr
+  other_proceeding_juvenile_court_name_location_txt:
+    x_petey_id: '2_26'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 331.8739929199219
+      - 261.67498779296875
+      - 573.1640014648438
+      - 281.2049865722656
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4de[0].Row4d[0].Court4d[0]
+    description: Court (name, state or tribe, location)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds a court name, state or tribe and location, not a person name;
+        drop the incorrect person_name semantic type.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Court (name, state or tribe, location)
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_juvenile_court_name_location
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_juvenile_court_name_location_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_juvenile_court_name_location
+      suffix: txt
+  other_proceeding_adoption_ind:
+    x_petey_id: '2_30'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 291.3340148925781
+      - 78.73200225830078
+      - 300.3340148925781
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4de[0].Row4e[0].PGCell4e[0].AdoptCB[0]
+    description: Proceeding Adoption
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: other_proceeding_adoption
+      suffix: ind
+  other_proceeding_adoption_case_nbr:
+    x_petey_id: '2_28'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 286.875
+      - 326.2040100097656
+      - 306.4049987792969
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4de[0].Row4e[0].CaseNo4e[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_adoption_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_adoption_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: other_proceeding_adoption_case
+      suffix: nbr
+  other_proceeding_adoption_court_name_location_txt:
+    x_petey_id: '2_29'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 331.8739929199219
+      - 286.875
+      - 573.1640014648438
+      - 306.4049987792969
+      widget_type: text
+      path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].Table4de[0].Row4e[0].Court4e[0]
+    description: Court (name, state or tribe, location)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Box holds a court name/location per caption and tooltip; person_name
+        semantic type is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Court (name, state or tribe, location)
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: other_proceeding_adoption_court_name_location
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: other_proceeding_adoption_court_name_location_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: other_proceeding_adoption_court_name_location
+      suffix: txt
+  dv_protective_orders_in_effect_ind:
+    x_petey_id: '2_31'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 55.042999267578125
+      - 320.3999938964844
+      - 64.04299926757812
+      - 329.3999938964844
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].DVROCB[0].DVRO_CB[0]
+    description: 'One or more domestic violence restraining/protective orders are
+      now in effect. (Attach a copy of the orders if you have one and provide the
+      following information):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_orders_in_effect
+      suffix: ind
+  dv_protective_order_criminal_ind:
+    x_petey_id: '2_36'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 371.4779968261719
+      - 78.73200225830078
+      - 380.4779968261719
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5a[0].ROCell5a[0].CrimPO_CB5a[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_criminal
+      suffix: ind
+      grid: p2-G2
+  dv_protective_order_criminal_county_txt:
+    x_petey_id: '2_32'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 368.8219909667969
+      - 227.20399475097656
+      - 383.31201171875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5a[0].County5a[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_criminal_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_criminal_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: dv_protective_order_criminal_county
+      suffix: txt
+      grid: p2-G2
+  dv_protective_order_criminal_state_cd:
+    x_petey_id: '2_33'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 232.87399291992188
+      - 368.8219909667969
+      - 325.843994140625
+      - 383.31201171875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5a[0].StateTribe5a[0]
+    label_source: llm
+    description: State or Tribe
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: Printed column heading is 'State or Tribe' and the 93pt box accepts
+        a tribe name, so a 2-letter state abbreviation pattern is too narrow; keep
+        the name and free-text string.
+      before:
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      judged: 'kept: 3 -> 2'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_criminal_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_criminal_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: dv_protective_order_criminal_state
+      suffix: cd
+      grid: p2-G2
+  dv_protective_order_criminal_case_nbr:
+    x_petey_id: '2_34'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 331.5140075683594
+      - 368.8219909667969
+      - 454.5799865722656
+      - 383.31201171875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5a[0].CaseNo5a[0]
+    description: Case Number (if known)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_criminal_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_criminal_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: dv_protective_order_criminal_case
+      suffix: nbr
+      grid: p2-G2
+  dv_protective_order_criminal_expire_dt:
+    x_petey_id: '2_35'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 460.25
+      - 368.8219909667969
+      - 573.1640014648438
+      - 383.31201171875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5a[0].ExpDate5a[0]
+    description: Orders expire (date)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_criminal_expire
+      suffix: dt
+      grid: p2-G2
+  dv_protective_order_family_ind:
+    x_petey_id: '2_37'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 392.9530029296875
+      - 78.73200225830078
+      - 401.9530029296875
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5b[0].ROCell5b[0].FamRO_CB5b[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_family
+      suffix: ind
+      grid: p2-G2
+  dv_protective_order_family_county_txt:
+    x_petey_id: '2_38'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 388.98199462890625
+      - 227.20399475097656
+      - 403.47198486328125
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5b[0].County5b[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_family_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_family_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: dv_protective_order_family_county
+      suffix: txt
+      grid: p2-G2
+  dv_protective_order_family_state_cd:
+    x_petey_id: '2_39'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 232.87399291992188
+      - 388.98199462890625
+      - 325.843994140625
+      - 403.47198486328125
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5b[0].StateTribe5b[0]
+    label_source: llm
+    description: State or Tribe
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: Caption 'State or Tribe' allows a tribe name, not only a 2-letter state
+        code; drop state_abbr and the pattern.
+      before:
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      judged: 'kept: 2 -> 1'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_family_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_family_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: dv_protective_order_family_state
+      suffix: cd
+      grid: p2-G2
+  dv_protective_order_family_case_nbr:
+    x_petey_id: '2_40'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 331.5140075683594
+      - 388.98199462890625
+      - 454.5799865722656
+      - 403.47198486328125
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5b[0].CaseNo5b[0]
+    description: Case Number (if known)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_family_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_family_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: dv_protective_order_family_case
+      suffix: nbr
+      grid: p2-G2
+  dv_protective_order_family_expire_dt:
+    x_petey_id: '2_41'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 460.25
+      - 388.98199462890625
+      - 573.1640014648438
+      - 403.47198486328125
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5b[0].ExpDate5b[0]
+    description: Orders expire (date)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_family_expire
+      suffix: dt
+      grid: p2-G2
+  dv_protective_order_juvenile_ind:
+    x_petey_id: '2_46'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 412.1289978027344
+      - 78.73200225830078
+      - 421.1289978027344
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5c[0].ROCell5c[0].JuvRO_CB5c[0]
+    description: Juvenile Delinquency slash Juvenile Dependency
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_juvenile
+      suffix: ind
+      grid: p2-G2
+  dv_protective_order_juvenile_county_txt:
+    x_petey_id: '2_42'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2760009765625
+      - 409.1440124511719
+      - 227.20199584960938
+      - 423.6300048828125
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5c[0].County5c[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_juvenile_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_juvenile_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: dv_protective_order_juvenile_county
+      suffix: txt
+      grid: p2-G2
+  dv_protective_order_juvenile_state_cd:
+    x_petey_id: '2_43'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 232.87399291992188
+      - 409.1419982910156
+      - 325.843994140625
+      - 423.6319885253906
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5c[0].StateTribe5c[0]
+    label_source: llm
+    description: State or Tribe
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: Caption 'State or Tribe' allows a tribe name; the two-letter pattern
+        contradicts what the filer writes.
+      before:
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      judged: 'kept: 3 -> 2'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_juvenile_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_juvenile_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: dv_protective_order_juvenile_state
+      suffix: cd
+      grid: p2-G2
+  dv_protective_order_juvenile_case_nbr:
+    x_petey_id: '2_44'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 331.5140075683594
+      - 409.1419982910156
+      - 454.5799865722656
+      - 423.6319885253906
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5c[0].CaseNo5c[0]
+    description: Case Number (if known)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_juvenile_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_juvenile_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: dv_protective_order_juvenile_case
+      suffix: nbr
+      grid: p2-G2
+  dv_protective_order_juvenile_expire_dt:
+    x_petey_id: '2_45'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 460.25
+      - 409.1419982910156
+      - 573.1640014648438
+      - 423.6319885253906
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5c[0].ExpDate5c[0]
+    description: Orders expire (date)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_juvenile_expire
+      suffix: dt
+      grid: p2-G2
+  dv_protective_order_other_ind:
+    x_petey_id: '2_47'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.73200225830078
+      - 431.9150085449219
+      - 78.73200225830078
+      - 440.9150085449219
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5d[0].ROCell5d[0].OtherRO_CB5d[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_other
+      suffix: ind
+      grid: p2-G2
+  dv_protective_order_other_county_txt:
+    x_petey_id: '2_48'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 148.2740020751953
+      - 429.302001953125
+      - 227.20399475097656
+      - 443.7919921875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5d[0].County5d[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_other_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_other_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: dv_protective_order_other_county
+      suffix: txt
+      grid: p2-G2
+  dv_protective_order_other_state_cd:
+    x_petey_id: '2_49'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 232.87399291992188
+      - 429.302001953125
+      - 325.843994140625
+      - 443.7919921875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5d[0].StateTribe5d[0]
+    label_source: llm
+    description: State or Tribe
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: Caption 'State or Tribe' allows a tribe name; drop the state_abbr semantic
+        type and the strict pattern.
+      before:
+        type: string
+        semantic_type: state_abbr
+        pattern: ^[A-Z]{2}$
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_other_state
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_other_state_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: state -> state_cd'
+    x_petey_identifiers:
+      subject: dv_protective_order_other_state
+      suffix: cd
+      grid: p2-G2
+  dv_protective_order_other_case_nbr:
+    x_petey_id: '2_50'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 331.5140075683594
+      - 429.302001953125
+      - 454.5799865722656
+      - 443.7919921875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5d[0].CaseNo5d[0]
+    description: Case Number (if known)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: dv_protective_order_other_case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: dv_protective_order_other_case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: dv_protective_order_other_case
+      suffix: nbr
+      grid: p2-G2
+  dv_protective_order_other_expire_dt:
+    x_petey_id: '2_51'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 460.25
+      - 429.302001953125
+      - 573.1640014648438
+      - 443.7919921875
+      widget_type: text
+      path: FL-105[0].Page2[0].Item5subformset[0].List5[0].Li1[0].Table5[0].Row5d[0].ExpDate5d[0]
+    description: Orders expire (date)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: dv_protective_order_other_expire
+      suffix: dt
+      grid: p2-G2
+  nonparty_custody_claim_person_a_name_address_txt:
+    x_petey_id: '2_53'
+    type: string
+    semantic_type: name_and_address
+    widget:
+      page: 2
+      rect:
+      - 50.70899963378906
+      - 491.614990234375
+      - 223.50900268554688
+      - 534.8160400390625
+      widget_type: text
+      path: FL-105[0].Page2[0].List6[0].Li1[0].Name6a[0]
+    description: 'a. Name and address of person:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'a. Name and address of person' asks for name plus address,
+        so address_block fits better than person_name; name already says name_address.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'a. Name and address of person:'
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: nonparty_custody_claim_person_a_name_address_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: nonparty_custody_claim_person_a_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: a
+      subject: name_address
+      suffix: txt
+  nonparty_custody_claim_person_a_has_physical_custody_ind:
+    x_petey_id: '2_56'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 55.042999267578125
+      - 538.0169677734375
+      - 64.04299926757812
+      - 547.0169677734375
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a1[0]
+    description: Has physical custody
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: a
+      subject: has_physical_custody
+      suffix: ind
+  nonparty_custody_claim_person_a_claims_custody_rights_ind:
+    x_petey_id: '2_59'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 55.042999267578125
+      - 549.5169677734375
+      - 64.04299926757812
+      - 558.5169677734375
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a2[0]
+    description: Claims custody rights
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: a
+      subject: claims_custody_rights
+      suffix: ind
+  nonparty_custody_claim_person_a_claims_visitation_rights_ind:
+    x_petey_id: '2_62'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 55.042999267578125
+      - 560.8250122070312
+      - 64.04299926757812
+      - 569.8250122070312
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li1[0].CheckBox6a3[0]
+    description: Claims visitation rights
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: a
+      subject: claims_visitation_rights
+      suffix: ind
+  nonparty_custody_claim_person_a_child_names_txt:
+    x_petey_id: '2_65'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 50.70899963378906
+      - 583.1220092773438
+      - 223.50900268554688
+      - 604.7440185546875
+      widget_type: text
+      path: FL-105[0].Page2[0].List6[0].Li1[0].Child6a[0]
+    description: Name of each child
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: nonparty_custody_claim_person_a_child_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: nonparty_custody_claim_person_a_child_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: a
+      subject: child_names
+      suffix: txt
+  nonparty_custody_claim_person_b_name_address_txt:
+    x_petey_id: '2_54'
+    type: string
+    semantic_type: name_and_address
+    widget:
+      page: 2
+      rect:
+      - 227.08900451660156
+      - 491.614990234375
+      - 399.8890075683594
+      - 534.8160400390625
+      widget_type: text
+      path: FL-105[0].Page2[0].List6[0].Li2[0].Name6b[0]
+    description: 'b. Name and address of person:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Box holds name and address of the second non-party person; person_name
+        semantic type is too narrow.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'b. Name and address of person:'
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: nonparty_custody_claim_person_b_name_address_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: nonparty_custody_claim_person_b_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: b
+      subject: name_address
+      suffix: txt
+  nonparty_custody_claim_person_b_has_physical_custody_ind:
+    x_petey_id: '2_57'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 231.4199981689453
+      - 538.2210083007812
+      - 240.4199981689453
+      - 547.2210083007812
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b1[0]
+    description: Has physical custody
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: b
+      subject: has_physical_custody
+      suffix: ind
+  nonparty_custody_claim_person_b_claims_custody_rights_ind:
+    x_petey_id: '2_60'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 231.4199981689453
+      - 549.7210083007812
+      - 240.4199981689453
+      - 558.7210083007812
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b2[0]
+    description: Claims custody rights
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: b
+      subject: claims_custody_rights
+      suffix: ind
+  nonparty_custody_claim_person_b_claims_visitation_rights_ind:
+    x_petey_id: '2_63'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 231.4199981689453
+      - 561.0289916992188
+      - 240.4199981689453
+      - 570.0289916992188
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li2[0].CheckBox6b3[0]
+    description: Claims visitation rights
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: b
+      subject: claims_visitation_rights
+      suffix: ind
+  nonparty_custody_claim_person_b_child_names_txt:
+    x_petey_id: '2_66'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 227.08900451660156
+      - 583.1220092773438
+      - 399.8890075683594
+      - 604.7440185546875
+      widget_type: text
+      path: FL-105[0].Page2[0].List6[0].Li2[0].Child6b[0]
+    description: Name of each child
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: nonparty_custody_claim_person_b_child_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: nonparty_custody_claim_person_b_child_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: b
+      subject: child_names
+      suffix: txt
+  nonparty_custody_claim_person_c_name_address_txt:
+    x_petey_id: '2_55'
+    type: string
+    semantic_type: name_and_address
+    widget:
+      page: 2
+      rect:
+      - 403.20001220703125
+      - 491.614990234375
+      - 576.0
+      - 534.8160400390625
+      widget_type: text
+      path: FL-105[0].Page2[0].List6[0].Li3[0].Name6c[0]
+    description: 'c. Name and address of person:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Box holds name and address of the third non-party person; person_name
+        semantic type is too narrow.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'c. Name and address of person:'
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: nonparty_custody_claim_person_c_name_address_txt
+        type: string
+        semantic_type: address_block
+        pattern: null
+      to:
+        name: nonparty_custody_claim_person_c_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: c
+      subject: name_address
+      suffix: txt
+  nonparty_custody_claim_person_c_has_physical_custody_ind:
+    x_petey_id: '2_58'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 407.53399658203125
+      - 538.2130126953125
+      - 416.53399658203125
+      - 547.2130126953125
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c1[0]
+    description: Has physical custody
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: c
+      subject: has_physical_custody
+      suffix: ind
+  nonparty_custody_claim_person_c_claims_custody_rights_ind:
+    x_petey_id: '2_61'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 407.53399658203125
+      - 549.7130126953125
+      - 416.53399658203125
+      - 558.7130126953125
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c2[0]
+    description: Claims custody rights
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: c
+      subject: claims_custody_rights
+      suffix: ind
+  nonparty_custody_claim_person_c_claims_visitation_rights_ind:
+    x_petey_id: '2_64'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 407.53399658203125
+      - 561.02001953125
+      - 416.53399658203125
+      - 570.02001953125
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List6[0].Li3[0].CheckBox6c3[0]
+    description: Claims visitation rights
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: c
+      subject: claims_visitation_rights
+      suffix: ind
+  nonparty_custody_claim_person_c_child_names_txt:
+    x_petey_id: '2_67'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 403.20001220703125
+      - 583.1220092773438
+      - 576.0
+      - 604.7440185546875
+      widget_type: text
+      path: FL-105[0].Page2[0].List6[0].Li3[0].Child6c[0]
+    description: Name of each child
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: nonparty_custody_claim_person_c_child_names
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: nonparty_custody_claim_person_c_child_names_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      block_prefix: nonparty_custody_claim_person
+      block_iteration: c
+      subject: child_names
+      suffix: txt
+  pages_attached_count_cnt:
+    x_petey_id: '2_69'
+    type: integer
+    semantic_type: count
+    widget:
+      page: 2
+      rect:
+      - 185.57899475097656
+      - 615.1749877929688
+      - 213.6840057373047
+      - 625.176025390625
+      widget_type: text
+      path: FL-105[0].Page2[0].List7[0].Li1[0].PPAttached[0]
+    description: 'Number of pages attached:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: pages_attached_count
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: pages_attached_count_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cnt (type)'
+    x_petey_identifiers:
+      subject: pages_attached_count
+      suffix: cnt
+  pages_attached_ind:
+    x_petey_id: '2_68'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 55.810001373291016
+      - 615.6849975585938
+      - 64.80999755859375
+      - 624.6849975585938
+      widget_type: checkbox
+      path: FL-105[0].Page2[0].List7[0].Li1[0].Checkbox[0]
+    description: 'Number of pages attached:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: pages_attached
+      suffix: ind
+  declaration_dt:
+    x_petey_id: '2_70'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 58.79100036621094
+      - 652.1190185546875
+      - 169.2030029296875
+      - 661.1190185546875
+      widget_type: text
+      path: FL-105[0].Page2[0].PoPDec[0].SigDate[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: declaration
+      suffix: dt
+  declarant_nm:
+    x_petey_id: '2_71'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 36.00299835205078
+      - 669.5999755859375
+      - 274.2690124511719
+      - 679.9010009765625
+      widget_type: text
+      path: FL-105[0].Page2[0].PoPDec[0].PrintName[0]
+    description: (NAME OF DECLARANT)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:35'
+      from:
+        name: declarant_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: declarant_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: declarant
+      suffix: nm
+  declarant_role:
+    x_petey_id: '1_23'
+    type: category
+    values:
+    - party_to_proceeding
+    - authorized_representative
+    widgets:
+      party_to_proceeding:
+        page: 1
+        rect:
+        - 135.6179962158203
+        - 334.79998779296875
+        - 144.6179962158203
+        - 343.79998779296875
+        widget_type: checkbox
+        path: FL-105[0].Page1[0].List1[0].Li1[0].Party[0].PartyRepCB[0]
+        on_state: '1'
+        caption: a party to this proceeding to determine custody of a child
+        x_petey_caption_source: page_choice
+      authorized_representative:
+        page: 1
+        rect:
+        - 395.8919982910156
+        - 334.79998779296875
+        - 404.8919982910156
+        - 343.79998779296875
+        widget_type: checkbox
+        path: FL-105[0].Page1[0].List1[0].Li1[0].AuthRep[0].PartyRepCB[0]
+        on_state: '1'
+        caption: the authorized representative of the
+        x_petey_caption_source: page_text
+    description: a party to this proceeding to determine custody of a child
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:31:18'
+      from:
+      - declarant_role::party_to_proceeding
+      - declarant_role::authorized_representative
+    x_petey_identifiers:
+      subject: declarant_role
+  other_custody_proceeding_info:
+    x_petey_id: '2_3'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 55.042999267578125
+        - 107.34600830078125
+        - 64.04299926757812
+        - 116.34600830078125
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].OtherCaseYN[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 109.09400177001953
+        - 107.25701904296875
+        - 118.09400177001953
+        - 116.25701904296875
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].Item4subformset[0].List4[0].Li1[0].OtherCaseYN[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: other_custody_proceeding_info
+  nonparty_custody_claim_info:
+    x_petey_id: '2_52'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 222.08900451660156
+        - 468.7200012207031
+        - 231.08900451660156
+        - 477.7200012207031
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].OtherPersonYN[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 275.5329895019531
+        - 468.7340087890625
+        - 284.5329895019531
+        - 477.7340087890625
+        widget_type: checkbox
+        path: FL-105[0].Page2[0].List6[0].OtherPersonYN[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    description: Yes (If yes, provide the following information)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: nonparty_custody_claim_info
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 1
+  collisions:
+  - original_label: case_number
+    assigned_label: case_number_2
+    page: 2
+    rect:
+    - 399.6000061035156
+    - 56.53399658203125
+    - 572.4000244140625
+    - 70.91998291015625
+x_petey_dropped_widgets:
+  count: 7
+  widgets:
+  - path: FL-105[0].#pageSet[0].Page1[0].P1Footer[0].Button1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: COURTS DOT CA DOT GOV
+  - path: FL-105[0].Page1[0].List2[0].Li1[0].Button1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: MC-020
+  - path: FL-105[0].Page1[0].List3[0].Li1[0].Button1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: MC-020
+  - path: FL-105[0].#pageSet[0].Page2[0].FooterButtons[0].Print[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Print this form
+  - path: FL-105[0].#pageSet[0].Page2[0].FooterButtons[0].Save[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Save this form
+  - path: FL-105[0].#pageSet[0].Page2[0].FooterButtons[0].Reset[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear this form
+  - path: FL-105[0].#pageSet[0].Page2[0].FooterButtons[0].Warning[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: For your protection and privacy, please press the Clear This Form button
+      after you have printed the form.
+x_petey_xfa_log:
+  joined: 135
+  type: 1
+  pattern: 4
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 5
+  description_from_tooltip: 2
+x_petey_page_check:
+  when: '2026-10-16 13:33:17'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  fields: 137
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/ca_courts_fl_105__bb3811__b81d430a.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ca_courts_fl_105_20261006_213622
+  blueprint: /home/user/petey-2/runs/judge_eval/work/ca_courts_fl_105.bpt
+  when: '2026-10-06 21:37:02'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ca_courts_fl_105.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 21:37:05'

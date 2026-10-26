@@ -7,11 +7,16 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 10:57:30'
 fields:
-  district_nm:
+  district_information_txt:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -21,6 +26,8 @@ fields:
       - 109.88299560546875
       widget_type: combobox
       path: District Information
+    description: District Information
+    x_petey_description_source: tooltip
     label_source: llm
     values:
     - __________ District of __________
@@ -120,10 +127,28 @@ fields:
     - District of Wyoming
     x_petey_retype:
     - dropdown
+    x_petey_hand_edit:
+      when: '2026-10-15 11:29:05'
+      from:
+        name: district_information
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: district_information_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: district_information
+      suffix: txt
   clerk_nm:
     x_petey_id: '1_2'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -134,7 +159,26 @@ fields:
       widget_type: text
       path: Clerk.Name
     label_source: llm
-  document_content_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 11:29:04'
+      from:
+        name: clerk_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: clerk_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: clerk
+      suffix: nm
+  main_body_txt:
     x_petey_id: '1_3'
     type: string
     semantic_type: text
@@ -147,15 +191,15 @@ fields:
       - 537.739990234375
       widget_type: text
       path: Text
-    label_source: llm
     description: Main body of descriptive text
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: main_body
+      suffix: txt
   city_nm:
     x_petey_id: '1_4'
     type: string
-    semantic_type: city
     widget:
       page: 1
       rect:
@@ -165,12 +209,34 @@ fields:
       - 628.06103515625
       widget_type: text
       path: Clerk.City
-    label_source: llm
-    description: Clerk signature - signature field
+    description: City where the Court is located, named in the testimony clause
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  certification_dt:
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: city_nm
+      reason: The caption directly below the outlined box reads "City", indicating
+        a filer writes the city name here; proposed name city_nm matches this, while
+        current name clerk_signature does not.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - name
+      reason: Caption printed for this box is "City" and publisher field name is Clerk.City;
+        the box holds the city, not a signature.
+      before:
+        type: string
+        description: Clerk signature - signature field
+      old_name: clerk_signature
+      adjudicated: proposed
+      judged: 'kept: 3 -> 0'
+    x_petey_identifiers:
+      subject: city
+      suffix: nm
+  signature_dt:
     x_petey_id: '1_5'
     type: date
     semantic_type: iso_date
@@ -183,16 +249,15 @@ fields:
       - 628.06103515625
       widget_type: text
       path: Date
-    label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Signature date
     x_petey_description_source: tooltip
-  clerk_nm_2:
+    label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  clerk_signature_by_deputy_txt:
     x_petey_id: '1_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -202,19 +267,85 @@ fields:
       - 706.3782958984375
       widget_type: text
       path: Clerk SIG
-    label_source: llm
-    description: Clerk signature - signature field
+    description: Signature of the Clerk of Court
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-x_petey_dedup_log:
-  duplicate_labels_reassigned: 1
-  collisions:
-  - original_label: clerk_nm
-    assigned_label: clerk_nm_2
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: clerk_signature
+      reason: Caption directly below the outlined box reads 'Clerk', indicating this
+        is the Clerk's signature field, not the Deputy Clerk's; 'clerk_signature'
+        fits while 'clerk_signature_by_deputy' does not.
+      model: claude-sonnet-4-6
+      contested: a witness says this widget's text belongs to another field
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      reason: Caption under this box is "Clerk" and publisher name is "Clerk SIG";
+        the deputy line is a separate box. Name freed by renaming the other field
+        to city_nm.
+      before:
+        type: string
+        description: Clerk signature - signature field
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-15 11:29:05'
+      from:
+        name: clerk_signature_by_deputy
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: clerk_signature_by_deputy_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: clerk_signature_by_deputy
+      suffix: txt
+x_petey_dropped_widgets:
+  count: 3
+  widgets:
+  - path: Button.Print1
     page: 1
-    rect:
-    - 36.31990051269531
-    - 687.0239868164062
-    - 310.3070068359375
-    - 706.3782958984375
+    reason: pushbutton
+    field_type: Button
+    tooltip: Opens Print Menu
+  - path: Button.SaveAs
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Allows you to give the file a new name when saving
+  - path: Button.Reset
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Resets the entire form
+x_petey_page_check:
+  when: '2026-10-15 11:29:15'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 6
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/ao030__ebe4fa__a488967f.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ao030_20261006_105811
+  blueprint: runs/judge_eval/blueprints/ao030.bpt
+  when: '2026-10-06 10:58:18'

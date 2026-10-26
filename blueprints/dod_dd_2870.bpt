@@ -1,0 +1,1102 @@
+bpt_version: '1.1'
+name: dod_dd_2870
+form_version: null
+source_pdf: dd2870.pdf
+source_pdf_hash: a5876ee7dca7c5db2eb477cfc533c2a5e6f2e2b6
+source_pages:
+- 1
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 21:23:39'
+fields:
+  patient_nm:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 192.00299072265625
+      - 303.1650085449219
+      - 205.72698974609375
+      widget_type: text
+      path: form1[0].page1[0].patient_name[0]
+    description: SECTION I - PATIENT DATA - 1. NAME (Last, First, Middle Initial)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: patient_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: patient_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: patient
+      suffix: nm
+  patient_birth_dt:
+    x_petey_id: '1_2'
+    type: date
+    semantic_type: birth_date
+    widget:
+      page: 1
+      rect:
+      - 308.8349914550781
+      - 192.00299072265625
+      - 447.1650085449219
+      - 205.72698974609375
+      widget_type: text
+      path: form1[0].page1[0].patient_dob[0]
+    description: 2. DATE OF BIRTH (YYYYMMDD)
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{YYYYMMDD}
+        ui:
+        - date{YYYYMMDD}
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient_birth
+      suffix: dt
+  patient_ssn:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 452.8349914550781
+      - 192.00299072265625
+      - 591.1649780273438
+      - 205.72698974609375
+      widget_type: text
+      path: form1[0].page1[0].patient_ssn[0]
+    description: 3. SOCIAL SECURITY NUMBER
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999-99-9999}
+      pictures:
+        format:
+        - text{999-99-9999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient
+      suffix: ssn
+  treatment_period_txt:
+    x_petey_id: '1_4'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 218.53802490234375
+      - 303.1650085449219
+      - 234.5269775390625
+      widget_type: text
+      path: form1[0].page1[0].period_of_treatment[0]
+    description: '4. PERIOD OF TREATMENT: FROM - TO (YYYYMMDD)'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: treatment_period
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: treatment_period_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: treatment_period
+      suffix: txt
+  authorizing_facility_or_plan_nm:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 91.44300079345703
+      - 250.322998046875
+      - 384.8219909667969
+      - 266.31201171875
+      widget_type: text
+      path: form1[0].page1[0].name_of_facility[0]
+    description: (Name of Facility/TRICARE Health Plan)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: The caption '(Name of Facility/TRICARE Health Plan)' is a facility/organization
+        name, not a person's name; the name is correct, only the semantic_type was
+        wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: (Name of Facility/TRICARE Health Plan)
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: authorizing_facility_or_plan_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: authorizing_facility_or_plan_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: authorizing_facility_or_plan
+      suffix: nm
+  recipient_nm:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 297.27801513671875
+      - 303.1650085449219
+      - 319.48699951171875
+      widget_type: text
+      path: form1[0].page1[0].person_org_to_receive_med_info[0]
+    description: 6a. NAME OF PERSON OR ORGANIZATION TO RECEIVE MY MEDICAL INFORMATION
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: recipient_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recipient_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: recipient
+      suffix: nm
+  recipient_address_txt:
+    x_petey_id: '1_8'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 308.8349914550781
+      - 297.27801513671875
+      - 591.1649780273438
+      - 319.48699951171875
+      widget_type: text
+      path: form1[0].page1[0].disclosure_address[0]
+    description: 6b. ADDRESS (Street, City, State and ZIP Code)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: recipient_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: recipient_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: recipient_address
+      suffix: txt
+  recipient_phone_nbr:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 154.2310028076172
+      - 322.322998046875
+      - 303.1650085449219
+      - 333.8869934082031
+      widget_type: text
+      path: form1[0].page1[0].disclosure_phone[0]
+    description: 6c. TELEPHONE (Include Area Code)
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: recipient_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: recipient_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: recipient_phone
+      suffix: nbr
+  recipient_fax_nbr:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 412.7040100097656
+      - 322.322998046875
+      - 591.1649780273438
+      - 333.8869934082031
+      widget_type: text
+      path: form1[0].page1[0].disclosure_fax[0]
+    description: 6d. FAX (Include Area Code)
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: recipient_fax_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: recipient_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: recipient_fax
+      suffix: nbr
+  request_reason_other_specify_txt:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 440.3340148925781
+      - 348.2430114746094
+      - 591.1649780273438
+      - 385.0069885253906
+      widget_type: text
+      path: form1[0].page1[0].specify7[0]
+    description: 7. REASON FOR REQUEST/USE OF MEDICAL INFORMATION - Enter specification
+      for "Other."
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: request_reason_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: request_reason_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: request_reason_other_specify
+      suffix: txt
+  information_to_be_released_txt:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 398.22698974609375
+      - 591.1649780273438
+      - 435.4070129394531
+      widget_type: text
+      path: form1[0].page1[0].info[0]
+    description: 8. INFORMATION TO BE RELEASED
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: information_to_be_released
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: information_to_be_released_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: information_to_be_released
+      suffix: txt
+  authorization_start_dt:
+    x_petey_id: '1_14'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 448.2179870605469
+      - 213.1649932861328
+      - 464.2070007324219
+      widget_type: text
+      path: form1[0].page1[0].auth_start_date[0]
+    description: 9. AUTHORIZATION START DATE (YYYYMMDD)
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{YYYYMMDD}
+        ui:
+        - date{YYYYMMDD}
+    label_source: llm
+    x_petey_identifiers:
+      subject: authorization_start
+      suffix: dt
+  authorization_expiration_dt:
+    x_petey_id: '1_16'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 315.72900390625
+      - 449.76300048828125
+      - 436.0589904785156
+      - 464.2070007324219
+      widget_type: text
+      path: form1[0].page1[0].ten[0].expired_date[0]
+    description: 10. AUTHORIZATION EXPIRATION - enter DATE (YYYYMMDD)
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{YYYYMMDD}
+        ui:
+        - date{YYYYMMDD}
+    label_source: llm
+    x_petey_identifiers:
+      subject: authorization_expiration
+      suffix: dt
+  patient_or_rep_signature:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 604.0330200195312
+      - 303.1650085449219
+      - 627.2219848632812
+      widget_type: text
+      path: form1[0].page1[0].SignatureField1[0]
+    description: SECTION III - RELEASE AUTHORIZATION - 11. SIGNATURE OF PATIENT/PARENT/LEGAL
+      REPRESENTATIVE
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: patient_or_rep
+      suffix: signature
+  relationship_to_patient_txt:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 308.8349914550781
+      - 613.4420166015625
+      - 447.1650085449219
+      - 627.2219848632812
+      widget_type: text
+      path: form1[0].page1[0].relationship[0]
+    description: 12. RELATIONSHIP TO PATIENT (If applicable)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: relationship_to_patient
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: relationship_to_patient_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: relationship_to_patient
+      suffix: txt
+  signature_dt:
+    x_petey_id: '1_18'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 452.8349914550781
+      - 604.0330200195312
+      - 591.1649780273438
+      - 627.2219848632812
+      widget_type: text
+      path: form1[0].page1[0].date13[0]
+    description: 13. DATE (YYYYMMDD)
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{YYYYMMDD}
+        ui:
+        - date{YYYYMMDD}
+    label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  authorization_revoked_ind:
+    x_petey_id: '1_22'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 660.6600341796875
+      - 33.834999084472656
+      - 673.6600341796875
+      widget_type: checkbox
+      path: form1[0].page1[0].fourteen[0].auth_revoked[0]
+    description: 'SECTION IV - FOR STAFF USE ONLY (To be completed only upon receipt
+      of written revocation) - 14. X IF APPLICABLE: - Select for "AUTHORIZATION REVOKED"'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: authorization_revoked
+      suffix: ind
+  revocation_completed_by_txt:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 154.03500366210938
+      - 653.4019775390625
+      - 447.1650085449219
+      - 679.781982421875
+      widget_type: text
+      path: form1[0].page1[0].rev_completed_by[0]
+    description: 15. REVOCATION COMPLETED BY
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: revocation_completed_by
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: revocation_completed_by_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: revocation_completed_by
+      suffix: txt
+  revocation_dt:
+    x_petey_id: '1_21'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 452.8349914550781
+      - 652.9929809570312
+      - 591.1649780273438
+      - 679.781982421875
+      widget_type: text
+      path: form1[0].page1[0].date16[0]
+    description: 16. DATE (YYYYMMDD)
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{YYYYMMDD}
+        ui:
+        - date{YYYYMMDD}
+    label_source: llm
+    x_petey_identifiers:
+      subject: revocation
+      suffix: dt
+  patient_identification_plate_imprint_txt:
+    x_petey_id: '1_24'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 20.834999084472656
+      - 693.0020141601562
+      - 303.1650085449219
+      - 754.302001953125
+      widget_type: text
+      path: form1[0].page1[0].imprint[0]
+    description: 17. IMPRINT OF PATIENT IDENTIFICATION PLATE WHEN AVAILABLE
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: patient_identification_plate_imprint
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: patient_identification_plate_imprint_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: patient_identification_plate_imprint
+      suffix: txt
+  sponsor_nm:
+    x_petey_id: '1_23'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 399.87200927734375
+      - 682.6179809570312
+      - 591.1649780273438
+      - 694.68701171875
+      widget_type: text
+      path: form1[0].page1[0].sponsor[0].sponsor_name[0]
+    description: 'SPONSOR NAME:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: sponsor_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: sponsor_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: sponsor
+      suffix: nm
+  sponsor_rank_txt:
+    x_petey_id: '1_25'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 399.87200927734375
+      - 697.5230102539062
+      - 591.1649780273438
+      - 709.5919799804688
+      widget_type: text
+      path: form1[0].page1[0].sponsor[0].sponsor_rank[0]
+    description: 'SPONSOR RANK:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: sponsor_rank
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: sponsor_rank_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: sponsor_rank
+      suffix: txt
+  fmp_sponsor_ssn:
+    x_petey_id: '1_26'
+    type: string
+    semantic_type: ssn
+    pattern: ^\d{3}\-\d{2}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 399.87200927734375
+      - 712.427978515625
+      - 591.1649780273438
+      - 724.4970092773438
+      widget_type: text
+      path: form1[0].page1[0].sponsor[0].sponsor_ssn[0]
+    description: 'FMP/SPONSOR SSN:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{999-99-9999}
+      pictures:
+        format:
+        - text{999-99-9999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: fmp_sponsor
+      suffix: ssn
+  branch_of_service_txt:
+    x_petey_id: '1_27'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 399.87200927734375
+      - 727.3330078125
+      - 591.1649780273438
+      - 739.4019775390625
+      widget_type: text
+      path: form1[0].page1[0].sponsor[0].branch_of_service[0]
+    description: 'BRANCH OF SERVICE:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: branch_of_service
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: branch_of_service_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: branch_of_service
+      suffix: txt
+  sponsor_phone_nbr:
+    x_petey_id: '1_28'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 399.87200927734375
+      - 742.2379760742188
+      - 591.1649780273438
+      - 754.3070068359375
+      widget_type: text
+      path: form1[0].page1[0].sponsor[0].sponsor_phone[0]
+    description: 'PHONE NUMBER:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:18'
+      from:
+        name: sponsor_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: sponsor_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: sponsor_phone
+      suffix: nbr
+  treatment_type:
+    x_petey_id: '1_5'
+    type: category
+    values:
+    - both
+    - inpatient
+    - outpatient
+    widgets:
+      both:
+        page: 1
+        rect:
+        - 308.8349914550781
+        - 220.80499267578125
+        - 321.8349914550781
+        - 233.80499267578125
+        widget_type: checkbox
+        path: form1[0].page1[0].five[0].treatment_both[0]
+        on_state: '1'
+        caption: BOTH
+        x_petey_caption_source: page_text
+      inpatient:
+        page: 1
+        rect:
+        - 404.5950012207031
+        - 220.80499267578125
+        - 417.5950012207031
+        - 233.80499267578125
+        widget_type: checkbox
+        path: form1[0].page1[0].five[0].treatment_inpatient[0]
+        on_state: '1'
+        caption: INPATIENT
+        x_petey_caption_source: page_text
+      outpatient:
+        page: 1
+        rect:
+        - 500.3550109863281
+        - 220.80499267578125
+        - 513.35498046875
+        - 233.80499267578125
+        widget_type: checkbox
+        path: form1[0].page1[0].five[0].treatment_outpatient[0]
+        on_state: '1'
+        caption: OUTPATIENT
+        x_petey_caption_source: page_text
+    description: 5. TYPE OF TREATMENT (X one) - Select for "BOTH"
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: treatment_type
+  request_reason:
+    x_petey_id: '1_11'
+    type: category
+    values:
+    - continued_medical_care
+    - insurance
+    - legal
+    - other
+    - personal_use
+    - retirement_separation
+    - school
+    widgets:
+      personal_use:
+        page: 1
+        rect:
+        - 20.834999084472656
+        - 350.2250061035156
+        - 33.834999084472656
+        - 363.2250061035156
+        widget_type: checkbox
+        path: form1[0].page1[0].checkboxes[0].personal_use[0]
+        on_state: '1'
+        caption: PERSONAL USE
+        x_petey_caption_source: page_text
+      continued_medical_care:
+        page: 1
+        rect:
+        - 125.23500061035156
+        - 350.2250061035156
+        - 138.23500061035156
+        - 363.2250061035156
+        widget_type: checkbox
+        path: form1[0].page1[0].checkboxes[0].continued_med_care[0]
+        on_state: '1'
+        caption: CONTINUED MEDICAL CARE
+        x_petey_caption_source: page_text
+      school:
+        page: 1
+        rect:
+        - 268.6570129394531
+        - 350.2250061035156
+        - 281.6570129394531
+        - 363.2250061035156
+        widget_type: checkbox
+        path: form1[0].page1[0].checkboxes[0].school[0]
+        on_state: '1'
+        caption: SCHOOL
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 357.2650146484375
+        - 350.2250061035156
+        - 370.2650146484375
+        - 363.2250061035156
+        widget_type: checkbox
+        path: form1[0].page1[0].checkboxes[0].other7[0]
+        on_state: '1'
+        caption: OTHER (Specify)
+        x_petey_caption_source: page_text
+      insurance:
+        page: 1
+        rect:
+        - 20.834999084472656
+        - 370.0249938964844
+        - 33.834999084472656
+        - 383.0249938964844
+        widget_type: checkbox
+        path: form1[0].page1[0].checkboxes[0].insurance[0]
+        on_state: '1'
+        caption: INSURANCE
+        x_petey_caption_source: page_text
+      retirement_separation:
+        page: 1
+        rect:
+        - 125.23500061035156
+        - 370.0249938964844
+        - 138.23500061035156
+        - 383.0249938964844
+        widget_type: checkbox
+        path: form1[0].page1[0].checkboxes[0].retire_sep[0]
+        on_state: '1'
+        caption: RETIREMENT/SEPARATION
+        x_petey_caption_source: page_text
+      legal:
+        page: 1
+        rect:
+        - 268.6570129394531
+        - 370.0249938964844
+        - 281.6570129394531
+        - 383.0249938964844
+        widget_type: checkbox
+        path: form1[0].page1[0].checkboxes[0].legal[0]
+        on_state: '1'
+        caption: LEGAL
+        x_petey_caption_source: page_text
+    description: 7. REASON FOR REQUEST/USE OF MEDICAL INFORMATION (X as applicable)
+      - Select for "PERSONAL USE"
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_identifiers:
+      subject: request_reason
+  authorization_expiration_date_ind:
+    x_petey_id: '1_15'
+    type: category
+    widgets:
+      date:
+        page: 1
+        rect:
+        - 218.8350067138672
+        - 450.4849853515625
+        - 231.8350067138672
+        - 463.4849853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].ten[0].exp_date[0]
+        on_state: '1'
+        caption: DATE (YYYYMMDD)
+        x_petey_caption_source: page_text
+      action_completed:
+        page: 1
+        rect:
+        - 441.72900390625
+        - 450.4849853515625
+        - 454.72900390625
+        - 463.4849853515625
+        widget_type: checkbox
+        path: form1[0].page1[0].ten[0].action_completed[0]
+        on_state: '1'
+        caption: ACTION COMPLETED
+        x_petey_caption_source: page_text
+    description: 10. AUTHORIZATION EXPIRATION - checkbox marked when the authorization
+      expires on the date entered
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: authorization_expiration_date_ind
+      reason: The outlined box is a checkbox next to 'DATE (YYYYMMDD)' under '10.
+        AUTHORIZATION EXPIRATION'; a filer marks it with an X to indicate date-based
+        expiration, making the _ind suffix appropriate for this boolean indicator.
+      model: claude-sonnet-4-6
+      contested: no caption could be verified at the widget
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -values
+      - name
+      reason: The widget is a single checkbox ('Select for DATE'), not a multi-option
+        category and not the date box itself; typed boolean with an _ind name that
+        says what the mark means.
+      before:
+        type: category
+        values:
+        - action_completed
+        - date
+        description: 10. AUTHORIZATION EXPIRATION - Select for "DATE"
+      old_name: authorization_expiration
+      adjudicated: proposed
+      judged: 'kept: 1 -> 1'
+    values:
+    - date
+    - action_completed
+    x_petey_hand_edit:
+      when: '2026-10-16 13:22:14'
+      from:
+        name: authorization_expiration_date_ind
+        type: boolean
+        semantic_type: null
+        pattern: null
+      to:
+        name: authorization_expiration_date_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 2 options is one of (category), not boolean
+    x_petey_identifiers:
+      subject: authorization_expiration_date_ind
+x_petey_dropped_widgets:
+  count: 1
+  widgets:
+  - path: form1[0].#pageSet[0].Page1[0].ResetButton1[0]
+    page: 1
+    reason: pushbutton
+    field_type: Button
+    tooltip: Select to clear all form fields.
+x_petey_xfa_log:
+  joined: 25
+  pattern: 5
+x_petey_emit_fixes:
+  description_from_tooltip: 3
+x_petey_page_check:
+  when: '2026-10-16 13:23:02'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  fields: 28
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/dod_dd_2870__5bf3b7__1c6804e2.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: dod_dd_2870_20261006_212520
+  blueprint: /home/user/petey-2/runs/judge_eval/work/dod_dd_2870.bpt
+  when: '2026-10-06 21:25:30'
+x_petey_run:
+  record: runs/judge_eval/form_runs/dod_dd_2870.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 3
+  review_rounds: 2
+  when: '2026-10-06 21:25:36'

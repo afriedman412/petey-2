@@ -1,0 +1,2313 @@
+bpt_version: '1.1'
+name: ca_courts_pos_010
+form_version: null
+source_pdf: pos010.pdf
+source_pdf_hash: b171d98f841f463844a70d829e33c994d4d1fcd7
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-07 00:23:45'
+fields:
+  case_nbr_1:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 400.0050048828125
+      - 211.87799072265625
+      - 572.8049926757812
+      - 226.26702880859375
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].CaseNumber1[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_1_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; first of a numbered set gets 1'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '1'
+  attorney_or_party_without_attorney_txt:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.9640007019043
+      - 55.1929931640625
+      - 394.2699890136719
+      - 106.72998046875
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].TextField1[0]
+    description: 'ATTORNEY OR PARTY WITHOUT ATTORNEY (Name, State Bar number, and
+      address):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_or_party_without_attorney
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_or_party_without_attorney_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: attorney_or_party_without_attorney
+      suffix: txt
+  telephone_nbr:
+    x_petey_id: '1_2'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 120.16999816894531
+      - 109.16802978515625
+      - 234.58399963378906
+      - 118.16802978515625
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Phone[0]
+    description: Phone number
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: telephone_no
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: telephone
+      suffix: nbr
+  fax_nbr:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 296.1239929199219
+      - 109.16802978515625
+      - 394.3699951171875
+      - 118.16802978515625
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Fax[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: fax_no
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: fax
+      suffix: nbr
+  email_address_txt:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 120.19999694824219
+      - 120.739013671875
+      - 394.3699951171875
+      - 129.739013671875
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Email[0]
+    description: 'E-MAIL ADDRESS (Optional):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: email_address
+      suffix: txt
+  attorney_for_txt:
+    x_petey_id: '1_5'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 120.19999694824219
+      - 132.1510009765625
+      - 394.3699951171875
+      - 141.1510009765625
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Nmae[0]
+    description: 'ATTORNEY FOR (Name):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: attorney_for
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_for_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: attorney_for
+      suffix: txt
+  court_county_nm:
+    x_petey_id: '1_6'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.71299743652344
+      - 145.25
+      - 393.9930114746094
+      - 154.25
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtCounty[0]
+    description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: A county is a place, not a person name; the name and type fit the caption,
+        only the semantic_type is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_county_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_county
+      suffix: nm
+  court_street_address_txt:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 156.18902587890625
+      - 393.9930114746094
+      - 165.18902587890625
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtStreet[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: court_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_street_address
+      suffix: txt
+  court_mailing_address_txt:
+    x_petey_id: '1_8'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 167.12701416015625
+      - 393.9930114746094
+      - 176.12701416015625
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtMailingAdd[0]
+    description: 'MAILING ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_mailing_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_mailing_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_mailing_address
+      suffix: txt
+  court_city_and_zip_cd:
+    x_petey_id: '1_9'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 178.2080078125
+      - 394.0039978027344
+      - 187.6190185546875
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtCityZip[0]
+    description: 'CITY AND ZIP CODE:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      - -pattern
+      reason: Box holds city and ZIP together, so a bare 5-digit ZIP pattern/semantic_type
+        is invalid; name and type are correct.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: 'CITY AND ZIP CODE:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_city_and_zip_code
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_city_and_zip_cd
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: zip_code -> zip_cd'
+    x_petey_identifiers:
+      subject: court_city_and_zip
+      suffix: cd
+  court_branch_nm:
+    x_petey_id: '1_10'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 189.74200439453125
+      - 393.9930114746094
+      - 198.74200439453125
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtBranch[0]
+    description: 'BRANCH NAME:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: A courthouse branch name is not a person name; only semantic_type is
+        wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'BRANCH NAME:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: court_branch_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_branch_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_branch
+      suffix: nm
+  plaintiff_petitioner_txt:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 149.65499877929688
+      - 204.56201171875
+      - 394.3420104980469
+      - 213.56201171875
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].TitlePartyName[0].Party1[0]
+    description: 'PLAINTIFF OR PETITIONER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: plaintiff_petitioner
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_petitioner_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: plaintiff_petitioner
+      suffix: txt
+  defendant_respondent_txt:
+    x_petey_id: '1_13'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 149.65499877929688
+      - 217.8170166015625
+      - 394.3420104980469
+      - 227.114990234375
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].TitlePartyName[0].Party2[0]
+    description: 'DEFENDANT OR RESPONDENT:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: defendant_respondent
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_respondent_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: defendant_respondent
+      suffix: txt
+  ref_no_or_file_nbr:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 400.0050048828125
+      - 241.3590087890625
+      - 572.8049926757812
+      - 255.74798583984375
+      widget_type: text
+      path: POS-010[0].Page1[0].P1Caption[0].CaseNumber2[0].reqNumber[0]
+    description: Reference Number or File Number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: ref_no_or_file_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ref_no_or_file_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: ref_no_or_file
+      suffix: nbr
+  documents_served_other_specify_txt:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 197.9969940185547
+      - 382.0849914550781
+      - 573.68701171875
+      - 393.97601318359375
+      widget_type: text
+      path: POS-010[0].Page1[0].List2[0].Lif[0].TextField66[0]
+    description: '(specify documents):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: documents_served_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: documents_served_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: documents_served_other_specify
+      suffix: txt
+  party_served_nm:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 65.65299987792969
+      - 409.64898681640625
+      - 572.7680053710938
+      - 420.12298583984375
+      widget_type: text
+      path: POS-010[0].Page1[0].List3[0].Lia[0].FillText1[0]
+    description: 'Party served (specify name of party as shown on documents served):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: party_served_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: party_served_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: party_served
+      suffix: nm
+  person_served_on_behalf_ind:
+    x_petey_id: '1_18'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 70.29100036621094
+      - 425.4779968261719
+      - 79.29100036621094
+      - 434.4779968261719
+      widget_type: checkbox
+      path: POS-010[0].Page1[0].List3[0].Lib[0].limited2[0]
+    description: 'Person (other than the party in item 3a) served on behalf of an
+      entity or as an authorized agent (and not a person under item 5b on whom substituted
+      service was made) (specify name and relationship to the party named in item
+      3a):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: person_served_on_behalf
+      suffix: ind
+  person_served_on_behalf_name_and_relationship_txt:
+    x_petey_id: '1_19'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 90.18699645996094
+      - 447.635986328125
+      - 572.7680053710938
+      - 458.9939880371094
+      widget_type: text
+      path: POS-010[0].Page1[0].List3[0].Lib[0].TextField16[0]
+    description: specify name and relationship to the party named in item 3a
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: person_served_on_behalf_name_and_relationship
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: person_served_on_behalf_name_and_relationship_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: relationship -> relationship_txt'
+    x_petey_identifiers:
+      subject: person_served_on_behalf_name_and_relationship
+      suffix: txt
+  party_served_address_txt:
+    x_petey_id: '1_20'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 50.68899917602539
+      - 476.56298828125
+      - 572.2130126953125
+      - 487.06298828125
+      widget_type: text
+      path: POS-010[0].Page1[0].List4[0].item4[0].FillText18[0]
+    description: 'Address where the party was served:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: party_served_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: party_served_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: party_served_address
+      suffix: txt
+  personal_service_dt:
+    x_petey_id: '1_22'
+    type: date
+    semantic_type: service_date
+    widget:
+      page: 1
+      rect:
+      - 306.260986328125
+      - 518.35498046875
+      - 420.1619873046875
+      - 528.9819946289062
+      widget_type: text
+      path: POS-010[0].Page1[0].List5[0].Lia[0].SubLista[0].LI1[0].FillText20[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: personal_service_date
+        type: date
+        semantic_type: service_date
+        pattern: null
+      to:
+        name: personal_service_dt
+        type: date
+        semantic_type: service_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: date -> dt'
+    x_petey_identifiers:
+      subject: personal_service
+      suffix: dt
+  personal_service_time:
+    x_petey_id: '1_23'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 477.38299560546875
+      - 518.35498046875
+      - 571.1190185546875
+      - 528.9819946289062
+      widget_type: text
+      path: POS-010[0].Page1[0].List5[0].Lia[0].SubLista[0].LI2[0].FillText21[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: personal_service
+      suffix: time
+  substituted_service_dt:
+    x_petey_id: '1_24'
+    type: date
+    semantic_type: service_date
+    widget:
+      page: 1
+      rect:
+      - 231.73599243164062
+      - 537.843017578125
+      - 320.98699951171875
+      - 548.469970703125
+      widget_type: text
+      path: POS-010[0].Page1[0].List5[0].Lib[0].FillText15[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMM D, YYYY}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: substituted_service_date
+        type: date
+        semantic_type: service_date
+        pattern: null
+      to:
+        name: substituted_service_dt
+        type: date
+        semantic_type: service_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: date -> dt'
+    x_petey_identifiers:
+      subject: substituted_service
+      suffix: dt
+  substituted_service_time:
+    x_petey_id: '1_25'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 363.0589904785156
+      - 537.843017578125
+      - 405.99200439453125
+      - 548.469970703125
+      widget_type: text
+      path: POS-010[0].Page1[0].List5[0].Lib[0].FillText16[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: substituted_service
+      suffix: time
+  substituted_service_person_present_txt:
+    x_petey_id: '1_26'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 89.44999694824219
+      - 559.3580322265625
+      - 574.39599609375
+      - 569.8580322265625
+      widget_type: text
+      path: POS-010[0].Page1[0].List5[0].Lib[0].FillText26[0]
+    description: I left the documents listed in item 2 with or in the presence of
+      (name and title or relationship to person indicated in item 3)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: substituted_service_person_present
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: substituted_service_person_present_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: substituted_service_person_present
+      suffix: txt
+  substituted_service_mailed_ind:
+    x_petey_id: '1_28'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 107.71600341796875
+      - 663.7459716796875
+      - 116.71600341796875
+      - 672.7459716796875
+      widget_type: checkbox
+      path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li4[0].Ch6[0]
+    description: I thereafter mailed (by first-class, postage prepaid) copies of the
+      documents to the person to be served at the place where the copies were left
+      (Code Civ. Proc., § 415.20). I mailed the documents on
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: substituted_service_mailed
+      suffix: ind
+  substituted_service_mailed_dt:
+    x_petey_id: '1_29'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 153.13900756835938
+      - 685.385986328125
+      - 233.79800415039062
+      - 696.0130004882812
+      widget_type: text
+      path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li4[0].FillText28[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMM D, YYYY}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: substituted_service_mailed_date
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      to:
+        name: substituted_service_mailed_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: date -> dt'
+    x_petey_identifiers:
+      subject: substituted_service_mailed
+      suffix: dt
+  substituted_service_mailed_city_nm:
+    x_petey_id: '1_30'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 281.2720031738281
+      - 685.385986328125
+      - 395.0950012207031
+      - 696.0130004882812
+      widget_type: text
+      path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li4[0].FillText266[0]
+    description: 'from (city):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: substituted_service_mailed_city
+        type: string
+        semantic_type: city
+        pattern: null
+      to:
+        name: substituted_service_mailed_city_nm
+        type: string
+        semantic_type: city
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_nm (type)'
+    x_petey_identifiers:
+      subject: substituted_service_mailed_city
+      suffix: nm
+  declaration_of_mailing_attached_ind:
+    x_petey_id: '1_31'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 411.9330139160156
+      - 685.9299926757812
+      - 420.9330139160156
+      - 694.9299926757812
+      widget_type: checkbox
+      path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li4[0].Ch6[1]
+    description: a declaration of mailing is attached.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: declaration_of_mailing_attached
+      suffix: ind
+  declaration_of_diligence_attached_ind:
+    x_petey_id: '1_32'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 107.71600341796875
+      - 701.3619995117188
+      - 116.71600341796875
+      - 710.3619995117188
+      widget_type: checkbox
+      path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li5[0].Ch7[0]
+    description: I attach a declaration of diligence stating actions taken first to
+      attempt personal service.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: declaration_of_diligence_attached
+      suffix: ind
+  plaintiff_petitioner_nm:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 151.2830047607422
+      - 48.96600341796875
+      - 394.3420104980469
+      - 60.48602294921875
+      widget_type: text
+      path: POS-010[0].Page2[0].PxCaption[0].TitlePartyName[0].Party1[0]
+    description: 'PLAINTIFF OR PETITIONER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: plaintiff_petitioner_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: plaintiff_petitioner_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: plaintiff_petitioner
+      suffix: nm
+  defendant_respondent_nm:
+    x_petey_id: '2_2'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 151.2830047607422
+      - 62.51800537109375
+      - 394.3420104980469
+      - 74.03802490234375
+      widget_type: text
+      path: POS-010[0].Page2[0].PxCaption[0].TitlePartyName[0].Party2[0]
+    description: 'DEFENDANT OR RESPONDENT:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: defendant_respondent_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: defendant_respondent_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: defendant_respondent
+      suffix: nm
+  case_nbr_2:
+    x_petey_id: '2_3'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 400.0050048828125
+      - 58.87298583984375
+      - 572.8049926757812
+      - 73.26202392578125
+      widget_type: text
+      path: POS-010[0].Page2[0].PxCaption[0].CaseNumber[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: case_number_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_2_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr; number moved before the suffix'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+      iteration: '2'
+  service_manner_mail_and_acknowledgment_ind:
+    x_petey_id: '2_4'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.90499877929688
+      - 90.30902099609375
+      - 79.90499877929688
+      - 100.30902099609375
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List5[0].Lic[0].Ch1[0]
+    description: by mail and acknowledgment of receipt of service. I mailed the documents
+      listed in item 2 to the party, to the address shown in item 4, by first-class
+      mail, postage prepaid,
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_manner_mail_and_acknowledgment
+      suffix: ind
+  service_mail_dt:
+    x_petey_id: '2_5'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 149.33799743652344
+      - 117.17901611328125
+      - 311.7449951171875
+      - 127.8060302734375
+      widget_type: text
+      path: POS-010[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii1[0].FillText50[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_mail
+      suffix: dt
+  service_mail_city_nm:
+    x_petey_id: '2_6'
+    type: string
+    semantic_type: city
+    widget:
+      page: 2
+      rect:
+      - 375.4989929199219
+      - 117.17901611328125
+      - 572.7680053710938
+      - 127.8060302734375
+      widget_type: text
+      path: POS-010[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii2[0].FillText51[0]
+    description: 'from (city):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_mail_city
+      suffix: nm
+  service_mail_with_acknowledgment_ind:
+    x_petey_id: '2_7'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 113.61199951171875
+      - 133.3590087890625
+      - 122.61199951171875
+      - 142.3590087890625
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii3[0].CheckBox24[0]
+    description: with two copies of the Notice and Acknowledgment of Receipt and a
+      postage-paid return envelope addressed to me. (Attach completed Notice and Acknowledgement
+      of Receipt.) (Code Civ. Proc., § 415.30.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_mail_with_acknowledgment
+      suffix: ind
+  service_mail_outside_california_ind:
+    x_petey_id: '2_8'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 113.61199951171875
+      - 159.1829833984375
+      - 122.61199951171875
+      - 168.1829833984375
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List5[0].Lic[0].SubListc[0].Lii4[0].CheckBox25[0]
+    description: to an address outside California with return receipt requested. (Code
+      Civ. Proc., § 415.40.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_mail_outside_california
+      suffix: ind
+  service_manner_other_means_ind:
+    x_petey_id: '2_9'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.90499877929688
+      - 179.8330078125
+      - 78.90499877929688
+      - 188.8330078125
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List5[0].Lid[0].Ch1[0]
+    description: by other means
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_manner_other_means
+      suffix: ind
+  service_other_means_txt:
+    x_petey_id: '2_10'
+    type: string
+    semantic_type: text
+    widget:
+      page: 2
+      rect:
+      - 88.84300231933594
+      - 189.63702392578125
+      - 572.708984375
+      - 227.8070068359375
+      widget_type: text
+      path: POS-010[0].Page2[0].List5[0].Lid[0].FillText56[0]
+    description: '(specify means of service and authorizing code section):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_other_means
+      suffix: txt
+  service_additional_page_attached_ind:
+    x_petey_id: '2_11'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 69.97599792480469
+      - 234.5360107421875
+      - 78.97599792480469
+      - 243.5360107421875
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List5[0].Lid[0].CheckBox31[0]
+    description: Additional page describing service is attached.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: service_additional_page_attached
+      suffix: ind
+  notice_served_as_individual_ind:
+    x_petey_id: '2_12'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.59100341796875
+      - 268.343017578125
+      - 79.59100341796875
+      - 277.343017578125
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List6[0].Lia[0].CheckBox40[0]
+    description: as an individual defendant.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: notice_served_as_individual
+      suffix: ind
+  notice_served_as_fictitious_name_ind:
+    x_petey_id: '2_13'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.59100341796875
+      - 283.0769958496094
+      - 79.59100341796875
+      - 292.0769958496094
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List6[0].Lib[0].CheckBox41[0]
+    description: as the person sued under the fictitious name of
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: notice_served_as_fictitious_name
+      suffix: ind
+  notice_served_fictitious_nm:
+    x_petey_id: '2_14'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 320.5989990234375
+      - 281.63299560546875
+      - 570.5859985351562
+      - 293.52398681640625
+      widget_type: text
+      path: POS-010[0].Page2[0].List6[0].Lib[0].TextField40[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: notice_served_fictitious_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: notice_served_fictitious_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: notice_served_fictitious
+      suffix: nm
+  notice_served_as_occupant_ind:
+    x_petey_id: '2_15'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.59100341796875
+      - 298.3280029296875
+      - 79.59100341796875
+      - 307.3280029296875
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List6[0].Lic[0].CheckBox43[0]
+    description: as occupant.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: notice_served_as_occupant
+      suffix: ind
+  notice_served_on_behalf_of_ind:
+    x_petey_id: '2_16'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 2
+      rect:
+      - 70.59100341796875
+      - 313.7170104980469
+      - 79.59100341796875
+      - 322.7170104980469
+      widget_type: checkbox
+      path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox45[0]
+    description: On behalf of
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: notice_served_on_behalf_of
+      suffix: ind
+  notice_served_on_behalf_of_nm:
+    x_petey_id: '2_17'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 180.95199584960938
+      - 312.2760009765625
+      - 570.5850219726562
+      - 324.1669921875
+      widget_type: text
+      path: POS-010[0].Page2[0].List6[0].Lid[0].specify[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: notice_served_on_behalf_of_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: notice_served_on_behalf_of_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: notice_served_on_behalf_of
+      suffix: nm
+  ccp_section_other_specify_txt:
+    x_petey_id: '2_19'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 361.47100830078125
+      - 412.3420104980469
+      - 572.385986328125
+      - 423.70001220703125
+      widget_type: text
+      path: POS-010[0].Page2[0].List6[0].Lid[0].other[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: ccp_section_other_specify
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ccp_section_other_specify_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: ccp_section_other_specify
+      suffix: txt
+  server_nm:
+    x_petey_id: '2_20'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 95.9260025024414
+      - 445.22900390625
+      - 570.5859985351562
+      - 455.3089904785156
+      widget_type: text
+      path: POS-010[0].Page2[0].List7[0].Lia[0].Field1[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: server_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: server_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: server
+      suffix: nm
+  server_address_txt:
+    x_petey_id: '2_21'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 104.63899993896484
+      - 460.4939880371094
+      - 571.1190185546875
+      - 470.5740051269531
+      widget_type: text
+      path: POS-010[0].Page2[0].List7[0].Lib[0].Field2[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: server_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: server_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: server_address
+      suffix: txt
+  server_telephone_nbr:
+    x_petey_id: '2_22'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 2
+      rect:
+      - 146.05999755859375
+      - 475.20001220703125
+      - 321.52301025390625
+      - 485.2799987792969
+      widget_type: text
+      path: POS-010[0].Page2[0].List7[0].Lic[0].Field3[0]
+    description: 'Telephone number:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: server_telephone_number
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: server_telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: server_telephone
+      suffix: nbr
+  service_fee_amt:
+    x_petey_id: '2_23'
+    type: number
+    semantic_type: money
+    widget:
+      page: 2
+      rect:
+      - 171.12600708007812
+      - 489.61700439453125
+      - 320.98699951171875
+      - 499.6969909667969
+      widget_type: text
+      path: POS-010[0].Page2[0].List7[0].Lid[0].DecimalField11[0]
+    description: 'The fee for service was: dollar amount'
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zz,zzz,zz9.99}
+    label_source: llm
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      subject: service_fee
+      suffix: amt
+  process_server_registration_nbr:
+    x_petey_id: '2_26'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 194.55999755859375
+      - 576.2949829101562
+      - 573.8590087890625
+      - 587.6530151367188
+      widget_type: text
+      path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li3[0].Field12[0]
+    description: Registration Number
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: process_server_registration_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: process_server_registration_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: process_server_registration
+      suffix: nbr
+  process_server_county_txt:
+    x_petey_id: '2_27'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 158.5970001220703
+      - 591.2020263671875
+      - 459.57501220703125
+      - 602.5599975585938
+      widget_type: text
+      path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li3[0].Field13[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: process_server_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: process_server_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: process_server_county
+      suffix: txt
+  declaration_type:
+    x_petey_id: '2_32'
+    type: category
+    values:
+    - declaration_penalty_of_perjury_ind
+    - sheriff_or_marshal_certification_ind
+    widgets:
+      declaration_penalty_of_perjury_ind:
+        page: 2
+        rect:
+        - 55.111000061035156
+        - 611.5969848632812
+        - 64.11100006103516
+        - 620.5969848632812
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List8[0].item8[0].declare1[0]
+        on_state: '1'
+      sheriff_or_marshal_certification_ind:
+        page: 2
+        rect:
+        - 55.111000061035156
+        - 639.6119995117188
+        - 64.11100006103516
+        - 648.6119995117188
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List9[0].item9[0].declare1[0]
+        on_state: '2'
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-20 23:34:25'
+      from:
+      - declaration_penalty_of_perjury_ind
+      - sheriff_or_marshal_certification_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: declaration_type
+  declaration_dt:
+    x_petey_id: '2_30'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 61.20000076293945
+      - 666.3200073242188
+      - 169.1999969482422
+      - 676.3209838867188
+      widget_type: text
+      path: POS-010[0].Page2[0].Sign[0].SigDate[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: declaration
+      suffix: dt
+  server_or_sheriff_nm:
+    x_petey_id: '2_31'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 36.0
+      - 686.1229858398438
+      - 275.8760070800781
+      - 700.2340087890625
+      widget_type: text
+      path: POS-010[0].Page2[0].Sign[0].SigName[0]
+    description: (NAME OF PERSON WHO SERVED PAPERS/SHERIFF OR MARSHAL)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: server_or_sheriff_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: server_or_sheriff_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: server_or_sheriff
+      suffix: nm
+  documents_served_summons_ind:
+    x_petey_id: '1_15'
+    type: category
+    widgets:
+      summons:
+        page: 1
+        rect:
+        - 70.07499694824219
+        - 309.7919921875
+        - 79.07499694824219
+        - 318.7919921875
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List2[0].Lia[0].CheckBox1[0]
+        on_state: '1'
+        caption: summons
+        x_petey_caption_source: page_text
+      complaint:
+        page: 1
+        rect:
+        - 70.07499694824219
+        - 324.5260009765625
+        - 79.07499694824219
+        - 333.5260009765625
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List2[0].Lib[0].CheckBox2[0]
+        on_state: '1'
+        caption: complaint
+        x_petey_caption_source: page_text
+      adr_package:
+        page: 1
+        rect:
+        - 70.07499694824219
+        - 339.7760009765625
+        - 79.07499694824219
+        - 348.7760009765625
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List2[0].Lic[0].CheckBox3[0]
+        on_state: '1'
+        caption: Alternative Dispute Resolution (ADR) package
+        x_petey_caption_source: page_text
+      civil_case_cover_sheet:
+        page: 1
+        rect:
+        - 70.07499694824219
+        - 353.33599853515625
+        - 79.07499694824219
+        - 362.33599853515625
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List2[0].Lid[0].CheckBox4[0]
+        on_state: '1'
+        caption: Civil Case Cover Sheet (served in complex cases only)
+        x_petey_caption_source: page_choice
+      cross_complaint:
+        page: 1
+        rect:
+        - 70.07499694824219
+        - 368.2760009765625
+        - 79.07499694824219
+        - 377.2760009765625
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List2[0].Lie[0].CheckBox5[0]
+        on_state: '1'
+        caption: cross-complaint
+        x_petey_caption_source: page_text
+      other:
+        page: 1
+        rect:
+        - 70.07499694824219
+        - 383.5260009765625
+        - 79.07499694824219
+        - 392.5260009765625
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List2[0].Lif[0].limited124[0]
+        on_state: '1'
+        caption: other (specify documents)
+        x_petey_caption_source: page_text
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: documents_served_summons_ind
+      reason: The box is labeled 'summons' (item 2a) and is a checkbox to indicate
+        if a summons was included among documents served; the proposed name 'documents_served_summons_ind'
+        correctly identifies it as a boolean indicator for summons specifically, while
+        'documents_served' is too broad and implies a categor
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    description: 'a. summons (item 2: documents served)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - semantic_type
+      - description
+      - -values
+      - name
+      reason: This widget is the single 'summons' checkbox in item 2, where several
+        documents may be checked; a single-choice category over all documents misdescribes
+        the box.
+      before:
+        type: category
+        values:
+        - adr_package
+        - civil_case_cover_sheet
+        - complaint
+        - cross_complaint
+        - other
+        - summons
+      old_name: documents_served
+      adjudicated: proposed
+    values:
+    - summons
+    - complaint
+    - adr_package
+    - civil_case_cover_sheet
+    - cross_complaint
+    - other
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:10'
+      from:
+        name: documents_served_summons_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: documents_served_summons_ind
+        type: category
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: a group of 6 options is one of (category), not boolean
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:34:59'
+      from:
+      - documents_served_summons_ind::summons
+      - documents_served_summons_ind::complaint
+      - documents_served_summons_ind::adr_package
+      - documents_served_summons_ind::civil_case_cover_sheet
+      - documents_served_summons_ind::cross_complaint
+      - documents_served_summons_ind::other
+    x_petey_identifiers:
+      subject: documents_served_summons_ind
+  service_method:
+    x_petey_id: '1_21'
+    type: category
+    values:
+    - personal_service
+    - substituted_service
+    widgets:
+      personal_service:
+        page: 1
+        rect:
+        - 70.29100036621094
+        - 508.8280029296875
+        - 79.29100036621094
+        - 517.8280029296875
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List5[0].Lia[0].Ch1[0]
+        on_state: '1'
+        caption: 'by personal service. I personally delivered the documents listed
+          in item 2 to the party or person authorized to receive service of process
+          for the party (1) on (date): (2) at (time):'
+        x_petey_caption_source: page_choice
+      substituted_service:
+        page: 1
+        rect:
+        - 69.81700134277344
+        - 538.656005859375
+        - 78.81700134277344
+        - 547.656005859375
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List5[0].Lib[0].Ch1[0]
+        on_state: '2'
+        caption: 'by substituted service. On (date): at (time): I left the documents
+          listed in item 2 with or in the presence of (name and title or relationship
+          to person indicated in item 3):'
+        x_petey_caption_source: page_choice
+    description: by personal service. I personally delivered the documents listed
+      in item 2 to the party or person authorized to receive service of process for
+      the party
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:34:59'
+      from:
+      - service_method::personal_service
+      - service_method::substituted_service
+    x_petey_identifiers:
+      subject: service_method
+  substituted_service_place:
+    x_petey_id: '1_27'
+    type: category
+    values:
+    - business
+    - home
+    - physical_address_unknown
+    widgets:
+      business:
+        page: 1
+        rect:
+        - 107.71600341796875
+        - 575.093017578125
+        - 116.71600341796875
+        - 584.093017578125
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li1[0].Ch3[0]
+        on_state: '2'
+        caption: (business) a person at least 18 years of age apparently in charge
+          at the office or usual place of business of the person to be served. I informed
+          him or her of the general nature of the papers.
+        x_petey_caption_source: page_choice
+      home:
+        page: 1
+        rect:
+        - 107.71600341796875
+        - 600.1909790039062
+        - 116.71600341796875
+        - 609.1909790039062
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li2[0].Ch4[0]
+        on_state: '2'
+        caption: (home) a competent member of the household (at least 18 years of
+          age) at the dwelling house or usual place of abode of the party. I informed
+          him or her of the general nature of the papers.
+        x_petey_caption_source: page_choice
+      physical_address_unknown:
+        page: 1
+        rect:
+        - 107.71600341796875
+        - 626.4959716796875
+        - 116.71600341796875
+        - 635.4959716796875
+        widget_type: checkbox
+        path: POS-010[0].Page1[0].List5[0].Lib[0].SubListb[0].Li3[0].Ch5[0]
+        on_state: '2'
+        caption: (physical address unknown) a person at least 18 years of age apparently
+          in charge at the usual mailing address of the person to be served, other
+          than a United States Postal Service post office box. I informed him or her
+          of the general nature of the papers.
+        x_petey_caption_source: page_choice
+    description: (business) a person at least 18 years of age apparently in charge
+      at the office or usual place of business of the person to be served. I informed
+      him or her of the general nature of the papers.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:34:59'
+      from:
+      - substituted_service_place::business
+      - substituted_service_place::home
+      - substituted_service_place::physical_address_unknown
+    x_petey_identifiers:
+      subject: substituted_service_place
+  ccp_section:
+    x_petey_id: '2_18'
+    type: category
+    values:
+    - 416_10_corporation
+    - 416_20_defunct_corporation
+    - 416_30_joint_stock_company
+    - 416_40_association_or_partnership
+    - 416_50_public_entity
+    - 415_95_business_org_unknown
+    - 416_60_minor
+    - 416_70_ward_or_conservatee
+    - 416_90_authorized_person
+    - 415_46_occupant
+    - other
+    widgets:
+      416_10_corporation:
+        page: 2
+        rect:
+        - 120.71600341796875
+        - 342.4840087890625
+        - 129.71600341796875
+        - 351.4840087890625
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox55[0]
+        on_state: '1'
+        caption: 416.10 (corporation)
+        x_petey_caption_source: page_text
+      416_20_defunct_corporation:
+        page: 2
+        rect:
+        - 120.71600341796875
+        - 356.3080139160156
+        - 129.71600341796875
+        - 365.3080139160156
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox56[0]
+        on_state: '1'
+        caption: 416.20 (defunct corporation)
+        x_petey_caption_source: page_text
+      416_30_joint_stock_company:
+        page: 2
+        rect:
+        - 120.71600341796875
+        - 370.45001220703125
+        - 129.71600341796875
+        - 379.45001220703125
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox57[0]
+        on_state: '1'
+        caption: 416.30 (joint stock company/association)
+        x_petey_caption_source: page_text
+      416_40_association_or_partnership:
+        page: 2
+        rect:
+        - 120.71600341796875
+        - 384.7879943847656
+        - 129.71600341796875
+        - 393.7879943847656
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox58[0]
+        on_state: '1'
+        caption: 416.40 (association or partnership)
+        x_petey_caption_source: page_text
+      416_50_public_entity:
+        page: 2
+        rect:
+        - 120.71600341796875
+        - 398.92999267578125
+        - 129.71600341796875
+        - 407.92999267578125
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox59[0]
+        on_state: '1'
+        caption: 416.50 (public entity)
+        x_petey_caption_source: page_text
+      415_95_business_org_unknown:
+        page: 2
+        rect:
+        - 317.6449890136719
+        - 342.5
+        - 326.6449890136719
+        - 351.5
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox60[0]
+        on_state: '1'
+        caption: 415.95 (business organization, form unknown)
+        x_petey_caption_source: page_text
+      416_60_minor:
+        page: 2
+        rect:
+        - 317.6449890136719
+        - 356.63800048828125
+        - 326.6449890136719
+        - 365.63800048828125
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox61[0]
+        on_state: '1'
+        caption: 416.60 (minor)
+        x_petey_caption_source: page_text
+      416_70_ward_or_conservatee:
+        page: 2
+        rect:
+        - 317.6449890136719
+        - 370.7799987792969
+        - 326.6449890136719
+        - 379.7799987792969
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox62[0]
+        on_state: '1'
+        caption: 416.70 (ward or conservatee)
+        x_petey_caption_source: page_text
+      416_90_authorized_person:
+        page: 2
+        rect:
+        - 317.6449890136719
+        - 385.1180114746094
+        - 326.6449890136719
+        - 394.1180114746094
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox63[0]
+        on_state: '1'
+        caption: 416.90 (authorized person)
+        x_petey_caption_source: page_text
+      415_46_occupant:
+        page: 2
+        rect:
+        - 317.6449890136719
+        - 399.260009765625
+        - 326.6449890136719
+        - 408.260009765625
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox64[0]
+        on_state: '1'
+        caption: 415.46 (occupant)
+        x_petey_caption_source: page_text
+      other:
+        page: 2
+        rect:
+        - 317.6449890136719
+        - 413.30999755859375
+        - 326.6449890136719
+        - 422.30999755859375
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List6[0].Lid[0].CheckBox65[0]
+        on_state: '1'
+        caption: 'other:'
+        x_petey_caption_source: page_choice
+    description: 416.10 (corporation)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:34:59'
+      from:
+      - ccp_section::416_10_corporation
+      - ccp_section::416_20_defunct_corporation
+      - ccp_section::416_30_joint_stock_company
+      - ccp_section::416_40_association_or_partnership
+      - ccp_section::416_50_public_entity
+      - ccp_section::415_95_business_org_unknown
+      - ccp_section::416_60_minor
+      - ccp_section::416_70_ward_or_conservatee
+      - ccp_section::416_90_authorized_person
+      - ccp_section::415_46_occupant
+      - ccp_section::other
+    x_petey_identifiers:
+      subject: ccp_section
+  process_server_registration_status:
+    x_petey_id: '2_24'
+    type: category
+    values:
+    - not_registered
+    - exempt
+    - registered
+    widgets:
+      not_registered:
+        page: 2
+        rect:
+        - 85.54100036621094
+        - 520.31103515625
+        - 94.54100036621094
+        - 529.31103515625
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li1[0].Ch30[0]
+        on_state: '1'
+        caption: not a registered California process server
+        x_petey_caption_source: page_text
+      exempt:
+        page: 2
+        rect:
+        - 85.54100036621094
+        - 534.2860107421875
+        - 94.54100036621094
+        - 543.2860107421875
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li2[0].Ch31[0]
+        on_state: '1'
+        caption: exempt from registration under Business and Professions Code section
+          22350(b).
+        x_petey_caption_source: page_choice
+      registered:
+        page: 2
+        rect:
+        - 85.54100036621094
+        - 548.4080200195312
+        - 94.54100036621094
+        - 557.4080200195312
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li3[0].Ch32[0]
+        on_state: '1'
+        caption: a registered California process server
+        x_petey_caption_source: page_text
+    description: not a registered California process server.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:34:59'
+      from:
+      - process_server_registration_status::not_registered
+      - process_server_registration_status::exempt
+      - process_server_registration_status::registered
+    x_petey_identifiers:
+      subject: process_server_registration_status
+  registered_process_server_type:
+    x_petey_id: '2_25'
+    type: category
+    values:
+    - employee
+    - independent_contractor
+    - owner
+    widgets:
+      owner:
+        page: 2
+        rect:
+        - 129.1580047607422
+        - 563.85302734375
+        - 138.1580047607422
+        - 572.85302734375
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li3[0].Ch33[0]
+        on_state: '1'
+        caption: owner
+        x_petey_caption_source: page_text
+      employee:
+        page: 2
+        rect:
+        - 193.9429931640625
+        - 563.8359985351562
+        - 202.9429931640625
+        - 572.8359985351562
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li3[0].Ch34[0]
+        on_state: '1'
+        caption: employee
+        x_petey_caption_source: page_text
+      independent_contractor:
+        page: 2
+        rect:
+        - 274.3450012207031
+        - 563.7000122070312
+        - 283.3450012207031
+        - 572.7000122070312
+        widget_type: checkbox
+        path: POS-010[0].Page2[0].List7[0].Lie[0].subListe[0].Li3[0].Ch35[0]
+        on_state: '1'
+        caption: independent contractor
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: registered_process_server_type
+x_petey_dedup_log:
+  duplicate_labels_reassigned: 1
+  collisions:
+  - original_label: case_number
+    assigned_label: case_number_2
+    page: 2
+    rect:
+    - 400.0050048828125
+    - 58.87298583984375
+    - 572.8049926757812
+    - 73.26202392578125
+x_petey_dropped_widgets:
+  count: 4
+  widgets:
+  - path: POS-010[0].#pageSet[0].LastPage[0].PXFooter[0].FooterButtons[0].Print[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Print this form
+  - path: POS-010[0].#pageSet[0].LastPage[0].PXFooter[0].FooterButtons[0].Save[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Save this form
+  - path: POS-010[0].#pageSet[0].LastPage[0].PXFooter[0].FooterButtons[0].Reset[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear this form
+  - path: POS-010[0].#pageSet[0].LastPage[0].PXFooter[0].FooterButtons[0].Warning[0]
+    page: 2
+    reason: pushbutton
+    field_type: Button
+    tooltip: For your protection and privacy, please press the Clear This Form button
+      after you have printed the form.
+x_petey_xfa_log:
+  joined: 57
+  pattern: 3
+x_petey_emit_fixes:
+  description_from_tooltip: 4
+x_petey_page_check:
+  when: '2026-10-16 13:35:50'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  fields: 63
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/ca_courts_pos_010__6f6ffd__2c3d1a14.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ca_courts_pos_010_20261007_002602
+  blueprint: /home/user/petey-2/runs/judge_eval/work/ca_courts_pos_010.bpt
+  when: '2026-10-07 00:26:17'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ca_courts_pos_010.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-07 00:26:19'

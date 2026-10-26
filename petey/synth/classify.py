@@ -93,13 +93,14 @@ SEMANTIC_TO_CLASS: dict[str, str] = {
     "id_part": "id_part", "ssn": "ssn", "ein": "ein", "itin": "itin", "npi": "other_id",
     "routing_number": "other_id", "account_number": "other_id", "naics": "other_id",
     "tin": "ssn", "money_whole_dollar": "money", "money": "money", "percent": "percent",
-    "count": "count", "birth_date": "birth_date", "service_date": "date", "iso_date": "date",
+    "count": "count", "birth_date": "birth_date", "service_date": "date", "iso_date": "date", "datetime": "date",
     "year": "year", "phone": "phone", "email": "email", "state_abbr": "state", "zip": "zip",
     "city": "city", "country_code": "country", "country": "country",
-    "street_address": "street", "entity_name": "business_name",
+    "street_address": "street", "name_and_address": "address_block", "entity_name": "business_name",
     "business_name": "business_name", "first_name": "first_name", "last_name": "last_name",
     "person_name": "full_name", "description": "free_text", "text": "free_text",
-    "indicator": "option",
+    "indicator": "option", "name": "full_name", "ca_postal_code": "zip", "uk_postcode": "zip", "uk_phone": "phone",
+    "intl_phone": "phone",
 }
 
 # Classes that agree with each other for the labeler comparison (a whole
@@ -241,7 +242,7 @@ def classify_form(
     unknown: list[str] = []
     bad_class: dict[str, str] = {}
     seen: set[str] = set()
-    for page_no in sorted(pngs):
+    def one_page(page_no):
         ids = [b["id"] for b in boxes if b["page"] == page_no]
         user_text = USER_TEMPLATE.format(ids=", ".join(ids))
         text = call_page(client, model, pngs[page_no], system, user_text, tag)
@@ -257,6 +258,14 @@ def classify_form(
         if not parsed or not isinstance(parsed.get("boxes"), dict):
             raise RuntimeError(f"classifier did not return {{'boxes': {{...}}}} on page {page_no}.\n"
                                f"Got: {text[:500]}")
+        return ids, parsed
+    # the pages' calls go out together (2026-10-19: one after another they cost 64 + 34 + 11 + 11 s on ACORD 90 NY;
+    # a call's time is its output, so the form costs its slowest page); the answers are read in page order
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, len(pngs))) as ex:
+        answers = dict(zip(sorted(pngs), ex.map(one_page, sorted(pngs))))
+    for page_no in sorted(pngs):
+        ids, parsed = answers[page_no]
         raw[str(page_no)] = parsed["boxes"]
         page_ids = set(ids)
         for bid, ans in parsed["boxes"].items():

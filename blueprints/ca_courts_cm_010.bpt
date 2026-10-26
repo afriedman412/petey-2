@@ -1,0 +1,1787 @@
+bpt_version: '1.1'
+name: ca_courts_cm_010
+form_version: null
+source_pdf: cm010.pdf
+source_pdf_hash: e1332d631e2f8d823c85a5bde5591b0960a0e6b5
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:08:59'
+fields:
+  attorney_state_bar_nbr:
+    x_petey_id: '1_1'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 308.8269958496094
+      - 48.2769775390625
+      - 393.9930114746094
+      - 57.2769775390625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].AttyBarNo[0]
+    description: Attorney's California State Bar number
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: num
+      pictures:
+        format:
+        - num{zzzzzzzzzzzz9}
+    label_source: llm
+    pattern: ^\d{1,12}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - pattern
+      - description
+      - -semantic_type
+      reason: A bar number is a license identifier, not a state abbreviation and not
+        a quantity; the XFA picture allows up to 12 digits. Name already matches the
+        caption.
+      before:
+        type: number
+        semantic_type: state_abbr
+        description: 'STATE BAR NUMBER:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_state_bar_num
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      to:
+        name: attorney_state_bar_nbr
+        type: string
+        semantic_type: null
+        pattern: ^\d{1,12}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: attorney_state_bar
+      suffix: nbr
+  attorney_nm:
+    x_petey_id: '1_2'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 57.553001403808594
+      - 59.844970703125
+      - 393.9930114746094
+      - 68.844970703125
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Name[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney
+      suffix: nm
+  attorney_firm_nm:
+    x_petey_id: '1_3'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 73.6709976196289
+      - 71.416015625
+      - 393.9930114746094
+      - 80.416015625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].AttyFirm[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_firm_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_firm_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_firm
+      suffix: nm
+  attorney_street_address_txt:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 95.55999755859375
+      - 82.9849853515625
+      - 393.9930114746094
+      - 91.9849853515625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Street[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: attorney_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_street_address
+      suffix: txt
+  attorney_city_nm:
+    x_petey_id: '1_5'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 54.3380012512207
+      - 94.552978515625
+      - 240.40899658203125
+      - 103.552978515625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].City[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: attorney_city
+      suffix: nm
+  attorney_state_cd:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: state_abbr
+    pattern: ^[A-Z]{2}$
+    widget:
+      page: 1
+      rect:
+      - 263.5190124511719
+      - 94.552978515625
+      - 293.6719970703125
+      - 103.552978515625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].State[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: attorney_state
+      suffix: cd
+  attorney_zip_cd:
+    x_petey_id: '1_7'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 326.75299072265625
+      - 94.552978515625
+      - 393.9930114746094
+      - 103.552978515625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Zip[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999-9999}
+      pictures:
+        format:
+        - text{99999-9999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: attorney_zip
+      suffix: cd
+  attorney_phone_nbr:
+    x_petey_id: '1_8'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 89.76499938964844
+      - 106.1209716796875
+      - 216.8300018310547
+      - 115.1209716796875
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Phone[0]
+    description: 'TELEPHONE NUMBER:'
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_phone_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_phone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: attorney_phone
+      suffix: nbr
+  attorney_fax_nbr:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: phone
+    pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 266.114013671875
+      - 106.1209716796875
+      - 393.9930114746094
+      - 115.1209716796875
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Fax[0]
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{'('999')' 999-9999}
+      pictures:
+        format:
+        - text{'('999')' 999-9999}
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_fax_num
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      to:
+        name: attorney_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\(\d{3}\)\ \d{3}\-\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: attorney_fax
+      suffix: nbr
+  attorney_email_address_txt:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 91.05599975585938
+      - 117.6920166015625
+      - 393.9930114746094
+      - 126.6920166015625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].Email[0]
+    description: 'EMAIL ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_email_address
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: attorney_email_address_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: attorney_email_address
+      suffix: txt
+  attorney_for_nm:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 107.80699920654297
+      - 129.260009765625
+      - 393.9930114746094
+      - 138.260009765625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].AttyPartyInfo[0].AttyFor[0]
+    description: 'ATTORNEY FOR (name):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: attorney_for_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: attorney_for_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: attorney_for
+      suffix: nm
+  court_county_nm:
+    x_petey_id: '1_12'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 227.71299743652344
+      - 144.25
+      - 393.9930114746094
+      - 153.25
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtCounty[0]
+    description: 'County of the superior court: SUPERIOR COURT OF CALIFORNIA, COUNTY
+      OF'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: Caption and tooltip show a county name, not a person's name; only the
+        bogus semantic_type needs dropping.
+      before:
+        type: string
+        semantic_type: person_name
+        description: SUPERIOR COURT OF CALIFORNIA, COUNTY OF
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_county_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_county_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_county
+      suffix: nm
+  court_street_address_txt:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 155.18902587890625
+      - 393.9930114746094
+      - 164.18902587890625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtStreet[0]
+    description: 'STREET ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_street_address
+        type: string
+        semantic_type: street_address
+        pattern: null
+      to:
+        name: court_street_address_txt
+        type: string
+        semantic_type: street_address
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_street_address
+      suffix: txt
+  court_mailing_address_txt:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 166.12701416015625
+      - 393.9930114746094
+      - 175.12701416015625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtMailingAdd[0]
+    description: 'MAILING ADDRESS:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_mailing_address
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_mailing_address_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: address -> address_txt'
+    x_petey_identifiers:
+      subject: court_mailing_address
+      suffix: txt
+  court_city_and_zip_cd:
+    x_petey_id: '1_15'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 177.06597900390625
+      - 393.9930114746094
+      - 186.06597900390625
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtCityZip[0]
+    description: City and ZIP code of the court, written together on one line
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      - -pattern
+      reason: The box holds city and ZIP together as free text, so the zip semantic_type
+        and 5-digit pattern are wrong; the working name is kept.
+      before:
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+        description: 'CITY AND ZIP CODE:'
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: court_city_and_zip
+      suffix: cd
+  court_branch_nm:
+    x_petey_id: '1_16'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 96.98699951171875
+      - 188.74200439453125
+      - 393.9930114746094
+      - 197.74200439453125
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].CourtInfo[0].CrtBranch[0]
+    description: 'BRANCH NAME:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: The box holds a courthouse/branch name, not a person's name; name and
+        type are correct, only the person_name semantic_type is wrong.
+      before:
+        type: string
+        semantic_type: person_name
+        description: 'BRANCH NAME:'
+      judged: 'kept: 0 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: court_branch_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: court_branch_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: court_branch
+      suffix: nm
+  case_nm:
+    x_petey_id: '1_17'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 37.93600082397461
+      - 213.0150146484375
+      - 394.0039978027344
+      - 223.15802001953125
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].TitlePartyName[0].Party1[0]
+    label_source: llm
+    description: 'CASE NAME: the title of the case (e.g. Smith v. Jones)'
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - description
+      - -semantic_type
+      reason: A case name is a case caption, not a person's name; name matches the
+        printed caption.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: case_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: case
+      suffix: nm
+  case_nbr:
+    x_petey_id: '1_18'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 400.0050048828125
+      - 236.114990234375
+      - 572.8049926757812
+      - 250.5040283203125
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].csn[0].CaseNumber[0]
+    description: 'CASE NUMBER:'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: case_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: case
+      suffix: nbr
+  judge_nm:
+    x_petey_id: '1_21'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 423.656005859375
+      - 259.531005859375
+      - 572.4169921875
+      - 265.531982421875
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].HearingInfo[0].HearingDate[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: judge_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: judge_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: judge
+      suffix: nm
+  department_nbr:
+    x_petey_id: '1_22'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 425.3089904785156
+      - 270.44500732421875
+      - 492.343994140625
+      - 276.44598388671875
+      widget_type: text
+      path: CM-010[0].Page1[0].P1Caption[0].HearingInfo[0].HearingDept[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: department_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: department_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: department
+      suffix: nbr
+  number_of_causes_of_action_cnt:
+    x_petey_id: '2_4'
+    type: integer
+    widget:
+      page: 2
+      rect:
+      - 201.66600036621094
+      - 233.1920166015625
+      - 570.0700073242188
+      - 243.27197265625
+      widget_type: text
+      path: CM-010[0].Page2[0].List4[0].FillText1[0]
+    description: 'Number of causes of action (specify):'
+    x_petey_description_source: tooltip
+    label_source: llm
+    semantic_type: count
+    x_petey_retype:
+    - type_from_description
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: number_of_causes_of_action
+        type: integer
+        semantic_type: count
+        pattern: null
+      to:
+        name: number_of_causes_of_action_cnt
+        type: integer
+        semantic_type: count
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cnt (type)'
+    x_petey_identifiers:
+      subject: number_of_causes_of_action
+      suffix: cnt
+  signature_dt:
+    x_petey_id: '2_6'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 2
+      rect:
+      - 61.2599983215332
+      - 292.3089904785156
+      - 169.25999450683594
+      - 302.30999755859375
+      widget_type: text
+      path: CM-010[0].Page2[0].SigDate[0]
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - date{MMMM D, YYYY}
+    label_source: llm
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  printed_nm:
+    x_petey_id: '2_7'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 36.060001373291016
+      - 310.3370056152344
+      - 275.9360046386719
+      - 320.38299560546875
+      widget_type: text
+      path: CM-010[0].Page2[0].SigName[0]
+    description: Type or print name
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:30:39'
+      from:
+        name: printed_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: printed_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: printed
+      suffix: nm
+  case_classification:
+    x_petey_id: '1_19'
+    type: category
+    values:
+    - unlimited
+    - limited
+    widgets:
+      unlimited:
+        page: 1
+        rect:
+        - 37.874000549316406
+        - 241.23797607421875
+        - 46.874000549316406
+        - 250.23797607421875
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].P1Caption[0].FormTitle[0].Civil[0].limited1[0]
+        on_state: '1'
+        caption: Unlimited (Amount demanded exceeds $35,000)
+        x_petey_caption_source: page_choice
+      limited:
+        page: 1
+        rect:
+        - 136.177001953125
+        - 241.697021484375
+        - 145.177001953125
+        - 250.697021484375
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].P1Caption[0].FormTitle[0].Civil[0].limited1[1]
+        on_state: '2'
+        caption: Limited (Amount demanded is $35,000 or less)
+        x_petey_caption_source: page_choice
+    description: Unlimited (Amount demanded exceeds $35,000)
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:31:35'
+      from:
+      - case_classification::unlimited
+      - case_classification::limited
+    x_petey_identifiers:
+      subject: case_classification
+  complex_case_designation:
+    x_petey_id: '1_20'
+    type: category
+    values:
+    - counter
+    - joinder
+    widgets:
+      counter:
+        page: 1
+        rect:
+        - 237.1580047607422
+        - 243.23199462890625
+        - 246.1580047607422
+        - 252.23199462890625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].P1Caption[0].FormTitle[0].Complex[0].CheckBox1[0]
+        on_state: '1'
+        caption: Counter
+        x_petey_caption_source: page_text
+      joinder:
+        page: 1
+        rect:
+        - 322.614013671875
+        - 242.802001953125
+        - 331.614013671875
+        - 251.802001953125
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].P1Caption[0].FormTitle[0].Complex[0].CheckBox1[1]
+        on_state: '2'
+        caption: Joinder
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: complex_case_designation
+  case_type:
+    x_petey_id: '1_23'
+    type: category
+    values:
+    - auto
+    - uninsured_motorist
+    - asbestos
+    - product_liability
+    - medical_malpractice
+    - other_pi_pd_wd
+    - business_tort_unfair_business_practice
+    - civil_rights
+    - defamation
+    - fraud
+    - intellectual_property
+    - professional_negligence
+    - other_non_pi_pd_wd_tort
+    - wrongful_termination
+    - other_employment
+    - breach_of_contract_warranty
+    - rule_3_740_collections
+    - other_collections
+    - insurance_coverage
+    - other_contract
+    - song_beverly_act_lemon_law
+    - eminent_domain_inverse_condemnation
+    - wrongful_eviction
+    - other_real_property
+    - commercial
+    - residential
+    - drugs
+    - asset_forfeiture
+    - petition_re_arbitration_award
+    - writ_of_mandate
+    - other_judicial_review
+    - edd_decision_review
+    - antitrust_trade_regulation
+    - construction_defect
+    - mass_tort
+    - securities_litigation
+    - environmental_toxic_tort
+    - comprehensive_groundwater_adjudication
+    - provisionally_complex_insurance_coverage
+    - enforcement_of_judgment
+    - rico
+    - other_complaint
+    - partnership_and_corporate_governance
+    - other_petition
+    widgets:
+      auto:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 356.91900634765625
+        - 59.70899963378906
+        - 365.91900634765625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[0]
+        on_state: '1'
+        caption: Auto (22)
+        x_petey_caption_source: page_text
+      uninsured_motorist:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 368.7040100097656
+        - 59.70899963378906
+        - 377.7040100097656
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[1]
+        on_state: '2'
+        caption: Uninsured motorist (46)
+        x_petey_caption_source: page_text
+      asbestos:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 398.63800048828125
+        - 59.70899963378906
+        - 407.63800048828125
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[2]
+        on_state: '3'
+        caption: Asbestos (04)
+        x_petey_caption_source: page_text
+      product_liability:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 439.50299072265625
+        - 59.70899963378906
+        - 448.50299072265625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[3]
+        on_state: '4'
+        caption: Product liability (24)
+        x_petey_caption_source: page_text
+      medical_malpractice:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 452.2330017089844
+        - 59.70899963378906
+        - 461.2330017089844
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[4]
+        on_state: '5'
+        caption: Medical malpractice (45)
+        x_petey_caption_source: page_text
+      other_pi_pd_wd:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 465.2720031738281
+        - 59.70899963378906
+        - 474.2720031738281
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[5]
+        on_state: '6'
+        caption: Other PI/PD/WD (23)
+        x_petey_caption_source: page_text
+      business_tort_unfair_business_practice:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 499.8429870605469
+        - 59.70899963378906
+        - 508.8429870605469
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[6]
+        on_state: '7'
+        caption: Business tort/Unfair business practice (07)
+        x_petey_caption_source: page_text
+      civil_rights:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 511.9280090332031
+        - 59.70899963378906
+        - 520.927978515625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[7]
+        on_state: '8'
+        caption: Civil rights (08)
+        x_petey_caption_source: page_text
+      defamation:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 524.657958984375
+        - 59.70899963378906
+        - 533.657958984375
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[8]
+        on_state: '9'
+        caption: Defamation (13)
+        x_petey_caption_source: page_text
+      fraud:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 537.697021484375
+        - 59.70899963378906
+        - 546.697021484375
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[9]
+        on_state: '10'
+        caption: Fraud (16)
+        x_petey_caption_source: page_text
+      intellectual_property:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 550.4509887695312
+        - 59.70899963378906
+        - 559.4509887695312
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[10]
+        on_state: '11'
+        caption: Intellectual property (19)
+        x_petey_caption_source: page_text
+      professional_negligence:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 562.4439697265625
+        - 59.70899963378906
+        - 571.4439697265625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[11]
+        on_state: '12'
+        caption: Professional negligence (25)
+        x_petey_caption_source: page_choice
+      other_non_pi_pd_wd_tort:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 575.4830322265625
+        - 59.70899963378906
+        - 584.4830322265625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[12]
+        on_state: '13'
+        caption: Other non-PI/PD/WD tort (35)
+        x_petey_caption_source: page_text
+      wrongful_termination:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 605.6500244140625
+        - 59.70899963378906
+        - 614.6500244140625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[13]
+        on_state: '14'
+        caption: Wrongful termination (36)
+        x_petey_caption_source: page_text
+      other_employment:
+        page: 1
+        rect:
+        - 50.70899963378906
+        - 618.1729736328125
+        - 59.70899963378906
+        - 627.1729736328125
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[14]
+        on_state: '15'
+        caption: Other employment (15)
+        x_petey_caption_source: page_text
+      breach_of_contract_warranty:
+        page: 1
+        rect:
+        - 231.06300354003906
+        - 357.2349853515625
+        - 240.06300354003906
+        - 366.2349853515625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[15]
+        on_state: '16'
+        caption: Breach of contract/warranty (06)
+        x_petey_caption_source: page_choice
+      rule_3_740_collections:
+        page: 1
+        rect:
+        - 231.06300354003906
+        - 390.9670104980469
+        - 240.06300354003906
+        - 399.9670104980469
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[16]
+        on_state: '18'
+        caption: Rule 3.740 collections (09)
+        x_petey_caption_source: page_text
+      other_collections:
+        page: 1
+        rect:
+        - 231.06300354003906
+        - 404.0069885253906
+        - 240.06300354003906
+        - 413.0069885253906
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[17]
+        on_state: '19'
+        caption: Other collections (09)
+        x_petey_caption_source: page_text
+      insurance_coverage:
+        page: 1
+        rect:
+        - 231.06300354003906
+        - 416.2850036621094
+        - 240.06300354003906
+        - 425.2850036621094
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[18]
+        on_state: '20'
+        caption: Insurance coverage (18)
+        x_petey_caption_source: page_text
+      other_contract:
+        page: 1
+        rect:
+        - 231.06300354003906
+        - 428.8210144042969
+        - 240.06300354003906
+        - 437.8210144042969
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[19]
+        on_state: '21'
+        caption: Other contract (37)
+        x_petey_caption_source: page_text
+      song_beverly_act_lemon_law:
+        page: 1
+        rect:
+        - 231.06300354003906
+        - 369.25299072265625
+        - 240.06300354003906
+        - 378.25299072265625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[20]
+        on_state: '17'
+        caption: 'Song-Beverly Act: Motor Vehicle Lemon Law (49)'
+        x_petey_caption_source: page_choice
+      eminent_domain_inverse_condemnation:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 456.6730041503906
+        - 240.21600341796875
+        - 465.6730041503906
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[21]
+        on_state: '44'
+        caption: Eminent domain/Inverse condemnation (14)
+        x_petey_caption_source: page_choice
+      wrongful_eviction:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 478.19500732421875
+        - 240.21600341796875
+        - 487.19500732421875
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[22]
+        on_state: '22'
+        caption: Wrongful eviction (33)
+        x_petey_caption_source: page_text
+      other_real_property:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 490.2799987792969
+        - 240.21600341796875
+        - 499.2799987792969
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[23]
+        on_state: '23'
+        caption: Other real property (26)
+        x_petey_caption_source: page_text
+      commercial:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 517.9030151367188
+        - 240.21600341796875
+        - 526.9030151367188
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[24]
+        on_state: '24'
+        caption: Commercial (31)
+        x_petey_caption_source: page_text
+      residential:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 530.9420166015625
+        - 240.21600341796875
+        - 539.9420166015625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[25]
+        on_state: '25'
+        caption: Residential (32)
+        x_petey_caption_source: page_text
+      drugs:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 543.6959838867188
+        - 240.21600341796875
+        - 552.6959838867188
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[26]
+        on_state: '26'
+        caption: Drugs (38)
+        x_petey_caption_source: page_text
+      asset_forfeiture:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 571.6080322265625
+        - 240.21600341796875
+        - 580.6080322265625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[27]
+        on_state: '27'
+        caption: Asset forfeiture (05)
+        x_petey_caption_source: page_text
+      petition_re_arbitration_award:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 584.64697265625
+        - 240.21600341796875
+        - 593.64697265625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[28]
+        on_state: '28'
+        caption: Petition re arbitration award (11)
+        x_petey_caption_source: page_text
+      writ_of_mandate:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 596.738037109375
+        - 240.21600341796875
+        - 605.738037109375
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[29]
+        on_state: '29'
+        caption: Writ of mandate (02)
+        x_petey_caption_source: page_text
+      other_judicial_review:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 609.9979858398438
+        - 240.21600341796875
+        - 618.9979858398438
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[30]
+        on_state: '30'
+        caption: Other judicial review (39)
+        x_petey_caption_source: page_text
+      edd_decision_review:
+        page: 1
+        rect:
+        - 231.21600341796875
+        - 649.8060302734375
+        - 240.21600341796875
+        - 658.8060302734375
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[31]
+        on_state: '31'
+        caption: EDD decision review (48)
+        x_petey_caption_source: page_text
+      antitrust_trade_regulation:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 369.0870056152344
+        - 393.7659912109375
+        - 378.0870056152344
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[32]
+        on_state: '32'
+        caption: Antitrust/Trade regulation (03)
+        x_petey_caption_source: page_text
+      construction_defect:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 383.47100830078125
+        - 393.7659912109375
+        - 392.47100830078125
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[33]
+        on_state: '33'
+        caption: Construction defect (10)
+        x_petey_caption_source: page_text
+      mass_tort:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 396.20001220703125
+        - 393.7659912109375
+        - 405.20001220703125
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[34]
+        on_state: '34'
+        caption: Mass tort (40)
+        x_petey_caption_source: page_text
+      securities_litigation:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 409.239990234375
+        - 393.7659912109375
+        - 418.239990234375
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[35]
+        on_state: '35'
+        caption: Securities litigation (28)
+        x_petey_caption_source: page_text
+      environmental_toxic_tort:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 422.1820068359375
+        - 393.7659912109375
+        - 431.1820068359375
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[36]
+        on_state: '36'
+        caption: Environmental/Toxic tort (30)
+        x_petey_caption_source: page_text
+      comprehensive_groundwater_adjudication:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 434.54400634765625
+        - 393.7659912109375
+        - 443.54400634765625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[37]
+        on_state: '37'
+        caption: Comprehensive groundwater adjudication (47)
+        x_petey_caption_source: page_text
+      provisionally_complex_insurance_coverage:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 448.2090148925781
+        - 393.7659912109375
+        - 457.2090148925781
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[38]
+        on_state: '38'
+        caption: Insurance coverage claims arising from the above listed provisionally
+          complex case types (41)
+        x_petey_caption_source: page_choice
+      enforcement_of_judgment:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 497.5669860839844
+        - 393.7659912109375
+        - 506.5669860839844
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[39]
+        on_state: '39'
+        caption: Enforcement of judgment (20)
+        x_petey_caption_source: page_text
+      rico:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 529.52197265625
+        - 393.7659912109375
+        - 538.52197265625
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[40]
+        on_state: '40'
+        caption: RICO (27)
+        x_petey_caption_source: page_text
+      other_complaint:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 543.0130004882812
+        - 393.7659912109375
+        - 552.0130004882812
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[41]
+        on_state: '41'
+        caption: Other complaint (not specified above) (42)
+        x_petey_caption_source: page_text
+      partnership_and_corporate_governance:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 576.4710083007812
+        - 393.7659912109375
+        - 585.4710083007812
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[42]
+        on_state: '42'
+        caption: Partnership and corporate governance (21)
+        x_petey_caption_source: page_text
+      other_petition:
+        page: 1
+        rect:
+        - 384.7659912109375
+        - 591.2039794921875
+        - 393.7659912109375
+        - 600.2039794921875
+        widget_type: checkbox
+        path: CM-010[0].Page1[0].List1[0].Item1Check[43]
+        on_state: '43'
+        caption: Other petition (not specified above) (43)
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:31:35'
+      from:
+      - case_type::auto
+      - case_type::uninsured_motorist
+      - case_type::asbestos
+      - case_type::product_liability
+      - case_type::medical_malpractice
+      - case_type::other_pi_pd_wd
+      - case_type::business_tort_unfair_business_practice
+      - case_type::civil_rights
+      - case_type::defamation
+      - case_type::fraud
+      - case_type::intellectual_property
+      - case_type::professional_negligence
+      - case_type::other_non_pi_pd_wd_tort
+      - case_type::wrongful_termination
+      - case_type::other_employment
+      - case_type::breach_of_contract_warranty
+      - case_type::rule_3_740_collections
+      - case_type::other_collections
+      - case_type::insurance_coverage
+      - case_type::other_contract
+      - case_type::song_beverly_act_lemon_law
+      - case_type::eminent_domain_inverse_condemnation
+      - case_type::wrongful_eviction
+      - case_type::other_real_property
+      - case_type::commercial
+      - case_type::residential
+      - case_type::drugs
+      - case_type::asset_forfeiture
+      - case_type::petition_re_arbitration_award
+      - case_type::writ_of_mandate
+      - case_type::other_judicial_review
+      - case_type::edd_decision_review
+      - case_type::antitrust_trade_regulation
+      - case_type::construction_defect
+      - case_type::mass_tort
+      - case_type::securities_litigation
+      - case_type::environmental_toxic_tort
+      - case_type::comprehensive_groundwater_adjudication
+      - case_type::provisionally_complex_insurance_coverage
+      - case_type::enforcement_of_judgment
+      - case_type::rico
+      - case_type::other_complaint
+      - case_type::partnership_and_corporate_governance
+      - case_type::other_petition
+    x_petey_identifiers:
+      subject: case_type
+  is_case_complex:
+    x_petey_id: '2_1'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 358.2820129394531
+        - 51.030029296875
+        - 367.2820129394531
+        - 60.030029296875
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].is1[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 412.1059875488281
+        - 51.02899169921875
+        - 421.1059875488281
+        - 60.02899169921875
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].is1[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: is_case_complex
+  complex_case_factors:
+    x_petey_id: '2_2'
+    type: category
+    values:
+    - large_number_separately_represented_parties
+    - extensive_motion_practice
+    - substantial_documentary_evidence
+    - large_number_of_witnesses
+    - coordination_with_related_actions
+    - substantial_postjudgment_judicial_supervision
+    widgets:
+      large_number_separately_represented_parties:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 80.53802490234375
+        - 74.39800262451172
+        - 89.53802490234375
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].Item2[0].Lia[0].Choice1[0]
+        on_state: '1'
+        caption: Large number of separately represented parties
+        x_petey_caption_source: page_text
+      extensive_motion_practice:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 94.53302001953125
+        - 74.39800262451172
+        - 103.53302001953125
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].Item2[0].Lib[0].Choice2[0]
+        on_state: '1'
+        caption: Extensive motion practice raising difficult or novel issues that
+          will be time-consuming to resolve
+        x_petey_caption_source: page_choice
+      substantial_documentary_evidence:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 108.572998046875
+        - 74.39800262451172
+        - 117.572998046875
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].Item2[0].Lic[0].Choice3[0]
+        on_state: '1'
+        caption: Substantial amount of documentary evidence
+        x_petey_caption_source: page_text
+      large_number_of_witnesses:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 122.56402587890625
+        - 74.39800262451172
+        - 131.56402587890625
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].Item2[0].Lid[0].Choice4[0]
+        on_state: '1'
+        caption: Large number of witnesses
+        x_petey_caption_source: page_text
+      coordination_with_related_actions:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 137.53997802734375
+        - 74.39800262451172
+        - 146.53997802734375
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].Item2[0].lie[0].Choice5[0]
+        on_state: '1'
+        caption: Coordination with related actions pending in one or more courts in
+          other counties, states, or countries, or in a federal court
+        x_petey_caption_source: page_choice
+      substantial_postjudgment_judicial_supervision:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 152.50701904296875
+        - 74.39800262451172
+        - 161.50701904296875
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List2[0].Item2[0].Lif[0].Choice6[0]
+        on_state: '1'
+        caption: Substantial postjudgment judicial supervision
+        x_petey_caption_source: page_text
+    description: Large number of separately represented parties
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-16 13:31:35'
+      from:
+      - complex_case_factors::large_number_separately_represented_parties
+      - complex_case_factors::extensive_motion_practice
+      - complex_case_factors::substantial_documentary_evidence
+      - complex_case_factors::large_number_of_witnesses
+      - complex_case_factors::coordination_with_related_actions
+      - complex_case_factors::substantial_postjudgment_judicial_supervision
+    x_petey_identifiers:
+      subject: complex_case_factors
+  remedies_sought:
+    x_petey_id: '2_3'
+    type: category
+    values:
+    - monetary
+    - nonmonetary_declaratory_or_injunctive_relief
+    - punitive
+    widgets:
+      monetary:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 183.4329833984375
+        - 74.39800262451172
+        - 192.4329833984375
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List3[0].Item3[0].Lia[0].Ch1[0]
+        on_state: '1'
+        caption: monetary
+        x_petey_caption_source: page_text
+      nonmonetary_declaratory_or_injunctive_relief:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 198.72900390625
+        - 74.39800262451172
+        - 207.72900390625
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List3[0].Item3[0].Lib[0].Ch2[0]
+        on_state: '1'
+        caption: nonmonetary; declaratory or injunctive relief
+        x_petey_caption_source: page_text
+      punitive:
+        page: 2
+        rect:
+        - 65.39800262451172
+        - 214.02197265625
+        - 74.39800262451172
+        - 223.02197265625
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List3[0].Item3[0].Lic[0].Ch3[0]
+        on_state: '1'
+        caption: punitive
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: remedies_sought
+  is_class_action:
+    x_petey_id: '2_5'
+    type: category
+    values:
+    - 'no'
+    - 'yes'
+    widgets:
+      'yes':
+        page: 2
+        rect:
+        - 200.22500610351562
+        - 253.99700927734375
+        - 209.22500610351562
+        - 262.99700927734375
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List5[0].is[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      'no':
+        page: 2
+        rect:
+        - 248.51300048828125
+        - 253.9959716796875
+        - 257.51300048828125
+        - 262.9959716796875
+        widget_type: checkbox
+        path: CM-010[0].Page2[0].List5[0].is[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    x_petey_identifiers:
+      subject: is_class_action
+x_petey_dropped_widgets:
+  count: 3
+  widgets:
+  - path: CM-010[0].#pageSet[0].MPLast[0].Print[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: Print
+  - path: CM-010[0].#pageSet[0].MPLast[0].Save[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: Save
+  - path: CM-010[0].#pageSet[0].MPLast[0].Reset[0]
+    page: 3
+    reason: pushbutton
+    field_type: Button
+    tooltip: Clear
+x_petey_xfa_log:
+  joined: 23
+  type: 1
+  pattern: 4
+x_petey_emit_fixes:
+  description_from_tooltip: 2
+x_petey_page_check:
+  when: '2026-10-16 13:32:55'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  fields: 30
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/ca_courts_cm_010__a24a27__1fcbd373.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: ca_courts_cm_010_20261006_221229
+  blueprint: /home/user/petey-2/runs/judge_eval/work/ca_courts_cm_010.bpt
+  when: '2026-10-06 22:12:38'
+x_petey_run:
+  record: runs/judge_eval/form_runs/ca_courts_cm_010.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 4
+  review_rounds: 2
+  when: '2026-10-06 22:12:40'

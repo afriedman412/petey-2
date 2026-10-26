@@ -1,0 +1,2014 @@
+bpt_version: '1.1'
+name: cbp_28
+form_version: null
+source_pdf: cbp_form_28.pdf
+source_pdf_hash: 6ee254b8487c677ac4b34d4ac6df1489496d6ed0
+source_pages:
+- 1
+- 2
+description: ''
+instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 22:09:37'
+fields:
+  carrier_nm:
+    x_petey_id: '1_4'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 219.70700073242188
+      - 92.9019775390625
+      - 422.03399658203125
+      - 103.1619873046875
+      widget_type: text
+      path: F[0].P1[0].Carrier[0]
+    label_source: llm
+    description: Carrier.
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: The caption 'Carrier' and tooltip identify a shipping company, not an
+        individual; person_name is the wrong semantic type. Name is clear and kept.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 1 -> 0'
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: carrier_name
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      to:
+        name: carrier_nm
+        type: string
+        semantic_type: organization_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: carrier
+      suffix: nm
+  request_dt:
+    x_petey_id: '1_1'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 93.70700073242188
+      - 65.9990234375
+      - 214.0330047607422
+      - 82.1199951171875
+      widget_type: text
+      path: F[0].P1[0].DateOfRequest[0]
+    description: Date of Request. Enter 2-digit month, 2-digit day and 4-digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: request
+      suffix: dt
+  entry_and_importation_dt:
+    x_petey_id: '1_2'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 497.2959899902344
+      - 65.9990234375
+      - 592.0330200195312
+      - 82.1199951171875
+      widget_type: text
+      path: F[0].P1[0].DateOfEntry[0]
+    description: Date of Entry and Importation. Enter 2-digit month, 2-digit day,
+      and 4-digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: entry_and_importation
+      suffix: dt
+  manufacturer_seller_shipper_nm:
+    x_petey_id: '1_3'
+    type: string
+    semantic_type: organization_name
+    widget:
+      page: 1
+      rect:
+      - 21.707000732421875
+      - 92.91302490234375
+      - 214.0330047607422
+      - 103.1729736328125
+      widget_type: text
+      path: F[0].P1[0].Manufacturer[0]
+    description: Manufacturer / Seller / Shipper.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Caption 'Manufacturer/Seller/Shipper' names a business entity; retype
+        semantic_type as organization_name. Name and description already fit the box.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Manufacturer / Seller / Shipper.
+      judged: 'kept: 1 -> 0'
+    x_petey_identifiers:
+      subject: manufacturer_seller_shipper
+      suffix: nm
+  entry_nbr:
+    x_petey_id: '1_5'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 427.7080078125
+      - 92.9019775390625
+      - 592.0330200195312
+      - 103.1619873046875
+      widget_type: text
+      path: F[0].P1[0].EntryNo[0]
+    description: Entry Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: entry_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: entry_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: entry
+      suffix: nbr
+  merchandise_invoice_desc_txt:
+    x_petey_id: '1_6'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 21.707000732421875
+      - 116.90301513671875
+      - 306.03399658203125
+      - 127.166015625
+      widget_type: text
+      path: F[0].P1[0].InvoiceDescription[0]
+    description: Invoice Description of Merchandise.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: merchandise_invoice_desc
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: merchandise_invoice_desc_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: desc -> desc_txt'
+    x_petey_identifiers:
+      subject: merchandise_invoice_desc
+      suffix: txt
+  invoice_nbr:
+    x_petey_id: '1_7'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 311.7080078125
+      - 116.90301513671875
+      - 422.0329895019531
+      - 127.166015625
+      widget_type: text
+      path: F[0].P1[0].InvoiceNo[0]
+    description: Invoice Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: invoice_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: invoice_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: invoice
+      suffix: nbr
+  htsus_item_nbr:
+    x_petey_id: '1_8'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 427.7080078125
+      - 116.9110107421875
+      - 592.0330200195312
+      - 127.17401123046875
+      widget_type: text
+      path: F[0].P1[0].HTSUSItemNo[0]
+    description: H T S U S Item Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: htsus_item_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: htsus_item_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: htsus_item
+      suffix: nbr
+  country_of_origin_exportation_cd:
+    x_petey_id: '1_9'
+    type: string
+    semantic_type: country
+    widget:
+      page: 1
+      rect:
+      - 21.707000732421875
+      - 140.9010009765625
+      - 182.0330047607422
+      - 151.1610107421875
+      widget_type: text
+      path: F[0].P1[0].CountryOfOrigin[0]
+    description: Country of Origin / Exportation.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: country_of_origin_exportation
+        type: string
+        semantic_type: country
+        pattern: null
+      to:
+        name: country_of_origin_exportation_cd
+        type: string
+        semantic_type: country
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_cd (type)'
+    x_petey_identifiers:
+      subject: country_of_origin_exportation
+      suffix: cd
+  cbp_broker_company_nm:
+    x_petey_id: '1_10'
+    type: string
+    semantic_type: business_name
+    widget:
+      page: 1
+      rect:
+      - 187.70700073242188
+      - 140.9010009765625
+      - 422.0369873046875
+      - 151.1610107421875
+      widget_type: text
+      path: F[0].P1[0].CBPBroker[0]
+    description: C B P Broker Company Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: cbp_broker_company_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: cbp_broker_company_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: cbp_broker_company
+      suffix: nm
+  broker_filer_code_nbr:
+    x_petey_id: '1_11'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 427.7080078125
+      - 140.9010009765625
+      - 592.0330200195312
+      - 151.1610107421875
+      widget_type: text
+      path: F[0].P1[0].CBPBroker[1]
+    description: Broker Filer Code / Number.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: broker_filer_code_no
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: broker_filer_code_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: broker_filer_code
+      suffix: nbr
+  prior_information_supplied_port_txt:
+    x_petey_id: '1_25'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 331.7070007324219
+      - 248.8499755859375
+      - 486.0350036621094
+      - 259.16302490234375
+      widget_type: text
+      path: F[0].P1[0].Port[0]
+    description: 'Production of Documents and / or Information Required by Law: If
+      you have provided the information requested on this form to U.S. Customs and
+      Border Protection at other ports, please indicate the port of entry to which
+      it was supplied, and furnish a copy of your reply to this office, if possible.
+      Port.'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: prior_information_supplied_port
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: prior_information_supplied_port_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: prior_information_supplied_port
+      suffix: txt
+  prior_information_furnished_dt:
+    x_petey_id: '1_26'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 491.7080078125
+      - 248.8499755859375
+      - 592.0330200195312
+      - 259.16302490234375
+      widget_type: text
+      path: F[0].P1[0].DateInformationFurnished[0]
+    description: Date Information Furnished. Enter 2-digit month, 2-digit day, and
+      4-digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: prior_information_furnished
+      suffix: dt
+  related_relationship_explanation_txt:
+    x_petey_id: '1_30'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 71.70700073242188
+      - 328.697998046875
+      - 306.03399658203125
+      - 415.177001953125
+      widget_type: text
+      path: F[0].P1[0].AreYouRelated1[0]
+    description: A. If you are related, please describe the relationship, and explain
+      how this relationship affects the price paid or payable for the merchandise.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: related_relationship_explanation
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: related_relationship_explanation_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: explanation -> explanation_txt'
+    x_petey_identifiers:
+      subject: related_relationship_explanation
+      suffix: txt
+  samples_article_no_desc_txt_1:
+    x_petey_id: '1_34'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 475.70599365234375
+      - 426.00201416015625
+      - 592.0330200195312
+      - 438.0010070800781
+      widget_type: text
+      path: F[0].P1[0].Article1[0]
+    description: D. Article number and description. Line 1 of 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: samples_article_no_desc_line_1
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: samples_article_no_desc_txt_1
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: desc -> desc_txt; part ''1'' of one lines value after
+        the suffix'
+    x_petey_identifiers:
+      subject: samples_article_no_desc
+      suffix: txt
+      part: '1'
+  samples_article_no_desc_txt_2:
+    x_petey_id: '1_35'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 347.7080078125
+      - 438.0010070800781
+      - 592.0330200195312
+      - 450.0
+      widget_type: text
+      path: F[0].P1[0].Article2[0]
+    description: D. Article number and description. Line 2 of 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: samples_article_no_desc_line_2
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: samples_article_no_desc_txt_2
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: desc -> desc_txt; part ''2'' of one lines value after
+        the suffix'
+    x_petey_identifiers:
+      subject: samples_article_no_desc
+      suffix: txt
+      part: '2'
+  samples_from_container_txt:
+    x_petey_id: '1_37'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 411.70599365234375
+      - 450.0
+      - 592.0330200195312
+      - 461.9989929199219
+      widget_type: text
+      path: F[0].P1[0].FromContainer[0]
+    description: D. from container.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: samples_from_container
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: samples_from_container_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: samples_from_container
+      suffix: txt
+  samples_marks_and_numbers_txt:
+    x_petey_id: '1_39'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 431.7070007324219
+      - 462.00201416015625
+      - 592.0330200195312
+      - 474.0010070800781
+      widget_type: text
+      path: F[0].P1[0].MarksAndNumber[0]
+    description: D. mark(s) and number. Samples consumed in analysis, and other samples
+      whose return is not specifically requested, will not normally be returned.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: samples_marks_and_numbers
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: samples_marks_and_numbers_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: samples_marks_and_numbers
+      suffix: txt
+  cbp_officer_message_txt:
+    x_petey_id: '1_44'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 21.707000732421875
+      - 532.9010009765625
+      - 592.0330200195312
+      - 563.1619873046875
+      widget_type: text
+      path: F[0].P1[0].CBPOfficerMessage[0]
+    description: C B P Officer Message.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: cbp_officer_message
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: cbp_officer_message_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: cbp_officer_message
+      suffix: txt
+  reply_message_txt:
+    x_petey_id: '1_45'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 21.707000732421875
+      - 576.9000244140625
+      - 592.0330200195312
+      - 607.1640014648438
+      widget_type: text
+      path: F[0].P1[0].ReplyMessage[0]
+    description: Reply Message (If more space is needed, see continuation on page
+      2.)
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: reply_message
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: reply_message_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: reply_message
+      suffix: txt
+  cbp_official_nm:
+    x_petey_id: '1_53'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 21.707000732421875
+      - 704.9019775390625
+      - 234.03399658203125
+      - 715.1619873046875
+      widget_type: text
+      path: F[0].P1[0].CBPOfficial[0]
+    description: C B P Official.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: cbp_official_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: cbp_official_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: cbp_official
+      suffix: nm
+  cbp_team_designation_txt:
+    x_petey_id: '1_54'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 239.70799255371094
+      - 704.9019775390625
+      - 446.03399658203125
+      - 715.1619873046875
+      widget_type: text
+      path: F[0].P1[0].TeamDesignation[0]
+    description: Team Designation.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: cbp_team_designation
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: cbp_team_designation_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: cbp_team_designation
+      suffix: txt
+  certification_dt:
+    x_petey_id: '1_51'
+    type: date
+    semantic_type: iso_date
+    widget:
+      page: 1
+      rect:
+      - 503.7070007324219
+      - 680.9010009765625
+      - 592.0330200195312
+      - 691.1640014648438
+      widget_type: text
+      path: F[0].P1[0].Date1[0]
+    description: Date. Enter 2-digit month, 2-digit day and 4-digit year.
+    x_petey_description_source: tooltip
+    x_petey_xfa:
+      kind: date
+      pictures:
+        format:
+        - MM/DD/YYYY
+        validate:
+        - MM/DD/YYYY
+        ui:
+        - date{MM/DD/YYYY}|date{MMDDYYYY}|date{M/D/YYYY}|date{MM DD YYYY}|date{M D
+          YYYY}|date{MM-DD-YYYY}|date{M-D-YYYY}|date{MM,DD,YYYY}|date{M,D,YYYY}|date{MM.DD.YYYY}|date{M.D.YYYY}|date{DD
+          MMM YYYY}|date{M/D/YY}|date{M-D-YY}|date{M D YY}|date{MM/DD/YY}|date{MM-DD-YY}|date{MMDDYY}|date{MM
+          DD YY}
+      message: Invalid Date. Enter 2-digit month, 2-digit day and 4-digit year.
+    label_source: llm
+    x_petey_identifiers:
+      subject: certification
+      suffix: dt
+  signer_last_nm:
+    x_petey_id: '1_47'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 188.86900329589844
+      - 662.0
+      - 277.8680114746094
+      - 673.9990234375
+      widget_type: text
+      path: F[0].P1[0].NameAndTitle[0]
+    description: 'CERTIFICATION. It is required that an appropriate corporate / company
+      official execute this certificate and / or endorse all correspondence in response
+      to the information requested. (NOTE: NOT REQUIRED IF FOREIGN FIRM COMPLETES
+      THIS FORM.) I hereby certify that the information furnished herewith or upon
+      this form in response to this inquiry is true and correct, and that any samples
+      provided were taken from the shipment covered by this entry. Name and Title
+      / Position of Signer (Owner, Importer, or Corporate/Company Official).'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer_last
+      suffix: nm
+  question_to_answer:
+    x_petey_id: '1_58'
+    type: category
+    values:
+    - question_a_related_to_seller_ind
+    - question_b_additional_costs_ind
+    widgets:
+      question_a_related_to_seller_ind:
+        page: 1
+        rect:
+        - 20.8700008392334
+        - 291.010986328125
+        - 30.8700008392334
+        - 301.010986328125
+        widget_type: checkbox
+        path: F[0].P1[0].AreYouRelated[0]
+        on_state: '1'
+        caption: Are you related (see reverse) in any way to the seller of this merchandise?
+          If you are related, please describe the  relationship, and explain how this
+          relationship affects the  price paid or payable for the merchandise.
+        x_petey_caption_source: page_choice
+      question_b_additional_costs_ind:
+        page: 1
+        rect:
+        - 20.8700008392334
+        - 423.0119934082031
+        - 30.8700008392334
+        - 433.0119934082031
+        widget_type: checkbox
+        path: F[0].P1[0].IdentifyAndGiveDetails[0]
+        on_state: '1'
+        caption: 'Identify and give details of any additional costs/expenses incurred
+          in this transaction, such as:'
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-18 18:49:12'
+      from:
+      - question_a_related_to_seller_ind
+      - question_b_additional_costs_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: question_to_answer
+  furnish_indicated_items:
+    x_petey_id: '1_59'
+    type: multi_category
+    values:
+    - furnish_copy_of_contract_ind
+    - furnish_descriptive_literature_ind
+    - furnish_breakdown_of_components_ind
+    - furnish_samples_ind
+    widgets:
+      furnish_copy_of_contract_ind:
+        page: 1
+        rect:
+        - 312.8680114746094
+        - 291.010986328125
+        - 322.8680114746094
+        - 301.010986328125
+        widget_type: checkbox
+        path: F[0].P1[0].CopyOfContract[0]
+        on_state: '1'
+      furnish_descriptive_literature_ind:
+        page: 1
+        rect:
+        - 312.8680114746094
+        - 326.9989929199219
+        - 322.8680114746094
+        - 336.9989929199219
+        widget_type: checkbox
+        path: F[0].P1[0].DescriptiveOrIllustrative[0]
+        on_state: '1'
+      furnish_breakdown_of_components_ind:
+        page: 1
+        rect:
+        - 312.8680114746094
+        - 370.9989929199219
+        - 322.8680114746094
+        - 380.9989929199219
+        widget_type: checkbox
+        path: F[0].P1[0].BreakdownOfComponents[0]
+        on_state: '1'
+      furnish_samples_ind:
+        page: 1
+        rect:
+        - 312.8680114746094
+        - 415.0010070800781
+        - 322.8680114746094
+        - 425.0010070800781
+        widget_type: checkbox
+        path: F[0].P1[0].SubmitSamples[0]
+        on_state: '1'
+        caption: D. Submit samples.
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-18 18:49:12'
+      from:
+      - furnish_copy_of_contract_ind
+      - furnish_descriptive_literature_ind
+      - furnish_breakdown_of_components_ind
+      - furnish_samples_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: furnish_indicated_items
+  furnish_see_item_below_ind:
+    x_petey_id: '1_43'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 1
+      rect:
+      - 312.8699951171875
+      - 510.9989929199219
+      - 322.8699951171875
+      - 520.9990234375
+      widget_type: checkbox
+      path: F[0].P1[0].SeeItem14Below[0]
+    description: E. See item below.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: furnish_see_item_below
+      suffix: ind
+  additional_costs_expenses_type:
+    x_petey_id: '1_60'
+    type: category
+    values:
+    - additional_costs_packing_ind
+    - additional_costs_commissions_ind
+    - additional_costs_proceeds_to_seller_ind
+    - additional_costs_assists_ind
+    - additional_costs_royalties_license_fees_ind
+    widgets:
+      additional_costs_packing_ind:
+        page: 1
+        rect:
+        - 77.50900268554688
+        - 445.0
+        - 87.50900268554688
+        - 455.0
+        widget_type: checkbox
+        path: F[0].P1[0].Packing[0]
+        on_state: '1'
+        caption: packing
+        x_petey_caption_source: page_choice
+      additional_costs_commissions_ind:
+        page: 1
+        rect:
+        - 77.50900268554688
+        - 460.9989929199219
+        - 87.50900268554688
+        - 470.9989929199219
+        widget_type: checkbox
+        path: F[0].P1[0].Commissions[0]
+        on_state: '1'
+        caption: commissions
+        x_petey_caption_source: page_choice
+      additional_costs_proceeds_to_seller_ind:
+        page: 1
+        rect:
+        - 77.51000213623047
+        - 477.0
+        - 87.51000213623047
+        - 487.0
+        widget_type: checkbox
+        path: F[0].P1[0].Proceeds[0]
+        on_state: '1'
+        caption: proceeds that accrue to the seller
+        x_petey_caption_source: page_choice
+      additional_costs_assists_ind:
+        page: 1
+        rect:
+        - 77.50900268554688
+        - 492.9989929199219
+        - 87.50900268554688
+        - 502.9989929199219
+        widget_type: checkbox
+        path: F[0].P1[0].Assists[0]
+        on_state: '1'
+        caption: assists
+        x_petey_caption_source: page_choice
+      additional_costs_royalties_license_fees_ind:
+        page: 1
+        rect:
+        - 77.50900268554688
+        - 509.0010070800781
+        - 87.50900268554688
+        - 519.0009765625
+        widget_type: checkbox
+        path: F[0].P1[0].Royalties[0]
+        on_state: '1'
+        caption: royalties and/or license fees
+        x_petey_caption_source: page_choice
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-18 18:49:12'
+      from:
+      - additional_costs_packing_ind
+      - additional_costs_commissions_ind
+      - additional_costs_proceeds_to_seller_ind
+      - additional_costs_assists_ind
+      - additional_costs_royalties_license_fees_ind
+      name_from: labeler
+    x_petey_identifiers:
+      subject: additional_costs_expenses_type
+  cbp_official_email_txt:
+    x_petey_id: '1_57'
+    type: string
+    semantic_type: email
+    pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+    widget:
+      page: 1
+      rect:
+      - 239.7050018310547
+      - 728.9030151367188
+      - 592.0330200195312
+      - 739.1630249023438
+      widget_type: text
+      path: F[0].P1[0].Email[0]
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: cbp_official_email
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      to:
+        name: cbp_official_email_txt
+        type: string
+        semantic_type: email
+        pattern: ^[^@\s]+@[^@\s]+\.[^@\s]+$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: cbp_official_email
+      suffix: txt
+  signer_signature:
+    x_petey_id: '1_46'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 399.56500244140625
+      - 644.9010009765625
+      - 591.1710205078125
+      - 667.1630249023438
+      widget_type: text
+      path: F[0].P1[0].SignatureField1[0]
+    description: Digital Signature.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer
+      suffix: signature
+  signer_telephone_nbr:
+    x_petey_id: '1_50'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{3}\d{3}\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 399.70098876953125
+      - 680.3770141601562
+      - 498.0299987792969
+      - 691.1640014648438
+      widget_type: text
+      path: F[0].P1[0].Telephone[0]
+    description: Telephone Number. Enter 10 digit telephone number including area
+      code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: '''(''999'')'' 999-9999'
+      pictures:
+        format:
+        - '''(''999'')'' 999-9999'
+        validate:
+        - '''(''999'')'' 999-9999'
+        ui:
+        - text{'('999')' 999-9999}|text{9999999999}|text{'('999')'999-9999}|text{999-999-9999}|text{999
+          999 9999}|text{'('999')' 9999999}|text{'('999')'9999999}
+      message: Invalid Telephone Number. Enter 10 digit telephone number including
+        area code.
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:10
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: signer_telephone_no
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}\d{3}\d{4}$
+      to:
+        name: signer_telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}\d{3}\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: signer_telephone
+      suffix: nbr
+  cbp_official_telephone_nbr:
+    x_petey_id: '1_55'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{3}\d{3}\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 451.70599365234375
+      - 704.9019775390625
+      - 592.030029296875
+      - 715.1619873046875
+      widget_type: text
+      path: F[0].P1[0].Telephone[1]
+    description: Telephone Number. Enter 10 digit telephone number including area
+      code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: '''(''999'')'' 999-9999'
+      pictures:
+        format:
+        - '''(''999'')'' 999-9999'
+        validate:
+        - '''(''999'')'' 999-9999'
+        ui:
+        - text{'('999')' 999-9999}|text{9999999999}|text{'('999')'999-9999}|text{999-999-9999}|text{999
+          999 9999}|text{'('999')' 9999999}|text{'('999')'9999999}
+      message: Invalid Telephone Number. Enter 10 digit telephone number including
+        area code.
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:10
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: cbp_official_telephone_no
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}\d{3}\d{4}$
+      to:
+        name: cbp_official_telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}\d{3}\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: cbp_official_telephone
+      suffix: nbr
+  cbp_official_fax_nbr:
+    x_petey_id: '1_56'
+    type: string
+    semantic_type: phone
+    pattern: ^\d{3}\d{3}\d{4}$
+    widget:
+      page: 1
+      rect:
+      - 21.707000732421875
+      - 728.9030151367188
+      - 234.03399658203125
+      - 739.1630249023438
+      widget_type: text
+      path: F[0].P1[0].Telephone[2]
+    description: Fax Number. Enter 10 digit telephone number including area code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: '''(''999'')'' 999-9999'
+      pictures:
+        format:
+        - '''(''999'')'' 999-9999'
+        validate:
+        - '''(''999'')'' 999-9999'
+        ui:
+        - text{'('999')' 999-9999}|text{9999999999}|text{'('999')'999-9999}|text{999-999-9999}|text{999
+          999 9999}|text{'('999')' 9999999}|text{'('999')'9999999}
+      message: Invalid Telephone Number. Enter 10 digit telephone number including
+        area code.
+    label_source: llm
+    x_petey_retype:
+    - separators_dropped_by_maxlen:10
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: cbp_official_fax_no
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}\d{3}\d{4}$
+      to:
+        name: cbp_official_fax_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^\d{3}\d{3}\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: no -> nbr'
+    x_petey_identifiers:
+      subject: cbp_official_fax
+      suffix: nbr
+  to_zip_cd:
+    x_petey_id: '1_21'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}$
+    widget:
+      page: 1
+      rect:
+      - 251.70799255371094
+      - 210.010009765625
+      - 306.0320129394531
+      - 222.00897216796875
+      widget_type: text
+      path: F[0].P1[0].TextField3[0]
+    description: TO. Address. Zip Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999}
+      pictures:
+        format:
+        - text{99999}
+        validate:
+        - text{99999}
+        ui:
+        - text{99999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: to_zip
+      suffix: cd
+  from_street_address_line_2:
+    x_petey_id: '1_17'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 347.7080078125
+      - 190.0009765625
+      - 592.0330200195312
+      - 202.0
+      widget_type: text
+      path: F[0].P1[0].TextField1[0]
+    description: FROM. Address. Street 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: from_street_address_line_2
+  from_street_address_line_1:
+    x_petey_id: '1_15'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 347.7080078125
+      - 169.9990234375
+      - 592.0330200195312
+      - 181.99798583984375
+      widget_type: text
+      path: F[0].P1[0].TextField1[1]
+    description: FROM. Address. Street 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: from_street_address_line_1
+  from_city_nm:
+    x_petey_id: '1_22'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 331.70599365234375
+      - 210.00201416015625
+      - 430.0329895019531
+      - 222.0009765625
+      widget_type: text
+      path: F[0].P1[0].TextField2[0]
+    description: FROM. Address. City.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: from_city
+      suffix: nm
+  from_state_cd:
+    x_petey_id: '1_23'
+    type: category
+    semantic_type: state_abbr
+    widget:
+      page: 1
+      rect:
+      - 457.70599365234375
+      - 210.00201416015625
+      - 498.0299987792969
+      - 222.0009765625
+      widget_type: combobox
+      path: F[0].P1[0].State[0]
+    description: FROM. Address. State.
+    x_petey_description_source: tooltip
+    values:
+    - AL
+    - AK
+    - AZ
+    - AR
+    - CA
+    - CO
+    - CT
+    - DC
+    - DE
+    - FL
+    - GA
+    - HI
+    - ID
+    - IL
+    - IN
+    - IA
+    - KS
+    - KY
+    - LA
+    - ME
+    - MD
+    - MA
+    - MI
+    - MN
+    - MS
+    - MO
+    - MT
+    - NE
+    - NV
+    - NH
+    - NJ
+    - NM
+    - NY
+    - NC
+    - ND
+    - OH
+    - OK
+    - OR
+    - PA
+    - RI
+    - SC
+    - SD
+    - TN
+    - TX
+    - UT
+    - VT
+    - VA
+    - WA
+    - WV
+    - WI
+    - WY
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      AL:
+        caption: AL
+      AK:
+        caption: AK
+      AZ:
+        caption: AZ
+      AR:
+        caption: AR
+      CA:
+        caption: CA
+      CO:
+        caption: CO
+      CT:
+        caption: CT
+      DC:
+        caption: DC
+      DE:
+        caption: DE
+      FL:
+        caption: FL
+      GA:
+        caption: GA
+      HI:
+        caption: HI
+      ID:
+        caption: ID
+      IL:
+        caption: IL
+      IN:
+        caption: IN
+      IA:
+        caption: IA
+      KS:
+        caption: KS
+      KY:
+        caption: KY
+      LA:
+        caption: LA
+      ME:
+        caption: ME
+      MD:
+        caption: MD
+      MA:
+        caption: MA
+      MI:
+        caption: MI
+      MN:
+        caption: MN
+      MS:
+        caption: MS
+      MO:
+        caption: MO
+      MT:
+        caption: MT
+      NE:
+        caption: NE
+      NV:
+        caption: NV
+      NH:
+        caption: NH
+      NJ:
+        caption: NJ
+      NM:
+        caption: NM
+      NY:
+        caption: NY
+      NC:
+        caption: NC
+      ND:
+        caption: ND
+      OH:
+        caption: OH
+      OK:
+        caption: OK
+      OR:
+        caption: OR
+      PA:
+        caption: PA
+      RI:
+        caption: RI
+      SC:
+        caption: SC
+      SD:
+        caption: SD
+      TN:
+        caption: TN
+      TX:
+        caption: TX
+      UT:
+        caption: UT
+      VT:
+        caption: VT
+      VA:
+        caption: VA
+      WA:
+        caption: WA
+      WV:
+        caption: WV
+      WI:
+        caption: WI
+      WY:
+        caption: WY
+    x_petey_identifiers:
+      subject: from_state
+      suffix: cd
+  from_zip_cd:
+    x_petey_id: '1_24'
+    type: string
+    semantic_type: zip
+    pattern: ^\d{5}$
+    widget:
+      page: 1
+      rect:
+      - 543.7069702148438
+      - 210.00201416015625
+      - 592.0330200195312
+      - 222.0009765625
+      widget_type: text
+      path: F[0].P1[0].TextField3[1]
+    description: FROM. Address. Zip Code.
+    x_petey_description_source: tooltip
+    x_petey_validation_source: xfa
+    x_petey_xfa:
+      kind: text
+      picture: text{99999}
+      pictures:
+        format:
+        - text{99999}
+        validate:
+        - text{99999}
+        ui:
+        - text{99999}
+    label_source: llm
+    x_petey_identifiers:
+      subject: from_zip
+      suffix: cd
+  to_state_cd:
+    x_petey_id: '1_20'
+    type: category
+    semantic_type: state_abbr
+    widget:
+      page: 1
+      rect:
+      - 167.70799255371094
+      - 210.010009765625
+      - 206.0330047607422
+      - 222.00897216796875
+      widget_type: combobox
+      path: F[0].P1[0].State[1]
+    description: TO. Address. State.
+    x_petey_description_source: tooltip
+    values:
+    - AL
+    - AK
+    - AZ
+    - AR
+    - CA
+    - CO
+    - CT
+    - DC
+    - DE
+    - FL
+    - GA
+    - HI
+    - ID
+    - IL
+    - IN
+    - IA
+    - KS
+    - KY
+    - LA
+    - ME
+    - MD
+    - MA
+    - MI
+    - MN
+    - MS
+    - MO
+    - MT
+    - NE
+    - NV
+    - NH
+    - NJ
+    - NM
+    - NY
+    - NC
+    - ND
+    - OH
+    - OK
+    - OR
+    - PA
+    - RI
+    - SC
+    - SD
+    - TN
+    - TX
+    - UT
+    - VT
+    - VA
+    - WA
+    - WV
+    - WI
+    - WY
+    x_petey_validation_source: xfa
+    label_source: llm
+    x_petey_retype:
+    - dropdown
+    - dropdown_options
+    options:
+      AL:
+        caption: AL
+      AK:
+        caption: AK
+      AZ:
+        caption: AZ
+      AR:
+        caption: AR
+      CA:
+        caption: CA
+      CO:
+        caption: CO
+      CT:
+        caption: CT
+      DC:
+        caption: DC
+      DE:
+        caption: DE
+      FL:
+        caption: FL
+      GA:
+        caption: GA
+      HI:
+        caption: HI
+      ID:
+        caption: ID
+      IL:
+        caption: IL
+      IN:
+        caption: IN
+      IA:
+        caption: IA
+      KS:
+        caption: KS
+      KY:
+        caption: KY
+      LA:
+        caption: LA
+      ME:
+        caption: ME
+      MD:
+        caption: MD
+      MA:
+        caption: MA
+      MI:
+        caption: MI
+      MN:
+        caption: MN
+      MS:
+        caption: MS
+      MO:
+        caption: MO
+      MT:
+        caption: MT
+      NE:
+        caption: NE
+      NV:
+        caption: NV
+      NH:
+        caption: NH
+      NJ:
+        caption: NJ
+      NM:
+        caption: NM
+      NY:
+        caption: NY
+      NC:
+        caption: NC
+      ND:
+        caption: ND
+      OH:
+        caption: OH
+      OK:
+        caption: OK
+      OR:
+        caption: OR
+      PA:
+        caption: PA
+      RI:
+        caption: RI
+      SC:
+        caption: SC
+      SD:
+        caption: SD
+      TN:
+        caption: TN
+      TX:
+        caption: TX
+      UT:
+        caption: UT
+      VT:
+        caption: VT
+      VA:
+        caption: VA
+      WA:
+        caption: WA
+      WV:
+        caption: WV
+      WI:
+        caption: WI
+      WY:
+        caption: WY
+    x_petey_identifiers:
+      subject: to_state
+      suffix: cd
+  to_city_nm:
+    x_petey_id: '1_19'
+    type: string
+    semantic_type: city
+    widget:
+      page: 1
+      rect:
+      - 42.14400100708008
+      - 210.010009765625
+      - 138.0330047607422
+      - 222.00897216796875
+      widget_type: text
+      path: F[0].P1[0].TextField2[1]
+    description: TO. Address. City.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: to_city
+      suffix: nm
+  to_street_address_line_1:
+    x_petey_id: '1_16'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 55.90700149536133
+      - 186.01202392578125
+      - 306.03399658203125
+      - 198.010986328125
+      widget_type: text
+      path: F[0].P1[0].TextField1[2]
+    description: TO. Address. Street 1.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: to_street_address_line_1
+  to_street_address_line_2:
+    x_petey_id: '1_18'
+    type: string
+    semantic_type: street_address
+    widget:
+      page: 1
+      rect:
+      - 55.90700149536133
+      - 198.010986328125
+      - 306.03399658203125
+      - 210.010009765625
+      widget_type: text
+      path: F[0].P1[0].TextField1[3]
+    description: TO. Address. Street 2.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: to_street_address_line_2
+  to_middle_initial:
+    x_petey_id: '1_14'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 287.7070007324219
+      - 166.010986328125
+      - 306.03399658203125
+      - 177.947998046875
+      widget_type: text
+      path: F[0].P1[0].ApplicantFirmNamemn[0]
+    description: TO. Name. Middle Initial.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: to_middle
+      suffix: initial
+  to_first_nm:
+    x_petey_id: '1_13'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 187.70700073242188
+      - 166.010986328125
+      - 282.03399658203125
+      - 177.947998046875
+      widget_type: text
+      path: F[0].P1[0].ApplicantFirmNamef[0]
+    description: TO. Name. First Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: to_first
+      suffix: nm
+  to_last_nm:
+    x_petey_id: '1_12'
+    type: string
+    semantic_type: last_name
+    widget:
+      page: 1
+      rect:
+      - 51.70600128173828
+      - 166.010986328125
+      - 182.02999877929688
+      - 177.5360107421875
+      widget_type: text
+      path: F[0].P1[0].ApplicantFirmNamel[0]
+    description: TO. Name. Last Name.
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: to_last
+      suffix: nm
+  signer_first_nm:
+    x_petey_id: '1_48'
+    type: string
+    semantic_type: first_name
+    widget:
+      page: 1
+      rect:
+      - 280.8710021972656
+      - 662.0
+      - 369.87298583984375
+      - 673.9990234375
+      widget_type: text
+      path: F[0].P1[0].NameAndTitle[1]
+    description: 'CERTIFICATION. It is required that an appropriate corporate / company
+      official execute this certificate and / or endorse all correspondence in response
+      to the information requested. (NOTE: NOT REQUIRED IF FOREIGN FIRM COMPLETES
+      THIS FORM.) I hereby certify that the information furnished herewith or upon
+      this form in response to this inquiry is true and correct, and that any samples
+      provided were taken from the shipment covered by this entry. Name and Title
+      / Position of Signer (Owner, Importer, or Corporate/Company Official).'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: signer_first
+      suffix: nm
+  signer_middle_initial:
+    x_petey_id: '1_49'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 372.8689880371094
+      - 662.0
+      - 392.8699951171875
+      - 673.9990234375
+      widget_type: text
+      path: F[0].P1[0].ApplicantFirmNamemn[1]
+    description: Middle initial of the signer (Owner, Importer, or Corporate/Company
+      Official).
+    x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^[A-Za-z]?$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - pattern
+      - description
+      reason: Caption 'M.I.' and the narrow 3-char box confirm the name; the description
+        ('TO. Name.') came from a mis-copied tooltip and contradicts the box's location
+        in the certification signer row.
+      before:
+        type: string
+        description: TO. Name. Middle Initial.
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: signer_middle
+      suffix: initial
+  signer_title_position_txt:
+    x_petey_id: '1_52'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 188.86900329589844
+      - 681.9990234375
+      - 392.8699951171875
+      - 693.9979858398438
+      widget_type: text
+      path: F[0].P1[0].NameAndTitle[2]
+    description: 'CERTIFICATION. It is required that an appropriate corporate / company
+      official execute this certificate and / or endorse all correspondence in response
+      to the information requested. (NOTE: NOT REQUIRED IF FOREIGN FIRM COMPLETES
+      THIS FORM.) I hereby certify that the information furnished herewith or upon
+      this form in response to this inquiry is true and correct, and that any samples
+      provided were taken from the shipment covered by this entry. Name and Title
+      / Position of Signer (Owner, Importer, or Corporate/Company Official).'
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: signer_title_position
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: signer_title_position_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: signer_title_position
+      suffix: txt
+  reply_message_continuation_txt:
+    x_petey_id: '2_1'
+    type: string
+    widget:
+      page: 2
+      rect:
+      - 28.871000289916992
+      - 18.0
+      - 584.8699951171875
+      - 526.0
+      widget_type: text
+      path: F[0].P2[0].ReplyMessage[0]
+    description: Reply Message (Continuation).
+    x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-16 13:34:19'
+      from:
+        name: reply_message_continuation
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: reply_message_continuation_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: reply_message_continuation
+      suffix: txt
+x_petey_xfa_log:
+  joined: 58
+  pattern: 5
+  type: 2
+  values: 2
+x_petey_emit_fixes:
+  separators_dropped_by_maxlen: 3
+x_petey_page_check:
+  when: '2026-10-16 13:35:57'
+  model: claude-opus-5
+  prompt: bbf7099d
+  pages:
+  - 1
+  - 2
+  fields: 58
+  flagged: 2
+  unanswered: 0
+  record: runs/page_check/cbp_28__8e877d__fd328609.json
+x_petey_build:
+  basis: step2flat-3+env6af728|claude-sonnet-4-6|4
+  finder: step2flat-3+env6af728
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.3.4
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: cbp_28_20261006_221115
+  blueprint: /home/user/petey-2/runs/judge_eval/work/cbp_28.bpt
+  when: '2026-10-06 22:11:34'
+x_petey_run:
+  record: runs/judge_eval/form_runs/cbp_28.json
+  status: converged_with_residue
+  stop: every flagged field already reviewed as it stands
+  stable: true
+  rounds: 3
+  review_rounds: 1
+  when: '2026-10-06 22:11:36'

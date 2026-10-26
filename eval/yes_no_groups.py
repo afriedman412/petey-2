@@ -86,7 +86,11 @@ def run(bid: str, dry: bool, also: list[tuple[str, list[str]]]) -> int:
         while k in names - {y, n} or any(k == x[0] for x in new):
             k, i = f"{name}_{i}", i + 1
         new.append((k, [y, n]))
-    new += also
+    for name, ids in also:               # other groups in the same pass (the row groups), names kept unique
+        k, i = name, 2
+        while k in names - set(ids) or any(k == x[0] for x in new):
+            k, i = f"{name}_{i}", i + 1
+        new.append((k, ids))
     for name, ids in new:
         print(f"  {name}: {' / '.join(ids)}")
     print(f"{bid}: {len(found)} Yes / No pairs{f', {len(also)} more groups' if also else ''}")

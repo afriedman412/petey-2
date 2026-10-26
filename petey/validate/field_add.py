@@ -243,7 +243,9 @@ class Context:
         out = []
         for b in boxes:
             c = cm.get(b["key"]) or {}
-            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class"), "label": c.get("label"),
+            # a box the finder's minor version added (finder_addons: radio circles) has no class map entry: an option
+            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class") or ("option" if b.get("addon") else None),
+                        "label": c.get("label"),
                         "group": c.get("group"), "entity": c.get("entity"),
                         "claimed_by": self._claimed(b["page"], b["rect"])})
         self.boxes = out
@@ -339,8 +341,20 @@ def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, take
     if not opts:
         opts.append({"name": f"p{p['page']}_{kind}_{int(p['rect'][0])}_{int(p['rect'][1])}", "source": "placeholder"})
     for o in opts:
-        if o["source"].startswith("twin") and ctx is not None:
-            spec = (ctx.bp.get("fields") or {}).get(o["name"]) or {}
+        spec = ((ctx.bp.get("fields") or {}).get(o["name"]) or {}) if o["source"].startswith("twin") and ctx else {}
+        if spec.get("widgets") and kind != "group":
+            # one box beside an option group's (HUD 92800-5B p5 repeats p3's Existing / Proposed, paths Existing-1
+            # beside Existing-0): one option, named for the group and its option, typed as one box (Andrew,
+            # 2026-10-21: copied as the group's category it was neither a group nor a loose option on Groups)
+            stem = path_stem((p.get("widget") or {}).get("path"))
+            key = next((k for k, w in spec["widgets"].items() if stem and path_stem(w.get("path")) == stem), None)
+            o["twin"] = o["name"]
+            if kind == "option":
+                o["name"] = f"{o['name']}_{key}_ind" if key else f"{o['name']}_ind"
+                o["types"] = {"type": "boolean", "semantic_type": "indicator"}
+            else:
+                o["types"] = enrich_field(o["name"], "text")
+        elif spec:
             o["types"] = {k: spec[k] for k in ("type", "semantic_type", "pattern") if spec.get(k)}
             o["twin"] = o["name"]
         elif kind == "text":
@@ -358,6 +372,58 @@ def _named(p: dict, candidates: list[tuple[Optional[str], str]], kind: str, take
     p.update(opts[0]["types"])
     if opts[0].get("twin"):
         p["twin"] = opts[0]["twin"]
+
+
+def switch_kind(p: dict, kind: str, taken: set[str] = frozenset()) -> dict:
+    """A one-box proposal made a text box or a checkbox by hand (Andrew, 2026-10-20: "we need a way to designate a
+    field a checkbox and not a textfield"; what is under the drawn box decides, and sometimes wrongly). Its name
+    options are typed again for the new kind (`_named`: a checkbox is a boolean `indicator` named ..._ind; a text
+    box is typed from its name); a name typed by hand stays. A text widget made a checkbox loses its form path, as
+    eval/split_yes_no.py does: the page shows a checkbox, the form layer a text box, and extraction reads the page
+    (memory: page over metadata); a checkbox made a text box gets its path back."""
+    if p.get("kind") not in ("text", "option") or kind not in ("text", "option") or p["kind"] == kind:
+        return p
+    q = {**p, "kind": kind, "widget": dict(p["widget"]), "evidence": list(p.get("evidence") or [])}
+    w = q["widget"]
+    if kind == "option":
+        if w.get("path") and w.get("widget_type") == "text":
+            q["text_path"] = w["path"]
+            w["path"] = None
+            q["evidence"].append(f"made a checkbox by hand: the form's text widget {q['text_path']} is left out "
+                                 "(the page shows a checkbox)")
+        else:
+            q["evidence"].append("made a checkbox by hand")
+        w["widget_type"] = "checkbox"
+    else:
+        w["widget_type"] = "text"
+        if q.get("text_path"):
+            w["path"] = q.pop("text_path")
+        w.pop("on_state", None)
+        q["evidence"].append("made a text box by hand")
+    def renamed(n: str) -> str:
+        base = n[:-4] if n.endswith("_ind") else n
+        base = re.sub(r"^(p\d+)_(text|option)_(\d+_\d+)$", rf"\1_{kind}_\3", base)    # a placeholder says its kind
+        return base + "_ind" if kind == "option" else base
+
+    def typed(n: str) -> dict:
+        return {"type": "boolean", "semantic_type": "indicator"} if kind == "option" else enrich_field(n, "text")
+    opts, seen, now = [], set(), {}
+    for o in p.get("name_options") or [{"name": p["name"], "source": p.get("name_source") or "hand"}]:
+        n = renamed(o["name"])
+        base, k = n, 2
+        while n in taken:
+            n, k = f"{base}_{k}", k + 1
+        now[o["name"]] = n
+        if n not in seen:
+            seen.add(n)
+            opts.append({"name": n, "source": o["source"], "types": typed(n)})
+    q["name_options"] = opts
+    for k in ("type", "semantic_type", "pattern", "twin"):
+        q.pop(k, None)
+    # a name typed by hand stays as typed; else the current name, made for the new kind
+    q["name"] = p["name"] if p.get("name_source") == "hand" else now.get(p["name"], renamed(p["name"]))
+    q.update(typed(q["name"]))
+    return q
 
 
 def _twins(ctx: Context, cands: list[dict], evidence: list[str]) -> list[tuple[str, str]]:
@@ -419,6 +485,23 @@ def _option_caption(ctx: Context, page: int, rect, others) -> Optional[str]:
         return caption_right_of(doc[page - 1], rect, words=ctx.words(page), options_rects=others)
     finally:
         doc.close()
+
+
+def _option_units(opts: list[tuple[dict, str]]) -> list[list[tuple[dict, str]]]:
+    """The option boxes of a selection as proposals: each its own field (Andrew, 2026-10-22: selecting several fields
+    should not group them; grouping is the Groups tab's), except the radio buttons of one AcroForm field, which are
+    one field in the PDF and stay one group."""
+    units: list[list] = []
+    radios: dict[str, list] = {}
+    for c, s in opts:
+        if s == "widget" and c.get("widget_type") == "radiobutton" and c.get("path"):
+            if c["path"] not in radios:
+                radios[c["path"]] = []
+                units.append(radios[c["path"]])
+            radios[c["path"]].append((c, s))
+        else:
+            units.append([(c, s)])
+    return units
 
 
 def _options_proposal(ctx: Context, cands: list[tuple[dict, str]], sel, taken: set[str]) -> dict:
@@ -560,8 +643,8 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
         p = _text_proposal(ctx, c, s, sel, taken)
         taken.add(p["name"])
         out.append(p)
-    if opts:
-        p = _options_proposal(ctx, opts, sel, taken)
+    for unit in _option_units(opts):
+        p = _options_proposal(ctx, unit, sel, taken)
         taken.add(p["name"])
         out.append(p)
     for p in out:
@@ -572,22 +655,39 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
 def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL, think: bool = True) -> Optional[str]:
     """One call to the AcroForm labeler for this proposal, with the page's printed words. `think=False`: Groups'
     button, without the model's hidden thinking (a few seconds instead of eight)."""
-    entry = {"id": 1, "page": p["page"], "rect": p["rect"],
-             "widget_type": {"text": "text", "option": "checkbox", "group": "radiobutton"}[p["kind"]]}
-    if p["kind"] == "group":
-        entry["options"] = [o.get("caption") or o["key"] for o in p["options"]]
-    w = next((w for w in ctx.widgets if w.get("path") and w["path"] == (p.get("widget") or {}).get("path")), None)
-    if w and w.get("tooltip"):
-        entry["tooltip"] = w["tooltip"]
-    doc = pymupdf.open(str(ctx.blank))
-    try:
-        words = auto_label._words_from_page(doc[p["page"] - 1])
-    finally:
-        doc.close()
+    return labeler_names(ctx, [p], model=model, think=think)[0]
+
+
+def labeler_names(ctx: Context, ps: list[dict], model: str = LABEL_MODEL, think: bool = True) -> list[Optional[str]]:
+    """The labeler's name for each proposal, in order: one call per page with that page's printed words and all of
+    its proposals ("rescan page" in Groups, Andrew 2026-10-25: the labeler names a page at a time, and seeing the
+    page's groups together keeps their names apart)."""
+    by_page: dict[int, list[int]] = {}
+    for i, p in enumerate(ps):
+        by_page.setdefault(int(p["page"]), []).append(i)
+    out: list[Optional[str]] = [None] * len(ps)
     auto_label.CALL_TAG = f"field_add/{ctx.path.stem}"
-    got = auto_label.label_page_via_llm([entry], words, model=model, think=think)
-    n = _slug((got.get(1) or "").replace(".", "_"))
-    return n or None
+    for page, idx in by_page.items():
+        entries = []
+        for n, i in enumerate(idx, 1):
+            p = ps[i]
+            entry = {"id": n, "page": page, "rect": p["rect"],
+                     "widget_type": {"text": "text", "option": "checkbox", "group": "radiobutton"}[p["kind"]]}
+            if p["kind"] == "group":
+                entry["options"] = [o.get("caption") or o["key"] for o in p["options"]]
+            w = next((w for w in ctx.widgets if w.get("path") and w["path"] == (p.get("widget") or {}).get("path")), None)
+            if w and w.get("tooltip"):
+                entry["tooltip"] = w["tooltip"]
+            entries.append(entry)
+        doc = pymupdf.open(str(ctx.blank))
+        try:
+            words = auto_label._words_from_page(doc[page - 1])
+        finally:
+            doc.close()
+        got = auto_label.label_page_via_llm(entries, words, model=model, think=think)
+        for n, i in enumerate(idx, 1):
+            out[i] = _slug((got.get(n) or "").replace(".", "_")) or None
+    return out
 
 
 # ---------------------------------------------------------------- the plan: record -> blueprint
@@ -713,6 +813,8 @@ def apply(bid: str) -> dict:
     for s in pl["skipped"]:
         print(f"  skipped {s}")
     if pl["changes"]:
+        from petey import naming          # a name new to the blueprint gets its parts (naming.sync_parts)
+        naming.sync_parts(pl["fields"], [n for n in pl["fields"] if n not in (bp.get("fields") or {})])
         bp["fields"] = pl["fields"]
         field_ids.assign(bp)                    # a new field gets the next free id on its page
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True), encoding="utf-8")

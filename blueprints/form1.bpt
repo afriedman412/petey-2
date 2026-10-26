@@ -9,11 +9,18 @@ description: ''
 instructions: ''
 authoring:
   method: auto_label
-  model: claude-opus-5
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-15 11:52:47'
 fields:
-  type_of_work_cd:
+  work_type_txt:
     x_petey_id: '1_1'
     type: string
+    values:
+    - New Location
+    - Well Re-Entry
+    - Recompletion
     widget:
       page: 1
       rect:
@@ -24,25 +31,37 @@ fields:
       widget_type: combobox
       path: type of work
     label_source: llm
-    values:
-    - New Location
-    - Well Re-Entry
-    - Recompletion
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: work_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: work_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    options:
+      New Location:
+        caption: New Location
+      Well Re-Entry:
+        caption: Well Re-Entry
+      Recompletion:
+        caption: Recompletion
     x_petey_retype:
-    - dropdown
-  type_of_well_cd:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: work_type
+      suffix: txt
+  well_type_txt:
     x_petey_id: '1_2'
     type: string
-    widget:
-      page: 1
-      rect:
-      - 159.33900451660156
-      - 129.3800048828125
-      - 350.6679992675781
-      - 144.13897705078125
-      widget_type: combobox
-      path: type of well
-    label_source: llm
     values:
     - Oil & Gas
     - Acid Gas Disposal
@@ -59,8 +78,68 @@ fields:
     - Salt Water Disposal
     - Water Injection
     - Water Source
+    widget:
+      page: 1
+      rect:
+      - 159.33900451660156
+      - 129.3800048828125
+      - 350.6679992675781
+      - 144.13897705078125
+      widget_type: combobox
+      path: type of well
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: well_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: well_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    options:
+      Oil & Gas:
+        caption: Oil & Gas
+      Acid Gas Disposal:
+        caption: Acid Gas Disposal
+      Air Injection:
+        caption: Air Injection
+      Coal Bed Methane:
+        caption: Coal Bed Methane
+      Dump Flood Injector:
+        caption: Dump Flood Injector
+      Dump Flood Injector/Producer:
+        caption: Dump Flood Injector/Producer
+      Gas Condensate:
+        caption: Gas Condensate
+      Dry Gas:
+        caption: Dry Gas
+      Nitrogen Gas Well:
+        caption: Nitrogen Gas Well
+      Gas Injection:
+        caption: Gas Injection
+      Gas Storage:
+        caption: Gas Storage
+      Stratigraphic Test:
+        caption: Stratigraphic Test
+      Salt Water Disposal:
+        caption: Salt Water Disposal
+      Water Injection:
+        caption: Water Injection
+      Water Source:
+        caption: Water Source
     x_petey_retype:
-    - dropdown
+    - dropdown_options
+    x_petey_identifiers:
+      subject: well_type
+      suffix: txt
   approximate_dirt_work_start_dt:
     x_petey_id: '1_3'
     type: date
@@ -75,11 +154,15 @@ fields:
       widget_type: text
       path: date start work
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  confidential_status_cd:
+    x_petey_identifiers:
+      subject: approximate_dirt_work_start
+      suffix: dt
+  confidential_status_ind:
     x_petey_id: '1_4'
     type: category
+    values:
+    - 'Yes'
+    - 'No'
     widget:
       page: 1
       rect:
@@ -90,12 +173,17 @@ fields:
       widget_type: combobox
       path: confidential status
     label_source: llm
-    values:
-    - 'Yes'
-    - 'No'
+    options:
+      'Yes':
+        caption: 'Yes'
+      'No':
+        caption: 'No'
     x_petey_retype:
-    - dropdown
-  operator_business_name:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: confidential_status
+      suffix: ind
+  operator_business_nm:
     x_petey_id: '1_5'
     type: string
     semantic_type: business_name
@@ -109,11 +197,30 @@ fields:
       widget_type: text
       path: operator_name
     label_source: llm
-  operator_telephone_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: operator_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+      to:
+        name: operator_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: operator_business
+      suffix: nm
+  telephone_nbr:
     x_petey_id: '1_6'
     type: string
     semantic_type: phone
-    pattern: ^\d{3}-\d{3}-\d{4}$
+    pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
     widget:
       page: 1
       rect:
@@ -124,6 +231,25 @@ fields:
       widget_type: text
       path: operator_telephone
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: telephone_num
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      to:
+        name: telephone_nbr
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: telephone
+      suffix: nbr
   operator_address_line_1_txt:
     x_petey_id: '1_7'
     type: string
@@ -138,6 +264,9 @@ fields:
       widget_type: text
       path: operator_address
     label_source: llm
+    x_petey_identifiers:
+      subject: operator_address_line_1
+      suffix: txt
   operator_city_nm:
     x_petey_id: '1_8'
     type: string
@@ -152,7 +281,10 @@ fields:
       widget_type: text
       path: operator_city
     label_source: llm
-  operator_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: operator_city
+      suffix: nm
+  operator_state_cd:
     x_petey_id: '1_9'
     type: string
     semantic_type: state_abbr
@@ -167,6 +299,9 @@ fields:
       widget_type: text
       path: operator_state
     label_source: llm
+    x_petey_identifiers:
+      subject: operator_state
+      suffix: cd
   operator_zip_cd:
     x_petey_id: '1_10'
     type: string
@@ -182,10 +317,12 @@ fields:
       widget_type: text
       path: operator_zip
     label_source: llm
+    x_petey_identifiers:
+      subject: operator_zip
+      suffix: cd
   surface_owner_or_tenant_nm:
     x_petey_id: '1_11'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -196,6 +333,9 @@ fields:
       widget_type: text
       path: surface_owner
     label_source: llm
+    x_petey_identifiers:
+      subject: surface_owner_or_tenant
+      suffix: nm
   surface_owner_address_line_1_txt:
     x_petey_id: '1_12'
     type: string
@@ -210,6 +350,9 @@ fields:
       widget_type: text
       path: surface_address
     label_source: llm
+    x_petey_identifiers:
+      subject: surface_owner_address_line_1
+      suffix: txt
   surface_owner_city_nm:
     x_petey_id: '1_13'
     type: string
@@ -224,7 +367,10 @@ fields:
       widget_type: text
       path: surface_city
     label_source: llm
-  surface_owner_state_abbreviation_cd:
+    x_petey_identifiers:
+      subject: surface_owner_city
+      suffix: nm
+  surface_owner_state_cd:
     x_petey_id: '1_14'
     type: string
     semantic_type: state_abbr
@@ -239,6 +385,9 @@ fields:
       widget_type: text
       path: surface_state
     label_source: llm
+    x_petey_identifiers:
+      subject: surface_owner_state
+      suffix: cd
   surface_owner_zip_cd:
     x_petey_id: '1_15'
     type: string
@@ -254,7 +403,10 @@ fields:
       widget_type: text
       path: surface_zip
     label_source: llm
-  notice_provided_to_occupied_dwelling_owner_ind:
+    x_petey_identifiers:
+      subject: surface_owner_zip
+      suffix: cd
+  notice_provided_occupied_dwelling_within_1320_feet_ind:
     x_petey_id: '1_16'
     type: boolean
     semantic_type: indicator
@@ -268,7 +420,10 @@ fields:
       widget_type: checkbox
       path: Check Box1
     label_source: llm
-  well_not_within_500_feet_of_occupied_dwelling_ind:
+    x_petey_identifiers:
+      subject: notice_provided_occupied_dwelling_within_1320_feet
+      suffix: ind
+  well_not_within_500_feet_occupied_dwelling_ind:
     x_petey_id: '1_17'
     type: boolean
     semantic_type: indicator
@@ -282,10 +437,12 @@ fields:
       widget_type: checkbox
       path: Check Box2
     label_source: llm
+    x_petey_identifiers:
+      subject: well_not_within_500_feet_occupied_dwelling
+      suffix: ind
   well_nm:
     x_petey_id: '1_18'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -296,7 +453,10 @@ fields:
       widget_type: text
       path: wellname
     label_source: llm
-  well_num:
+    x_petey_identifiers:
+      subject: well
+      suffix: nm
+  well_nbr:
     x_petey_id: '1_19'
     type: string
     widget:
@@ -309,10 +469,28 @@ fields:
       widget_type: text
       path: wellnumber
     label_source: llm
-  surface_location_footage_1_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: well_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: well_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: well
+      suffix: nbr
+  surface_footage_ns_txt:
     x_petey_id: '1_20'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -323,9 +501,32 @@ fields:
       widget_type: text
       path: SurfaceFoot
     label_source: llm
-  surface_location_line_1_direction_cd:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_footage_ns
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_footage_ns_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_footage_ns
+      suffix: txt
+      grid: p1-G1
+  surface_footage_ns_dir:
     x_petey_id: '1_21'
     type: category
+    values:
+    - N
+    - S
     widget:
       page: 1
       rect:
@@ -336,15 +537,19 @@ fields:
       widget_type: combobox
       path: ns_box1
     label_source: llm
-    values:
-    - N
-    - S
+    options:
+      N:
+        caption: N
+      S:
+        caption: S
     x_petey_retype:
-    - dropdown
-  surface_location_footage_2_txt:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: surface_footage_ns_dir
+      grid: p1-G1
+  surface_footage_ew_txt:
     x_petey_id: '1_22'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -355,9 +560,32 @@ fields:
       widget_type: text
       path: SurfaceFoot2
     label_source: llm
-  surface_location_line_2_direction_cd:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_footage_ew
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_footage_ew_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_footage_ew
+      suffix: txt
+      grid: p1-G1
+  surface_footage_ew_dir:
     x_petey_id: '1_23'
     type: category
+    values:
+    - E
+    - W
     widget:
       page: 1
       rect:
@@ -368,12 +596,17 @@ fields:
       widget_type: combobox
       path: ew_box1
     label_source: llm
-    values:
-    - E
-    - W
+    options:
+      E:
+        caption: E
+      W:
+        caption: W
     x_petey_retype:
-    - dropdown
-  surface_location_qtr_qtr_cd:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: surface_footage_ew_dir
+      grid: p1-G1
+  surface_qtr_qtr_txt:
     x_petey_id: '1_24'
     type: string
     widget:
@@ -386,7 +619,27 @@ fields:
       widget_type: text
       path: qq1
     label_source: llm
-  surface_location_section_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_qtr_qtr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_qtr_qtr_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_qtr_qtr
+      suffix: txt
+      grid: p1-G1
+  surface_section_txt:
     x_petey_id: '1_25'
     type: string
     widget:
@@ -399,7 +652,27 @@ fields:
       widget_type: text
       path: section1
     label_source: llm
-  surface_location_township_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_section
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_section_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_section
+      suffix: txt
+      grid: p1-G1
+  surface_township_txt:
     x_petey_id: '1_26'
     type: string
     widget:
@@ -412,7 +685,27 @@ fields:
       widget_type: text
       path: township1
     label_source: llm
-  surface_location_range_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_township
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_township_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_township
+      suffix: txt
+      grid: p1-G1
+  surface_range_txt:
     x_petey_id: '1_27'
     type: string
     widget:
@@ -425,20 +718,29 @@ fields:
       widget_type: text
       path: range1
     label_source: llm
-  surface_location_county_nm:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_range
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_range_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_range
+      suffix: txt
+      grid: p1-G1
+  surface_county_txt:
     x_petey_id: '1_28'
     type: string
-    semantic_type: person_name
-    widget:
-      page: 1
-      rect:
-      - 457.760009765625
-      - 292.0400085449219
-      - 579.176025390625
-      - 304.33099365234375
-      widget_type: combobox
-      path: County1
-    label_source: llm
     values:
     - Billings
     - Bottineau
@@ -457,12 +759,75 @@ fields:
     - Stark
     - Ward
     - Williams
+    widget:
+      page: 1
+      rect:
+      - 457.760009765625
+      - 292.0400085449219
+      - 579.176025390625
+      - 304.33099365234375
+      widget_type: combobox
+      path: County1
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    options:
+      Billings:
+        caption: Billings
+      Bottineau:
+        caption: Bottineau
+      Bowman:
+        caption: Bowman
+      Burke:
+        caption: Burke
+      Divide:
+        caption: Divide
+      Dunn:
+        caption: Dunn
+      Golden Valley:
+        caption: Golden Valley
+      Hettinger:
+        caption: Hettinger
+      McHenry:
+        caption: McHenry
+      McKenzie:
+        caption: McKenzie
+      McLean:
+        caption: McLean
+      Mountrail:
+        caption: Mountrail
+      Renville:
+        caption: Renville
+      Slope:
+        caption: Slope
+      Stark:
+        caption: Stark
+      Ward:
+        caption: Ward
+      Williams:
+        caption: Williams
     x_petey_retype:
-    - dropdown
-  top_of_pay_footage_1_txt:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: surface_county
+      suffix: txt
+  top_of_pay_footage_ns_txt:
     x_petey_id: '1_29'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -473,9 +838,32 @@ fields:
       widget_type: text
       path: DirectFoot
     label_source: llm
-  top_of_pay_line_1_direction_cd:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: top_of_pay_footage_ns
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: top_of_pay_footage_ns_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: top_of_pay_footage_ns
+      suffix: txt
+      grid: p1-G1
+  top_of_pay_footage_ns_dir:
     x_petey_id: '1_30'
     type: category
+    values:
+    - N
+    - S
     widget:
       page: 1
       rect:
@@ -486,15 +874,19 @@ fields:
       widget_type: combobox
       path: ns_box2
     label_source: llm
-    values:
-    - N
-    - S
+    options:
+      N:
+        caption: N
+      S:
+        caption: S
     x_petey_retype:
-    - dropdown
-  top_of_pay_footage_2_txt:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: top_of_pay_footage_ns_dir
+      grid: p1-G1
+  top_of_pay_footage_ew_txt:
     x_petey_id: '1_31'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -505,9 +897,32 @@ fields:
       widget_type: text
       path: DirectFoot2
     label_source: llm
-  top_of_pay_line_2_direction_cd:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: top_of_pay_footage_ew
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: top_of_pay_footage_ew_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: top_of_pay_footage_ew
+      suffix: txt
+      grid: p1-G1
+  top_of_pay_footage_ew_dir:
     x_petey_id: '1_32'
     type: category
+    values:
+    - E
+    - W
     widget:
       page: 1
       rect:
@@ -518,12 +933,17 @@ fields:
       widget_type: combobox
       path: ew_box2
     label_source: llm
-    values:
-    - E
-    - W
+    options:
+      E:
+        caption: E
+      W:
+        caption: W
     x_petey_retype:
-    - dropdown
-  top_of_pay_qtr_qtr_cd:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: top_of_pay_footage_ew_dir
+      grid: p1-G1
+  top_of_pay_qtr_qtr_txt:
     x_petey_id: '1_33'
     type: string
     widget:
@@ -536,7 +956,27 @@ fields:
       widget_type: text
       path: qq2
     label_source: llm
-  top_of_pay_section_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: top_of_pay_qtr_qtr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: top_of_pay_qtr_qtr_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: top_of_pay_qtr_qtr
+      suffix: txt
+      grid: p1-G1
+  top_of_pay_section_txt:
     x_petey_id: '1_34'
     type: string
     widget:
@@ -549,7 +989,27 @@ fields:
       widget_type: text
       path: section2
     label_source: llm
-  top_of_pay_township_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: top_of_pay_section
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: top_of_pay_section_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: top_of_pay_section
+      suffix: txt
+      grid: p1-G1
+  top_of_pay_township_txt:
     x_petey_id: '1_35'
     type: string
     widget:
@@ -562,7 +1022,27 @@ fields:
       widget_type: text
       path: township2
     label_source: llm
-  top_of_pay_range_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: top_of_pay_township
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: top_of_pay_township_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: top_of_pay_township
+      suffix: txt
+      grid: p1-G1
+  top_of_pay_range_txt:
     x_petey_id: '1_36'
     type: string
     widget:
@@ -575,20 +1055,29 @@ fields:
       widget_type: text
       path: range2
     label_source: llm
-  top_of_pay_county_nm:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: top_of_pay_range
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: top_of_pay_range_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: top_of_pay_range
+      suffix: txt
+      grid: p1-G1
+  top_of_pay_county_txt:
     x_petey_id: '1_37'
     type: string
-    semantic_type: person_name
-    widget:
-      page: 1
-      rect:
-      - 458.1499938964844
-      - 314.7640075683594
-      - 579.844970703125
-      - 326.45098876953125
-      widget_type: combobox
-      path: County2
-    label_source: llm
     values:
     - Billings
     - Bottineau
@@ -607,12 +1096,75 @@ fields:
     - Stark
     - Ward
     - Williams
+    widget:
+      page: 1
+      rect:
+      - 458.1499938964844
+      - 314.7640075683594
+      - 579.844970703125
+      - 326.45098876953125
+      widget_type: combobox
+      path: County2
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: top_of_pay_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: top_of_pay_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    options:
+      Billings:
+        caption: Billings
+      Bottineau:
+        caption: Bottineau
+      Bowman:
+        caption: Bowman
+      Burke:
+        caption: Burke
+      Divide:
+        caption: Divide
+      Dunn:
+        caption: Dunn
+      Golden Valley:
+        caption: Golden Valley
+      Hettinger:
+        caption: Hettinger
+      McHenry:
+        caption: McHenry
+      McKenzie:
+        caption: McKenzie
+      McLean:
+        caption: McLean
+      Mountrail:
+        caption: Mountrail
+      Renville:
+        caption: Renville
+      Slope:
+        caption: Slope
+      Stark:
+        caption: Stark
+      Ward:
+        caption: Ward
+      Williams:
+        caption: Williams
     x_petey_retype:
-    - dropdown
-  bottom_hole_location_footage_1_txt:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: top_of_pay_county
+      suffix: txt
+  bottom_hole_footage_ns_txt:
     x_petey_id: '1_38'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -623,9 +1175,32 @@ fields:
       widget_type: text
       path: BHLFoot
     label_source: llm
-  bottom_hole_location_line_1_direction_cd:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: bottom_hole_footage_ns
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bottom_hole_footage_ns_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: bottom_hole_footage_ns
+      suffix: txt
+      grid: p1-G1
+  bottom_hole_footage_ns_dir:
     x_petey_id: '1_39'
     type: category
+    values:
+    - N
+    - S
     widget:
       page: 1
       rect:
@@ -636,15 +1211,19 @@ fields:
       widget_type: combobox
       path: ns_box3
     label_source: llm
-    values:
-    - N
-    - S
+    options:
+      N:
+        caption: N
+      S:
+        caption: S
     x_petey_retype:
-    - dropdown
-  bottom_hole_location_footage_2_txt:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: bottom_hole_footage_ns_dir
+      grid: p1-G1
+  bottom_hole_footage_ew_txt:
     x_petey_id: '1_40'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -655,9 +1234,32 @@ fields:
       widget_type: text
       path: BHLFoot3
     label_source: llm
-  bottom_hole_location_line_2_direction_cd:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: bottom_hole_footage_ew
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bottom_hole_footage_ew_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: bottom_hole_footage_ew
+      suffix: txt
+      grid: p1-G1
+  bottom_hole_footage_ew_dir:
     x_petey_id: '1_41'
     type: category
+    values:
+    - E
+    - W
     widget:
       page: 1
       rect:
@@ -668,12 +1270,17 @@ fields:
       widget_type: combobox
       path: ew_box3
     label_source: llm
-    values:
-    - E
-    - W
+    options:
+      E:
+        caption: E
+      W:
+        caption: W
     x_petey_retype:
-    - dropdown
-  bottom_hole_location_qtr_qtr_cd:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: bottom_hole_footage_ew_dir
+      grid: p1-G1
+  bottom_hole_qtr_qtr_txt:
     x_petey_id: '1_42'
     type: string
     widget:
@@ -686,7 +1293,27 @@ fields:
       widget_type: text
       path: qq3
     label_source: llm
-  bottom_hole_location_section_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: bottom_hole_qtr_qtr
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bottom_hole_qtr_qtr_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: bottom_hole_qtr_qtr
+      suffix: txt
+      grid: p1-G1
+  bottom_hole_section_txt:
     x_petey_id: '1_43'
     type: string
     widget:
@@ -699,7 +1326,27 @@ fields:
       widget_type: text
       path: section3
     label_source: llm
-  bottom_hole_location_township_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: bottom_hole_section
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bottom_hole_section_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: bottom_hole_section
+      suffix: txt
+      grid: p1-G1
+  bottom_hole_township_txt:
     x_petey_id: '1_44'
     type: string
     widget:
@@ -712,7 +1359,27 @@ fields:
       widget_type: text
       path: township3
     label_source: llm
-  bottom_hole_location_range_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: bottom_hole_township
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bottom_hole_township_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: bottom_hole_township
+      suffix: txt
+      grid: p1-G1
+  bottom_hole_range_txt:
     x_petey_id: '1_45'
     type: string
     widget:
@@ -725,20 +1392,29 @@ fields:
       widget_type: text
       path: range3
     label_source: llm
-  bottom_hole_location_county_nm:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: bottom_hole_range
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bottom_hole_range_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: bottom_hole_range
+      suffix: txt
+      grid: p1-G1
+  bottom_hole_county_txt:
     x_petey_id: '1_46'
     type: string
-    semantic_type: person_name
-    widget:
-      page: 1
-      rect:
-      - 458.44500732421875
-      - 338.04400634765625
-      - 580.5150146484375
-      - 350.1059875488281
-      widget_type: combobox
-      path: County3
-    label_source: llm
     values:
     - Billings
     - Bottineau
@@ -757,12 +1433,75 @@ fields:
     - Stark
     - Ward
     - Williams
+    widget:
+      page: 1
+      rect:
+      - 458.44500732421875
+      - 338.04400634765625
+      - 580.5150146484375
+      - 350.1059875488281
+      widget_type: combobox
+      path: County3
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: bottom_hole_county
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bottom_hole_county_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    options:
+      Billings:
+        caption: Billings
+      Bottineau:
+        caption: Bottineau
+      Bowman:
+        caption: Bowman
+      Burke:
+        caption: Burke
+      Divide:
+        caption: Divide
+      Dunn:
+        caption: Dunn
+      Golden Valley:
+        caption: Golden Valley
+      Hettinger:
+        caption: Hettinger
+      McHenry:
+        caption: McHenry
+      McKenzie:
+        caption: McKenzie
+      McLean:
+        caption: McLean
+      Mountrail:
+        caption: Mountrail
+      Renville:
+        caption: Renville
+      Slope:
+        caption: Slope
+      Stark:
+        caption: Stark
+      Ward:
+        caption: Ward
+      Williams:
+        caption: Williams
     x_petey_retype:
-    - dropdown
-  well_head_latitude_degrees_txt:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: bottom_hole_county
+      suffix: txt
+  latitude_deg_txt:
     x_petey_id: '1_47'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -773,10 +1512,28 @@ fields:
       widget_type: text
       path: lat1
     label_source: llm
-  well_head_latitude_minutes_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: latitude_deg
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: latitude_deg_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: latitude_deg
+      suffix: txt
+  latitude_min_txt:
     x_petey_id: '1_48'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -787,10 +1544,28 @@ fields:
       widget_type: text
       path: lat2
     label_source: llm
-  well_head_latitude_seconds_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: latitude_min
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: latitude_min_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: latitude_min
+      suffix: txt
+  latitude_sec_txt:
     x_petey_id: '1_49'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -801,10 +1576,28 @@ fields:
       widget_type: text
       path: lat3
     label_source: llm
-  well_head_longitude_degrees_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: latitude_sec
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: latitude_sec_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: latitude_sec
+      suffix: txt
+  longitude_deg_txt:
     x_petey_id: '1_50'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -815,10 +1608,28 @@ fields:
       widget_type: text
       path: lat4
     label_source: llm
-  well_head_longitude_minutes_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: longitude_deg
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: longitude_deg_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: longitude_deg
+      suffix: txt
+  longitude_min_txt:
     x_petey_id: '1_51'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -829,10 +1640,28 @@ fields:
       widget_type: text
       path: lat5
     label_source: llm
-  well_head_longitude_seconds_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: longitude_min
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: longitude_min_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: longitude_min
+      suffix: txt
+  longitude_sec_txt:
     x_petey_id: '1_52'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -843,9 +1672,32 @@ fields:
       widget_type: text
       path: lat6
     label_source: llm
-  nad_reference_cd:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: longitude_sec
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: longitude_sec_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: longitude_sec
+      suffix: txt
+  nad_reference_txt:
     x_petey_id: '1_53'
     type: string
+    values:
+    - NAD27
+    - NAD83
+    - WGS84
     widget:
       page: 1
       rect:
@@ -856,15 +1708,40 @@ fields:
       widget_type: combobox
       path: NAD Reference
     label_source: llm
-    values:
-    - NAD27
-    - NAD83
-    - WGS84
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: nad_reference
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: nad_reference_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    options:
+      NAD27:
+        caption: NAD27
+      NAD83:
+        caption: NAD83
+      WGS84:
+        caption: WGS84
     x_petey_retype:
-    - dropdown
-  spacing_drilling_unit_description_txt:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: nad_reference
+      suffix: txt
+  unit_type:
     x_petey_id: '1_54'
     type: category
+    values:
+    - 'Spacing Unit:'
+    - 'Drilling Unit:'
     widget:
       page: 1
       rect:
@@ -875,12 +1752,16 @@ fields:
       widget_type: combobox
       path: Description
     label_source: llm
-    values:
-    - 'Spacing Unit:'
-    - 'Drilling Unit:'
+    options:
+      'Spacing Unit:':
+        caption: 'Spacing Unit:'
+      'Drilling Unit:':
+        caption: 'Drilling Unit:'
     x_petey_retype:
-    - dropdown
-  spacing_drilling_unit_description_txt_2:
+    - dropdown_options
+    x_petey_identifiers:
+      subject: unit_type
+  unit_description_txt:
     x_petey_id: '1_55'
     type: string
     semantic_type: description
@@ -894,10 +1775,28 @@ fields:
       widget_type: text
       path: ND Approval
     label_source: llm
-  ground_elevation_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: unit_description
+        type: string
+        semantic_type: description
+        pattern: null
+      to:
+        name: unit_description_txt
+        type: string
+        semantic_type: description
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: description -> description_txt'
+    x_petey_identifiers:
+      subject: unit_description
+      suffix: txt
+  ground_elevation_ft:
     x_petey_id: '1_56'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -908,10 +1807,12 @@ fields:
       widget_type: text
       path: ground
     label_source: llm
-  acres_in_spacing_drilling_unit_txt:
+    x_petey_identifiers:
+      subject: ground_elevation
+      suffix: ft
+  acres_in_unit_nbr:
     x_petey_id: '1_57'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -922,10 +1823,28 @@ fields:
       widget_type: text
       path: acres in su
     label_source: llm
-  spacing_drilling_unit_setback_requirement_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: acres_in_unit
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: acres_in_unit_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: unit -> unit_nbr'
+    x_petey_identifiers:
+      subject: acres_in_unit
+      suffix: nbr
+  unit_setback_requirement_ft:
     x_petey_id: '1_58'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -936,10 +1855,12 @@ fields:
       widget_type: text
       path: setback requirement
     label_source: llm
-  industrial_commission_order_txt:
+    x_petey_identifiers:
+      subject: unit_setback_requirement
+      suffix: ft
+  industrial_commission_order_nbr:
     x_petey_id: '1_59'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -950,10 +1871,28 @@ fields:
       widget_type: text
       path: IC Order
     label_source: llm
-  objective_horizon_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: industrial_commission_order_num
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: industrial_commission_order_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: num -> nbr'
+    x_petey_identifiers:
+      subject: industrial_commission_order
+      suffix: nbr
+  objective_horizon_txt_1:
     x_petey_id: '1_60'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -964,10 +1903,29 @@ fields:
       widget_type: text
       path: obj Horizon1
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: objective_horizon_1
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: objective_horizon_1_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: objective_horizon
+      suffix: txt
+      iteration: '1'
   objective_horizon_txt_2:
     x_petey_id: '1_61'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -978,10 +1936,29 @@ fields:
       widget_type: text
       path: obj Horizon2
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: objective_horizon_2
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: objective_horizon_2_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: objective_horizon
+      suffix: txt
+      iteration: '2'
   objective_horizon_txt_3:
     x_petey_id: '1_62'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -992,10 +1969,29 @@ fields:
       widget_type: text
       path: obj Horizon3
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: objective_horizon_3
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: objective_horizon_3_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: objective_horizon
+      suffix: txt
+      iteration: '3'
   objective_horizon_txt_4:
     x_petey_id: '1_63'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1006,10 +2002,29 @@ fields:
       widget_type: text
       path: obj Horizon4
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: objective_horizon_4
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: objective_horizon_4_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: objective_horizon
+      suffix: txt
+      iteration: '4'
   objective_horizon_txt_5:
     x_petey_id: '1_64'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1020,10 +2035,29 @@ fields:
       widget_type: text
       path: obj Horizon5
     label_source: llm
-  pierre_shale_top_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: objective_horizon_5
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: objective_horizon_5_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type); number moved before the suffix'
+    x_petey_identifiers:
+      subject: objective_horizon
+      suffix: txt
+      iteration: '5'
+  pierre_shale_top_ft:
     x_petey_id: '1_65'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1034,10 +2068,12 @@ fields:
       widget_type: text
       path: Pierre Shale Top
     label_source: llm
-  surface_casing_size_txt:
+    x_petey_identifiers:
+      subject: pierre_shale_top
+      suffix: ft
+  surface_casing_size_in_txt:
     x_petey_id: '1_66'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1048,10 +2084,28 @@ fields:
       widget_type: text
       path: sfc
     label_source: llm
-  surface_casing_size_txt_2:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_casing_size_in
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_casing_size_in_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_casing_size_in
+      suffix: txt
+  surface_casing_size_fraction_txt:
     x_petey_id: '1_67'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1062,10 +2116,28 @@ fields:
       widget_type: text
       path: sfc2
     label_source: llm
-  surface_casing_weight_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_casing_size_fraction
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_casing_size_fraction_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_casing_size_fraction
+      suffix: txt
+  surface_casing_weight_lb_per_ft:
     x_petey_id: '1_68'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1076,10 +2148,12 @@ fields:
       widget_type: text
       path: weight
     label_source: llm
-  surface_casing_depth_txt:
+    x_petey_identifiers:
+      subject: surface_casing_weight_lb_per
+      suffix: ft
+  surface_casing_depth_ft:
     x_petey_id: '1_69'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1090,10 +2164,12 @@ fields:
       widget_type: text
       path: depth1
     label_source: llm
-  surface_casing_cement_volume_txt:
+    x_petey_identifiers:
+      subject: surface_casing_depth
+      suffix: ft
+  surface_casing_cement_volume_sacks_txt:
     x_petey_id: '1_70'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1104,10 +2180,28 @@ fields:
       widget_type: text
       path: volume1
     label_source: llm
-  longstring_casing_size_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: surface_casing_cement_volume_sacks
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: surface_casing_cement_volume_sacks_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: surface_casing_cement_volume_sacks
+      suffix: txt
+  longstring_casing_size_in_txt:
     x_petey_id: '1_71'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1118,10 +2212,28 @@ fields:
       widget_type: text
       path: lgc
     label_source: llm
-  longstring_casing_size_txt_2:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: longstring_casing_size_in
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: longstring_casing_size_in_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: longstring_casing_size_in
+      suffix: txt
+  longstring_casing_size_fraction_txt:
     x_petey_id: '1_72'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1132,10 +2244,28 @@ fields:
       widget_type: text
       path: lgc2
     label_source: llm
-  longstring_casing_weight_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: longstring_casing_size_fraction
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: longstring_casing_size_fraction_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: longstring_casing_size_fraction
+      suffix: txt
+  longstring_casing_weight_lb_per_ft:
     x_petey_id: '1_73'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1146,10 +2276,12 @@ fields:
       widget_type: text
       path: weight2
     label_source: llm
-  longstring_total_depth_md_txt:
+    x_petey_identifiers:
+      subject: longstring_casing_weight_lb_per
+      suffix: ft
+  longstring_depth_md_ft:
     x_petey_id: '1_74'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1160,10 +2292,12 @@ fields:
       widget_type: text
       path: LongstringMD
     label_source: llm
-  longstring_total_depth_tvd_txt:
+    x_petey_identifiers:
+      subject: longstring_depth_md
+      suffix: ft
+  longstring_depth_tvd_ft:
     x_petey_id: '1_75'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1174,10 +2308,12 @@ fields:
       widget_type: text
       path: LongstringTVD
     label_source: llm
-  longstring_casing_cement_volume_txt:
+    x_petey_identifiers:
+      subject: longstring_depth_tvd
+      suffix: ft
+  longstring_casing_cement_volume_sacks_txt:
     x_petey_id: '1_76'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1188,10 +2324,28 @@ fields:
       widget_type: text
       path: cv
     label_source: llm
-  longstring_casing_cement_top_txt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: longstring_casing_cement_volume_sacks
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: longstring_casing_cement_volume_sacks_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: longstring_casing_cement_volume_sacks
+      suffix: txt
+  longstring_cement_top_ft:
     x_petey_id: '1_77'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1202,10 +2356,12 @@ fields:
       widget_type: text
       path: ct
     label_source: llm
-  top_dakota_sand_txt:
+    x_petey_identifiers:
+      subject: longstring_cement_top
+      suffix: ft
+  top_dakota_sand_ft:
     x_petey_id: '1_78'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1216,10 +2372,12 @@ fields:
       widget_type: text
       path: tds
     label_source: llm
-  base_of_last_salt_txt:
+    x_petey_identifiers:
+      subject: top_dakota_sand
+      suffix: ft
+  base_of_last_salt_ft:
     x_petey_id: '1_79'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1230,10 +2388,12 @@ fields:
       widget_type: text
       path: base of last salt
     label_source: llm
-  estimated_total_depth_md_txt:
+    x_petey_identifiers:
+      subject: base_of_last_salt
+      suffix: ft
+  estimated_total_depth_md_ft:
     x_petey_id: '1_80'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1244,10 +2404,12 @@ fields:
       widget_type: text
       path: EstTD_MD
     label_source: llm
-  estimated_total_depth_tvd_txt:
+    x_petey_identifiers:
+      subject: estimated_total_depth_md
+      suffix: ft
+  estimated_total_depth_tvd_ft:
     x_petey_id: '1_81'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1258,10 +2420,12 @@ fields:
       widget_type: text
       path: EstTD_TVD
     label_source: llm
+    x_petey_identifiers:
+      subject: estimated_total_depth_tvd
+      suffix: ft
   drilling_mud_type_txt:
     x_petey_id: '1_82'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1272,10 +2436,28 @@ fields:
       widget_type: text
       path: DrillingMudType
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: drilling_mud_type
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: drilling_mud_type_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: drilling_mud_type
+      suffix: txt
   proposed_logs_txt:
     x_petey_id: '1_83'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1286,6 +2468,25 @@ fields:
       widget_type: text
       path: Proposed Logs
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: proposed_logs
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: proposed_logs_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: proposed_logs
+      suffix: txt
   comments_txt:
     x_petey_id: '1_84'
     type: string
@@ -1300,6 +2501,25 @@ fields:
       widget_type: text
       path: comments
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: comments
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: comments_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: comments -> comments_txt'
+    x_petey_identifiers:
+      subject: comments
+      suffix: txt
   signature_dt:
     x_petey_id: '1_85'
     type: date
@@ -1314,12 +2534,12 @@ fields:
       widget_type: text
       path: sig_date
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  printed_nm:
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
+  signatory_printed_nm:
     x_petey_id: '1_86'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -1330,10 +2550,12 @@ fields:
       widget_type: text
       path: printed_name
     label_source: llm
-  title_txt:
+    x_petey_identifiers:
+      subject: signatory_printed
+      suffix: nm
+  signatory_title_txt:
     x_petey_id: '1_87'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -1344,6 +2566,25 @@ fields:
       widget_type: text
       path: title
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:53'
+      from:
+        name: signatory_title
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: signatory_title_txt
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: +_txt (type)'
+    x_petey_identifiers:
+      subject: signatory_title
+      suffix: txt
   email_address_txt:
     x_petey_id: '1_88'
     type: string
@@ -1359,65 +2600,9 @@ fields:
       widget_type: text
       path: Email Address
     label_source: llm
-x_petey_dedup_log:
-  duplicate_labels_reassigned: 7
-  collisions:
-  - original_label: spacing_drilling_unit_description_txt
-    assigned_label: spacing_drilling_unit_description_txt_2
-    page: 1
-    rect:
-    - 459.45599365234375
-    - 359.197998046875
-    - 585.2249755859375
-    - 373.0450134277344
-  - original_label: objective_horizon_txt
-    assigned_label: objective_horizon_txt_2
-    page: 1
-    rect:
-    - 113.69999694824219
-    - 405.60400390625
-    - 199.46600341796875
-    - 420.2200012207031
-  - original_label: objective_horizon_txt
-    assigned_label: objective_horizon_txt_3
-    page: 1
-    rect:
-    - 201.74000549316406
-    - 405.8280029296875
-    - 287.5069885253906
-    - 420.4440002441406
-  - original_label: objective_horizon_txt
-    assigned_label: objective_horizon_txt_4
-    page: 1
-    rect:
-    - 289.781005859375
-    - 406.0249938964844
-    - 375.5469970703125
-    - 420.6409912109375
-  - original_label: objective_horizon_txt
-    assigned_label: objective_horizon_txt_5
-    page: 1
-    rect:
-    - 379.7950134277344
-    - 406.24798583984375
-    - 454.70599365234375
-    - 420.864013671875
-  - original_label: surface_casing_size_txt
-    assigned_label: surface_casing_size_txt_2
-    page: 1
-    rect:
-    - 134.14599609375
-    - 428.3869934082031
-    - 158.94000244140625
-    - 442.2340087890625
-  - original_label: longstring_casing_size_txt
-    assigned_label: longstring_casing_size_txt_2
-    page: 1
-    rect:
-    - 134.5260009765625
-    - 451.72100830078125
-    - 159.31900024414062
-    - 465.5669860839844
+    x_petey_identifiers:
+      subject: email_address
+      suffix: txt
 x_petey_dropped_widgets:
   count: 3
   widgets:
@@ -1438,3 +2623,34 @@ x_petey_dropped_widgets:
     field_type: Text
     tooltip: null
     caption: PLEASE SEE INSTRUCTIONS  https://www.dmr.nd.gov/oilgas/rules/fillinforms.asp
+x_petey_page_check:
+  when: '2026-10-15 12:18:48'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 88
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/form1__997305__9dcbfbcb.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: form1_20261015_115517
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/form1.bpt
+  when: '2026-10-15 11:56:13'
+x_petey_run:
+  record: runs/judge_eval/form_runs/form1.json
+  status: converged_with_residue
+  stop: no rule fix and no review edit
+  stable: true
+  rounds: 2
+  review_rounds: 1
+  when: '2026-10-15 11:56:41'

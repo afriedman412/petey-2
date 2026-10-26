@@ -1,0 +1,122 @@
+---
+name: grid-validation
+description: Validate and fix the field names of a table (grid) or repeated block on a blueprint so every cell follows one pattern. Use when Andrew asks to check, validate, fix or rename a grid / table / schedule / repeated block on a form (e.g. "can you check the grid on je__form10 p1"), when eval/grid_naming.py flags cells, or when the review page's Grids or Blocks tab hands a table or block group to the chat.
+---
+
+# Grid and block validation
+
+The rule (Andrew, 2026-10-15; docs/NAMING.md "Grids"): a table is named on one pattern. Either each column is one
+kind of value with one wording and each row carries one iteration number (AO 40B's expense table:
+`expense_private_5_amt`, row 5), or the transpose (Form 8825's income grid: `gross_rents_2_amt`, property column 2).
+Names follow the naming standard `[description]_[iteration]_[suffix]_[part]` (docs/NAMING.md).
+
+The code finds and fixes the mechanical cases; the judgment below is what the code cannot do.
+
+## The ladder (2026-10-16)
+
+The review page's **Grids** tab (tables) and **Blocks** tab (block groups; split apart 2026-10-18) (`petey/validate/
+grid_check.py`) outline every numbered table / block group in dots and check one in a click, lightest method first.
+Each has a lasting id (p1-G2), can be cancelled (not a grid / block group), drawn around an area, or
+combined with others of its kind on the page; the form's list is kept in runs/hand_review/grids/<id>.json with
+where each came from (finder, person, combined). Only what is still unclear reaches a model:
+
+1. **Code check** (`grid_naming.on_pattern`): each position one wording, each line one number, steps of 1. Passing ->
+   its cells are accepted, done.
+2. **Resolver** (`grid_naming.resolve`), no model beyond our own small one:
+   - which way the table runs (by which way the wordings stay uniform);
+   - each position's wording: one wording, or variants the name-check model (`petey.label.text_match`, trained on the
+     name checks, local) scores against the caption the position's cells share (column header; row label; in a block,
+     the caption printed beside each repeat). The naming standard breaks ties between synonyms. An unnumbered first
+     row joins its column (`class_cd` beside `class_cd_2` -> `class_cd_1`). The column's own wording is kept: reshaping
+     to the naming standard is that pass's job;
+   - numbers: 1..N, unless the series continues another page's (a field outside the table on the same pattern
+     numbered start - 1, or an unnumbered twin before a series from 2) or the numbers are printed on the page beside
+     the lines; line-number names (`line_116_...`, `line_3_3_...`) keep theirs; lettered items (5a, 5b) count by their
+     number; in a name with two numbers, the one that changes from line to line is renumbered;
+   - never silently: a rename that changes what a cell says (not a variant), a swap of two names, or a new name another
+     field keeps -> the table goes up the ladder instead.
+   Settled -> the renames are applied as Claude's and the cells accepted.
+3. **Jev**: a position the model could not settle (two wordings that both fit the caption and mean different things;
+   no caption) is chosen from its candidates with the page image; then the resolver runs again.
+4. **Opus** (the chat, this page only, with section 3 below as its rules): what is still unclear: tangled layouts
+   (sub-columns merged into one position), a table whose structure does not come right. Its proposals come back for
+   the person to tick.
+
+Measured on the 154 validated forms (`eval/grid_resolver_eval.py`): of 163 tables, 108 left as they are, 9 fixed
+(all unnumbered first rows), the rest escalated; planted errors undone exactly 85-91% (numbering) and 52%
+(rewording), 2 of 381 wrong.
+
+## Steps
+
+1. **Look at what the code sees.** Work on the review page's working copy (`hand_review.working_path(bid)`), never the
+   saved file (it can be stale: the naming pass may already have fixed it). When you are asked about a table, first
+   run the ladder's code steps on it (`grid_check.tables(bp)`, `grid_naming.resolve`): if they settle it, there is no
+   judgment left to make.
+   ```
+   PYTHONPATH=. venv/bin/python eval/grid_naming.py <bid>          # cells off the pattern
+   PYTHONPATH=. venv/bin/python eval/grid_naming.py <bid> --fix    # the renames it would make
+   ```
+   Print each grid as rows x columns (`grid_naming.grids(bp)`) to see the names in place. A table that passes the
+   code check (`grid_naming.on_pattern`: each column one pattern varying only by its iteration, rows numbered by steps
+   of 1) is done; the Grids / Blocks tab accepts it without a model call. Spend the judgment on the rest.
+
+2. **Look at the page.** Render it with the boxes numbered and read the headers:
+   `pc.render(resolve_blank(bp), page, pc.numbered(bp), dpi=100)` (petey/validate/page_check.py), then Read the PNG.
+   Decide: what is a row (an iteration: a schedule number, a person, a property) and what is a column (a kind of value).
+
+3. **Decide the names** (the judgment calls, with today's precedents):
+   - **Which way it runs.** Rows numbered and columns worded is the usual reading; a grid of properties or periods across
+     the top runs the other way (8825's income lines x property columns).
+   - **Number by the table's own row, 1..N.** Not a continuation of another table's numbers (8949 page 2 had 12-22
+     after page 1's 1-11; ACORD 81 page 3 amounts ran on from page 1).
+   - **Labels that change page to page** (8825's properties A-D, schedule letters): number 1, 2, 3 instead.
+     Fixed letters the form itself refers to keep their letters (the ADA claim's diagnosis codes A-D, which the
+     procedure lines' "diag pointer" column points to): `diagnosis_code_a_txt`, not `_1_`.
+   - **Preprinted rows and blank rows are one table.** ACORD 81's classes 1-13 (Jewelry, Furs, ...) and blank rows
+     14-21 are all schedule numbers 1-21; fields only the blank rows have (class code, description) keep the row's number.
+   - **Separate tables get separate names.** Two tables of the same columns (8949's Part I short-term, Part II
+     long-term; AO 40B page 2's expense and property tables) are told apart by a prefix (`short_term_`, `long_term_`),
+     each numbered from 1. Two stacked sections in one table keep one set of columns (C-148's recycling containments
+     rows 1-5, storage tanks rows 1-6).
+   - **Several of one kind in a row** (three coverage qualifiers per row): name the columns apart
+     (`first_` / `second_` / `third_coverage_qualifier_N_cd`) so each name carries one number.
+   - **A totals row** is named for the column without a number (`long_term_total_proceeds_amt`, `monthly_total_bbl`),
+     the column's unit suffix kept.
+   - **Y / N columns** printed as one text box per cell get the pattern `^[YN]$` (ACORD convention); when the page shows
+     two tick boxes (YES / NO columns) over one widget, split into a yes / no group (eval/split_yes_no.py) instead:
+     the page beats the widget metadata (memory: feedback-page-over-metadata).
+   - **Misaligned boxes** (EP-2's RRC column a few points off): number each column from box positions, top to bottom,
+     after checking every column has the same count.
+   - **Repeated blocks** are tables too: the same group of fields over several lines, repeated down the page (FAA
+     8050-1 page 3: nine signer blocks, each applicant name / signature / date / signer name / title; ACORD 125
+     page 2: four premises blocks of ten fields). Each block is a row, numbered once; each field of the block is a
+     column with one wording: `applicant_3_nm`, `signature_3_txt`, `signature_3_dt`, `signer_3_nm`, `title_3_txt` all
+     carry block 3. They are found apart from tables since 2026-10-18 (eval/block_groups.py: a block group is a
+     set of three or more different fields over two or more lines and columns, laid out again one step on; one
+     line repeated is a table's rows), and shown in the Blocks tab, one block per row.
+   - **A block that continues another page** keeps counting (FAA 8050-1: page 2 has the first signer block under
+     "all applicants must sign. Use next page", so page 3's blocks are signers 2-10, not 1-9). That is the opposite
+     of separate tables (8949's Part I and Part II each start at 1): decide by whether the page says the list goes
+     on. Renumbering a whole series one by one clashes (each new name is still held by the next field); rename
+     them together, through `grid_naming --fix --apply` or one `form_chat.apply` call.
+   - **A first block named for its role** may stay so where the form prints it that way (ACORD 125:
+     `first_named_insured_*`, then `other_named_insured_1_*`, `_2_*`); the code flags it, the person decides.
+   - Tax forms may keep line-number names (`line_4c`) where the caption is only an instruction. Item-lettered
+     names in a block (I-130 `item_5a_page_number`, `item_5b_part_number` in one row) are numbered by their item
+     number; the letter belongs to the column.
+   - A signature or address block that merely lines up is not a table: leave it.
+
+4. **Apply** through the chat's apply path, which validates like a correction, refuses clashes, moves Andrew's verdicts
+   with renames and records each change as Claude's (`x_petey_hand_edit` by claude):
+   ```python
+   from petey.validate import form_chat as fc
+   fc.apply(bid, [{"field": old, "edit": {"name": new}, "why": "..."}, ...], groups=[])
+   ```
+   Patterns or types go in the same `edit` dict (`{"pattern": "^[YN]$"}`). For the mechanical cases,
+   `eval/grid_naming.py <bid> --fix --apply` does the same.
+
+5. **Re-check.** `eval/grid_naming.py <bid>` should list nothing for the table, then page-check only the changed fields:
+   `PYTHONPATH=. venv/bin/python eval/page_check_working.py --changed <bid>` (keeps every verdict still valid).
+
+6. **Report** by field code (`form_1_7`) and name, old -> new in a short table; say what was left and why. Do not touch
+   forms Andrew is checking or has said he wants to look at first.

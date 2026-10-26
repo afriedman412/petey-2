@@ -66,9 +66,17 @@ def load_record(bid: str) -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def _is_xbox(spec: dict) -> bool:
+    """A yes / no box the publisher made a text field, to type an X in (2026-10-15, boat application: DAY / EVENING
+    beside the phone numbers): an option like a checkbox, read by its text (`extract`: an X is a selection)."""
+    w = spec.get("widget") or {}
+    return spec.get("type") == "boolean" and w.get("widget_type") == "text"
+
+
 def _is_orphan(spec: dict) -> bool:
     w = spec.get("widget") or {}
-    return (not spec.get("widgets") and spec.get("type") == "boolean" and w.get("widget_type") in OPTION_TYPES
+    return (not spec.get("widgets") and spec.get("type") == "boolean"
+            and (w.get("widget_type") in OPTION_TYPES or _is_xbox(spec))
             and bool(w.get("rect")) and w.get("page") is not None)
 
 
@@ -99,7 +107,10 @@ def option_items(bp: dict) -> tuple[dict, list[dict]]:
                               "widget_type": w.get("widget_type")}
                 ids.append(iid)
             if ids:
-                units.append({"name": name, "type": spec.get("type") or "category", "items": ids, "origin": name,
+                t = spec.get("type")
+                if len(ids) > 1 and t not in ("category", "multi_category"):
+                    t = "category"               # a group is one of / any of (2026-10-15: SSA-827 had a boolean one)
+                units.append({"name": name, "type": t or "category", "items": ids, "origin": name,
                               "description": spec.get("description")})
         elif _is_orphan(spec) or _is_union(spec):
             w = spec["widget"]
@@ -118,7 +129,7 @@ def text_items(bp: dict) -> dict[str, dict]:
     """Every field with one text widget, as an item that can be combined (`kind: text`, id = field name)."""
     out = {}
     for name, spec in (bp.get("fields") or {}).items():
-        if not isinstance(spec, dict) or spec.get("widgets"):
+        if not isinstance(spec, dict) or spec.get("widgets") or _is_xbox(spec):
             continue
         w = spec.get("widget") or {}
         if w.get("widget_type") == "text" and w.get("rect") and w.get("page"):
@@ -136,6 +147,53 @@ def _order_key(items: dict, u: dict) -> tuple:
 
 def _signature(u: dict) -> tuple:
     return u["name"], u["type"], tuple(sorted(u["items"])), tuple(sorted((u.get("captions") or {}).items()))
+
+
+_PAGE_WORDS: dict[tuple, list] = {}
+
+
+def page_confirms(blank: Path, ws: dict[str, dict]) -> bool:
+    """Every option's current caption is printed right beside its box: the words on its line just right of it (up to
+    the next option on the line), just left of it, or the short header above it (`captions`). Then the captions stand
+    as they are, no model call (Andrew, 2026-10-16: "a lot of them would just be checks for adjacent text"; 57% of
+    the tier-1/2 groups). Only a confirmation: the code never changes a caption, because the text beside a box can be
+    the next option's label (ACORD 75 prints labels before the box) or a fragment of a sentence (MCS-90)."""
+    import re
+    import pymupdf
+    from petey.label import captions as C
+    norm = lambda t: re.sub(r"[^a-z0-9]+", " ", (t or "").lower()).strip()       # noqa: E731
+    rects = {k: w["rect"] for k, w in ws.items() if w.get("rect")}
+    if len(rects) < 2:
+        return False
+    doc = None
+    try:
+        for k, w in ws.items():
+            cur = norm(w.get("caption"))
+            if not w.get("rect") or not cur:
+                return False
+            pg = w.get("page")
+            if (str(blank), pg) not in _PAGE_WORDS:
+                doc = doc or pymupdf.open(str(blank))
+                _PAGE_WORDS[(str(blank), pg)] = C._words_on(doc[pg - 1])
+            words = _PAGE_WORDS[(str(blank), pg)]
+            others = [r for kk, r in rects.items() if kk != k and ws[kk].get("page") == pg]
+            cy = (w["rect"][1] + w["rect"][3]) / 2
+            right = [r[0] for r in others if abs((r[1] + r[3]) / 2 - cy) < 4 and r[0] > w["rect"][2]]
+            seen = set()
+            for find in (lambda: C._right_of(words, w["rect"], min(right) if right else None),
+                         lambda: C._left_of(words, w["rect"], others), lambda: C._header_above(words, w["rect"], others)):
+                try:
+                    c = find()
+                except Exception:
+                    c = None
+                if c:
+                    seen.add(norm(C._END_PUNCT.sub("", C._LEADERS.sub("", c.strip())).strip()))
+            if cur not in seen:
+                return False
+        return True
+    finally:
+        if doc is not None:
+            doc.close()
 
 
 def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[str], model: bool = True) -> dict[str, dict]:
@@ -165,7 +223,11 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
         while k in ws:
             k, n = f"{k}_{n}", n + 1
         ws[k], key_of[k] = block, iid
-    best, source = {}, "chooser"
+    best, source, answered = {}, "chooser", False
+    if page_confirms(blank, ws):                        # every caption is printed beside its box: stands, no call
+        return {iid: {"caption": ws[k].get("caption"), "current": ws[k].get("caption"),
+                      "locked": ws[k].get("x_petey_caption_source") in ("xfa", "hand"), "source": "page text"}
+                for k, iid in key_of.items()}
     if model:
         try:
             from petey.synth.generate import make_client
@@ -174,10 +236,10 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
                                      "Give every numbered option box its caption exactly as printed beside it "
                                      "(the whole label, not an abbreviation). Change nothing else.", "", {})
             best = {k: o.get("caption") for k, o in (got.get("options") or {}).items() if o.get("caption")}
-            source = flag_agent.MODEL
+            source, answered = flag_agent.MODEL, True    # no options back = the agent keeps the captions as they are
         except Exception:                               # no key, no network: the local chooser
             best = {}
-    if not best:
+    if not best and not answered:     # 2026-10-15: falling back after an answer let the chooser undo good captions
         words, lines = page_context(blank)
         best = {k: r.get("best") for k, r in choose(name, {"widgets": ws}, words, lines, publisher_words(blank)).items()}
         source = "chooser"
@@ -188,6 +250,22 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
         out[iid] = {"caption": w.get("caption") if locked else (best.get(k) or w.get("caption")),
                     "current": w.get("caption"), "locked": locked, "source": source}
     return out
+
+
+def field_captions(p: Path, name: str) -> dict:
+    """'re-read captions' for one group from the Review page (Andrew, 2026-10-15: available there as well as in
+    Groups): `suggest_captions` on the field's boxes; {"options": {key: {"caption"}}} for the captions that would
+    change (locked ones kept), filled into the option boxes for the person to save."""
+    from petey.validate.retype import resolve_blank
+    bp = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
+    spec = (bp.get("fields") or {}).get(name)
+    if not isinstance(spec, dict) or not spec.get("widgets"):
+        raise KeyError(name)
+    caps = suggest_captions(bp, resolve_blank(bp), name, [f"{name}::{k}" for k in spec["widgets"]])
+    opts = {iid.partition("::")[2]: {"caption": c["caption"]} for iid, c in caps.items()
+            if c.get("caption") and not c.get("locked") and c["caption"] != c.get("current")}
+    return {"options": opts, "locked": sum(1 for c in caps.values() if c.get("locked")),
+            "source": next((c.get("source") for c in caps.values()), None)}
 
 
 def _box(it: dict) -> str:
@@ -279,6 +357,8 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
     for u in units:
         if u.get("origin") in locked:
             u["locked"] = locked[u["origin"]]
+        if u.get("kind") != "text" and len(u["items"]) > 1 and u.get("type") not in ("category", "multi_category"):
+            u["type"] = "category"               # several options make a group: one of, unless set to any of
     units.sort(key=lambda u: _order_key(items, u))
     return items, units, info
 
@@ -361,7 +441,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
         elif u["name"] in fields and u["name"] not in option_fields:
             errors.append(f"{u['name']!r} is already the name of another field")
         if len(u["items"]) > 1 and u["type"] not in ("category", "multi_category"):
-            errors.append(f"{u['name']!r} groups {len(u['items'])} options but its type is {u['type']!r}")
+            u["type"] = "category"               # Andrew, 2026-10-15: groups are category or multi_category, always
         b = base_by_origin.get(u.get("origin"))
         if u.get("locked") and (b is None or _signature(u) != _signature(b)):
             errors.append(f"{u['name']!r} is a union box (old shape); run expand_options before regrouping it")
@@ -553,6 +633,8 @@ def apply(bid: str, page_captions: bool = True) -> dict:
     if not pl["changes"]:
         print(f"{bid}: nothing to change")
         return pl
+    from petey import naming          # a name new to the blueprint gets its parts (naming.sync_parts)
+    naming.sync_parts(pl["fields"], [n for n in pl["fields"] if n not in (bp.get("fields") or {})])
     bp["fields"] = pl["fields"]
     field_ids.assign(bp)                    # a new field gets the next free id on its page
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True), encoding="utf-8")
@@ -628,9 +710,33 @@ class State:
         items, units, info = current_units(bid, bp, sha)
         opt_items, base = option_items(bp)
         option_fields = {it["field"] for it in opt_items.values()}
+        # groups among the loose checkboxes (group_finder, 2026-10-25), made as the tab loads (Andrew: "let's have the
+        # finder groups group automatically, easy to ungroup them"): written into the record as "group them" made
+        # them, applied with the rest when Groups is left; an ungrouped one is recorded as not a group and stays apart
+        from petey.validate import group_finder
+        loose = {u["items"][0]: items[u["items"][0]] for u in units if len(u.get("items") or []) == 1
+                 and u.get("kind") != "text" and not u.get("locked") and u.get("type") == "boolean"
+                 and items.get(u["items"][0], {}).get("widget_type") in ("checkbox", "radiobutton")}
+        try:
+            suggested = group_finder.find(bp, blank, loose, bid)
+        except Exception as e:                       # noqa: BLE001  the tab works without them
+            suggested = []
+            info = {**info, "suggest_error": str(e)}
+        made = []
+        if suggested:
+            try:
+                made = self._group(bid, bp, items, units, suggested)
+                items, units, info = current_units(bid, bp, sha)
+                suggested = []
+            except Exception as e:                   # noqa: BLE001  left as suggestions
+                made, info = [], {**info, "suggest_error": str(e)}
         return {"id": bid, "path": str(self.paths[bid]), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
+                # each field's code, for the full field id the card shows as Review's does (2026-10-24)
+                "codes": {n: str(s["x_petey_id"]) for n, s in (bp.get("fields") or {}).items()
+                          if isinstance(s, dict) and s.get("x_petey_id") is not None},
+                "suggested": suggested, "auto_grouped": made,
                 "info": info}
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
@@ -672,6 +778,30 @@ class State:
         if e:
             self._index[bid] = e
         return {"saved": rec["updated"], "entry": e}
+
+    def make_suggested(self, bid: str) -> list[dict]:
+        """"run finders" makes the suggested groups (Andrew, 2026-10-25: "can we make sure the finder groups related
+        ind fields instead of putting them in a single block?": CMS-855B's Change / Add / Remove went into the blocks
+        as three loose boxes): loading the Groups data makes them (`detail`); the caller applies the record."""
+        return (self.detail(bid) or {}).get("auto_grouped") or []
+
+    def _group(self, bid: str, bp: dict, items: dict, units: list[dict], sug: list[dict]) -> list[dict]:
+        """The suggestions made groups in the record, as Groups' "group them" makes them (category, not confirmed:
+        new on the Groups tab). [{name, page, items, why}]."""
+        members = {i for x in sug for i in x["items"]}
+        units = [u for u in units if not (len(u["items"]) == 1 and u["items"][0] in members)]
+        taken = (set(bp.get("fields") or {}) - {items[i]["field"] for i in members}) | {u["name"] for u in units}
+        now, made = time.strftime("%Y-%m-%d %H:%M:%S"), []
+        for x in sug:
+            base = x.get("name") or f"group_p{x['page']}"
+            n, k = base, 2
+            while n in taken:
+                n, k = f"{base}_{k}", k + 1
+            taken.add(n)
+            units.append({"name": n, "type": "category", "items": list(x["items"]), "confirmed": False, "when": now})
+            made.append({"name": n, "page": x["page"], "items": len(x["items"]), "why": x["why"]})
+        self.put_units(bid, {"units": units})
+        return made
 
     def captions_for(self, bid: str, body: dict) -> dict:
         p = self.path(bid)

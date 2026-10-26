@@ -7,11 +7,16 @@ source_pages:
 - 1
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: gemini-3.8-flash
+  geometry: acroform
+  labels: llm
+  when: '2026-10-15 12:08:00'
 fields:
   operator_nm:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -24,7 +29,26 @@ fields:
     description: Operator Name
     x_petey_description_source: tooltip
     label_source: llm
-  ogrid_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:54'
+      from:
+        name: operator_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: operator_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: operator
+      suffix: nm
+  ogrid_nbr:
     x_petey_id: '1_2'
     type: string
     widget:
@@ -37,7 +61,26 @@ fields:
       widget_type: text
       path: OGRID
     label_source: llm
-  bond_num:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:54'
+      from:
+        name: ogrid_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: ogrid_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: ogrid
+      suffix: nbr
+  bond_nbr:
     x_petey_id: '1_3'
     type: string
     widget:
@@ -50,7 +93,26 @@ fields:
       widget_type: text
       path: Bond
     label_source: llm
-  current_bond_release_amt:
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:54'
+      from:
+        name: bond_number
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: bond_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: number -> nbr'
+    x_petey_identifiers:
+      subject: bond
+      suffix: nbr
+  current_bond_amount_to_be_released_amt:
     x_petey_id: '1_4'
     type: number
     semantic_type: money
@@ -66,12 +128,12 @@ fields:
     description: Current bond amount to be released
     x_petey_description_source: tooltip
     label_source: llm
-    x_petey_retype:
-    - money
+    x_petey_identifiers:
+      subject: current_bond_amount_to_be_released
+      suffix: amt
   print_nm:
     x_petey_id: '1_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -82,6 +144,25 @@ fields:
       widget_type: text
       path: Print Name
     label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-15 12:15:54'
+      from:
+        name: print_name
+        type: string
+        semantic_type: null
+        pattern: null
+      to:
+        name: print_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/standardize_names.py
+      by: claude
+      kind: name
+      why: 'naming standard: name -> nm'
+    x_petey_identifiers:
+      subject: print
+      suffix: nm
   date_release_requested_dt:
     x_petey_id: '1_5'
     type: date
@@ -96,5 +177,37 @@ fields:
       widget_type: text
       path: Date1_af_date
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_identifiers:
+      subject: date_release_requested
+      suffix: dt
+x_petey_page_check:
+  when: '2026-10-15 12:19:28'
+  model: claude-opus-5
+  prompt: 2ddd7670
+  pages:
+  - 1
+  fields: 6
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/well_bond_release_request_1_1__5ddfe5__ea5f8c9c.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: well_bond_release_request_1_1_20261015_120812
+  blueprint: /Users/user/Documents/code/petey-2/runs/judge_eval/work/well_bond_release_request_1_1.bpt
+  when: '2026-10-15 12:08:20'
+x_petey_run:
+  record: runs/judge_eval/form_runs/well_bond_release_request_1_1.json
+  status: clean
+  stop: nothing detected
+  stable: true
+  rounds: 2
+  review_rounds: 0
+  when: '2026-10-15 12:08:21'

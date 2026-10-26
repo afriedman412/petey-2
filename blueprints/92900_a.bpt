@@ -10,6 +10,12 @@ source_pages:
 - 4
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 10:28:43'
 fields:
   fha_case_no:
     x_petey_id: '1_1'
@@ -23,11 +29,11 @@ fields:
       - 88.44000244140625
       widget_type: text
       path: FHA-Case-No
-    label_source: llm
     description: FHA Case No.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: fha_case_no
   mortgagee_case_no:
     x_petey_id: '1_2'
     type: string
@@ -40,11 +46,11 @@ fields:
       - 88.44000244140625
       widget_type: text
       path: Mortgagee Case No
-    label_source: llm
     description: Mortgagee Case No.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_case_no
   mortgagee_id:
     x_petey_id: '1_3'
     type: string
@@ -57,15 +63,15 @@ fields:
       - 114.0
       widget_type: text
       path: Mortgagee ID
-    label_source: llm
     description: Mortgagee ID
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  mortgagee_name_address_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_id
+  mortgagee_name_address_telephone:
     x_petey_id: '1_6'
     type: string
-    semantic_type: person_name
+    semantic_type: address
     widget:
       page: 1
       rect:
@@ -75,11 +81,25 @@ fields:
       - 146.364013671875
       widget_type: text
       path: BNA-1
-    label_source: llm
     description: Mortgage Name, Address (including Zip Code), and Telephone Number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - -pattern
+      reason: Caption and tooltip ask for name, address and telephone in one box,
+        so a phone-only semantic type and phone regex would reject valid entries;
+        name stays.
+      before:
+        type: string
+        semantic_type: phone
+        pattern: ^(?:\(\d{3}\)\s?|\d{3}[-. ])\d{3}[-. ]\d{4}$
+        description: Mortgage Name, Address (including Zip Code), and Telephone Number
+      judged: 'kept: 0 -> 0'
+    x_petey_identifiers:
+      subject: mortgagee_name_address_telephone
   sponsor_id:
     x_petey_id: '1_4'
     type: string
@@ -93,10 +113,12 @@ fields:
       widget_type: text
       path: Sponsor ID
     label_source: llm
-  sponsor_name_address_txt:
+    x_petey_identifiers:
+      subject: sponsor_id
+  sponsor_name_address:
     x_petey_id: '1_7'
     type: string
-    semantic_type: person_name
+    semantic_type: address
     widget:
       page: 1
       rect:
@@ -106,11 +128,22 @@ fields:
       - 182.280029296875
       widget_type: text
       path: Name and Address of Sponsor
-    label_source: llm
     description: Name and Address of Sponsor
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Box holds the sponsor's name and address block, not a bare person name;
+        semantic_type corrected to address.
+      before:
+        type: string
+        semantic_type: person_name
+        description: Name and Address of Sponsor
+      judged: 'kept: 2 -> 1'
+    x_petey_identifiers:
+      subject: sponsor_name_address
   agent_id:
     x_petey_id: '1_5'
     type: string
@@ -124,10 +157,11 @@ fields:
       widget_type: text
       path: Agent ID
     label_source: llm
-  agent_name_address_txt:
+    x_petey_identifiers:
+      subject: agent_id
+  agent_name_address:
     x_petey_id: '1_8'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -137,15 +171,30 @@ fields:
       - 182.280029296875
       widget_type: text
       path: Name and Address of Agent
-    label_source: llm
     description: Name and Address of Agent
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  borrower_name_present_address_txt:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: agent_name_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: agent_name_address
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: agent_name_address
+  borrower_name_present_address:
     x_petey_id: '1_9'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -155,15 +204,30 @@ fields:
       - 238.44000244140625
       widget_type: text
       path: Borrowers Name  Present Address
-    label_source: llm
     description: Borrower's Name & Present Address
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  property_address_txt:
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: borrower_name_present_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: borrower_name_present_address
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_name_present_address
+  property_address:
     x_petey_id: '1_10'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -173,15 +237,15 @@ fields:
       - 238.44000244140625
       widget_type: text
       path: Property Address
-    label_source: llm
     description: Property Address
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  third_party_originator_nm:
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_address
+  third_party_originator_business_nm:
     x_petey_id: '1_11'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -191,11 +255,12 @@ fields:
       - 270.0
       widget_type: text
       path: Name of ThirdParty Originator
-    label_source: llm
     description: Name of Third-Party Originator
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: third_party_originator_business
+      suffix: nm
   third_party_originator_nmls_id:
     x_petey_id: '1_12'
     type: string
@@ -208,15 +273,14 @@ fields:
       - 270.0
       widget_type: text
       path: NMLS ID of ThirdParty Originator
-    label_source: llm
     description: NMLS ID of Third-Party Originator
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: third_party_originator_nmls_id
   borrower_nm:
     x_petey_id: '1_13'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -226,11 +290,28 @@ fields:
       - 366.72900390625
       widget_type: text
       path: BN-1
-    label_source: llm
     description: Borrower's Name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: borrower_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: borrower_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower
+      suffix: nm
   borrower_dob_dt:
     x_petey_id: '1_15'
     type: date
@@ -244,12 +325,12 @@ fields:
       - 375.7200012207031
       widget_type: text
       path: DOB
-    label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Date of Birth
     x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: borrower_dob
+      suffix: dt
   borrower_ssn:
     x_petey_id: '1_17'
     type: string
@@ -264,15 +345,15 @@ fields:
       - 386.2799987792969
       widget_type: text
       path: SSN
-    label_source: llm
     description: Social Security Number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: borrower
+      suffix: ssn
   co_borrower_nm:
     x_petey_id: '1_14'
     type: string
-    semantic_type: person_name
     widget:
       page: 1
       rect:
@@ -282,11 +363,28 @@ fields:
       - 364.44000244140625
       widget_type: text
       path: s Name 1
-    label_source: llm
     description: Co-Borrower's Name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: co_borrower_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: co_borrower_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: co_borrower
+      suffix: nm
   co_borrower_dob_dt:
     x_petey_id: '1_16'
     type: date
@@ -300,12 +398,12 @@ fields:
       - 375.7200012207031
       widget_type: text
       path: s Name 2
-    label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Co-Borrower's Date of Birth
     x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower_dob
+      suffix: dt
   co_borrower_ssn:
     x_petey_id: '1_18'
     type: string
@@ -320,15 +418,15 @@ fields:
       - 386.2799987792969
       widget_type: text
       path: ty Number_2
-    label_source: llm
     description: Co-Borrower's Social Security Number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  borrower_signature_txt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower
+      suffix: ssn
+  borrower_signature:
     x_petey_id: '1_19'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -338,12 +436,13 @@ fields:
       - 438.1199951171875
       widget_type: text
       path: S
-    label_source: llm
     description: Signature(s) of Borrower(s)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  borrower_date_signed_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: borrower
+      suffix: signature
+  borrower_signature_dt:
     x_petey_id: '1_20'
     type: date
     semantic_type: iso_date
@@ -357,12 +456,12 @@ fields:
       widget_type: text
       path: Date S
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  co_borrower_signature_txt:
+    x_petey_identifiers:
+      subject: borrower_signature
+      suffix: dt
+  co_borrower_signature:
     x_petey_id: '1_21'
     type: string
-    semantic_type: text
     widget:
       page: 1
       rect:
@@ -372,12 +471,13 @@ fields:
       - 437.760009765625
       widget_type: text
       path: S_2
-    label_source: llm
     description: Signature(s) of Co-Borrower(s)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  co_borrower_date_signed_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower
+      suffix: signature
+  co_borrower_signature_dt:
     x_petey_id: '1_22'
     type: date
     semantic_type: iso_date
@@ -391,12 +491,12 @@ fields:
       widget_type: text
       path: Date S_2
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_identifiers:
+      subject: co_borrower_signature
+      suffix: dt
   borrower_nm_2:
     x_petey_id: '2_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 2
       rect:
@@ -406,11 +506,28 @@ fields:
       - 46.08001708984375
       widget_type: text
       path: Borrower Name
-    label_source: llm
     description: Borrower Name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: borrower_nm_2
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: borrower_nm_2
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_nm
+      iteration: '2'
   fha_case_no_2:
     x_petey_id: '2_2'
     type: string
@@ -423,12 +540,13 @@ fields:
       - 46.08001708984375
       widget_type: text
       path: FHA-Case-No-2
-    label_source: llm
     description: FHA Case No.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  borrower_signature:
+    label_source: llm
+    x_petey_identifiers:
+      subject: fha_case_no
+      iteration: '2'
+  borrower_signature_2:
     x_petey_id: '2_3'
     type: string
     widget:
@@ -440,12 +558,12 @@ fields:
       - 607.7999877929688
       widget_type: text
       path: S_3
-    label_source: llm
     description: Signature(s) of Borrower(s)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  borrower_signature_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: borrower_signature_2
+  borrower_signature_dt_2:
     x_petey_id: '2_4'
     type: date
     semantic_type: iso_date
@@ -459,9 +577,9 @@ fields:
       widget_type: text
       path: Date S_3
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-  co_borrower_signature:
+    x_petey_identifiers:
+      subject: borrower_signature_dt_2
+  co_borrower_signature_2:
     x_petey_id: '2_5'
     type: string
     widget:
@@ -473,12 +591,12 @@ fields:
       - 607.7999877929688
       widget_type: text
       path: S_4
-    label_source: llm
     description: Signature(s) of Co-Borrower(s)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  co_borrower_signature_dt:
+    label_source: llm
+    x_petey_identifiers:
+      subject: co_borrower_signature_2
+  co_borrower_signature_dt_2:
     x_petey_id: '2_6'
     type: date
     semantic_type: iso_date
@@ -492,12 +610,11 @@ fields:
       widget_type: text
       path: Date S_4
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_identifiers:
+      subject: co_borrower_signature_dt_2
   borrower_nm_3:
     x_petey_id: '3_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -507,11 +624,28 @@ fields:
       - 46.08001708984375
       widget_type: text
       path: Borrower Name_2
-    label_source: llm
     description: Borrower Name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: borrower_nm_3
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: borrower_nm_3
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_nm
+      iteration: '3'
   fha_case_no_3:
     x_petey_id: '3_2'
     type: string
@@ -524,11 +658,12 @@ fields:
       - 46.08001708984375
       widget_type: text
       path: FHA-Case-No-3
-    label_source: llm
     description: FHA Case No.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: fha_case_no
+      iteration: '3'
   date_approval_expires_dt:
     x_petey_id: '3_4'
     type: date
@@ -542,12 +677,12 @@ fields:
       - 118.79998779296875
       widget_type: text
       path: Date Approval Expires
-    label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Date Approval Expires
     x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: date_approval_expires
+      suffix: dt
   date_mortgage_approved_dt:
     x_petey_id: '3_3'
     type: date
@@ -561,12 +696,12 @@ fields:
       - 118.79998779296875
       widget_type: text
       path: Date Mortgage Approved
-    label_source: llm
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Date Mortgage Approved
     x_petey_description_source: tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: date_mortgage_approved
+      suffix: dt
   mortgagee_representative_signature:
     x_petey_id: '3_5'
     type: string
@@ -579,15 +714,15 @@ fields:
       - 280.0799865722656
       widget_type: text
       path: Mortgagee Representative Signature
-    label_source: llm
     description: Mortgagee Representative Signature
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_representative
+      suffix: signature
   mortgagee_representative_printed_nm:
     x_petey_id: '3_6'
     type: string
-    semantic_type: person_name
     widget:
       page: 3
       rect:
@@ -597,11 +732,28 @@ fields:
       - 302.7049865722656
       widget_type: text
       path: Printed Name
-    label_source: llm
     description: Printed Name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: mortgagee_representative_printed_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: mortgagee_representative_printed_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: mortgagee_representative_printed
+      suffix: nm
   mortgagee_representative_title:
     x_petey_id: '3_7'
     type: string
@@ -615,7 +767,9 @@ fields:
       widget_type: text
       path: Title
     label_source: llm
-  borrower_underwriting_de_id_no:
+    x_petey_identifiers:
+      subject: mortgagee_representative_title
+  borrower_underwriting_de_id_nbr:
     x_petey_id: '3_9'
     type: string
     widget:
@@ -627,11 +781,12 @@ fields:
       - 524.6400146484375
       widget_type: text
       path: DEs ID Number
-    label_source: llm
     description: DE’s ID Number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: borrower_underwriting_de_id
+      suffix: nbr
   borrower_underwriting_de_signature:
     x_petey_id: '3_8'
     type: string
@@ -644,12 +799,13 @@ fields:
       - 524.6400146484375
       widget_type: text
       path: DEU-signature
-    label_source: llm
     description: Direct Endorsement Underwriter Signature
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  property_underwriting_de_id_no:
+    label_source: llm
+    x_petey_identifiers:
+      subject: borrower_underwriting_de
+      suffix: signature
+  property_underwriting_de_id_nbr:
     x_petey_id: '3_11'
     type: string
     widget:
@@ -661,11 +817,12 @@ fields:
       - 632.6400146484375
       widget_type: text
       path: DE's ID Number2
-    label_source: llm
     description: DE's ID Number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_underwriting_de_id
+      suffix: nbr
   property_underwriting_de_signature:
     x_petey_id: '3_10'
     type: string
@@ -678,15 +835,15 @@ fields:
       - 632.6400146484375
       widget_type: text
       path: DEU-signature2
-    label_source: llm
     description: Direct Endorsement Underwriter Signature
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: property_underwriting_de
+      suffix: signature
   borrower_nm_4:
     x_petey_id: '4_1'
     type: string
-    semantic_type: person_name
     widget:
       page: 4
       rect:
@@ -696,11 +853,28 @@ fields:
       - 46.08001708984375
       widget_type: text
       path: Borrower Name_3
-    label_source: llm
     description: Borrower Name
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: borrower_nm_4
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: borrower_nm_4
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: borrower_nm
+      iteration: '4'
   fha_case_no_4:
     x_petey_id: '4_2'
     type: string
@@ -713,12 +887,13 @@ fields:
       - 46.08001708984375
       widget_type: text
       path: FHA-Case-No-4
-    label_source: llm
     description: FHA Case No.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-  mortgagee_business_name:
+    label_source: llm
+    x_petey_identifiers:
+      subject: fha_case_no
+      iteration: '4'
+  mortgagee_business_nm:
     x_petey_id: '4_3'
     type: string
     semantic_type: business_name
@@ -732,10 +907,12 @@ fields:
       widget_type: text
       path: Mortgagee
     label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_business
+      suffix: nm
   mortgagee_representative_nm:
     x_petey_id: '4_4'
     type: string
-    semantic_type: person_name
     widget:
       page: 4
       rect:
@@ -745,11 +922,28 @@ fields:
       - 302.2799987792969
       widget_type: text
       path: Name of Mortgagees Representat ve
-    label_source: llm
     description: Name of Mortgagee’s Representative
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_hand_edit:
+      when: '2026-10-14 19:30:25'
+      from:
+        name: mortgagee_representative_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: mortgagee_representative_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: eval/mechanical_pass.py
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
+    x_petey_identifiers:
+      subject: mortgagee_representative
+      suffix: nm
   mortgagee_representative_title_2:
     x_petey_id: '4_5'
     type: string
@@ -762,11 +956,11 @@ fields:
       - 362.2799987792969
       widget_type: text
       path: T t e of Mortgagees Representat ve
-    label_source: llm
     description: Title of Mortgagee’s Representative
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_representative_title_2
   mortgagee_representative_signature_2:
     x_petey_id: '4_6'
     type: string
@@ -779,11 +973,11 @@ fields:
       - 410.2799987792969
       widget_type: text
       path: S gnature of the Mortgagees Representat ve
-    label_source: llm
     description: Signature of the Mortgagee’s Representative
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_identifiers:
+      subject: mortgagee_representative_signature_2
   signature_dt:
     x_petey_id: '4_7'
     type: date
@@ -798,10 +992,11 @@ fields:
       widget_type: text
       path: Date
     label_source: llm
-    x_petey_retype:
-    - pattern_dropped
+    x_petey_identifiers:
+      subject: signature
+      suffix: dt
 x_petey_dedup_log:
-  duplicate_labels_reassigned: 8
+  duplicate_labels_reassigned: 12
   collisions:
   - original_label: borrower_nm
     assigned_label: borrower_nm_2
@@ -819,6 +1014,38 @@ x_petey_dedup_log:
     - 22.91998291015625
     - 482.2799987792969
     - 46.08001708984375
+  - original_label: borrower_signature
+    assigned_label: borrower_signature_2
+    page: 2
+    rect:
+    - 23.639999389648438
+    - 584.6400146484375
+    - 156.24000549316406
+    - 607.7999877929688
+  - original_label: borrower_signature_dt
+    assigned_label: borrower_signature_dt_2
+    page: 2
+    rect:
+    - 177.36000061035156
+    - 584.6400146484375
+    - 276.7200012207031
+    - 607.7999877929688
+  - original_label: co_borrower_signature
+    assigned_label: co_borrower_signature_2
+    page: 2
+    rect:
+    - 319.67999267578125
+    - 584.6400146484375
+    - 446.760009765625
+    - 607.7999877929688
+  - original_label: co_borrower_signature_dt
+    assigned_label: co_borrower_signature_dt_2
+    page: 2
+    rect:
+    - 474.4360046386719
+    - 586.4749755859375
+    - 579.2730102539062
+    - 608.4749755859375
   - original_label: borrower_nm
     assigned_label: borrower_nm_3
     page: 3
@@ -867,3 +1094,29 @@ x_petey_dedup_log:
     - 374.8800048828125
     - 385.8550109863281
     - 410.2799987792969
+x_petey_page_check:
+  when: '2026-10-06 11:13:03'
+  model: claude-opus-5
+  prompt: 216f41cd
+  pages:
+  - 1
+  - 2
+  - 3
+  - 4
+  fields: 46
+  flagged: 1
+  unanswered: 0
+  record: runs/page_check/je__92900_a__e028e541.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: 92900_a_20261006_111225
+  blueprint: runs/judge_eval/blueprints/92900_a.bpt
+  when: '2026-10-06 11:13:02'
