@@ -10,7 +10,7 @@ import { allBlocks, blockAddField, blockDraw, blockDropped, focus, key, load, re
 
 function Layer() {
   const page = useApp(s => s.page);
-  const { GD, selBlock } = useBlocks();
+  const { GD, selBlock, hover } = useBlocks();
   if (!GD) return null;
   const out: React.ReactNode[] = [];
   for (const y of GD.types || []) {
@@ -28,7 +28,7 @@ function Layer() {
         </Box>);
       // each field of the block, accepted or not, as the Grids tab shows a grid's cells
       (b.cells || []).forEach((x, i) => {
-        if (x) out.push(<Box key={`c${b.code}#${i}`} className={'gcell' + (x.accepted ? ' acc' : '')} rect={x.rect}
+        if (x) out.push(<Box key={`c${b.code}#${i}`} className={'gcell' + (x.accepted ? ' acc' : '') + (hover === `${b.code}#${i}` ? ' hl' : '')} rect={x.rect}
           title={x.name + (x.accepted ? ' · accepted' : ' · not accepted yet')} vars={{ '--c': 'var(--accent)' }} />);
       });
     }
@@ -49,6 +49,7 @@ export const blocks: ModeDef = {
     keys: [['n / p', 'next / previous block'], ['Enter', 'check & validate the open block'], ['Delete', 'the open block is not a block'], ['Esc', 'close the open block']],
     tips: ['Drag on an empty part of the page, or Shift+drag anywhere, around one block: a block of the type it matches, else a new type.',
       'Drag a block onto another: it becomes a block of that one\'s type, its boxes paired by place and its names put to the type\'s parts.',
+      'Click a name in the open block to edit its parts: they are its type\'s, so saving renames the field in every block of the type (asked first when there are others). Hover a name to light its field on the page.',
       'Fields in no block show as grey dashed boxes: drag one onto a block to add it, into the empty position of its kind nearest it (or a new position of the type, if it has none).'],
   },
   load,

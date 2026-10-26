@@ -43,10 +43,15 @@ interface State {
   /** the matrix's part boxes as typed, per type, with the saved parts they were typed over (nothing saved until
    *  "confirm"; a change to the saved parts shows those instead) */
   typed: Record<string, { base: string; slots: SlotText[] }>;
+  /** a name in the open block's window being edited by its parts (Andrew, 2026-10-26): the block, its type, the
+   *  position, and the position's parts as they were when it opened (Esc puts them back) */
+  nameEdit: { code: string; tid: string; k: number; was: SlotText } | null;
+  /** the field hovered in the sidebar ("<block code>#<position index>"), lit on the page */
+  hover: string | null;
 }
 
 export const useBlocks = create<State>(() => ({
-  GD: null, selBlock: null, editing: {}, tBusy: {}, bBusy: {}, closestFor: {}, typed: {},
+  GD: null, selBlock: null, editing: {}, tBusy: {}, bBusy: {}, closestFor: {}, typed: {}, nameEdit: null, hover: null,
 }));
 const S = useBlocks.getState, put = useBlocks.setState;
 const bid = () => app().bid!;
@@ -105,11 +110,12 @@ export async function load(form: string) {
 
 const scrollPanelTop = () => afterPaint(() => { const p = document.getElementById('panel'); if (p) p.scrollTop = 0; });
 export function selectBlock(b: Block) {
-  put({ selBlock: b.code });
+  if (S().nameEdit && S().nameEdit!.code !== b.code) cancelNameEdit();   // another block: an edit left open is put back
+  put({ selBlock: b.code, hover: null });
   if (b.page !== app().page) gotoPage(b.page);
   scrollPanelTop();          // the open block's card is at the top
 }
-export const closeBlock = () => put({ selBlock: null });
+export const closeBlock = () => { cancelNameEdit(); put({ selBlock: null, hover: null }); };
 export const editParts = (tid: string) => put({ editing: { ...S().editing, [tid]: true } });
 
 // ------------------------------------------------------------------------------------------------------ actions
@@ -167,7 +173,9 @@ const renameNote = (tid: string, out: RenameOut) => `${tid ? tid + ': ' : ''}${o
   + ((out.held || []).length ? ` Left, the name is another field's: ${out.held!.slice(0, 3).join('; ')}${out.held!.length > 3 ? ` and ${out.held!.length - 3} more` : ''}.` : '')
   + (out.errors.length ? ' Not applied: ' + out.errors.join('; ') : '');
 
-export async function typeConfirm(tid: string) {
+/** "one step when alone": a type with one block renames it without asking (the block window, 2026-10-26: "two steps
+ *  (but only if there is another block of the same type)") */
+export async function typeConfirm(tid: string, opts: { oneStepWhenAlone?: boolean } = {}) {
   const y0 = typeOf(tid); if (!y0) return;
   // the parts as typed in the matrix: an empty box is no part
   const slots = shownSlots(y0).map(t => { const s: Partial<SlotText> = {};
@@ -183,8 +191,32 @@ export async function typeConfirm(tid: string) {
   const y = typeOf(tid), n = y ? typeOff(y) : 0;
   toast(`${tid} confirmed: ${out.wordings.length} positions.` + ((out.numbered || []).length
     ? ` Positions ${out.numbered.join(', ')} were alike and are numbered (the iteration row): if one is another thing, give it its own subject.` : ''));
-  if (n && confirm(`${tid}: ${n} name(s) across its ${y!.blocks.length} blocks do not print from these parts. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
+  if (!n) return;
+  if (opts.oneStepWhenAlone && y!.blocks.length < 2) typeFix(tid);
+  else if (confirm(`${tid}: ${n} name(s) across its ${y!.blocks.length} blocks do not print from these parts. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
 }
+
+// a field's name edited from the open block's window (Andrew, 2026-10-26: "can we make it so field names within a
+// block can be edited from the individual block window?"): its position's parts, typed into the type's parts as the
+// matrix's boxes are; saving confirms the type's parts, then renames its blocks (asked first when it has others)
+export function startNameEdit(y: BType, b: Block, k: number) {
+  const cur = S().nameEdit;
+  if (cur && cur.code === b.code && cur.k === k) return;
+  if (cur) cancelNameEdit();
+  put({ nameEdit: { code: b.code, tid: y.id, k, was: shownSlots(y)[k] } });
+}
+export function cancelNameEdit() {
+  const e = S().nameEdit; if (!e) return;
+  put({ nameEdit: null });
+  PKEYS.forEach(key => setSlot(e.tid, e.k, key, e.was[key]));
+}
+export async function saveNameEdit() {
+  const e = S().nameEdit; if (!e) return;
+  const y = typeOf(e.tid); put({ nameEdit: null });
+  if (!y || JSON.stringify(shownSlots(y)[e.k]) === JSON.stringify(e.was)) return;    // nothing changed
+  await typeConfirm(e.tid, { oneStepWhenAlone: true });
+}
+export const setHover = (h: string | null) => { if (S().hover !== h) put({ hover: h }); };
 
 export async function blockValidate(code: string) {
   let out;

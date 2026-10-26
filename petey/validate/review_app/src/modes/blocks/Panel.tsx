@@ -1,13 +1,14 @@
 // Blocks' sidebar: the open block's card, the block types with their matrix, the page's blocks; and its bar (the counts).
 // Every box typed in keeps what is typed across a reload (component state, or the store for the matrix's parts) and
 // shows the saved value again once the server's changes.
-import { useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
+import { Fragment, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { copyText } from '../../lib/dnd';
 import { toggleWide } from '../../state/actions';
 import { useApp } from '../../state/app';
 import {
   blockAssign, blockDetect, blockFix, blockIdent, blockKeep, blockOut, blockParts, blockState, blockValidate, blocksHere,
-  editParts, printIdent, PKEYS, ref, selectBlock, setSlot, shownSlots, typeAssign, typeAuto, typeConfirm, typeFix,
+  cancelNameEdit, editParts, printIdent, PKEYS, ref, saveNameEdit, selectBlock, setHover, setSlot, shownSlots,
+  startNameEdit, typeAssign, typeAuto, typeConfirm, typeFix,
   typeLabel, typeOff, typeSlots, typeValidate, useBlocks,
   type Block, type BType, type Slot,
 } from './store';
@@ -35,11 +36,39 @@ function TypeOptions({ not, first }: { not: string; first?: string | null }) {
     <option key={x.id} value={x.id}>{x.id}{x.label ? ' ' + x.label : ''} ({x.boxes} boxes, {x.blocks.length} block{x.blocks.length === 1 ? '' : 's'}){x.id === first ? ' · closest' : ''}</option>))}</>;
 }
 
+// a name in the block window being edited: its position's parts, the name they print for this block, and the red
+// warning when the type has other blocks (Andrew, 2026-10-26: "this will edit every corresponding field in similar
+// block types"); Enter saves, Esc puts the parts back
+function NameEdit({ y, b, k }: { y: BType; b: Block; k: number }) {
+  useBlocks(st => st.typed);
+  const t = shownSlots(y)[k];
+  const trimmed = Object.fromEntries(PKEYS.map(key => [key, t[key].trim()])) as Slot;
+  const first = useRef<HTMLInputElement>(null);
+  useLayoutEffect(() => { first.current?.focus(); first.current?.select(); }, []);
+  const keys = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') { e.preventDefault(); saveNameEdit(); }
+    else if (e.key === 'Escape') { e.preventDefault(); cancelNameEdit(); }
+  };
+  const others = y.blocks.length - 1;
+  return (
+    <tr><td /><td colSpan={2}><div className="btpe">
+      <div className="row btparts">{PKEYS.map((key, i) => (
+        <input key={key} ref={i === 0 ? first : undefined} type="text" className={key === 'iteration' ? 'btit' : undefined} value={t[key]}
+          placeholder={key} spellCheck={false} onChange={e => setSlot(y.id, k, key, e.target.value)} onKeyDown={keys} onClick={stop} />))}</div>
+      <div>→ <code>{printIdent(blockIdent(b.prefix, b.iteration, trimmed)) || '(no name)'}</code></div>
+      {others > 0 && <div className="warn">this will edit every corresponding field in {y.id}'s {y.blocks.length} blocks (position {k + 1}); you are asked before the other blocks are renamed</div>}
+      <div className="row"><button className="btn mini primary" onClick={e => { stop(e); saveNameEdit(); }}>save</button>
+        <button className="btn mini" onClick={e => { stop(e); cancelNameEdit(); }}>cancel</button></div>
+    </div></td></tr>
+  );
+}
+
 // the clicked block, at the top of the sidebar (Andrew, 2026-10-22: "why can't I edit individual blocks anymore?"
 // and "I'm clicking on BT1-2 and it brings up BT5": every unconfirmed type's matrix was open, the block's row
 // somewhere below them): its prefix, iteration and how it is told apart; its names now and as its type prints them
 function OpenBlock({ y, b }: { y: BType; b: Block }) {
-  const { GD, bBusy, closestFor } = useBlocks();
+  const { GD, bBusy, closestFor, nameEdit, hover } = useBlocks();
   const ss = typeSlots(y);
   // the open block's own boxes: prefix, iteration and how it is told apart, saved on leaving a box or Enter
   const [pre, setPre] = useSynced(b.prefix || '');
@@ -72,12 +101,17 @@ function OpenBlock({ y, b }: { y: BType; b: Block }) {
         const want = printIdent(blockIdent(b.prefix, b.iteration, ss[k] || {})), kept = (b.kept || []).includes(k + 1);
         const d = (b.differs || []).find(x => x.pos === k + 1), acc = (b.cells || [])[k]?.accepted;
         const chg = want && want !== n && !kept && !(b.same_as || []).length;
+        const open = nameEdit?.code === b.code && nameEdit.k === k, h = `${b.code}#${k}`;
+        // hovered, the field lights on the page; clicked, its parts open below it
         return (
-          <tr key={k}><td className="help">{k + 1}</td><td><code className={acc ? 'accd' : ''}>{n}</code>{acc ? ' ✓' : ''}</td><td>{chg
+          <Fragment key={k}><tr className={hover === h ? 'hov' : undefined} onMouseEnter={() => setHover(h)} onMouseLeave={() => setHover(null)}>
+            <td className="help">{k + 1}</td><td><code className={'ed' + (acc ? ' accd' : '')} title="click to edit its parts (its type's, for every block of the type)"
+              onClick={e => { stop(e); startNameEdit(y, b, k); }}>{n}</code>{acc ? ' ✓' : ''}</td><td>{chg
             ? <>→ <code>{want}</code>{d && d.held ? <> <span className="help">held by {d.held === 'no block' ? 'a field in no block' : d.held}</span></> : null}{' '}
               <a href="#" className="x" title="cancel this rename: the name stays as it is" onClick={e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.code, k + 1, true); }}>×</a></>
             : kept ? <span className="help">kept as is · <a href="#" onClick={e => { e.preventDefault(); e.stopPropagation(); blockKeep(b.code, k + 1, false); }}>undo</a></span>
-            : <span className="help">as its type prints it</span>}</td></tr>);
+            : <span className="help">as its type prints it</span>}</td></tr>
+            {open && <NameEdit y={y} b={b} k={k} />}</Fragment>);
       })}</tbody></table>
       <div className="row">{y.confirmed
         ? <button className={'btn mini ' + (b.validated ? '' : 'primary')} disabled={busy} onClick={e => { e.stopPropagation(); blockValidate(b.code); }}>
@@ -117,7 +151,7 @@ function MxCell({ y, b, k, s }: { y: BType; b: Block; k: number; s: Slot }) {
   const d = (b.differs || []).find(x => x.pos === k + 1), acc = (b.cells || [])[k]?.accepted;
   const chg = want && want !== n && !kept && !(b.same_as || []).length;
   return (
-    <td className={chg ? 'chg' : ''}>
+    <td className={chg ? 'chg' : ''} onMouseEnter={() => setHover(`${b.code}#${k}`)} onMouseLeave={() => setHover(null)}>
       <code className={'mxname' + (acc ? ' accd' : '')} title={acc ? 'accepted' : 'not accepted yet'}>{kept ? n : want || n}</code>{acc ? ' ✓' : ''}
       {chg && <span className="was" title="its name now">{n}</span>}
       {d && d.held && <span className="help" title="another field has that name and keeps it">held by {d.held === 'no block' ? 'a field in no block' : d.held}</span>}
