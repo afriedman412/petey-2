@@ -25,7 +25,7 @@ What it does, in order, per field (option groups keep their names: a group is na
 
 A rename that would collide with another field is skipped and listed.
 
-    PYTHONPATH=. venv/bin/python eval/standardize_names.py lib__i130 lib__acord125 ...   [--all-validated]
+    PYTHONPATH=. venv/bin/python -m petey.validate.standardize_names lib__i130 lib__acord125 ...   [--all-validated]
 
 `--apply` (2026-10-15, the next tranche: Andrew reviews the standardized names, so they go in before the page check)
 writes the renames into the review page's working copy instead (`draft`), each a correction by Claude
@@ -39,7 +39,6 @@ import collections
 import json
 import re
 import sys
-from pathlib import Path
 
 import yaml
 
@@ -328,7 +327,7 @@ def apply(bid: str, ren: dict, why: dict) -> int:
     before = h._sha(p)
     extra = {n: {"kind": "name", "why": "naming standard: " + "; ".join(why.get(n) or [])} for n in clean}
     bp["fields"] = h.edit_fields(fields, clean, {n: ren[n] for n in clean}, time.strftime("%Y-%m-%d %H:%M:%S"),
-                                 "eval/standardize_names.py", by="claude", extra=extra)
+                                 "petey/validate/standardize_names.py", by="claude", extra=extra)
     p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True, default_flow_style=False), encoding="utf-8")
     draft.follow(bid, before, h._sha(p))
     vp = h.verdict_path(bid)                     # the person's verdicts follow the rename

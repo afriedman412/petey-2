@@ -3,7 +3,7 @@ too, and we get can a lot of labels just off that ... it takes a lot of higher o
 field, but we can get a lot of the way there for cheap.")
 
 For each text field and lone checkbox of a validated blueprint (its box taken as given: the finder plus Jev's "is it a
-field" decide that step, eval/jev_is_field.py):
+field" decide that step, petey/validate/jev_is_field.py):
   1. candidates (code, free): the printed lines nearest the box, its column header, its row label, column + row
      together (`witness.page_texts`), cleaned; nothing from the widget layer (a flat form has no tooltips);
   2. pick (Jev, a choice question): which candidate is the box's caption, with the page image (widgets stripped,
@@ -14,7 +14,7 @@ Scored against the validated name on the description words (suffixes and iterati
 words (any order), close (half the words shared), wrong. Beside Jev's pick: the nearest line (no model) and the best
 candidate (the ceiling of step 1).
 
-    PYTHONPATH=. venv/bin/python eval/cheap_names.py --forms 40 --save runs/jev/cheap_names_2026-10-15.json
+    PYTHONPATH=. venv/bin/python -m petey.validate.cheap_names --forms 40 --save runs/jev/cheap_names_2026-10-15.json
 """
 from __future__ import annotations
 
@@ -28,10 +28,8 @@ import sys
 from pathlib import Path
 
 import httpx
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from jev_is_field import cached_boxes, flat_copy  # noqa: E402
-from standardize_names import SUFFIXES, standard  # noqa: E402
+from petey.validate.jev_is_field import cached_boxes, flat_copy  # noqa: E402
+from petey.validate.standardize_names import SUFFIXES, standard  # noqa: E402
 
 from petey.validate import hand_review as h, page_check as pc  # noqa: E402
 from petey.validate import witness as W  # noqa: E402

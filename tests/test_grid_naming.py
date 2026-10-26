@@ -1,8 +1,6 @@
-"""Grids are named on one pattern (eval/grid_naming.py, 2026-10-15): tables found by layout, each column one
+"""Grids are named on one pattern (petey/validate/grid_naming.py, 2026-10-15): tables found by layout, each column one
 wording, each row one number (or the transpose)."""
-import grid_naming as G
-
-
+from petey.validate import grid_naming as G
 def blueprint(name_of, rows=4, cols=("vehicle_make", "vehicle_year", "vehicle_vin")):
     fields = {}
     for r in range(rows):
@@ -25,7 +23,7 @@ def test_on_pattern():
 def test_a_cell_off_its_column_breaks_the_pattern():
     off = lambda r, c, col: "model_year_9_txt" if (r, c) == (3, 1) else f"{col}_{r + 1}_txt"   # noqa: E731
     ok, why = G.on_pattern(G.grids(blueprint(off))[0])
-    assert not ok and "model_year_N_txt" in why
+    assert not ok and "model_year_9_txt" in why                     # the cell off its column, named
 
 
 def test_simple_scheme_names_are_on_pattern_too():
@@ -40,7 +38,7 @@ def test_one_row_of_boxes_out_of_order_is_renumbered_by_position():
     bp = {"fields": {f"company_{n}_nbr": {"type": "string", "widget": {
         "page": 1, "widget_type": "text", "rect": [50 + i * 20, 100, 66 + i * 20, 116]}} for i, n in enumerate(order)}}
     g = [{"name": f"company_{n}_nbr", "page": 1, "row": 0, "col": i} for i, n in enumerate(order)]
-    assert G.breaks(g)[0] == "rows"
+    assert G._Frame(g).reading == "rows"                         # one row: one position, numbered across
     r = G.resolve(bp, g, {})
     assert r["status"] == "fixed"
     assert r["renames"] == {f"company_{n}_nbr": f"company_{i + 1}_nbr" for i, n in enumerate(order) if n != i + 1}
@@ -69,7 +67,8 @@ def test_a_table_labelled_with_the_column_first_is_on_pattern():
     kinds = ["total_units", "units_sold_and_closed", "investor_units", "hoa_owned_units"]
     g = [{"name": f"{col}_{k}_cnt", "page": 3, "row": r, "col": c}
          for r, k in enumerate(kinds) for c, col in enumerate(["entire_project", "subject_legal_phase"])]
-    assert G.on_pattern(g) == (True, "columns named by role or kind")
+    ok, why = G.on_pattern(g)
+    assert ok and why.endswith("named by role or kind")          # labelled both ways
     assert G.resolve({"fields": {c["name"]: {} for c in g}}, g, {})["status"] == "ok"
 
 
@@ -159,7 +158,7 @@ def test_the_off_count_and_the_button_agree_on_a_continued_series():
 def test_halves_side_by_side_read_as_one():
     """ACORD 140's blanket list (Andrew, 2026-10-24: "this needs a systematic fix because it's not a unique
     situation"): blankets 1-2 on the left, 3-4 on the right, read as four rows, on pattern as named."""
-    import grid_naming as G
+    from petey.validate import grid_naming as G
     words = ["blanket_{}_nbr", "blanket_{}_amt", "blanket_type_{}_txt"]
     grid = [{"name": w.format(r + 1 + 2 * half), "page": 1, "row": r, "col": 3 * half + k}
             for half in range(2) for r in range(2) for k, w in enumerate(words)]

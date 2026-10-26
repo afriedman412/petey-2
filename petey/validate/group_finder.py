@@ -61,7 +61,24 @@ def _norm(t: str) -> str:
 
 
 def _name(fields: list[str]) -> Optional[str]:
-    """The boxes' shared start, without their yes / no words (smoker_yes_ind, smoker_no_ind -> smoker)."""
+    """The group's name from its boxes' parts (Andrew, 2026-10-26: "block and groups need to consider parts as well";
+    petey/naming.parts_for): the words their subjects start with, without the yes / no words, and the number they all
+    carry (phone_type_home_ind_2, phone_type_cell_ind_2 -> phone_type_2, not phone 1's phone_type); an option group
+    has no suffix. Else the boxes' shared start (smoker_yes_ind, smoker_no_ind -> smoker)."""
+    from petey import naming
+    ps = [naming.parts_for(f) for f in fields]
+    subs = [(x.get("subject") or "").split("_") for x in ps]
+    its = {x.get("iteration") for x in ps}
+    if all(x.get("subject") for x in ps) and len(its) == 1 and None not in its:
+        pre = []
+        for words in zip(*subs):
+            if len(set(words)) > 1:
+                break
+            pre.append(words[0])
+        while pre and pre[-1] in ("yes", "no", "ind", "y", "n"):
+            pre.pop()
+        if pre and len("_".join(pre)) >= 3:
+            return naming.print_name({"subject": "_".join(pre), "iteration": next(iter(its))})
     toks = [f.split("_") for f in fields]
     pre = []
     for parts in zip(*toks):

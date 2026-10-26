@@ -24,8 +24,8 @@ from pathlib import Path
 import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from cheap_names import form_items  # noqa: E402
-from jev_is_field import cached_boxes  # noqa: E402
+from petey.validate.cheap_names import form_items  # noqa: E402
+from petey.validate.jev_is_field import cached_boxes  # noqa: E402
 
 from petey.synth import boxes as B  # noqa: E402
 from petey.synth.classify import classify_form  # noqa: E402

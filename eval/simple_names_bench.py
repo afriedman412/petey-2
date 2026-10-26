@@ -17,7 +17,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from standardize_names import SUFFIXES  # noqa: E402
+from petey.validate.standardize_names import SUFFIXES  # noqa: E402
 
 from petey.label import text_match as TM  # noqa: E402
 from petey.validate import grid_check as gc, hand_review as h  # noqa: E402

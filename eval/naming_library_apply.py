@@ -1,7 +1,7 @@
 """The naming standard applied to the library (Andrew, 2026-10-24: "yeah sounds good. let's keep the old copies around so
 I can do a little more validation against old versions before we let them slide").
 
-For every library blueprint: its fields' parts written as `x_petey_identifiers` (eval/field_identifiers.read_form, the
+For every library blueprint: its fields' parts written as `x_petey_identifiers` (field_identifiers.read_form, the
 fields it can read; the flagged ones are left as they are) and its names printed from them (petey/naming.py), in the
 blueprint and in its working copy when one is open (the copy's starting point moved along, so Save still works). The
 verdicts follow their fields' new names, and the shas that matched the old file are moved to the new one, so a
@@ -22,7 +22,7 @@ from pathlib import Path
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import field_identifiers as FI  # noqa: E402
+from petey.validate import field_identifiers as FI  # noqa: E402
 
 from petey import naming  # noqa: E402
 from petey.paths import RUNS  # noqa: E402

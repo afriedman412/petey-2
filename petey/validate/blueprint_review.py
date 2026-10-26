@@ -405,11 +405,10 @@ class Blocks:
 
 def name_parts(bid: str, field: str, new: str) -> dict:
     """A proposed name read into its parts, as the form's other names are (Andrew, 2026-10-25: '"improve name" should
-    also change "subject"'): eval/field_identifiers.read with the form's names around it, so a block's number after
+    also change "subject"'): field_identifiers.read with the form's names around it, so a block's number after
     its subject and a field's own number are told apart; in the standard's shape (petey/naming.py)."""
     import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    from standardize_names import PARTS_AFTER, SUFFIXES, _is_group
+    from petey.validate.standardize_names import PARTS_AFTER, SUFFIXES, _is_group
     from petey import naming
     bp = hand_review._load(hand_review.working_path(bid))
     spec = (bp.get("fields") or {}).get(field) or {}
@@ -420,8 +419,7 @@ def name_parts(bid: str, field: str, new: str) -> dict:
 def overlay(bp: dict, bid: str, verdicts: dict) -> dict:
     """`App.overlay` for one blueprint and its verdicts."""
     import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    import grid_naming
+    from petey.validate import grid_naming
     from petey.validate import block_types, grid_check
     acc = {n for n, v in verdicts.items() if (v or {}).get("verdict") == "accept"}
     fields = []
@@ -591,8 +589,7 @@ class App:
         ([table body passing], [table failing]). A passing table's cells are accepted without the model; the page goes
         to the model only when a table fails, or the layout finds none."""
         import sys
-        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-        import grid_naming
+        from petey.validate import grid_naming
         bp = hand_review._load(self.working(bid))
         passed, failed = [], []
         for g in grid_naming.grids(bp, blocks=False):
@@ -607,8 +604,7 @@ class App:
         unexplained, put the table on pattern and take no name another field keeps. ([edit], [cells now on pattern],
         [tables the code cannot fix])."""
         import sys
-        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-        import grid_naming
+        from petey.validate import grid_naming
         bp = hand_review._load(self.working(bid))
         fields = bp.get("fields") or {}
         ren, left = grid_naming.fixes(bp, blocks=False)
@@ -636,8 +632,7 @@ class App:
         cells that fails the test is said in `refused` ({grid, why}), shown under the button pressed. Note: "grid
         check"."""
         import sys
-        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-        import grid_naming
+        from petey.validate import grid_naming
         from petey.validate import grid_check
         from petey.validate.retype import resolve_blank
         bp = hand_review._load(self.working(bid))

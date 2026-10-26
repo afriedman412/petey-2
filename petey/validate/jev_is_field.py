@@ -9,7 +9,7 @@ other is not (a little unfair to Jev: some uncovered boxes are real blanks the b
 classifier that screens finder boxes for Add / remove today (`classify_form`, cached class map; class none = not a
 field).
 
-    PYTHONPATH=. venv/bin/python eval/jev_is_field.py --forms 40 --save runs/jev/is_field_2026-10-15.json
+    PYTHONPATH=. venv/bin/python -m petey.validate.jev_is_field --forms 40 --save runs/jev/is_field_2026-10-15.json
 """
 from __future__ import annotations
 

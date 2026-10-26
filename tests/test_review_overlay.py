@@ -31,7 +31,7 @@ def test_a_grid_inside_one_block_is_not_listed():
 
 def test_a_row_renumber_says_once_per_column_why_it_waits():
     """2026-10-22: a reason per cell (707 of them over the kept grids) said one thing per column."""
-    import grid_naming as G
+    from petey.validate import grid_naming as G
     from tests.test_grid_naming import _grid
     bp, g = _grid([["guns_1_amt", "note_1_txt"], ["silver_2_amt", "note_2_txt"], ["cash_3_amt", "note_5_txt"],
                    ["coin_4_amt", "note_4_txt"]])

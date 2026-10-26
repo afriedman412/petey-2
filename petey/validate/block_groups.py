@@ -20,7 +20,7 @@ block is two entries side by side (a shifted copy of itself). The same step over
 across), left to grid_naming. A slot may be
 missing from some blocks (IMM 5645 Section A: the applicant has no "will accompany" boxes).
 
-    PYTHONPATH=. venv/bin/python eval/block_groups.py je__ircc_imm_5645 je__faa_8050_1 ...
+    PYTHONPATH=. venv/bin/python -m petey.validate.block_groups je__ircc_imm_5645 je__faa_8050_1 ...
 """
 from __future__ import annotations
 

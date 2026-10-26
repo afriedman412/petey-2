@@ -15,7 +15,7 @@
   (petey/validate/block_types.block_parts).
 
 Every printer of a name from its parts goes through `print_name` (labeling's structure.print_name, the review page's
-parts editor, block types, eval/field_identifiers).
+parts editor, block types, petey/validate/field_identifiers).
 """
 from __future__ import annotations
 
@@ -86,3 +86,107 @@ def parse(name: str, suffixes: set, part_words: set = frozenset(), group: bool =
     if toks:
         out["subject"] = "_".join(toks)
     return standard(out)
+
+
+KEY = "x_petey_identifiers"
+
+
+def parts_for(name: str, spec: dict | None = None) -> dict:
+    """A name's parts, read from it (`parse`, with the standard's suffixes and part words; an option group has no
+    suffix), that print exactly that name: when the reading would print another (a long suffix made short), the name
+    is all subject, so a name given by hand is never changed behind the person's back (Andrew, 2026-10-26: names and
+    parts in step, "construct them from pieces")."""
+    from petey.validate.standardize_names import PARTS_AFTER, SUFFIXES, _is_group
+    p = {k: v for k, v in parse(name, SUFFIXES, PARTS_AFTER, group=_is_group(spec or {})).items() if v}
+    # a number inside the name is the block's only where the form says so (its block types, its grids): read from the
+    # name alone it stays with the subject's words (line_29_covered_all_12_months_ind: not block 12)
+    if p.get("block_prefix"):
+        p["subject"] = "_".join(x for x in (p.pop("block_prefix"), p.pop("block_iteration", None), p.get("subject"))
+                                if x)
+    return p if print_name(p) == name else {"subject": name}
+
+
+def sync_parts(fields: dict, names=None) -> list[str]:
+    """Each field (of `names`, else every one) whose stored parts are missing or no longer print its name gets parts
+    read from the name (`parts_for`), its grid membership kept. The names changed by a path that sends no parts (a
+    name typed in Review, a grid's rename, a group's name, a field added) stay in step with their parts. What was
+    set."""
+    out = []
+    for n in (names if names is not None else list(fields)):
+        s = fields.get(n)
+        if not isinstance(s, dict):
+            continue
+        st = s.get(KEY) if isinstance(s.get(KEY), dict) else None
+        if st and print_name(st) == n:
+            continue
+        keep = {k: v for k, v in (st or {}).items() if k == "grid"}
+        s[KEY] = {**parts_for(n, s), **keep}
+        out.append(n)
+    return out
+
+
+def read_name(name: str, spec: dict | None = None, block: tuple | None = None, line: str | None = None,
+              keyed: bool = False, part: str | None = None) -> tuple[dict, list[str]]:
+    """(parts, flags) for one field, in the standard's order, with what the form says about it (Andrew, 2026-10-26:
+    one parts reader; "it should know all_12_months is a subject, not an iteration or a block number"):
+
+    block   (prefix, iteration) of the block the field is in (its block type's record): the name's start is the
+            block's, the rest its position's
+    line    the identifier of the grid line the field is a cell of (grid_naming.identify), when the lines count
+            (29, 6a): the number of the name that is the line's says where it goes; a number after a line word stays
+            with it (line_29_..., address_line_1); any other number inside the name stays in the subject
+    keyed   the grid's lines are labels (real_estate, line_5_lesser_earned_income): nothing is renumbered
+    part    the field is this part of a compound value (associate.compound_values: an SSN's boxes, a date's month):
+            the name's last word is the part (veteran_ssn_1: box 1 of the SSN, not a second SSN)
+
+    The parts print the name unless a flag says why not."""
+    from petey.validate.standardize_names import PARTS_AFTER, SUFFIXES, _is_group
+    group = _is_group(spec or {})
+    flags: list[str] = []
+    toks = [t for t in name.split("_") if t]
+    out: dict = {}
+    if block and block[0]:
+        head = [*block[0].split("_"), *([block[1]] if block[1] else [])]
+        if toks[:len(head)] == head and len(toks) > len(head):
+            out["block_prefix"] = block[0]
+            if block[1]:
+                out["block_iteration"] = block[1]
+            toks = toks[len(head):]
+        else:
+            flags.append(f"not printed from its block ({'_'.join(head)}_...)")
+    pw = set(PARTS_AFTER) | ({part} if part and toks and toks[-1] == part else set())
+    rest = {k: v for k, v in parse("_".join(toks), SUFFIXES, pw, group=group).items() if v}
+    if rest.get("part") in SUFFIXES and not rest.get("suffix") and not rest.get("iteration") and not group:  # a year,
+        rest["suffix"] = rest.pop("part")         # wiring_improvement_yr; not signature_2_day, a date's day
+    if rest.get("subject") in SUFFIXES and not rest.get("suffix") and not group and (out or rest.get("iteration")):
+        rest["suffix"] = rest.pop("subject")     # dependent_child_1_nm_2: the block's name, its second
+    if rest.get("block_prefix"):                 # a number inside: the subject's, unless the line says otherwise
+        rest["subject"] = "_".join(x for x in (rest.pop("block_prefix"), rest.pop("block_iteration", None),
+                                               rest.get("subject")) if x)
+    sub = (rest.get("subject") or "").split("_")
+    if line and not keyed:
+        def core(t):
+            return t[:-1] if len(t) > 1 and t[-1].isalpha() and t[:-1].isdigit() else t
+        lt = line.split("_")[-1]
+        printed = any(sub[i] in (lt, core(lt)) and i > 0 and sub[i - 1] in LINE_WORDS for i in range(len(sub)))
+        lettered = re.fullmatch(r"\d+", lt) and any(re.fullmatch(lt + r"[a-z]", t) for t in sub)    # item_5a_page
+        if rest.get("iteration") in (lt, core(lt)) or out.get("block_iteration") in (lt, core(lt)) or printed \
+                or lettered:
+            pass
+        elif not rest.get("iteration") and len(sub) > 1 and sub[-1] in (lt, core(lt)) and sub[-2] not in LINE_WORDS:
+            rest["iteration"], rest["subject"] = sub[-1], "_".join(sub[:-1])      # x_1_amt: the line's, last
+        elif not rest.get("iteration") and lt in sub and sub.index(lt) > 0 and sub[sub.index(lt) - 1] not in LINE_WORDS \
+                and sub.count(lt) == 1 and not out.get("block_prefix"):
+            i = sub.index(lt)                    # employment_2_to: the line's number before field words: a block's
+            out["block_prefix"], out["block_iteration"] = "_".join(sub[:i]), lt
+            rest["subject"] = "_".join(sub[i + 1:])
+        else:
+            nums = [t for t in toks if re.fullmatch(r"\d+[a-z]?", t)]
+            flags.append(f"number {nums[-1]} is not its line's ({line})" if nums
+                         else f"no number of its line ({line})")
+    parts = {**out, **rest}
+    if not parts.get("subject") and not (group or parts.get("block_prefix")):
+        flags.append("name is only a suffix")
+    elif not group and not parts.get("suffix"):
+        flags.append("no standard suffix")             # soft: said, not a reason to leave the reading
+    return {k: v for k, v in parts.items() if v}, flags

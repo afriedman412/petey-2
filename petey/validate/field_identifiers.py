@@ -21,7 +21,7 @@ standard, [subject]_[iteration]_[suffix]_[part]) to show the reading is faithful
 ([subject]_[suffix]_[iteration]_[part], the iteration last; Andrew, 2026-10-19), whose differences are the renames
 the migration makes.
 
-    PYTHONPATH=. venv/bin/python eval/field_identifiers.py je__acord_90_ny ...   [--tiers 1,2]  [--all]
+    PYTHONPATH=. venv/bin/python -m petey.validate.field_identifiers je__acord_90_ny ...   [--tiers 1,2]  [--all]
 """
 from __future__ import annotations
 
@@ -37,11 +37,9 @@ import yaml
 
 from petey.paths import RUNS
 from petey.validate import grid_check as gc, hand_review as h
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import grid_naming as G  # noqa: E402
-from associate import compound_values  # noqa: E402
-from standardize_names import SUFFIXES, _is_group  # noqa: E402
+from petey.validate import grid_naming as G  # noqa: E402
+from petey.validate.associate import compound_values  # noqa: E402
+from petey.validate.standardize_names import SUFFIXES, _is_group  # noqa: E402
 
 OUT = RUNS / "identifiers"
 KEY = "x_petey_identifiers"
@@ -78,102 +76,6 @@ def _series_index(names: list[str]) -> dict[tuple, set]:
     return ix
 
 
-def _membership(bid: str, bp: dict) -> tuple[dict[str, dict], dict[str, str]]:
-    """{field name: {grid, expect: the number its line carries or None, keyed}} from the kept list's active grids,
-    and {name: why} for fields in two of them."""
-    out, twice = {}, {}
-    for t in gc.listing(bid, bp):
-        if t["status"] != "active":
-            continue
-        cells = t["grid"]
-        keyed = G.keyed(cells)
-        reading, _ = G.breaks(cells) if not keyed else ("keyed", [])
-        num_axis = "row" if reading == "columns" else "col"
-        expect = {}
-        if not keyed:
-            line = collections.defaultdict(collections.Counter)
-            for c in cells:
-                n = G._number(c["name"])
-                if n is not None:
-                    line[c[num_axis]][G._core(n)] += 1
-            expect = {k: v.most_common(1)[0][0] for k, v in line.items() if v}
-        totals = {c["name"] for c in cells} - {c["name"] for c in G.body(cells)}    # a last row of totals: not iterated
-        for c in cells:
-            m = {"grid": t["id"]}
-            m["expect"], m["keyed"] = expect.get(c[num_axis]), keyed or c["name"] in totals
-            if c["name"] in out:
-                twice[c["name"]] = f"in {out[c['name']]['grid']} and {t['id']}"
-            else:
-                out[c["name"]] = m
-    return out, twice
-
-
-# a number after one of these words labels a line of the form (line 14, row 3, box 26, item 7b), so it stays in the
-# subject with its word, as address_line_1 does (the naming standard, 2026-10-24)
-LINE_WORDS = {"line", "row", "box", "item", "page", "part", "question", "q", "col", "column", "section", "step",
-              "schedule", "lines", "rows"}
-
-
-def read(name: str, spec: dict, parts: dict[str, str], member: dict | None, series: dict) -> tuple[dict, list[str]]:
-    """(identifiers, flags) for one field from its name and what is known about it."""
-    group = _is_group(spec)
-    toks, flags = name.split("_"), []
-    ident: dict = {"block_prefix": None, "block_iteration": None, "subject": None, "suffix": None, "iteration": None,
-                   "part": None}
-    if name in parts and not group:
-        ident["part"] = toks[-1]
-        toks = toks[:-1]
-    if not group and toks and toks[-1] in SUFFIXES:
-        ident["suffix"] = toks[-1]
-        toks = toks[:-1]
-        if not toks:
-            flags.append("name is only a suffix")
-    elif not group:
-        flags.append("no standard suffix")
-    its = _iter_positions(toks)
-    pick = None
-    if member:
-        if "grid" in member:
-            ident["grid"] = member["grid"]
-        if member["keyed"]:
-            pass                                    # rows named by role or kind: the key stays in the subject
-        elif member["expect"] is None:
-            flags.append("its row (or column) carries no number")
-        else:
-            hit = [i for i in its if G._core(toks[i]) == member["expect"]]
-            if hit:
-                pick = hit[-1]
-            elif its:
-                pick = its[-1]
-                flags.append(f"number {toks[pick]} is not its row's (or column's) {member['expect']}")
-            else:
-                flags.append(f"unnumbered cell of a numbered grid (its line is {member['expect']})")
-    else:
-        full = name.split("_")
-        vary = [i for i in _iter_positions(full) if len(series[(tuple(full[:i]), tuple(full[i + 1:]))]) > 1]
-        vary = [i for i in vary if i < len(toks)]            # not the part, not the suffix
-        if len(vary) == 1:
-            pick = vary[0]
-        elif len(vary) > 1:
-            flags.append(f"{len(vary)} numbers vary ({', '.join(toks[i] for i in vary)}): which one iterates?")
-    if pick is not None and pick > 0 and toks[pick - 1] in LINE_WORDS:
-        pick = None                 # a line's label, not a count: it stays with its word (address_line_1, row_14)
-    if pick is not None and 0 < pick < len(toks) - 1:
-        # field words between the number and the suffix: the number is a block's, after the block's subject (the
-        # naming standard, Andrew 2026-10-24: employment_2_to_dt is employment 2's "to" date, family_member_3_given_nm
-        # the third family member's given name); a number directly before the suffix is the field's own
-        # (procedure_1_cd -> procedure_cd_1)
-        ident["block_prefix"], ident["block_iteration"] = "_".join(toks[:pick]), toks[pick]
-        toks = toks[pick + 1:]
-    elif pick is not None:
-        ident["iteration"] = toks[pick]
-        toks = toks[:pick] + toks[pick + 1:]
-    ident["subject"] = "_".join(toks)
-    if not ident["subject"]:
-        ident["subject"] = None                     # ssn_1: the suffix is all the name says (flagged above)
-    return {k: v for k, v in ident.items() if v is not None}, flags
-
-
 def _kind(name: str, printed: str) -> str:
     """Why a printed name differs from the one it was read from."""
     a, b = name.split("_"), printed.split("_")
@@ -186,27 +88,24 @@ def _kind(name: str, printed: str) -> str:
 
 def read_form(bid: str, bp: dict) -> dict[str, tuple[dict, list[str]]]:
     """{field name: (identifiers, flags)} for every field of a blueprint: the stored record (`x_petey_identifiers`,
-    once the person or the fill wrote it) with its membership refreshed from the kept list, else read from the name.
-    What the review page shows under the field name (plan step 4)."""
-    fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
-    parts = {n: part for cv in compound_values(fields) for part, n in cv["fields"].items()}
-    member, twice = _membership(bid, bp)
-    series = _series_index([n for n, s in fields.items() if not _is_group(s)])
+    once the person or a pass wrote it), its grid membership refreshed, else the name read with the form's context
+    (`read_parts`, petey/naming.read_name). What the review page shows under the field name."""
+    from petey import naming
+    got = read_parts(bid, bp)
     out = {}
-    for n, s in fields.items():
+    for n, s in (bp.get("fields") or {}).items():
+        if not isinstance(s, dict):
+            continue
         stored = s.get(KEY) if isinstance(s.get(KEY), dict) else None
         if stored:
             ident = {k: v for k, v in stored.items() if k in IDENT_KEYS and v not in (None, "")}
-            m = member.get(n) or {}
-            ident.update({k: m[k] for k in ("grid",) if k in m})
-            flags = [twice[n]] if n in twice else []
-            if print_name(ident) != n:
-                flags.append(f"the name is not what its parts print ({print_name(ident)})")
+            if got[n][0].get("grid"):
+                ident["grid"] = got[n][0]["grid"]
+            flags = [] if naming.print_name(ident) == n else [f"the name is not what its parts print "
+                                                              f"({naming.print_name(ident)})"]
+            out[n] = (ident, flags)
         else:
-            ident, flags = read(n, s, parts, member.get(n), series)
-            if n in twice:
-                flags.append(twice[n])
-        out[n] = (ident, flags)
+            out[n] = got[n]
     return out
 
 
@@ -250,7 +149,7 @@ def run(bid: str, paths: dict) -> dict:
             diffs[n] = {"printed": new, "flags": flags}
             per_page[pg]["renamed"] += 1
             tot["renamed"] += 1
-    bp[KEY + "_fill"] = {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "record": "eval/field_identifiers.py",
+    bp[KEY + "_fill"] = {"when": time.strftime("%Y-%m-%d %H:%M:%S"), "record": "petey/validate/field_identifiers.py",
                          "from": str(p), "order": ORDER, "flags": flagged, "renames": diffs}
     d = OUT / bid
     d.mkdir(parents=True, exist_ok=True)
@@ -310,3 +209,65 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def context(bid: str, bp: dict) -> tuple[dict, dict]:
+    """({field code: (block prefix, block iteration)}, {field name: (line identifier, keyed, grid id)}): what the form's
+    records say about each field (2026-10-26, one parts reader): its block from the block types (block_types.
+    block_parts: what the person set, else what the block's parts or names say), its grid line from the active grids
+    read by identifiers (grid_naming.identify, through _Frame's sure reading)."""
+    from petey.validate import block_types as bt
+    blocks, lines = {}, {}
+    rec = gc.load_set(bid)
+    for t in rec.get("types") or []:
+        try:
+            parts = bt.block_parts(bp, t)
+        except Exception:
+            continue
+        for b in t["blocks"]:
+            pi = parts.get(bt._bid(b)) or {}
+            if pi.get("prefix"):
+                for c in b:
+                    if c:
+                        blocks[str(c)] = (pi["prefix"], pi.get("iteration"))
+    for t in gc.listing(bid, bp):
+        if t["status"] != "active":
+            continue
+        g = G.read_as_checked(t["grid"])
+        R = G._Frame(g).ident
+        if not R["ids"]:
+            continue
+        keyed = any(G._count_key(v) is None for v in R["ids"].values())
+        for c in G.body(g):
+            if c[R["num_axis"]] in R["ids"] and c["name"] not in lines:
+                lines[c["name"]] = (R["ids"][c[R["num_axis"]]], keyed, t["id"])
+    return blocks, lines
+
+
+def read_parts(bid: str, bp: dict) -> dict[str, tuple[dict, list[str]]]:
+    """{field name: (parts, flags)} for every field, read in the standard's order with the form's context
+    (`context`, petey/naming.read_name), whatever is stored: the reading the stored parts are checked against."""
+    from petey import naming
+    blocks, lines = context(bid, bp)
+    # names alike but for one number inside (other_coverage_1_limit_amt, other_coverage_2_limit_amt): that number
+    # counts, as a grid line's does (`_series_index`)
+    fields = {n: s for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
+    series = _series_index([n for n, s in fields.items() if not _is_group(s)])
+    for n, s in fields.items():
+        if n in lines or _is_group(s):
+            continue
+        toks = n.split("_")
+        vary = [i for i in _iter_positions(toks) if 0 < i < len(toks) - 1
+                and len(series[(tuple(toks[:i]), tuple(toks[i + 1:]))]) > 1]
+        if len(vary) == 1:
+            lines[n] = (toks[vary[0]], False, None)
+    parts_of = {f: part for cv in compound_values(fields) for part, f in cv["fields"].items()}
+    out = {}
+    for n, s in fields.items():
+        ln = lines.get(n)
+        parts, flags = naming.read_name(n, s, blocks.get(str(s.get("x_petey_id"))), ln[0] if ln else None,
+                                        bool(ln and ln[1]), parts_of.get(n))
+        if ln and ln[2]:
+            parts["grid"] = ln[2]
+        out[n] = (parts, flags)
+    return out

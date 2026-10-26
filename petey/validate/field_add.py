@@ -813,6 +813,8 @@ def apply(bid: str) -> dict:
     for s in pl["skipped"]:
         print(f"  skipped {s}")
     if pl["changes"]:
+        from petey import naming          # a name new to the blueprint gets its parts (naming.sync_parts)
+        naming.sync_parts(pl["fields"], [n for n in pl["fields"] if n not in (bp.get("fields") or {})])
         bp["fields"] = pl["fields"]
         field_ids.assign(bp)                    # a new field gets the next free id on its page
         p.write_text(yaml.safe_dump(bp, sort_keys=False, allow_unicode=True), encoding="utf-8")

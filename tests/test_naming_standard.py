@@ -1,8 +1,8 @@
-"""The naming standard (eval/standardize_names.py, docs/NAMING.md): [subject]_[iteration]_[suffix]_[part] as
+"""The naming standard (petey/validate/standardize_names.py, docs/NAMING.md): [subject]_[iteration]_[suffix]_[part] as
 decided with Andrew 2026-10-14/15, applied on copies by the clearing passes."""
 import pytest
 
-from standardize_names import has_suffix, number_firsts, part_sets, standard, zero_based
+from petey.validate.standardize_names import has_suffix, number_firsts, part_sets, standard, zero_based
 
 
 @pytest.mark.parametrize("name, spec, want", [

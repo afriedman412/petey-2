@@ -173,11 +173,9 @@ SKILL = Path(__file__).resolve().parents[2] / ".claude" / "skills" / "grid-valid
 def grid_request(bid: str, page: int) -> str:
     """The review page's "check grid" request (Andrew, 2026-10-15: "run the skill on any grid on the page"): the grid
     rule and decisions from the grid-validation skill (read from the skill file, so the two stay one), and what
-    eval/grid_naming.py finds on this page: each table as rows x columns, the cells off its pattern, its mechanical
+    petey/validate/grid_naming.py finds on this page: each table as rows x columns, the cells off its pattern, its mechanical
     renames. The model checks every table on the page, the ones the layout test missed too, and proposes the edits."""
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    import grid_naming as G
+    from petey.validate import grid_naming as G
     bp = h._load(h.working_path(bid))
     rules = _grid_rules()
     found, done = [], []
@@ -192,7 +190,7 @@ def grid_request(bid: str, page: int) -> str:
         cells = {(c["row"], c["col"]): c["name"] for c in g}
         found.append(f"Table {nr} rows x {nc} columns (row by row):\n" + "\n".join(
             " | ".join(cells.get((r, c), "-") for c in range(nc)) for r in range(nr)))
-        reading, probs = G.breaks(g)
+        probs = G.identify(G.read_as_checked(g))["problems"]
         if probs:
             found.append("Cells off its pattern: " + "; ".join(probs))
     ren, left = G.fixes(bp)
@@ -226,9 +224,7 @@ def table_request(bid: str, tid: str, stopped: list[str]) -> str:
     went with every table, so the reply covered other tables, the signature line and Y / N columns): this table only,
     each column (or block field) with its wordings and printed caption, why the code stopped, the names it must not
     take (fields outside it on its patterns), and the Y / N line only when a caption is printed Y / N."""
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    import grid_naming as G
+    from petey.validate import grid_naming as G
     from petey.validate import grid_check
     bp = h._load(h.working_path(bid))
     t = next((x for x in grid_check.tables(bp, bid) if x["id"] == tid), None)

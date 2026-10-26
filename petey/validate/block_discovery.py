@@ -33,8 +33,6 @@ from __future__ import annotations
 
 import collections
 import itertools
-import sys
-from pathlib import Path
 from typing import Optional
 
 from petey.validate import block_types as bt
@@ -213,8 +211,7 @@ def cover(ok: list[list[list]], sets: list[list[set]]) -> list[dict]:
 def _captions(bp: dict, at: dict):
     """A field's printed caption (the nearest line lined up with its box, `field_chain.candidate_captions`), numbers
     and item letters aside; None without a blank or a caption."""
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    import block_groups as bg
+    from petey.validate import block_groups as bg
     from petey.validate.field_chain import candidate_captions
     lines = bg._page_text(bp)
     if lines is None:

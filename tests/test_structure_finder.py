@@ -55,7 +55,7 @@ def _rows(n_rows, n_cols, page=1, x0=50, y0=100, step=20, start=1):
 
 def _finders(monkeypatch, grids, blocks):
     """The grid finder gives `grids`; SIA gives each of `blocks` whose fields it is shown. What SIA saw."""
-    import grid_naming
+    from petey.validate import grid_naming
     seen: set = set()
     monkeypatch.setattr(grid_naming, "grids", lambda bp, blocks=False: [list(g) for g in grids])
 

@@ -1,5 +1,5 @@
 """The naming standard on the library (Andrew, 2026-10-24): every field's parts read from its name
-(eval/field_identifiers.read_form, the block-number rule) and its name printed from them (petey/naming.py). Nothing
+(field_identifiers.read_form, the block-number rule) and its name printed from them (petey/naming.py). Nothing
 written but the plan: runs/naming_2026-10-24/library_plan.json and library_renames.md.
 
     PYTHONPATH=. venv/bin/python eval/naming_library_plan.py
@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import field_identifiers as FI  # noqa: E402
+from petey.validate import field_identifiers as FI  # noqa: E402
 
 from petey import naming  # noqa: E402
 from petey.paths import RUNS  # noqa: E402

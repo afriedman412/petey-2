@@ -2,14 +2,14 @@
 
 Settled with Andrew on 2026-10-14, being workshopped on copies before it touches any blueprint. Once settled it goes
 into the blueprint spec (`BPT SPEC v1.1.md` §5.2 Field Names, which today only says names SHOULD be snake_case). The
-associations it serves (entities, compound values; `eval/associate.py`) would be new spec too: §5.5's `parent` composition
+associations it serves (entities, compound values; `petey/validate/associate.py`) would be new spec too: §5.5's `parent` composition
 covers repeating rows of an `array`, not entities, compound values, or rows bound to their own widgets. Goal: names whose
 shape is predictable, so associated fields (entities, compound values) can be read from them.
 
 ## The standard (decided 2026-10-24)
 
 Andrew, 2026-10-24, for shipping that weekend; it supersedes the orders below where they differ. One module prints every
-name from its parts: `petey/naming.py` (labeling, block types, the review page's parts editor, `eval/field_identifiers`).
+name from its parts: `petey/naming.py` (labeling, block types, the review page's parts editor, `petey/validate/field_identifiers`).
 
     [block subject]_[block iteration]_[field subject]_[suffix]_[field iteration]_[part]
 
@@ -77,7 +77,7 @@ A table is named on one pattern (2026-10-15): each column (or row) is one kind o
 
 Form 8825's income grid runs by column, the property: `gross_rents_2_amt`, `advertising_2_amt`, ... (property 2).
 When a table's own labels are letters that change from page to page (8825's properties A-D), number the iterations
-1, 2, 3 instead. `eval/grid_naming.py` finds tables by layout and lists the cells that break the pattern (in the
+1, 2, 3 instead. `petey/validate/grid_naming.py` finds tables by layout and lists the cells that break the pattern (in the
 mechanical pass); the page check flags them too. Rows outside the pattern are set aside and said on the Grids card
 (2026-10-19): a last row of totals, and a first or last row of its own kind whose cells are not named like their
 columns while the other rows agree (ACORD 90 NY's driver-number boxes over the vehicle rows). The card lists the
@@ -86,7 +86,7 @@ that needs one and "standardize all" at the top, and the rows (numerical 1 to N,
 "standardize" on a row whose cells carry more than one number; the table's id copies its reference
 (`acord_90_ny_p1-T13`) like a field's.
 
-`eval/standardize_names.py` applies the rules that are mechanical and lists the names it cannot place.
+`petey/validate/standardize_names.py` applies the rules that are mechanical and lists the names it cannot place.
 
 ## Identifiers (draft, 2026-10-19; docs/PLAN_FIELD_IDENTIFIERS.md)
 
@@ -108,12 +108,12 @@ parts instead of inferring the name from structure"). Each field carries them un
   verify the numbers; `part` says which box of one value it is. (`block_group` / `block` went with block groups,
   2026-10-22; a block's prefix and iteration come from its block type, `petey/validate/block_types.py`.)
   A compound value is the boxes whose subject, suffix and iteration agree and whose parts differ, as
-  `eval/associate.py` reads it today.
+  `petey/validate/associate.py` reads it today.
 - A number that is not an iteration stays in the subject (`line_6`, `item_5a`, `w2`): the subject is words, and a
   number in it is one of the words.
 - Keyed tables (rows named by role or kind: `applicant_nm`, `spouse_nm`) have a grid but no iteration: the row's
   key is part of the subject.
-- **Printing** (`eval/field_identifiers.print_name`): `[subject]_[suffix]_[iteration]_[part]`, absent parts
+- **Printing** (`field_identifiers.print_name`): `[subject]_[suffix]_[iteration]_[part]`, absent parts
   skipped, joined by `_` (decided 2026-10-19: the iteration last, the one part that never repeats across a form;
   `parent_first_nm_1`, not `parent_1_first_nm` as the shape above had it). This supersedes "an iteration number
   follows the word it counts" above once the identifiers are applied. A table letter for a second table sharing a
@@ -122,6 +122,6 @@ parts instead of inferring the name from structure"). Each field carries them un
   identifiers (plan step 5); until then they parse the printed name as before.
 
 On the review page the field name is read-only and its parts sit under a "parts" button beside it (2026-10-19):
-edit a part and the name is reprinted; saving stores the parts on the field. `eval/field_identifiers.py` fills the identifiers in from today's names, the kept grids and block groups and the
+edit a part and the name is reprinted; saving stores the parts on the field. `petey/validate/field_identifiers.py` fills the identifiers in from today's names, the kept grids and block groups and the
 compound values, on copies under `runs/identifiers/`, and reports what it could not read (plan step 2), then prints
 every name back and lists the differences (step 3).

@@ -1,5 +1,5 @@
 """Associated fields, the one model call per form (Andrew, 2026-10-14: "you could probably just one shot that and see how
-it goes"): the rule pass (`eval/associate.py`) finds what the names say; this asks a model to correct and complete it
+it goes"): the rule pass (`petey/validate/associate.py`) finds what the names say; this asks a model to correct and complete it
 from the whole field list in reading order (names, types, where each box sits, the publisher's words), the parts names
 cannot carry: the form's own subject (the applicant's name, birth date and address with no prefix), blocks the labeler
 named without a shared prefix, and groupings that only share a word.
@@ -23,7 +23,7 @@ from petey.paths import RUNS
 from petey.validate import hand_review as h
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from associate import KINDS, _box  # noqa: E402
+from petey.validate.associate import KINDS, _box  # noqa: E402
 
 MODEL = "claude-opus-5"
 SYSTEM = """You organize the fields of a fillable form into associations.

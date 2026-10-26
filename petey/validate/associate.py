@@ -1,6 +1,6 @@
 """Associated fields on standardized names (Andrew, 2026-10-14: a GROUP is an option group; ASSOCIATED fields make an
 ENTITY, fields about one thing, or a COMPOUND VALUE, one value in several boxes). Read from the names that
-`eval/standardize_names.py` writes ([description]_[iteration]_[suffix]_[part], docs/NAMING.md) and from where the boxes
+`petey/validate/standardize_names.py` writes ([description]_[iteration]_[suffix]_[part], docs/NAMING.md) and from where the boxes
 sit; no model.
 
     compound value   the boxes whose names are the same up to and including the suffix, with a part after it:
@@ -20,7 +20,7 @@ sit; no model.
 Written into a COPY (runs/associations/<id>[__standardized]/<file>.bpt, the source untouched) as
 `x_petey_associations`, a list of {name, kind, page, fields | of, kind_of_value, join}.
 
-    PYTHONPATH=. venv/bin/python eval/associate.py --standardized --all-validated je__ds11
+    PYTHONPATH=. venv/bin/python -m petey.validate.associate --standardized --all-validated je__ds11
 """
 from __future__ import annotations
 
@@ -29,15 +29,12 @@ import collections
 import json
 import re
 import sys
-from pathlib import Path
 
 import yaml
 
 from petey.paths import RUNS
 from petey.validate import hand_review as h
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from standardize_names import SUFFIXES  # noqa: E402
+from petey.validate.standardize_names import SUFFIXES  # noqa: E402
 
 OUT = RUNS / "associations"
 

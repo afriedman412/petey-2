@@ -31,7 +31,7 @@ import httpx
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import cell_groups  # noqa: E402
 import yes_no_groups  # noqa: E402
-from jev_is_field import flat_copy  # noqa: E402
+from petey.validate.jev_is_field import flat_copy  # noqa: E402
 
 from petey.validate import hand_review as h, page_check as pc  # noqa: E402
 from petey.validate.jev_page import LIMITS, MODEL, _key, ask_split, image_ref  # noqa: E402

@@ -1,9 +1,9 @@
 """Tables and repeated blocks found BEFORE labeling, as guidance for the labeler (Andrew, 2026-10-19: "try it with
 identifying the grids and blocks first, then using that as guidance for labeling").
 
-The finders need only box positions (eval/grid_naming.grids: columns and rows of alike boxes) and the page's printed
+The finders need only box positions (grid_naming.grids: columns and rows of alike boxes) and the page's printed
 captions (petey/validate/block_discovery.find, SIA since 2026-10-22: a set of fields laid out again anywhere on the
-form, each slot's caption repeating; it replaced eval/block_groups.find, the block-group finder), so they run on the
+form, each slot's caption repeating; it replaced block_groups.find, the block-group finder), so they run on the
 widgets as enumerated, with no names. Where both read the same fields, the block wins: a table half inside a block is
 left out, as before (Andrew, 2026-10-22, when SIA read ACORD 90 NY's coverage x vehicle tables as "vehicles 1-2" /
 "vehicles 3-4" blocks: "that would get sorted out in the labeler anyways ... this whole system is about accuracy and
@@ -27,11 +27,7 @@ from them:
 """
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-
 SIMPLE = True         # the simple naming scheme (the default since 2026-10-20): examples without suffixes, a kind with every label
 _KIND = {"text": "text", "checkbox": "checkbox", "radiobutton": "radio", "radio": "radio", "combobox": "combobox",
          "listbox": "listbox", "signature": "text"}
@@ -53,7 +49,7 @@ def _stub(blank: Path, entries: list[dict]) -> dict:
 def find(blank: Path, entries: list[dict]) -> dict[int, dict]:
     """{page: {"tables": [{"rows", "cols", "cells": [{"id", "row", "col"}]}],
                "blocks": [{"blocks", "slots", "cells": [{"id", "block", "slot"}]}]}} for the pages with any."""
-    import grid_naming as G
+    from petey.validate import grid_naming as G
     bp = _stub(blank, entries)
     out: dict[int, dict] = {}
     from petey.validate import grid_check
@@ -310,7 +306,7 @@ def guidance(page_struct: dict | None, ids: set[int]) -> str:
 
 # ----------------------------------------------------------------- bulk: a column named once, its cells printed
 
-from standardize_names import SUFFIXES  # noqa: E402
+from petey.validate.standardize_names import SUFFIXES  # noqa: E402
 
 BULK_RULES = (
     "Name the structures by their parts, not cell by cell. A table repeats along one axis: say which.\n"

@@ -90,3 +90,10 @@ def test_the_finder_s_groups_are_made(monkeypatch):
     assert [u["name"] for u in put["units"]] == ["tech", "tech_2"]
     assert put["units"][1]["items"] == ["i0", "i1", "i2"] and put["units"][1]["confirmed"] is False
 
+
+def test_a_suggested_groups_name_keeps_the_number_its_boxes_share():
+    """Andrew (2026-10-26): "block and groups need to consider parts as well": phone 2's type boxes are phone_type_2,
+    not phone 1's phone_type."""
+    from petey.validate.group_finder import _name
+    assert _name(["phone_type_home_ind_2", "phone_type_cell_ind_2"]) == "phone_type_2"
+    assert _name(["smoker_yes_ind", "smoker_no_ind"]) == "smoker"

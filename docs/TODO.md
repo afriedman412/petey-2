@@ -564,7 +564,7 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
 - **Auto-merge consecutive text lines** (Andrew, 2026-10-21; part of the associations idea): boxes stacked one per
   printed line that hold one answer (a paragraph over numbered lines, `summary_txt_1` .. `_6`; an address written
   over two or three lines) found and proposed as one value without dragging them together by hand. Two existing
-  pieces to build on: `eval/associate.py`'s `lines` compound value kind (the rule pass already reads them from the
+  pieces to build on: `petey/validate/associate.py`'s `lines` compound value kind (the rule pass already reads them from the
   names, on copies only), and the Groups tab's combined text field (teal boxes dragged together by hand: one field
   over the boxes, the filler splitting the text). Open: detection from the page (same width, stacked, no caption
   between) rather than the names, and whether the result is a combined field or an association that keeps the
@@ -597,7 +597,7 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   anywhere (the harness fills by it): there, standardize the caption, not the key.
 
 - **Suggested block types from the block-group finder** (parked 2026-10-21, Andrew: "park that and we can integrate
-  it later"). Since block groups went, `eval/block_groups.find` only feeds structure-first labeling and keeps grids
+  it later"). Since block groups went, `block_groups.find` only feeds structure-first labeling and keeps grids
   inside repeated blocks out of the Grids listing. Idea: on the Blocks tab, each group it finds proposed as a block
   type (its first block the template, the others its copies), dashed on the page, accepted or dismissed by hand. On
   2026-10-21, 192 of 368 found block groups had every block match the first as a copy (`block_types.copies_in`).
@@ -612,7 +612,7 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   (`child_name_1`) and the block types' matrix followed, so the matrix marks every validated block name as a change.
   Either order works if every name prints from its stored parts; existing blueprints are not relitigated, this is a
   generation question. HALF DONE, UNCOMMITTED: a change to the first order (identifier keys `block_prefix` /
-  `block_iteration` printed first, in `eval/field_identifiers.ORDERS`, `hand_review.clean_edit`,
+  `block_iteration` printed first, in `field_identifiers.ORDERS`, `hand_review.clean_edit`,
   `block_types.block_ident`, `petey/label/structure.py`'s `print_name`, its block cells and prompt example) is in the
   working tree with 9 tests still expecting number-last (tests/test_block_types.py, tests/test_structure_labels.py);
   the pre-push test gate fails until it is finished or reverted. The review page's JS (`blockIdent` / `printIdent` in
@@ -625,7 +625,7 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   `runs/hand_review/grids/_archive_2026-10-22b/`). The Grids finder now holds back a grid mostly inside one block
   type's block (164 of the 173 grids the block-group finder hid). The library blueprints carried no `block_group`
   keys; the 229 fields with block-group iterations were on the scratch copies in `runs/identifiers/`. Still open:
-  `eval/block_groups.find` is the labeler's structure finder before labeling (`petey/label/structure.py`), a
+  `block_groups.find` is the labeler's structure finder before labeling (`petey/label/structure.py`), a
   separate system, kept until Andrew says otherwise; 17 converted types hold one block (an old group mixed block
   shapes; I-589 p3 child_4 beside child_2 / child_3): "assign to type", or drag the block onto a sibling, puts each
   with its siblings.

@@ -496,10 +496,7 @@ def _same_word(a: str, b: str) -> bool:
     (grid_naming._stem), or the first 5 letters alike."""
     if a == b:
         return True
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    import grid_naming as G
+    from petey.validate import grid_naming as G
     return G._stem(a) == G._stem(b) or (len(a) >= 5 and len(b) >= 5 and a[:5] == b[:5])
 ENDINGS = {"txt", "nm", "nbr", "cd", "amt", "dt", "ind", "qty", "cnt", "pct", "yr", "type", "rate", "name", "number", "code",
            "date", "amount"}   # a type's ending says nothing about which field it is (ACORD 80: years_at_previous_address_qty
@@ -1135,12 +1132,9 @@ LINE_WORDS = {"line", "row", "box", "item", "page", "part", "question", "q", "co
 
 
 def _ids():
-    """eval/field_identifiers (the one function names are printed by) and the naming standard's suffixes."""
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    import field_identifiers
-    import standardize_names
+    """petey/validate/field_identifiers (the one function names are printed by) and the naming standard's suffixes."""
+    from petey.validate import field_identifiers
+    from petey.validate import standardize_names
     return field_identifiers, standardize_names
 
 
@@ -1224,19 +1218,63 @@ def slots(bp: dict, t: dict) -> list[dict]:
     blocks = [[names.get(c) for c in b] for b in t["blocks"]]
     tpl = [x["code"] for x in t["boxes"]]
     own = next((b for b, codes in zip(blocks, t["blocks"]) if codes == tpl), blocks[0] if blocks else [])
-    rests = [_read_block(b)[2] for b in blocks]
-    own_rest = _read_block(own)[2] if own else []
+    # each block's positions from its fields' stored parts where they say the block (`_parts_of_block`), as
+    # wordings, else read from its names
+    fmap = _fields_by_code(bp)
+    def rest_of(codes, nms):           # each position's parts (dicts), or its wording read from the names
+        got = _parts_of_block(bp, codes, fmap)
+        if got:
+            return [dict(x) if x else None for x in got[2]]
+        return _read_block(nms)[2]
+    key = lambda x: slot_text(x) if isinstance(x, dict) else x          # noqa: E731
+    rests = [rest_of(codes, b) for codes, b in zip(t["blocks"], blocks)]
+    own_codes = next((codes for codes in t["blocks"] if codes == tpl), t["blocks"][0] if t["blocks"] else [])
+    own_rest = rest_of(own_codes, own) if own else []
     out = []
     for k in range(len(t["boxes"])):
-        cnt = collections.Counter(r[k] for r in rests if k < len(r) and r[k])
+        got = [r[k] for r in rests if k < len(r) and r[k]]
+        cnt = collections.Counter(key(x) for x in got)
         top = cnt.most_common(1)
-        out.append(slot(top[0][0] if top and 2 * top[0][1] > len(rests) else (own_rest[k] if k < len(own_rest) else "") or ""))
+        if top and 2 * top[0][1] > len(rests):
+            out.append(slot(next(x for x in got if key(x) == top[0][0])))     # parts as stored, not re-read
+        else:
+            out.append(slot((own_rest[k] if k < len(own_rest) else "") or ""))
     return out
 
 
 def wordings(bp: dict, t: dict) -> list[str]:
     """Each position's parts as one wording (city_nm), for the page and the older callers (`slots`)."""
     return [slot_text(s) for s in slots(bp, t)]
+
+
+def _parts_of_block(bp: dict, codes: list, fmap: Optional[dict] = None):
+    """(prefix, iteration, [each position's parts or None]) from the block's fields' stored parts (Andrew, 2026-10-26:
+    "block and groups need to consider parts as well"), when every field's parts print its name and they share one
+    block prefix and number; None otherwise (the names are read instead, `_read_block`)."""
+    from petey import naming
+    if fmap is None:
+        fmap = _fields_by_code(bp)
+    ps = []
+    for c in codes:
+        if not c:
+            ps.append(None)
+            continue
+        n, sp = fmap.get(str(c), (None, {}))
+        st = sp.get(naming.KEY) if isinstance(sp.get(naming.KEY), dict) else None
+        if not st or naming.print_name(st) != n:
+            return None
+        ps.append(st)
+    have = [x for x in ps if x]
+    pre = {x.get("block_prefix") for x in have}
+    it = {x.get("block_iteration") for x in have}
+    if not have or len(pre) != 1 or None in pre or len(it) != 1:
+        return None
+    return next(iter(pre)), next(iter(it)), [{k: v for k, v in x.items() if k in SLOT_KEYS and v} if x else None
+                                             for x in ps]
+
+
+def _fields_by_code(bp: dict) -> dict:
+    return {str(sp.get("x_petey_id")): (n, sp) for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict)}
 
 
 def _names(bp: dict) -> dict[str, str]:
@@ -1262,8 +1300,10 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
     set_ = t.get("parts") or {}
     out = {}
     auto = _slug(t.get("label")) if t.get("auto") else ""
+    fmap = _fields_by_code(bp)
     for n, b in enumerate(t["blocks"], 1):
-        pre, it, _ = _read_block([names.get(c) for c in dict.fromkeys(b)])    # a group over several positions once
+        got = _parts_of_block(bp, list(dict.fromkeys(b)), fmap)     # the stored parts' block prefix and number
+        pre, it = (got[0], got[1]) if got else _read_block([names.get(c) for c in dict.fromkeys(b)])[:2]
         if auto:                         # named from the type's label, numbered in the type's order (Andrew, 2026-10-21)
             pre, it = auto, str(n)
         mine = set_.get(_bid(b)) or {}
@@ -1598,10 +1638,7 @@ def names_from_type(bid: str, bp: dict, tid: str) -> tuple[dict[str, str], list[
     are kept as they are, never renumbered (printed numbers can run out of reading order); a run that
     does not count by one is said. A position whose names do not carry the key is left and said;
     so are names another field keeps."""
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-    import grid_naming as G
+    from petey.validate import grid_naming as G
     rec = gc.load_set(bid)
     t = next((x for x in rec.get("types") or [] if x["id"] == tid), None)
     if t is None:

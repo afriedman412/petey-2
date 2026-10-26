@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import grid_naming as G  # noqa: E402
+from petey.validate import grid_naming as G  # noqa: E402
 
 from petey.validate import hand_review as h, page_check as pc  # noqa: E402
 from petey.validate.field_chain import _page_lines  # noqa: E402

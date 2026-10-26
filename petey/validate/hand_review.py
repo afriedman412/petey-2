@@ -254,11 +254,9 @@ def field_rows(bp: dict) -> list[dict]:
 
 def identifiers(bid: str, bp: dict) -> dict:
     """{field: (identifiers, flags)}: the parts the field name is printed from (docs/NAMING.md "Identifiers",
-    `eval/field_identifiers.read_form`): stored on the field once edited or filled, else read from the name."""
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
+    `field_identifiers.read_form`): stored on the field once edited or filled, else read from the name."""
     try:
-        import field_identifiers
+        from petey.validate import field_identifiers
         return field_identifiers.read_form(bid, bp)
     except Exception as e:                      # a page without identifiers is still a review page
         print(f"  identifiers: {e}")
@@ -913,6 +911,10 @@ def edit_fields(fields: dict, edits: dict, renames: dict, now: str, record: str,
             out[renames[n]] = spec
         else:
             out[n] = spec
+    # a name changed with no parts sent (typed in Review, a grid's rename, a chat edit): parts read from the new name,
+    # so the two stay in step (petey/naming.sync_parts, 2026-10-26)
+    from petey import naming
+    naming.sync_parts(out, [renames[n] for n in edits if n in fields and renames.get(n, n) != n])
     return out
 
 

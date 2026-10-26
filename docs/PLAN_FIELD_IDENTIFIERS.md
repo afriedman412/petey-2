@@ -72,11 +72,11 @@ different tables sharing a subject (children's `first_name` and contacts' `first
 1. **The record format.** Write it into docs/NAMING.md and the BPT spec draft (`BPT SPEC v1.1.md` §5.2): the
    identifiers, the extension key on each field, the print function, the print order (once decided).
 2. **Fill in the identifiers for existing fields** (about 78,000 across the 608 review-page blueprints), automatically:
-   - subject and suffix from today's names (the naming standard's own reading: `eval/standardize_names.py`,
+   - subject and suffix from today's names (the naming standard's own reading: `petey/validate/standardize_names.py`,
      `SUFFIXES`, `standard()`);
    - iteration from the kept grids and block groups (`petey/validate/grid_check.py` `listing()`,
-     `eval/block_groups.py`);
-   - part from compound values (`eval/associate.py` `compound_values()`).
+     `petey/validate/block_groups.py`);
+   - part from compound values (`petey/validate/associate.py` `compound_values()`).
 
    Run on working copies, never the saved blueprints, and report: how many fields read cleanly, how many are flagged
    (ambiguous parse, conflicting memberships), by form and per page. Flag rather than guess.
@@ -98,8 +98,8 @@ Steps 1-3 first: step 2's numbers show whether the automatic fill is good enough
 ## Steps 1-3 done (2026-10-19, later the same day)
 
 Record format in docs/NAMING.md "Identifiers" and `BPT SPEC v1.1.md` §5.2.1 (draft): `x_petey_identifiers`
-{subject, suffix, iteration, grid | block_group + block, part}; `eval/field_identifiers.print_name` prints the name
-in either order. `eval/field_identifiers.py` fills the parts in from today's names, the kept grids and block groups
+{subject, suffix, iteration, grid | block_group + block, part}; `field_identifiers.print_name` prints the name
+in either order. `petey/validate/field_identifiers.py` fills the parts in from today's names, the kept grids and block groups
 (`grid_check.listing`, so every form now has lasting ids under runs/hand_review/grids/) and the compound values, on
 copies under runs/identifiers/<id>/, with a report (runs/identifiers/report.json) per form and per page. Run on the
 289 launch T1 / T2 forms (Andrew: use those; 89 T1 + 200 T2), 1127 pages, 37,321 fields:
@@ -126,7 +126,7 @@ Round trip: printed back in the old order ([subject]_[iteration]_[suffix]_[part]
 the same and 7,753 (20.8%) differ, every one for the same reason: the old standard put the iteration after the word
 it counts (garaging_location_1_address_txt, parent_1_first_nm), and one subject printed with the number next to the
 suffix gives garaging_location_address_1_txt. Printing that shape would need the subject split into the thing
-counted and its attribute (the entity, `eval/associate.py`), which is parsing again. The decided order, the
+counted and its attribute (the entity, `petey/validate/associate.py`), which is parsing again. The decided order, the
 iteration last (decision 7), has no such question; it renames 16,366 names (43.9%), every iterated one
 (garaging_location_address_txt_1). Those renames are the migration (step 3's review); the fill is only as good as
 the names it reads, so the naming pass goes first on the forms it has not touched.
@@ -140,7 +140,7 @@ reading could not settle, in red). Typing in a part reprints the name in the box
 sends the parts, the server prints the name from them (`hand_review.clean_edit`, `identifiers` in the edit), the
 rename goes through as every rename does (verdicts follow, the working copy takes it) and the parts are stored on
 the field as `x_petey_identifiers` (membership kept from the kept list; `edit_fields`). The page's payload carries
-each field's parts (`hand_review.identifiers` -> `eval/field_identifiers.read_form`: stored ones with the membership
+each field's parts (`hand_review.identifiers` -> `field_identifiers.read_form`: stored ones with the membership
 refreshed, else read from the name, about 0.3 s per form on open). Headless check on lib__fw9: edit, save, reload,
 the rename in the list and the parts stored; no page errors.
 
@@ -254,7 +254,7 @@ minutes), the first page check (3 min, output-bound), the reviewer in round 1 (a
 On `validation-tools-2026-10-14` (pushed only up to the commits before this session's; Andrew opens the PR):
 
 - `17e7641` Grids and Blocks as two tabs; kept list per form (ids `p1-T2` / `p2-BG1`, cancel with provenance
-  finder / person / combined, draw an area, combine); block-group finder `eval/block_groups.py` (step voting, chains,
+  finder / person / combined, draw an area, combine); block-group finder `petey/validate/block_groups.py` (step voting, chains,
   caption check). Spot check 100: 89 right, 3 doubtful, 2 wrong; 304 groups on 164 forms.
 - `6ebf7b7`, `13961fb` Grid resolver standardizes equivalent spellings in code (both rows and columns; labelled
   rows read as the code check reads them). `eval/grid_equiv_eval.py`: equivalent plants settle 83-100%, different

@@ -2,7 +2,7 @@
 an open band below a printed line, from the line down to the next text or long horizontal rule that overlaps it, at
 least MIN_GAP tall, as wide as the line's column. Measured on 83 validated non-IRS forms with a cached finder run:
 recovers 26% of the text fields the finder missed (169 / 647), with 1267 new boxes of which 22% real; Jev's "is it a
-field" (eval/jev_is_field.py) over them keeps 30% real at 0.5 (678 boxes), 38% at 0.7. A rule for "Label:" plus open
+field" (petey/validate/jev_is_field.py) over them keeps 30% real at 0.5 (678 boxes), 38% at 0.7. A rule for "Label:" plus open
 space on its line recovered 8% at 19% precision. Suggestions for Add / remove at best; not clean enough to add.
 
     PYTHONPATH=. venv/bin/python eval/band_blanks.py ID ...
@@ -16,7 +16,7 @@ from pathlib import Path
 import pymupdf
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from jev_is_field import cached_boxes  # noqa: E402
+from petey.validate.jev_is_field import cached_boxes  # noqa: E402
 
 from petey.synth import boxes as B  # noqa: E402
 from petey.validate import hand_review as h, page_check as pc  # noqa: E402

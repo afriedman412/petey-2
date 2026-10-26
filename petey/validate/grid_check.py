@@ -2,7 +2,7 @@
 route the skill through there ... a button to check and validate it in one click"). Repeated blocks are block types
 (block_types.py) since 2026-10-21; the block groups that were kept here are gone (2026-10-22).
 
-Every numbered grid the layout code finds (eval/grid_naming.grids) is listed with its cells, and one click runs the
+Every numbered grid the layout code finds (grid_naming.grids) is listed with its cells, and one click runs the
 lightest method that settles it, in order:
 
   1. the code check: already on pattern -> its cells accepted, nothing else;
@@ -21,12 +21,9 @@ an area and ones combined from others, each with its provenance (finder, person,
 from __future__ import annotations
 
 import collections
-import sys
 from pathlib import Path
 from typing import Optional
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "eval"))
-import grid_naming as G  # noqa: E402
+from petey.validate import grid_naming as G  # noqa: E402
 
 from petey.validate import hand_review as h, page_check as pc  # noqa: E402
 from petey.validate.retype import resolve_blank  # noqa: E402
@@ -605,7 +602,7 @@ def _title(bbox, page_lines, heads=None, captions=()) -> Optional[str]:
     """The heading printed above a table: the nearest section heading (bold, capitals, larger type, Section / Part;
     `cheap_names.headings`) above it that overlaps it across, within 250 pt (ACORD 126: SCHEDULE OF HAZARDS, not
     its column header PREM/OPS); else the nearest line within 60 pt above."""
-    from cheap_names import JUNK
+    from petey.validate.cheap_names import JUNK
     width = bbox[2] - bbox[0]
 
     caps = {" ".join(str(c).split()).lower() for c in captions if c}
@@ -639,7 +636,7 @@ def tables(bp: dict, bid: Optional[str] = None) -> list[dict]:
     blank = resolve_blank(bp)
     page_text = _lines(blank) if blank and blank.exists() else {}
     if blank and blank.exists() and str(blank) not in _HEADS:
-        from cheap_names import headings
+        from petey.validate.cheap_names import headings
         _HEADS[str(blank)] = headings(blank)
     heads = _HEADS.get(str(blank), {}) if blank else {}
     out, n = [], {}
@@ -660,15 +657,15 @@ def tables(bp: dict, bid: Optional[str] = None) -> list[dict]:
         if not rs:
             continue
         ok, why = G.on_pattern(g)
-        reading = "columns" if G.keyed(g) else G.breaks(g)[0]      # lines named by role or kind are the rows
-        pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
-        how = reading
         body = G.body(g)
         body_names = {c["name"] for c in body}             # a totals row is outside the check (and the validation)
         positions = []
-        F = G._Frame(g) if body else None      # the number that varies down a column is its N, not the last one
-        same_axis = bool(F) and F.pos_axis == pos_axis
-        number = F.numbers(bp, g, page_text, F.basis())[0] if same_axis and not G.keyed(g) else {}   # as standardize
+        F = G._Frame(g) if body else None      # the identifier reading: which way it lies, each cell's N
+        reading = F.reading if F else "columns"
+        pos_axis, num_axis = ("col", "row") if reading == "columns" else ("row", "col")
+        how = reading
+        same_axis = bool(F)
+        number = F.numbers(bp, g, page_text, F.basis())[0] if F and not F.labelled else {}   # as standardize
         for k in sorted({c[pos_axis] for c in body}):
             pcs = [c for c in body if c[pos_axis] == k]
             wordings = sorted({(F.pat_of(c) if same_axis else (G._pattern(c["name"]) or c["name"])).replace("_N", "_#") for c in pcs})
@@ -680,7 +677,7 @@ def tables(bp: dict, bid: Optional[str] = None) -> list[dict]:
         out.append({"id": e["id"], "page": page, "kind": "grid",
                     **{k: e.get(k) for k in ("source", "status", "from", "into", "aside_why")},
                     "lines": len({c[num_axis] for c in body}), "positions": positions, "reading": reading,
-                    "rows_info": rows_info(g, body, pos_axis, num_axis), "keyed": G.keyed(g),
+                    "rows_info": rows_info(g, body, pos_axis, num_axis), "keyed": bool(F and F.labelled),
                     "aside": [{"row": r + 1, "why": why} for r, why in sorted(G.aside(g).items())],
                     "title": _title(bbox, page_text.get(page), heads.get(page), [p["caption"] for p in positions]),
                     "rows": max(c["row"] for c in g) + 1, "cols": max(c["col"] for c in g) + 1,
@@ -699,12 +696,11 @@ def rows_info(g: list[dict], body: list[dict], pos_axis: str, num_axis: str) -> 
     label, numbers: every number its cells carry, cells}]}."""
     if not body:
         return {"kind": "none", "summary": "no rows", "lines": []}
-    if G.keyed(g):
-        ks = G.keyed_split(g) or {}
+    F0 = G._Frame(g)
+    if F0.labelled:                    # lines named by their labels (identify): each line's label
         rows = []
         for i in sorted({c[num_axis] for c in body}):
-            labels = sorted({"_".join(ks[c["name"]][0]) for c in body if c[num_axis] == i and c["name"] in ks})
-            rows.append({"line": i + 1, "label": labels[0] if labels else None, "cells": sum(1 for c in body if c[num_axis] == i)})
+            rows.append({"line": i + 1, "label": F0.ident["ids"].get(i), "cells": sum(1 for c in body if c[num_axis] == i)})
         return {"kind": "labelled", "summary": "labelled: " + ", ".join(r["label"] or "?" for r in rows), "lines": rows}
     F = G._Frame(g)
     rows = []
@@ -817,7 +813,7 @@ def _what(g: list[dict], pos: Optional[int], line: Optional[int]) -> str:
     """'column 3' / 'row 2' as the grid lies on the page (positions are columns unless the grid reads by rows)."""
     if not (pos or line):
         return "every position"
-    pos_axis = "col" if (G.keyed(g) or G.breaks(g)[0] == "columns") else "row"
+    pos_axis = G._Frame(g).pos_axis
     axis = pos_axis if pos else ("row" if pos_axis == "col" else "col")
     return f"{'column' if axis == 'col' else 'row'} {pos or line}"
 
@@ -836,11 +832,11 @@ def preview(bid: str, tid: str) -> dict:
     blank = resolve_blank(bp)
     lines = _lines(blank) if blank and blank.exists() else {}
     body = G.body(g)
-    keyed = G.keyed(g)
+    keyed = bool(body) and G._Frame(g).labelled
     if not body:
         return {"id": tid, "pos_axis": "col", "keyed": keyed, "positions": [], "lines": [], "all": None}
     F = G._Frame(g)
-    pos_axis, num_axis = ("col", "row") if keyed else (F.pos_axis, F.num_axis)
+    pos_axis, num_axis = F.pos_axis, F.num_axis
     sforced = series_forced(g, t["series"]) if t.get("series") else {}
     score = G.text_match_score()
     plan = lambda r: {"renames": sorted(r["renames"].items()), "left": r["left"], "why": r["why"],   # noqa: E731
@@ -942,7 +938,7 @@ def grid_title(bp: dict, g: list[dict], lines: dict) -> Optional[str]:
     """The title printed above a grid (`_title`, as the card shows it)."""
     blank = resolve_blank(bp)
     if blank and blank.exists() and str(blank) not in _HEADS:
-        from cheap_names import headings
+        from petey.validate.cheap_names import headings
         _HEADS[str(blank)] = headings(blank)
     heads = _HEADS.get(str(blank), {}) if blank else {}
     rs = [r for r in (_rect(bp, c["name"]) for c in g) if r]

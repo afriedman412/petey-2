@@ -127,7 +127,7 @@ def test_grid_cells_are_accepted_on_the_checks_own_test_and_a_refusal_says_why(m
     monkeypatch.setattr(br.hand_review, "_load", lambda p: {"fields": {}})
     monkeypatch.setattr(br.hand_review, "load_verdicts", lambda bid: {})
     monkeypatch.setattr(grid_check, "listing", lambda bid, bp: [{"id": "p3-G2", "status": "active", "grid": grid}])
-    import grid_naming
+    from petey.validate import grid_naming
     from petey.validate import retype
     monkeypatch.setattr(retype, "resolve_blank", lambda bp: None)
     names = {c["name"] for c in grid}
