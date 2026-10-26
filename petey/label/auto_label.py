@@ -511,10 +511,11 @@ def _description_from_tooltip(tooltip: Optional[str]) -> Optional[str]:
 # is invalid JSON, `_parse_json_object` returns nothing, and the form is
 # abandoned with no partial result.
 LABEL_BATCH = 150
+LABEL_PAGES_AT_ONCE = 8       # pages labeled at once (2026-10-26); each page's own batches go out together too
 
 
 def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool = True, structure: dict | None = None,
-                       bulk: bool = False, parts_out: dict | None = None):
+                       bulk: bool = False, parts_out: dict | None = None, page: int | None = None):
     """Label one page's widgets, in batches if the page is dense.
 
     The labeler already makes one call per page. That is not enough
@@ -545,7 +546,7 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
         bs = S.batches(widgets_on_page, structure, LABEL_BATCH)
         n = len(widgets_on_page)
         for i, batch in enumerate(bs):
-            print(f"    [batch] {len(batch)} widgets ({i + 1} of {len(bs)}, {n} on the page; structure-{'bulk' if bulk else 'guided'})")
+            print(f"    [batch p{page}] {len(batch)} widgets ({i + 1} of {len(bs)}, {n} on the page; structure-{'bulk' if bulk else 'guided'})")
         if not bulk:
             with ThreadPoolExecutor(max_workers=len(bs)) as ex:
                 results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think,
@@ -574,7 +575,7 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
         if left_ids:                          # cells the bulk answer did not cover: labeled one by one, guided
             by_id = {w["id"]: w for w in widgets_on_page}
             rest = [by_id[i] for i in left_ids if i in by_id]
-            print(f"    [batch] {len(rest)} cells left by the bulk answer, labeled one by one ("
+            print(f"    [batch p{page}] {len(rest)} cells left by the bulk answer, labeled one by one ("
                   + "; ".join(f"{sid}: " + ", ".join(f"{n} {r}" for r, n in c.most_common()) for sid, c in why.items())
                   + ")")
             # the left cells' batches go out together, as the bulk batches do (2026-10-23: they went one after another)
@@ -584,7 +585,7 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
                                                                guidance=S.guidance(structure, {w["id"] for w in b})), parts_):
                     merged.update(r)
         printed = sum(1 for i in merged if i in inside and i not in left_ids)
-        print(f"    [structure] {printed} cells printed from column / field labels, {len(left_ids)} labeled one by one")
+        print(f"    [structure p{page}] {printed} cells printed from column / field labels, {len(left_ids)} labeled one by one")
         return merged
     if len(widgets_on_page) <= LABEL_BATCH:
         return _label_batch_via_llm(widgets_on_page, words, model=model, think=think)
@@ -596,7 +597,7 @@ def label_page_via_llm(widgets_on_page, words, model: str = MODEL, think: bool =
     n = len(widgets_on_page)
     batches = [widgets_on_page[i:i + LABEL_BATCH] for i in range(0, n, LABEL_BATCH)]
     for i, batch in enumerate(batches):
-        print(f"    [batch] widgets {i * LABEL_BATCH + 1}-{i * LABEL_BATCH + len(batch)} of {n}")
+        print(f"    [batch p{page}] widgets {i * LABEL_BATCH + 1}-{i * LABEL_BATCH + len(batch)} of {n}")
     with ThreadPoolExecutor(max_workers=len(batches)) as ex:
         results = list(ex.map(lambda b: _label_batch_via_llm(b, words, model=model, think=think), batches))
     merged: dict[int, str] = {}
@@ -957,6 +958,12 @@ def build_blueprint(
 
     doc = pymupdf.open(str(blank_pdf))
     try:
+        # each page read first, one after another (pymupdf is not for several threads at once): its widgets, the
+        # retrieval pre-pass, its printed words. Then every page's labeler call at once (Andrew, 2026-10-26: "is
+        # there any downside to running the pages in parallel?"; a page's call sees only that page, so the calls,
+        # answers and cost are the same, and a form takes its slowest page's time, not the sum), at most
+        # LABEL_PAGES_AT_ONCE in flight; the results kept in page order
+        prepared = []
         for page_no in pages_with_widgets:
             page_widgets = [w for w in label_entries
                             if w["page"] == page_no]
@@ -987,14 +994,24 @@ def build_blueprint(
                     "confidence": round(h["confidence"], 3),
                 }
             retrieval_ct += len(confident)
+            words = _words_from_page(page_obj) if residual else None
+            prepared.append((page_no, confident, residual, retrieval_hits, words))
 
+        def _label(job):
+            page_no, _c, residual, _h, words = job
+            if not residual:
+                return {}, {}
+            parts: dict[int, dict] = {}
+            return label_page_via_llm(residual, words, model=model, structure=page_structure.get(page_no),
+                                      bulk=(structure == "bulk"), parts_out=parts, page=page_no), parts
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=max(1, min(LABEL_PAGES_AT_ONCE, len(prepared)))) as ex:
+            answers = list(ex.map(_label, prepared))
+
+        for (page_no, confident, residual, retrieval_hits, _w), (llm_labels, parts) in zip(prepared, answers):
+            parts_by_id.update(parts)
             page_review_ct = 0
             if residual:
-                words = _words_from_page(page_obj)
-                llm_labels = label_page_via_llm(
-                    residual, words, model=model, structure=page_structure.get(page_no),
-                    bulk=(structure == "bulk"), parts_out=parts_by_id,
-                )
                 llm_ct += len(residual)
                 for wid, lbl in llm_labels.items():
                     if not lbl:

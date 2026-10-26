@@ -244,7 +244,7 @@ def _stamp_record(bp: dict, rec_path: Path, model: str) -> None:
 
 
 def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, structure: Optional[str] = None, names: Optional[str] = None, first_model: str = FIRST_MODEL,
-        loop_model: str = LOOP_MODEL, log=print) -> dict:
+        loop_model: str = LOOP_MODEL, rebuild_set: bool = False, log=print) -> dict:
     lib = BLUEPRINTS / f"{form}.bpt"
     rec = Record(form, blank, lib if lib.exists() else None)
     prev = rec.archive_previous()
@@ -299,7 +299,8 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, s
 
     result = iterate(form, blank, gen_model="bank", methods="native,judge:pymupdf", n_flat=0, gen_cache_only=False,
                      label_model=None, gen_key=None, max_iter=8, describe=True, apply_correct=True,
-                     review="flagged", allow_dirty=True, case_set=1, bpt=work, on_round=on_round)
+                     review="flagged", allow_dirty=True, case_set=1, bpt=work, on_round=on_round,
+                     rebuild_set=rebuild_set)
 
     # final: anything the last round left unchecked (normally nothing)
     bp = yaml.safe_load(work.read_text(encoding="utf-8")) or {}
@@ -336,7 +337,7 @@ def run(form: str, blank: Path, *, reloop: bool = False, library: bool = True, s
     return rec.data
 
 
-def main() -> int:
+def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--form", required=True)
     ap.add_argument("--blank", required=True, type=Path)
@@ -348,10 +349,14 @@ def main() -> int:
     ap.add_argument("--first-model", default=FIRST_MODEL, help=f"round-0 page check of every field (default {FIRST_MODEL})")
     ap.add_argument("--loop-model", default=LOOP_MODEL, help=f"the loop's checks of changed fields (default {LOOP_MODEL})")
     ap.add_argument("--page-check-model", default=None, help="one model for both (overrides the two above)")
-    args = ap.parse_args()
+    # the case set drawn again under the current basis (2026-10-26: nine forms' sets were built on 10-06/07 under
+    # another pymupdf / tesseract, whose boxes differ: +71 on DV-130, 432 pt moves on VA 21-8940)
+    ap.add_argument("--rebuild-set", action="store_true", help="draw the case set again under the current basis")
+    args = ap.parse_args(argv)
     first = args.page_check_model or args.first_model
     loop = args.page_check_model or args.loop_model
-    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library, structure=args.structure, names=args.names, first_model=first, loop_model=loop)
+    run(args.form, args.blank, reloop=args.reloop, library=not args.no_library, structure=args.structure, names=args.names,
+        first_model=first, loop_model=loop, rebuild_set=args.rebuild_set)
     return 0
 
 

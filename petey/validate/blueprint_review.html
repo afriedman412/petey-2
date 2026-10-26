@@ -1032,7 +1032,10 @@ function bindSidebarKeys() {
   const snap = el => { const k = fieldKey(el); if (!k || el.tagName === 'SELECT') return;
     if (el.value !== el.defaultValue) typed.set(k, {value: el.value, was: el.defaultValue}); else typed.delete(k); };
   const here = el => { last = {key: fieldKey(el), el, start: el.selectionStart, end: el.selectionEnd}; };
-  side.addEventListener('input', e => { if (e.target.matches(FIELD_SEL)) { snap(e.target); here(e.target); } });
+  // noted before the box's own input handler runs: a handler that changes the sidebar (the block matrix's name
+  // preview) set the observer off with the note one keystroke behind, and it put the box back (2026-10-26: "the
+  // 'edit parts' button in the block window doesn't let you type more than a couple letters into the fields")
+  side.addEventListener('input', e => { if (e.target.matches(FIELD_SEL)) { snap(e.target); here(e.target); } }, true);
   side.addEventListener('focusin', e => { if (e.target.matches(FIELD_SEL)) here(e.target); });
   side.addEventListener('keyup', e => { if (last && e.target === last.el) { last.start = e.target.selectionStart; last.end = e.target.selectionEnd; } });
   side.addEventListener('focusout', e => {
@@ -1054,7 +1057,7 @@ function bindSidebarKeys() {
   }, true);
   new MutationObserver(() => {
     for (const [k, t] of [...typed]) {
-      const el = findField(side, k); if (!el) continue;
+      const el = findField(side, k); if (!el || el === document.activeElement) continue;   // the box you are in: not redrawn
       if (el.defaultValue !== t.was) { typed.delete(k); continue; }       // saved meanwhile, or changed: the page's value stands
       if (el.value !== t.value) el.value = t.value;
     }

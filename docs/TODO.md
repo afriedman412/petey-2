@@ -425,6 +425,13 @@ and case sets".
 
 ## Next
 
+- **Review page in React: built, under review (2026-10-26, branch review-react, f35c62b + ad5399f).**
+  petey/validate/review_app (Vite, React, TypeScript), served at /next/ beside the old page at /; the server builds
+  it on start and on reboot when its code changed. Every tab ported; 11 old-page bugs found in the port fixed there
+  only. Left: Andrew uses it on real forms; the old page retired (/ switched to the React page) when he says it
+  matches. Not tried in a browser yet: grid check & validate (Opus), the chat, the labeler / agent buttons, drawing
+  and assigning blocks, dragging boxes between groups.
+
 - **Reviewer on the class and option-group flags.** The reviewer receives `page_class` flags (caption read, page
   class, blueprint type) and, since 2026-09-30 late, `option_group` flags from the inventory check (the page's
   question vs the blueprint's `widgets`, with the widget-layer attribution). Run one review round on I-765 and
@@ -560,6 +567,16 @@ Ideas, not plans; each wants a measurement on the hand-reviewed fields (1,508) b
   fix: when one field name repeats the same on-states in separate blocks, one group per block.
 
 ## Later
+
+- **Labeling speed** (parked 2026-10-26, Andrew: "speed is not a huge issue right now, it can wait until later").
+  Per field (docs/HANDOFF_2026-10-26.md): labeling 2.8 s with pages one after another, 0.85-1.1 s with pages at once
+  (`LABEL_PAGES_AT_ONCE`); whole run 4.4 s. A labeler call's time is the model's thinking, not its output (500-1,600
+  output tokens in 17-173 s; `runs/_calls/auto_label/gemini-3.8-flash/*.json`, `elapsed_s` / `usage`). Two ideas,
+  neither run: (1) **thinking level**: the labeler sends no `reasoning_effort`, so Gemini picks its own; try `low` /
+  `medium` on GSE 1084, CASC 100, Form 8300 and compare names and time per field (thinking off on 2026-10-13, 97a1d62:
+  9 of 12 single boxes right against 12 of 12). (2) **bulk "no answer"**: most cells left to the follow-up call are
+  whole structures the model left out of its answer (CASC 100 p2: "B2: 8 no answer"), and the follow-up waits for its
+  page's first call (311 s once: 137 + 173); list the structure ids the answer must cover.
 
 - **Auto-merge consecutive text lines** (Andrew, 2026-10-21; part of the associations idea): boxes stacked one per
   printed line that hold one answer (a paragraph over numbered lines, `summary_txt_1` .. `_6`; an address written
