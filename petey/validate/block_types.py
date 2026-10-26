@@ -1404,12 +1404,36 @@ def confirm(bid: str, bp: dict, tid: str, words: list) -> dict:
         bad = [x for x in s.values() if not re.fullmatch(r"[a-z0-9]+(_[a-z0-9]+)*", x)]
         if bad:
             raise ValueError(f"position {k}: {bad[0]!r}: lower case words joined by _")
+    # positions alike with no number of their own are numbered in the type's order, 1 up, past any number one of
+    # them has (Andrew, 2026-10-25, je__cms855b BT25: "why can't it just renumber them automatically"); the person
+    # is told which, as two alike may be a wrong subject rather than a repeat (BT25's two signature dates)
+    alike: dict = {}
+    for k, s in enumerate(ss):
+        alike.setdefault(slot_text({x: v for x, v in s.items() if x != "iteration"}), []).append(k)
+    numbered = []
+    for ks in alike.values():
+        bare = [k for k in ks if not ss[k].get("iteration")]
+        if len(bare) < 2:
+            continue
+        taken, n = {ss[k]["iteration"] for k in ks if ss[k].get("iteration")}, 1
+        for k in bare:
+            while str(n) in taken:
+                n += 1
+            ss[k] = {**ss[k], "iteration": str(n)}
+            taken.add(str(n))
+            numbered.append(k + 1)
     texts = [slot_text(s) for s in ss]
-    if len(set(texts)) < len(texts):
-        raise ValueError("two positions with the same parts")
+    seen: dict = {}
+    for k, w in enumerate(texts):
+        seen.setdefault(w, []).append(k)
+    same = [ks for ks in seen.values() if len(ks) > 1]       # left: the same number typed on two
+    if same:
+        raise ValueError("; ".join(
+            "positions " + " and ".join(f"{k + 1} ({t['boxes'][k]['code']})" for k in ks) + f" have the same parts, "
+            f"{texts[ks[0]]}" for ks in same) + ": give one another subject, or another iteration")
     t["slots"], t["wordings"], t["confirmed"] = ss, texts, time.strftime("%Y-%m-%d %H:%M:%S")
     gc._save_set(bid, rec)
-    return {"id": tid, "wordings": texts, "slots": ss}
+    return {"id": tid, "wordings": texts, "slots": ss, "numbered": sorted(numbered)}
 
 
 def _slug(label: Optional[str]) -> str:

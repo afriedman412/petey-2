@@ -547,9 +547,18 @@ async function init() {
   $('#brand').onclick = () => showHome(true);
   const first = hb && LIST.some(b => b.id === hb) ? hb : null;
   // a link to a field (Andrew, 2026-10-24: "give the full field id and link to them in review"): the form opens in
-  // Review on the field's page with the field selected
-  if (first) { $('#pick').value = first; openBlueprint(first).then(() => { if (hf && mode === 'review') MODE.review.focus(hf); }); }
+  // Review on the field's page with the field selected; and to what each tab lists (2026-10-25: "lets make all of the
+  // types linkable"): #grids/<form>/p4-G3, #blocks/<form>/BT4-2, #groups/<form>/<group name>, or a field name in any
+  if (first) { $('#pick').value = first; openBlueprint(first).then(() => { if (hf && MODE[mode].focus) MODE[mode].focus(hf); }); }
   else showHome(true);
+  window.addEventListener('hashchange', followLink);     // a link followed in a page already open
+}
+async function followLink() {
+  const [hm, hb, hf] = decodeURIComponent(location.hash.slice(1)).split('/');
+  if (!hb || !LIST.some(b => b.id === hb)) return;
+  if (MODE[hm] && hm !== mode) await setMode(hm);
+  if (hb !== bid || HOME.on) { $('#pick').value = hb; await openBlueprint(hb); }
+  if (hf && MODE[mode].focus) MODE[mode].focus(hf);
 }
 
 // the reboot button: the server re-execs itself on the same port (edited Python loads); wait for it to answer
@@ -2319,6 +2328,8 @@ MODE.groups = (() => {
       if (ag.length) notes = [`The finder grouped ${ag.length} set${ag.length === 1 ? '' : 's'} of loose boxes: ${ag.slice(0, 8).map(x => `${x.name} (p${x.page})`).join(', ')}${ag.length > 8 ? ', …' : ''}. "ungroup" (u) takes one apart for good.`];
       sortUnits(); selected = optUnits().length ? optUnits()[0].uid : null; schedulePlan();
     },
+    // a link's group: by its name, or the group holding a field
+    focus(key) { const u = units.find(x => x.name === key) || units.find(x => x.items.some(id => (item(id) || {}).field === key)); if (u) select(u.uid); },
     pages: () => BP ? BP.pages : [],
     startPage: () => optUnits().length ? firstItem(optUnits()[0]).page : ((Object.values(BP.items)[0] || {}).page || 1),
     // p7 (groups not confirmed / groups), Andrew 2026-10-22; a page of loose boxes only is just p7
@@ -2949,6 +2960,12 @@ MODE.grids = (() => {
   }
   return {
     async load() { GD = await j(mapi('grids')); PV = {}; if (selected && !GD.tables.some(t => t.id === selected && !t.dismissed)) selected = null; if (selected) loadPreview(selected); },
+    // a link's grid: by its id, or the grid holding a field; one set aside opens its page (its line under "Not grids")
+    focus(key) {
+      if (!GD) return;
+      const t = GD.tables.find(x => x.id === key) || live().find(x => x.cells.some(c => c.name === key));
+      if (t && t.dismissed) gotoPage(t.page); else if (t) select(t.id);
+    },
     pages: () => GD ? GD.pages : [],
     startPage: () => (live()[0] || {}).page || 1,
     // p7 (grids not validated / grids), Andrew 2026-10-22
@@ -3138,7 +3155,7 @@ MODE.blocks = (() => {
       return `<details class="bttype" ${mine || editing.has(y.id) || (!selBlock && ys.length === 1) ? 'open' : ''}><summary><b class="gtidc" data-copy="${esc(y.id)}" title="click to copy the reference (file_id)">${esc(y.id)}</b>${y.label ? ` ${esc(y.label)}` : ''} <span class="help">${y.boxes} boxes · ${y.blocks.length} block${y.blocks.length === 1 ? '' : 's'} · ${y.confirmed ? 'confirmed' : 'not confirmed'}${(y.from || '').includes('finder') ? ' · from the finder' : ''}</span></summary>
         <div class="row" style="margin:2px 0 4px"><input type="text" class="btlabel" data-tlabel="${esc(y.id)}" value="${esc(y.label || '')}" placeholder="label (e.g. US address)" title="your name for ${esc(y.id)}; Enter or leaving the box saves it"></div>
         <label class="help" title="every block's prefix the label as a name and its iteration its number in ${esc(y.id)} (1 to ${y.blocks.length}, the PDF's order); a block's own prefix or iteration, set by hand, still wins"><input type="checkbox" data-tauto="${esc(y.id)}" ${y.auto ? 'checked' : ''} ${y.label ? '' : 'disabled'}> name its blocks ${y.label ? `${esc(y.label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''))}_1, _2, …` : 'from the label (give it one first)'}</label>
-        <div class="row help"><span title="A column per position: its subject, suffix and part. A row per block: its prefix and iteration (empty: the next number free; - none; # told apart by number, pre by its prefix: no number unless another block shares it).">Names print as every field's: [prefix + subject]_[suffix]_[iteration]_[part]; names that will change are marked.</span> <button class="btn mini" data-mxwide title="the sidebar wider, for types with many positions">${WIDE ? 'narrower' : 'wider'}</button></div>
+        <div class="row help"><span title="A column per position: its subject, suffix, iteration (its own number, after the suffix: other_opts_txt_2) and part. A row per block: its prefix and iteration (empty: the next number free; - none; # told apart by number, pre by its prefix: no number unless another block shares it).">Names print as every field's: [prefix + subject]_[suffix]_[iteration]_[part]; names that will change are marked.</span> <button class="btn mini" data-mxwide title="the sidebar wider, for types with many positions">${WIDE ? 'narrower' : 'wider'}</button></div>
         ${matrixHtml(y, edit)}
         <div class="row">${edit ? `<button class="btn mini primary" data-tconf="${esc(y.id)}">confirm ${esc(y.id)}</button>` : `<a href="#" data-tedit="${esc(y.id)}">edit parts</a>`}
           ${y.confirmed ? `<button class="btn mini ${y.blocks.every(b => b.validated) ? '' : 'primary'}" data-tval="${esc(y.id)}" ${tBusy.has(y.id) ? 'disabled' : ''} title="check & validate every block of ${esc(y.id)}: the cells of each block that follows these wordings accepted; the others said, nothing of theirs accepted">${tBusy.has(y.id) ? 'checking…' : y.blocks.every(b => b.validated) ? 'all validated ✓ · check again' : `validate all ${y.blocks.length}`}</button>` : ''}
@@ -3150,7 +3167,7 @@ MODE.blocks = (() => {
   // the type as a matrix (Andrew, 2026-10-22: block labels "work like the rest of the field names", the same inputs
   // a standalone field has): a column per position with its subject / suffix / part, a row per block with its prefix
   // and iteration, each cell the name it prints (block_types.block_ident + field_identifiers.print_name)
-  const PKEYS = ['subject', 'suffix', 'part'];
+  const PKEYS = ['subject', 'suffix', 'iteration', 'part'];   // block_types.SLOT_KEYS: a position's own number too (2026-10-25)
   function blockIdent(prefix, iteration, s) {
     const pt = (prefix || '').split('_').filter(Boolean); let st = (s.subject || '').split('_').filter(Boolean);
     while (pt.length && st.length && pt[pt.length - 1] === st[0] && (st.length > 1 || s.suffix)) st = st.slice(1);
@@ -3256,7 +3273,8 @@ MODE.blocks = (() => {
     catch (e) { alert(e.message); return; }
     editing.delete(tid); await loadMode();
     const y = (GD.types || []).find(x => x.id === tid), n = y ? typeOff(y) : 0;
-    toast(`${tid} confirmed: ${out.wordings.length} positions.`);
+    toast(`${tid} confirmed: ${out.wordings.length} positions.` + ((out.numbered || []).length
+      ? ` Positions ${out.numbered.join(', ')} were alike and are numbered (the iteration row): if one is another thing, give it its own subject.` : ''));
     if (n && confirm(`${tid}: ${n} name(s) across its ${y.blocks.length} blocks do not print from these parts. Rename them all now (as Claude's renames, nothing accepted)?`)) typeFix(tid);
   }
   const bBusy = new Set();
@@ -3377,6 +3395,14 @@ MODE.blocks = (() => {
   return {
     runFinders,
     async load() { GD = await j(mapi('blocks')); if (selBlock && !allBlocks().some(b => b.code === selBlock)) selBlock = null; },
+    // a link's block: BT4-2 (BT4 its first block), its code, or the block holding a field
+    focus(key) {
+      if (!GD) return;
+      const m = /^(BT\d+)(?:-(\d+))?$/.exec(key), y = m && (GD.types || []).find(t => t.id === m[1]);
+      const b = (y && (m[2] ? y.blocks.find(x => String(x.n) === m[2]) : y.blocks[0]))
+        || allBlocks().find(x => x.code === key || (x.names || []).includes(key));
+      if (b) selectBlock(b);
+    },
     pages: () => GD ? GD.pages : [],
     startPage: () => ((allBlocks()[0]) || {}).page || 1,
     // p7 (blocks not validated / blocks), Andrew 2026-10-22

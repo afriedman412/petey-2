@@ -739,3 +739,44 @@ def test_check_and_validate_settles_that_column_in_code_without_opus(monkeypatch
     assert out["status"] == "fixed" and len(out["accepted"]) == 9
     assert {f"subject_of_insurance_{r + 1}_blanket_nbr" for r in range(3)} <= set(bp["fields"])
     assert {"blanket_1_nbr", "blanket_2_nbr", "blanket_3_nbr"} <= set(bp["fields"])
+
+
+def test_positions_alike_are_numbered_and_the_same_number_twice_is_named(monkeypatch, tmp_path):
+    """je__cms855b BT25 (Andrew, 2026-10-25: "why can't it just renumber them automatically"): positions alike with no
+    number of their own are numbered in order, past a number one of them has, and confirm says which; the same number
+    typed on two is still refused, naming the positions."""
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([["child_1_nm", "child_1_birth_dt", "child_1_ind"]])
+    bt.draw("t30", bp, 1, area(0))
+    sig = {"subject": "signature", "suffix": "dt"}
+    out = bt.confirm("t30", bp, "BT1", [sig, sig, {"suffix": "ind"}])
+    assert out["wordings"] == ["signature_dt_1", "signature_dt_2", "ind"] and out["numbered"] == [1, 2]
+    out = bt.confirm("t30", bp, "BT1", [sig, {**sig, "iteration": "1"}, sig])
+    assert out["wordings"] == ["signature_dt_2", "signature_dt_1", "signature_dt_3"] and out["numbered"] == [1, 3]
+    out = bt.confirm("t30", bp, "BT1", [{**sig, "iteration": "2"}, {**sig, "iteration": "3"}, {"suffix": "ind"}])
+    assert out["numbered"] == []
+    try:
+        bt.confirm("t30", bp, "BT1", [{**sig, "iteration": "2"}, {**sig, "iteration": "2"}, {"suffix": "ind"}])
+        assert False, "two positions alike were confirmed"
+    except ValueError as e:
+        assert "positions 1 (1_1) and 2 (1_2)" in str(e) and "signature_dt_2" in str(e)
+
+
+def test_no_field_in_a_grid_and_a_block_both(monkeypatch, tmp_path):
+    """Andrew (2026-10-25): "we are still getting blocks and grids identified on the same fields" (I-589 p3-G1: 3 of
+    its 15 cells in BT1-1; je__acord_140 p1-G6 drawn, inside run finders' BT3-1). Blocks over grids: a grid that
+    neither supersedes the blocks nor gives way to them is shown without the blocks' fields, replaced when fewer
+    than two are left; its record keeps them."""
+    use_tmp_records(monkeypatch, tmp_path)
+    rows = [[f"child_{b}_nm", f"child_{b}_birth_dt", f"child_{b}_ind"] for b in (1, 2, 3)]
+    bp = blueprint(rows)
+    bt.draw("t40", bp, 1, area(0))                        # one block: 3 of the finder grid's 9 cells
+    (g,) = [t for t in gc.listing("t40", bp) if t["status"] == "active"]
+    assert {c["name"] for c in g["grid"]} == set(rows[1] + rows[2]) and g["in_blocks"] == ["BT1-1"]
+    assert len(gc.load_set("t40")["types"][0]["blocks"]) == 1                  # the block keeps its fields
+    assert len(next(e for e in gc.load_set("t40")["grids"] if e["id"] == g["id"])["cells"]) == 9
+    # a grid drawn inside a block: replaced
+    cells = [{"name": n, "page": 1, "row": 0, "col": k} for k, n in enumerate(rows[0][:2])]
+    mine = gc._add("t40", bp, 1, cells, "person", [])
+    (t,) = [t for t in gc.listing("t40", bp) if t["id"] == mine["id"]]
+    assert t["status"] == "replaced" and "BT1-1" in t["aside_why"]

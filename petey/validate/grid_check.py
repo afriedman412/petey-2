@@ -253,6 +253,20 @@ def listing(bid: str, bp: dict) -> list[dict]:
         hit = [in_block[code[c["name"]]] for c in t["grid"] if code.get(c["name"]) in in_block]
         if len(hit) >= 0.5 * len(t["grid"]):
             t["status"], t["aside_why"] = "split", f"inside blocks {', '.join(sorted(set(hit))[:6])}"
+    # what is left: no field in a grid and a block both (Andrew, 2026-10-25: "we are still getting blocks and grids
+    # identified on the same fields"; je__acord_140 p1-G6 drawn, then run finders' BT3-1 of 142 fields around it;
+    # I-589 p3-G1, 3 of 15 cells in BT1-1). Blocks over grids: any grid still active, drawn or the finder's, is shown
+    # without the blocks' fields, replaced when fewer than two are left; its record is kept, so a block taken away
+    # gives them back
+    for t in out:
+        if t["status"] != "active":
+            continue
+        hit = sorted({in_block[code[c["name"]]] for c in t["grid"] if code.get(c["name"]) in in_block})
+        if hit:
+            t["grid"] = [c for c in t["grid"] if code.get(c["name"]) not in in_block]
+            t["in_blocks"] = hit
+            if len(t["grid"]) < 2:
+                t["status"], t["aside_why"] = "replaced", f"inside block {', '.join(hit[:6])}"
     if changed:
         _save_set(bid, rec)
     return out
