@@ -2,15 +2,16 @@
 handle groups?" ... "yeah that'd be good. anything more complicated that doesn't get picked up automatically is
 probably worth of a human look anyways").
 
-Only the clear cases (docs: grouping errs ungrouped), read from the printed page, never applied by themselves:
+Only the clear cases (docs: grouping errs ungrouped), read from the printed page; made groups as the Groups tab loads
+and by "run finders" (Andrew, 2026-10-25: "let's have the finder groups group automatically, easy to ungroup them"):
 
     yes / no      two or three loose checkboxes side by side on one line (or stacked one under the other), their
                   captions Yes and No (and N/A): one question's answers
     one of        a run of two or more loose checkboxes, side by side or stacked, under or after a printed "only one",
                   "check one", "select one", "one box" ...
 
-A suggestion is {items, name, why, page}; the Groups tab shows them, "group them" makes the group there (then the usual
-apply), "not a group" records the boxes in runs/group_review/not_groups/<id>.json so the suggestion stays away.
+A suggestion is {items, name, why, page}; ungrouping it on the Groups tab records the boxes in
+runs/group_review/not_groups/<id>.json, so it is not made again.
 
     find(bp, blank) -> [suggestion]
 """
@@ -25,7 +26,11 @@ from petey.paths import RUNS
 
 NOT_GROUPS = RUNS / "group_review" / "not_groups"
 YES, NO, NA = {"yes", "y"}, {"no", "n"}, {"n/a", "na", "n.a.", "not applicable", "unknown", "don't know"}
-ONE_OF = re.compile(r"\b(only one|check one|select one|mark one|one box|choose one|check only one|select only one)\b", re.I)
+# "the applicable box", singular (2026-10-25, Andrew: CMS-855B's Change / Add / Remove went into blocks as three loose
+# boxes under "check the applicable box"; measured on the library: +22 suggestions, all one question's answers)
+# not "at least one box" (SSA-3288 p2: a list to check any of)
+ONE_OF = re.compile(r"\b(only one|check one|select one|mark one|(?<!least )one box|choose one|check only one|select only one|"
+                    r"(?:check|mark|select|tick) the (?:applicable|appropriate|correct) box(?!es))\b", re.I)
 LINE_TOL, NEAR = 4.0, 140.0               # points: one line; the most between two boxes of one question
 
 
@@ -91,7 +96,10 @@ def find(bp: dict, blank: Optional[Path], loose: dict[str, dict], bid: Optional[
     if not loose or not blank or not Path(blank).exists():
         return []
     import pymupdf
-    skip = dismissed(bid) if bid else []
+    # boxes recorded as not a group, and any of them together (f1065 p2: the six entity types ungrouped came back as
+    # each line's three)
+    nots = dismissed(bid) if bid else []
+    skip = lambda ids: any(set(ids) <= d for d in nots)
     out, used = [], set()
     doc = pymupdf.open(str(blank))
     try:
@@ -137,7 +145,7 @@ def find(bp: dict, blank: Optional[Path], loose: dict[str, dict], bid: Optional[
                             if any(c in YES for c in cs) and any(c in NO for c in cs) and \
                                     all(c in YES | NO | NA for c in cs) and len(set(cs)) == len(cs):
                                 ids = [i for i, _ in win]
-                                if not (set(ids) & used) and set(ids) not in skip:
+                                if not (set(ids) & used) and not skip(ids):
                                     used |= set(ids)
                                     out.append({"items": ids, "page": page, "why": "Yes / No on one question",
                                                 "name": _name([loose[i]["field"] for i in ids]),
@@ -145,18 +153,29 @@ def find(bp: dict, blank: Optional[Path], loose: dict[str, dict], bid: Optional[
                                 k += n - 1
                                 break
                         k += 1
-                    # one of: a run under / after a printed "only one" (within 40 pt above, or on the line before)
+                    # one of: a run under / after a printed "only one" (within 40 pt above, or on the line before);
+                    # runs under one printed "only one" are one group (f1065 p2: six entity types on two lines)
                     ids = [i for i, _ in run if i not in used]
-                    if len(ids) >= 2 and set(ids) not in skip:
+                    if len(ids) >= 2 and not skip(ids):
                         r0 = loose[ids[0]]["rect"]
-                        near = [w[4] for w in words if r0[1] - 40 <= w[3] <= r0[1] + 2 and w[0] <= r0[2] + 400
+                        near = [w for w in words if r0[1] - 40 <= w[3] <= r0[1] + 2 and w[0] <= r0[2] + 400
                                 and w[2] >= r0[0] - 400]
-                        line = " ".join(near)
-                        if ONE_OF.search(line):
+                        line = " ".join(w[4] for w in near)
+                        m = ONE_OF.search(line)
+                        if m:
                             used |= set(ids)
-                            out.append({"items": ids, "page": page, "why": f'"{ONE_OF.search(line).group(0)}" printed above',
+                            cue = tuple(round(c) for c in near[line[:m.start()].count(" ")][:4])  # the printed words
+                            prev = next((x for x in out if x.get("cue") == (page, cue)), None)
+                            if prev and not skip(prev["items"] + ids):
+                                prev["items"] += ids
+                                prev["captions"] += [cap[i] for i in ids]
+                                prev["name"] = _name([loose[i]["field"] for i in prev["items"]])
+                                continue
+                            out.append({"items": ids, "page": page, "why": f'"{m.group(0)}" printed above',
                                         "name": _name([loose[i]["field"] for i in ids]),
-                                        "captions": [cap[i] for i in ids]})
+                                        "captions": [cap[i] for i in ids], "cue": (page, cue)})
     finally:
         doc.close()
+    for x in out:
+        x.pop("cue", None)
     return out

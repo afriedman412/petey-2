@@ -400,7 +400,7 @@
   <span class="spacer"></span>
   <!-- the form's whole-form actions in the top bar (Andrew, 2026-10-23: "'run finders', 'accept settled' and 'reset
        validation' can go in the top bar"); each opens the tab it works in -->
-  <button class="btn" id="hdrFinders" disabled title="the whole form: the grid finder first (a grid replaces the blocks inside it), then repeated blocks among the fields in no block and no grid (SIA), each saved as a new block type marked 'from the finder'. Opens Blocks. Keep what's right; 'not a block' on the rest">run finders</button>
+  <button class="btn" id="hdrFinders" disabled title="the whole form: the clear groups among the loose checkboxes first (Yes / No pairs, boxes under a printed 'check one' or 'check the applicable box'; new on the Groups tab, which also makes them as it opens; ungroup takes one apart), then the grid finder (a grid replaces the blocks inside it), then repeated blocks among the fields in no block and no grid (SIA), each saved as a new block type marked 'from the finder'. Opens Blocks. Keep what's right; 'not a block' on the rest">run finders</button>
   <button class="btn" id="bulk" disabled title="accept every unreviewed field that two or more witnesses back and none disputes (opens Review)">accept settled</button>
   <button class="btn" id="resetV" disabled title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)">reset validation</button>
   <a class="btn" href="/extract" title="drop filled PDFs and get their data (petey.web)">extract</a>
@@ -1917,6 +1917,8 @@ MODE.groups = (() => {
     if (!u || !isGroup(u)) return note('Select a group first.');
     if (u.locked) return note(`${u.name} is locked: ${u.locked}`);
     if (isText(u)) return separate(u);
+    // the finder groups these boxes as the tab loads (2026-10-25): ungrouped, they are recorded as not a group
+    send('PUT', mapi('groups', '/notgroup'), {items: [...u.items]}).catch(e => note('could not record the boxes as not a group: ' + e.message));
     snapshot();
     const loose = [];
     for (const id of [...u.items]) { detach(id); const x = looseOf(u, id); units.push(x); loose.push(x); }
@@ -1954,12 +1956,16 @@ MODE.groups = (() => {
   const busy = {};
   const busyOn = (u, k) => !!(busy[u.uid] || {})[k];
   function setBusy(u, k, on) { busy[u.uid] = {...(busy[u.uid] || {}), [k]: on}; }
-  async function askLabeler(u, el) {
+  // the captions sent are the ones the group shows (a re-read caption before the box's own)
+  function labelerProposal(u, caps = u.captions || {}) {
     const first = firstItem(u), its = u.items.map(item).filter(it => it.page === first.page);
     const rect = [Math.min(...its.map(i => i.rect[0])), Math.min(...its.map(i => i.rect[1])), Math.max(...its.map(i => i.rect[2])), Math.max(...its.map(i => i.rect[3]))];
-    const proposal = isText(u) ? {kind: 'text', page: first.page, rect}
-      : isGroup(u) ? {kind: 'group', page: first.page, rect, options: u.items.map(id => ({key: String(item(id).key ?? item(id).field), caption: item(id).caption || null}))}
+    return isText(u) ? {kind: 'text', page: first.page, rect}
+      : isGroup(u) ? {kind: 'group', page: first.page, rect, options: u.items.map(id => ({key: String(item(id).key ?? item(id).field), caption: caps[id] || item(id).caption || null}))}
       : {kind: 'option', page: first.page, rect, widget: {path: first.path}};
+  }
+  async function askLabeler(u, el) {
+    const proposal = labelerProposal(u);
     el.disabled = true; el.textContent = 'asking…'; setBusy(u, 'label', true);
     try {
       const r = await send('POST', mapi('add', '/labeler'), {proposal, from: 'groups'});
@@ -1970,12 +1976,13 @@ MODE.groups = (() => {
   }
   // "re-read captions" (Andrew, 2026-10-13): the page's best caption per box for this group's name and keys; kept
   // with the unit and written when the grouping is applied
+  const newCaptions = r => Object.fromEntries(Object.entries(r.captions).filter(([, c]) => c.caption && !c.locked && c.caption !== c.current).map(([id, c]) => [id, c.caption]));
   async function rereadCaptions(u, el) {
     el.disabled = true; el.textContent = 'reading…'; setBusy(u, 'caps', true);
     try {
       const r = await send('POST', mapi('groups', '/captions'), {name: u.name, items: u.items});
       setBusy(u, 'caps', false);
-      const caps = Object.fromEntries(Object.entries(r.captions).filter(([, c]) => c.caption && !c.locked && c.caption !== c.current).map(([id, c]) => [id, c.caption]));
+      const caps = newCaptions(r);
       const kept = Object.values(r.captions).filter(c => c.locked).length;
       if (!Object.keys(caps).length) { note(`captions: nothing better on the page${kept ? ` (${kept} locked)` : ''}`); return; }
       snapshot(); u.captions = {...(u.captions || {}), ...caps};
@@ -1983,6 +1990,44 @@ MODE.groups = (() => {
       note(`captions: ${Object.keys(caps).length} re-read${src ? ' by ' + src : ''}${kept ? `, ${kept} locked kept` : ''}`);
       afterEdit();
     } catch (e) { setBusy(u, 'caps', false); note('captions failed: ' + e.message); }
+  }
+  // "rescan page" (Andrew, 2026-10-25: "would re-scanning group captions and/or group labels in bulk be faster?"):
+  // every open group on this page (not confirmed, not locked) has its captions re-read, one call per group all at
+  // once (each sees its own strip of the page), then the labeler names them all in one call with those captions.
+  // Only a group not yet in the blueprint and not named by hand takes the labeler's name (on N-400 p2 the labeler's
+  // would_like_to_legally_change_name replaced the blueprint's legal_name_change); the rest are context for it.
+  // Nothing is saved to the blueprint; one undo takes the whole rescan back.
+  let rescanning = false;
+  async function rescanPage(btn) {
+    const p = page, gs = optUnits().filter(u => onPage(u, p) && isGroup(u) && !u.locked && !u.confirmed);
+    if (!gs.length) return note(`p${p}: no open groups to rescan (confirmed and locked groups are left alone)`);
+    rescanning = true; btn.disabled = true; btn.textContent = `rescanning ${gs.length}…`;
+    gs.forEach(u => { setBusy(u, 'caps', true); setBusy(u, 'label', true); }); panel();
+    const done = () => { rescanning = false; gs.forEach(u => { setBusy(u, 'caps', false); setBusy(u, 'label', false); });
+                         const b = $('#gRescan'); if (b) { b.disabled = false; b.textContent = 'rescan page'; } };
+    const capsBy = {}, fails = [];
+    await Promise.all(gs.map(async u => {
+      try { capsBy[u.uid] = newCaptions(await send('POST', mapi('groups', '/captions'), {name: u.name, items: u.items})); }
+      catch (e) { fails.push(`captions for ${u.name}: ${e.message}`); }
+    }));
+    const live = gs.filter(u => units.includes(u) && !u.locked && !u.confirmed);   // edits made while it ran stand
+    let names = [], model = '';
+    try {
+      const r = await send('POST', mapi('add', '/labeler_page'), {proposals: live.map(u => labelerProposal(u, {...(u.captions || {}), ...(capsBy[u.uid] || {})}))});
+      names = r.names; model = r.model;
+    } catch (e) { fails.push('labeler: ' + e.message); }
+    done();
+    let nCaps = 0, nGroupsCapped = 0, nNamed = 0;
+    snapshot();
+    live.forEach((u, i) => {
+      const caps = capsBy[u.uid] || {};
+      if (Object.keys(caps).length) { u.captions = {...(u.captions || {}), ...caps}; nCaps += Object.keys(caps).length; nGroupsCapped++; }
+      const n = names[i] && !baseOf(u) && u.name_from !== 'hand' && uniqueName(names[i], u);
+      if (n && n !== u.name) { u.name = n; u.name_from = 'labeler'; nNamed++; }
+    });
+    if (!nCaps && !nNamed) { undoStack.pop(); const z = $('#gUndo'); if (z) z.disabled = !undoStack.length; }
+    await afterEdit();
+    note(`p${p}, ${live.length} group${live.length === 1 ? '' : 's'}: ${nCaps} caption${nCaps === 1 ? '' : 's'} re-read on ${nGroupsCapped}, ${nNamed} renamed${model ? ' by ' + model : ''}${nCaps || nNamed ? ' (z undoes)' : ''}${fails.length ? '. Failed: ' + fails.join('; ') : ''}`);
   }
   // merge a group into another on any page (Andrew, 2026-10-14: I-485 item 56 runs from page 18 onto page 19); the
   // boxes keep their order, the other group's name and type stand
@@ -2069,7 +2114,7 @@ MODE.groups = (() => {
       return `<li>${esc(it.field)} <span class="help">${esc(it.type || '')}${it.semantic_type ? '/' + esc(it.semantic_type) : ''}${it.path ? ' · ' + esc(it.path.split('.').pop()) : ''}</span></li>`; }).join('');
     return `<div class="gcur">
       <h2>Combined text field of ${u.items.length} <span class="badge new">new</span></h2>
-      <input type="text" id="uname" value="${esc(u.name)}"> <button class="btn" id="gLabel" title="one call to the labeler with the words on this page">ask the labeler</button>${u.name_from ? ' <span class="help">(from the labeler)</span>' : ''}
+      <input type="text" id="uname" value="${esc(u.name)}"> <button class="btn" id="gLabel" title="one call to the labeler with the words on this page">ask the labeler</button>${u.name_from === 'labeler' ? ' <span class="help">(from the labeler)</span>' : ''}
       ${bad ? `<div class="warn">${bad}</div>` : ''}
       <textarea id="udesc" placeholder="description (left empty: the members' descriptions)">${esc(u.description || '')}</textarea>
       <ol>${items}</ol>
@@ -2099,7 +2144,7 @@ MODE.groups = (() => {
       ${u.locked ? `<div class="warn">${esc(u.locked)}</div>` : ''}
       <div class="fgrid">
         <label>Field name</label><span class="namerow"><input id="uname" value="${esc(u.name)}" ${u.locked ? 'disabled' : ''} spellcheck="false">${u.locked ? '' : `<button class="btn parts" id="gLabel" title="one call to the labeler with the words on this page" ${busyOn(u, 'label') ? 'disabled' : ''}>${busyOn(u, 'label') ? 'asking…' : 'ask the labeler'}</button>`}</span>
-        ${u.name_from || was ? `<span></span><span>${u.name_from ? '<span class="help">from the labeler</span> ' : ''}${was}</span>` : ''}
+        ${u.name_from === 'labeler' || was ? `<span></span><span>${u.name_from === 'labeler' ? '<span class="help">from the labeler</span> ' : ''}${was}</span>` : ''}
         ${bad ? `<span></span><span class="warn">${bad}</span>` : ''}
         ${kind}
         ${group ? `<span class="lbl">Options<br><span class="help">key · caption</span></span><span class="otable">${rows}</span>` : ''}
@@ -2108,6 +2153,7 @@ MODE.groups = (() => {
         <button class="btn ok ${u.confirmed ? 'on' : ''}" id="gConfirm">${u.confirmed ? 'confirmed' : (group ? 'group is right' : 'stands alone')}</button>
         ${group && !u.locked ? `<button class="btn" id="gCaps" title="read each box's printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF's form data or set by hand stay" ${busyOn(u, 'caps') ? 'disabled' : ''}>${busyOn(u, 'caps') ? 'reading…' : 're-read captions'}</button>` : ''}
         ${b && status(u) !== 'as blueprint' ? '<button class="btn" id="gRevert" title="put this unit back as the blueprint has it">back to blueprint</button>' : ''}
+        ${group && !isText(u) && !u.locked ? '<button class="btn" id="gUngroup" title="every box of this group loose again (u); the finder will not group these boxes again; z undoes">ungroup</button>' : ''}
         ${group && !u.locked ? `<select id="gMergeTo" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"><option value="">merge into another group…</option>${optUnits().filter(x => x !== u && isGroup(x) && !x.locked).map(x => `<option value="${x.uid}">${esc(x.name)} (${x.items.length}, p${[...new Set(x.items.map(i => item(i).page))].join(',')})</option>`).join('')}</select>` : ''}
       </div></div>`;
   }
@@ -2125,7 +2171,8 @@ MODE.groups = (() => {
     const groups = listed().filter(isGroup), loose = listed().filter(x => !isGroup(x));
     const combos = units.filter(x => isText(x) && onPage(x)), nLoose = looseText().length;
     const nts = notes.length ? `<div class="warn">${notes.map(esc).join('<br>')}</div>` : '';
-    // suggested groups among the loose boxes (group_finder, 2026-10-25): the clear cases, never applied by themselves
+    // suggested groups among the loose boxes (group_finder, 2026-10-25): made as the tab loads, so shown here only
+    // when that failed
     const sugg = (BP.suggested || []).map((x, i) => ({...x, i})).filter(x => x.page === page && x.items.every(id => { const v = unitOf(id); return v && !isGroup(v); }));
     const suggHtml = sugg.length ? `<div class="gsugg"><h4>Suggested groups on page ${page} (${sugg.length})</h4>${sugg.map(x =>
       `<div class="gcard"><div class="help">${esc(x.why)}${x.name ? ` · <code>${esc(x.name)}</code>` : ''}</div>
@@ -2145,13 +2192,14 @@ MODE.groups = (() => {
   function bindPanel(u) {
     if (u) {
       const n = $('#uname');
-      if (n) { n.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') rename(u.uid, n.value); }); n.addEventListener('blur', () => rename(u.uid, n.value)); }
+      if (n) { n.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') rename(u.uid, n.value, 'hand'); }); n.addEventListener('blur', () => rename(u.uid, n.value, 'hand')); }
       const d = $('#udesc');
       if (d) { d.addEventListener('keydown', e => e.stopPropagation()); d.addEventListener('blur', () => setDesc(u.uid, d.value.trim())); }
       document.querySelectorAll('input[name=ty]').forEach(r => r.addEventListener('change', () => setType(u.uid, r.value)));
       const lb = $('#gLabel'); if (lb) lb.onclick = () => askLabeler(u, lb);
       const c = $('#gConfirm'); if (c) c.onclick = () => confirmUnit(u.uid);
       const rv = $('#gRevert'); if (rv) rv.onclick = () => revert(u);
+      const ug = $('#gUngroup'); if (ug) ug.onclick = ungroup;
       const sp = $('#gSplit'); if (sp) sp.onclick = () => separate(u);
       const gc = $('#gCaps'); if (gc) gc.onclick = () => rereadCaptions(u, gc);
       const gm = $('#gMergeTo'); if (gm) { gm.addEventListener('keydown', e => e.stopPropagation()); gm.onchange = () => mergeInto(u, Number(gm.value)); }
@@ -2267,6 +2315,8 @@ MODE.groups = (() => {
     async load() {
       BP = await j(mapi('groups'));
       units = BP.units.map(u => ({...u, uid: nextUid++})); undoStack = []; PLAN = null; notes = [];
+      const ag = BP.auto_grouped || [];
+      if (ag.length) notes = [`The finder grouped ${ag.length} set${ag.length === 1 ? '' : 's'} of loose boxes: ${ag.slice(0, 8).map(x => `${x.name} (p${x.page})`).join(', ')}${ag.length > 8 ? ', …' : ''}. "ungroup" (u) takes one apart for good.`];
       sortUnits(); selected = optUnits().length ? optUnits()[0].uid : null; schedulePlan();
     },
     pages: () => BP ? BP.pages : [],
@@ -2284,7 +2334,8 @@ MODE.groups = (() => {
       <label class="help"><input type="checkbox" id="gUnconf" ${unconfOnly ? 'checked' : ''}> unconfirmed only</label>
       <label class="help"><input type="checkbox" id="gText" ${showText ? 'checked' : ''}> text fields</label>
       <button class="btn" id="gUndo" ${undoStack.length ? '' : 'disabled'}>undo</button>
-      <button class="btn" id="gGroup" ${picked.size > 1 ? '' : 'disabled'} title="make the selected boxes one group (g)">group selected (${picked.size})</button>`,
+      <button class="btn" id="gGroup" ${picked.size > 1 ? '' : 'disabled'} title="make the selected boxes one group (g)">group selected (${picked.size})</button>
+      <button class="btn" id="gRescan" ${rescanning ? 'disabled' : ''} title="every group on this page that is not confirmed or locked: its captions read again (one call per group to the review agent with the page image, all at once; captions from the PDF\'s form data or set by hand stay), then the labeler names them all in one call with the page\'s words: a name it gives replaces only a group not yet in the blueprint and not named by hand. Nothing is saved; z undoes">${rescanning ? 'rescanning…' : 'rescan page'}</button>`,
     help: {keys: [['g', 'group the selected boxes'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
                   ['u', 'ungroup the selected group'], ['Shift+U', 'unconfirmed only on / off'], ['t', 'text fields on / off']],
            tips: ['Select boxes with Shift-click (or Cmd-click), or drag across an area of the page (Shift+drag adds an area); g or "group selected" makes them one group; Esc clears the selection.',
@@ -2292,7 +2343,7 @@ MODE.groups = (() => {
     bindBar() {
       $('#gUnconf').onchange = e => { unconfOnly = e.target.checked; panel(); };
       $('#gText').onchange = e => { showText = e.target.checked; store('gr_text', showText ? '1' : '0'); renderPages(); placeAll(); panel(); };
-      $('#gUndo').onclick = undo; $('#gGroup').onclick = groupPicked; if (BP) progress();
+      $('#gUndo').onclick = undo; $('#gGroup').onclick = groupPicked; $('#gRescan').onclick = e => rescanPage(e.currentTarget); if (BP) progress();
     },
     place() {
       for (const u of optUnits().filter(x => onPage(x))) placeUnit(u);
@@ -3244,7 +3295,9 @@ MODE.blocks = (() => {
     const fill = Object.values(pr.filled || {}).reduce((a, v) => a + v.length, 0), found = Object.values(pr.found || {}).reduce((a, v) => a + v.length, 0);
     const grew = Object.entries(pr.grew || {}).map(([t, ns]) => `${t} +${ns.length} position${ns.length === 1 ? '' : 's'}`);
     const prim = [fill ? `${fill} empty position${fill === 1 ? '' : 's'} filled` : '', grew.join(', '), found ? `${found} more cop${found === 1 ? 'y' : 'ies'} found` : ''].filter(Boolean);
-    const gs = out.groups_suggested ? ` Groups: ${out.groups_suggested} suggested on the Groups tab.` : '';
+    const gm = out.groups_made || [];
+    const gs = (gm.length ? ` Groups: ${gm.length} made first (${gm.slice(0, 6).map(x => x.name).join(', ')}${gm.length > 6 ? ', …' : ''}), new on the Groups tab; u there ungroups one.` : '')
+      + (out.groups_error ? ` Groups not made: ${out.groups_error}` : '');
     setTimeout(() => { if (gs) toast($('#toast').textContent + gs); }, 0);
     toast((prim.length ? `Your blocks: ${prim.join('; ')}. ` : '') + (g.length ? `Grids: ${g.length} (${g.slice(0, 6).join(', ')}${g.length > 6 ? ', …' : ''})${sup.length ? `, in place of blocks ${sup.slice(0, 6).join(', ')}${sup.length > 6 ? ', …' : ''}` : ''}. ` : 'No grids. ')
       + (out.types.length ? `Blocks: ${out.types.length} new block type${out.types.length === 1 ? '' : 's'} (${out.types.join(', ')}), ${out.blocks} blocks, ${out.fields} fields.`

@@ -655,22 +655,39 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
 def labeler_name(ctx: Context, p: dict, model: str = LABEL_MODEL, think: bool = True) -> Optional[str]:
     """One call to the AcroForm labeler for this proposal, with the page's printed words. `think=False`: Groups'
     button, without the model's hidden thinking (a few seconds instead of eight)."""
-    entry = {"id": 1, "page": p["page"], "rect": p["rect"],
-             "widget_type": {"text": "text", "option": "checkbox", "group": "radiobutton"}[p["kind"]]}
-    if p["kind"] == "group":
-        entry["options"] = [o.get("caption") or o["key"] for o in p["options"]]
-    w = next((w for w in ctx.widgets if w.get("path") and w["path"] == (p.get("widget") or {}).get("path")), None)
-    if w and w.get("tooltip"):
-        entry["tooltip"] = w["tooltip"]
-    doc = pymupdf.open(str(ctx.blank))
-    try:
-        words = auto_label._words_from_page(doc[p["page"] - 1])
-    finally:
-        doc.close()
+    return labeler_names(ctx, [p], model=model, think=think)[0]
+
+
+def labeler_names(ctx: Context, ps: list[dict], model: str = LABEL_MODEL, think: bool = True) -> list[Optional[str]]:
+    """The labeler's name for each proposal, in order: one call per page with that page's printed words and all of
+    its proposals ("rescan page" in Groups, Andrew 2026-10-25: the labeler names a page at a time, and seeing the
+    page's groups together keeps their names apart)."""
+    by_page: dict[int, list[int]] = {}
+    for i, p in enumerate(ps):
+        by_page.setdefault(int(p["page"]), []).append(i)
+    out: list[Optional[str]] = [None] * len(ps)
     auto_label.CALL_TAG = f"field_add/{ctx.path.stem}"
-    got = auto_label.label_page_via_llm([entry], words, model=model, think=think)
-    n = _slug((got.get(1) or "").replace(".", "_"))
-    return n or None
+    for page, idx in by_page.items():
+        entries = []
+        for n, i in enumerate(idx, 1):
+            p = ps[i]
+            entry = {"id": n, "page": page, "rect": p["rect"],
+                     "widget_type": {"text": "text", "option": "checkbox", "group": "radiobutton"}[p["kind"]]}
+            if p["kind"] == "group":
+                entry["options"] = [o.get("caption") or o["key"] for o in p["options"]]
+            w = next((w for w in ctx.widgets if w.get("path") and w["path"] == (p.get("widget") or {}).get("path")), None)
+            if w and w.get("tooltip"):
+                entry["tooltip"] = w["tooltip"]
+            entries.append(entry)
+        doc = pymupdf.open(str(ctx.blank))
+        try:
+            words = auto_label._words_from_page(doc[page - 1])
+        finally:
+            doc.close()
+        got = auto_label.label_page_via_llm(entries, words, model=model, think=think)
+        for n, i in enumerate(idx, 1):
+            out[i] = _slug((got.get(n) or "").replace(".", "_")) or None
+    return out
 
 
 # ---------------------------------------------------------------- the plan: record -> blueprint

@@ -285,13 +285,28 @@ class Blocks:
 
     def run_finders(self, bid: str) -> dict:
         """"run finders" (2026-10-23): SIA's repeated blocks as new block types; the Grids tab's finder then leaves out
-        what they hold when it next loads."""
+        what they hold when it next loads. The suggested groups first (Andrew, 2026-10-25: "make sure the finder groups
+        related ind fields instead of putting them in a single block"): made and applied as leaving Groups applies
+        them, the blocks there pointed at them (`reattach`: a group over several positions of every block becomes one),
+        then the blocks looked for, a group one box among them."""
         from petey.validate import block_types
-        out = block_types.discover(bid, hand_review._load(self.app.working(bid)))
-        try:                                     # the group suggestions too (group_finder, shown on the Groups tab)
-            out["groups_suggested"] = len((self.app.groups.detail(bid) or {}).get("suggested") or [])
-        except Exception:                        # noqa: BLE001
-            out["groups_suggested"] = 0
+        made, err = [], None
+        applied = False
+        try:
+            made = self.app.groups.make_suggested(bid)
+            # also groups the Groups tab made as it opened, waiting in its record until the tab is left
+            if made or self.app.groups.plan_for(bid)["changes"]:
+                self.app.apply_groups(bid)
+                applied = True
+        except Exception as e:                   # noqa: BLE001  the blocks still run; the groups wait in Groups
+            err = str(e)
+        bp = hand_review._load(self.app.working(bid))
+        if applied:
+            block_types.reattach(bid, bp)
+        out = block_types.discover(bid, bp)
+        out["groups_made"] = made
+        if err:
+            out["groups_error"] = err
         return out
 
     def block_rescan(self, bid: str, page: int) -> dict:
@@ -892,6 +907,10 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if (mode, what) == ("add", "labeler"):
             return self._route(lambda: {"name": field_add.labeler_name(APP.add.ctx(bid), body["proposal"],
                                                                        think=body.get("from") != "groups"),
+                                        "model": field_add.LABEL_MODEL}, bid)
+        if (mode, what) == ("add", "labeler_page"):     # "rescan page" in Groups: the page's groups in one call
+            return self._route(lambda: {"names": field_add.labeler_names(APP.add.ctx(bid), body["proposals"],
+                                                                         think=False),
                                         "model": field_add.LABEL_MODEL}, bid)
         if (mode, what) == ("add", "finder"):
             def run():

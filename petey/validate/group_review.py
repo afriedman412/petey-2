@@ -708,7 +708,9 @@ class State:
         items, units, info = current_units(bid, bp, sha)
         opt_items, base = option_items(bp)
         option_fields = {it["field"] for it in opt_items.values()}
-        # suggested groups among the loose checkboxes (group_finder, 2026-10-25): shown, never applied by themselves
+        # groups among the loose checkboxes (group_finder, 2026-10-25), made as the tab loads (Andrew: "let's have the
+        # finder groups group automatically, easy to ungroup them"): written into the record as "group them" made
+        # them, applied with the rest when Groups is left; an ungrouped one is recorded as not a group and stays apart
         from petey.validate import group_finder
         loose = {u["items"][0]: items[u["items"][0]] for u in units if len(u.get("items") or []) == 1
                  and u.get("kind") != "text" and not u.get("locked") and u.get("type") == "boolean"
@@ -718,13 +720,21 @@ class State:
         except Exception as e:                       # noqa: BLE001  the tab works without them
             suggested = []
             info = {**info, "suggest_error": str(e)}
+        made = []
+        if suggested:
+            try:
+                made = self._group(bid, bp, items, units, suggested)
+                items, units, info = current_units(bid, bp, sha)
+                suggested = []
+            except Exception as e:                   # noqa: BLE001  left as suggestions
+                made, info = [], {**info, "suggest_error": str(e)}
         return {"id": bid, "path": str(self.paths[bid]), "blank": str(blank) if blank else None, "sha": sha, "pages": pages,
                 "items": items, "units": units, "base": [{k: u[k] for k in ("name", "type", "items")} for u in base],
                 "other_names": sorted(n for n in (bp.get("fields") or {}) if n not in option_fields),
                 # each field's code, for the full field id the card shows as Review's does (2026-10-24)
                 "codes": {n: str(s["x_petey_id"]) for n, s in (bp.get("fields") or {}).items()
                           if isinstance(s, dict) and s.get("x_petey_id") is not None},
-                "suggested": suggested,
+                "suggested": suggested, "auto_grouped": made,
                 "info": info}
 
     def page_png(self, bid: str, page: int) -> Optional[bytes]:
@@ -766,6 +776,30 @@ class State:
         if e:
             self._index[bid] = e
         return {"saved": rec["updated"], "entry": e}
+
+    def make_suggested(self, bid: str) -> list[dict]:
+        """"run finders" makes the suggested groups (Andrew, 2026-10-25: "can we make sure the finder groups related
+        ind fields instead of putting them in a single block?": CMS-855B's Change / Add / Remove went into the blocks
+        as three loose boxes): loading the Groups data makes them (`detail`); the caller applies the record."""
+        return (self.detail(bid) or {}).get("auto_grouped") or []
+
+    def _group(self, bid: str, bp: dict, items: dict, units: list[dict], sug: list[dict]) -> list[dict]:
+        """The suggestions made groups in the record, as Groups' "group them" makes them (category, not confirmed:
+        new on the Groups tab). [{name, page, items, why}]."""
+        members = {i for x in sug for i in x["items"]}
+        units = [u for u in units if not (len(u["items"]) == 1 and u["items"][0] in members)]
+        taken = (set(bp.get("fields") or {}) - {items[i]["field"] for i in members}) | {u["name"] for u in units}
+        now, made = time.strftime("%Y-%m-%d %H:%M:%S"), []
+        for x in sug:
+            base = x.get("name") or f"group_p{x['page']}"
+            n, k = base, 2
+            while n in taken:
+                n, k = f"{base}_{k}", k + 1
+            taken.add(n)
+            units.append({"name": n, "type": "category", "items": list(x["items"]), "confirmed": False, "when": now})
+            made.append({"name": n, "page": x["page"], "items": len(x["items"]), "why": x["why"]})
+        self.put_units(bid, {"units": units})
+        return made
 
     def captions_for(self, bid: str, body: dict) -> dict:
         p = self.path(bid)
