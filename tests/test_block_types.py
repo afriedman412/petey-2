@@ -780,3 +780,62 @@ def test_no_field_in_a_grid_and_a_block_both(monkeypatch, tmp_path):
     mine = gc._add("t40", bp, 1, cells, "person", [])
     (t,) = [t for t in gc.listing("t40", bp) if t["id"] == mine["id"]]
     assert t["status"] == "replaced" and "BT1-1" in t["aside_why"]
+
+
+def additional_info(order):
+    """I-129S page 8's Additional Information items (2026-10-26): a page, part and item number over a text box, items
+    3-4 down the left column and 5-7 down the right, the columns' tops never level; `order` the items' order in the
+    blueprint (the PDF's widget order lists them 3, 5, 6, 4, 7). Each field's parts stored, as on the form."""
+    at = {3: (60, 342), 4: (60, 552), 5: (342, 66), 6: (342, 276), 7: (342, 486)}
+    fields, rows = {}, []
+    for k, n in enumerate(order):
+        x, y = at[n]
+        row = []
+        for j, (sub, r) in enumerate([("page_nbr", [0, 0, 54, 18]), ("part_nbr", [90, 0, 144, 18]),
+                                      ("item_nbr", [180, 0, 234, 18]), (None, [0, 24, 234, 186])]):
+            name = f"additional_information_{n}" + (f"_{sub}" if sub else "")
+            parts = {"block_prefix": "additional_information", "block_iteration": str(n)}
+            if sub:
+                parts.update(zip(("subject", "suffix"), sub.split("_")))
+            fields[name] = {"type": "string", "x_petey_id": f"8_{4 * k + j + 1}", "x_petey_identifiers": parts,
+                            "widget": {"page": 8, "widget_type": "text",
+                                       "rect": [x + r[0], y + r[1], x + r[2], y + r[3]]}}
+            row.append(f"8_{4 * k + j + 1}")
+        rows.append(row)
+    return {"fields": fields}, rows
+
+
+def test_blocks_follow_the_page_not_the_widget_order(monkeypatch, tmp_path):
+    """Andrew (2026-10-26): "for blocks and grids, the labels should follow the page not the widget order!" ... "the
+    widget order can be completely arbitrary". Columns are read down, left first; blocks in two columns that start
+    level are a layout in rows, read across (IHT400 p16: declaration 1 top right, 2 and 3 level below it). A record
+    kept in the widget order is put in the page's by `resort`."""
+    bp, rows = additional_info([3, 5, 6, 4, 7])
+    by_item = dict(zip([3, 5, 6, 4, 7], rows))
+    assert bt._sorted_blocks(bp, rows) == [by_item[n] for n in (3, 4, 5, 6, 7)]
+    decl = {"fields": {f"declaration_{n}_nm": {"type": "string", "x_petey_id": f"16_{n}",
+                                               "widget": {"page": 16, "widget_type": "text", "rect": r}}
+                       for n, r in [(1, [315, 98, 529, 120]), (2, [46, 469, 261, 491]), (3, [315, 469, 529, 491])]}}
+    assert bt._sorted_blocks(decl, [["16_3"], ["16_2"], ["16_1"]]) == [["16_1"], ["16_2"], ["16_3"]]
+    use_tmp_records(monkeypatch, tmp_path)
+    gc._save_set("t41", {"grids": [], "next": {"BT": 2}, "types": [
+        {"id": "BT1", "page": 8, "boxes": [{"code": c, "kind": "textx1"} for c in rows[0]], "blocks": rows}]})
+    assert bt.resort("t41", bp) == ["BT1"] and bt.resort("t41", bp) == []
+    assert gc.load_set("t41")["types"][0]["blocks"] == [by_item[n] for n in (3, 4, 5, 6, 7)]
+
+
+def test_a_position_left_blank_is_named_by_its_block(monkeypatch, tmp_path):
+    """je__uscis_i_129s BT4 (2026-10-26): the text box under each item's page, part and item numbers is named
+    additional_information_3, the block alone; confirming the type refused its blank position ("position 4: a
+    subject or a suffix") though the names were right (Andrew: "the bug is raising a non-issue")."""
+    use_tmp_records(monkeypatch, tmp_path)
+    bp, _ = additional_info([3, 4])
+    bt.draw("t42", bp, 8, [50, 330, 300, 535])
+    bt.draw("t42", bp, 8, [50, 540, 300, 745])
+    t = gc.load_set("t42")["types"][0]
+    assert len(t["blocks"]) == 2 and bt.wordings(bp, t)[3] == ""
+    out = bt.confirm("t42", bp, "BT1", [{"subject": "page", "suffix": "nbr"}, {"subject": "part", "suffix": "nbr"},
+                                        {"subject": "item", "suffix": "nbr"}, {}])
+    assert out["wordings"] == ["page_nbr", "part_nbr", "item_nbr", ""]
+    for code in ("8_1", "8_5"):
+        assert bt.validate_block("t42", bp, code)["ok"]

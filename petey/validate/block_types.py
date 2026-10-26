@@ -12,8 +12,8 @@ else a new type. `detect` finds a page's copies of every type; `assign` gives a 
 Names: [block prefix]_[block iteration]_[the type's wording] (`check_block`). The type's wordings, one per position,
 are confirmed by the person (`confirm`); each block's prefix and iteration are read from its names or set by hand
 (`block_parts`, `set_parts`), or come from the type's label and the block's place in the type (`set_auto`). A block is
-checked and validated against its confirmed type on its own (`validate_block`). Blocks are kept in the order the
-publisher put the widgets in the PDF (`widget_order`), top then left only without widgets.
+checked and validated against its confirmed type on its own (`validate_block`). Blocks are kept in the page's
+order, from where they sit (`_sorted_blocks`), never the PDF's widget order.
 
 Record: runs/hand_review/grids/<bid>.json "types": [{id (BT1), page, rect, boxes: [{code, dx, dy, w, h, kind}],
 blocks: [[code or None, ...] in template order], label, auto, wordings, confirmed, parts, keep, when}].
@@ -118,35 +118,6 @@ def _new_type_id(rec: dict) -> str:
     return f"BT{n}"
 
 
-def widget_order(bp: dict) -> dict[str, tuple]:
-    """{field name: (page, place)}: where the field's first widget sits in its page's list of widgets, the order the
-    publisher put in the PDF (Andrew, 2026-10-21: "we need to defer to the order hard-coded"; I-130 page 12, tab order
-    /S, lists items 3a, 4a, 5a, 6a, 7a down its two columns where top-then-left reads 5, 3, 6, 4, 7). Empty without
-    the blank (a flat form has no widgets: top then left)."""
-    import pymupdf
-    from petey.validate.retype import resolve_blank
-    blank = resolve_blank(bp)
-    if not blank or not blank.exists():
-        return {}
-    at: dict[tuple, tuple] = {}
-    doc = pymupdf.open(str(blank))
-    try:
-        for i, pg in enumerate(doc, 1):
-            for k, w in enumerate(pg.widgets() or []):
-                at.setdefault((i, w.field_name), (i, k))
-    finally:
-        doc.close()
-    out = {}
-    for n, spec in (bp.get("fields") or {}).items():
-        if not isinstance(spec, dict):
-            continue
-        ws = [spec["widget"]] if spec.get("widget") else list((spec.get("widgets") or {}).values())
-        places = [at[(w.get("page"), w.get("path"))] for w in ws if (w.get("page"), w.get("path")) in at]
-        if places:
-            out[n] = min(places)
-    return out
-
-
 def said(kind: str) -> str:
     """textx1 -> a text box; checkboxx3 -> a group of 3 checkboxes."""
     what, _, n = kind.rpartition("x")
@@ -208,15 +179,56 @@ def _pages(bp: dict) -> dict[str, int]:
 
 
 def _sorted_blocks(bp: dict, blocks: list[list[str]]) -> list[list[str]]:
-    """Blocks in the PDF's widget order (each block's first box); top then left without widgets."""
-    by_code = {str(sp.get("x_petey_id")): n for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict)}
-    wo, at = widget_order(bp), {b["code"]: b for b in _boxes(bp)}
-    def key(b):
-        if by_code.get(_bid(b)) in wo:
-            return (0,) + wo[by_code[_bid(b)]]
-        r = at.get(_bid(b))
-        return (1, r["page"], round(r["rect"][1] / 2), r["rect"][0]) if r else (2,)
-    return sorted(blocks, key=key)
+    """Blocks in the page's order, from where they sit, never the PDF's widget order (Andrew, 2026-10-26: "the labels
+    should follow the page not the widget order"; "the widget order can be completely arbitrary": I-129S page 8 lists
+    its items 3, 5, 6, 4, 7). Page by page; on a page the blocks whose spans across overlap make a column. Columns
+    are read down, left column first (I-129S and I-130's items 3-4 left, 5-7 right), unless blocks in two columns
+    start level, a layout in rows read across then down (IHT400 p16's declarations 1 | blank, 2 | 3). A block with no
+    box on the form goes last."""
+    at = {b["code"]: b for b in _boxes(bp)}
+    box, rest = {}, []
+    for i, b in enumerate(blocks):
+        rs = [at[c] for c in b if c in at]
+        if not rs:
+            rest.append(i)
+            continue
+        box[i] = (rs[0]["page"], min(r["rect"][0] for r in rs), min(r["rect"][1] for r in rs),
+                  max(r["rect"][2] for r in rs))
+    out = []
+    for page in sorted({x[0] for x in box.values()}):
+        idx = sorted((i for i in box if box[i][0] == page), key=lambda i: box[i][1])
+        cols: list[list[int]] = []
+        for i in idx:                       # by left edge: a block joins the column it overlaps (2 pt slack)
+            hit = [c for c in cols if any(box[i][1] < box[j][3] - 2 and box[j][1] < box[i][3] - 2 for j in c)]
+            if not hit:
+                cols.append([i])
+                continue
+            for c in hit[1:]:               # a wide block joins two columns
+                hit[0] += c
+                cols.remove(c)
+            hit[0].append(i)
+        level = lambda i: round(box[i][2] / 6)          # noqa: E731  tops within a few points start level
+        rows = any(level(i) == level(j) for a, ca in enumerate(cols) for cb in cols[a + 1:] for i in ca for j in cb)
+        if len(cols) == 1 or rows:
+            out += sorted(idx, key=lambda i: (level(i), box[i][1]))
+        else:
+            out += [i for c in sorted(cols, key=lambda c: min(box[i][1] for i in c))
+                    for i in sorted(c, key=lambda i: box[i][2])]
+    return [blocks[i] for i in out + rest]
+
+
+def resort(bid: str, bp: dict) -> list[str]:
+    """Every block type's blocks put in the page's order (`_sorted_blocks`), saved when one moved: the types that
+    did. For records kept in the widget order before 2026-10-26."""
+    rec, moved = gc.load_set(bid), []
+    for t in rec.get("types") or []:
+        new = _sorted_blocks(bp, t["blocks"])
+        if new != t["blocks"]:
+            t["blocks"] = new
+            moved.append(t["id"])
+    if moved:
+        gc._save_set(bid, rec)
+    return moved
 
 
 def _drop_blocks(rec: dict, bp: dict, codes: set) -> list[str]:
@@ -605,7 +617,7 @@ def _block(rec: dict, code: str):
 def listing(bp: dict, rec: dict, verdicts: Optional[dict] = None) -> list[dict]:
     """The form's block types for the page: [{id, label, auto, page, boxes, wordings, confirmed, blocks: [{n, code,
     page, bbox, template, names, cells, prefix, iteration, differs, kept, validated}]}], each block numbered in the
-    type's order (the PDF's widget order), `code` its first box (how the page names it)."""
+    type's order (the page's, `_sorted_blocks`), `code` its first box (how the page names it)."""
     boxes = {b["code"]: b for b in _boxes(bp)}
     names = {str(sp.get("x_petey_id")): n for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict)}
     out = []
@@ -1293,7 +1305,7 @@ def block_parts(bp: dict, t: dict) -> dict[str, dict]:
     """{block's first code: {prefix, iteration}} for every block of the type (Andrew, 2026-10-21: "for each block
     type [field_name]_[block iteration] and for each block: [prefix] ... beneficiary_prior_spouse_1_first_nm"): what
     the person set on the block, else the block's start split into its prefix and a last number. Blocks sharing a
-    prefix and carrying no number are numbered 1, 2, ... in the type's order (the PDF's widget order), skipping the
+    prefix and carrying no number are numbered 1, 2, ... in the type's order (the page's, `_sorted_blocks`), skipping the
     numbers the others carry; a block alone with its prefix has no number unless one is typed for it (the naming
     standard, 2026-10-24, petey/naming.py); '-' set by hand is no iteration."""
     names = _names(bp)
@@ -1430,7 +1442,9 @@ def set_parts(bid: str, code: str, prefix: Optional[str], iteration: Optional[st
 
 def confirm(bid: str, bp: dict, tid: str, words: list) -> dict:
     """The type's positions as the person confirmed them, each its parts ({subject, suffix, part}, as a field's) or
-    a wording read as a name is: one per position, each a subject or a suffix, no two alike, words only."""
+    a wording read as a name is: one per position, no two alike, words only. A position left blank is named by its
+    block alone (je__uscis_i_129s BT4, 2026-10-26: additional_information_1, the box under its page, part and item
+    numbers; Andrew: "it labels correctly, so the bug is raising a non-issue"); a part needs a subject or a suffix."""
     rec = gc.load_set(bid)
     t = next((x for x in rec.get("types") or [] if x["id"] == tid), None)
     if t is None:
@@ -1439,8 +1453,8 @@ def confirm(bid: str, bp: dict, tid: str, words: list) -> dict:
     if len(ss) != len(t["boxes"]):
         raise ValueError("one set of parts per position")
     for k, s in enumerate(ss, 1):
-        if not (s.get("subject") or s.get("suffix")):
-            raise ValueError(f"position {k}: a subject or a suffix")
+        if s.get("part") and not (s.get("subject") or s.get("suffix")):
+            raise ValueError(f"position {k}: a part needs a subject or a suffix")
         bad = [x for x in s.values() if not re.fullmatch(r"[a-z0-9]+(_[a-z0-9]+)*", x)]
         if bad:
             raise ValueError(f"position {k}: {bad[0]!r}: lower case words joined by _")
