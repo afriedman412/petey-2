@@ -27,8 +27,11 @@ from __future__ import annotations
 import argparse
 import http.server
 import json
+import mimetypes
 import os
+import shutil
 import socketserver
+import subprocess
 import sys
 import threading
 import time
@@ -44,6 +47,12 @@ from petey.validate import draft, field_add, group_review, hand_review, run_audi
 from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
+# the page in React (review_app/, 2026-10-26, Andrew: "let's build the current app in react ... I am spending a lot of
+# time tracking down bugs that I am pretty sure react wouldn't have"): built into review_app/dist and served at /next/
+# beside the old page at / until it does everything the old one does
+APP_DIR = Path(__file__).with_name("review_app")
+APP_DIST = APP_DIR / "dist"
+APP_SOURCES = ("src", "index.html", "package.json", "package-lock.json", "vite.config.ts", "tsconfig.json")
 DPI = 144                      # option boxes are 8-10 pt; at 110 dpi (the old hand review) they are 12 px targets
 MODES = ("review", "groups", "add", "grids", "blocks", "audit")
 
@@ -769,6 +778,50 @@ APP: Optional[App] = None
 SERVED: dict = {}                       # the port and mode serve() was started with, for the restart button
 
 
+def app_stale(app_dir: Path = APP_DIR) -> bool:
+    """The built page is missing, or older than a file of its code."""
+    built = app_dir / "dist" / "index.html"
+    if not built.exists():
+        return True
+    when = built.stat().st_mtime
+    for name in APP_SOURCES:
+        src = app_dir / name
+        files = src.rglob("*") if src.is_dir() else [src]
+        if any(f.is_file() and f.stat().st_mtime > when for f in files):
+            return True
+    return False
+
+
+def build_app(app_dir: Path = APP_DIR) -> str:
+    """Build the React page when its code changed since the last build (the server's start and the reboot button), so
+    there is no build step to remember. Never fatal: without node, or with a failed build, the old page at / still
+    serves and /next/ says why."""
+    if not app_stale(app_dir):
+        return "up to date"
+    npm = shutil.which("npm")
+    if not npm:
+        return "not built: npm not found (install node to build review_app)"
+    t0 = time.time()
+    try:
+        if not (app_dir / "node_modules").exists():
+            subprocess.run([npm, "ci", "--no-audit", "--no-fund"], cwd=app_dir, check=True, capture_output=True, text=True)
+        subprocess.run([npm, "run", "build"], cwd=app_dir, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        tail = "\n".join((e.stdout + e.stderr).strip().splitlines()[-15:])
+        return f"build failed:\n{tail}"
+    return f"built in {time.time() - t0:.1f}s"
+
+
+def app_file(path: str, dist: Path = APP_DIST) -> Optional[Path]:
+    """The file /next/<path> serves: a built asset, else the page itself (the page reads its own #links)."""
+    rel = path[len("/next"):].lstrip("/")
+    f = (dist / rel).resolve()
+    if rel and f.is_file() and f.is_relative_to(dist.resolve()):
+        return f
+    page = dist / "index.html"
+    return page if page.exists() else None
+
+
 def restart() -> None:
     """The page's reboot button: replace this process with a fresh one on the same port, so edited code (this
     file, the modes' modules, the page) loads without going back to the terminal. The listening socket is not
@@ -819,6 +872,12 @@ class Handler(http.server.BaseHTTPRequestHandler):
         parts = self._parts()
         if path in ("/", "/index.html"):
             return self._send(HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+        if path == "/next" or path.startswith("/next/"):
+            f = app_file(path)
+            if f is None:
+                return self._send(f"The React page is not built: {SERVED.get('app_build', '')}".encode(), "text/plain", 503)
+            ctype = mimetypes.guess_type(f.name)[0] or "application/octet-stream"
+            return self._send(f.read_bytes(), ctype + ("; charset=utf-8" if ctype.startswith("text/") or ctype.endswith("javascript") else ""))
         if path == "/api/blueprints":
             return self._json(APP.listing())
         if path == "/api/audit-batch":
@@ -1023,6 +1082,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
 def serve(port: int = 5005, mode: str = "review", open_browser: bool = True) -> int:
     global APP
     SERVED.update(port=port, mode=mode)
+    SERVED["app_build"] = build_app()
+    print(f"review_app (/next/): {SERVED['app_build']}")
     APP = App()
     print(f"blueprint review: {len(APP.paths)} blueprints")
     t0 = time.time()
