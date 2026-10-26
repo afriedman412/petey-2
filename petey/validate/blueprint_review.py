@@ -240,8 +240,11 @@ class Blocks:
         # the fields in no block, drawn on the page to be dragged onto one (2026-10-22)
         loose = [{"code": x["code"], "name": x["name"], "page": x["page"], "rect": x["rect"], "kind": block_types.said(x["kind"])}
                  for x in block_types._boxes(bp) if x["code"] not in held]
+        # every field's code by its name: a name a block's rename would take, said as the two fields' ids (Andrew,
+        # 2026-10-26: "[field_id] and [field_id] would both be [field_name] in red under the validate button")
+        codes = {n: str(sp["x_petey_id"]) for n, sp in (bp.get("fields") or {}).items() if isinstance(sp, dict) and sp.get("x_petey_id")}
         return {"id": bid, "path": str(self.app.paths[bid]), "pages": page_sizes(bp), "sha": hand_review._sha(p),
-                "types": block_types.listing(bp, rec, vs), "loose": loose}
+                "types": block_types.listing(bp, rec, vs), "loose": loose, "codes": codes}
 
     def _apply(self, bid: str):
         return _apply_as_claude(self.app, bid)

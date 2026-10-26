@@ -107,3 +107,59 @@ def test_a_name_edited_in_the_block_window_saves_its_parts_then_renames():
     # one block: no warning, renamed without asking
     assert out["one"] == {"lit": 1, "warn": 0, "preview": "→ child_1_kid_nm", "dialogs": 0,
                           "sent": [["confirm", {"type": "BT1", "slots": slots}], ["tfix", {"type": "BT1"}]]}
+
+
+CLASH_RUN = """
+import base64, json, sys
+from pathlib import Path
+from playwright.sync_api import sync_playwright
+dist, chrome = Path(sys.argv[1]), sys.argv[2]
+api = json.loads(sys.stdin.read())
+def route(r):
+    path = r.request.url.split("://", 1)[1].split("/", 1)[1].split("#")[0].split("?")[0]
+    if path.startswith("next"):
+        f = dist / path[len("next/"):]
+        return r.fulfill(path=str(f if f.is_file() else dist / "index.html"))
+    if "/png/" in path:
+        return r.fulfill(body=base64.b64decode(api["png"]), content_type="image/png")
+    if path.endswith("/sha"):
+        return r.fulfill(json={"sha": "1"})
+    if path.startswith("api/overlay/"):
+        return r.fulfill(json={"fields": [], "grids": [], "blocks": []})
+    if path in api:
+        return r.fulfill(json=api[path])
+    return r.fulfill(status=404, body="not mocked: " + path)
+with sync_playwright() as p:
+    b = p.chromium.launch(executable_path=chrome)
+    pg = b.new_page(viewport={"width": 1400, "height": 900})
+    errs = []
+    pg.on("pageerror", lambda e: errs.append(str(e)))
+    pg.route("**/*", route)
+    pg.goto("http://review.test/next/#blocks/two/BT1-1")
+    pg.wait_for_selector(".btopen")
+    lines = pg.locator(".btopen .warn > div").all_inner_texts()
+    links = pg.locator(".btopen .warn a").evaluate_all("els => els.map(e => e.getAttribute('href'))")
+    b.close()
+print(json.dumps({"lines": lines, "links": links, "errors": errs}))
+"""
+
+
+def test_names_held_by_another_field_are_said_under_the_validate_button():
+    if not PW.exists() or not Path(CHROME).exists():
+        pytest.skip("Playwright venv or Chrome not installed")
+    built = br.build_app()
+    assert not built.startswith("build failed"), built
+    data = _blocks("two", 2)
+    first = data["types"][0]["blocks"][0]
+    first["differs"] = [{"pos": 1, "name": "child_1_nm", "want": "kid_1_nm", "held": "BT2-1"},
+                        {"pos": 2, "name": "child_1_birth_dt", "want": "kid_1_birth_dt"}]          # not held: no line
+    data["codes"] = {"child_1_nm": "1_7", "kid_1_nm": "2_3"}
+    api = {"api/blueprints": [{"id": "two", "form": "two", "fields": 4, "accepted": 0, "flagged": 0, "source": "lib"}],
+           "api/blocks/two": data, "png": PNG}
+    res = subprocess.run([str(PW), "-c", CLASH_RUN, str(br.APP_DIST), CHROME], input=json.dumps(api),
+                         capture_output=True, text=True, timeout=120)
+    assert res.returncode == 0, res.stderr
+    out = json.loads(res.stdout.strip().splitlines()[-1])
+    assert out["errors"] == []
+    assert out["lines"] == ["two_1_7 and two_2_3 would both be kid_1_nm"]
+    assert out["links"] == ["#review/two/1_7", "#review/two/2_3"]

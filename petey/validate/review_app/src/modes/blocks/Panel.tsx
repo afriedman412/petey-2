@@ -122,8 +122,31 @@ function OpenBlock({ y, b }: { y: BType; b: Block }) {
         {b.names.some(n => n == null) && <> <button className="btn mini" title="fitted again from the boxes in and round it (place, size and label)" onClick={e => { e.stopPropagation(); blockAssign(b.code, y.id); }}>re-fit to {y.id}</button></>}
         {(GD?.types || []).some(x => x.id !== y.id) && <> <select value="" onClick={stop} onKeyDown={stop} onChange={e => { if (e.target.value) blockAssign(b.code, e.target.value); }}>
           <option value="">assign to type…</option><TypeOptions not={y.id} first={closestFor[b.code]} /></select></>}</div>
+      <Clashes b={b} />
       <div className="help">Its type's parts, and every block of {y.id} side by side: {y.id} below.</div>
     </div>
+  );
+}
+
+/** A field's id (file_code), a link to it in Review. */
+function FieldLink({ code }: { code: string }) {
+  const bid = useApp(st => st.bid);
+  return <a href={`#review/${encodeURIComponent(bid || '')}/${encodeURIComponent(code)}`} title="open this field in Review">{ref(code)}</a>;
+}
+
+// the renames this block's type wants that another field's name stands in the way of, under the validate button in
+// red (Andrew, 2026-10-26: "[field_id] and [field_id] would both be [field_name]"; validation said nothing of them)
+function Clashes({ b }: { b: Block }) {
+  const codes = useBlocks(st => st.GD)?.codes || {};
+  const held = (b.differs || []).filter(d => d.held && !(b.kept || []).includes(d.pos));
+  if (!held.length) return null;
+  return (
+    <div className="warn">{held.map(d => {
+      const mine = codes[d.name], theirs = codes[d.want];
+      return (
+        <div key={d.pos}>{mine ? <FieldLink code={mine} /> : <code>{d.name}</code>} and{' '}
+          {theirs ? <FieldLink code={theirs} /> : d.held === 'no block' ? 'a field in no block' : `a field of ${d.held}`} would both be <code>{d.want}</code></div>);
+    })}</div>
   );
 }
 

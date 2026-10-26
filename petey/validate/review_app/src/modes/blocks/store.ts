@@ -24,7 +24,11 @@ export interface BType {
   blocks: Block[]; wordings: string[]; slots?: Slot[]; confirmed?: boolean | null;
 }
 export interface Loose { code: string; name: string; page: number; rect: Rect; kind: string }
-export interface BlocksData { id: string; path: string; pages: PageInfo[]; sha?: string; types: BType[]; loose: Loose[] }
+export interface BlocksData {
+  id: string; path: string; pages: PageInfo[]; sha?: string; types: BType[]; loose: Loose[];
+  /** every field's code by its name */
+  codes?: Record<string, string>;
+}
 
 export const PKEYS = ['subject', 'suffix', 'iteration', 'part'] as const;   // block_types.SLOT_KEYS: a position's own number too (2026-10-25)
 export type PKey = (typeof PKEYS)[number];
