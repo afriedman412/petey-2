@@ -32,38 +32,47 @@ fields:
     x_petey_identifiers:
       subject: calendar
       suffix: yr
-  void_ind:
-    x_petey_id: '1_1'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 187.1999969482422
-      - 25.0
-      - 196.1999969482422
-      - 34.0
-      widget_type: checkbox
-      path: topmostSubform[0].CopyA[0].c1_1[0]
+  void_or_corrected:
+    x_petey_id: '1_38'
+    type: category
+    values:
+    - void_ind
+    - corrected_ind
+    widgets:
+      void_ind:
+        page: 1
+        rect:
+        - 187.1999969482422
+        - 25.0
+        - 196.1999969482422
+        - 34.0
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].c1_1[0]
+        on_state: '1'
+        caption: VOID
+        x_petey_caption_source: page_text
+      corrected_ind:
+        page: 1
+        rect:
+        - 244.8000030517578
+        - 25.0
+        - 253.8000030517578
+        - 34.0
+        widget_type: checkbox
+        path: topmostSubform[0].CopyA[0].c1_1[1]
+        on_state: '2'
+        caption: CORRECTED
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 22:34:17'
+      from:
+      - void_ind
+      - corrected_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: void
-      suffix: ind
-  corrected_ind:
-    x_petey_id: '1_2'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 244.8000030517578
-      - 25.0
-      - 253.8000030517578
-      - 34.0
-      widget_type: checkbox
-      path: topmostSubform[0].CopyA[0].c1_1[1]
-    x_petey_identifiers:
-      subject: corrected
-      suffix: ind
+      subject: void_or_corrected
   payer_business_nm:
     x_petey_id: '1_3'
     type: string

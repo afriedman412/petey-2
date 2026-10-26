@@ -170,8 +170,7 @@ fields:
   postal_cd:
     x_petey_id: '1_11'
     type: string
-    semantic_type: zip
-    pattern: ^\d{5}(-\d{4})?$
+    semantic_type: ca_postal_code
     widget:
       page: 1
       rect:
@@ -185,6 +184,25 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    pattern: ^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$
+    x_petey_hand_edit:
+      when: '2026-10-20 19:16:37'
+      from:
+        name: postal_cd
+        type: string
+        semantic_type: zip
+        pattern: ^\d{5}(-\d{4})?$
+      to:
+        name: postal_cd
+        type: string
+        semantic_type: ca_postal_code
+        pattern: ^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$
+      record: runs/claude_pass/proposals/lib__cra-t1.json
+      by: claude
+      kind: type
+      why: 'a Canadian postal code (A1A 1A1); the zip pattern is the US ZIP (Andrew,
+        2026-10-20: non-US patterns)'
+      asked_by: andrew
     x_petey_identifiers:
       subject: postal
       suffix: cd
@@ -1958,6 +1976,22 @@ fields:
     x_petey_identifiers:
       subject: line_34_net_income_carry_forward
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_34_net_income_carry_forward_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_income_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 34 box carries total income from line 33 of the previous page.
   pension_adjustment_20600_amt:
     x_petey_id: '4_2'
     type: number
@@ -2500,6 +2534,23 @@ fields:
     x_petey_identifiers:
       subject: net_income_before_adjustments_23400
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: net_income_before_adjustments_23400_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_deductions_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 53, the total deductions carried from line 23300, not
+        line 23400.
   social_benefits_repayment_23500_amt:
     x_petey_id: '4_27'
     type: number
@@ -2522,6 +2573,22 @@ fields:
     x_petey_identifiers:
       subject: social_benefits_repayment_23500
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: social_benefits_repayment_23500_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: net_income_before_adjustments_23400_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box sits on line 23400, Net income before adjustments.
   social_benefits_repayment_23500_deduction_amt:
     x_petey_id: '4_28'
     type: number
@@ -2549,6 +2616,22 @@ fields:
     x_petey_identifiers:
       subject: social_benefits_repayment_23500_deduction
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: social_benefits_repayment_23500_deduction_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: social_benefits_repayment_23500_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 23500, Social benefits repayment.
   net_income_23600_amt:
     x_petey_id: '4_29'
     type: number
@@ -2593,6 +2676,22 @@ fields:
     x_petey_identifiers:
       subject: line_57_net_income
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_57_net_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: net_income_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 57 box carries net income from line 56 of the previous page.
   canadian_armed_forces_deduction_amt:
     x_petey_id: '5_2'
     type: number
@@ -2871,6 +2970,22 @@ fields:
     x_petey_identifiers:
       subject: line_68_deduction
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_68_deduction_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_deductions_lines_58_to_67_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 68 box carries the total of lines 58 to 67 from line 25700.
   taxable_income_amt:
     x_petey_id: '5_15'
     type: number
@@ -3554,6 +3669,22 @@ fields:
     x_petey_identifiers:
       subject: line_84_carried_forward
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_84_carried_forward_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_non_refundable_credits_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 85 box carries the credits total from line 84.
   base_cpp_qpp_employment_amt:
     x_petey_id: '6_2'
     type: number
@@ -3814,6 +3945,22 @@ fields:
     x_petey_identifiers:
       subject: pension_income
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: pension_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: lines_86_to_95_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right-hand box on line 96 repeats the total of lines 86 to 95.
   lines_85_96_97_total_amt:
     x_petey_id: '6_14'
     type: number
@@ -3836,6 +3983,22 @@ fields:
     x_petey_identifiers:
       subject: lines_85_96_97_total
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: lines_85_96_97_total_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: pension_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 31400, Pension income amount.
   disability_amt_self:
     x_petey_id: '6_15'
     type: number
@@ -3856,6 +4019,22 @@ fields:
     - money
     x_petey_identifiers:
       subject: disability_amt_self
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: disability_amt_self
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: lines_85_96_97_total_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 98, Add lines 85, 96, and 97.
   disability_amt_transferred_from_dependant:
     x_petey_id: '6_16'
     type: number
@@ -3877,6 +4056,22 @@ fields:
     - money
     x_petey_identifiers:
       subject: disability_amt_transferred_from_dependant
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: disability_amt_transferred_from_dependant
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: disability_amt_self
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 31600, Disability amount for self.
   lines_98_to_100_total_amt:
     x_petey_id: '6_17'
     type: number
@@ -3899,6 +4094,22 @@ fields:
     x_petey_identifiers:
       subject: lines_98_to_100_total
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: lines_98_to_100_total_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: disability_amt_transferred_from_dependant
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 31800, Disability amount transferred from a dependant.
   student_loan_interest_amt:
     x_petey_id: '6_18'
     type: number
@@ -3920,6 +4131,22 @@ fields:
     x_petey_identifiers:
       subject: student_loan_interest
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: student_loan_interest_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: lines_98_to_100_total_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 101, Add lines 98 to 100.
   federal_tuition_amt:
     x_petey_id: '6_19'
     type: number
@@ -3942,6 +4169,22 @@ fields:
     x_petey_identifiers:
       subject: federal_tuition
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: federal_tuition_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: student_loan_interest_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 31900, Interest paid on your student loans.
   tuition_transferred_from_child_amt:
     x_petey_id: '6_20'
     type: number
@@ -3964,6 +4207,22 @@ fields:
     x_petey_identifiers:
       subject: tuition_transferred_from_child
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: tuition_transferred_from_child_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: federal_tuition_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 32300, Your federal tuition amount.
   amounts_transferred_from_spouse_amt:
     x_petey_id: '6_21'
     type: number
@@ -3986,6 +4245,22 @@ fields:
     x_petey_identifiers:
       subject: amounts_transferred_from_spouse
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: amounts_transferred_from_spouse_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: tuition_transferred_from_child_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 32400, Tuition amount transferred from a child or grandchild.
   lines_101_to_105_total_amt:
     x_petey_id: '6_22'
     type: number
@@ -4008,6 +4283,23 @@ fields:
     x_petey_identifiers:
       subject: lines_101_to_105_total
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: lines_101_to_105_total_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: amounts_transferred_from_spouse_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 32600, Amounts transferred from your spouse or common-law
+        partner.
   lines_101_to_105_carried_amt:
     x_petey_id: '6_23'
     type: number
@@ -4029,6 +4321,22 @@ fields:
     x_petey_identifiers:
       subject: lines_101_to_105_carried
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: lines_101_to_105_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: lines_101_to_105_total_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 106, Add lines 101 to 105.
   medical_expenses_self_spouse_dependant_amt:
     x_petey_id: '6_24'
     type: number
@@ -4200,10 +4508,27 @@ fields:
     x_petey_identifiers:
       subject: total_non_refundable_credit_base
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: total_non_refundable_credit_base_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: medical_expenses_total_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right-hand box on line 112 repeats the medical expenses total from line
+        33200.
   federal_non_refundable_tax_credit_rate_pct:
     x_petey_id: '6_32'
     type: number
-    semantic_type: percent
+    semantic_type: money
     widget:
       page: 6
       rect:
@@ -4220,6 +4545,23 @@ fields:
     x_petey_identifiers:
       subject: federal_non_refundable_tax_credit_rate
       suffix: pct
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: federal_non_refundable_tax_credit_rate_pct
+        type: number
+        semantic_type: percent
+        pattern: null
+      to:
+        name: total_non_refundable_credit_base_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 33500, line 106 plus line 112, a money amount, not the
+        14.5% rate (which is preprinted).
   donations_and_gifts_amt:
     x_petey_id: '6_33'
     type: number
@@ -4242,6 +4584,22 @@ fields:
     x_petey_identifiers:
       subject: donations_and_gifts
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: donations_and_gifts_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: non_refundable_credits_at_rate_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 33800, line 113 multiplied by the rate on line 114.
   top_up_tax_credit_amt:
     x_petey_id: '6_34'
     type: number
@@ -4263,6 +4621,22 @@ fields:
     x_petey_identifiers:
       subject: top_up_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: top_up_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: donations_and_gifts_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 34900, Donations and gifts.
   total_federal_non_refundable_tax_credits_amt:
     x_petey_id: '6_35'
     type: number
@@ -4284,6 +4658,22 @@ fields:
     x_petey_identifiers:
       subject: total_federal_non_refundable_tax_credits
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: total_federal_non_refundable_tax_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: top_up_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 34990, Top-up tax credit.
   line_76_amt:
     x_petey_id: '7_1'
     type: number
@@ -4305,6 +4695,22 @@ fields:
     x_petey_identifiers:
       subject: line_76
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_76_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: federal_tax_on_taxable_income_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 119 box carries federal tax on taxable income from line 76.
   federal_tax_on_split_income_amt:
     x_petey_id: '7_2'
     type: number
@@ -4369,6 +4775,23 @@ fields:
     x_petey_identifiers:
       subject: line_35000
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_35000_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_federal_non_refundable_tax_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 122 box carries the total federal non-refundable tax credits from
+        line 35000.
   federal_dividend_tax_credit_amt:
     x_petey_id: '7_5'
     type: number
@@ -4453,6 +4876,22 @@ fields:
     x_petey_identifiers:
       subject: basic_federal_tax
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: basic_federal_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: add_lines_122_to_124_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right-hand box on line 125 repeats the total of lines 122 to 124.
   federal_surtax_on_income_earned_outside_canada_amt:
     x_petey_id: '7_9'
     type: number
@@ -4475,6 +4914,22 @@ fields:
     x_petey_identifiers:
       subject: federal_surtax_on_income_earned_outside_canada
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: federal_surtax_on_income_earned_outside_canada_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: basic_federal_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 42900, Basic federal tax.
   line_126_plus_line_127_amt:
     x_petey_id: '7_10'
     type: number
@@ -4497,6 +4952,22 @@ fields:
     x_petey_identifiers:
       subject: line_126_plus_line_127
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_126_plus_line_127_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: federal_surtax_on_income_earned_outside_canada_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 127, Federal surtax on income earned outside Canada.
   federal_foreign_tax_credit_amt:
     x_petey_id: '7_11'
     type: number
@@ -4518,6 +4989,22 @@ fields:
     x_petey_identifiers:
       subject: federal_foreign_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: federal_foreign_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_126_plus_line_127_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 128, line 126 plus line 127.
   line_128_minus_line_129_amt:
     x_petey_id: '7_12'
     type: number
@@ -4539,6 +5026,22 @@ fields:
     x_petey_identifiers:
       subject: line_128_minus_line_129
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_128_minus_line_129_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: federal_foreign_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 40500, Federal foreign tax credit.
   recapture_of_investment_tax_credit_amt:
     x_petey_id: '7_13'
     type: number
@@ -4560,6 +5063,22 @@ fields:
     x_petey_identifiers:
       subject: recapture_of_investment_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: recapture_of_investment_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_128_minus_line_129_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 130, line 128 minus line 129.
   line_130_plus_line_131_amt:
     x_petey_id: '7_14'
     type: number
@@ -4581,6 +5100,22 @@ fields:
     x_petey_identifiers:
       subject: line_130_plus_line_131
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_130_plus_line_131_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: recapture_of_investment_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 131, Recapture of investment tax credit.
   federal_logging_tax_credit_amt:
     x_petey_id: '7_15'
     type: number
@@ -4602,6 +5137,22 @@ fields:
     x_petey_identifiers:
       subject: federal_logging_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: federal_logging_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_130_plus_line_131_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 132, line 130 plus line 131.
   federal_tax_amt:
     x_petey_id: '7_16'
     type: number
@@ -4623,6 +5174,22 @@ fields:
     x_petey_identifiers:
       subject: federal_tax
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: federal_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: federal_logging_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 133, Federal logging tax credit.
   federal_tax_line_40600_amt:
     x_petey_id: '7_17'
     type: number
@@ -4645,6 +5212,22 @@ fields:
     x_petey_identifiers:
       subject: federal_tax_line_40600
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: federal_tax_line_40600_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: federal_tax_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: This box is line 40600, Federal tax.
   total_federal_political_contributions_amt:
     x_petey_id: '7_19'
     type: number
@@ -4901,6 +5484,22 @@ fields:
     x_petey_identifiers:
       subject: line_42000
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_42000_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: net_federal_tax_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 143 box carries net federal tax from line 42000.
   cpp_contributions_payable_self_employment_amt:
     x_petey_id: '7_30'
     type: number
@@ -5032,6 +5631,22 @@ fields:
     x_petey_identifiers:
       subject: line_149
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_149_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_payable_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Line 149 box carries total payable from line 148.
   line_150_total_income_tax_deducted_amt:
     x_petey_id: '8_2'
     type: number
@@ -5054,6 +5669,22 @@ fields:
     x_petey_identifiers:
       subject: line_150_total_income_tax_deducted
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_150_total_income_tax_deducted_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_income_tax_deducted_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Total income tax deducted; drop the bare line number.
   line_151_refundable_quebec_abatement_amt:
     x_petey_id: '8_3'
     type: number
@@ -5075,6 +5706,22 @@ fields:
     x_petey_identifiers:
       subject: line_151_refundable_quebec_abatement
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_151_refundable_quebec_abatement_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: refundable_quebec_abatement_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Refundable Quebec abatement.
   line_152_cpp_qpp_overpayment_amt:
     x_petey_id: '8_4'
     type: number
@@ -5097,6 +5744,22 @@ fields:
     x_petey_identifiers:
       subject: line_152_cpp_qpp_overpayment
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_152_cpp_qpp_overpayment_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: cpp_qpp_overpayment_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is CPP or QPP overpayment.
   line_153_ei_overpayment_amt:
     x_petey_id: '8_5'
     type: number
@@ -5118,6 +5781,22 @@ fields:
     x_petey_identifiers:
       subject: line_153_ei_overpayment
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_153_ei_overpayment_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ei_overpayment_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Employment insurance overpayment.
   line_154_refundable_medical_expense_supplement_amt:
     x_petey_id: '8_6'
     type: number
@@ -5140,6 +5819,22 @@ fields:
     x_petey_identifiers:
       subject: line_154_refundable_medical_expense_supplement
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_154_refundable_medical_expense_supplement_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: refundable_medical_expense_supplement_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Refundable medical expense supplement.
   line_155_canada_workers_benefit_amt:
     x_petey_id: '8_7'
     type: number
@@ -5161,6 +5856,22 @@ fields:
     x_petey_identifiers:
       subject: line_155_canada_workers_benefit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_155_canada_workers_benefit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: canada_workers_benefit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Canada workers benefit.
   line_156_canada_training_credit_amt:
     x_petey_id: '8_8'
     type: number
@@ -5182,6 +5893,22 @@ fields:
     x_petey_identifiers:
       subject: line_156_canada_training_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_156_canada_training_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: canada_training_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Canada training credit.
   line_157_mhrtc_amt:
     x_petey_id: '8_9'
     type: number
@@ -5204,6 +5931,22 @@ fields:
     x_petey_identifiers:
       subject: line_157_mhrtc
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_157_mhrtc_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: multigenerational_home_renovation_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Multigenerational home renovation tax credit.
   line_158_refund_of_investment_tax_credit_amt:
     x_petey_id: '8_10'
     type: number
@@ -5226,6 +5969,22 @@ fields:
     x_petey_identifiers:
       subject: line_158_refund_of_investment_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_158_refund_of_investment_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: refund_of_investment_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Refund of investment tax credit.
   line_159_part_xii2_tax_credit_amt:
     x_petey_id: '8_11'
     type: number
@@ -5248,6 +6007,22 @@ fields:
     x_petey_identifiers:
       subject: line_159_part_xii2_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_159_part_xii2_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: part_xii2_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Part XII.2 tax credit.
   line_160_employee_partner_gst_hst_rebate_amt:
     x_petey_id: '8_12'
     type: number
@@ -5270,6 +6045,22 @@ fields:
     x_petey_identifiers:
       subject: line_160_employee_partner_gst_hst_rebate
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_160_employee_partner_gst_hst_rebate_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: employee_partner_gst_hst_rebate_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Employee and partner GST/HST rebate.
   line_46800_supplies_expenses_amt:
     x_petey_id: '8_14'
     type: number
@@ -5291,6 +6082,22 @@ fields:
     x_petey_identifiers:
       subject: line_46800_supplies_expenses
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_46800_supplies_expenses_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: supplies_expenses_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Supplies expenses.
   line_161_eligible_educator_school_supply_tax_credit_amt:
     x_petey_id: '8_13'
     type: number
@@ -5313,6 +6120,22 @@ fields:
     x_petey_identifiers:
       subject: line_161_eligible_educator_school_supply_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_161_eligible_educator_school_supply_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: eligible_educator_school_supply_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Eligible educator school supply tax credit.
   line_162_canadian_journalism_labour_tax_credit_amt:
     x_petey_id: '8_15'
     type: number
@@ -5335,6 +6158,22 @@ fields:
     x_petey_identifiers:
       subject: line_162_canadian_journalism_labour_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_162_canadian_journalism_labour_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: canadian_journalism_labour_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Canadian journalism labour tax credit.
   line_163_return_of_fuel_charge_proceeds_farmers_tax_credit_amt:
     x_petey_id: '8_16'
     type: number
@@ -5357,6 +6196,22 @@ fields:
     x_petey_identifiers:
       subject: line_163_return_of_fuel_charge_proceeds_farmers_tax_credit
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_163_return_of_fuel_charge_proceeds_farmers_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: return_of_fuel_charge_proceeds_farmers_tax_credit_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Return of fuel charge proceeds to farmers tax credit.
   line_164_tax_paid_by_instalments_amt:
     x_petey_id: '8_17'
     type: number
@@ -5378,6 +6233,22 @@ fields:
     x_petey_identifiers:
       subject: line_164_tax_paid_by_instalments
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_164_tax_paid_by_instalments_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: tax_paid_by_instalments_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Tax paid by instalments.
   line_165_provincial_territorial_credits_amt:
     x_petey_id: '8_18'
     type: number
@@ -5400,6 +6271,22 @@ fields:
     x_petey_identifiers:
       subject: line_165_provincial_territorial_credits
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_165_provincial_territorial_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: provincial_territorial_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Provincial or territorial credits.
   line_166_total_credits_amt:
     x_petey_id: '8_19'
     type: number
@@ -5421,6 +6308,22 @@ fields:
     x_petey_identifiers:
       subject: line_166_total_credits
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_166_total_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_credits_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Total credits, line 48200.
   line_166_total_credits_display_amt:
     x_petey_id: '8_20'
     type: number
@@ -5442,6 +6345,22 @@ fields:
     x_petey_identifiers:
       subject: line_166_total_credits_display
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_166_total_credits_display_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: total_credits_carried_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Right-hand box on line 166 repeats the total credits.
   line_167_refund_or_balance_owing_amt:
     x_petey_id: '8_21'
     type: number
@@ -5465,6 +6384,22 @@ fields:
     x_petey_identifiers:
       subject: line_167_refund_or_balance_owing
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_167_refund_or_balance_owing_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: refund_or_balance_owing_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Refund or balance owing.
   line_48400_refund_amt:
     x_petey_id: '8_22'
     type: number
@@ -5486,6 +6421,22 @@ fields:
     x_petey_identifiers:
       subject: line_48400_refund
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_48400_refund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: refund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Refund.
   line_48500_balance_owing_amt:
     x_petey_id: '8_23'
     type: number
@@ -5507,6 +6458,22 @@ fields:
     x_petey_identifiers:
       subject: line_48500_balance_owing
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_48500_balance_owing_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: balance_owing_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Balance owing.
   line_ontario_opps_fund_refund_from_48400_amt:
     x_petey_id: '8_24'
     type: number
@@ -5528,6 +6495,23 @@ fields:
     x_petey_identifiers:
       subject: line_ontario_opps_fund_refund_from_48400
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_ontario_opps_fund_refund_from_48400_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ontario_opportunities_fund_refund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Box holds the refund amount brought into the Ontario opportunities fund
+        area.
   line_46500_ontario_opportunities_fund_donation_amt:
     x_petey_id: '8_25'
     type: number
@@ -5549,6 +6533,22 @@ fields:
     x_petey_identifiers:
       subject: line_46500_ontario_opportunities_fund_donation
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_46500_ontario_opportunities_fund_donation_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: ontario_opportunities_fund_donation_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Your donation to the Ontario opportunities fund.
   line_46600_net_refund_amt:
     x_petey_id: '8_26'
     type: number
@@ -5570,6 +6570,22 @@ fields:
     x_petey_identifiers:
       subject: line_46600_net_refund
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_46600_net_refund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: net_refund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is Net refund.
   taxpayer_telephone_number_txt:
     x_petey_id: '8_29'
     type: string
@@ -5671,10 +6687,25 @@ fields:
     x_petey_identifiers:
       subject: line_48900_efile_number
       suffix: txt
+    x_petey_hand_edit:
+      when: '2026-10-25 20:52:30'
+      from:
+        name: line_48900_efile_number_txt
+        type: string
+        semantic_type: text
+        pattern: null
+      to:
+        name: efile_nbr
+        type: string
+        semantic_type: text
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: Printed label is EFILE number; identifiers take the _nbr suffix.
   tax_professional_nm:
     x_petey_id: '8_30'
     type: string
-    semantic_type: person_name
     widget:
       page: 8
       rect:
@@ -5688,6 +6719,22 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-20 19:16:37'
+      from:
+        name: tax_professional_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: tax_professional_nm
+        type: string
+        semantic_type: null
+        pattern: null
+      record: runs/claude_pass/proposals/lib__cra-t1.json
+      by: claude
+      kind: type
+      why: person_name is no longer assigned (it changed nothing)
     x_petey_identifiers:
       subject: tax_professional
       suffix: nm

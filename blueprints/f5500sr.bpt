@@ -1,6 +1,6 @@
 bpt_version: '1.1'
-name: f5500sr
-form_version: unknown
+name: 2025-schedule-r
+form_version: null
 source_pdf: 2025-schedule-r.pdf
 source_pdf_hash: 9916239341b472a6c1f7cea345ea6d3fd6e0be23
 source_pages:
@@ -9,8 +9,14 @@ source_pages:
 - 3
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 10:29:15'
 fields:
-  plan_year_begin_dt:
+  plan_year_beginning_dt:
     x_petey_id: '1_1'
     type: date
     semantic_type: iso_date
@@ -23,13 +29,11 @@ fields:
       - 146.052001953125
       widget_type: text
       path: planYearBeginDate
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Plan year beginning date
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: plan_year_begin
+      subject: plan_year_beginning
       suffix: dt
   plan_year_end_dt:
     x_petey_id: '1_2'
@@ -44,18 +48,16 @@ fields:
       - 146.052001953125
       widget_type: text
       path: planYearEndDate
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Plan year end date
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_identifiers:
       subject: plan_year_end
       suffix: dt
   plan_nm:
     x_petey_id: '1_3'
     type: string
-    semantic_type: person_name
+    semantic_type: organization_name
     widget:
       page: 1
       rect:
@@ -65,10 +67,23 @@ fields:
       - 193.43701171875
       widget_type: text
       path: planName
+    label_source: llm
+    description: Name of plan
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      - description
+      reason: Caption 'A Name of plan' — the box holds an organization/plan name,
+        not a person's name; semantic_type corrected.
+      before:
+        type: string
+        semantic_type: person_name
+      judged: 'kept: 2 -> 1'
     x_petey_identifiers:
       subject: plan
       suffix: nm
-  plan_number_cd:
+  plan_number_pn:
     x_petey_id: '1_4'
     type: string
     widget:
@@ -82,15 +97,13 @@ fields:
       path: planNum
     description: Three-digit plan number (PN)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: plan_number
-      suffix: cd
-  plan_sponsor_nm:
+      subject: plan_number_pn
+  plan_sponsor_business_nm:
     x_petey_id: '1_5'
     type: string
-    semantic_type: person_name
+    semantic_type: business_name
     widget:
       page: 1
       rect:
@@ -102,12 +115,11 @@ fields:
       path: sponsDfeName
     description: Plan sponsor’s name as shown on line 2a of Form 5500
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: plan_sponsor
+      subject: plan_sponsor_business
       suffix: nm
-  plan_sponsor_ein:
+  employer_identification_number_ein:
     x_petey_id: '1_6'
     type: string
     semantic_type: ein
@@ -123,12 +135,11 @@ fields:
       path: eIN
     description: Employer Identification Number (EIN)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: plan_sponsor
+      subject: employer_identification_number
       suffix: ein
-  distributions_paid_in_property_amt:
+  total_value_distributions_paid_in_property_amt:
     x_petey_id: '1_7'
     type: number
     semantic_type: money
@@ -144,11 +155,11 @@ fields:
     description: Total value of distributions paid in property other than in cash
       or the forms of property specified in the instructions
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: distributions_paid_in_property
+      subject: total_value_distributions_paid_in_property
       suffix: amt
   payor_ein_1:
     x_petey_id: '1_8'
@@ -164,6 +175,7 @@ fields:
       - 325.5849914550781
       widget_type: text
       path: penPayor01EIN
+    label_source: llm
     x_petey_identifiers:
       subject: payor
       suffix: ein
@@ -182,14 +194,14 @@ fields:
       - 325.5849914550781
       widget_type: text
       path: penPayor02EIN
+    label_source: llm
     x_petey_identifiers:
       subject: payor
       suffix: ein
       iteration: '2'
-  single_sum_distribution_participant_cnt:
+  num_participants_single_sum_distribution:
     x_petey_id: '1_10'
     type: integer
-    semantic_type: count
     widget:
       page: 1
       rect:
@@ -202,11 +214,19 @@ fields:
     description: Number of participants (living or deceased) whose benefits were distributed
       in a single sum, during the plan year
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      reason: A count of participants is an integer, not free text.
+      before:
+        type: string
+        description: Number of participants (living or deceased) whose benefits were
+          distributed in a single sum, during the plan year
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      subject: single_sum_distribution_participant
-      suffix: cnt
+      subject: num_participants_single_sum_distribution
   section_412d2_election_ind:
     x_petey_id: '1_11'
     type: category
@@ -214,12 +234,6 @@ fields:
     - 'Yes'
     - 'No'
     - N/A
-    description: Is the plan administrator making an election under Code section 412(d)(2)
-      or ERISA section 302(d)(2)? Mark Yes, No or N/A.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[3]
     widgets:
       'Yes':
         page: 1
@@ -254,9 +268,14 @@ fields:
         path: P2-4
         on_state: N/A
         caption: N/A
+    description: Is the plan administrator making an election under Code section 412(d)(2)
+      or ERISA section 302(d)(2)? Mark Yes, No or N/A.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
       subject: section_412d2_election_ind
-  waiver_ruling_letter_month:
+  waiver_ruling_letter_dt_month:
     x_petey_id: '1_12'
     type: string
     widget:
@@ -270,12 +289,15 @@ fields:
       path: penFndngWvrsDateMonth
     description: Month of of the ruling letter granting the waiver
     x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^\d{1,2}$
     x_petey_retype:
-    - description_from_tooltip
+    - narrow_widget:maxlen=2,width=24
     x_petey_identifiers:
       subject: waiver_ruling_letter
-      suffix: month
-  waiver_ruling_letter_day:
+      suffix: dt
+      part: month
+  waiver_ruling_letter_dt_day:
     x_petey_id: '1_13'
     type: string
     widget:
@@ -289,16 +311,18 @@ fields:
       path: penFndngWvrsDateDay
     description: Day of of the ruling letter granting the waiver
     x_petey_description_source: tooltip
+    label_source: llm
+    pattern: ^\d{1,2}$
     x_petey_retype:
-    - description_from_tooltip
+    - narrow_widget:maxlen=2,width=29
     x_petey_identifiers:
       subject: waiver_ruling_letter
-      suffix: day
-  waiver_ruling_letter_yr:
+      suffix: dt
+      part: day
+  waiver_ruling_letter_dt_year:
     x_petey_id: '1_14'
     type: string
     semantic_type: year
-    pattern: ^\d{4}$
     widget:
       page: 1
       rect:
@@ -310,12 +334,24 @@ fields:
       path: penFndngWvrsDateYear
     description: Year of the ruling letter granting the waiver
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
+    pattern: ^\d{4}$
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - semantic_type
+      - pattern
+      reason: Box holds only the year segment beside separate Month and Day boxes,
+        so it is a 4-digit string, not an ISO date.
+      before:
+        type: date
+        semantic_type: iso_date
+        description: Year of the ruling letter granting the waiver
+      judged: 'kept: 3 -> 2'
     x_petey_identifiers:
-      subject: waiver_ruling_letter
-      suffix: yr
-  minimum_required_contribution_amt:
+      subject: waiver_ruling_letter_dt_year
+  line_6a_minimum_required_contribution_amt:
     x_petey_id: '1_15'
     type: number
     semantic_type: money
@@ -331,13 +367,13 @@ fields:
     description: Enter the minimum required contribution for this plan year (include
       any prior year accumulated funding deficiency not waived)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: minimum_required_contribution
+      subject: line_6a_minimum_required_contribution
       suffix: amt
-  employer_contribution_amt:
+  line_6b_employer_contribution_amt:
     x_petey_id: '1_16'
     type: number
     semantic_type: money
@@ -353,13 +389,13 @@ fields:
     description: Enter the amount contributed by the employer to the plan for this
       plan year
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: employer_contribution
+      subject: line_6b_employer_contribution
       suffix: amt
-  funding_deficiency_amt:
+  line_6c_funding_deficiency_amt:
     x_petey_id: '1_17'
     type: number
     semantic_type: money
@@ -375,11 +411,11 @@ fields:
     description: Subtract the amount in line 6b from the amount in line 6a. Enter
       the result (enter a minus sign to the left of a negative amount)
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: funding_deficiency
+      subject: line_6c_funding_deficiency
       suffix: amt
   minimum_funding_met_by_deadline_ind:
     x_petey_id: '1_18'
@@ -388,12 +424,6 @@ fields:
     - 'Yes'
     - 'No'
     - N/A
-    description: Will the minimum funding amount reported on line 6c be met by the
-      funding deadline? Mark Yes, No or N/A.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[3]
     widgets:
       'Yes':
         page: 1
@@ -428,6 +458,11 @@ fields:
         path: P2-7
         on_state: N/A
         caption: N/A
+    description: Will the minimum funding amount reported on line 6c be met by the
+      funding deadline? Mark Yes, No or N/A.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
       subject: minimum_funding_met_by_deadline_ind
   actuarial_cost_method_change_agree_ind:
@@ -437,14 +472,6 @@ fields:
     - 'Yes'
     - 'No'
     - N/A
-    description: If a change in actuarial cost method was made for this plan year
-      pursuant to a revenue procedure or other authority providing automatic approval
-      for the change or a class ruling letter, does the plan sponsor or plan administrator
-      agree with the change? Mark Yes, No or N/A.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[3]
     widgets:
       'Yes':
         page: 1
@@ -479,9 +506,16 @@ fields:
         path: P2-8
         on_state: N/A
         caption: N/A
+    description: If a change in actuarial cost method was made for this plan year
+      pursuant to a revenue procedure or other authority providing automatic approval
+      for the change or a class ruling letter, does the plan sponsor or plan administrator
+      agree with the change? Mark Yes, No or N/A.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
       subject: actuarial_cost_method_change_agree_ind
-  amendment_benefit_change:
+  amendment_benefit_value_change:
     x_petey_id: '1_20'
     type: category
     values:
@@ -489,13 +523,6 @@ fields:
     - Decrease
     - Both
     - 'No'
-    description: If this is a defined benefit pension plan, were any amendments adopted
-      during this plan year that increased or decreased the value of benefits? If
-      yes, check the appropriate box. If no, check the “No” box
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       Increase:
         page: 1
@@ -541,20 +568,20 @@ fields:
         path: P3-9
         on_state: 'No'
         caption: 'No'
+    description: If this is a defined benefit pension plan, were any amendments adopted
+      during this plan year that increased or decreased the value of benefits? If
+      yes, check the appropriate box. If no, check the “No” box
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: amendment_benefit_change
-  unallocated_securities_repay_exempt_loan_ind:
+      subject: amendment_benefit_value_change
+  unallocated_securities_used_repay_exempt_loan_ind:
     x_petey_id: '1_21'
     type: category
     values:
     - 'Yes'
     - 'No'
-    description: Were unallocated employer securities or proceeds from the sale of
-      unallocated securities used to repay any exempt loan? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 1
@@ -578,19 +605,19 @@ fields:
         path: P4-10
         on_state: 'No'
         caption: 'No'
+    description: Were unallocated employer securities or proceeds from the sale of
+      unallocated securities used to repay any exempt loan? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: unallocated_securities_repay_exempt_loan_ind
+      subject: unallocated_securities_used_repay_exempt_loan_ind
   esop_holds_preferred_stock_ind:
     x_petey_id: '1_22'
     type: category
     values:
     - 'Yes'
     - 'No'
-    description: Does the ESOP hold any preferred stock? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 1
@@ -614,57 +641,54 @@ fields:
         path: P4-11a
         on_state: 'No'
         caption: 'No'
+    description: Does the ESOP hold any preferred stock? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
       subject: esop_holds_preferred_stock_ind
-  back_to_back_loan_ind:
+  esop_back_to_back_loan_ind:
     x_petey_id: '1_23'
     type: category
     values:
     - 'Yes'
     - 'No'
+    widgets:
+      'Yes':
+        page: 1
+        rect:
+        - 521.5419921875
+        - 694.1461181640625
+        - 529.8870239257812
+        - 707.2369995117188
+        widget_type: radiobutton
+        path: P4-11b
+        on_state: 'Yes'
+        caption: 'Yes'
+      'No':
+        page: 1
+        rect:
+        - 562.968017578125
+        - 694.1461181640625
+        - 571.3140258789062
+        - 707.2369995117188
+        widget_type: radiobutton
+        path: P4-11b
+        on_state: 'No'
+        caption: 'No'
     description: If the ESOP has an outstanding exempt loan with the employer as lender,
       is such loan part of a “back-to-back” loan? Mark Yes or No.
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
-    - option_group:category->category[2]
-    widgets:
-      'Yes':
-        page: 1
-        rect:
-        - 521.5419921875
-        - 694.1461181640625
-        - 529.8870239257812
-        - 707.2369995117188
-        widget_type: radiobutton
-        path: P4-11b
-        on_state: 'Yes'
-        caption: 'Yes'
-      'No':
-        page: 1
-        rect:
-        - 562.968017578125
-        - 694.1461181640625
-        - 571.3140258789062
-        - 707.2369995117188
-        widget_type: radiobutton
-        path: P4-11b
-        on_state: 'No'
-        caption: 'No'
     x_petey_identifiers:
-      subject: back_to_back_loan_ind
-  esop_non_readily_tradable_stock_ind:
+      subject: esop_back_to_back_loan_ind
+  esop_holds_non_tradable_stock_ind:
     x_petey_id: '1_24'
     type: category
     values:
     - 'Yes'
     - 'No'
-    description: Does the ESOP hold any stock that is not readily tradable on an established
-      securities market? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 1
@@ -688,9 +712,14 @@ fields:
         path: P4-12
         on_state: 'No'
         caption: 'No'
+    description: Does the ESOP hold any stock that is not readily tradable on an established
+      securities market? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: esop_non_readily_tradable_stock_ind
-  employer_1_contributing_employer_nm:
+      subject: esop_holds_non_tradable_stock_ind
+  employer1_contributing_employer_business_nm:
     x_petey_id: '2_1'
     type: string
     semantic_type: business_name
@@ -705,14 +734,29 @@ fields:
       path: penContribEmployerName_01
     description: Name of contributing employer
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
-      subject: contributing_employer
+      block_prefix: employer1
+      subject: contributing_employer_business
       suffix: nm
-  employer_ein_1:
+    x_petey_hand_edit:
+      when: '2026-10-24 20:17:37'
+      from:
+        name: employer1_contributing_employer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+        identifiers: null
+      to:
+        name: employer1_contributing_employer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  employer1_ein:
     x_petey_id: '2_2'
     type: string
     semantic_type: ein
@@ -726,11 +770,11 @@ fields:
       - 139.1209716796875
       widget_type: text
       path: penContribEmployerEIN_01
+    label_source: llm
     x_petey_identifiers:
-      subject: employer
+      block_prefix: employer1
       suffix: ein
-      iteration: '1'
-  employer_1_contribution_dollar_amt:
+  employer1_dollar_amt_contributed:
     x_petey_id: '2_3'
     type: number
     semantic_type: money
@@ -745,15 +789,13 @@ fields:
       path: penContribEmployerContribAmt_01
     description: Dollar amount contributed by employer
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
-      subject: contribution_dollar
-      suffix: amt
-  employer_1_multiple_cba_ind:
+      block_prefix: employer1
+      subject: dollar_amt_contributed
+  employer1_multiple_cba_ind:
     x_petey_id: '2_4'
     type: boolean
     semantic_type: indicator
@@ -769,14 +811,12 @@ fields:
     description: If employer contributes under more than one collective bargaining
       agreement, mark box and see instructions regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
-      subject: multiple_cba
+      block_prefix: employer1
       suffix: ind
-  employer_1_cba_expiration_month:
+      subject: multiple_cba
+  employer1_cba_expiration_month:
     x_petey_id: '2_5'
     type: string
     widget:
@@ -790,14 +830,12 @@ fields:
       path: penContribEmployerCbaExpDateMonth_01
     description: Month collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
+      block_prefix: employer1
       subject: cba_expiration
       suffix: month
-  employer_1_cba_expiration_day:
+  employer1_cba_expiration_day:
     x_petey_id: '2_6'
     type: string
     widget:
@@ -811,14 +849,12 @@ fields:
       path: penContribEmployerCbaExpDateDay_01
     description: Day collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
+      block_prefix: employer1
       subject: cba_expiration
       suffix: day
-  employer_1_cba_expiration_yr:
+  employer1_cba_expiration_yr:
     x_petey_id: '2_7'
     type: string
     semantic_type: year
@@ -834,14 +870,12 @@ fields:
       path: penContribEmployerCbaExpDateYear_01
     description: Year collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
+      block_prefix: employer1
       subject: cba_expiration
       suffix: yr
-  employer_1_multiple_contribution_rates_ind:
+  employer1_multiple_contribution_rates_ind:
     x_petey_id: '2_8'
     type: boolean
     semantic_type: indicator
@@ -857,17 +891,14 @@ fields:
     description: If more than one rate applies, mark this box and see instructions
       regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
-      subject: multiple_contribution_rates
+      block_prefix: employer1
       suffix: ind
-  employer_1_contribution_rate_amt:
+      subject: multiple_contribution_rates
+  employer1_contribution_rate_amt:
     x_petey_id: '2_9'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -879,15 +910,23 @@ fields:
       path: penContribEmployerMultiRateAmt_01
     description: Contribution rate (in dollars and cents)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Caption says dollars and cents; money_whole_dollar is wrong, plain number
+        retained.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: Contribution rate (in dollars and cents)
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
-      subject: contribution_rate
+      block_prefix: employer1
       suffix: amt
-  employer_1_base_unit_measure:
+      subject: contribution_rate
+  employer1_base_unit_measure:
     x_petey_id: '2_10'
     type: category
     values:
@@ -895,11 +934,6 @@ fields:
     - Weekly
     - Unit
     - Other
-    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       Hourly:
         page: 2
@@ -945,9 +979,14 @@ fields:
         path: P5-13e2-1
         on_state: Other
         caption: Other
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: employer_1_base_unit_measure
-  employer_1_base_unit_other_txt:
+      block_prefix: employer1
+      subject: base_unit_measure
+  employer1_base_unit_measure_other_txt:
     x_petey_id: '2_11'
     type: string
     semantic_type: text
@@ -962,14 +1001,12 @@ fields:
       path: penContribEmployerOtherBaseUnitText_01
     description: If other specify
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '1'
-      subject: base_unit_other
+      block_prefix: employer1
       suffix: txt
-  employer_2_contributing_employer_nm:
+      subject: base_unit_measure_other
+  employer2_contributing_employer_business_nm:
     x_petey_id: '2_12'
     type: string
     semantic_type: business_name
@@ -984,14 +1021,29 @@ fields:
       path: penContribEmployerName_02
     description: Name of contributing employer
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
-      subject: contributing_employer
+      block_prefix: employer2
+      subject: contributing_employer_business
       suffix: nm
-  employer_ein_2:
+    x_petey_hand_edit:
+      when: '2026-10-24 20:17:37'
+      from:
+        name: employer2_contributing_employer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+        identifiers: null
+      to:
+        name: employer2_contributing_employer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  employer2_ein:
     x_petey_id: '2_13'
     type: string
     semantic_type: ein
@@ -1005,11 +1057,11 @@ fields:
       - 244.2559814453125
       widget_type: text
       path: penContribEmployerEIN_02
+    label_source: llm
     x_petey_identifiers:
-      subject: employer
+      block_prefix: employer2
       suffix: ein
-      iteration: '2'
-  employer_2_contribution_dollar_amt:
+  employer2_dollar_amt_contributed:
     x_petey_id: '2_14'
     type: number
     semantic_type: money
@@ -1024,15 +1076,13 @@ fields:
       path: penContribEmployerContribAmt_02
     description: Dollar amount contributed by employer
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
-      subject: contribution_dollar
-      suffix: amt
-  employer_2_multiple_cba_ind:
+      block_prefix: employer2
+      subject: dollar_amt_contributed
+  employer2_multiple_cba_ind:
     x_petey_id: '2_15'
     type: boolean
     semantic_type: indicator
@@ -1048,14 +1098,12 @@ fields:
     description: If employer contributes under more than one collective bargaining
       agreement, mark box and see instructions regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
-      subject: multiple_cba
+      block_prefix: employer2
       suffix: ind
-  employer_2_cba_expiration_month:
+      subject: multiple_cba
+  employer2_cba_expiration_month:
     x_petey_id: '2_16'
     type: string
     widget:
@@ -1069,14 +1117,12 @@ fields:
       path: penContribEmployerCbaExpDateMonth_02
     description: Month collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
+      block_prefix: employer2
       subject: cba_expiration
       suffix: month
-  employer_2_cba_expiration_day:
+  employer2_cba_expiration_day:
     x_petey_id: '2_17'
     type: string
     widget:
@@ -1090,14 +1136,12 @@ fields:
       path: penContribEmployerCbaExpDateDay_02
     description: Day collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
+      block_prefix: employer2
       subject: cba_expiration
       suffix: day
-  employer_2_cba_expiration_yr:
+  employer2_cba_expiration_yr:
     x_petey_id: '2_18'
     type: string
     semantic_type: year
@@ -1113,14 +1157,12 @@ fields:
       path: penContribEmployerCbaExpDateYear_02
     description: Year collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
+      block_prefix: employer2
       subject: cba_expiration
       suffix: yr
-  employer_2_multiple_contribution_rates_ind:
+  employer2_multiple_contribution_rates_ind:
     x_petey_id: '2_19'
     type: boolean
     semantic_type: indicator
@@ -1136,17 +1178,14 @@ fields:
     description: If more than one rate applies, mark this box and see instructions
       regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
-      subject: multiple_contribution_rates
+      block_prefix: employer2
       suffix: ind
-  employer_2_contribution_rate_amt:
+      subject: multiple_contribution_rates
+  employer2_contribution_rate_amt:
     x_petey_id: '2_20'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1158,15 +1197,22 @@ fields:
       path: penContribEmployerMultiRateAmt_02
     description: Contribution rate (in dollars and cents)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Rate is in dollars and cents; money_whole_dollar is wrong.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: Contribution rate (in dollars and cents)
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
-      subject: contribution_rate
+      block_prefix: employer2
       suffix: amt
-  employer_2_base_unit_measure:
+      subject: contribution_rate
+  employer2_base_unit_measure:
     x_petey_id: '2_21'
     type: category
     values:
@@ -1174,11 +1220,6 @@ fields:
     - Weekly
     - Unit
     - Other
-    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       Hourly:
         page: 2
@@ -1224,9 +1265,14 @@ fields:
         path: P5-13e2-2
         on_state: Other
         caption: Other
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: employer_2_base_unit_measure
-  employer_2_base_unit_other_txt:
+      block_prefix: employer2
+      subject: base_unit_measure
+  employer2_base_unit_measure_other_txt:
     x_petey_id: '2_22'
     type: string
     semantic_type: text
@@ -1241,14 +1287,12 @@ fields:
       path: penContribEmployerOtherBaseUnitText_02
     description: If other specify
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '2'
-      subject: base_unit_other
+      block_prefix: employer2
       suffix: txt
-  employer_3_contributing_employer_nm:
+      subject: base_unit_measure_other
+  employer3_contributing_employer_business_nm:
     x_petey_id: '2_23'
     type: string
     semantic_type: business_name
@@ -1263,14 +1307,29 @@ fields:
       path: penContribEmployerName_03
     description: Name of contributing employer
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
-      subject: contributing_employer
+      block_prefix: employer3
+      subject: contributing_employer_business
       suffix: nm
-  employer_ein_3:
+    x_petey_hand_edit:
+      when: '2026-10-24 20:17:37'
+      from:
+        name: employer3_contributing_employer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+        identifiers: null
+      to:
+        name: employer3_contributing_employer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  employer3_ein:
     x_petey_id: '2_24'
     type: string
     semantic_type: ein
@@ -1284,11 +1343,11 @@ fields:
       - 349.218994140625
       widget_type: text
       path: penContribEmployerEIN_03
+    label_source: llm
     x_petey_identifiers:
-      subject: employer
+      block_prefix: employer3
       suffix: ein
-      iteration: '3'
-  employer_3_contribution_dollar_amt:
+  employer3_dollar_amt_contributed:
     x_petey_id: '2_25'
     type: number
     semantic_type: money
@@ -1303,15 +1362,13 @@ fields:
       path: penContribEmployerContribAmt_03
     description: Dollar amount contributed by employer
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
-      subject: contribution_dollar
-      suffix: amt
-  employer_3_multiple_cba_ind:
+      block_prefix: employer3
+      subject: dollar_amt_contributed
+  employer3_multiple_cba_ind:
     x_petey_id: '2_26'
     type: boolean
     semantic_type: indicator
@@ -1327,14 +1384,12 @@ fields:
     description: If employer contributes under more than one collective bargaining
       agreement, mark box and see instructions regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
-      subject: multiple_cba
+      block_prefix: employer3
       suffix: ind
-  employer_3_cba_expiration_month:
+      subject: multiple_cba
+  employer3_cba_expiration_month:
     x_petey_id: '2_27'
     type: string
     widget:
@@ -1348,14 +1403,12 @@ fields:
       path: penContribEmployerCbaExpDateMonth_03
     description: Month collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
+      block_prefix: employer3
       subject: cba_expiration
       suffix: month
-  employer_3_cba_expiration_day:
+  employer3_cba_expiration_day:
     x_petey_id: '2_28'
     type: string
     widget:
@@ -1369,14 +1422,12 @@ fields:
       path: penContribEmployerCbaExpDateDay_03
     description: Day collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
+      block_prefix: employer3
       subject: cba_expiration
       suffix: day
-  employer_3_cba_expiration_yr:
+  employer3_cba_expiration_yr:
     x_petey_id: '2_29'
     type: string
     semantic_type: year
@@ -1392,14 +1443,12 @@ fields:
       path: penContribEmployerCbaExpDateYear_03
     description: Year collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
+      block_prefix: employer3
       subject: cba_expiration
       suffix: yr
-  employer_3_multiple_contribution_rates_ind:
+  employer3_multiple_contribution_rates_ind:
     x_petey_id: '2_30'
     type: boolean
     semantic_type: indicator
@@ -1415,17 +1464,14 @@ fields:
     description: If more than one rate applies, mark this box and see instructions
       regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
-      subject: multiple_contribution_rates
+      block_prefix: employer3
       suffix: ind
-  employer_3_contribution_rate_amt:
+      subject: multiple_contribution_rates
+  employer3_contribution_rate_amt:
     x_petey_id: '2_31'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1437,15 +1483,22 @@ fields:
       path: penContribEmployerMultiRateAmt_03
     description: Contribution rate (in dollars and cents)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Dollars and cents rate; money_whole_dollar excludes cents.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: Contribution rate (in dollars and cents)
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
-      subject: contribution_rate
+      block_prefix: employer3
       suffix: amt
-  employer_3_base_unit_measure:
+      subject: contribution_rate
+  employer3_base_unit_measure:
     x_petey_id: '2_32'
     type: category
     values:
@@ -1453,11 +1506,6 @@ fields:
     - Weekly
     - Unit
     - Other
-    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       Hourly:
         page: 2
@@ -1503,9 +1551,14 @@ fields:
         path: P5-13e2-3
         on_state: Other
         caption: Other
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: employer_3_base_unit_measure
-  employer_3_base_unit_other_txt:
+      block_prefix: employer3
+      subject: base_unit_measure
+  employer3_base_unit_measure_other_txt:
     x_petey_id: '2_33'
     type: string
     semantic_type: text
@@ -1520,14 +1573,12 @@ fields:
       path: penContribEmployerOtherBaseUnitText_03
     description: If other specify
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '3'
-      subject: base_unit_other
+      block_prefix: employer3
       suffix: txt
-  employer_4_contributing_employer_nm:
+      subject: base_unit_measure_other
+  employer4_contributing_employer_business_nm:
     x_petey_id: '2_34'
     type: string
     semantic_type: business_name
@@ -1542,14 +1593,29 @@ fields:
       path: penContribEmployerName_04
     description: Name of contributing employer
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
-      subject: contributing_employer
+      block_prefix: employer4
+      subject: contributing_employer_business
       suffix: nm
-  employer_ein_4:
+    x_petey_hand_edit:
+      when: '2026-10-24 20:17:37'
+      from:
+        name: employer4_contributing_employer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+        identifiers: null
+      to:
+        name: employer4_contributing_employer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  employer4_ein:
     x_petey_id: '2_35'
     type: string
     semantic_type: ein
@@ -1563,11 +1629,11 @@ fields:
       - 455.72900390625
       widget_type: text
       path: penContribEmployerEIN_04
+    label_source: llm
     x_petey_identifiers:
-      subject: employer
+      block_prefix: employer4
       suffix: ein
-      iteration: '4'
-  employer_4_contribution_dollar_amt:
+  employer4_dollar_amt_contributed:
     x_petey_id: '2_36'
     type: number
     semantic_type: money
@@ -1582,15 +1648,13 @@ fields:
       path: penContribEmployerContribAmt_04
     description: Dollar amount contributed by employer
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
-      subject: contribution_dollar
-      suffix: amt
-  employer_4_multiple_cba_ind:
+      block_prefix: employer4
+      subject: dollar_amt_contributed
+  employer4_multiple_cba_ind:
     x_petey_id: '2_37'
     type: boolean
     semantic_type: indicator
@@ -1606,14 +1670,12 @@ fields:
     description: If employer contributes under more than one collective bargaining
       agreement, mark box and see instructions regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
-      subject: multiple_cba
+      block_prefix: employer4
       suffix: ind
-  employer_4_cba_expiration_month:
+      subject: multiple_cba
+  employer4_cba_expiration_month:
     x_petey_id: '2_38'
     type: string
     widget:
@@ -1627,14 +1689,12 @@ fields:
       path: penContribEmployerCbaExpDateMonth_04
     description: Month collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
+      block_prefix: employer4
       subject: cba_expiration
       suffix: month
-  employer_4_cba_expiration_day:
+  employer4_cba_expiration_day:
     x_petey_id: '2_39'
     type: string
     widget:
@@ -1648,14 +1708,12 @@ fields:
       path: penContribEmployerCbaExpDateDay_04
     description: Day collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
+      block_prefix: employer4
       subject: cba_expiration
       suffix: day
-  employer_4_cba_expiration_yr:
+  employer4_cba_expiration_yr:
     x_petey_id: '2_40'
     type: string
     semantic_type: year
@@ -1671,14 +1729,12 @@ fields:
       path: penContribEmployerCbaExpDateYear_04
     description: Year collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
+      block_prefix: employer4
       subject: cba_expiration
       suffix: yr
-  employer_4_multiple_contribution_rates_ind:
+  employer4_multiple_contribution_rates_ind:
     x_petey_id: '2_41'
     type: boolean
     semantic_type: indicator
@@ -1694,17 +1750,14 @@ fields:
     description: If more than one rate applies, mark this box and see instructions
       regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
-      subject: multiple_contribution_rates
+      block_prefix: employer4
       suffix: ind
-  employer_4_contribution_rate_amt:
+      subject: multiple_contribution_rates
+  employer4_contribution_rate_amt:
     x_petey_id: '2_42'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1716,15 +1769,22 @@ fields:
       path: penContribEmployerMultiRateAmt_04
     description: Contribution rate (in dollars and cents)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Dollars and cents rate; money_whole_dollar is wrong.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: Contribution rate (in dollars and cents)
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
-      subject: contribution_rate
+      block_prefix: employer4
       suffix: amt
-  employer_4_base_unit_measure:
+      subject: contribution_rate
+  employer4_base_unit_measure:
     x_petey_id: '2_43'
     type: category
     values:
@@ -1732,11 +1792,6 @@ fields:
     - Weekly
     - Unit
     - Other
-    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       Hourly:
         page: 2
@@ -1782,9 +1837,14 @@ fields:
         path: P5-13e2-4
         on_state: Other
         caption: Other
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: employer_4_base_unit_measure
-  employer_4_base_unit_other_txt:
+      block_prefix: employer4
+      subject: base_unit_measure
+  employer4_base_unit_measure_other_txt:
     x_petey_id: '2_44'
     type: string
     semantic_type: text
@@ -1799,14 +1859,12 @@ fields:
       path: penContribEmployerOtherBaseUnitText_04
     description: If other specify
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '4'
-      subject: base_unit_other
+      block_prefix: employer4
       suffix: txt
-  employer_5_contributing_employer_nm:
+      subject: base_unit_measure_other
+  employer5_contributing_employer_business_nm:
     x_petey_id: '2_45'
     type: string
     semantic_type: business_name
@@ -1821,14 +1879,29 @@ fields:
       path: penContribEmployerName_05
     description: Name of contributing employer
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
-      subject: contributing_employer
+      block_prefix: employer5
+      subject: contributing_employer_business
       suffix: nm
-  employer_ein_5:
+    x_petey_hand_edit:
+      when: '2026-10-24 20:17:37'
+      from:
+        name: employer5_contributing_employer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+        identifiers: null
+      to:
+        name: employer5_contributing_employer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  employer5_ein:
     x_petey_id: '2_46'
     type: string
     semantic_type: ein
@@ -1842,11 +1915,11 @@ fields:
       - 562.364990234375
       widget_type: text
       path: penContribEmployerEIN_05
+    label_source: llm
     x_petey_identifiers:
-      subject: employer
+      block_prefix: employer5
       suffix: ein
-      iteration: '5'
-  employer_5_contribution_dollar_amt:
+  employer5_dollar_amt_contributed:
     x_petey_id: '2_47'
     type: number
     semantic_type: money
@@ -1861,15 +1934,13 @@ fields:
       path: penContribEmployerContribAmt_05
     description: Dollar amount contributed by employer
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
-      subject: contribution_dollar
-      suffix: amt
-  employer_5_multiple_cba_ind:
+      block_prefix: employer5
+      subject: dollar_amt_contributed
+  employer5_multiple_cba_ind:
     x_petey_id: '2_48'
     type: boolean
     semantic_type: indicator
@@ -1885,14 +1956,12 @@ fields:
     description: If employer contributes under more than one collective bargaining
       agreement, mark box and see instructions regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
-      subject: multiple_cba
+      block_prefix: employer5
       suffix: ind
-  employer_5_cba_expiration_month:
+      subject: multiple_cba
+  employer5_cba_expiration_month:
     x_petey_id: '2_49'
     type: string
     widget:
@@ -1906,14 +1975,12 @@ fields:
       path: penContribEmployerCbaExpDateMonth_05
     description: Month collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
+      block_prefix: employer5
       subject: cba_expiration
       suffix: month
-  employer_5_cba_expiration_day:
+  employer5_cba_expiration_day:
     x_petey_id: '2_50'
     type: string
     widget:
@@ -1927,14 +1994,12 @@ fields:
       path: penContribEmployerCbaExpDateDay_05
     description: Day collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
+      block_prefix: employer5
       subject: cba_expiration
       suffix: day
-  employer_5_cba_expiration_yr:
+  employer5_cba_expiration_yr:
     x_petey_id: '2_51'
     type: string
     semantic_type: year
@@ -1950,14 +2015,12 @@ fields:
       path: penContribEmployerCbaExpDateYear_05
     description: Year collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
+      block_prefix: employer5
       subject: cba_expiration
       suffix: yr
-  employer_5_multiple_contribution_rates_ind:
+  employer5_multiple_contribution_rates_ind:
     x_petey_id: '2_52'
     type: boolean
     semantic_type: indicator
@@ -1973,17 +2036,14 @@ fields:
     description: If more than one rate applies, mark this box and see instructions
       regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
-      subject: multiple_contribution_rates
+      block_prefix: employer5
       suffix: ind
-  employer_5_contribution_rate_amt:
+      subject: multiple_contribution_rates
+  employer5_contribution_rate_amt:
     x_petey_id: '2_53'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -1995,15 +2055,22 @@ fields:
       path: penContribEmployerMultiRateAmt_05
     description: Contribution rate (in dollars and cents)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Dollars and cents rate; money_whole_dollar excludes cents.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: Contribution rate (in dollars and cents)
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
-      subject: contribution_rate
+      block_prefix: employer5
       suffix: amt
-  employer_5_base_unit_measure:
+      subject: contribution_rate
+  employer5_base_unit_measure:
     x_petey_id: '2_54'
     type: category
     values:
@@ -2011,11 +2078,6 @@ fields:
     - Weekly
     - Unit
     - Other
-    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       Hourly:
         page: 2
@@ -2061,9 +2123,14 @@ fields:
         path: P5-13e2-5
         on_state: Other
         caption: Other
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: employer_5_base_unit_measure
-  employer_5_base_unit_other_txt:
+      block_prefix: employer5
+      subject: base_unit_measure
+  employer5_base_unit_measure_other_txt:
     x_petey_id: '2_55'
     type: string
     semantic_type: text
@@ -2078,14 +2145,12 @@ fields:
       path: penContribEmployerOtherBaseUnitText_05
     description: If other specify
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '5'
-      subject: base_unit_other
+      block_prefix: employer5
       suffix: txt
-  employer_6_contributing_employer_nm:
+      subject: base_unit_measure_other
+  employer6_contributing_employer_business_nm:
     x_petey_id: '2_56'
     type: string
     semantic_type: business_name
@@ -2100,14 +2165,29 @@ fields:
       path: penContribEmployerName_06
     description: Name of contributing employer
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
-      subject: contributing_employer
+      block_prefix: employer6
+      subject: contributing_employer_business
       suffix: nm
-  employer_ein_6:
+    x_petey_hand_edit:
+      when: '2026-10-24 20:17:37'
+      from:
+        name: employer6_contributing_employer_business_name
+        type: string
+        semantic_type: business_name
+        pattern: null
+        identifiers: null
+      to:
+        name: employer6_contributing_employer_business_nm
+        type: string
+        semantic_type: business_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  employer6_ein:
     x_petey_id: '2_57'
     type: string
     semantic_type: ein
@@ -2121,11 +2201,11 @@ fields:
       - 669.4500122070312
       widget_type: text
       path: penContribEmployerEIN_06
+    label_source: llm
     x_petey_identifiers:
-      subject: employer
+      block_prefix: employer6
       suffix: ein
-      iteration: '6'
-  employer_6_contribution_dollar_amt:
+  employer6_dollar_amt_contributed:
     x_petey_id: '2_58'
     type: number
     semantic_type: money
@@ -2140,15 +2220,13 @@ fields:
       path: penContribEmployerContribAmt_06
     description: Dollar amount contributed by employer
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
-      subject: contribution_dollar
-      suffix: amt
-  employer_6_multiple_cba_ind:
+      block_prefix: employer6
+      subject: dollar_amt_contributed
+  employer6_multiple_cba_ind:
     x_petey_id: '2_59'
     type: boolean
     semantic_type: indicator
@@ -2164,14 +2242,12 @@ fields:
     description: If employer contributes under more than one collective bargaining
       agreement, mark box and see instructions regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
-      subject: multiple_cba
+      block_prefix: employer6
       suffix: ind
-  employer_6_cba_expiration_month:
+      subject: multiple_cba
+  employer6_cba_expiration_month:
     x_petey_id: '2_60'
     type: string
     widget:
@@ -2185,14 +2261,12 @@ fields:
       path: penContribEmployerCbaExpDateMonth_06
     description: Month collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
+      block_prefix: employer6
       subject: cba_expiration
       suffix: month
-  employer_6_cba_expiration_day:
+  employer6_cba_expiration_day:
     x_petey_id: '2_61'
     type: string
     widget:
@@ -2206,14 +2280,12 @@ fields:
       path: penContribEmployerCbaExpDateDay_06
     description: Day collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
+      block_prefix: employer6
       subject: cba_expiration
       suffix: day
-  employer_6_cba_expiration_yr:
+  employer6_cba_expiration_yr:
     x_petey_id: '2_62'
     type: string
     semantic_type: year
@@ -2229,14 +2301,12 @@ fields:
       path: penContribEmployerCbaExpDateYear_06
     description: Year collective bargaining agreement expires
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
+      block_prefix: employer6
       subject: cba_expiration
       suffix: yr
-  employer_6_multiple_contribution_rates_ind:
+  employer6_multiple_contribution_rates_ind:
     x_petey_id: '2_63'
     type: boolean
     semantic_type: indicator
@@ -2252,17 +2322,14 @@ fields:
     description: If more than one rate applies, mark this box and see instructions
       regarding required attachment.
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
-      subject: multiple_contribution_rates
+      block_prefix: employer6
       suffix: ind
-  employer_6_contribution_rate_amt:
+      subject: multiple_contribution_rates
+  employer6_contribution_rate_amt:
     x_petey_id: '2_64'
     type: number
-    semantic_type: money
     widget:
       page: 2
       rect:
@@ -2274,15 +2341,22 @@ fields:
       path: penContribEmployerMultiRateAmt_06
     description: Contribution rate (in dollars and cents)
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - -semantic_type
+      reason: Dollars and cents rate; money_whole_dollar is wrong.
+      before:
+        type: number
+        semantic_type: money_whole_dollar
+        description: Contribution rate (in dollars and cents)
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
-      subject: contribution_rate
+      block_prefix: employer6
       suffix: amt
-  employer_6_base_unit_measure:
+      subject: contribution_rate
+  employer6_base_unit_measure:
     x_petey_id: '2_65'
     type: category
     values:
@@ -2290,11 +2364,6 @@ fields:
     - Weekly
     - Unit
     - Other
-    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       Hourly:
         page: 2
@@ -2340,9 +2409,14 @@ fields:
         path: P5-13e2-6
         on_state: Other
         caption: Other
+    description: Base unit measure. Mark Hourly, Weekly, Unit of production, or Other
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: employer_6_base_unit_measure
-  employer_6_base_unit_other_txt:
+      block_prefix: employer6
+      subject: base_unit_measure
+  employer6_base_unit_measure_other_txt:
     x_petey_id: '2_66'
     type: string
     semantic_type: text
@@ -2357,26 +2431,18 @@ fields:
       path: penContribEmployerOtherBaseUnitText_06
     description: If other specify
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      block_prefix: employer
-      block_iteration: '6'
-      subject: base_unit_other
+      block_prefix: employer6
       suffix: txt
-  inactive_participant_counting_method_cd:
+      subject: base_unit_measure_other
+  inactive_participant_counting_method:
     x_petey_id: '3_1'
     type: category
     values:
     - 'ast contributing employer '
     - alternative
     - reasonable approximation
-    description: Mark the box to indicate the counting method used to determine the
-      number of inactive participants
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[3]
     widgets:
       'ast contributing employer ':
         page: 3
@@ -2411,12 +2477,16 @@ fields:
         path: P5-14a
         on_state: reasonable approximation
         caption: reasonable approximation
+    description: Mark the box to indicate the counting method used to determine the
+      number of inactive participants
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: inactive_participant_counting_method_cd
-  inactive_participants_current_yr_amt:
+      subject: inactive_participant_counting_method
+  inactive_participants_current_plan_yr_cnt:
     x_petey_id: '3_2'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 3
       rect:
@@ -2426,15 +2496,41 @@ fields:
       - 111.74700927734375
       widget_type: text
       path: penNoContribCurYrCnt
-    description: The current plan year.
+    description: 'Line 14a: number of deferred vested and retired (inactive) participants
+      for the current plan year.'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: inactive_participants_current_plan_yr_cnt
+      reason: Caption for line 14a asks to 'Enter the number' of deferred vested and
+        retired (inactive) participants for the current plan year, so the box holds
+        a participant count, which 'inactive_participants_current_plan_yr_cnt' describes;
+        'current_plan_yr' implies a year value, not a count.
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -semantic_type
+      - -pattern
+      - name
+      reason: Line 14a asks for a count of inactive participants for the current plan
+        year, not a 4-digit year; publisher name penNoContribCurYrCnt confirms a count.
+      before:
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+        description: The current plan year.
+      old_name: current_plan_yr
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      subject: inactive_participants_current_yr
-      suffix: amt
-  prior_yr_inactive_participants_change_ind:
+      subject: inactive_participants_current_plan_yr
+      suffix: cnt
+  line_14b_change_ind:
     x_petey_id: '3_3'
     type: boolean
     semantic_type: indicator
@@ -2450,15 +2546,13 @@ fields:
     description: Mark the box if the number reported is a change from what was previously
       reported
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: prior_yr_inactive_participants_change
+      subject: line_14b_change
       suffix: ind
-  inactive_participants_prior_yr_amt:
+  inactive_participants_preceding_plan_yr_cnt:
     x_petey_id: '3_4'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 3
       rect:
@@ -2468,15 +2562,41 @@ fields:
       - 142.89697265625
       widget_type: text
       path: penNoContribPrevYrCnt
-    description: The plan year immediately preceding the current plan year.
+    description: 'Line 14b: number of inactive participants for the plan year immediately
+      preceding the current plan year.'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: inactive_participants_preceding_plan_yr_cnt
+      reason: Line 14b caption asks for a count of deferred vested/retired participants
+        for 'the plan year immediately preceding the current plan year,' making this
+        a participant count, not a year value; proposed name 'inactive_participants_preceding_plan_yr_cnt'
+        fits a count, while 'preceding_plan_yr' suggests a
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -semantic_type
+      - -pattern
+      - name
+      reason: Line 14b is a participant count (penNoContribPrevYrCnt), not a year
+        value.
+      before:
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+        description: The plan year immediately preceding the current plan year.
+      old_name: preceding_plan_yr
+      adjudicated: proposed
+      judged: 'kept: 0 -> 0'
     x_petey_identifiers:
-      subject: inactive_participants_prior_yr
-      suffix: amt
-  second_preceding_yr_inactive_participants_change_ind:
+      subject: inactive_participants_preceding_plan_yr
+      suffix: cnt
+  line_14c_change_ind:
     x_petey_id: '3_5'
     type: boolean
     semantic_type: indicator
@@ -2492,15 +2612,13 @@ fields:
     description: Mark the box if the number reported is a change from what was previously
       reported
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: second_preceding_yr_inactive_participants_change
+      subject: line_14c_change
       suffix: ind
-  inactive_participants_second_preceding_yr_amt:
+  inactive_participants_second_preceding_plan_yr_cnt:
     x_petey_id: '3_6'
-    type: number
-    semantic_type: money
+    type: integer
     widget:
       page: 3
       rect:
@@ -2510,18 +2628,43 @@ fields:
       - 169.625
       widget_type: text
       path: penNoContrib2ndPrevYrCnt
-    description: The second preceding plan year.
+    description: 'Line 14c: number of inactive participants for the second preceding
+      plan year.'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_adjudication:
+      verdict: proposed
+      proposed: inactive_participants_second_preceding_plan_yr_cnt
+      reason: 'Caption 14c asks for the number of deferred vested/retired participants
+        for ''The second preceding plan year,'' making this a count of participants,
+        not a year value; the proposed name inactive_participants_second_preceding_plan_yr_cnt
+        correctly captures both the count nature and the second preceding '
+      model: claude-sonnet-4-6
+      contested: the page check says the name or type does not fit the box
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -semantic_type
+      - -pattern
+      - name
+      reason: Caption 14c and publisher name penNoContrib2ndPrevYrCnt show a count,
+        not a 4-digit year.
+      before:
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+        description: The second preceding plan year.
+      old_name: second_preceding_plan_yr
+      adjudicated: proposed
+      judged: 'kept: 3 -> 0'
     x_petey_identifiers:
-      subject: inactive_participants_second_preceding_yr
-      suffix: amt
-  no_employer_obligation_prior_yr_ratio_amt:
+      subject: inactive_participants_second_preceding_plan_yr
+      suffix: cnt
+  line_15a_preceding_plan_yr_ratio:
     x_petey_id: '3_7'
     type: number
-    semantic_type: money
     widget:
       page: 3
       rect:
@@ -2531,19 +2674,32 @@ fields:
       - 212.96002197265625
       widget_type: text
       path: penNoContribCurPrevPrcnt
-    description: The corresponding number for the plan year immediately preceding
-      the current plan year
+    description: 'Line 15a: ratio of the number of participants under the plan to
+      the corresponding number for the plan year immediately preceding the current
+      plan year.'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -semantic_type
+      - -pattern
+      reason: Name already fits; the box holds a ratio/percent (penNoContribCurPrevPrcnt),
+        so the year type and 4-digit pattern are wrong.
+      before:
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+        description: The corresponding number for the plan year immediately preceding
+          the current plan year
+      judged: 'kept: 1 -> 0'
     x_petey_identifiers:
-      subject: no_employer_obligation_prior_yr_ratio
-      suffix: amt
-  no_employer_obligation_second_preceding_yr_ratio_amt:
+      subject: line_15a_preceding_plan_yr_ratio
+  line_15b_second_preceding_plan_yr_ratio:
     x_petey_id: '3_8'
     type: number
-    semantic_type: money
     widget:
       page: 3
       rect:
@@ -2553,15 +2709,27 @@ fields:
       - 227.28802490234375
       widget_type: text
       path: penNoContribCur2ndPrevPrcnt
-    description: The corresponding number for the second preceding plan year
+    description: 'Line 15b: ratio of the number of participants under the plan to
+      the corresponding number for the second preceding plan year.'
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - money
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - type
+      - description
+      - -semantic_type
+      - -pattern
+      reason: Box holds the ratio figure (penNoContribCur2ndPrevPrcnt), not a year.
+      before:
+        type: string
+        semantic_type: year
+        pattern: ^\d{4}$
+        description: The corresponding number for the second preceding plan year
+      judged: 'kept: 1 -> 0'
     x_petey_identifiers:
-      subject: no_employer_obligation_second_preceding_yr_ratio
-      suffix: amt
-  withdrawn_employers_cnt:
+      subject: line_15b_second_preceding_plan_yr_ratio
+  line_16a_withdrawn_employers_cnt:
     x_petey_id: '3_9'
     type: integer
     semantic_type: count
@@ -2577,12 +2745,11 @@ fields:
     description: Enter the number of employers who withdrew during the preceding plan
       year
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: withdrawn_employers
+      subject: line_16a_withdrawn_employers
       suffix: cnt
-  withdrawal_liability_assessed_amt:
+  line_16b_withdrawal_liability_amt:
     x_petey_id: '3_10'
     type: number
     semantic_type: money
@@ -2598,13 +2765,13 @@ fields:
     description: If line 16a is greater than 0, enter the aggregate amount of withdrawal
       liability assessed or estimated to be assessed against such withdrawn employers
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_retype:
-    - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: withdrawal_liability_assessed
+      subject: line_16b_withdrawal_liability
       suffix: amt
-  assets_liabilities_transferred_ind:
+  line_17_plan_transfer_merger_ind:
     x_petey_id: '3_11'
     type: boolean
     semantic_type: indicator
@@ -2620,12 +2787,11 @@ fields:
     description: Mark box if assets and liabilities from another plan have been transferred
       to or merged with this plan during the plan year
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: assets_liabilities_transferred
+      subject: line_17_plan_transfer_merger
       suffix: ind
-  liabilities_multiple_plans_ind:
+  line_18_multiple_plan_liabilities_ind:
     x_petey_id: '3_12'
     type: boolean
     semantic_type: indicator
@@ -2643,10 +2809,9 @@ fields:
       to such participants and beneficiaries under two or more pension plans as of
       immediately before such plan year
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: liabilities_multiple_plans
+      subject: line_18_multiple_plan_liabilities
       suffix: ind
   public_equity_pct:
     x_petey_id: '3_13'
@@ -2663,8 +2828,7 @@ fields:
       path: penPublicEquityPrcnt
     description: Public Equity
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
       subject: public_equity
       suffix: pct
@@ -2683,12 +2847,11 @@ fields:
       path: penPrivateEquityPrcnt
     description: Private Equity
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
       subject: private_equity
       suffix: pct
-  investment_grade_debt_pct:
+  investment_grade_debt_hedging_assets_pct:
     x_petey_id: '3_15'
     type: number
     semantic_type: percent
@@ -2703,10 +2866,9 @@ fields:
       path: penInvstGradeDebtPrcnt
     description: Investment-Grade Debt and Interest Rate Hedging Assets
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: investment_grade_debt
+      subject: investment_grade_debt_hedging_assets
       suffix: pct
   high_yield_debt_pct:
     x_petey_id: '3_16'
@@ -2723,8 +2885,7 @@ fields:
       path: penHiYldDebtPrcnt
     description: High-Yield Debt
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
       subject: high_yield_debt
       suffix: pct
@@ -2741,10 +2902,11 @@ fields:
       - 417.7139892578125
       widget_type: text
       path: penRealAssetsPrcnt
+    label_source: llm
     x_petey_identifiers:
       subject: real_assets
       suffix: pct
-  cash_equivalents_pct:
+  cash_or_cash_equivalents_pct:
     x_petey_id: '3_18'
     type: number
     semantic_type: percent
@@ -2759,10 +2921,9 @@ fields:
       path: penCashEquivalentPrcnt
     description: Cash or Cash Equivalents
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: cash_equivalents
+      subject: cash_or_cash_equivalents
       suffix: pct
   other_assets_pct:
     x_petey_id: '3_19'
@@ -2777,10 +2938,11 @@ fields:
       - 417.21600341796875
       widget_type: text
       path: penOthAssetPrcnt
+    label_source: llm
     x_petey_identifiers:
       subject: other_assets
       suffix: pct
-  investment_grade_debt_avg_duration_cd:
+  investment_grade_debt_avg_duration:
     x_petey_id: '3_20'
     type: category
     values:
@@ -2788,12 +2950,6 @@ fields:
     - 5-10 years
     - 10-15 years
     - 15 years or more
-    description: Mark the average duration of the Investment-Grade Debt and Interest
-      Rate Hedging Assets
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       0-5 years:
         page: 3
@@ -2839,20 +2995,19 @@ fields:
         path: P6-19a
         on_state: 15 years or more
         caption: 15 years or more
+    description: Mark the average duration of the Investment-Grade Debt and Interest
+      Rate Hedging Assets
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: investment_grade_debt_avg_duration_cd
-  unpaid_min_required_contributions_gt_zero_ind:
+      subject: investment_grade_debt_avg_duration
+  line_20a_unpaid_min_contribution_ind:
     x_petey_id: '3_21'
     type: category
     values:
     - 'Yes'
     - 'No'
-    description: Is the amount of unpaid minimum required contributions for all years
-      from Schedule SB (Form 5500) line 40 greater than zero? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 3
@@ -2876,9 +3031,14 @@ fields:
         path: P6-20a
         on_state: 'No'
         caption: 'No'
+    description: Is the amount of unpaid minimum required contributions for all years
+      from Schedule SB (Form 5500) line 40 greater than zero? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: unpaid_min_required_contributions_gt_zero_ind
-  pbgc_notified_cd:
+      subject: line_20a_unpaid_min_contribution_ind
+  line_20b_pbgc_notified_cd:
     x_petey_id: '3_22'
     type: category
     values:
@@ -2886,12 +3046,6 @@ fields:
     - No-waived
     - No 30-day
     - No-Other
-    description: If line 20a is “Yes,” has PBGC been notified as required by ERISA
-      sections 4043(c)(5) and/or 303(k)(4)?
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[4]
     widgets:
       'Yes':
         page: 3
@@ -2937,9 +3091,14 @@ fields:
         path: P6-20b
         on_state: No-Other
         caption: No-Other
+    description: If line 20a is “Yes,” has PBGC been notified as required by ERISA
+      sections 4043(c)(5) and/or 303(k)(4)?
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: pbgc_notified_cd
-  pbgc_notification_no_other_explanation_txt:
+      subject: line_20b_pbgc_notified_cd
+  line_20b_no_other_explanation_txt:
     x_petey_id: '3_23'
     type: string
     semantic_type: text
@@ -2954,24 +3113,16 @@ fields:
       path: pBGCNotifiedExplanationText
     description: If no, other, provide explanation
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
-      subject: pbgc_notification_no_other_explanation
+      subject: line_20b_no_other_explanation
       suffix: txt
-  permissive_aggregation_coverage_test_ind:
+  line_21a_permissive_aggregation_ind:
     x_petey_id: '3_24'
     type: category
     values:
     - 'Yes'
     - 'No'
-    description: Does the plan satisfy the coverage and nondiscrimination tests of
-      Code sections 410(b) and 401(a)(4) by combining this plan with any other plans
-      under the permissive aggregation rules? Mark Yes or No.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    - option_group:category->category[2]
     widgets:
       'Yes':
         page: 3
@@ -2995,10 +3146,81 @@ fields:
         path: P7-21a
         on_state: 'No'
         caption: 'No'
+    description: Does the plan satisfy the coverage and nondiscrimination tests of
+      Code sections 410(b) and 401(a)(4) by combining this plan with any other plans
+      under the permissive aggregation rules? Mark Yes or No.
+    x_petey_description_source: tooltip
+    x_petey_retype:
+    - description_from_tooltip
     x_petey_identifiers:
-      subject: permissive_aggregation_coverage_test_ind
+      subject: line_21a_permissive_aggregation_ind
+  adp:
+    x_petey_id: '3_31'
+    type: category
+    values:
+    - adp_design_based_safe_harbor_ind
+    - adp_prior_year_test_ind
+    - adp_current_year_test_ind
+    - adp_na_ind
+    widgets:
+      adp_design_based_safe_harbor_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 642.6610107421875
+        - 66.37539672851562
+        - 656.1610107421875
+        widget_type: checkbox
+        path: P7-21b-1
+        on_state: 'Yes'
+        caption: Mark if Design-based safe harbor method
+        x_petey_caption_source: tooltip
+      adp_prior_year_test_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 657.0050048828125
+        - 66.37539672851562
+        - 670.5050048828125
+        widget_type: checkbox
+        path: P7-21b-2
+        on_state: 'Yes'
+        caption: Mark if "Prior year" ADP test
+        x_petey_caption_source: tooltip
+      adp_current_year_test_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 671.3489990234375
+        - 66.37539672851562
+        - 684.8489990234375
+        widget_type: checkbox
+        path: P7-21b-3
+        on_state: 'Yes'
+        caption: Mark if "Current year" ADP test
+        x_petey_caption_source: tooltip
+      adp_na_ind:
+        page: 3
+        rect:
+        - 57.3754997253418
+        - 685.9739990234375
+        - 66.37539672851562
+        - 699.4743041992188
+        widget_type: checkbox
+        path: P7-21b-4
+        on_state: 'Yes'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-09 20:26:36'
+      from:
+      - adp_design_based_safe_harbor_ind
+      - adp_prior_year_test_ind
+      - adp_current_year_test_ind
+      - adp_na_ind
+    x_petey_identifiers:
+      subject: adp
   opinion_letter_dt:
-    x_petey_id: '3_26'
+    x_petey_id: '3_29'
     type: date
     semantic_type: iso_date
     widget:
@@ -3010,16 +3232,14 @@ fields:
       - 711.3637084960938
       widget_type: text
       path: penOpinLtrDateMonth
-    x_petey_retype:
-    - pattern_dropped
-    - description_from_tooltip
     description: Enter the date of the Opinion Letter
     x_petey_description_source: tooltip
+    label_source: llm
     x_petey_identifiers:
       subject: opinion_letter
       suffix: dt
   opinion_letter_serial_num:
-    x_petey_id: '3_27'
+    x_petey_id: '3_30'
     type: string
     widget:
       page: 3
@@ -3032,66 +3252,34 @@ fields:
       path: penOpinSerialNum
     description: Opinion Letter serial number
     x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    label_source: llm
     x_petey_identifiers:
       subject: opinion_letter_serial_num
-  nondiscrimination_method:
-    x_petey_id: '3_25'
-    type: category
-    values:
-    - current_year_adp_test_ind
-    - design_based_safe_harbor_ind
-    - na_ind
-    - prior_year_adp_test_ind
-    widgets:
-      design_based_safe_harbor_ind:
-        page: 3
-        rect:
-        - 57.3754997253418
-        - 642.6610107421875
-        - 66.37539672851562
-        - 656.1610107421875
-        widget_type: checkbox
-        path: P7-21b-1
-        on_state: 'Yes'
-        caption: Design-based safe harbor method
-        x_petey_caption_source: page_text
-      prior_year_adp_test_ind:
-        page: 3
-        rect:
-        - 57.3754997253418
-        - 657.0050048828125
-        - 66.37539672851562
-        - 670.5050048828125
-        widget_type: checkbox
-        path: P7-21b-2
-        on_state: 'Yes'
-        caption: “Prior year” ADP test
-        x_petey_caption_source: page_text
-      current_year_adp_test_ind:
-        page: 3
-        rect:
-        - 57.3754997253418
-        - 671.3489990234375
-        - 66.37539672851562
-        - 684.8489990234375
-        widget_type: checkbox
-        path: P7-21b-3
-        on_state: 'Yes'
-        caption: “Current year” ADP test
-        x_petey_caption_source: page_text
-      na_ind:
-        page: 3
-        rect:
-        - 57.3754997253418
-        - 685.9739990234375
-        - 66.37539672851562
-        - 699.4743041992188
-        widget_type: checkbox
-        path: P7-21b-4
-        on_state: 'Yes'
-        caption: N/A
-        x_petey_caption_source: page_text
-    x_petey_identifiers:
-      subject: nondiscrimination_method
+x_petey_emit_fixes:
+  date_narrow_widget->string: 2
+  description_from_tooltip: 19
+x_petey_page_check:
+  when: '2026-10-06 11:13:25'
+  model: claude-opus-5
+  prompt: 216f41cd
+  pages:
+  - 1
+  - 2
+  - 3
+  fields: 120
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/je__2025-schedule-r__a904c82f.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: 2025-schedule-r_20261006_111132
+  blueprint: runs/judge_eval/blueprints/2025-schedule-r.bpt
+  when: '2026-10-06 11:12:58'

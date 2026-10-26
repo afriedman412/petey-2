@@ -127,7 +127,7 @@ fields:
   borrower_name_address:
     x_petey_id: '1_5'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 1
       rect:
@@ -137,12 +137,29 @@ fields:
       - 275.80902099609375
       widget_type: text
       path: Text429
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: borrower_name_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: borrower_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: borrower_name_address
   seller_name_address:
     x_petey_id: '1_6'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 1
       rect:
@@ -152,12 +169,29 @@ fields:
       - 275.56597900390625
       widget_type: text
       path: Text430
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: seller_name_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: seller_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: seller_name_address
   lender_name_address:
     x_petey_id: '1_7'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 1
       rect:
@@ -167,6 +201,23 @@ fields:
       - 276.3079833984375
       widget_type: text
       path: Text431
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: lender_name_address
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: lender_name_address
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: lender_name_address
   property_location:
@@ -199,7 +250,7 @@ fields:
     x_petey_identifiers:
       subject: settlement_agent
       suffix: nm
-  place_of_settlement:
+  seller_transaction_borrower_description_1:
     x_petey_id: '1_11'
     type: string
     widget:
@@ -212,7 +263,27 @@ fields:
       widget_type: text
       path: Text434
     x_petey_identifiers:
-      subject: place_of_settlement
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:23'
+      from:
+        name: place_of_settlement
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: place_of_settlement
+      to:
+        name: seller_transaction_borrower_description_1
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   settlement_dt:
     x_petey_id: '1_10'
     type: date
@@ -231,7 +302,7 @@ fields:
     x_petey_identifiers:
       subject: settlement
       suffix: dt
-  line_101_contract_sales_price_amt:
+  borrower_transaction_contract_sales_price_amt:
     x_petey_id: '1_12'
     type: number
     semantic_type: money
@@ -247,10 +318,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_101_contract_sales_price
+      block_prefix: borrower_transaction
+      subject: contract_sales_price
       suffix: amt
       grid: p1-G1
-  line_102_personal_property_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_contract_sales_price_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: contract_sales_price
+          suffix: amt
+          grid: p1-G1
+      to:
+        name: borrower_transaction_contract_sales_price_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_personal_property_amt:
     x_petey_id: '1_14'
     type: number
     semantic_type: money
@@ -266,10 +360,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_102_personal_property
+      block_prefix: borrower_transaction
+      subject: personal_property
       suffix: amt
       grid: p1-G1
-  line_103_settlement_charges_to_borrower_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_personal_property_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: personal_property
+          suffix: amt
+          grid: p1-G1
+      to:
+        name: borrower_transaction_personal_property_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_settlement_charges_to_borrower_amt:
     x_petey_id: '1_16'
     type: number
     semantic_type: money
@@ -284,7 +401,53 @@ fields:
       path: Text439
     x_petey_retype:
     - money
-  line_104_borrower_description:
+    x_petey_identifiers:
+      block_prefix: borrower_transaction
+      subject: settlement_charges_to_borrower
+      suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_settlement_charges_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: settlement_charges_to_borrower
+          suffix: amt
+      to:
+        name: borrower_transaction_settlement_charges_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  file_nbr_4:
+    x_petey_id: '1_150'
+    type: string
+    widget:
+      page: 1
+      rect:
+      - 340.5379943847656
+      - 418.1729736328125
+      - 501.9020080566406
+      - 427.85601806640625
+      widget_type: text
+      path: Text512
+    label_source: twin
+    x_petey_added:
+      source: field_add
+      when: '2026-10-25 21:56:49'
+      geometry: widget
+      name_from: 'twin: sibling path'
+      caption: '403'
+    x_petey_identifiers:
+      subject: file_nbr_4
+  borrower_transaction_borrower_description_1:
     x_petey_id: '1_19'
     type: string
     semantic_type: description
@@ -298,9 +461,33 @@ fields:
       widget_type: text
       path: Text440
     x_petey_identifiers:
-      subject: line_104_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '1'
       grid: p1-G1
-  line_104_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_1
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '1'
+          grid: p1-G1
+      to:
+        name: borrower_transaction_borrower_description_1
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_1:
     x_petey_id: '1_20'
     type: number
     semantic_type: money
@@ -316,10 +503,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_104
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '1'
       grid: p1-G1
-  line_105_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '1'
+          grid: p1-G1
+      to:
+        name: borrower_transaction_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_2:
     x_petey_id: '1_23'
     type: string
     semantic_type: description
@@ -333,9 +543,33 @@ fields:
       widget_type: text
       path: Text442
     x_petey_identifiers:
-      subject: line_105_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '2'
       grid: p1-G1
-  line_105_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_2
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '2'
+          grid: p1-G1
+      to:
+        name: borrower_transaction_borrower_description_2
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_18:
     x_petey_id: '1_24'
     type: number
     semantic_type: money
@@ -351,10 +585,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_105
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '18'
       grid: p1-G1
-  line_106_city_town_taxes_from_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_18
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '18'
+          grid: p1-G1
+      to:
+        name: borrower_transaction_amt_18
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_city_town_taxes_from_dt_1:
     x_petey_id: '1_27'
     type: date
     semantic_type: iso_date
@@ -370,10 +627,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_106_city_town_taxes_from
+      block_prefix: borrower_transaction
+      subject: city_town_taxes_from
       suffix: dt
+      part: '1'
       grid: p1-G2
-  line_106_city_town_taxes_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_city_town_taxes_from_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: city_town_taxes_from
+          suffix: dt
+          part: '1'
+          grid: p1-G2
+      to:
+        name: borrower_transaction_city_town_taxes_from_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_city_town_taxes_to_dt_1:
     x_petey_id: '1_28'
     type: date
     semantic_type: iso_date
@@ -389,10 +671,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_106_city_town_taxes_to
+      block_prefix: borrower_transaction
+      subject: city_town_taxes_to
       suffix: dt
+      part: '1'
       grid: p1-G2
-  line_106_city_town_taxes_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_city_town_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: city_town_taxes_to
+          suffix: dt
+          part: '1'
+          grid: p1-G2
+      to:
+        name: borrower_transaction_city_town_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_city_town_taxes_amt_1:
     x_petey_id: '1_29'
     type: number
     semantic_type: money
@@ -408,10 +715,35 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_106_city_town_taxes
+      block_prefix: borrower_transaction
+      subject: city_town_taxes
       suffix: amt
+      part: '1'
       grid: p1-G2
-  line_107_county_taxes_from_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_city_town_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: city_town_taxes
+          suffix: amt
+          part: '1'
+          grid: p1-G2
+      to:
+        name: borrower_transaction_city_town_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_county_taxes_from_dt_1:
     x_petey_id: '1_33'
     type: date
     semantic_type: iso_date
@@ -427,10 +759,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_107_county_taxes_from
+      block_prefix: borrower_transaction
+      subject: county_taxes_from
       suffix: dt
+      part: '1'
       grid: p1-G2
-  line_107_county_taxes_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_county_taxes_from_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: county_taxes_from
+          suffix: dt
+          part: '1'
+          grid: p1-G2
+      to:
+        name: borrower_transaction_county_taxes_from_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_county_taxes_to_dt_1:
     x_petey_id: '1_34'
     type: date
     semantic_type: iso_date
@@ -446,10 +803,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_107_county_taxes_to
+      block_prefix: borrower_transaction
+      subject: county_taxes_to
       suffix: dt
+      part: '1'
       grid: p1-G2
-  line_107_county_taxes_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_county_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: county_taxes_to
+          suffix: dt
+          part: '1'
+          grid: p1-G2
+      to:
+        name: borrower_transaction_county_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_county_taxes_amt_1:
     x_petey_id: '1_35'
     type: number
     semantic_type: money
@@ -465,10 +847,35 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_107_county_taxes
+      block_prefix: borrower_transaction
+      subject: county_taxes
       suffix: amt
+      part: '1'
       grid: p1-G2
-  line_108_assessments_from_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_county_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: county_taxes
+          suffix: amt
+          part: '1'
+          grid: p1-G2
+      to:
+        name: borrower_transaction_county_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_assessments_from_dt:
     x_petey_id: '1_39'
     type: date
     semantic_type: iso_date
@@ -484,10 +891,33 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_108_assessments_from
+      block_prefix: borrower_transaction
+      subject: assessments_from
       suffix: dt
       grid: p1-G2
-  line_108_assessments_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: assessments_from
+          suffix: dt
+          grid: p1-G2
+      to:
+        name: borrower_transaction_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_line_108_assessments_to_dt:
     x_petey_id: '1_40'
     type: date
     semantic_type: iso_date
@@ -503,10 +933,31 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
+      block_prefix: borrower_transaction
       subject: line_108_assessments_to
       suffix: dt
       grid: p1-G2
-  line_108_assessments_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:17'
+      from:
+        name: line_108_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          subject: line_108_assessments_to
+          suffix: dt
+          grid: p1-G2
+      to:
+        name: borrower_transaction_line_108_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_assessments_amt_1:
     x_petey_id: '1_41'
     type: number
     semantic_type: money
@@ -522,10 +973,35 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_108_assessments
+      block_prefix: borrower_transaction
+      subject: assessments
       suffix: amt
+      part: '1'
       grid: p1-G2
-  line_109_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_assessments_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: assessments
+          suffix: amt
+          part: '1'
+          grid: p1-G2
+      to:
+        name: borrower_transaction_assessments_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_3:
     x_petey_id: '1_45'
     type: string
     semantic_type: description
@@ -539,9 +1015,33 @@ fields:
       widget_type: text
       path: Text454
     x_petey_identifiers:
-      subject: line_109_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '3'
       grid: p1-G3
-  line_109_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_3
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '3'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_3
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_2:
     x_petey_id: '1_46'
     type: number
     semantic_type: money
@@ -557,10 +1057,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_109
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '2'
       grid: p1-G3
-  line_110_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '2'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_4:
     x_petey_id: '1_49'
     type: string
     semantic_type: description
@@ -574,9 +1097,33 @@ fields:
       widget_type: text
       path: Text456
     x_petey_identifiers:
-      subject: line_110_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '4'
       grid: p1-G3
-  line_110_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_4
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '4'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_4
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_3:
     x_petey_id: '1_50'
     type: number
     semantic_type: money
@@ -592,10 +1139,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_110
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '3'
       grid: p1-G3
-  line_111_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '3'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_5:
     x_petey_id: '1_53'
     type: string
     semantic_type: description
@@ -609,9 +1179,33 @@ fields:
       widget_type: text
       path: Text458
     x_petey_identifiers:
-      subject: line_111_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '5'
       grid: p1-G3
-  line_111_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_5
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '5'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_5
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_4:
     x_petey_id: '1_54'
     type: number
     semantic_type: money
@@ -627,10 +1221,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_111
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '4'
       grid: p1-G3
-  line_112_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_4
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '4'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_4
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_15:
     x_petey_id: '1_57'
     type: string
     semantic_type: description
@@ -644,9 +1261,33 @@ fields:
       widget_type: text
       path: Text460
     x_petey_identifiers:
-      subject: line_112_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '15'
       grid: p1-G3
-  line_112_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_15
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '15'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_15
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_5:
     x_petey_id: '1_58'
     type: number
     semantic_type: money
@@ -662,10 +1303,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_112
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '5'
       grid: p1-G3
-  line_120_gross_amt_due_from_borrower:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_5
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '5'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_5
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_gross_amt_due_from_borrower_1:
     x_petey_id: '1_61'
     type: number
     semantic_type: money
@@ -681,9 +1345,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_120_gross_amt_due_from_borrower
+      block_prefix: borrower_transaction
+      subject: gross_amt_due_from_borrower
+      iteration: '1'
       grid: p1-G3
-  line_201_deposit_earnest_money_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_gross_amt_due_from_borrower_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: gross_amt_due_from_borrower
+          iteration: '1'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_gross_amt_due_from_borrower_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_deposit_earnest_money_amt:
     x_petey_id: '1_63'
     type: number
     semantic_type: money
@@ -699,27 +1387,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_201_deposit_earnest_money
+      block_prefix: borrower_transaction
+      subject: deposit_earnest_money
       suffix: amt
       grid: p1-G3
-  line_202_principal_amt_new_loans_description:
-    x_petey_id: '1_65'
-    type: number
-    semantic_type: money
-    widget:
-      page: 1
-      rect:
-      - 166.26800537109375
-      - 590.781005859375
-      - 232.24899291992188
-      - 603.93701171875
-      widget_type: text
-      path: Text1
-    x_petey_retype:
-    - money
-    x_petey_identifiers:
-      subject: line_202_principal_amt_new_loans_description
-  line_202_principal_amt_new_loans:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_deposit_earnest_money_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: deposit_earnest_money
+          suffix: amt
+          grid: p1-G3
+      to:
+        name: borrower_transaction_deposit_earnest_money_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_principal_amt_new_loans:
     x_petey_id: '1_66'
     type: number
     semantic_type: money
@@ -735,9 +1429,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_202_principal_amt_new_loans
+      block_prefix: borrower_transaction
+      subject: principal_amt_new_loans
       grid: p1-G3
-  line_203_existing_loans_taken_subject_to_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_principal_amt_new_loans
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: principal_amt_new_loans
+          grid: p1-G3
+      to:
+        name: borrower_transaction_principal_amt_new_loans
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_existing_loans_taken_subject_to_amt:
     x_petey_id: '1_68'
     type: number
     semantic_type: money
@@ -753,10 +1469,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_203_existing_loans_taken_subject_to
+      block_prefix: borrower_transaction
+      subject: existing_loans_taken_subject_to
       suffix: amt
       grid: p1-G3
-  line_204_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_existing_loans_taken_subject_to_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: existing_loans_taken_subject_to
+          suffix: amt
+          grid: p1-G3
+      to:
+        name: borrower_transaction_existing_loans_taken_subject_to_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_line_405_seller_description:
     x_petey_id: '1_70'
     type: string
     semantic_type: description
@@ -770,9 +1509,29 @@ fields:
       widget_type: text
       path: Text467
     x_petey_identifiers:
-      subject: line_204_borrower_description
+      block_prefix: borrower_transaction
+      subject: line_405_seller_description
       grid: p1-G3
-  line_204_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:54:43'
+      from:
+        name: line_204_borrower_description
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          subject: line_204_borrower_description
+          grid: p1-G3
+      to:
+        name: borrower_transaction_line_405_seller_description
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_6:
     x_petey_id: '1_71'
     type: number
     semantic_type: money
@@ -788,10 +1547,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_204
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '6'
       grid: p1-G3
-  line_205_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_6
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '6'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_6
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_line_205_borrower_description:
     x_petey_id: '1_73'
     type: string
     semantic_type: description
@@ -805,9 +1587,29 @@ fields:
       widget_type: text
       path: Text469
     x_petey_identifiers:
+      block_prefix: borrower_transaction
       subject: line_205_borrower_description
       grid: p1-G3
-  line_205_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:54:45'
+      from:
+        name: line_205_borrower_description
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          subject: line_205_borrower_description
+          grid: p1-G3
+      to:
+        name: borrower_transaction_line_205_borrower_description
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_7:
     x_petey_id: '1_74'
     type: number
     semantic_type: money
@@ -823,10 +1625,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_205
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '7'
       grid: p1-G3
-  line_206_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_7
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '7'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_7
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_6:
     x_petey_id: '1_76'
     type: string
     semantic_type: description
@@ -840,9 +1665,33 @@ fields:
       widget_type: text
       path: Text471
     x_petey_identifiers:
-      subject: line_206_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '6'
       grid: p1-G3
-  line_206_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_6
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '6'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_6
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_8:
     x_petey_id: '1_77'
     type: number
     semantic_type: money
@@ -858,10 +1707,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_206
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '8'
       grid: p1-G3
-  line_207_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_8
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '8'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_8
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_7:
     x_petey_id: '1_80'
     type: string
     semantic_type: description
@@ -875,9 +1747,33 @@ fields:
       widget_type: text
       path: Text473
     x_petey_identifiers:
-      subject: line_207_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '7'
       grid: p1-G3
-  line_207_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_7
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '7'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_7
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_9:
     x_petey_id: '1_81'
     type: number
     semantic_type: money
@@ -893,10 +1789,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_207
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '9'
       grid: p1-G3
-  line_208_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_9
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '9'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_9
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_8:
     x_petey_id: '1_84'
     type: string
     semantic_type: description
@@ -910,9 +1829,33 @@ fields:
       widget_type: text
       path: Text475
     x_petey_identifiers:
-      subject: line_208_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '8'
       grid: p1-G3
-  line_208_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_8
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '8'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_8
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_10:
     x_petey_id: '1_85'
     type: number
     semantic_type: money
@@ -928,10 +1871,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_208
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '10'
       grid: p1-G3
-  line_209_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_10
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '10'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_10
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_16:
     x_petey_id: '1_88'
     type: string
     semantic_type: description
@@ -945,9 +1911,33 @@ fields:
       widget_type: text
       path: Text477
     x_petey_identifiers:
-      subject: line_209_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '16'
       grid: p1-G3
-  line_209_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_16
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '16'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_borrower_description_16
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_19:
     x_petey_id: '1_89'
     type: number
     semantic_type: money
@@ -963,10 +1953,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_209
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '19'
       grid: p1-G3
-  line_210_city_town_taxes_from_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_19
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '19'
+          grid: p1-G3
+      to:
+        name: borrower_transaction_amt_19
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_city_town_taxes_from_dt_2:
     x_petey_id: '1_92'
     type: date
     semantic_type: iso_date
@@ -982,10 +1995,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_210_city_town_taxes_from
+      block_prefix: borrower_transaction
+      subject: city_town_taxes_from
       suffix: dt
+      part: '2'
       grid: p1-G4
-  line_210_city_town_taxes_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_city_town_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: city_town_taxes_from
+          suffix: dt
+          part: '2'
+          grid: p1-G4
+      to:
+        name: borrower_transaction_city_town_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_city_town_taxes_to_dt_2:
     x_petey_id: '1_93'
     type: date
     semantic_type: iso_date
@@ -1001,10 +2039,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_210_city_town_taxes_to
+      block_prefix: borrower_transaction
+      subject: city_town_taxes_to
       suffix: dt
+      part: '2'
       grid: p1-G4
-  line_210_city_town_taxes_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_city_town_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: city_town_taxes_to
+          suffix: dt
+          part: '2'
+          grid: p1-G4
+      to:
+        name: borrower_transaction_city_town_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_city_town_taxes_amt_2:
     x_petey_id: '1_94'
     type: number
     semantic_type: money
@@ -1020,10 +2083,35 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_210_city_town_taxes
+      block_prefix: borrower_transaction
+      subject: city_town_taxes
       suffix: amt
+      part: '2'
       grid: p1-G4
-  line_211_county_taxes_from_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_city_town_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: city_town_taxes
+          suffix: amt
+          part: '2'
+          grid: p1-G4
+      to:
+        name: borrower_transaction_city_town_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_county_taxes_from_dt_2:
     x_petey_id: '1_98'
     type: date
     semantic_type: iso_date
@@ -1039,10 +2127,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_211_county_taxes_from
+      block_prefix: borrower_transaction
+      subject: county_taxes_from
       suffix: dt
+      part: '2'
       grid: p1-G4
-  line_211_county_taxes_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_county_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: county_taxes_from
+          suffix: dt
+          part: '2'
+          grid: p1-G4
+      to:
+        name: borrower_transaction_county_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_county_taxes_to_dt_2:
     x_petey_id: '1_99'
     type: date
     semantic_type: iso_date
@@ -1058,10 +2171,35 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_211_county_taxes_to
+      block_prefix: borrower_transaction
+      subject: county_taxes_to
       suffix: dt
+      part: '2'
       grid: p1-G4
-  line_211_county_taxes_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_county_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: county_taxes_to
+          suffix: dt
+          part: '2'
+          grid: p1-G4
+      to:
+        name: borrower_transaction_county_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_county_taxes_amt_2:
     x_petey_id: '1_100'
     type: number
     semantic_type: money
@@ -1077,10 +2215,35 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_211_county_taxes
+      block_prefix: borrower_transaction
+      subject: county_taxes
       suffix: amt
+      part: '2'
       grid: p1-G4
-  line_212_assessments_from_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_county_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: county_taxes
+          suffix: amt
+          part: '2'
+          grid: p1-G4
+      to:
+        name: borrower_transaction_county_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_line_512_assessments_from_dt:
     x_petey_id: '1_104'
     type: date
     semantic_type: iso_date
@@ -1096,10 +2259,31 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_212_assessments_from
+      block_prefix: borrower_transaction
+      subject: line_512_assessments_from
       suffix: dt
       grid: p1-G4
-  line_212_assessments_to_dt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:54:38'
+      from:
+        name: line_212_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          subject: line_212_assessments_from
+          suffix: dt
+          grid: p1-G4
+      to:
+        name: borrower_transaction_line_512_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_assessments_to_dt:
     x_petey_id: '1_105'
     type: date
     semantic_type: iso_date
@@ -1115,10 +2299,33 @@ fields:
     x_petey_retype:
     - pattern_dropped
     x_petey_identifiers:
-      subject: line_212_assessments_to
+      block_prefix: borrower_transaction
+      subject: assessments_to
       suffix: dt
       grid: p1-G4
-  line_212_assessments_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: assessments_to
+          suffix: dt
+          grid: p1-G4
+      to:
+        name: borrower_transaction_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_assessments_amt_2:
     x_petey_id: '1_106'
     type: number
     semantic_type: money
@@ -1134,10 +2341,35 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_212_assessments
+      block_prefix: borrower_transaction
+      subject: assessments
       suffix: amt
+      part: '2'
       grid: p1-G4
-  line_213_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_assessments_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: assessments
+          suffix: amt
+          part: '2'
+          grid: p1-G4
+      to:
+        name: borrower_transaction_assessments_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_9:
     x_petey_id: '1_110'
     type: string
     semantic_type: description
@@ -1151,9 +2383,33 @@ fields:
       widget_type: text
       path: Text489
     x_petey_identifiers:
-      subject: line_213_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '9'
       grid: p1-G5
-  line_213_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_9
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '9'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_borrower_description_9
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_11:
     x_petey_id: '1_111'
     type: number
     semantic_type: money
@@ -1169,10 +2425,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_213
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '11'
       grid: p1-G5
-  line_214_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_11
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '11'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_amt_11
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_10:
     x_petey_id: '1_114'
     type: string
     semantic_type: description
@@ -1186,9 +2465,33 @@ fields:
       widget_type: text
       path: Text491
     x_petey_identifiers:
-      subject: line_214_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '10'
       grid: p1-G5
-  line_214_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_10
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '10'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_borrower_description_10
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_12:
     x_petey_id: '1_115'
     type: number
     semantic_type: money
@@ -1204,10 +2507,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_214
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '12'
       grid: p1-G5
-  line_215_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_12
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '12'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_amt_12
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_11:
     x_petey_id: '1_118'
     type: string
     semantic_type: description
@@ -1221,9 +2547,33 @@ fields:
       widget_type: text
       path: Text493
     x_petey_identifiers:
-      subject: line_215_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '11'
       grid: p1-G5
-  line_215_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_11
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '11'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_borrower_description_11
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_13:
     x_petey_id: '1_119'
     type: number
     semantic_type: money
@@ -1239,10 +2589,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_215
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '13'
       grid: p1-G5
-  line_216_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_13
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '13'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_amt_13
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_12:
     x_petey_id: '1_122'
     type: string
     semantic_type: description
@@ -1256,9 +2629,33 @@ fields:
       widget_type: text
       path: Text495
     x_petey_identifiers:
-      subject: line_216_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '12'
       grid: p1-G5
-  line_216_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_12
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '12'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_borrower_description_12
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_14:
     x_petey_id: '1_123'
     type: number
     semantic_type: money
@@ -1274,10 +2671,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_216
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '14'
       grid: p1-G5
-  line_217_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_14
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '14'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_amt_14
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_13:
     x_petey_id: '1_126'
     type: string
     semantic_type: description
@@ -1291,9 +2711,33 @@ fields:
       widget_type: text
       path: Text497
     x_petey_identifiers:
-      subject: line_217_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '13'
       grid: p1-G5
-  line_217_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_13
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '13'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_borrower_description_13
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_15:
     x_petey_id: '1_127'
     type: number
     semantic_type: money
@@ -1309,10 +2753,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_217
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '15'
       grid: p1-G5
-  line_218_borrower_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_15
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '15'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_amt_15
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_borrower_description_14:
     x_petey_id: '1_130'
     type: string
     semantic_type: description
@@ -1326,9 +2793,33 @@ fields:
       widget_type: text
       path: Text499
     x_petey_identifiers:
-      subject: line_218_borrower_description
+      block_prefix: borrower_transaction
+      subject: borrower_description
+      iteration: '14'
       grid: p1-G5
-  line_218_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_borrower_description_14
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: borrower_description
+          iteration: '14'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_borrower_description_14
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_amt_16:
     x_petey_id: '1_131'
     type: number
     semantic_type: money
@@ -1344,9 +2835,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_218
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '16'
       grid: p1-G5
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_16
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '16'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_amt_16
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   line_219_borrower_description:
     x_petey_id: '1_134'
     type: string
@@ -1363,7 +2877,7 @@ fields:
     x_petey_identifiers:
       subject: line_219_borrower_description
       grid: p1-G5
-  line_219_amt:
+  borrower_transaction_amt_17:
     x_petey_id: '1_135'
     type: number
     semantic_type: money
@@ -1379,10 +2893,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_219
+      block_prefix: borrower_transaction
       suffix: amt
+      part: '17'
       grid: p1-G5
-  line_220_total_paid_by_for_borrower_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_amt_17
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          suffix: amt
+          part: '17'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_amt_17
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_total_paid_by_for_borrower_amt:
     x_petey_id: '1_138'
     type: number
     semantic_type: money
@@ -1398,10 +2935,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_220_total_paid_by_for_borrower
+      block_prefix: borrower_transaction
+      subject: total_paid_by_for_borrower
       suffix: amt
       grid: p1-G5
-  line_301_gross_amt_due_from_borrower:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_total_paid_by_for_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: total_paid_by_for_borrower
+          suffix: amt
+          grid: p1-G5
+      to:
+        name: borrower_transaction_total_paid_by_for_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_gross_amt_due_from_borrower_2:
     x_petey_id: '1_140'
     type: number
     semantic_type: money
@@ -1417,9 +2977,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_301_gross_amt_due_from_borrower
+      block_prefix: borrower_transaction
+      subject: gross_amt_due_from_borrower
+      iteration: '2'
       grid: p1-G5
-  line_302_less_amt_paid_by_for_borrower:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_gross_amt_due_from_borrower_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: gross_amt_due_from_borrower
+          iteration: '2'
+          grid: p1-G5
+      to:
+        name: borrower_transaction_gross_amt_due_from_borrower_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_less_amt_paid_by_for_borrower:
     x_petey_id: '1_142'
     type: number
     semantic_type: money
@@ -1435,8 +3019,29 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_302_less_amt_paid_by_for_borrower
-  line_303_cash_direction:
+      block_prefix: borrower_transaction
+      subject: less_amt_paid_by_for_borrower
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_less_amt_paid_by_for_borrower
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: less_amt_paid_by_for_borrower
+      to:
+        name: borrower_transaction_less_amt_paid_by_for_borrower
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_cash_direction:
     x_petey_id: '1_144'
     type: category
     values:
@@ -1468,8 +3073,29 @@ fields:
     x_petey_retype:
     - option_group:category->category[2]
     x_petey_identifiers:
-      subject: line_303_cash_direction
-  line_303_cash_from_to_borrower_amt:
+      block_prefix: borrower_transaction
+      subject: cash_direction
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_cash_direction
+        type: category
+        semantic_type: null
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: cash_direction
+      to:
+        name: borrower_transaction_cash_direction
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  borrower_transaction_cash_from_to_borrower_amt:
     x_petey_id: '1_145'
     type: number
     semantic_type: money
@@ -1485,9 +3111,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_303_cash_from_to_borrower
+      block_prefix: borrower_transaction
+      subject: cash_from_to_borrower
       suffix: amt
-  line_401_contract_sales_price_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:50:50'
+      from:
+        name: line_1_cash_from_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '1'
+          subject: cash_from_to_borrower
+          suffix: amt
+      to:
+        name: borrower_transaction_cash_from_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_contract_sales_price_amt:
     x_petey_id: '1_13'
     type: number
     semantic_type: money
@@ -1502,7 +3150,31 @@ fields:
       path: Text510
     x_petey_retype:
     - money
-  line_402_personal_property_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: contract_sales_price
+      suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_settlement_charges_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: settlement_charges_to_borrower
+          suffix: amt
+      to:
+        name: seller_transaction_contract_sales_price_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_personal_property_amt:
     x_petey_id: '1_15'
     type: number
     semantic_type: money
@@ -1517,23 +3189,68 @@ fields:
       path: Text511
     x_petey_retype:
     - money
-  line_403_seller_description:
-    x_petey_id: '1_17'
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: personal_property
+      suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '1'
+      to:
+        name: seller_transaction_personal_property_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_3:
+    x_petey_id: '1_25'
     type: string
     semantic_type: description
     widget:
       page: 1
       rect:
-      - 340.5379943847656
-      - 418.1729736328125
-      - 501.9020080566406
-      - 427.85601806640625
+      - 341.3070068359375
+      - 442.8070068359375
+      - 501.82598876953125
+      - 452.875
       widget_type: text
-      path: Text512
+      path: Text516
     x_petey_identifiers:
-      subject: line_403_seller_description
-      grid: p1-G1
-  line_403_amt:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '3'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_2
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '2'
+      to:
+        name: seller_transaction_borrower_description_3
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_settlement_charges_to_borrower_amt:
     x_petey_id: '1_18'
     type: number
     semantic_type: money
@@ -1549,10 +3266,33 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_403
+      block_prefix: seller_transaction
+      subject: settlement_charges_to_borrower
       suffix: amt
       grid: p1-G1
-  line_404_seller_description:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_city_town_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: city_town_taxes
+          suffix: amt
+          part: '1'
+          grid: p1-G1
+      to:
+        name: seller_transaction_settlement_charges_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_line_405_seller_description:
     x_petey_id: '1_21'
     type: string
     semantic_type: description
@@ -1565,7 +3305,30 @@ fields:
       - 440.31201171875
       widget_type: text
       path: Text514
-  line_404_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: line_405_seller_description
+    x_petey_hand_edit:
+      when: '2026-10-25 21:57:30'
+      from:
+        name: seller_transaction_borrower_description_2
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '2'
+      to:
+        name: seller_transaction_line_405_seller_description
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_1:
     x_petey_id: '1_22'
     type: number
     semantic_type: money
@@ -1580,20 +3343,32 @@ fields:
       path: Text515
     x_petey_retype:
     - money
-  line_405_seller_description:
-    x_petey_id: '1_25'
-    type: string
-    semantic_type: description
-    widget:
-      page: 1
-      rect:
-      - 341.3070068359375
-      - 442.8070068359375
-      - 501.82598876953125
-      - 452.875
-      widget_type: text
-      path: Text516
-  line_405_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_county_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: county_taxes
+          suffix: amt
+          part: '1'
+      to:
+        name: seller_transaction_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_18:
     x_petey_id: '1_26'
     type: number
     semantic_type: money
@@ -1608,7 +3383,31 @@ fields:
       path: Text517
     x_petey_retype:
     - money
-  line_406_city_town_taxes_from_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '18'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_personal_property_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: personal_property
+          suffix: amt
+      to:
+        name: seller_transaction_amt_18
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_city_town_taxes_from_dt_1:
     x_petey_id: '1_30'
     type: date
     semantic_type: iso_date
@@ -1623,7 +3422,33 @@ fields:
       path: Text519
     x_petey_retype:
     - pattern_dropped
-  line_406_city_town_taxes_to_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: city_town_taxes_from
+      suffix: dt
+      part: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_county_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: county_taxes_to
+          suffix: dt
+          part: '1'
+      to:
+        name: seller_transaction_city_town_taxes_from_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_county_taxes_to_dt_1:
     x_petey_id: '1_31'
     type: date
     semantic_type: iso_date
@@ -1638,7 +3463,33 @@ fields:
       path: Text520
     x_petey_retype:
     - pattern_dropped
-  line_406_city_town_taxes_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: county_taxes_to
+      suffix: dt
+      part: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_city_town_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: city_town_taxes_to
+          suffix: dt
+          part: '1'
+      to:
+        name: seller_transaction_county_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_city_town_taxes_amt_1:
     x_petey_id: '1_32'
     type: number
     semantic_type: money
@@ -1653,7 +3504,32 @@ fields:
       path: Text521
     x_petey_retype:
     - money
-  line_407_county_taxes_from_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: city_town_taxes
+      suffix: amt
+      part: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_amt_18
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '18'
+      to:
+        name: seller_transaction_city_town_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_county_taxes_from_dt_1:
     x_petey_id: '1_36'
     type: date
     semantic_type: iso_date
@@ -1668,7 +3544,34 @@ fields:
       path: Text522
     x_petey_retype:
     - pattern_dropped
-  line_407_county_taxes_to_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: county_taxes_from
+      suffix: dt
+      part: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_county_taxes_from_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          subject: county_taxes_from
+          suffix: dt
+          part: '1'
+      to:
+        name: seller_transaction_county_taxes_from_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_line_108_assessments_to_dt:
     x_petey_id: '1_37'
     type: date
     semantic_type: iso_date
@@ -1683,7 +3586,32 @@ fields:
       path: Text523
     x_petey_retype:
     - pattern_dropped
-  line_407_county_taxes_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: line_108_assessments_to
+      suffix: dt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_county_taxes_to_dt_1
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: county_taxes_to
+          suffix: dt
+          part: '1'
+      to:
+        name: seller_transaction_line_108_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_county_taxes_amt_1:
     x_petey_id: '1_38'
     type: number
     semantic_type: money
@@ -1698,7 +3626,32 @@ fields:
       path: Text524
     x_petey_retype:
     - money
-  line_408_assessments_from_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: county_taxes
+      suffix: amt
+      part: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '2'
+      to:
+        name: seller_transaction_county_taxes_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_assessments_from_dt:
     x_petey_id: '1_42'
     type: date
     semantic_type: iso_date
@@ -1713,7 +3666,32 @@ fields:
       path: Text525
     x_petey_retype:
     - pattern_dropped
-  line_408_assessments_to_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: assessments_from
+      suffix: dt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          subject: assessments_from
+          suffix: dt
+      to:
+        name: seller_transaction_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_2:
     x_petey_id: '1_43'
     type: date
     semantic_type: iso_date
@@ -1728,7 +3706,31 @@ fields:
       path: Text526
     x_petey_retype:
     - pattern_dropped
-  line_408_assessments_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_line_108_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: line_108_assessments_to
+          suffix: dt
+      to:
+        name: seller_transaction_amt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_assessments_amt_1:
     x_petey_id: '1_44'
     type: number
     semantic_type: money
@@ -1743,7 +3745,32 @@ fields:
       path: Text527
     x_petey_retype:
     - money
-  line_409_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: assessments
+      suffix: amt
+      part: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_amt_4
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '4'
+      to:
+        name: seller_transaction_assessments_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_4:
     x_petey_id: '1_47'
     type: string
     semantic_type: description
@@ -1756,7 +3783,31 @@ fields:
       - 516.76904296875
       widget_type: text
       path: Text528
-  line_409_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '4'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_3
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '3'
+      to:
+        name: seller_transaction_borrower_description_4
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_3:
     x_petey_id: '1_48'
     type: number
     semantic_type: money
@@ -1771,7 +3822,31 @@ fields:
       path: Text529
     x_petey_retype:
     - money
-  line_410_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '3'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '2'
+      to:
+        name: seller_transaction_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_5:
     x_petey_id: '1_52'
     type: string
     semantic_type: description
@@ -1784,7 +3859,31 @@ fields:
       - 528.5490112304688
       widget_type: text
       path: Text530
-  line_410_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '5'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_4
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '4'
+      to:
+        name: seller_transaction_borrower_description_5
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_4:
     x_petey_id: '1_51'
     type: number
     semantic_type: money
@@ -1799,7 +3898,31 @@ fields:
       path: Text531
     x_petey_retype:
     - money
-  line_411_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '4'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '3'
+      to:
+        name: seller_transaction_amt_4
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_15:
     x_petey_id: '1_55'
     type: string
     semantic_type: description
@@ -1812,7 +3935,31 @@ fields:
       - 541.2640380859375
       widget_type: text
       path: Text532
-  line_411_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '15'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_5
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '5'
+      to:
+        name: seller_transaction_borrower_description_15
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_5:
     x_petey_id: '1_56'
     type: number
     semantic_type: money
@@ -1827,7 +3974,31 @@ fields:
       path: Text533
     x_petey_retype:
     - money
-  line_412_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '5'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_4
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '4'
+      to:
+        name: seller_transaction_amt_5
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_line_205_borrower_description:
     x_petey_id: '1_59'
     type: string
     semantic_type: description
@@ -1840,7 +4011,30 @@ fields:
       - 553.3349609375
       widget_type: text
       path: Text534
-  line_412_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: line_205_borrower_description
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_15
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '15'
+      to:
+        name: seller_transaction_line_205_borrower_description
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_gross_amt_due_from_borrower_1:
     x_petey_id: '1_60'
     type: number
     semantic_type: money
@@ -1855,7 +4049,31 @@ fields:
       path: Text535
     x_petey_retype:
     - money
-  line_420_gross_amt_due_to_seller:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: gross_amt_due_from_borrower
+      iteration: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_5
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '5'
+      to:
+        name: seller_transaction_gross_amt_due_from_borrower_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_deposit_earnest_money_amt:
     x_petey_id: '1_62'
     type: number
     semantic_type: money
@@ -1870,7 +4088,31 @@ fields:
       path: Text536
     x_petey_retype:
     - money
-  line_501_excess_deposit_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: deposit_earnest_money
+      suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_gross_amt_due_from_borrower_1
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: gross_amt_due_from_borrower
+          iteration: '1'
+      to:
+        name: seller_transaction_deposit_earnest_money_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_principal_amt_new_loans:
     x_petey_id: '1_64'
     type: number
     semantic_type: money
@@ -1885,7 +4127,30 @@ fields:
       path: Text538
     x_petey_retype:
     - money
-  line_502_settlement_charges_to_seller_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: principal_amt_new_loans
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_deposit_earnest_money_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: deposit_earnest_money
+          suffix: amt
+      to:
+        name: seller_transaction_principal_amt_new_loans
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_existing_loans_taken_subject_to_amt:
     x_petey_id: '1_67'
     type: number
     semantic_type: money
@@ -1900,7 +4165,30 @@ fields:
       path: Text539
     x_petey_retype:
     - money
-  line_503_existing_loans_taken_subject_to_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: existing_loans_taken_subject_to
+      suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_principal_amt_new_loans
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: principal_amt_new_loans
+      to:
+        name: seller_transaction_existing_loans_taken_subject_to_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_6:
     x_petey_id: '1_69'
     type: number
     semantic_type: money
@@ -1915,7 +4203,31 @@ fields:
       path: Text540
     x_petey_retype:
     - money
-  line_504_payoff_first_mortgage_loan_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '6'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_existing_loans_taken_subject_to_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: existing_loans_taken_subject_to
+          suffix: amt
+      to:
+        name: seller_transaction_amt_6
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_7:
     x_petey_id: '1_72'
     type: number
     semantic_type: money
@@ -1930,7 +4242,31 @@ fields:
       path: Text541
     x_petey_retype:
     - money
-  line_505_payoff_second_mortgage_loan_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '7'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_6
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '6'
+      to:
+        name: seller_transaction_amt_7
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_8:
     x_petey_id: '1_75'
     type: number
     semantic_type: money
@@ -1945,7 +4281,31 @@ fields:
       path: Text542
     x_petey_retype:
     - money
-  line_506_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '8'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_7
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '7'
+      to:
+        name: seller_transaction_amt_8
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_6:
     x_petey_id: '1_78'
     type: string
     semantic_type: description
@@ -1958,7 +4318,31 @@ fields:
       - 653.7950439453125
       widget_type: text
       path: Text543
-  line_506_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '6'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_borrower_description_16
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '16'
+      to:
+        name: seller_transaction_borrower_description_6
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_9:
     x_petey_id: '1_79'
     type: number
     semantic_type: money
@@ -1973,7 +4357,31 @@ fields:
       path: Text544
     x_petey_retype:
     - money
-  line_507_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '9'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_8
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '8'
+      to:
+        name: seller_transaction_amt_9
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_7:
     x_petey_id: '1_82'
     type: string
     semantic_type: description
@@ -1986,7 +4394,30 @@ fields:
       - 666.4970092773438
       widget_type: text
       path: Text545
-  line_507_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '7'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:57:30'
+      from:
+        name: seller_transaction_line_205_borrower_description
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: line_205_borrower_description
+      to:
+        name: seller_transaction_borrower_description_7
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_10:
     x_petey_id: '1_83'
     type: number
     semantic_type: money
@@ -2001,7 +4432,31 @@ fields:
       path: Text546
     x_petey_retype:
     - money
-  line_508_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '10'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_9
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '9'
+      to:
+        name: seller_transaction_amt_10
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_8:
     x_petey_id: '1_86'
     type: string
     semantic_type: description
@@ -2014,7 +4469,31 @@ fields:
       - 678.739013671875
       widget_type: text
       path: Text547
-  line_508_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '8'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_borrower_description_6
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '6'
+      to:
+        name: seller_transaction_borrower_description_8
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_19:
     x_petey_id: '1_87'
     type: number
     semantic_type: money
@@ -2029,7 +4508,31 @@ fields:
       path: Text548
     x_petey_retype:
     - money
-  line_509_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '19'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_10
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '10'
+      to:
+        name: seller_transaction_amt_19
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_16:
     x_petey_id: '1_90'
     type: string
     semantic_type: description
@@ -2042,7 +4545,31 @@ fields:
       - 691.1309814453125
       widget_type: text
       path: Text549
-  line_509_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '16'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_borrower_description_8
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '8'
+      to:
+        name: seller_transaction_borrower_description_16
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_city_town_taxes_amt_2:
     x_petey_id: '1_91'
     type: number
     semantic_type: money
@@ -2057,7 +4584,32 @@ fields:
       path: Text550
     x_petey_retype:
     - money
-  line_510_city_town_taxes_from_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: city_town_taxes
+      suffix: amt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_19
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '19'
+      to:
+        name: seller_transaction_city_town_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_city_town_taxes_from_dt_2:
     x_petey_id: '1_95'
     type: date
     semantic_type: iso_date
@@ -2072,7 +4624,33 @@ fields:
       path: Text552
     x_petey_retype:
     - pattern_dropped
-  line_510_city_town_taxes_to_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: city_town_taxes_from
+      suffix: dt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_county_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: county_taxes_from
+          suffix: dt
+          part: '2'
+      to:
+        name: seller_transaction_city_town_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_city_town_taxes_to_dt_2:
     x_petey_id: '1_96'
     type: date
     semantic_type: iso_date
@@ -2087,7 +4665,33 @@ fields:
       path: Text553
     x_petey_retype:
     - pattern_dropped
-  line_510_city_town_taxes_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: city_town_taxes_to
+      suffix: dt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_county_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: county_taxes_to
+          suffix: dt
+          part: '2'
+      to:
+        name: seller_transaction_city_town_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_county_taxes_amt_2:
     x_petey_id: '1_97'
     type: number
     semantic_type: money
@@ -2102,7 +4706,33 @@ fields:
       path: Text554
     x_petey_retype:
     - money
-  line_511_county_taxes_from_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: county_taxes
+      suffix: amt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_city_town_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: city_town_taxes
+          suffix: amt
+          part: '2'
+      to:
+        name: seller_transaction_county_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_county_taxes_from_dt_2:
     x_petey_id: '1_101'
     type: date
     semantic_type: iso_date
@@ -2117,7 +4747,32 @@ fields:
       path: Text555
     x_petey_retype:
     - pattern_dropped
-  line_511_county_taxes_to_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: county_taxes_from
+      suffix: dt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_line_512_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: line_512_assessments_from
+          suffix: dt
+      to:
+        name: seller_transaction_county_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_county_taxes_to_dt_2:
     x_petey_id: '1_102'
     type: date
     semantic_type: iso_date
@@ -2132,7 +4787,32 @@ fields:
       path: Text556
     x_petey_retype:
     - pattern_dropped
-  line_511_county_taxes_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: county_taxes_to
+      suffix: dt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: assessments_to
+          suffix: dt
+      to:
+        name: seller_transaction_county_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_assessments_amt_2:
     x_petey_id: '1_103'
     type: number
     semantic_type: money
@@ -2147,7 +4827,33 @@ fields:
       path: Text557
     x_petey_retype:
     - money
-  line_512_assessments_from_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: assessments
+      suffix: amt
+      part: '2'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_county_taxes_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: county_taxes
+          suffix: amt
+          part: '2'
+      to:
+        name: seller_transaction_assessments_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_line_512_assessments_from_dt:
     x_petey_id: '1_107'
     type: date
     semantic_type: iso_date
@@ -2162,7 +4868,32 @@ fields:
       path: Text558
     x_petey_retype:
     - pattern_dropped
-  line_512_assessments_to_dt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: line_512_assessments_from
+      suffix: dt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_city_town_taxes_from_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: city_town_taxes_from
+          suffix: dt
+          part: '2'
+      to:
+        name: seller_transaction_line_512_assessments_from_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_assessments_to_dt:
     x_petey_id: '1_108'
     type: date
     semantic_type: iso_date
@@ -2177,10 +4908,34 @@ fields:
       path: Text559
     x_petey_retype:
     - pattern_dropped
-  line_512_assessments_amt:
-    x_petey_id: '1_109'
-    type: number
-    semantic_type: money
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: assessments_to
+      suffix: dt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_city_town_taxes_to_dt_2
+        type: date
+        semantic_type: iso_date
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: city_town_taxes_to
+          suffix: dt
+          part: '2'
+      to:
+        name: seller_transaction_assessments_to_dt
+        type: date
+        semantic_type: iso_date
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_11:
+    x_petey_id: '1_149'
+    type: string
     widget:
       page: 1
       rect:
@@ -2190,22 +4945,38 @@ fields:
       - 741.3079833984375
       widget_type: text
       path: Text560
-    x_petey_retype:
-    - money
-  line_513_seller_description:
-    x_petey_id: '1_112'
-    type: string
-    semantic_type: description
-    widget:
-      page: 1
-      rect:
-      - 340.8919982910156
-      - 743.41796875
-      - 501.88800048828125
-      - 753.1010131835938
-      widget_type: text
-      path: Text561
-  line_513_amt:
+    label_source: twin
+    x_petey_added:
+      source: field_add
+      when: '2026-10-25 21:56:45'
+      geometry: widget
+      name_from: 'twin: sibling path'
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '11'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_assessments_amt_2
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: assessments
+          suffix: amt
+          part: '2'
+      to:
+        name: seller_transaction_amt_11
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_12:
     x_petey_id: '1_113'
     type: number
     semantic_type: money
@@ -2220,35 +4991,105 @@ fields:
       path: Text562
     x_petey_retype:
     - money
-  line_514_seller_description:
-    x_petey_id: '1_116'
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '12'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_amt_11
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          suffix: amt
+          part: '11'
+      to:
+        name: seller_transaction_amt_12
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_9:
+    x_petey_id: '1_112'
     type: string
     semantic_type: description
     widget:
       page: 1
       rect:
-      - 341.50799560546875
-      - 755.3499755859375
-      - 500.9330139160156
-      - 765.802978515625
+      - 340.8919982910156
+      - 743.41796875
+      - 501.88800048828125
+      - 753.1010131835938
       widget_type: text
-      path: Text563
-  line_514_amt:
-    x_petey_id: '1_117'
-    type: number
-    semantic_type: money
+      path: Text561
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '9'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_borrower_description_14
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '14'
+      to:
+        name: seller_transaction_borrower_description_9
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_11:
+    x_petey_id: '1_124'
+    type: string
+    semantic_type: description
     widget:
       page: 1
       rect:
-      - 504.7539978027344
-      - 755.2109985351562
-      - 576.927978515625
-      - 766.0800170898438
+      - 341.1390075683594
+      - 780.7540283203125
+      - 501.0880126953125
+      - 790.43701171875
       widget_type: text
-      path: Text564
-    x_petey_retype:
-    - money
-  line_515_seller_description:
+      path: Text567
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '11'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_10
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '10'
+      to:
+        name: seller_transaction_borrower_description_11
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_10:
     x_petey_id: '1_120'
     type: string
     semantic_type: description
@@ -2261,7 +5102,31 @@ fields:
       - 778.1199951171875
       widget_type: text
       path: Text565
-  line_515_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '10'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_11
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '11'
+      to:
+        name: seller_transaction_borrower_description_10
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_13:
     x_petey_id: '1_121'
     type: number
     semantic_type: money
@@ -2276,20 +5141,32 @@ fields:
       path: Text566
     x_petey_retype:
     - money
-  line_516_seller_description:
-    x_petey_id: '1_124'
-    type: string
-    semantic_type: description
-    widget:
-      page: 1
-      rect:
-      - 341.1390075683594
-      - 780.7540283203125
-      - 501.0880126953125
-      - 790.43701171875
-      widget_type: text
-      path: Text567
-  line_516_amt:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '13'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_amt_13
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          suffix: amt
+          part: '13'
+      to:
+        name: seller_transaction_amt_13
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_14:
     x_petey_id: '1_125'
     type: number
     semantic_type: money
@@ -2304,7 +5181,32 @@ fields:
       path: Text568
     x_petey_retype:
     - money
-  line_517_seller_description:
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '14'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_amt_14
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          suffix: amt
+          part: '14'
+      to:
+        name: seller_transaction_amt_14
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_12:
     x_petey_id: '1_128'
     type: string
     semantic_type: description
@@ -2317,10 +5219,33 @@ fields:
       - 802.4769897460938
       widget_type: text
       path: Text569
-  line_517_amt:
-    x_petey_id: '1_129'
-    type: number
-    semantic_type: money
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '12'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:55:56'
+      from:
+        name: seller_transaction_borrower_description_13
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '13'
+      to:
+        name: seller_transaction_borrower_description_12
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_15:
+    x_petey_id: '1_148'
+    type: string
     widget:
       page: 1
       rect:
@@ -2330,80 +5255,34 @@ fields:
       - 803.1390380859375
       widget_type: text
       path: Text570
-    x_petey_retype:
-    - money
-  line_518_seller_description:
-    x_petey_id: '1_132'
-    type: string
-    semantic_type: description
-    widget:
-      page: 1
-      rect:
-      - 341.38299560546875
-      - 805.3880004882812
-      - 501.3320007324219
-      - 815.0709838867188
-      widget_type: text
-      path: Text571
-  line_518_amt:
-    x_petey_id: '1_133'
-    type: number
-    semantic_type: money
-    widget:
-      page: 1
-      rect:
-      - 505.1400146484375
-      - 805.3880004882812
-      - 576.5430297851562
-      - 815.2100219726562
-      widget_type: text
-      path: Text572
-    x_petey_retype:
-    - money
-  line_519_seller_description:
-    x_petey_id: '1_136'
-    type: string
-    semantic_type: description
-    widget:
-      page: 1
-      rect:
-      - 342.2929992675781
-      - 817.3200073242188
-      - 500.6709899902344
-      - 827.7730102539062
-      widget_type: text
-      path: Text573
-  line_519_amt:
-    x_petey_id: '1_137'
-    type: number
-    semantic_type: money
-    widget:
-      page: 1
-      rect:
-      - 505.90899658203125
-      - 817.458984375
-      - 576.7890014648438
-      - 827.0029907226562
-      widget_type: text
-      path: Text574
-    x_petey_retype:
-    - money
-  line_520_total_reduction_amt_due_seller:
-    x_petey_id: '1_139'
-    type: number
-    semantic_type: money
-    widget:
-      page: 1
-      rect:
-      - 504.7539978027344
-      - 828.9749755859375
-      - 577.1710205078125
-      - 840.4749755859375
-      widget_type: text
-      path: Text575
-    x_petey_retype:
-    - money
-  line_601_gross_amt_due_to_seller:
+    label_source: twin
+    x_petey_added:
+      source: field_add
+      when: '2026-10-25 21:56:37'
+      geometry: widget
+      name_from: 'twin: sibling path'
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '15'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:57:04'
+      from:
+        name: file_nbr_2
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers: null
+      to:
+        name: seller_transaction_amt_15
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_gross_amt_due_from_borrower_2:
     x_petey_id: '1_141'
     type: number
     semantic_type: money
@@ -2419,9 +5298,227 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_601_gross_amt_due_to_seller
+      block_prefix: seller_transaction
+      subject: gross_amt_due_from_borrower
+      iteration: '2'
       grid: p1-G5
-  line_602_less_reductions_in_amt_due_seller:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_gross_amt_due_from_borrower_2
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          subject: gross_amt_due_from_borrower
+          iteration: '2'
+          grid: p1-G5
+      to:
+        name: seller_transaction_gross_amt_due_from_borrower_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_13:
+    x_petey_id: '1_132'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 341.38299560546875
+      - 805.3880004882812
+      - 501.3320007324219
+      - 815.0709838867188
+      widget_type: text
+      path: Text571
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '13'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_14
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '14'
+      to:
+        name: seller_transaction_borrower_description_13
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_16:
+    x_petey_id: '1_133'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 505.1400146484375
+      - 805.3880004882812
+      - 576.5430297851562
+      - 815.2100219726562
+      widget_type: text
+      path: Text572
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '16'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_amt_16
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          suffix: amt
+          part: '16'
+      to:
+        name: seller_transaction_amt_16
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_borrower_description_14:
+    x_petey_id: '1_136'
+    type: string
+    semantic_type: description
+    widget:
+      page: 1
+      rect:
+      - 342.2929992675781
+      - 817.3200073242188
+      - 500.6709899902344
+      - 827.7730102539062
+      widget_type: text
+      path: Text573
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: borrower_description
+      iteration: '14'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:23'
+      from:
+        name: seller_transaction_borrower_description_13
+        type: string
+        semantic_type: description
+        pattern: null
+        identifiers:
+          block_prefix: seller_transaction
+          subject: borrower_description
+          iteration: '13'
+      to:
+        name: seller_transaction_borrower_description_14
+        type: string
+        semantic_type: description
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_amt_17:
+    x_petey_id: '1_137'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 505.90899658203125
+      - 817.458984375
+      - 576.7890014648438
+      - 827.0029907226562
+      widget_type: text
+      path: Text574
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      suffix: amt
+      part: '17'
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_amt_17
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          suffix: amt
+          part: '17'
+      to:
+        name: seller_transaction_amt_17
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_total_paid_by_for_borrower_amt:
+    x_petey_id: '1_139'
+    type: number
+    semantic_type: money
+    widget:
+      page: 1
+      rect:
+      - 504.7539978027344
+      - 828.9749755859375
+      - 577.1710205078125
+      - 840.4749755859375
+      widget_type: text
+      path: Text575
+    x_petey_retype:
+    - money
+    x_petey_identifiers:
+      block_prefix: seller_transaction
+      subject: total_paid_by_for_borrower
+      suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_total_paid_by_for_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          subject: total_paid_by_for_borrower
+          suffix: amt
+      to:
+        name: seller_transaction_total_paid_by_for_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_less_amt_paid_by_for_borrower:
     x_petey_id: '1_143'
     type: number
     semantic_type: money
@@ -2437,8 +5534,29 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_602_less_reductions_in_amt_due_seller
-  line_603_cash_direction:
+      block_prefix: seller_transaction
+      subject: less_amt_paid_by_for_borrower
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_less_amt_paid_by_for_borrower
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          subject: less_amt_paid_by_for_borrower
+      to:
+        name: seller_transaction_less_amt_paid_by_for_borrower
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_cash_direction:
     x_petey_id: '1_146'
     type: category
     values:
@@ -2470,8 +5588,29 @@ fields:
     x_petey_retype:
     - option_group:category->category[2]
     x_petey_identifiers:
-      subject: line_603_cash_direction
-  line_603_cash_to_from_seller_amt:
+      block_prefix: seller_transaction
+      subject: cash_direction
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_cash_direction
+        type: category
+        semantic_type: null
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          subject: cash_direction
+      to:
+        name: seller_transaction_cash_direction
+        type: category
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
+  seller_transaction_cash_from_to_borrower_amt:
     x_petey_id: '1_147'
     type: number
     semantic_type: money
@@ -2487,8 +5626,30 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: line_603_cash_to_from_seller
+      block_prefix: seller_transaction
+      subject: cash_from_to_borrower
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:51:10'
+      from:
+        name: line_2_cash_from_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          block_prefix: line
+          block_iteration: '2'
+          subject: cash_from_to_borrower
+          suffix: amt
+      to:
+        name: seller_transaction_cash_from_to_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   line_700_total_real_estate_broker_fees_amt:
     x_petey_id: '2_1'
     type: number
@@ -4550,6 +7711,23 @@ fields:
       subject: line_1400_total_settlement_charges_borrower
       suffix: amt
       grid: p2-G8
+    x_petey_hand_edit:
+      when: '2026-10-25 21:59:34'
+      from:
+        name: line_1400_total_settlement_charges_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      to:
+        name: line_1400_borrower_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'grids: standardize every position of p2-G8 (position 2: line_N_borrower_amt
+        (the commonest wording, 2 of 3 cells))'
   line_1400_total_settlement_charges_seller_amt:
     x_petey_id: '2_118'
     type: number
@@ -4713,7 +7891,7 @@ fields:
     x_petey_identifiers:
       subject: transfer_taxes_hud1
       suffix: amt
-  government_recording_charges_gfe_amt:
+  government_recording_charges_gfe_amt_1:
     x_petey_id: '3_9'
     type: number
     semantic_type: money
@@ -4731,8 +7909,29 @@ fields:
     x_petey_identifiers:
       subject: government_recording_charges_gfe
       suffix: amt
+      iteration: '1'
       grid: p3-G1
-  government_recording_charges_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: government_recording_charges_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: government_recording_charges_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: government_recording_charges_gfe_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  government_recording_charges_hud1_amt_1:
     x_petey_id: '3_10'
     type: number
     semantic_type: money
@@ -4750,8 +7949,29 @@ fields:
     x_petey_identifiers:
       subject: government_recording_charges_hud1
       suffix: amt
+      iteration: '1'
       grid: p3-G1
-  cannot_increase_charge_1_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: government_recording_charges_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: government_recording_charges_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: government_recording_charges_hud1_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_nm_1:
     x_petey_id: '3_11'
     type: string
     semantic_type: person_name
@@ -4765,9 +7985,9 @@ fields:
       widget_type: text
       path: Text763
     x_petey_identifiers:
-      subject: cannot_increase_charge_1
+      subject: cannot_increase_charge
       suffix: nm
-      grid: p3-G1
+      iteration: '1'
   cannot_increase_charge_1_line_nbr:
     x_petey_id: '3_13'
     type: string
@@ -4784,7 +8004,7 @@ fields:
       subject: cannot_increase_charge_1_line
       grid: p3-G1
       suffix: nbr
-  cannot_increase_charge_1_gfe_amt:
+  cannot_increase_charge_1_gfe_amt_1:
     x_petey_id: '3_14'
     type: number
     semantic_type: money
@@ -4802,8 +8022,29 @@ fields:
     x_petey_identifiers:
       subject: cannot_increase_charge_1_gfe
       suffix: amt
+      iteration: '1'
       grid: p3-G1
-  cannot_increase_charge_1_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_1_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_1_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_1_gfe_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_1_hud1_amt_1:
     x_petey_id: '3_12'
     type: number
     semantic_type: money
@@ -4821,8 +8062,29 @@ fields:
     x_petey_identifiers:
       subject: cannot_increase_charge_1_hud1
       suffix: amt
+      iteration: '1'
       grid: p3-G1
-  cannot_increase_charge_2_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_1_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_1_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_1_hud1_amt_1
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_nm_2:
     x_petey_id: '3_15'
     type: string
     semantic_type: person_name
@@ -4836,9 +8098,9 @@ fields:
       widget_type: text
       path: Text767
     x_petey_identifiers:
-      subject: cannot_increase_charge_2
+      subject: cannot_increase_charge
       suffix: nm
-      grid: p3-G1
+      iteration: '2'
   cannot_increase_charge_2_line_nbr:
     x_petey_id: '3_16'
     type: string
@@ -4855,7 +8117,7 @@ fields:
       subject: cannot_increase_charge_2_line
       grid: p3-G1
       suffix: nbr
-  cannot_increase_charge_2_gfe_amt:
+  cannot_increase_charge_1_government_recording_charges_gfe_amt:
     x_petey_id: '3_17'
     type: number
     semantic_type: money
@@ -4871,10 +8133,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_2_gfe
+      block_prefix: cannot_increase_charge
+      block_iteration: '1'
+      subject: government_recording_charges_gfe
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_2_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_2_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_2_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_1_government_recording_charges_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_1_government_recording_charges_hud1_amt:
     x_petey_id: '3_18'
     type: number
     semantic_type: money
@@ -4890,10 +8174,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_2_hud1
+      block_prefix: cannot_increase_charge
+      block_iteration: '1'
+      subject: government_recording_charges_hud1
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_3_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_2_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_2_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_1_government_recording_charges_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_nm_3:
     x_petey_id: '3_19'
     type: string
     semantic_type: person_name
@@ -4907,9 +8213,9 @@ fields:
       widget_type: text
       path: Text771
     x_petey_identifiers:
-      subject: cannot_increase_charge_3
+      subject: cannot_increase_charge
       suffix: nm
-      grid: p3-G1
+      iteration: '3'
   cannot_increase_charge_3_line_nbr:
     x_petey_id: '3_20'
     type: string
@@ -4926,7 +8232,7 @@ fields:
       subject: cannot_increase_charge_3_line
       grid: p3-G1
       suffix: nbr
-  cannot_increase_charge_3_gfe_amt:
+  cannot_increase_charge_1_cannot_increase_charge_1_gfe_amt:
     x_petey_id: '3_21'
     type: number
     semantic_type: money
@@ -4942,10 +8248,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_3_gfe
+      block_prefix: cannot_increase_charge
+      block_iteration: '1'
+      subject: cannot_increase_charge_1_gfe
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_3_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_3_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_3_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_1_cannot_increase_charge_1_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_1_cannot_increase_charge_1_hud1_amt:
     x_petey_id: '3_22'
     type: number
     semantic_type: money
@@ -4961,10 +8289,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_3_hud1
+      block_prefix: cannot_increase_charge
+      block_iteration: '1'
+      subject: cannot_increase_charge_1_hud1
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_4_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_3_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_3_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_1_cannot_increase_charge_1_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_nm_4:
     x_petey_id: '3_23'
     type: string
     semantic_type: person_name
@@ -4978,9 +8328,9 @@ fields:
       widget_type: text
       path: Text775
     x_petey_identifiers:
-      subject: cannot_increase_charge_4
+      subject: cannot_increase_charge
       suffix: nm
-      grid: p3-G1
+      iteration: '4'
   cannot_increase_charge_4_line_nbr:
     x_petey_id: '3_24'
     type: string
@@ -4997,7 +8347,7 @@ fields:
       subject: cannot_increase_charge_4_line
       grid: p3-G1
       suffix: nbr
-  cannot_increase_charge_4_gfe_amt:
+  cannot_increase_charge_2_government_recording_charges_gfe_amt:
     x_petey_id: '3_25'
     type: number
     semantic_type: money
@@ -5013,10 +8363,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_4_gfe
+      block_prefix: cannot_increase_charge
+      block_iteration: '2'
+      subject: government_recording_charges_gfe
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_4_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_4_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_4_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_2_government_recording_charges_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_2_government_recording_charges_hud1_amt:
     x_petey_id: '3_26'
     type: number
     semantic_type: money
@@ -5032,10 +8404,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_4_hud1
+      block_prefix: cannot_increase_charge
+      block_iteration: '2'
+      subject: government_recording_charges_hud1
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_5_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_4_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_4_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_2_government_recording_charges_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_nm_5:
     x_petey_id: '3_27'
     type: string
     semantic_type: person_name
@@ -5049,9 +8443,9 @@ fields:
       widget_type: text
       path: Text779
     x_petey_identifiers:
-      subject: cannot_increase_charge_5
+      subject: cannot_increase_charge
       suffix: nm
-      grid: p3-G1
+      iteration: '5'
   cannot_increase_charge_5_line_nbr:
     x_petey_id: '3_28'
     type: string
@@ -5068,7 +8462,7 @@ fields:
       subject: cannot_increase_charge_5_line
       grid: p3-G1
       suffix: nbr
-  cannot_increase_charge_5_gfe_amt:
+  cannot_increase_charge_2_cannot_increase_charge_1_gfe_amt:
     x_petey_id: '3_29'
     type: number
     semantic_type: money
@@ -5084,10 +8478,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_5_gfe
+      block_prefix: cannot_increase_charge
+      block_iteration: '2'
+      subject: cannot_increase_charge_1_gfe
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_5_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_5_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_5_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_2_cannot_increase_charge_1_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_2_cannot_increase_charge_1_hud1_amt:
     x_petey_id: '3_30'
     type: number
     semantic_type: money
@@ -5103,10 +8519,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_5_hud1
+      block_prefix: cannot_increase_charge
+      block_iteration: '2'
+      subject: cannot_increase_charge_1_hud1
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_6_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_5_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_5_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_2_cannot_increase_charge_1_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_nm_6:
     x_petey_id: '3_31'
     type: string
     semantic_type: person_name
@@ -5120,9 +8558,9 @@ fields:
       widget_type: text
       path: Text783
     x_petey_identifiers:
-      subject: cannot_increase_charge_6
+      subject: cannot_increase_charge
       suffix: nm
-      grid: p3-G1
+      iteration: '6'
   cannot_increase_charge_6_line_nbr:
     x_petey_id: '3_32'
     type: string
@@ -5139,7 +8577,7 @@ fields:
       subject: cannot_increase_charge_6_line
       grid: p3-G1
       suffix: nbr
-  cannot_increase_charge_6_gfe_amt:
+  cannot_increase_charge_3_government_recording_charges_gfe_amt:
     x_petey_id: '3_33'
     type: number
     semantic_type: money
@@ -5155,10 +8593,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_6_gfe
+      block_prefix: cannot_increase_charge
+      block_iteration: '3'
+      subject: government_recording_charges_gfe
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_6_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_6_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_6_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_3_government_recording_charges_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_3_government_recording_charges_hud1_amt:
     x_petey_id: '3_34'
     type: number
     semantic_type: money
@@ -5174,10 +8634,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_6_hud1
+      block_prefix: cannot_increase_charge
+      block_iteration: '3'
+      subject: government_recording_charges_hud1
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_7_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_6_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_6_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_3_government_recording_charges_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_nm_7:
     x_petey_id: '3_36'
     type: string
     semantic_type: person_name
@@ -5191,9 +8673,9 @@ fields:
       widget_type: text
       path: Text787
     x_petey_identifiers:
-      subject: cannot_increase_charge_7
+      subject: cannot_increase_charge
       suffix: nm
-      grid: p3-G1
+      iteration: '7'
   cannot_increase_charge_7_line_nbr:
     x_petey_id: '3_37'
     type: string
@@ -5210,7 +8692,7 @@ fields:
       subject: cannot_increase_charge_7_line
       grid: p3-G1
       suffix: nbr
-  cannot_increase_charge_7_gfe_amt:
+  cannot_increase_charge_3_cannot_increase_charge_1_gfe_amt:
     x_petey_id: '3_35'
     type: number
     semantic_type: money
@@ -5226,10 +8708,32 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_7_gfe
+      block_prefix: cannot_increase_charge
+      block_iteration: '3'
+      subject: cannot_increase_charge_1_gfe
       suffix: amt
       grid: p3-G1
-  cannot_increase_charge_7_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_7_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_7_gfe
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_3_cannot_increase_charge_1_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_3_cannot_increase_charge_1_hud1_amt:
     x_petey_id: '3_38'
     type: number
     semantic_type: money
@@ -5245,9 +8749,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: cannot_increase_charge_7_hud1
+      block_prefix: cannot_increase_charge
+      block_iteration: '3'
+      subject: cannot_increase_charge_1_hud1
       suffix: amt
       grid: p3-G1
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: cannot_increase_charge_7_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: cannot_increase_charge_7_hud1
+          suffix: amt
+          grid: p3-G1
+      to:
+        name: cannot_increase_charge_3_cannot_increase_charge_1_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
   total_increase_gfe_hud1_charges_dollar_amt:
     x_petey_id: '3_39'
     type: number
@@ -5320,7 +8846,7 @@ fields:
     x_petey_identifiers:
       subject: total_increase
       suffix: pct
-  initial_escrow_deposit_gfe_amt:
+  government_recording_charges_gfe_amt_2:
     x_petey_id: '3_43'
     type: number
     semantic_type: money
@@ -5336,10 +8862,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: initial_escrow_deposit_gfe
+      subject: government_recording_charges_gfe
       suffix: amt
+      iteration: '2'
       grid: p3-G2
-  initial_escrow_deposit_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: initial_escrow_deposit_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: initial_escrow_deposit_gfe
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: government_recording_charges_gfe_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  government_recording_charges_hud1_amt_2:
     x_petey_id: '3_44'
     type: number
     semantic_type: money
@@ -5355,9 +8902,30 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: initial_escrow_deposit_hud1
+      subject: government_recording_charges_hud1
       suffix: amt
+      iteration: '2'
       grid: p3-G2
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: initial_escrow_deposit_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: initial_escrow_deposit_hud1
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: government_recording_charges_hud1_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
   daily_interest_charge_amt:
     x_petey_id: '3_45'
     type: number
@@ -5376,7 +8944,7 @@ fields:
     x_petey_identifiers:
       subject: daily_interest_charge
       suffix: amt
-  daily_interest_charges_gfe_amt:
+  cannot_increase_charge_1_gfe_amt_2:
     x_petey_id: '3_46'
     type: number
     semantic_type: money
@@ -5392,10 +8960,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: daily_interest_charges_gfe
+      subject: cannot_increase_charge_1_gfe
       suffix: amt
+      iteration: '2'
       grid: p3-G2
-  daily_interest_charges_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: daily_interest_charges_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: daily_interest_charges_gfe
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: cannot_increase_charge_1_gfe_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_1_hud1_amt_2:
     x_petey_id: '3_47'
     type: number
     semantic_type: money
@@ -5411,10 +9000,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: daily_interest_charges_hud1
+      subject: cannot_increase_charge_1_hud1
       suffix: amt
+      iteration: '2'
       grid: p3-G2
-  homeowners_insurance_gfe_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: daily_interest_charges_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: daily_interest_charges_hud1
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: cannot_increase_charge_1_hud1_amt_2
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  government_recording_charges_gfe_amt_3:
     x_petey_id: '3_48'
     type: number
     semantic_type: money
@@ -5430,10 +9040,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: homeowners_insurance_gfe
+      subject: government_recording_charges_gfe
       suffix: amt
+      iteration: '3'
       grid: p3-G2
-  homeowners_insurance_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: homeowners_insurance_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: homeowners_insurance_gfe
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: government_recording_charges_gfe_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  government_recording_charges_hud1_amt_3:
     x_petey_id: '3_49'
     type: number
     semantic_type: money
@@ -5449,10 +9080,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: homeowners_insurance_hud1
+      subject: government_recording_charges_hud1
       suffix: amt
+      iteration: '3'
       grid: p3-G2
-  can_change_charge_1_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: homeowners_insurance_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: homeowners_insurance_hud1
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: government_recording_charges_hud1_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  can_change_charge_nm_1:
     x_petey_id: '3_51'
     type: string
     semantic_type: person_name
@@ -5466,9 +9118,9 @@ fields:
       widget_type: text
       path: Text802
     x_petey_identifiers:
-      subject: can_change_charge_1
+      subject: can_change_charge
       suffix: nm
-      grid: p3-G2
+      iteration: '1'
   can_change_charge_1_line_nbr:
     x_petey_id: '3_52'
     type: string
@@ -5485,7 +9137,7 @@ fields:
       subject: can_change_charge_1_line
       grid: p3-G2
       suffix: nbr
-  can_change_charge_1_gfe_amt:
+  cannot_increase_charge_1_gfe_amt_3:
     x_petey_id: '3_53'
     type: number
     semantic_type: money
@@ -5501,10 +9153,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: can_change_charge_1_gfe
+      subject: cannot_increase_charge_1_gfe
       suffix: amt
+      iteration: '3'
       grid: p3-G2
-  can_change_charge_1_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: can_change_charge_1_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: can_change_charge_1_gfe
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: cannot_increase_charge_1_gfe_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  cannot_increase_charge_1_hud1_amt_3:
     x_petey_id: '3_50'
     type: number
     semantic_type: money
@@ -5520,10 +9193,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: can_change_charge_1_hud1
+      subject: cannot_increase_charge_1_hud1
       suffix: amt
+      iteration: '3'
       grid: p3-G2
-  can_change_charge_2_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: can_change_charge_1_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: can_change_charge_1_hud1
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: cannot_increase_charge_1_hud1_amt_3
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  can_change_charge_nm_2:
     x_petey_id: '3_54'
     type: string
     semantic_type: person_name
@@ -5537,9 +9231,9 @@ fields:
       widget_type: text
       path: Text806
     x_petey_identifiers:
-      subject: can_change_charge_2
+      subject: can_change_charge
       suffix: nm
-      grid: p3-G2
+      iteration: '2'
   can_change_charge_2_line_nbr:
     x_petey_id: '3_55'
     type: string
@@ -5556,7 +9250,7 @@ fields:
       subject: can_change_charge_2_line
       grid: p3-G2
       suffix: nbr
-  can_change_charge_2_gfe_amt:
+  can_change_charge_government_recording_charges_gfe_amt:
     x_petey_id: '3_56'
     type: number
     semantic_type: money
@@ -5572,10 +9266,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: can_change_charge_2_gfe
+      block_prefix: can_change_charge
+      subject: government_recording_charges_gfe
       suffix: amt
       grid: p3-G2
-  can_change_charge_2_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: can_change_charge_2_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: can_change_charge_2_gfe
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: can_change_charge_government_recording_charges_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  can_change_charge_government_recording_charges_hud1_amt:
     x_petey_id: '3_57'
     type: number
     semantic_type: money
@@ -5591,10 +9306,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: can_change_charge_2_hud1
+      block_prefix: can_change_charge
+      subject: government_recording_charges_hud1
       suffix: amt
       grid: p3-G2
-  can_change_charge_3_nm:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: can_change_charge_2_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: can_change_charge_2_hud1
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: can_change_charge_government_recording_charges_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  can_change_charge_nm_3:
     x_petey_id: '3_58'
     type: string
     semantic_type: person_name
@@ -5608,9 +9344,9 @@ fields:
       widget_type: text
       path: Text810
     x_petey_identifiers:
-      subject: can_change_charge_3
+      subject: can_change_charge
       suffix: nm
-      grid: p3-G2
+      iteration: '3'
   can_change_charge_3_line_nbr:
     x_petey_id: '3_59'
     type: string
@@ -5627,7 +9363,7 @@ fields:
       subject: can_change_charge_3_line
       grid: p3-G2
       suffix: nbr
-  can_change_charge_3_gfe_amt:
+  can_change_charge_cannot_increase_charge_1_gfe_amt:
     x_petey_id: '3_60'
     type: number
     semantic_type: money
@@ -5643,10 +9379,31 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: can_change_charge_3_gfe
+      block_prefix: can_change_charge
+      subject: cannot_increase_charge_1_gfe
       suffix: amt
       grid: p3-G2
-  can_change_charge_3_hud1_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: can_change_charge_3_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: can_change_charge_3_gfe
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: can_change_charge_cannot_increase_charge_1_gfe_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
+  can_change_charge_cannot_increase_charge_1_hud1_amt:
     x_petey_id: '3_61'
     type: number
     semantic_type: money
@@ -5662,9 +9419,30 @@ fields:
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: can_change_charge_3_hud1
+      block_prefix: can_change_charge
+      subject: cannot_increase_charge_1_hud1
       suffix: amt
       grid: p3-G2
+    x_petey_hand_edit:
+      when: '2026-10-25 21:58:45'
+      from:
+        name: can_change_charge_3_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: can_change_charge_3_hud1
+          suffix: amt
+          grid: p3-G2
+      to:
+        name: can_change_charge_cannot_increase_charge_1_hud1_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT8: the type''s parts'
   initial_loan_amt:
     x_petey_id: '3_62'
     type: number
@@ -5734,54 +9512,59 @@ fields:
     x_petey_identifiers:
       subject: initial_monthly_payment
       suffix: amt
-  monthly_payment_includes_principal_ind:
-    x_petey_id: '3_66'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 263.68798828125
-      - 488.2509765625
-      - 276.64801025390625
-      - 498.8059997558594
-      widget_type: checkbox
-      path: Check Box818
+  monthly_payment_includes:
+    x_petey_id: '3_101'
+    type: category
+    values:
+    - monthly_payment_includes_principal_ind
+    - monthly_payment_includes_interest_ind
+    - monthly_payment_includes_mortgage_insurance_ind
+    widgets:
+      monthly_payment_includes_principal_ind:
+        page: 3
+        rect:
+        - 263.68798828125
+        - 488.2509765625
+        - 276.64801025390625
+        - 498.8059997558594
+        widget_type: checkbox
+        path: Check Box818
+        on_state: 'Yes'
+        caption: Principal
+        x_petey_caption_source: page_text
+      monthly_payment_includes_interest_ind:
+        page: 3
+        rect:
+        - 263.45001220703125
+        - 504.0320129394531
+        - 276.64801025390625
+        - 514.677978515625
+        widget_type: checkbox
+        path: Check Box819
+        on_state: 'Yes'
+        caption: Interest
+        x_petey_caption_source: page_text
+      monthly_payment_includes_mortgage_insurance_ind:
+        page: 3
+        rect:
+        - 263.6700134277344
+        - 519.0780029296875
+        - 276.62799072265625
+        - 529.4169921875
+        widget_type: checkbox
+        path: Check Box820
+        on_state: 'Yes'
+        caption: Mortgage Insurance
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 22:00:45'
+      from:
+      - monthly_payment_includes_principal_ind
+      - monthly_payment_includes_interest_ind
+      - monthly_payment_includes_mortgage_insurance_ind
     x_petey_identifiers:
-      subject: monthly_payment_includes_principal
-      suffix: ind
-  monthly_payment_includes_interest_ind:
-    x_petey_id: '3_67'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 263.45001220703125
-      - 504.0320129394531
-      - 276.64801025390625
-      - 514.677978515625
-      widget_type: checkbox
-      path: Check Box819
-    x_petey_identifiers:
-      subject: monthly_payment_includes_interest
-      suffix: ind
-  monthly_payment_includes_mortgage_insurance_ind:
-    x_petey_id: '3_68'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 263.6700134277344
-      - 519.0780029296875
-      - 276.62799072265625
-      - 529.4169921875
-      widget_type: checkbox
-      path: Check Box820
-    x_petey_identifiers:
-      subject: monthly_payment_includes_mortgage_insurance
-      suffix: ind
+      subject: monthly_payment_includes
   interest_rate_can_rise_ind:
     x_petey_id: '3_71'
     type: category
@@ -6287,70 +10070,97 @@ fields:
     x_petey_identifiers:
       subject: total_initial_monthly
       suffix: amt
-  escrow_includes_property_taxes_ind:
-    x_petey_id: '3_93'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 263.7090148925781
-      - 768.7149658203125
-      - 276.64801025390625
-      - 779.5479736328125
-      widget_type: checkbox
-      path: Check Box856
+  escrow_includes:
+    x_petey_id: '3_102'
+    type: multi_category
+    values:
+    - escrow_includes_property_taxes_ind
+    - escrow_includes_homeowners_insurance_ind
+    - escrow_includes_flood_insurance_ind
+    - escrow_includes_homeowners_insurance_2_ind
+    - escrow_includes_other_ind_1
+    - escrow_includes_other_ind_2
+    widgets:
+      escrow_includes_property_taxes_ind:
+        page: 3
+        rect:
+        - 263.7090148925781
+        - 768.7149658203125
+        - 276.64801025390625
+        - 779.5479736328125
+        widget_type: checkbox
+        path: Check Box856
+        on_state: 'Yes'
+        caption: Property taxes
+        x_petey_caption_source: page_text
+      escrow_includes_homeowners_insurance_ind:
+        page: 3
+        rect:
+        - 415.5260009765625
+        - 769.4509887695312
+        - 428.9079895019531
+        - 780.9080200195312
+        widget_type: checkbox
+        path: Check Box859
+        on_state: 'Yes'
+        caption: Homeowner's insurance
+        x_petey_caption_source: page_choice
+      escrow_includes_flood_insurance_ind:
+        page: 3
+        rect:
+        - 263.6700134277344
+        - 785.0289916992188
+        - 276.6310119628906
+        - 795.4959716796875
+        widget_type: checkbox
+        path: Check Box857
+        on_state: 'Yes'
+        caption: Flood insurance
+        x_petey_caption_source: page_text
+      escrow_includes_homeowners_insurance_2_ind:
+        page: 3
+        rect:
+        - 415.5260009765625
+        - 784.8469848632812
+        - 428.11700439453125
+        - 796.68896484375
+        widget_type: checkbox
+        path: Check Box860
+        on_state: 'Yes'
+      escrow_includes_other_ind_1:
+        page: 3
+        rect:
+        - 263.5039978027344
+        - 800.2219848632812
+        - 277.052001953125
+        - 811.3150024414062
+        widget_type: checkbox
+        path: Check Box858
+        on_state: 'Yes'
+        caption: 'on'
+        x_petey_caption_source: page_text
+      escrow_includes_other_ind_2:
+        page: 3
+        rect:
+        - 415.5530090332031
+        - 801.1950073242188
+        - 428.3479919433594
+        - 811.8820190429688
+        widget_type: checkbox
+        path: Check Box861
+        on_state: 'Yes'
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 22:00:45'
+      from:
+      - escrow_includes_property_taxes_ind
+      - escrow_includes_homeowners_insurance_ind
+      - escrow_includes_flood_insurance_ind
+      - escrow_includes_homeowners_insurance_2_ind
+      - escrow_includes_other_ind_1
+      - escrow_includes_other_ind_2
     x_petey_identifiers:
-      subject: escrow_includes_property_taxes
-      suffix: ind
-  escrow_includes_homeowners_insurance_ind:
-    x_petey_id: '3_94'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 415.5260009765625
-      - 769.4509887695312
-      - 428.9079895019531
-      - 780.9080200195312
-      widget_type: checkbox
-      path: Check Box859
-    x_petey_identifiers:
-      subject: escrow_includes_homeowners_insurance
-      suffix: ind
-  escrow_includes_flood_insurance_ind:
-    x_petey_id: '3_95'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 263.6700134277344
-      - 785.0289916992188
-      - 276.6310119628906
-      - 795.4959716796875
-      widget_type: checkbox
-      path: Check Box857
-    x_petey_identifiers:
-      subject: escrow_includes_flood_insurance
-      suffix: ind
-  escrow_includes_homeowners_insurance_2_ind:
-    x_petey_id: '3_96'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 415.5260009765625
-      - 784.8469848632812
-      - 428.11700439453125
-      - 796.68896484375
-      widget_type: checkbox
-      path: Check Box860
-    x_petey_identifiers:
-      subject: escrow_includes_homeowners_insurance_2
-      suffix: ind
+      subject: escrow_includes
   homeowners_insurance_other_nm:
     x_petey_id: '3_97'
     type: string
@@ -6367,23 +10177,6 @@ fields:
     x_petey_identifiers:
       subject: homeowners_insurance_other
       suffix: nm
-  escrow_includes_other_ind_1:
-    x_petey_id: '3_98'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 263.5039978027344
-      - 800.2219848632812
-      - 277.052001953125
-      - 811.3150024414062
-      widget_type: checkbox
-      path: Check Box858
-    x_petey_identifiers:
-      subject: escrow_includes_other
-      suffix: ind
-      iteration: '1'
   escrow_other_nm_1:
     x_petey_id: '3_99'
     type: string
@@ -6401,23 +10194,6 @@ fields:
       subject: escrow_other
       suffix: nm
       iteration: '1'
-  escrow_includes_other_ind_2:
-    x_petey_id: '3_101'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 415.5530090332031
-      - 801.1950073242188
-      - 428.3479919433594
-      - 811.8820190429688
-      widget_type: checkbox
-      path: Check Box861
-    x_petey_identifiers:
-      subject: escrow_includes_other
-      suffix: ind
-      iteration: '2'
   escrow_other_nm_2:
     x_petey_id: '3_100'
     type: string

@@ -310,46 +310,75 @@ fields:
     x_petey_identifiers:
       subject: foreign_postal
       suffix: cd
-  amended_return_ind:
-    x_petey_id: '1_17'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 129.90899658203125
-      - 240.77899169921875
-      - 143.1750030517578
-      - 247.4110107421875
-      widget_type: checkbox
-      path: Amended return
-    description: Amended return
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  amended_return_reason:
+    x_petey_id: '1_65'
+    type: category
+    values:
+    - amended_return_ind
+    - other_jurisdiction_change_ind
+    - federal_amendment_ind
+    - amended_return_irs_bba_partnership_audit_ind
+    widgets:
+      amended_return_ind:
+        page: 1
+        rect:
+        - 129.90899658203125
+        - 240.77899169921875
+        - 143.1750030517578
+        - 247.4110107421875
+        widget_type: checkbox
+        path: Amended return
+        on_state: 'Yes'
+        caption: Amended return
+        x_petey_caption_source: tooltip
+      other_jurisdiction_change_ind:
+        page: 1
+        rect:
+        - 234.63699340820312
+        - 240.77899169921875
+        - 247.90199279785156
+        - 247.4110107421875
+        widget_type: checkbox
+        path: Other jurisdiction change
+        on_state: 'Yes'
+        caption: Other jurisdiction change
+        x_petey_caption_source: tooltip
+      federal_amendment_ind:
+        page: 1
+        rect:
+        - 129.6179962158203
+        - 258.291015625
+        - 142.88400268554688
+        - 264.92401123046875
+        widget_type: checkbox
+        path: federal amendment
+        on_state: 'Yes'
+        caption: federal amendment
+        x_petey_caption_source: tooltip
+      amended_return_irs_bba_partnership_audit_ind:
+        page: 1
+        rect:
+        - 234.85499572753906
+        - 258.364013671875
+        - 248.1199951171875
+        - 264.99700927734375
+        widget_type: checkbox
+        path: Amended return due to IRS BBA Partnership Audit
+        on_state: 'Yes'
+        caption: Amended return due to IRS BBA Partnership Audit
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 21:42:05'
+      from:
+      - amended_return_ind
+      - other_jurisdiction_change_ind
+      - federal_amendment_ind
+      - amended_return_irs_bba_partnership_audit_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: amended_return
-      suffix: ind
-  other_jurisdiction_change_ind:
-    x_petey_id: '1_18'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 234.63699340820312
-      - 240.77899169921875
-      - 247.90199279785156
-      - 247.4110107421875
-      widget_type: checkbox
-      path: Other jurisdiction change
-    description: Other jurisdiction change
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: other_jurisdiction_change
-      suffix: ind
+      subject: amended_return_reason
   jurisdiction_change_dt:
     x_petey_id: '1_16'
     type: date
@@ -371,46 +400,6 @@ fields:
     x_petey_identifiers:
       subject: jurisdiction_change
       suffix: dt
-  federal_amendment_ind:
-    x_petey_id: '1_19'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 129.6179962158203
-      - 258.291015625
-      - 142.88400268554688
-      - 264.92401123046875
-      widget_type: checkbox
-      path: federal amendment
-    description: federal amendment
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: federal_amendment
-      suffix: ind
-  amended_return_irs_bba_partnership_audit_ind:
-    x_petey_id: '1_20'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 234.85499572753906
-      - 258.364013671875
-      - 248.1199951171875
-      - 264.99700927734375
-      widget_type: checkbox
-      path: Amended return due to IRS BBA Partnership Audit
-    description: Amended return due to IRS BBA Partnership Audit
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: amended_return_irs_bba_partnership_audit
-      suffix: ind
   state_election_campaign_fund_taxpayer_ind:
     x_petey_id: '1_22'
     type: boolean
@@ -464,58 +453,86 @@ fields:
     x_petey_identifiers:
       subject: state_election_campaign_fund_total
       suffix: amt
-  veteran_taxpayer_ind:
-    x_petey_id: '1_24'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 460.12701416015625
-      - 287.2539978027344
-      - 473.4360046386719
-      - 293.90899658203125
-      widget_type: checkbox
-      path: taxpayer
+  veteran:
+    x_petey_id: '1_66'
+    type: multi_category
+    values:
+    - veteran_taxpayer_ind
+    - veteran_spouse_ind
+    widgets:
+      veteran_taxpayer_ind:
+        page: 1
+        rect:
+        - 460.12701416015625
+        - 287.2539978027344
+        - 473.4360046386719
+        - 293.90899658203125
+        widget_type: checkbox
+        path: taxpayer
+        on_state: 'Yes'
+        caption: Taxpayer
+        x_petey_caption_source: page_text
+      veteran_spouse_ind:
+        page: 1
+        rect:
+        - 525.14501953125
+        - 287.2539978027344
+        - 538.4539794921875
+        - 293.90899658203125
+        widget_type: checkbox
+        path: spouse
+        on_state: 'Yes'
+        caption: Spouse
+        x_petey_caption_source: page_text
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 21:42:05'
+      from:
+      - veteran_taxpayer_ind
+      - veteran_spouse_ind
     x_petey_identifiers:
-      subject: veteran_taxpayer
-      suffix: ind
-  veteran_spouse_ind:
-    x_petey_id: '1_25'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 525.14501953125
-      - 287.2539978027344
-      - 538.4539794921875
-      - 293.90899658203125
-      widget_type: checkbox
-      path: spouse
+      subject: veteran
+  deceased_person:
+    x_petey_id: '1_67'
+    type: category
+    values:
+    - taxpayer_deceased_ind
+    - spouse_deceased_ind
+    widgets:
+      taxpayer_deceased_ind:
+        page: 1
+        rect:
+        - 156.23599243164062
+        - 310.3999938964844
+        - 169.5449981689453
+        - 317.0539855957031
+        widget_type: checkbox
+        path: taxpayer deceased
+        on_state: 'Yes'
+        caption: taxpayer deceased
+        x_petey_caption_source: tooltip
+      spouse_deceased_ind:
+        page: 1
+        rect:
+        - 367.1449890136719
+        - 310.1820068359375
+        - 380.4540100097656
+        - 316.83599853515625
+        widget_type: checkbox
+        path: spouse deceased
+        on_state: 'Yes'
+        caption: spouse deceased
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 21:42:05'
+      from:
+      - taxpayer_deceased_ind
+      - spouse_deceased_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: veteran_spouse
-      suffix: ind
-  taxpayer_deceased_ind:
-    x_petey_id: '1_28'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 156.23599243164062
-      - 310.3999938964844
-      - 169.5449981689453
-      - 317.0539855957031
-      widget_type: checkbox
-      path: taxpayer deceased
-    description: taxpayer deceased
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: taxpayer_deceased
-      suffix: ind
+      subject: deceased_person
   taxpayer_date_of_death_dt:
     x_petey_id: '1_26'
     type: date
@@ -537,26 +554,6 @@ fields:
     x_petey_identifiers:
       subject: taxpayer_date_of_death
       suffix: dt
-  spouse_deceased_ind:
-    x_petey_id: '1_29'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 367.1449890136719
-      - 310.1820068359375
-      - 380.4540100097656
-      - 316.83599853515625
-      widget_type: checkbox
-      path: spouse deceased
-    description: spouse deceased
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: spouse_deceased
-      suffix: ind
   spouse_date_of_death_dt:
     x_petey_id: '1_27'
     type: date
@@ -578,86 +575,84 @@ fields:
     x_petey_identifiers:
       subject: spouse_date_of_death
       suffix: dt
-  under_age_18_taxpayer_ind:
-    x_petey_id: '1_30'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 460.12701416015625
-      - 324.3269958496094
-      - 473.4360046386719
-      - 330.98199462890625
-      widget_type: checkbox
-      path: taxpayer under age 18
-    description: taxpayer under age 18
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  under_age_18:
+    x_petey_id: '1_68'
+    type: multi_category
+    values:
+    - under_age_18_taxpayer_ind
+    - under_age_18_spouse_ind
+    widgets:
+      under_age_18_taxpayer_ind:
+        page: 1
+        rect:
+        - 460.12701416015625
+        - 324.3269958496094
+        - 473.4360046386719
+        - 330.98199462890625
+        widget_type: checkbox
+        path: taxpayer under age 18
+        on_state: 'Yes'
+        caption: taxpayer under age 18
+        x_petey_caption_source: tooltip
+      under_age_18_spouse_ind:
+        page: 1
+        rect:
+        - 524.927001953125
+        - 324.2179870605469
+        - 538.2360229492188
+        - 330.87298583984375
+        widget_type: checkbox
+        path: spouse under age 18
+        on_state: 'Yes'
+        caption: spouse under age 18
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 21:42:05'
+      from:
+      - under_age_18_taxpayer_ind
+      - under_age_18_spouse_ind
     x_petey_identifiers:
-      subject: under_age_18_taxpayer
-      suffix: ind
-  under_age_18_spouse_ind:
-    x_petey_id: '1_31'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 524.927001953125
-      - 324.2179870605469
-      - 538.2360229492188
-      - 330.87298583984375
-      widget_type: checkbox
-      path: spouse under age 18
-    description: spouse under age 18
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+      subject: under_age_18
+  name_changed:
+    x_petey_id: '1_69'
+    type: multi_category
+    values:
+    - name_changed_taxpayer_ind
+    - name_changed_spouse_ind
+    widgets:
+      name_changed_taxpayer_ind:
+        page: 1
+        rect:
+        - 460.2359924316406
+        - 338.1449890136719
+        - 473.5450134277344
+        - 344.79998779296875
+        widget_type: checkbox
+        path: taxpayer name change
+        on_state: 'Yes'
+        caption: taxpayer name change
+        x_petey_caption_source: tooltip
+      name_changed_spouse_ind:
+        page: 1
+        rect:
+        - 524.927001953125
+        - 338.1449890136719
+        - 538.2360229492188
+        - 344.79998779296875
+        widget_type: checkbox
+        path: spouse name change
+        on_state: 'Yes'
+        caption: spouse name change
+        x_petey_caption_source: tooltip
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 21:42:05'
+      from:
+      - name_changed_taxpayer_ind
+      - name_changed_spouse_ind
     x_petey_identifiers:
-      subject: under_age_18_spouse
-      suffix: ind
-  name_changed_taxpayer_ind:
-    x_petey_id: '1_32'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 460.2359924316406
-      - 338.1449890136719
-      - 473.5450134277344
-      - 344.79998779296875
-      widget_type: checkbox
-      path: taxpayer name change
-    description: taxpayer name change
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: name_changed_taxpayer
-      suffix: ind
-  name_changed_spouse_ind:
-    x_petey_id: '1_33'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 524.927001953125
-      - 338.1449890136719
-      - 538.2360229492188
-      - 344.79998779296875
-      widget_type: checkbox
-      path: spouse name change
-    description: spouse name change
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: name_changed_spouse
-      suffix: ind
+      subject: name_changed
   noncustodial_parent_ind:
     x_petey_id: '1_34'
     type: boolean
@@ -698,66 +693,61 @@ fields:
     x_petey_identifiers:
       subject: custodial_parent_released_exemption
       suffix: ind
-  filing_schedule_tds_ind:
-    x_petey_id: '1_36'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 129.48800659179688
-      - 380.6000061035156
-      - 142.7969970703125
-      - 387.2550048828125
-      widget_type: checkbox
-      path: filing Schedule TDS
-    description: filing Schedule TDS
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  special_filing_condition:
+    x_petey_id: '1_70'
+    type: category
+    values:
+    - filing_schedule_tds_ind
+    - filing_schedule_fci_ind
+    - reporting_digital_assets_ind
+    widgets:
+      filing_schedule_tds_ind:
+        page: 1
+        rect:
+        - 129.48800659179688
+        - 380.6000061035156
+        - 142.7969970703125
+        - 387.2550048828125
+        widget_type: checkbox
+        path: filing Schedule TDS
+        on_state: 'Yes'
+        caption: filing Schedule TDS
+        x_petey_caption_source: tooltip
+      filing_schedule_fci_ind:
+        page: 1
+        rect:
+        - 224.5449981689453
+        - 380.4540100097656
+        - 237.85400390625
+        - 387.1090087890625
+        widget_type: checkbox
+        path: filing Schedule FCI
+        on_state: 'Yes'
+        caption: filing Schedule FCI
+        x_petey_caption_source: tooltip
+      reporting_digital_assets_ind:
+        page: 1
+        rect:
+        - 315.01800537109375
+        - 380.3450012207031
+        - 329.4179992675781
+        - 387.6549987792969
+        widget_type: checkbox
+        path: reporting digital assets (see instructions)
+        on_state: 'Yes'
+        caption: reporting digital assets (see instructions)
+        x_petey_caption_source: tooltip
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 21:42:05'
+      from:
+      - filing_schedule_tds_ind
+      - filing_schedule_fci_ind
+      - reporting_digital_assets_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: filing_schedule_tds
-      suffix: ind
-  filing_schedule_fci_ind:
-    x_petey_id: '1_37'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 224.5449981689453
-      - 380.4540100097656
-      - 237.85400390625
-      - 387.1090087890625
-      widget_type: checkbox
-      path: filing Schedule FCI
-    description: filing Schedule FCI
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: filing_schedule_fci
-      suffix: ind
-  reporting_digital_assets_ind:
-    x_petey_id: '1_38'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 1
-      rect:
-      - 315.01800537109375
-      - 380.3450012207031
-      - 329.4179992675781
-      - 387.6549987792969
-      widget_type: checkbox
-      path: reporting digital assets (see instructions)
-    description: reporting digital assets (see instructions)
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: reporting_digital_assets
-      suffix: ind
+      subject: special_filing_condition
   total_federal_income_loss_ind:
     x_petey_id: '1_39'
     type: boolean
@@ -2319,7 +2309,7 @@ fields:
     x_petey_identifiers:
       subject: income_tax_after_credits_32
       suffix: amt
-  endangered_wildlife_conservation_33a_amt:
+  organ_transplant_amt:
     x_petey_id: '3_15'
     type: number
     semantic_type: money
@@ -2338,9 +2328,25 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: endangered_wildlife_conservation_33a
+      subject: organ_transplant
       suffix: amt
-  organ_transplant_33b_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:39:44'
+      from:
+        name: endangered_wildlife_conservation_33a_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: endangered_wildlife_conservation_33a
+          suffix: amt
+      to:
+        name: organ_transplant_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
+  massachusetts_public_health_hiv_and_hepatitis_fund_amt:
     x_petey_id: '3_16'
     type: number
     semantic_type: money
@@ -2361,9 +2367,25 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: organ_transplant_33b
+      subject: massachusetts_public_health_hiv_and_hepatitis_fund
       suffix: amt
-  ma_public_health_hiv_hepatitis_33c_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:39:50'
+      from:
+        name: organ_transplant_33b_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: organ_transplant_33b
+          suffix: amt
+      to:
+        name: massachusetts_public_health_hiv_and_hepatitis_fund_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
+  ma_us_olympic_amt:
     x_petey_id: '3_17'
     type: number
     semantic_type: money
@@ -2382,9 +2404,25 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: ma_public_health_hiv_hepatitis_33c
+      subject: ma_us_olympic
       suffix: amt
-  ma_us_olympic_33d_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:43:54'
+      from:
+        name: ma_public_health_hiv_hepatitis_33c_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: ma_public_health_hiv_hepatitis_33c
+          suffix: amt
+      to:
+        name: ma_us_olympic_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
+  massachusetts_military_family_relief_amt:
     x_petey_id: '3_18'
     type: number
     semantic_type: money
@@ -2405,9 +2443,25 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: ma_us_olympic_33d
+      subject: massachusetts_military_family_relief
       suffix: amt
-  ma_military_family_relief_33e_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:44:03'
+      from:
+        name: ma_us_olympic_33d_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: ma_us_olympic_33d
+          suffix: amt
+      to:
+        name: massachusetts_military_family_relief_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
+  homeless_animal_prevention_and_care_amt:
     x_petey_id: '3_19'
     type: number
     semantic_type: money
@@ -2428,9 +2482,25 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: ma_military_family_relief_33e
+      subject: homeless_animal_prevention_and_care
       suffix: amt
-  homeless_animal_prevention_33f_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:44:13'
+      from:
+        name: ma_military_family_relief_33e_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: ma_military_family_relief_33e
+          suffix: amt
+      to:
+        name: homeless_animal_prevention_and_care_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
+  total_voluntary_fund_contributions_amt:
     x_petey_id: '3_20'
     type: number
     semantic_type: money
@@ -2450,9 +2520,25 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: homeless_animal_prevention_33f
+      subject: total_voluntary_fund_contributions
       suffix: amt
-  voluntary_contributions_total_33_amt:
+    x_petey_hand_edit:
+      when: '2026-10-25 21:44:20'
+      from:
+        name: homeless_animal_prevention_33f_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: homeless_animal_prevention_33f
+          suffix: amt
+      to:
+        name: total_voluntary_fund_contributions_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
+  use_tax_due_out_of_state_purchases_amt:
     x_petey_id: '3_21'
     type: number
     semantic_type: money
@@ -2473,8 +2559,24 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: voluntary_contributions_total_33
+      subject: use_tax_due_out_of_state_purchases
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:44:26'
+      from:
+        name: voluntary_contributions_total_33_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: voluntary_contributions_total_33
+          suffix: amt
+      to:
+        name: use_tax_due_out_of_state_purchases_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
   health_care_penalty_you_35a_amt:
     x_petey_id: '3_22'
     type: number
@@ -2678,7 +2780,7 @@ fields:
     x_petey_identifiers:
       subject: ma_withholding_total_38
       suffix: amt
-  use_tax_34_amt:
+  endangered_wildlife_conservation_amt:
     x_petey_id: '3_14'
     type: number
     semantic_type: money
@@ -2697,8 +2799,24 @@ fields:
     - description_from_tooltip
     - money
     x_petey_identifiers:
-      subject: use_tax_34
+      subject: endangered_wildlife_conservation
       suffix: amt
+    x_petey_hand_edit:
+      when: '2026-10-25 21:39:36'
+      from:
+        name: use_tax_34_amt
+        type: number
+        semantic_type: money
+        pattern: null
+        identifiers:
+          subject: use_tax_34
+          suffix: amt
+      to:
+        name: endangered_wildlife_conservation_amt
+        type: number
+        semantic_type: money
+        pattern: null
+      record: runs/hand_review/lib__ma1.json
   line_39_prior_overpayment_applied_amt:
     x_petey_id: '4_1'
     type: number
@@ -3439,63 +3557,58 @@ fields:
     x_petey_identifiers:
       subject: paid_preparer
       suffix: ein
-  self_employed_ind:
+  preparer_options:
     x_petey_id: '4_35'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 134.7050018310547
-      - 656.5490112304688
-      - 148.01400756835938
-      - 663.2039794921875
-      widget_type: checkbox
-      path: fill in if paid preparer is self-employed
-    description: fill in if paid preparer is self-employed
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+    type: category
+    values:
+    - self_employed_ind
+    - dor_discuss_with_preparer_ind
+    - no_electronic_filing_ind
+    widgets:
+      self_employed_ind:
+        page: 4
+        rect:
+        - 134.7050018310547
+        - 656.5490112304688
+        - 148.01400756835938
+        - 663.2039794921875
+        widget_type: checkbox
+        path: fill in if paid preparer is self-employed
+        on_state: 'Yes'
+        caption: fill in if paid preparer is self-employed
+        x_petey_caption_source: tooltip
+      dor_discuss_with_preparer_ind:
+        page: 4
+        rect:
+        - 315.8909912109375
+        - 656.5449829101562
+        - 329.20001220703125
+        - 663.2000122070312
+        widget_type: checkbox
+        path: fill in if DOR may discuss this return with the preparer
+        on_state: 'Yes'
+        caption: PTIN
+        x_petey_caption_source: page_text
+      no_electronic_filing_ind:
+        page: 4
+        rect:
+        - 528.801025390625
+        - 656.3460083007812
+        - 542.1099853515625
+        - 663.0009765625
+        widget_type: checkbox
+        path: fill in if you do not want preparer to file return electronically
+        on_state: 'Yes'
+        caption: to
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 21:44:50'
+      from:
+      - self_employed_ind
+      - dor_discuss_with_preparer_ind
+      - no_electronic_filing_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: self_employed
-      suffix: ind
-  dor_discuss_with_preparer_ind:
-    x_petey_id: '4_36'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 315.8909912109375
-      - 656.5449829101562
-      - 329.20001220703125
-      - 663.2000122070312
-      widget_type: checkbox
-      path: fill in if DOR may discuss this return with the preparer
-    description: fill in if DOR may discuss this return with the preparer
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: dor_discuss_with_preparer
-      suffix: ind
-  no_electronic_filing_ind:
-    x_petey_id: '4_37'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 4
-      rect:
-      - 528.801025390625
-      - 656.3460083007812
-      - 542.1099853515625
-      - 663.0009765625
-      widget_type: checkbox
-      path: fill in if you do not want preparer to file return electronically
-    description: fill in if you do not want preparer to file return electronically
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: no_electronic_filing
-      suffix: ind
+      subject: preparer_options

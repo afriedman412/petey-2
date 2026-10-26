@@ -6,10 +6,14 @@ source_pdf_hash: 495290d3820d290367dc843de9295be0e9985d07
 source_pages:
 - 2
 - 3
-- 4
-- 6
 description: ''
 instructions: ''
+authoring:
+  method: auto_label
+  model: claude-sonnet-4-6
+  geometry: acroform
+  labels: llm
+  when: '2026-10-06 10:04:51'
 fields:
   calendar_yr:
     x_petey_id: '2_2'
@@ -25,13 +29,14 @@ fields:
       - 105.0
       widget_type: text
       path: topmostSubform[0].CopyA[0].PgHeader[0].CalendarYear[0].f1_1[0]
+    label_source: llm
     x_petey_identifiers:
       subject: calendar
       suffix: yr
-  payer_name_address_txt:
+  payer_business_name_address:
     x_petey_id: '2_1'
     type: string
-    semantic_type: name_and_address
+    semantic_type: address_block
     widget:
       page: 2
       rect:
@@ -41,26 +46,20 @@ fields:
       - 108.0
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_2[0]
-    x_petey_hand_edit:
-      when: '2026-10-16 13:43:13'
-      from:
-        name: payer_name_address_txt
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: The caption asks for payer name, street address, city, state, ZIP and
+        telephone in one block; the name already says name_address, only the semantic_type
+        was wrong (business_name -> address_block).
+      before:
         type: string
         semantic_type: business_name
-        pattern: null
-      to:
-        name: payer_name_address_txt
-        type: string
-        semantic_type: name_and_address
-        pattern: null
-      record: petey/semantic_types.py
-      by: claude
-      kind: type
-      why: 'a name with its mailing address in one box: the new name_and_address semantic
-        type (Andrew, 2026-10-16)'
+      judged: 'kept: 1 -> 0'
     x_petey_identifiers:
-      subject: payer_name_address
-      suffix: txt
+      subject: payer_business_name_address
   payer_tin:
     x_petey_id: '2_3'
     type: string
@@ -75,6 +74,7 @@ fields:
       - 132.0009765625
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_3[0]
+    label_source: llm
     x_petey_identifiers:
       subject: payer
       suffix: tin
@@ -92,6 +92,7 @@ fields:
       - 132.0009765625
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_4[0]
+    label_source: llm
     x_petey_identifiers:
       subject: recipient
       suffix: tin
@@ -108,10 +109,11 @@ fields:
       - 168.0009765625
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_5[0]
+    label_source: llm
     x_petey_identifiers:
       subject: recipient
       suffix: nm
-  recipient_address_line_1_txt:
+  recipient_street_address_line_1_txt:
     x_petey_id: '2_8'
     type: string
     semantic_type: street_address
@@ -124,8 +126,9 @@ fields:
       - 192.00201416015625
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_6[0]
+    label_source: llm
     x_petey_identifiers:
-      subject: recipient_address_line_1
+      subject: recipient_street_address_line_1
       suffix: txt
   recipient_city_state_zip_txt:
     x_petey_id: '2_10'
@@ -139,6 +142,7 @@ fields:
       - 216.0
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_7[0]
+    label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=242
     x_petey_identifiers:
@@ -158,6 +162,7 @@ fields:
       - 240.0009765625
       widget_type: text
       path: topmostSubform[0].CopyA[0].LeftCol[0].f1_8[0]
+    label_source: llm
     x_petey_identifiers:
       subject: account_number
       suffix: txt
@@ -174,6 +179,7 @@ fields:
       - 131.99798583984375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].f1_9[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
@@ -192,6 +198,7 @@ fields:
       - 180.0
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].f1_10[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
@@ -210,6 +217,7 @@ fields:
       - 203.99798583984375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].f1_11[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
@@ -228,10 +236,12 @@ fields:
       - 227.9990234375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].Box5_ReadOrder[0].f1_12[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: state_tax_withheld_amt
+      subject: state_tax_withheld
+      suffix: amt
       iteration: '1'
   state_tax_withheld_amt_2:
     x_petey_id: '2_15'
@@ -246,10 +256,12 @@ fields:
       - 239.99798583984375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].Box5_ReadOrder[0].f1_13[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: state_tax_withheld_amt
+      subject: state_tax_withheld
+      suffix: amt
       iteration: '2'
   state_payers_state_no_txt_1:
     x_petey_id: '2_12'
@@ -263,6 +275,7 @@ fields:
       - 227.9990234375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].Box6_ReadOrder[0].f1_14[0]
+    label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=122
     x_petey_identifiers:
@@ -281,6 +294,7 @@ fields:
       - 239.99798583984375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].Box6_ReadOrder[0].f1_15[0]
+    label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=122
     x_petey_identifiers:
@@ -300,10 +314,12 @@ fields:
       - 227.9990234375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].Box7_ReadOrder[0].f1_16[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: state_income_amt
+      subject: state_income
+      suffix: amt
       iteration: '1'
   state_income_amt_2:
     x_petey_id: '2_17'
@@ -318,374 +334,388 @@ fields:
       - 239.99798583984375
       widget_type: text
       path: topmostSubform[0].CopyA[0].RightCol[0].Box7_ReadOrder[0].f1_17[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: state_income_amt
+      subject: state_income
+      suffix: amt
       iteration: '2'
   calendar_yr_2:
-    x_petey_id: '4_3'
+    x_petey_id: '3_4'
     type: string
     semantic_type: year
     pattern: ^\d{4}$
     widget:
-      page: 4
+      page: 3
       rect:
       - 417.6000061035156
       - 96.0009765625
       - 446.3999938964844
       - 105.0
       widget_type: text
-      path: topmostSubform[0].CopyB[0].PgHeader[0].CalendarYear[0].f2_1[0]
+      path: topmostSubform[0].Copy1[0].PgHeader[0].CalendarYear[0].f2_1[0]
+    label_source: llm
     x_petey_identifiers:
       subject: calendar_yr_2
-  corrected_ind_2:
-    x_petey_id: '4_1'
+  void_ind:
+    x_petey_id: '3_1'
     type: boolean
     semantic_type: indicator
     widget:
-      page: 4
+      page: 3
+      rect:
+      - 187.1999969482422
+      - 24.5
+      - 197.1999969482422
+      - 34.5
+      widget_type: checkbox
+      path: topmostSubform[0].Copy1[0].PgHeader[0].c2_1[0]
+    label_source: llm
+    x_petey_identifiers:
+      subject: void
+      suffix: ind
+  corrected_ind:
+    x_petey_id: '3_2'
+    type: boolean
+    semantic_type: indicator
+    widget:
+      page: 3
       rect:
       - 244.8000030517578
       - 24.5
       - 254.8000030517578
       - 34.5
       widget_type: checkbox
-      path: topmostSubform[0].CopyB[0].c2_1[0]
+      path: topmostSubform[0].Copy1[0].PgHeader[0].c2_1[1]
+    label_source: llm
     x_petey_identifiers:
-      subject: corrected_ind_2
-  payer_name_address_txt_2:
-    x_petey_id: '4_2'
+      subject: corrected
+      suffix: ind
+  payer_name_address_txt:
+    x_petey_id: '3_3'
     type: string
-    semantic_type: name_and_address
+    semantic_type: address_block
     widget:
-      page: 4
+      page: 3
       rect:
       - 52.400001525878906
       - 60.0009765625
       - 294.45001220703125
       - 108.0
       widget_type: text
-      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_2[0]
-    x_petey_hand_edit:
-      when: '2026-10-16 13:43:13'
-      from:
-        name: payer_name_address_txt_2
+      path: topmostSubform[0].Copy1[0].LeftCol[0].f2_2[0]
+    label_source: llm
+    x_petey_review:
+      model: claude-opus-5
+      changed:
+      - semantic_type
+      reason: Same combined payer name/address block on the Copy 1 page; semantic_type
+        business_name corrected to address_block.
+      before:
         type: string
         semantic_type: business_name
-        pattern: null
-      to:
-        name: payer_name_address_txt_2
-        type: string
-        semantic_type: name_and_address
-        pattern: null
-      record: petey/semantic_types.py
-      by: claude
-      kind: type
-      why: 'a name with its mailing address in one box: the new name_and_address semantic
-        type (Andrew, 2026-10-16)'
+      judged: 'kept: 1 -> 0'
     x_petey_identifiers:
-      subject: payer_name_address_txt_2
+      subject: payer_name_address
+      suffix: txt
   payer_tin_2:
-    x_petey_id: '4_4'
+    x_petey_id: '3_5'
     type: string
     semantic_type: tin
     pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
     widget:
-      page: 4
+      page: 3
       rect:
       - 50.400001525878906
       - 118.0
       - 172.8000030517578
       - 132.0009765625
       widget_type: text
-      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_3[0]
+      path: topmostSubform[0].Copy1[0].LeftCol[0].f2_3[0]
+    label_source: llm
     x_petey_identifiers:
       subject: payer_tin_2
   recipient_tin_2:
-    x_petey_id: '4_5'
+    x_petey_id: '3_6'
     type: string
     semantic_type: tin
     pattern: ^\d{2,3}-\d{2,7}(-\d{4})?$
     widget:
-      page: 4
+      page: 3
       rect:
       - 172.8000030517578
       - 118.0
       - 295.20001220703125
       - 132.0009765625
       widget_type: text
-      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_4[0]
+      path: topmostSubform[0].Copy1[0].LeftCol[0].f2_4[0]
+    label_source: llm
     x_petey_identifiers:
       subject: recipient_tin_2
   recipient_nm_2:
-    x_petey_id: '4_8'
+    x_petey_id: '3_9'
     type: string
     semantic_type: person_name
     widget:
-      page: 4
+      page: 3
       rect:
       - 52.400001525878906
       - 142.0009765625
       - 294.45001220703125
       - 168.0009765625
       widget_type: text
-      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_5[0]
+      path: topmostSubform[0].Copy1[0].LeftCol[0].f2_5[0]
+    label_source: llm
     x_petey_identifiers:
       subject: recipient_nm_2
-  recipient_address_line_1_txt_2:
-    x_petey_id: '4_10'
+  recipient_street_address_line_1_txt_2:
+    x_petey_id: '3_11'
     type: string
     semantic_type: street_address
     widget:
-      page: 4
+      page: 3
       rect:
       - 52.400001525878906
       - 178.0009765625
       - 294.45001220703125
       - 192.00201416015625
       widget_type: text
-      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_6[0]
+      path: topmostSubform[0].Copy1[0].LeftCol[0].f2_6[0]
+    label_source: llm
     x_petey_identifiers:
-      subject: recipient_address_line_1_txt_2
+      subject: recipient_street_address_line_1_txt_2
   recipient_city_state_zip_txt_2:
-    x_petey_id: '4_12'
+    x_petey_id: '3_13'
     type: string
     widget:
-      page: 4
+      page: 3
       rect:
       - 52.400001525878906
       - 201.9990234375
       - 294.45001220703125
       - 216.0
       widget_type: text
-      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_7[0]
+      path: topmostSubform[0].Copy1[0].LeftCol[0].f2_7[0]
+    label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=242
     x_petey_identifiers:
       subject: recipient_city_state_zip_txt_2
   account_number_txt_2:
-    x_petey_id: '4_16'
+    x_petey_id: '3_17'
     type: string
     semantic_type: account_number
     pattern: ^\d{8,17}$
     widget:
-      page: 4
+      page: 3
       rect:
       - 50.400001525878906
       - 226.0
       - 295.20001220703125
       - 240.0009765625
       widget_type: text
-      path: topmostSubform[0].CopyB[0].LeftCol[0].f2_8[0]
+      path: topmostSubform[0].Copy1[0].LeftCol[0].f2_8[0]
+    label_source: llm
     x_petey_identifiers:
       subject: account_number_txt_2
-  nonemployee_compensation_amt_2:
-    x_petey_id: '4_6'
+  copy1_nonemployee_compensation_amt:
+    x_petey_id: '3_7'
     type: number
     semantic_type: money
     widget:
-      page: 4
+      page: 3
       rect:
       - 302.3999938964844
       - 119.9990234375
       - 494.79998779296875
       - 131.99798583984375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].f2_9[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].f2_9[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: nonemployee_compensation_amt_2
-  direct_sales_5000_or_more_ind_2:
-    x_petey_id: '4_7'
+      subject: copy1_nonemployee_compensation
+      suffix: amt
+  copy1_direct_sales_5000_or_more_ind:
+    x_petey_id: '3_8'
     type: boolean
     semantic_type: indicator
     widget:
-      page: 4
+      page: 3
       rect:
       - 485.79998779296875
       - 140.0009765625
       - 493.79998779296875
       - 148.0009765625
       widget_type: checkbox
-      path: topmostSubform[0].CopyB[0].RightCol[0].c2_3[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].c2_3[0]
+    label_source: llm
     x_petey_identifiers:
-      subject: direct_sales_5000_or_more_ind_2
-  excess_golden_parachute_payments_amt_2:
-    x_petey_id: '4_9'
+      subject: copy1_direct_sales_5000_or_more
+      suffix: ind
+  copy1_excess_golden_parachute_payments_amt:
+    x_petey_id: '3_10'
     type: number
     semantic_type: money
     widget:
-      page: 4
+      page: 3
       rect:
       - 302.3999938964844
       - 168.0009765625
       - 494.79998779296875
       - 180.0
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].f2_10[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].f2_10[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: excess_golden_parachute_payments_amt_2
-  federal_income_tax_withheld_amt_2:
-    x_petey_id: '4_11'
+      subject: copy1_excess_golden_parachute_payments
+      suffix: amt
+  copy1_federal_income_tax_withheld_amt:
+    x_petey_id: '3_12'
     type: number
     semantic_type: money
     widget:
-      page: 4
+      page: 3
       rect:
       - 302.3999938964844
       - 191.9990234375
       - 494.79998779296875
       - 203.99798583984375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].f2_11[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].f2_11[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      subject: federal_income_tax_withheld_amt_2
-  state_tax_withheld_amt_1_2:
-    x_petey_id: '4_13'
+      subject: copy1_federal_income_tax_withheld
+      suffix: amt
+  copy1_state_tax_withheld_amt:
+    x_petey_id: '3_14'
     type: number
     semantic_type: money
     widget:
-      page: 4
+      page: 3
       rect:
       - 302.3999938964844
       - 216.0
       - 372.3999938964844
       - 227.9990234375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].Box5_ReadOrder[0].f2_12[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].Box5_ReadOrder[0].f2_12[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      block_prefix: state_tax_withheld_amt
-      block_iteration: '1'
-      subject: '2'
-  state_tax_withheld_amt_2_2:
-    x_petey_id: '4_17'
+      subject: copy1_state_tax_withheld
+      suffix: amt
+  copy1_state_tax_withheld_amt_2:
+    x_petey_id: '3_18'
     type: number
     semantic_type: money
     widget:
-      page: 4
+      page: 3
       rect:
       - 302.3999938964844
       - 227.9990234375
       - 372.3999938964844
       - 239.99798583984375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].Box5_ReadOrder[0].f2_13[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      block_prefix: state_tax_withheld_amt
-      block_iteration: '2'
-      subject: '2'
-  state_payers_state_no_1:
-    x_petey_id: '4_14'
+      subject: copy1_state_tax_withheld_amt_2
+  copy1_state_payers_state_no_txt:
+    x_petey_id: '3_15'
     type: string
     widget:
-      page: 4
+      page: 3
       rect:
       - 374.3999938964844
       - 216.0
       - 496.79998779296875
       - 227.9990234375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].Box6_ReadOrder[0].f2_14[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].Box6_ReadOrder[0].f2_14[0]
+    label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=122
     x_petey_identifiers:
-      subject: state_payers_state_no
-      iteration: '1'
-  state_payers_state_no_2:
-    x_petey_id: '4_18'
+      subject: copy1_state_payers_state_no
+      suffix: txt
+  copy1_state_payers_state_no_txt_2:
+    x_petey_id: '3_19'
     type: string
     widget:
-      page: 4
+      page: 3
       rect:
       - 374.3999938964844
       - 227.9990234375
       - 496.79998779296875
       - 239.99798583984375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].Box6_ReadOrder[0].f2_15[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].Box6_ReadOrder[0].f2_15[0]
+    label_source: llm
     x_petey_retype:
     - wide_widget_short_pattern:width=122
     x_petey_identifiers:
-      subject: state_payers_state_no
-      iteration: '2'
-  state_income_amt_1_2:
-    x_petey_id: '4_15'
+      subject: copy1_state_payers_state_no_txt_2
+  copy1_state_income_amt:
+    x_petey_id: '3_16'
     type: number
     semantic_type: money
     widget:
-      page: 4
+      page: 3
       rect:
       - 504.0
       - 216.0
       - 576.0
       - 227.9990234375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].Box7_ReadOrder[0].f2_16[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].Box7_ReadOrder[0].f2_16[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      block_prefix: state_income_amt
-      block_iteration: '1'
-      subject: '2'
-  state_income_amt_2_2:
-    x_petey_id: '4_19'
+      subject: copy1_state_income
+      suffix: amt
+  copy1_state_income_amt_2:
+    x_petey_id: '3_20'
     type: number
     semantic_type: money
     widget:
-      page: 4
+      page: 3
       rect:
       - 504.0
       - 227.9990234375
       - 576.0
       - 239.99798583984375
       widget_type: text
-      path: topmostSubform[0].CopyB[0].RightCol[0].Box7_ReadOrder[0].f2_17[0]
+      path: topmostSubform[0].Copy1[0].RightCol[0].Box7_ReadOrder[0].f2_17[0]
+    label_source: llm
     x_petey_retype:
     - money
     x_petey_identifiers:
-      block_prefix: state_income_amt
-      block_iteration: '2'
-      subject: '2'
+      subject: copy1_state_income_amt_2
 x_petey_dedup_log:
-  duplicate_labels_reassigned: 17
+  duplicate_labels_reassigned: 10
   collisions:
   - original_label: calendar_yr
     assigned_label: calendar_yr_2
-    page: 4
+    page: 3
     rect:
     - 417.6000061035156
     - 96.0009765625
     - 446.3999938964844
     - 105.0
-  - original_label: corrected_ind
-    assigned_label: corrected_ind_2
-    page: 4
-    rect:
-    - 244.8000030517578
-    - 24.5
-    - 254.8000030517578
-    - 34.5
-  - original_label: payer_name_address_txt
-    assigned_label: payer_name_address_txt_2
-    page: 4
-    rect:
-    - 52.400001525878906
-    - 60.0009765625
-    - 294.45001220703125
-    - 108.0
   - original_label: payer_tin
     assigned_label: payer_tin_2
-    page: 4
+    page: 3
     rect:
     - 50.400001525878906
     - 118.0
@@ -693,7 +723,7 @@ x_petey_dedup_log:
     - 132.0009765625
   - original_label: recipient_tin
     assigned_label: recipient_tin_2
-    page: 4
+    page: 3
     rect:
     - 172.8000030517578
     - 118.0
@@ -701,15 +731,15 @@ x_petey_dedup_log:
     - 132.0009765625
   - original_label: recipient_nm
     assigned_label: recipient_nm_2
-    page: 4
+    page: 3
     rect:
     - 52.400001525878906
     - 142.0009765625
     - 294.45001220703125
     - 168.0009765625
-  - original_label: recipient_address_line_1_txt
-    assigned_label: recipient_address_line_1_txt_2
-    page: 4
+  - original_label: recipient_street_address_line_1_txt
+    assigned_label: recipient_street_address_line_1_txt_2
+    page: 3
     rect:
     - 52.400001525878906
     - 178.0009765625
@@ -717,7 +747,7 @@ x_petey_dedup_log:
     - 192.00201416015625
   - original_label: recipient_city_state_zip_txt
     assigned_label: recipient_city_state_zip_txt_2
-    page: 4
+    page: 3
     rect:
     - 52.400001525878906
     - 201.9990234375
@@ -725,71 +755,31 @@ x_petey_dedup_log:
     - 216.0
   - original_label: account_number_txt
     assigned_label: account_number_txt_2
-    page: 4
+    page: 3
     rect:
     - 50.400001525878906
     - 226.0
     - 295.20001220703125
     - 240.0009765625
-  - original_label: nonemployee_compensation_amt
-    assigned_label: nonemployee_compensation_amt_2
-    page: 4
-    rect:
-    - 302.3999938964844
-    - 119.9990234375
-    - 494.79998779296875
-    - 131.99798583984375
-  - original_label: direct_sales_5000_or_more_ind
-    assigned_label: direct_sales_5000_or_more_ind_2
-    page: 4
-    rect:
-    - 485.79998779296875
-    - 140.0009765625
-    - 493.79998779296875
-    - 148.0009765625
-  - original_label: excess_golden_parachute_payments_amt
-    assigned_label: excess_golden_parachute_payments_amt_2
-    page: 4
-    rect:
-    - 302.3999938964844
-    - 168.0009765625
-    - 494.79998779296875
-    - 180.0
-  - original_label: federal_income_tax_withheld_amt
-    assigned_label: federal_income_tax_withheld_amt_2
-    page: 4
-    rect:
-    - 302.3999938964844
-    - 191.9990234375
-    - 494.79998779296875
-    - 203.99798583984375
-  - original_label: state_tax_withheld_amt_1
-    assigned_label: state_tax_withheld_amt_1_2
-    page: 4
-    rect:
-    - 302.3999938964844
-    - 216.0
-    - 372.3999938964844
-    - 227.9990234375
-  - original_label: state_tax_withheld_amt_2
-    assigned_label: state_tax_withheld_amt_2_2
-    page: 4
+  - original_label: copy1_state_tax_withheld_amt
+    assigned_label: copy1_state_tax_withheld_amt_2
+    page: 3
     rect:
     - 302.3999938964844
     - 227.9990234375
     - 372.3999938964844
     - 239.99798583984375
-  - original_label: state_income_amt_1
-    assigned_label: state_income_amt_1_2
-    page: 4
+  - original_label: copy1_state_payers_state_no_txt
+    assigned_label: copy1_state_payers_state_no_txt_2
+    page: 3
     rect:
-    - 504.0
-    - 216.0
-    - 576.0
+    - 374.3999938964844
     - 227.9990234375
-  - original_label: state_income_amt_2
-    assigned_label: state_income_amt_2_2
-    page: 4
+    - 496.79998779296875
+    - 239.99798583984375
+  - original_label: copy1_state_income_amt
+    assigned_label: copy1_state_income_amt_2
+    page: 3
     rect:
     - 504.0
     - 227.9990234375
@@ -799,11 +789,64 @@ x_petey_copy_pages_log:
   threshold: 0.85
   canonical_pages:
   - 2
-  - 4
+  - 3
   dropped_as_copies:
-    3:
-      canonical: 2
-      similarity: 0.864
-    6:
-      canonical: 4
+    4:
+      canonical: 3
       similarity: 0.95
+    6:
+      canonical: 3
+      similarity: 1.0
+x_petey_dropped_widgets:
+  count: 4
+  widgets:
+  - path: topmostSubform[0].CopyA[0].c1_1[0]
+    page: 2
+    reason: caption
+    field_type: CheckBox
+    tooltip: null
+    caption: 'Off'
+  - path: topmostSubform[0].CopyA[0].c1_1[1]
+    page: 2
+    reason: caption
+    field_type: CheckBox
+    tooltip: null
+    caption: 'Off'
+  - path: topmostSubform[0].CopyA[0].LeftCol[0].c1_2[0]
+    page: 2
+    reason: caption
+    field_type: CheckBox
+    tooltip: null
+    caption: 'Off'
+  - path: topmostSubform[0].CopyA[0].RightCol[0].c1_3[0]
+    page: 2
+    reason: caption
+    field_type: CheckBox
+    tooltip: null
+    caption: 'Off'
+x_petey_emit_fixes:
+  wide_widget_short_pattern: 6
+x_petey_page_check:
+  when: '2026-10-06 11:09:07'
+  model: claude-opus-5
+  prompt: 216f41cd
+  pages:
+  - 2
+  - 3
+  fields: 37
+  flagged: 0
+  unanswered: 0
+  record: runs/page_check/je__1099_nec_blank__97a378b6.json
+x_petey_build:
+  basis: step2flat-3|claude-sonnet-4-6|4
+  finder: step2flat-3
+  finder_label: step2flat-3
+  finder_code_sha: 93d5efe257db
+  finder_env: pymupdf 1.28.2; tesseract 5.5.3
+  classifier_model: claude-sonnet-4-6
+  classifier_prompt: '4'
+  generator: bank
+  case_set: 1
+  run: 1099_nec_blank_20261006_110813
+  blueprint: runs/judge_eval/blueprints/1099_nec_blank.bpt
+  when: '2026-10-06 11:08:54'

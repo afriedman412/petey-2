@@ -16,7 +16,7 @@ fields:
   court_name_address_txt:
     x_petey_id: '1_1'
     type: string
-    semantic_type: person_name
+    semantic_type: name_and_address
     widget:
       page: 1
       rect:
@@ -30,6 +30,23 @@ fields:
     x_petey_description_source: tooltip
     x_petey_retype:
     - description_from_tooltip
+    x_petey_hand_edit:
+      when: '2026-10-16 13:43:13'
+      from:
+        name: court_name_address_txt
+        type: string
+        semantic_type: person_name
+        pattern: null
+      to:
+        name: court_name_address_txt
+        type: string
+        semantic_type: name_and_address
+        pattern: null
+      record: petey/semantic_types.py
+      by: claude
+      kind: type
+      why: 'a name with its mailing address in one box: the new name_and_address semantic
+        type (Andrew, 2026-10-16)'
     x_petey_identifiers:
       subject: court_name_address
       suffix: txt
@@ -375,7 +392,7 @@ fields:
     x_petey_identifiers:
       subject: deputy_clerk
       suffix: nm
-  plaintiff_nm:
+  plaintiff_nm_1:
     x_petey_id: '2_1'
     type: string
     semantic_type: person_name
@@ -395,7 +412,27 @@ fields:
     x_petey_identifiers:
       subject: plaintiff
       suffix: nm
-  case_nbr:
+      iteration: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 14:15:42'
+      from:
+        name: plaintiff_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          subject: plaintiff
+          suffix: nm
+      to:
+        name: plaintiff_nm_1
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT3: the type''s parts'
+  case_nbr_1:
     x_petey_id: '2_2'
     type: string
     widget:
@@ -410,7 +447,27 @@ fields:
     x_petey_identifiers:
       subject: case
       suffix: nbr
-  plaintiff_nm_1:
+      iteration: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 14:15:42'
+      from:
+        name: case_nbr
+        type: string
+        semantic_type: null
+        pattern: null
+        identifiers:
+          subject: case
+          suffix: nbr
+      to:
+        name: case_nbr_1
+        type: string
+        semantic_type: null
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT3: the type''s parts'
+  plaintiff_1_nm:
     x_petey_id: '2_3'
     type: string
     semantic_type: person_name
@@ -424,9 +481,29 @@ fields:
       widget_type: text
       path: SC-100[0].Page2[0].List1[0].Item1[0].PlaintiffName1[0]
     x_petey_identifiers:
-      subject: plaintiff
+      block_prefix: plaintiff
+      block_iteration: '1'
       suffix: nm
-      iteration: '1'
+    x_petey_hand_edit:
+      when: '2026-10-25 14:13:55'
+      from:
+        name: plaintiff_nm_1
+        type: string
+        semantic_type: person_name
+        pattern: null
+        identifiers:
+          subject: plaintiff
+          suffix: nm
+          iteration: '1'
+      to:
+        name: plaintiff_1_nm
+        type: string
+        semantic_type: person_name
+        pattern: null
+      record: petey/validate/form_chat.py
+      by: claude
+      kind: chat
+      why: 'block type BT1: the type''s parts'
   plaintiff_1_phone:
     x_petey_id: '2_4'
     type: string
@@ -638,9 +715,9 @@ fields:
       widget_type: text
       path: SC-100[0].Page2[0].List1[0].Item1[0].PlaintiffName2[0]
     x_petey_identifiers:
-      subject: plaintiff
+      block_prefix: plaintiff
+      block_iteration: '2'
       suffix: nm
-      iteration: '2'
   plaintiff_2_phone:
     x_petey_id: '2_15'
     type: string
@@ -838,68 +915,55 @@ fields:
       block_iteration: '2'
       subject: email_address
       suffix: txt
-  more_than_two_plaintiffs_ind:
-    x_petey_id: '2_25'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.0
-      - 305.9289855957031
-      - 72.0
-      - 314.9289855957031
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox1[0]
-    description: Check here if more than two plaintiffs and attach form SC-100A.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  plaintiff_status_options:
+    x_petey_id: '2_48'
+    type: category
+    values:
+    - more_than_two_plaintiffs_ind
+    - plaintiff_fictitious_name_ind
+    - plaintiff_is_payday_lender_ind
+    widgets:
+      more_than_two_plaintiffs_ind:
+        page: 2
+        rect:
+        - 63.0
+        - 305.9289855957031
+        - 72.0
+        - 314.9289855957031
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox1[0]
+        on_state: '1'
+      plaintiff_fictitious_name_ind:
+        page: 2
+        rect:
+        - 63.0
+        - 319.7139892578125
+        - 72.0
+        - 328.7139892578125
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox2[0]
+        on_state: '1'
+      plaintiff_is_payday_lender_ind:
+        page: 2
+        rect:
+        - 63.0
+        - 333.4989929199219
+        - 72.0
+        - 342.4989929199219
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox3[0]
+        on_state: '1'
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 14:14:53'
+      from:
+      - more_than_two_plaintiffs_ind
+      - plaintiff_fictitious_name_ind
+      - plaintiff_is_payday_lender_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: more_than_two_plaintiffs
-      suffix: ind
-  plaintiff_fictitious_name_ind:
-    x_petey_id: '2_26'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.0
-      - 319.7139892578125
-      - 72.0
-      - 328.7139892578125
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox2[0]
-    description: Check here if either plaintiff listed above is doing business under
-      a fictitious name and attach form SC-103.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: plaintiff_fictitious_name
-      suffix: ind
-  plaintiff_is_payday_lender_ind:
-    x_petey_id: '2_27'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 63.0
-      - 333.4989929199219
-      - 72.0
-      - 342.4989929199219
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List1[0].Item1[0].Checkbox3[0]
-    description: Check here if any plaintiff is a “licensee” or “deferred deposit
-      originator” (payday lender) under Financial Code sections 23000 et seq.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: plaintiff_is_payday_lender
-      suffix: ind
+      subject: plaintiff_status_options
   defendant_nm:
     x_petey_id: '2_28'
     type: string
@@ -1178,48 +1242,43 @@ fields:
     x_petey_identifiers:
       subject: defendant_agent_zip
       suffix: cd
-  more_than_one_defendant_ind:
-    x_petey_id: '2_44'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 62.99700164794922
-      - 543.02099609375
-      - 71.99700164794922
-      - 552.02099609375
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox4[0]
-    description: Check here if your case is against more than one defendant and attach
-      form SC-100A.
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  defendant_status:
+    x_petey_id: '2_49'
+    type: category
+    values:
+    - more_than_one_defendant_ind
+    - defendant_active_military_ind
+    widgets:
+      more_than_one_defendant_ind:
+        page: 2
+        rect:
+        - 62.99700164794922
+        - 543.02099609375
+        - 71.99700164794922
+        - 552.02099609375
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox4[0]
+        on_state: '1'
+      defendant_active_military_ind:
+        page: 2
+        rect:
+        - 62.99700164794922
+        - 559.5440063476562
+        - 71.99700164794922
+        - 568.5440063476562
+        widget_type: checkbox
+        path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox5[0]
+        on_state: '1'
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 14:14:53'
+      from:
+      - more_than_one_defendant_ind
+      - defendant_active_military_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: more_than_one_defendant
-      suffix: ind
-  defendant_active_military_ind:
-    x_petey_id: '2_45'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 2
-      rect:
-      - 62.99700164794922
-      - 559.5440063476562
-      - 71.99700164794922
-      - 568.5440063476562
-      widget_type: checkbox
-      path: SC-100[0].Page2[0].List2[0].item2[0].Checkbox5[0]
-    description: 'Check here if any defendant is on active military duty and write
-      defendant’s name here:'
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: defendant_active_military
-      suffix: ind
+      subject: defendant_status
   claim_amt:
     x_petey_id: '2_46'
     type: number
@@ -1422,46 +1481,47 @@ fields:
     x_petey_identifiers:
       subject: demand_not_made_explanation
       suffix: txt
-  asked_defendant_yes_ind:
-    x_petey_id: '3_8'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 62.768001556396484
-      - 295.21600341796875
-      - 71.76799774169922
-      - 304.21600341796875
-      widget_type: checkbox
-      path: SC-100[0].Page3[0].List4[0].Item4[0].Checkbox50[0]
-    description: Check if you asked defendant to pay before you sue
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
+  asked_defendant_to_pay:
+    x_petey_id: '3_23'
+    type: category
+    values:
+    - asked_defendant_yes_ind
+    - asked_defendant_no_ind
+    widgets:
+      asked_defendant_yes_ind:
+        page: 3
+        rect:
+        - 62.768001556396484
+        - 295.21600341796875
+        - 71.76799774169922
+        - 304.21600341796875
+        widget_type: checkbox
+        path: SC-100[0].Page3[0].List4[0].Item4[0].Checkbox50[0]
+        on_state: '1'
+        caption: 'Yes'
+        x_petey_caption_source: page_text
+      asked_defendant_no_ind:
+        page: 3
+        rect:
+        - 115.23699951171875
+        - 295.24200439453125
+        - 124.23699951171875
+        - 304.24200439453125
+        widget_type: checkbox
+        path: SC-100[0].Page3[0].List4[0].Item4[0].Checkbox50[1]
+        on_state: '2'
+        caption: 'No'
+        x_petey_caption_source: page_text
+    label_source: llm
+    x_petey_grouping:
+      source: group_review
+      when: '2026-10-25 14:14:53'
+      from:
+      - asked_defendant_yes_ind
+      - asked_defendant_no_ind
+      name_from: labeler
     x_petey_identifiers:
-      subject: asked_defendant_yes
-      suffix: ind
-  asked_defendant_no_ind:
-    x_petey_id: '3_9'
-    type: boolean
-    semantic_type: indicator
-    widget:
-      page: 3
-      rect:
-      - 115.23699951171875
-      - 295.24200439453125
-      - 124.23699951171875
-      - 304.24200439453125
-      widget_type: checkbox
-      path: SC-100[0].Page3[0].List4[0].Item4[0].Checkbox50[1]
-    description: Check if you did not ask defendant to pay before you sue
-    x_petey_description_source: tooltip
-    x_petey_retype:
-    - description_from_tooltip
-    x_petey_identifiers:
-      subject: asked_defendant_no
-      suffix: ind
+      subject: asked_defendant_to_pay
   courthouse_reason_a1_ind:
     x_petey_id: '3_11'
     type: boolean
@@ -1588,6 +1648,19 @@ fields:
       subject: courthouse_reason
       suffix: ind
       iteration: e
+    x_petey_hand_edit:
+      when: '2026-10-25 14:19:26'
+      from:
+        name: courthouse_reason_ind_e
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      to:
+        name: courthouse_covers_area_other_ind
+        type: boolean
+        semantic_type: indicator
+        pattern: null
+      record: runs/hand_review/lib__casc100.json
   courthouse_location_zip_cd:
     x_petey_id: '3_17'
     type: string
@@ -1799,9 +1872,8 @@ fields:
         widget_type: checkbox
         path: SC-100[0].Page4[0].List9[0].Item9[0].Checkbox62[0]
         on_state: '1'
-        caption: Check if you have filed more than 12 other small claims in the last
-          12 months in California
-        x_petey_caption_source: tooltip
+        caption: 'Yes'
+        x_petey_caption_source: hand
       filed_more_than_12_claims_no_ind:
         page: 4
         rect:
@@ -1812,9 +1884,8 @@ fields:
         widget_type: checkbox
         path: SC-100[0].Page4[0].List9[0].Item9[0].Checkbox62[1]
         on_state: '2'
-        caption: Check if you have not filed more than 12 other small claims in the
-          last 12 months in California
-        x_petey_caption_source: tooltip
+        caption: 'No'
+        x_petey_caption_source: hand
     x_petey_grouping:
       source: group_review
       when: '2026-10-05 23:11:01'
@@ -1823,6 +1894,29 @@ fields:
       - filed_more_than_12_claims_no_ind
     x_petey_identifiers:
       subject: filed_more_than_12_claims
+    x_petey_hand_edit:
+      when: '2026-10-25 14:19:47'
+      from:
+        name: filed_more_than_12_claims
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          filed_more_than_12_claims_yes_ind: Check if you have filed more than 12
+            other small claims in the last 12 months in California
+          filed_more_than_12_claims_no_ind: Check if you have not filed more than
+            12 other small claims in the last 12 months in California
+      to:
+        name: filed_more_than_12_other_small_claims_last_12_months
+        type: category
+        semantic_type: null
+        pattern: null
+        options:
+          filed_more_than_12_claims_yes_ind:
+            caption: 'Yes'
+          filed_more_than_12_claims_no_ind:
+            caption: 'No'
+      record: runs/hand_review/lib__casc100.json
   claim_over_2500:
     x_petey_id: '4_4'
     type: category
@@ -1862,6 +1956,19 @@ fields:
       - claim_over_2500_no_ind
     x_petey_identifiers:
       subject: claim_over_2500
+    x_petey_hand_edit:
+      when: '2026-10-25 14:20:18'
+      from:
+        name: claim_over_2500
+        type: category
+        semantic_type: null
+        pattern: null
+      to:
+        name: claim_for_more_than_2500
+        type: category
+        semantic_type: null
+        pattern: null
+      record: runs/hand_review/lib__casc100.json
   plaintiff_signature_dt:
     x_petey_id: '4_5'
     type: date
