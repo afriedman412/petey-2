@@ -163,3 +163,42 @@ def test_names_held_by_another_field_are_said_under_the_validate_button():
     assert out["errors"] == []
     assert out["lines"] == ["two_1_7 and two_2_3 would both be kid_1_nm"]
     assert out["links"] == ["#review/two/1_7", "#review/two/2_3"]
+
+
+def test_reset_numbers_saves_the_parts_numbered_from_1_then_renames():
+    if not PW.exists() or not Path(CHROME).exists():
+        pytest.skip("Playwright venv or Chrome not installed")
+    built = br.build_app()
+    assert not built.startswith("build failed"), built
+    data = _blocks("one", 1)
+    y = data["types"][0]
+    y["boxes"] = 4
+    y["slots"] = [{"subject": "year"}, {"subject": "year_6", "iteration": "4"}, {"subject": "subtotal", "iteration": "5"},
+                  {"subject": "subtotal", "iteration": "6"}]
+    b = y["blocks"][0]
+    b["names"] = ["regular_corp_year", "regular_corp_year_6_4", "regular_corp_subtotal_5", "regular_corp_subtotal_6"]
+    b["cells"] = [{"name": n, "rect": [50, 60 + 15 * k, 150, 70 + 15 * k], "accepted": False} for k, n in enumerate(b["names"])]
+    api = {"api/blueprints": [{"id": "one", "form": "one", "fields": 4, "accepted": 0, "flagged": 0, "source": "lib"}],
+           "api/blocks/one": data, "png": PNG}
+    script = RUN.replace('for form in ("two", "one"):', 'for form in ("one",):').replace(
+        '''        pg.locator(".btopen .btnames tr").first.hover()
+        lit = pg.locator("#canvas .gcell.hl").count()
+        pg.locator(".btopen .btnames code.ed").first.click()
+        warn = pg.locator(".btpe .warn").count()
+        pg.locator(".btpe input").first.fill("kid")
+        preview = pg.inner_text(".btpe > div:nth-child(2)")
+        pg.keyboard.press("Enter")
+        pg.wait_for_function("!document.querySelector('.btpe')")
+        pg.wait_for_timeout(800)''', '''        lit = warn = preview = None
+        pg.click("button:has-text('reset numbers')")
+        pg.wait_for_timeout(800)''')
+    res = subprocess.run([str(PW), "-c", script, str(br.APP_DIST), CHROME], input=json.dumps(api),
+                         capture_output=True, text=True, timeout=120)
+    assert res.returncode == 0, res.stderr
+    out = json.loads(res.stdout.strip().splitlines()[-1])
+    assert out["errors"] == []
+    # year_6 + 4 is year's second, the subtotals 5 and 6 are 1 and 2; one block: renamed without asking
+    assert out["one"]["sent"] == [["confirm", {"type": "BT1", "slots": [
+        {"subject": "year", "iteration": "1"}, {"subject": "year", "iteration": "2"},
+        {"subject": "subtotal", "iteration": "1"}, {"subject": "subtotal", "iteration": "2"}]}], ["tfix", {"type": "BT1"}]]
+    assert out["one"]["dialogs"] == 0

@@ -7,7 +7,7 @@ import { toggleWide } from '../../state/actions';
 import { useApp } from '../../state/app';
 import {
   blockAssign, blockDetect, blockFix, blockIdent, blockKeep, blockOut, blockParts, blockState, blockValidate, blocksHere,
-  cancelNameEdit, editParts, printIdent, PKEYS, ref, saveNameEdit, selectBlock, setHover, setSlot, shownSlots,
+  cancelNameEdit, editParts, resetNumbers, printIdent, PKEYS, ref, saveNameEdit, selectBlock, setHover, setSlot, shownSlots,
   startNameEdit, typeAssign, typeAuto, typeConfirm, typeFix,
   typeLabel, typeOff, typeSlots, typeValidate, useBlocks,
   type Block, type BType, type Slot,
@@ -118,6 +118,8 @@ function OpenBlock({ y, b }: { y: BType; b: Block }) {
           {busy ? 'checking…' : b.validated ? 'validated ✓ · check again' : 'check & validate'}</button>
         : <span className="help">confirm {y.id}'s parts (below) to validate its blocks</span>}
         {nOff > 0 && <> <button className="btn mini" title="the names marked → put to the type's parts, as Claude's renames; nothing accepted" onClick={e => { e.stopPropagation(); blockFix(b.code); }}>rename ({nOff})</button></>}
+        {' '}<button className="btn mini" onClick={e => { e.stopPropagation(); resetNumbers(y.id); }}
+          title={`every name of ${y.id} numbered from 1 again: positions with the same subject are _1, _2, … in order (a number stuck on a subject folded in), one alone has none; then its blocks renamed${y.blocks.length > 1 ? ` (asked first: ${y.blocks.length} blocks)` : ''}`}>reset numbers</button>
         {' '}<button className="btn mini" title={`this area is not a block: its fields leave ${y.id}`} onClick={e => { e.stopPropagation(); blockOut(b.code); }}>not a block</button>
         {b.names.some(n => n == null) && <> <button className="btn mini" title="fitted again from the boxes in and round it (place, size and label)" onClick={e => { e.stopPropagation(); blockAssign(b.code, y.id); }}>re-fit to {y.id}</button></>}
         {(GD?.types || []).some(x => x.id !== y.id) && <> <select value="" onClick={stop} onKeyDown={stop} onChange={e => { if (e.target.value) blockAssign(b.code, e.target.value); }}>

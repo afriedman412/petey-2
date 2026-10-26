@@ -50,6 +50,7 @@ export const blocks: ModeDef = {
     tips: ['Drag on an empty part of the page, or Shift+drag anywhere, around one block: a block of the type it matches, else a new type.',
       'Drag a block onto another: it becomes a block of that one\'s type, its boxes paired by place and its names put to the type\'s parts.',
       'Click a name in the open block to edit its parts: they are its type\'s, so saving renames the field in every block of the type (asked first when there are others). Hover a name to light its field on the page.',
+      '"reset numbers" in the open block numbers its type\'s names from 1 again: names with the same subject _1, _2, … in order, one alone none; then its blocks are renamed (asked first when the type has others).',
       'Fields in no block show as grey dashed boxes: drag one onto a block to add it, into the empty position of its kind nearest it (or a new position of the type, if it has none).'],
   },
   load,

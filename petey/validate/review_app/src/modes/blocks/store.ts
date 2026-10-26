@@ -8,6 +8,7 @@ import type { PageInfo } from '../../lib/types';
 import { afterPaint, fileStem, stdPrint, type Rect } from '../../lib/util';
 import { gotoPage, loadMode, toast, updateEntry } from '../../state/actions';
 import { get as app } from '../../state/app';
+import { lowestNumbers } from './numbers';
 
 /** a position of a type: its subject, suffix, iteration (its own number) and part */
 export interface Slot { subject?: string | null; suffix?: string | null; iteration?: string | null; part?: string | null }
@@ -219,6 +220,16 @@ export async function saveNameEdit() {
   const y = typeOf(e.tid); put({ nameEdit: null });
   if (!y || JSON.stringify(shownSlots(y)[e.k]) === JSON.stringify(e.was)) return;    // nothing changed
   await typeConfirm(e.tid, { oneStepWhenAlone: true });
+}
+/** "reset numbers": the type's positions renumbered from 1 (numbers.ts), saved as its parts, then its blocks renamed
+ *  as after a name edit (asked first when the type has other blocks) */
+export async function resetNumbers(tid: string) {
+  const y = typeOf(tid); if (!y) return;
+  const now = shownSlots(y).map(t => Object.fromEntries(PKEYS.map(k => [k, t[k].trim()])) as SlotText);
+  const low = lowestNumbers(now);
+  if (JSON.stringify(low) === JSON.stringify(now) && !typeOff(y)) { toast(`${tid}: its names are already numbered from 1.`); return; }
+  low.forEach((sl, k) => PKEYS.forEach(key => { if (sl[key] !== now[k][key]) setSlot(tid, k, key, sl[key]); }));
+  await typeConfirm(tid, { oneStepWhenAlone: true });
 }
 export const setHover = (h: string | null) => { if (S().hover !== h) put({ hover: h }); };
 
