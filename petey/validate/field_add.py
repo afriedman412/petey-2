@@ -302,8 +302,10 @@ class Context:
         out = []
         for b in boxes:
             c = cm.get(b["key"]) or {}
-            # a box the finder's minor version added (finder_addons: radio circles) has no class map entry: an option
-            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class") or ("option" if b.get("addon") else None),
+            # a box the finder's minor version added (finder_addons) has no class map entry: a circle or square is an
+            # option; an added underline stays unclassified (unscreened, so shown only on a flat blank)
+            out.append({**b, "sid": f"b{b['id']}", "class": c.get("class") or (
+                "option" if b.get("addon") and b.get("kind") in ("checkbox", "radio") else None),
                         "label": c.get("label"),
                         "group": c.get("group"), "entity": c.get("entity"),
                         "claimed_by": self._claimed(b["page"], b["rect"])})
