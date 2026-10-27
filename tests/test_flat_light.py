@@ -73,3 +73,20 @@ def test_widget_boxes_skip_buttons_and_keep_radio_groups(tmp_path):
     assert [b["kind"] for b in boxes] == ["text", "radio", "radio", "checkbox"]
     assert [b["id"] for b in boxes] == ["1", "2", "3", "4"]
     assert groups == [{"f2", "f3"}]
+
+
+def test_stacked_widgets_become_one_field():
+    # bm__sd_1474805 p2 (2026-10-27): two widgets on one printed box; the one a saved block type uses stays
+    w = lambda r: {"page": 2, "rect": r, "widget_type": "text", "path": None}
+    bp = {"fields": {"a": {"type": "string", "x_petey_id": "5", "widget": w([32, 247, 431, 263])},
+                     "b": {"type": "string", "x_petey_id": "9", "widget": w([32, 247, 431, 263])},
+                     "c": {"type": "string", "x_petey_id": "6", "widget": w([438, 247, 585, 263])}}}
+    gone = FL.collapse_stacked(bp, keep={"9"})
+    assert [d["name"] for d in gone] == ["a"] and sorted(bp["fields"]) == ["b", "c"]
+    assert bp["x_petey_dropped_widgets"]["count"] == 1 and "stacked on b" in bp["x_petey_dropped_widgets"]["widgets"][0]["reason"]
+
+
+def test_a_checkbox_on_a_text_box_is_not_merged():
+    bp = {"fields": {"a": {"x_petey_id": "1", "widget": {"page": 1, "rect": [0, 0, 10, 10], "widget_type": "text"}},
+                     "b": {"x_petey_id": "2", "widget": {"page": 1, "rect": [0, 0, 10, 10], "widget_type": "checkbox"}}}}
+    assert FL.collapse_stacked(bp) == [] and len(bp["fields"]) == 2

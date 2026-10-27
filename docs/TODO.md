@@ -3,6 +3,41 @@
 Edited in place; the history is `git log --follow -- docs/TODO.md`. Priorities are Andrew's; the ordering is a
 proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`; terms: `docs/GLOSSARY.md`.
 
+## Flat-structure benchmark: what a block is (2026-10-27, open)
+
+Raised on fl__sd_2420367 (IPMA-HR award nomination): page 1's nominated agency and page 2's person submitting share an
+eight-row layout (Address, City, State / Zip, Phone / Fax, Email under three rows whose labels differ: Agency, Contact
+Name, Title vs Name, Title, Employed by). BT1 as found holds rows 4-8 only, and misses Zip on both pages (page 2's Zip
+line starts 4 pt further left). Andrew is undecided on how the benchmark should set this. Proposal, not decided:
+
+- **Single pages:** a block counts only when two or more of its copies are on the same page (this form adds no block
+  pairs: one copy a page).
+- **Same copy** (fields describing one thing) from structure: the repeated section under one heading, all of it, the
+  top three rows included.
+- **Same slot** (one question asked of each copy) only where the printed label repeats (Address, City, State, Zip,
+  Phone, Fax, Email); fields whose labels differ (Agency / Name, Contact Name / Title) are members of their copy with
+  no slot partner.
+- **Second case, size not label (bm__sd_1242044, Axeon credit application):** billing and shipping address are BT2 (City,
+  State, Zip, Country, two copies); the Address line above each is left out because shipping's is 178 pt wide against
+  billing's 264 (shortened for its "Same as above" checkbox) and the finder matches boxes within 3 pt. Andrew: the blocks
+  should probably include the top field. Possible fix: when growing a block, take a box at the offset whose printed
+  label matches copy 1's even when its size differs.
+
+## Grids by geometry (2026-10-27, parked: more validated data first)
+
+Andrew: grids are defined partly by geometry: each column's boxes share a width and each row's a height (columns and
+rows may differ from each other), reasonably uniform spacing, a field in most slots (not every one), and labels
+consistent down each column (one header, or the same caption repeated under every row, as bm__sd_1115475's unruled
+sections A-C; labels changing row to row are separate questions). The name test (`grid_naming.iterated`) stays a
+second way in.
+
+Measured read-only on validated lib / je forms against the Grids-tab records (scratchpad `geo_grids.py`): of 731 grids
+kept the geometric draft accepts 351 (48%), the name test 709 (97%); of 140 cancelled, 60 and 129, so the cancelled set is
+mostly grids redrawn or not wanted, not a clean negative set. The draft rejects mostly on its label reader (514: row labels
+of ledgers read as changing captions), then size (322), spacing and row heights (~180 each, ledgers' taller rows). It
+would add 62 candidates nobody has judged (ao040b p1 27 x 3, boat application 4 x 6, some doubtful 2 x 3s). Next, when
+Andrew has validated more: tune it on the kept grids, look at the 62, then decide whether library forms use it.
+
 ## Open after the name and caption work (2026-10-10)
 
 Built and on `main` (PR #3): honed 'belongs to', the text-match model, the printed-text gate, the caption chooser.

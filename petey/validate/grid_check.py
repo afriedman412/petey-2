@@ -149,11 +149,22 @@ def _new_id(rec: dict, page: int) -> str:
 
 
 def found(bp: dict, held: list[set] = ()) -> list[list[dict]]:
-    """The finder's grids (grid_naming, without its old blocks), less those mostly inside one block (`held`: each block
-    type's blocks, as field names). 2026-10-22, in place of the block-group finder that hid them before: of the 173
-    grids it hid on 63 forms, 164 sit in block types' blocks."""
-    return [g for g in G.grids(bp, blocks=False) if G.iterated(g)
+    """The finder's grids (grid_naming, without its old blocks) that its names (`G.iterated`) or their geometry
+    (`geometric`, 2026-10-27, tentative) say are tables, less those mostly inside one block (`held`: each block type's
+    blocks, as field names). 2026-10-22, in place of the block-group finder that hid them before: of the 173 grids it
+    hid on 63 forms, 164 sit in block types' blocks."""
+    return [g for g in G.grids(bp, blocks=False) if found_by(bp, g)
             and not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in held)]
+
+
+def found_by(bp: dict, g: list[dict]) -> Optional[str]:
+    """Which test says the candidate is a table: "names", "geometry", "both", or None."""
+    it = G.iterated(g)
+    try:
+        geo = geometric(bp, g)
+    except Exception:                      # no blank, a page that will not open: the names decide
+        geo = False
+    return "both" if it and geo else "names" if it else "geometry" if geo else None
 
 
 def _blocks_held(rec: dict, name: dict) -> list[set]:
@@ -192,6 +203,8 @@ def listing(bid: str, bp: dict) -> list[dict]:
             changed = True
         claimed.add(id(e))
         out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "kept")},
+                    "by": (by := found_by(bp, g)),
+                    "jev": jev_scores().get(bid, {}).get(grid_key(bp, g)) if by == "geometry" else None,
                     "grid": [dict(c) for c in g]})
     for e in rec["grids"]:
         if e["source"] == "finder" or e.get("kind") != "table":       # (block groups' entries: gone, 2026-10-22)
@@ -237,7 +250,9 @@ def listing(bid: str, bp: dict) -> list[dict]:
     # 2026-10-23: "form_1095_b_check_p3-G2 should supersede the blocks, we don't need both!"; the twelve
     # covered-individual blocks on p3, one per row): the blocks leave their types, a type left with none goes.
     # As labeling does (petey/label/structure.find). Names are left as they are
-    if superseded(rec, out, code):
+    if superseded(rec, [t for t in out if t.get("by") != "geometry"], code):
+        changed = True
+    if superseded(rec, [t for t in out if t.get("by") == "geometry"], code, tentative=True):
         changed = True
     # and a finder grid lying mostly inside blocks gives way to them (Andrew, 2026-10-23, B 106D p2-G2: claims 3-5's
     # city / state / zip read as a grid, "we want 3 blocks that fill each row"): half its cells or more in blocks,
@@ -269,9 +284,11 @@ def listing(bid: str, bp: dict) -> list[dict]:
     return out
 
 
-def superseded(rec: dict, grids: list[dict], code: dict) -> list[str]:
+def superseded(rec: dict, grids: list[dict], code: dict, tentative: bool = False) -> list[str]:
     """Blocks taken out of their types by an active grid holding 2+ of them, each mostly inside it (see `listing`);
-    each such grid's entry says which (`supersedes`). What went, as "BT2-3"."""
+    each such grid's entry says which (`supersedes`). What went, as "BT2-3". `tentative`: grids only the geometric test
+    found (2026-10-27) take only the finder's blocks no one confirmed, and only blocks that cut across its rows
+    (fl__sd_2924580's 23-row entry table read as 2-row blocks); blocks that are its rows say what it says and stay."""
     types = rec.get("types") or []
     gone: list[str] = []
     for t in grids:
@@ -281,6 +298,14 @@ def superseded(rec: dict, grids: list[dict], code: dict) -> list[str]:
         over = [(y, b) for y in types for b in y["blocks"] if b and {c for c in b if c} & mine]
         if len(over) < 2 or not all(len({c for c in b if c} & mine) > 0.5 * sum(1 for c in b if c) for _, b in over):
             continue
+        if tentative:
+            if any(y.get("confirmed") or not str(y.get("from") or "").startswith("finder") for y, _ in over):
+                continue
+            rows = collections.defaultdict(set)
+            for c in t["grid"]:
+                rows[c["row"]].add(code.get(c["name"]))
+            if all(any({c for c in b if c} <= r for r in rows.values()) for _, b in over):
+                continue
         names = []
         for y, b in over:
             names.append(f"{y['id']}-{next(i for i, x in enumerate(y['blocks'], 1) if x is b)}")
@@ -585,6 +610,163 @@ def _compact(cells: list) -> list:
     return sorted([[c[0], blk[c[1]], pos[c[2]]] for c in cells], key=lambda c: (c[1], c[2]))
 
 
+# A table by its geometry (Andrew, 2026-10-27: "we should define grids partially by geometry ... its not just
+# similar-sized blocks, it's also about reasonably uniform spacing"; "rows and columns dont all have to be the same
+# width/length, but it has to be consistent across a row/column"; "there doesn't have to be a field in every single
+# location"). Tentative: measured on validated forms it keeps about half the grids Andrew kept (the name test
+# nearly all), and it is what finds the tables of forms named by position (the benchmark copies), whose names
+# say nothing. Tuning is parked in docs/TODO.md "Grids by geometry".
+GEO_ROW_H = 3.0          # pt: the heights along a row
+GEO_COL_W = 0.15         # share of the median width: the widths down a column
+GEO_PITCH = 1.6          # largest / smallest gap between rows
+GEO_FILLED = 0.6         # share of row x column positions holding a field
+GEO_SAME = 0.75          # share of a column's rows under its most common label (no label counts as one)
+GEO_COLS = 0.75          # share of columns whose labels are consistent
+_GEO_WORDS: dict = {}
+
+
+def _geo_words(blank: Path, page: int) -> list:
+    import pymupdf
+    from step2flat.features import LINE_CUE
+    k = (str(blank), page)
+    if k not in _GEO_WORDS:
+        doc = pymupdf.open(str(blank))
+        try:
+            _GEO_WORDS[k] = [w[:5] for w in doc[page - 1].get_text("words") if not LINE_CUE.fullmatch(w[4])]
+        finally:
+            doc.close()
+    return _GEO_WORDS[k]
+
+
+def _geo_label(r, left_edge: float, ws: list) -> str:
+    """The caption printed with a cell: under it (it may start a few points above the box's bottom: bm__sd_1115475's
+    lines), else left of it back to the previous cell, else none; letters only."""
+    import re
+    under = [w for w in ws if r[0] - 2 <= (w[0] + w[2]) / 2 <= r[2] + 2 and -4 <= w[1] - r[3] <= 12]
+    if not under:
+        cy = (r[1] + r[3]) / 2
+        under = [w for w in ws if w[2] <= r[0] + 1 and w[0] >= left_edge - 1
+                 and abs((w[1] + w[3]) / 2 - cy) < (r[3] - r[1]) / 2 + 2]
+    return re.sub(r"[^a-z]+", " ", " ".join(w[4] for w in sorted(under)).lower()).strip()
+
+
+def geometric(bp: dict, g: list[dict]) -> bool:
+    """A table by geometry: 3+ rows by 2+ columns (or 2 by 3); each column's widths and each row's heights consistent;
+    rows at a fairly even pitch; most positions filled; and down most columns one label (a header, or one caption
+    repeated under every row; the leftmost column's row labels may differ). Labels that change row to row down a
+    column are separate questions lined up (name / phone over address / email)."""
+    import statistics
+    rect = {c["name"]: _rect(bp, c["name"]) for c in g}
+    if any(r is None for r in rect.values()):
+        return False
+    rows, cols = collections.defaultdict(list), collections.defaultdict(list)
+    for c in g:
+        rows[c["row"]].append(c)
+        cols[c["col"]].append(c)
+    nr, nc = len(rows), len(cols)
+    if not ((nr >= 3 and nc >= 2) or (nr >= 2 and nc >= 3)) or len(g) < GEO_FILLED * nr * nc:
+        return False
+    for cs in cols.values():
+        wd = [rect[c["name"]][2] - rect[c["name"]][0] for c in cs]
+        if max(wd) - min(wd) > GEO_COL_W * statistics.median(wd) + 1:
+            return False
+    for cs in rows.values():
+        ht = [rect[c["name"]][3] - rect[c["name"]][1] for c in cs]
+        if max(ht) - min(ht) > GEO_ROW_H:
+            return False
+    tops = sorted(statistics.median(rect[c["name"]][1] for c in cs) for cs in rows.values())
+    gaps = [b - a for a, b in zip(tops, tops[1:])]
+    if gaps and min(gaps) > 0 and max(gaps) / min(gaps) > GEO_PITCH:
+        return False
+    blank = resolve_blank(bp)
+    if not blank or not blank.exists():
+        return False
+    ws = _geo_words(blank, g[0]["page"])
+    order = sorted(cols, key=lambda k: statistics.median(rect[c["name"]][0] for c in cols[k]))
+    same = 0
+    for i, k in enumerate(order):
+        labs = []
+        for c in cols[k]:
+            r = rect[c["name"]]
+            prev = [rect[o["name"]][2] for o in rows[c["row"]] if rect[o["name"]][2] <= r[0] + 1]
+            labs.append(_geo_label(r, max(prev) if prev else (0 if i else r[0]), ws))
+        same += collections.Counter(labs).most_common(1)[0][1] >= GEO_SAME * len(labs)
+    return same >= GEO_COLS * nc
+
+
+# Jev's second opinion on a grid only the geometric test found (2026-10-27, Andrew: "can we get a jev 'is this or is
+# this not a grid' check?"). Measured on 940 candidates: it barely tells the grids Andrew kept from those he cancelled
+# (AUC 0.56; his cancelled ones are mostly real tables he did not want) but doubts most geometry-only additions (24 of
+# 62 at 0.5) and calls the tables of the test forms (0.76-0.99) and not the job application's address rows (0.29).
+# Scored in batches (eval/grid_jev_scores.py), kept in GRID_JEV; the listing only reads it.
+GRID_JEV = h.OUT / "grid_jev.json"          # {bid: {"code,code,...": score}}
+TABLE_QUESTION = ("`page` is one page of a blank form. A set of fillable boxes is outlined in red; `grid_box` is the "
+                  "pixel box around them, `rows` x `columns` their arrangement. Do the outlined boxes form a table: one "
+                  "set of questions asked again in each row (or each column), answered cell by cell under column "
+                  "headings or repeated captions, such as a list of children, a ledger of line items, or an "
+                  "education history?")
+TABLE_CRITERIA = {"true": "A table: the same questions repeated across its rows (or columns); its cells line up in "
+                          "columns that each ask one thing.",
+                  "false": "Separate questions that happen to line up (name / phone over address / email), parts of one "
+                           "answer, or boxes from different parts of the form."}
+_JEV_CACHE: Optional[dict] = None
+
+
+def grid_key(bp: dict, g: list[dict]) -> str:
+    code = {n: str(s.get("x_petey_id")) for n, s in (bp.get("fields") or {}).items() if isinstance(s, dict)}
+    return ",".join(sorted(code.get(c["name"], c["name"]) for c in g))
+
+
+def jev_scores() -> dict:
+    global _JEV_CACHE
+    if _JEV_CACHE is None:
+        import json
+        _JEV_CACHE = json.loads(GRID_JEV.read_text()) if GRID_JEV.exists() else {}
+    return _JEV_CACHE
+
+
+def table_request(bp: dict, g: list[dict]) -> tuple[dict, dict]:
+    """(Jev request body, its images) for one grid: the page with the grid's cells outlined."""
+    from petey.validate.jev_page import LIMITS, MODEL, image_ref
+    page = g[0]["page"]
+    rs = [_rect(bp, c["name"]) for c in g]
+    png, dpi, _px = pc.render(resolve_blank(bp), page, [{"boxes": [{"page": page, "rect": r, "label": ""}]} for r in rs],
+                              limits=LIMITS)
+    k = dpi / 72
+    box = [round(min(r[0] for r in rs) * k), round(min(r[1] for r in rs) * k),
+           round(max(r[2] for r in rs) * k), round(max(r[3] for r in rs) * k)]
+    ref = image_ref(png)
+    return ({"model": MODEL, "state": {"page": ref, "grid_box": box, "rows": len({c["row"] for c in g}),
+                                       "columns": len({c["col"] for c in g})},
+             "questions": {"table": {"type": "noul", "instructions": {"question": TABLE_QUESTION},
+                                     "criteria": TABLE_CRITERIA}}}, {ref: png})
+
+
+def score_tables(items: list[tuple[str, dict, list[dict]]], workers: int = 8) -> tuple[int, int]:
+    """Jev's score for each (bid, blueprint, grid), into GRID_JEV. (scored, input tokens)."""
+    import concurrent.futures as cf
+    import json
+    import httpx
+    from petey.validate.jev_page import _key, ask_split
+    key = _key()
+    if not key:
+        raise SystemExit("TYPESAFE_API_KEY not set (.env)")
+    jobs = [(bid, grid_key(bp, g), *table_request(bp, g)) for bid, bp, g in items]
+    cache, tokens, n = jev_scores(), 0, 0
+    with httpx.Client() as client, cf.ThreadPoolExecutor(workers) as ex:
+        futs = {ex.submit(ask_split, client, key, body, imgs): (bid, gk) for bid, gk, body, imgs in jobs}
+        for f in cf.as_completed(futs):
+            bid, gk = futs[f]
+            res = f.result()
+            tokens += (res.get("usage") or {}).get("input_tokens", 0)
+            v = ((res.get("answers") or {}).get("table") or {}).get("noul")
+            if v is not None:
+                cache.setdefault(bid, {})[gk] = round(v, 3)
+                n += 1
+    GRID_JEV.write_text(json.dumps(cache, indent=0))
+    return n, tokens
+
+
 def _rect(bp: dict, name: str):
     """A field's box; an option group's (a column of a table or block since 2026-10-16) is the box around its boxes."""
     spec = (bp.get("fields") or {}).get(name) or {}
@@ -675,7 +857,7 @@ def tables(bp: dict, bid: Optional[str] = None) -> list[dict]:
             positions.append({"pos": k + 1, "wordings": wordings, "off": off, "caption": G.position_caption(bp, pcs, how, page_text)})
         bbox = [min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)]
         out.append({"id": e["id"], "page": page, "kind": "grid",
-                    **{k: e.get(k) for k in ("source", "status", "from", "into", "aside_why")},
+                    **{k: e.get(k) for k in ("source", "status", "from", "into", "aside_why", "by", "jev")},
                     "lines": len({c[num_axis] for c in body}), "positions": positions, "reading": reading,
                     "rows_info": rows_info(g, body, pos_axis, num_axis), "keyed": bool(F and F.labelled),
                     "aside": [{"row": r + 1, "why": why} for r, why in sorted(G.aside(g).items())],

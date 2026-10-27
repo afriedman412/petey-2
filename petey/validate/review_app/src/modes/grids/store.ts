@@ -18,6 +18,8 @@ export interface Table {
   id: string; page: number; bbox: Rect; rows: number; cols: number; cells: Cell[];
   accepted: number; body?: number | null; on_pattern?: boolean; why?: string; title?: string;
   source?: 'person' | 'combined' | 'edited' | string; from?: string[];
+  by?: 'names' | 'geometry' | 'both' | null;      // which test found a finder grid (2026-10-27)
+  jev?: number | null;                             // Jev's "is it a table" on a geometry-only grid
   dismissed?: boolean; aside_why?: string; reading?: 'rows' | 'cols' | string;
 }
 export interface GridsData { path: string; pages: PageInfo[]; tables: Table[] }
@@ -66,7 +68,11 @@ const setResult = (tid: string, out: Result) => put({ results: { ...S().results,
 
 // ------------------------------------------------------------------------------------------------ the grids' words
 export const prov = (t: Table) => t.source === 'person' ? 'drawn by you' : t.source === 'combined' ? `combined from ${(t.from || []).join(' + ')}`
-  : t.source === 'edited' ? `the finder's ${(t.from || []).join(' + ')}, less fields another grid took` : 'found by the finder';
+  : t.source === 'edited' ? `the finder's ${(t.from || []).join(' + ')}, less fields another grid took`
+  // the geometric test is tentative (2026-10-27): a grid only it found says so, for keeping or "not a grid"
+  : t.by === 'geometry' ? `found by the finder (geometry only, tentative${t.jev != null ? `; Jev ${t.jev.toFixed(2)}` : ''})`
+  : t.by === 'both' ? 'found by the finder (names and geometry)'
+  : 'found by the finder';
 export const live = () => { const GD = S().GD; return GD ? GD.tables.filter(t => !t.dismissed) : []; };   // "not a grid": hidden, restorable
 export const onPage = (p: number) => live().filter(t => t.page === p);
 export const asidePage = (p: number) => { const GD = S().GD; return GD ? GD.tables.filter(t => t.dismissed && t.page === p) : []; };

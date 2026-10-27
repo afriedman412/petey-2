@@ -182,13 +182,18 @@ def captions_agree(slots: list[list], cap) -> tuple[Optional[float], int]:
 
 
 def _glued(i: int, sets: list[list[set]]) -> bool:
-    """Pattern i is copies of a smaller, more numerous pattern glued together."""
+    """Pattern i is copies of a smaller, more numerous pattern glued together. A small copy counts as inside a big one
+    when the majority of its fields are: the big pattern's copies can lack a field or two (2026-10-27, fl__sd_252381
+    pp. 3-8: three wines of 7 fields a page; the page as one copy of 18-20 fields, the vintage line whose caption
+    differs left out, kept the third wine from being wholly inside, so 6 page-sized copies beat 18 wines)."""
     S = sets[i]
     for j, Sm in enumerate(sets):
-        if i != j and len(Sm) > len(S) and sum(map(len, Sm)) / len(Sm) < sum(map(len, S)) / len(S) \
-                and all(sum(1 for m in Sm if m <= s) >= 2
-                        and len(set().union(*([m for m in Sm if m <= s] or [set()]))) >= 0.9 * len(s) for s in S):
-            return True
+        if i != j and len(Sm) > len(S) and sum(map(len, Sm)) / len(Sm) < sum(map(len, S)) / len(S):
+            def made_of(s: set) -> bool:
+                inside = [m & s for m in Sm if 2 * len(m & s) > len(m)]
+                return len(inside) >= 2 and len(set().union(*inside)) >= 0.9 * len(s)
+            if all(made_of(s) for s in S):
+                return True
     return False
 
 

@@ -71,3 +71,19 @@ def test_run_finders_saves_the_blocks_found_as_a_type(tmp_path, monkeypatch):
     (t,) = gc.load_set("t1")["types"]
     assert t["from"] == "finder (SIA)" and t["blocks"] == [["1_1", "1_2", "1_3"], ["1_4", "1_5", "1_6"], ["1_7", "1_8", "1_9"]]
     assert bt.discover("t1", bp)["types"] == []                       # nothing left in no block
+
+
+def test_page_sized_copies_give_way_to_the_wines_they_are_made_of():
+    # fl__sd_252381 pp. 3-8 (2026-10-27): three wines of 7 fields a page; the page as one copy, a field or two of its
+    # third wine left out (a vintage line whose caption differs), still gives way to the 18 wines
+    wine = lambda p, w: {f"p{p}w{w}f{k}" for k in range(7)}
+    wines = [wine(p, w) for p in range(6) for w in range(3)]
+    pages = [wine(p, 0) | wine(p, 1) | (wine(p, 2) - {f"p{p}w2f5", f"p{p}w2f6"}) for p in range(6)]
+    sets = [pages, wines]
+    assert D._glued(0, sets) and not D._glued(1, sets)
+
+
+def test_a_big_block_holding_one_small_copy_stays():
+    small = [{f"s{i}a", f"s{i}b", f"s{i}c"} for i in range(4)]
+    big = [small[0] | {f"x{k}" for k in range(10)}, small[1] | {f"y{k}" for k in range(10)}]
+    assert not D._glued(0, [big, small])

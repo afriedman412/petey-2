@@ -166,6 +166,51 @@ def _union_keeping(preset: list[set[str]], pairs: list[tuple[str, str]], marks: 
     return [s for s in g.values() if len(s) > 1]
 
 
+STACKED = 0.8        # IoU at which two fields on one page are one printed box with two widgets on it
+
+
+def _iou(a, b) -> float:
+    ix = max(0.0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0.0, min(a[3], b[3]) - max(a[1], b[1]))
+    i = ix * iy
+    u = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - i
+    return i / u if u > 0 else 0.0
+
+
+def collapse_stacked(bp: dict, keep: set[str] = frozenset()) -> list[dict]:
+    """One field for a printed box that carries two stacked widgets (2026-10-27: 13 of 427 benchmark forms, 69 pairs;
+    bm__sd_1474805 p2's employment blocks went unfound because the duplicates sat in different places in each copy).
+    Of each pair of single-widget fields of one kind on one page overlapping by `STACKED`, the one whose x_petey_id is in
+    `keep` (a saved block type's), else the lower id, stays; the other is removed and logged under
+    x_petey_dropped_widgets. Returns the removed fields."""
+    rows = []
+    for n, s in (bp.get("fields") or {}).items():
+        w = s.get("widget") if isinstance(s, dict) else None
+        if w and w.get("rect") and not s.get("widgets"):
+            rows.append((n, str(s.get("x_petey_id")), w))
+    gone: set[str] = set()
+    dropped = []
+    for i, (na, ca, wa) in enumerate(rows):
+        for nb, cb, wb in rows[i + 1:]:
+            if na in gone or nb in gone or wa["page"] != wb["page"] or wa.get("widget_type") != wb.get("widget_type"):
+                continue
+            if _iou(wa["rect"], wb["rect"]) < STACKED:
+                continue
+            def rank(c):
+                return (c not in keep, int(c) if c.isdigit() else 1 << 30)
+            (kn, kc, _), (dn, dc, dw) = sorted([(na, ca, wa), (nb, cb, wb)], key=lambda r: rank(r[1]))
+            gone.add(dn)
+            dropped.append({"name": dn, "x_petey_id": dc, "page": dw["page"], "rect": dw["rect"],
+                            "reason": f"stacked on {kn} ({kc}): one printed box"})
+    for d in dropped:
+        del bp["fields"][d["name"]]
+    if dropped:
+        log = bp.setdefault("x_petey_dropped_widgets", {"count": 0, "widgets": []})
+        log["widgets"] = list(log.get("widgets") or []) + dropped
+        log["count"] = len(log["widgets"])
+    return dropped
+
+
 def _order(rect) -> tuple:
     return (round(rect[1] / 4), rect[0])
 
