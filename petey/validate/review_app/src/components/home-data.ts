@@ -4,10 +4,11 @@ import type { Entry } from '../lib/types';
 export const SECTIONS: Record<string, string> = {
   focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
   rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies', rl: 'relabels', fl: 'flat forms',
+  bm: 'flat-structure benchmark',
 };
 export const SECTION_SHORT: Record<string, string> = {
   focus: 'review queue', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4', rerun: 'fresh run',
-  lib: 'library', je: 'side copy', rl: 'relabel', fl: 'flat',
+  lib: 'library', je: 'side copy', rl: 'relabel', fl: 'flat', bm: 'benchmark',
 };
 export const sectionOf = (x: Entry): string => x.focus != null ? 'focus' : x.launch ? 't' + x.launch : x.rerun ? 'rerun' : (x.source || '');
 export const SECTION_ORDER: Record<string, number> = Object.fromEntries(Object.keys(SECTIONS).map((k, i) => [k, i]));

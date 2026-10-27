@@ -3,7 +3,7 @@
 import { j, mapi, send } from '../lib/api';
 import type { Entry, ModeId } from '../lib/types';
 import { MODE_IDS } from '../lib/types';
-import { store } from '../lib/util';
+import { holdsPickerFocus, store } from '../lib/util';
 import { MODES } from '../modes';
 import { flushNote } from './notes';
 import { entryOf, get, set } from './app';
@@ -101,6 +101,8 @@ export async function showHome(on: boolean) {
 export async function openBlueprint(id: string) {
   if (!id) return;
   const wasHome = get().home.on;
+  const held = document.activeElement as HTMLElement | null;
+  if (holdsPickerFocus(held)) held!.blur();
   await showHome(false);
   if (wasHome && id === get().bid) { setHash(); await loadMode(); return; }
   await leaveTab();

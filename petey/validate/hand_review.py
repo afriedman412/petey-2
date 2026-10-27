@@ -125,6 +125,9 @@ def _stale(p: Path) -> bool:
 DPI = 110
 SOURCES = {"lib": BLUEPRINTS, "je": RUNS / "judge_eval" / "blueprints", "rl": RUNS / "relabel" / "blueprints",
            "fl": RUNS / "flat" / "blueprints",      # flat forms: page-made blueprints, path-less widgets
+           # the flat-structure benchmark's forms (Andrew, 2026-10-27: "can you load the benchmark pdfs under a new
+           # section in the review app?"): the business-like corpus set, runs/acquisition/safedocs/business_set.json
+           "bm": RUNS / "benchmark" / "blueprints",
            # the library before the naming standard's renames, kept to check against (Andrew, 2026-10-24: "let's keep
            # the old copies around so I can do a little more validation against old versions before we let them slide")
            "old": RUNS / "naming_2026-10-24" / "before"}

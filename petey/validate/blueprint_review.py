@@ -48,8 +48,8 @@ from petey.validate.retype import resolve_blank
 
 HTML_PATH = Path(__file__).with_suffix(".html")
 # the page in React (review_app/, 2026-10-26, Andrew: "let's build the current app in react ... I am spending a lot of
-# time tracking down bugs that I am pretty sure react wouldn't have"): built into review_app/dist and served at /next/
-# beside the old page at / until it does everything the old one does
+# time tracking down bugs that I am pretty sure react wouldn't have"): built into review_app/dist and served at / since
+# 2026-10-27 (the default; /next/ still works), the old page at /old/
 APP_DIR = Path(__file__).with_name("review_app")
 APP_DIST = APP_DIR / "dist"
 APP_SOURCES = ("src", "index.html", "package.json", "package-lock.json", "vite.config.ts", "tsconfig.json")
@@ -825,6 +825,17 @@ def app_file(path: str, dist: Path = APP_DIST) -> Optional[Path]:
     return page if page.exists() else None
 
 
+def page_file(path: str, dist: Path = APP_DIST) -> Optional[Path]:
+    """The page a top-level path serves. Since 2026-10-27 the React page is the default at / (Andrew: "can you also make
+    the review app the default now"); the old page is at /old/, and at / as well while the React page is not built."""
+    if path in ("/old", "/old/", "/old/index.html"):
+        return HTML_PATH
+    if path in ("/", "/index.html"):
+        page = dist / "index.html"
+        return page if page.exists() else HTML_PATH
+    return None
+
+
 def restart() -> None:
     """The page's reboot button: replace this process with a fresh one on the same port, so edited code (this
     file, the modes' modules, the page) loads without going back to the terminal. The listening socket is not
@@ -873,8 +884,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return
         path = unquote(urlparse(self.path).path)
         parts = self._parts()
-        if path in ("/", "/index.html"):
-            return self._send(HTML_PATH.read_bytes(), "text/html; charset=utf-8")
+        page = page_file(path)
+        if page is not None:
+            return self._send(page.read_bytes(), "text/html; charset=utf-8")
         if path == "/next" or path.startswith("/next/"):
             f = app_file(path)
             if f is None:
@@ -1087,7 +1099,7 @@ def serve(port: int = 5005, mode: str = "review", open_browser: bool = True) -> 
     global APP
     SERVED.update(port=port, mode=mode)
     SERVED["app_build"] = build_app()
-    print(f"review_app (/next/): {SERVED['app_build']}")
+    print(f"review_app (/ and /next/; the old page at /old/): {SERVED['app_build']}")
     APP = App()
     print(f"blueprint review: {len(APP.paths)} blueprints")
     t0 = time.time()

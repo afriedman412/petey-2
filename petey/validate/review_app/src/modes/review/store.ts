@@ -423,6 +423,17 @@ async function bulkAccept() {
   await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: settled' }])));
 }
 
+// TEMPORARY (Andrew, 2026-10-27: "can you add an 'accept all' button temporarily (I'm not doing individual validation of
+// fields on these)"): every unreviewed field accepted at once, for the benchmark forms, where the structure is checked in
+// the other tabs and names do not matter. Undone by "reset validation".
+async function acceptAll() {
+  const BP = S().BP; if (!BP) return;
+  const todo = BP.fields.filter(f => !verdictOf(f.name));
+  if (!todo.length) { toast('Every field already has a verdict.'); return; }
+  await putV(Object.fromEntries(todo.map(f => [f.name, { verdict: 'accept' as const, note: 'bulk: accept all' }])));
+  toast(`${todo.length} field(s) accepted.`);
+}
+
 // names two or more fields would have once saved corrections are applied (Andrew, 2026-10-13); each set gets its own
 // color while the clashes button is on
 const CLASH_COLORS = ['#e37400', '#9334e6', '#1a73e8', '#188038', '#d93025', '#00838f', '#b06000', '#c2185b'];
@@ -450,7 +461,7 @@ function toggleClashes() {
   const here = names.find(n => fieldOf(n)?.page === app().page);
   select(here || names[0]);
 }
-export const reviewActions = { toggleClashes, bulkAccept, resetValidation };
+export const reviewActions = { toggleClashes, bulkAccept, acceptAll, resetValidation };
 
 /** What the header shows from Review: the clash count and the settled fields left. */
 export function useHeaderCounts() {

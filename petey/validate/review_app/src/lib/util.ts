@@ -58,6 +58,12 @@ export const fileStem = (path: string) => String(path || '').split('/').pop()!.r
 export const plural = (n: number, one: string, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 
 /** After React has drawn the change and the browser has laid it out (scrolling to a box just selected). */
+// the form pickers (the header's form menu, the home search): once a form is open they let go of the keyboard, or the
+// page keys (1-9 for pages, the tabs' keys) went to them (Andrew, 2026-10-27: "when you load a new doc, the keys to
+// switch pages dont work")
+export const PICKER_IDS = ['pick', 'hq'];
+export const holdsPickerFocus = (el: { id?: string } | null | undefined) => !!el && PICKER_IDS.includes(el.id || '');
+
 export const afterPaint = (fn: () => void) => requestAnimationFrame(() => requestAnimationFrame(fn));
 
 export function scrollToSel(selector: string, block: ScrollLogicalPosition = 'center') {

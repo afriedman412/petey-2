@@ -87,6 +87,65 @@ def _area(r) -> float:
     return max(0.0, r[2] - r[0]) * max(0.0, r[3] - r[1])
 
 
+ENCLOSE_ZOOM = 4                # px per pt the page is read at for a clicked box
+ENCLOSE_REACH = 150             # pt above and below the click searched; a box taller than twice this is not proposed
+INK = 200                       # gray level under which a pixel is a printed mark
+ENCLOSE_PAD = 1.0               # pt the white inside is grown by, out to the printed outline (a checkbox widget covers
+                                # its square's outline: the inside alone was 56% of the widget's area on 109 corpus boxes)
+
+
+def enclosed_box(blank: Path, page: int, x: float, y: float) -> Optional[list[float]]:
+    """The printed box a click at (x, y) falls inside, read off the page (Andrew, 2026-10-27: "in the add/remove page you
+    click inside a small box and it automatically selects that box as a field to add", for fields neither the form layer
+    nor the finder has): the white area around the click filled out to the printed lines, its bounds in points. None
+    when the fill reaches the edge of the area searched (an open blank on an underline, the page margin)."""
+    import cv2
+    import numpy as np
+    doc = pymupdf.open(str(blank))
+    try:
+        pg = doc[page - 1]
+        clip = pymupdf.Rect(0, y - ENCLOSE_REACH, pg.rect.width, y + ENCLOSE_REACH) & pg.rect
+        pix = pg.get_pixmap(matrix=pymupdf.Matrix(ENCLOSE_ZOOM, ENCLOSE_ZOOM), clip=clip, colorspace=pymupdf.csGRAY)
+        words = [w[:4] for w in pg.get_text("words")]
+    finally:
+        doc.close()
+    img = np.frombuffer(pix.samples, np.uint8).reshape(pix.h, pix.w)
+    ink = (img < INK).astype(np.uint8)
+    ink = cv2.dilate(ink, np.ones((3, 3), np.uint8))          # close hairline gaps where two rules meet
+    px, py = int((x - clip.x0) * ENCLOSE_ZOOM), int((y - clip.y0) * ENCLOSE_ZOOM)
+    if not (0 <= px < pix.w and 0 <= py < pix.h):
+        return None
+    if ink[py, px]:                                             # on a printed mark: the nearest white pixel
+        ys, xs = np.nonzero(ink[max(py - 8, 0):py + 9, max(px - 8, 0):px + 9] == 0)
+        if not len(xs):
+            return None
+        k = np.argmin((xs - min(px, 8)) ** 2 + (ys - min(py, 8)) ** 2)
+        px, py = max(px - 8, 0) + int(xs[k]), max(py - 8, 0) + int(ys[k])
+    white = (1 - ink) * 255
+    mask = np.zeros((pix.h + 2, pix.w + 2), np.uint8)
+    _n, _img, _mask, (bx, by, bw, bh) = cv2.floodFill(white, mask, (px, py), 128, flags=4)
+    if bx <= 0 or by <= 0 or bx + bw >= pix.w or by + bh >= pix.h:
+        return None                                             # not enclosed: the fill got out
+    z, d = ENCLOSE_ZOOM, ENCLOSE_PAD
+    box = [clip.x0 + bx / z - d, clip.y0 + by / z - d, clip.x0 + (bx + bw) / z + d, clip.y0 + (by + bh) / z + d]
+    return [round(v, 2) for v in _past_caption(box, words, x, y)]
+
+
+def _past_caption(box: list[float], words: list, x: float, y: float) -> list[float]:
+    """A cell's printed caption left out of the field: when every word inside the box is above the click, the field
+    starts under them; when every one is left of it, after them (2026-10-27: 137 -> 153 of 223 corpus text fields
+    matched their widget)."""
+    ins = [w for w in words if w[0] >= box[0] - 0.5 and w[2] <= box[2] + 0.5 and w[1] >= box[1] - 0.5 and w[3] <= box[3] + 0.5]
+    if not ins:
+        return box
+    out = list(box)
+    if all(w[3] < y for w in ins):
+        out[1] = max(w[3] for w in ins) + 0.5
+    elif all(w[2] < x for w in ins):
+        out[0] = max(w[2] for w in ins) + 1
+    return out
+
+
 def _center_in(r, sel, pad: float = 0.5) -> bool:
     cx, cy = (r[0] + r[2]) / 2, (r[1] + r[3]) / 2
     return sel[0] - pad <= cx <= sel[2] + pad and sel[1] - pad <= cy <= sel[3] + pad
@@ -618,6 +677,12 @@ def propose(ctx: Context, page: int, rect: Optional[list[float]] = None, sid: Op
             if ws or bs:
                 return {"proposals": [], "notes": notes}
             w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
+            if point and ctx.blank:                        # a click on nothing known: the printed box around it
+                box = enclosed_box(ctx.blank, page, (sel[0] + sel[2]) / 2, (sel[1] + sel[3]) / 2)
+                if box is not None:
+                    sel = box
+                    w_, h_ = sel[2] - sel[0], sel[3] - sel[1]
+                    notes.append("the printed box around the click")
             if w_ < 3 or h_ < 3:
                 return {"proposals": [], "notes": ["nothing here; drag a box over the area to make a field of it"]}
             small_square = w_ <= 16 and h_ <= 16 and abs(w_ - h_) <= 4

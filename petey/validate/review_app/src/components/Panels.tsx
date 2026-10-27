@@ -10,7 +10,10 @@ export function Notes() {
   const entry = useEntry();
   const n = useNote();
   const box = useRef<HTMLTextAreaElement>(null);
-  useEffect(() => { if (notesOpen) { loadNote(); box.current?.focus(); } }, [notesOpen, bid]);
+  useEffect(() => { if (notesOpen) loadNote(); }, [notesOpen, bid]);
+  // the cursor goes to the notes when the panel opens, not on every form opened while it is open (that took the page
+  // keys: a "2" went into the notes, 2026-10-27)
+  useEffect(() => { if (notesOpen) box.current?.focus(); }, [notesOpen]);
   if (!notesOpen) return <div id="notes" hidden />;
   return (
     <div id="notes">

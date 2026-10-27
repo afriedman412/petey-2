@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { descKey, findDups, statusOf } from '../components/home-data';
 import type { Entry } from './types';
-import { overlap, stdPrint } from './util';
+import { holdsPickerFocus, overlap, stdPrint } from './util';
 
 describe('stdPrint', () => {
   it('prints the parts in the standard order, empty parts left out', () => {
@@ -54,5 +54,16 @@ describe('overlap', () => {
   it('is the share of the smaller box in common', () => {
     expect(overlap([0, 0, 10, 10], [5, 0, 15, 10])).toBeCloseTo(0.5);
     expect(overlap([0, 0, 10, 10], [20, 20, 30, 30])).toBe(0);
+  });
+});
+
+describe('holdsPickerFocus', () => {
+  it('the form menu and the home search let go of the keyboard once a form is open', () => {
+    expect(holdsPickerFocus({ id: 'pick' })).toBe(true);
+    expect(holdsPickerFocus({ id: 'hq' })).toBe(true);
+  });
+  it('a field being edited keeps it', () => {
+    expect(holdsPickerFocus({ id: 'eName' })).toBe(false);
+    expect(holdsPickerFocus(null)).toBe(false);
   });
 });

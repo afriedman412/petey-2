@@ -58,3 +58,23 @@ def test_next_serves_assets_and_otherwise_the_page(tmp_path):
 
 def test_nothing_built_serves_nothing(tmp_path):
     assert br.app_file("/next/", tmp_path / "dist") is None
+
+
+def test_react_page_is_the_default_and_the_old_page_moves_to_old(tmp_path):
+    # Andrew, 2026-10-27: "can you also make the review app the default now"
+    dist = _built(_app(tmp_path))
+    assert br.page_file("/", dist) == dist / "index.html"
+    assert br.page_file("/index.html", dist) == dist / "index.html"
+    assert br.page_file("/old/", dist) == br.HTML_PATH
+    assert br.page_file("/old", dist) == br.HTML_PATH
+    assert br.page_file("/api/blueprints", dist) is None
+
+
+def test_old_page_at_root_while_react_is_not_built(tmp_path):
+    assert br.page_file("/", tmp_path / "dist") == br.HTML_PATH
+
+
+def test_benchmark_forms_are_their_own_source():
+    # Andrew, 2026-10-27: "can you load the benchmark pdfs under a new section in the review app?"
+    from petey.validate import hand_review
+    assert hand_review.SOURCES["bm"].parts[-2:] == ("benchmark", "blueprints")

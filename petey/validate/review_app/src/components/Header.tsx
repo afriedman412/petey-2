@@ -1,5 +1,5 @@
 // The top bar: home, the form menu, the working copy's save / discard, the whole-form actions and the panels.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Entry } from '../lib/types';
 import { store } from '../lib/util';
 import { discardDraft, openBlueprint, reboot, saveDraft, setMode, showHome } from '../state/actions';
@@ -65,6 +65,10 @@ export function Header() {
   const counts = useHeaderCounts();
   const [rebootLabel, setRebootLabel] = useState<string | null>(null);
   const [finding, setFinding] = useState(false);
+  // the tabs on the page (groups' grab tabs, grid ids, block labels, added fields' names) hidden when they cover printed
+  // text (Andrew, 2026-10-27: "sometimes the tabs ... cover important text"); remembered across reloads
+  const [tabsHidden, setTabsHidden] = useState(() => store('br_hidetabs') === '1');
+  useEffect(() => { document.body.classList.toggle('notabs', tabsHidden); store('br_hidetabs', tabsHidden ? '1' : '0'); }, [tabsHidden]);
   const inReview = mode === 'review' && counts.loaded;
   return (
     <header>
@@ -95,6 +99,11 @@ export function Header() {
         onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.bulkAccept(); }}>
         {inReview ? `accept settled (${counts.settledLeft})` : 'accept settled'}
       </button>
+      <button className={'btn' + (tabsHidden ? ' has' : '')} id="tabsBtn" title="hide the tabs drawn on the page (group grab tabs, grid ids, block labels, added fields' names) when they cover printed text; the boxes stay clickable"
+        onClick={() => setTabsHidden(!tabsHidden)}>{tabsHidden ? 'show tabs' : 'hide tabs'}</button>
+      <button className="btn" id="acceptAll" disabled={!bid}
+        title="TEMPORARY: accept every unreviewed field on this form at once (for the benchmark forms); undo with reset validation (opens Review)"
+        onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.acceptAll(); }}>accept all</button>
       <button className="btn" id="resetV" disabled={!bid}
         title="clear every verdict on this form (accepted, flagged, notes), to check it again from scratch; the old record is kept aside (opens Review)"
         onClick={async () => { if (get_mode() !== 'review') await setMode('review'); reviewActions.resetValidation(); }}>reset validation</button>
