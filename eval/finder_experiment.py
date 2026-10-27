@@ -77,10 +77,50 @@ def patch_glyph():
     confidence.TIER["lat:glyph"] = 0.75
 
 
+def patch_glyph_tall():
+    """TX RRC W-1 (2026-10-26): its checkboxes are U+25A1 in 16 pt ArialMT, a bbox 9.7 wide and 21.8 tall (the font's
+    line height), so `features.glyph_rects`' 20 pt height limit dropped all 41. The square is the advance width; the
+    height only has to be the line's."""
+    import pymupdf
+
+    def glyph_rects(page):
+        out = []
+        for b in page.get_text('rawdict').get('blocks', []):
+            for ln in b.get('lines', []):
+                for sp in ln.get('spans', []):
+                    for c in sp.get('chars', []):
+                        if not features.is_glyph(c['c']):
+                            continue
+                        r = pymupdf.Rect(c['bbox'])
+                        if not (4 <= r.width <= 20 and 4 <= r.height <= 32):
+                            continue
+                        side = r.width
+                        cy = (r.y0 + r.y1) / 2
+                        out.append(pymupdf.Rect(r.x0, cy - side / 2, r.x0 + side, cy + side / 2))
+        return out
+    features.glyph_rects = glyph_rects
+
+
+class _FusedLineCue:
+    """A word holding a run of 3+ underscores is a line cue whatever is fused to it (TX RRC CF-1 / EP-3 / H-12,
+    2026-10-26: `No.______`, `____(operator`, `F-_____`, `(_______)_____` counted as printed text, so `text_filled`
+    and `header` sank 13 underline fields to 0.25-0.40)."""
+    RUN = re.compile(r'_{3,}')
+
+    def __init__(self, base):
+        self.base = base
+
+    def fullmatch(self, w):
+        return self.base.fullmatch(w) or self.RUN.search(w)
+
+
 PATCHES = {
     "linecue": lambda: setattr(features, "LINE_CUE", re.compile(r'[^\w\s]?[_.…·\-]{3,}')),
     "glyph": patch_glyph,
     "both": lambda: (PATCHES["linecue"](), patch_glyph()),
+    "glyph_tall": patch_glyph_tall,
+    "fused_line": lambda: setattr(features, "LINE_CUE", _FusedLineCue(features.LINE_CUE)),
+    "rrc_2026_10_26": lambda: (patch_glyph_tall(), PATCHES["fused_line"]()),
 }
 
 
