@@ -65,6 +65,7 @@ def test_run_finders_saves_the_blocks_found_as_a_type(tmp_path, monkeypatch):
     monkeypatch.setattr(gc, "_set_path", lambda bid: tmp_path / "sets" / f"{bid}.json")
     caps = [[f"Child {b + 1} name", "Date of birth", "City of birth"] for b in range(3)]
     bp = _form(tmp_path, 3, ["text", "text", "text"], caps)
+    monkeypatch.setattr(gc, "geometric", lambda *a, **k: False)       # no grid here: see the next test
     out = bt.discover("t1", bp)
     assert {k: v for k, v in out.items() if k != "primed"} == {"grids": [], "superseded": [], "types": ["BT1"], "blocks": 3,
                                                               "fields": 9}
@@ -87,3 +88,18 @@ def test_a_big_block_holding_one_small_copy_stays():
     small = [{f"s{i}a", f"s{i}b", f"s{i}c"} for i in range(4)]
     big = [small[0] | {f"x{k}" for k in range(10)}, small[1] | {f"y{k}" for k in range(10)}]
     assert not D._glued(0, [big, small])
+
+
+def test_run_finders_makes_no_blocks_inside_a_grid(tmp_path, monkeypatch):
+    """Andrew (2026-10-27): "if it's in a grid it can't be in a block and v/v ... especially when re-running the finder";
+    one-line rows under the same captions are a table ("wouldn't 'child 1/2/3' just be the row labels?"): no type made,
+    the grid stays, and running it again changes nothing."""
+    from petey.validate import block_types as bt, grid_check as gc
+    monkeypatch.setattr(gc, "SETS", tmp_path / "sets")
+    monkeypatch.setattr(gc, "_set_path", lambda bid: tmp_path / "sets" / f"{bid}.json")
+    caps = [[f"Child {b + 1} name", "Date of birth", "City of birth"] for b in range(3)]
+    bp = _form(tmp_path, 3, ["text", "text", "text"], caps)
+    for _ in range(2):
+        out = bt.discover("t2", bp)
+        assert out["types"] == [] and out["superseded"] == [] and len(out["grids"]) == 1
+    assert not gc.load_set("t2").get("types")

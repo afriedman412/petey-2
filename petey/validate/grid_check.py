@@ -287,8 +287,10 @@ def listing(bid: str, bp: dict) -> list[dict]:
 def superseded(rec: dict, grids: list[dict], code: dict, tentative: bool = False) -> list[str]:
     """Blocks taken out of their types by an active grid holding 2+ of them, each mostly inside it (see `listing`);
     each such grid's entry says which (`supersedes`). What went, as "BT2-3". `tentative`: grids only the geometric test
-    found (2026-10-27) take only the finder's blocks no one confirmed, and only blocks that cut across its rows
-    (fl__sd_2924580's 23-row entry table read as 2-row blocks); blocks that are its rows say what it says and stay."""
+    found (2026-10-27) take only the finder's blocks no one confirmed: blocks that cut across its rows
+    (fl__sd_2924580's 23-row entry table read as 2-row blocks) and blocks that are its rows (Andrew, 2026-10-27: "if
+    it's in a grid it can't be in a block and v/v"; bm__sd_1930130 p5, a 21-row tenant table read as 21 blocks of one
+    row: the table wins)."""
     types = rec.get("types") or []
     gone: list[str] = []
     for t in grids:
@@ -298,14 +300,8 @@ def superseded(rec: dict, grids: list[dict], code: dict, tentative: bool = False
         over = [(y, b) for y in types for b in y["blocks"] if b and {c for c in b if c} & mine]
         if len(over) < 2 or not all(len({c for c in b if c} & mine) > 0.5 * sum(1 for c in b if c) for _, b in over):
             continue
-        if tentative:
-            if any(y.get("confirmed") or not str(y.get("from") or "").startswith("finder") for y, _ in over):
-                continue
-            rows = collections.defaultdict(set)
-            for c in t["grid"]:
-                rows[c["row"]].add(code.get(c["name"]))
-            if all(any({c for c in b if c} <= r for r in rows.values()) for _, b in over):
-                continue
+        if tentative and any(y.get("confirmed") or not str(y.get("from") or "").startswith("finder") for y, _ in over):
+            continue
         names = []
         for y, b in over:
             names.append(f"{y['id']}-{next(i for i, x in enumerate(y['blocks'], 1) if x is b)}")

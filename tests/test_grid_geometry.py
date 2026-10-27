@@ -84,10 +84,18 @@ def test_a_geometry_grid_takes_unconfirmed_finder_blocks_that_cut_across_its_row
     assert gc.superseded(rec, grids, code, tentative=True) == ["BT1-1", "BT1-2"]
 
 
-def test_but_not_confirmed_blocks_nor_blocks_that_are_its_rows():
+def test_and_blocks_that_are_its_rows():
+    # bm__sd_1930130 p5 (2026-10-27): a 21-row tenant table read as 21 one-row blocks; "if it's in a grid it can't be
+    # in a block", the table wins
+    rec, grids, code = _rec_and_grid(1)
+    assert gc.superseded(rec, grids, code, tentative=True) == ["BT1-1", "BT1-2", "BT1-3", "BT1-4"]
+    assert rec["types"] == []
+
+
+def test_but_not_confirmed_or_hand_made_blocks():
     rec, grids, code = _rec_and_grid(2, confirmed=True)
     assert gc.superseded(rec, grids, code, tentative=True) == []
-    rec, grids, code = _rec_and_grid(1)                    # one block per row: they say what the grid says
+    rec, grids, code = _rec_and_grid(1, src="drawn")
     assert gc.superseded(rec, grids, code, tentative=True) == []
 
 

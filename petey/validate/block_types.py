@@ -787,7 +787,7 @@ def discover(bid: str, bp: dict) -> dict:
     # creating one iteration of the intended block will push it to find other ones like it"): every type's blocks
     # filled where a position is empty, each type grown to the free fields repeating in all its blocks and its copies
     # found on every page, then filled again (a copy found by its labels can lack a box). A field in a grid counts as
-    # free: the blocks come first, and the grid listing after settles which wins
+    # free here: the blocks the person has come first, and the grid listing after settles which wins
     primed = {"filled": fill_blocks(bp, rec)}
     if rec["types"]:
         gc._save_set(bid, rec)
@@ -807,14 +807,23 @@ def discover(bid: str, bp: dict) -> dict:
     primed.update(grew=grew, found=found)
     for k, v in more.items():
         primed["filled"].setdefault(k, []).extend(v)
-    held = {c for t in rec["types"] for b in t["blocks"] for c in b if c}
+    # a field in a grid is in no block (Andrew, 2026-10-27: "if it's in a grid it can't be in a block and v/v ...
+    # especially when re-running the finder in the app"): the grids settled against the blocks there are first, and
+    # SIA makes no copy lying mostly inside a grid still active (bm__sd_1930130 p5's tenant table, 21 one-row blocks);
+    # a copy reaching mostly beyond one keeps its fields, and the grid gives way after (B 106D p2's claims)
+    code = {n: str(sp.get("x_petey_id")) for n, sp in (bp.get("fields") or {}).items()
+            if isinstance(sp, dict) and sp.get("x_petey_id") is not None}
+    gridded = {code.get(c["name"]) for g in gc.listing(bid, bp) if g["status"] == "active" for c in g["grid"]} - {None}
+    rec = gc.load_set(bid)
+    held = {c for t in rec.get("types") or [] for b in t["blocks"] for c in b if c}
     rec.setdefault("types", [])
     at = {b["code"]: b for b in _boxes(bp)}
     made, nb, nf = [], 0, 0
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     for p in block_discovery.find(bp):
         copies = [[c if c and c not in held and c in at else None for c in o] for o in p["slots"]]
-        copies = [o for o in copies if sum(1 for c in o if c) >= block_discovery.MIN_BOXES]
+        copies = [o for o in copies if sum(1 for c in o if c) >= block_discovery.MIN_BOXES
+                  and sum(1 for c in o if c in gridded) <= 0.5 * sum(1 for c in o if c)]
         if len(copies) < 2:
             continue
         tpl = max(copies, key=lambda o: sum(1 for c in o if c))
