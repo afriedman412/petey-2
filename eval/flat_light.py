@@ -5,6 +5,9 @@ From the raw (flat) PDF alone:
 
   1. boxes      the finder (`boxes.find_boxes`, cached); its kind says text or mark
   2. screen     Jev, one Noul per box on the numbered page (`jev_is_field`'s question): keep >= KEEP
+     splits     a kept line holding several fields cut into them (`line_split`, 2026-10-27): at printed column rules
+                (no model), or at its captions when Jev says several answers go along it (an API call; off with
+                build(split_jev=False))
   3. groups     Yes / No pairs and checkbox rows by layout (`yes_no_groups`, `cell_groups`), plus Jev's joins of
                 neighbouring marks over `cheap_groups.CUT`
   4. structure  tables (geometry) and repeated blocks (geometry + printed captions), `structure.find` as the
@@ -44,6 +47,7 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import cheap_groups  # noqa: E402
+import line_split  # noqa: E402
 from finder_vs_widgets import classify_match, widget_rects  # noqa: E402
 from flat_calibration import structure as box_structure  # noqa: E402
 
@@ -215,10 +219,27 @@ def _order(rect) -> tuple:
     return (round(rect[1] / 4), rect[0])
 
 
+def split_lines(raw: Path, boxes: list[dict], kept: list[dict], score: dict[str, float], workers: int,
+                use_jev: bool) -> tuple[list[dict], list[dict], int]:
+    """(kept with lines holding several fields cut into them, the splits, input tokens): `line_split`, column rules
+    always, captions only with `use_jev` (one Jev call per page of captioned lines)."""
+    plans = line_split.plan(raw, kept)
+    if not use_jev:
+        plans = [p for p in plans if p["how"] == "vertical"]
+    jev, tokens = (_ask_all(line_split.jev_jobs(raw, plans), workers) if any(p["how"] != "vertical" for p in plans)
+                   else ({}, 0))
+    kept, made = line_split.apply(boxes, kept, plans, jev)
+    for b in kept:
+        if b.get("split_from"):
+            score[b["id"]] = score.get(b["split_from"], 0)
+    return kept, made, tokens
+
+
 def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None = None,
-          preset_groups: list[set[str]] = ()) -> tuple[dict, dict]:
+          preset_groups: list[set[str]] = (), split_jev: bool = True) -> tuple[dict, dict]:
     """(blueprint, info) for the raw PDF. `boxes` given (a fillable PDF's own widgets, for an answer-key starting point;
-    2026-10-26) skips the finder and the screen; `preset_groups` (stub names f<id>) are kept as groups."""
+    2026-10-26) skips the finder, the screen and the line splits; `preset_groups` (stub names f<id>) are kept as groups.
+    `split_jev` False: lines are cut at column rules only, no Jev call for captioned lines."""
     t0 = time.time()
     given = boxes is not None
     if not given:
@@ -230,9 +251,13 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
         score, tok_screen = screen(raw, boxes, workers)
         kept = [b for b in boxes if score.get(b["id"], 0) >= KEEP]
     t_screen = time.time() - t0 - t_find
+    splits, tok_split = [], 0
+    if not given:
+        kept, splits, tok_split = split_lines(raw, boxes, kept, score, workers, split_jev)
+    t_split = time.time() - t0 - t_find - t_screen
     stub = _stub(raw, kept)
     grps, tok_groups = groups(raw, stub, workers, preset_groups)
-    t_groups = time.time() - t0 - t_find - t_screen
+    t_groups = time.time() - t0 - t_find - t_screen - t_split
     entries = [{"id": int(b["id"]), "page": b["page"], "rect": b["rect"], "path": None,
                 "widget_type": stub["fields"][f"f{b['id']}"]["widget"]["widget_type"]} for b in kept]
     struct = S.find(raw, entries)
@@ -275,6 +300,9 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
             spec["x_petey_geometry"] = ({"source": "widget"} if given else
                                         {"source": "finder", "finder": B.FINDER_VERSION,
                                          "jev_is_field": round(score.get(n[1:], 0), 2)})
+            frm = next((b.get("split_from") for b in kept if f"f{b['id']}" == n and b.get("split_from")), None)
+            if frm:
+                spec["x_petey_geometry"]["split_from"] = frm
             fields[name] = spec
             continue
         pls = [place.get(m) for m in ms]
@@ -305,13 +333,17 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
           "authoring": {"method": "flat_light", "geometry": "widgets" if given else "finder",
                         "finder": None if given else B.FINDER_VERSION, "finder_patch": None if given else PATCH,
                         "screen": {"model": MODEL, "keep": KEEP}, "groups": "yes_no + cell_groups + Jev joins",
+                        "line_splits": None if given else {"column_rules": True, "captions": (
+                            {"model": MODEL, "keep": line_split.JEV_SPLIT} if split_jev else None)},
                         "names": "position", "when": time.strftime("%Y-%m-%d %H:%M:%S")},
           "fields": fields}
     info = {"finder_boxes": len(boxes), "kept": len(kept), "groups": len(grps),
             "tables": sum(len(st["tables"]) for st in struct.values()),
             "blocks": sum(len(st["blocks"]) for st in struct.values()),
-            "tokens": tok_screen + tok_groups, "tokens_screen": tok_screen, "tokens_groups": tok_groups,
-            "seconds": {"finder": round(t_find, 1), "screen": round(t_screen, 1), "groups": round(t_groups, 1),
+            "tokens": tok_screen + tok_split + tok_groups, "tokens_screen": tok_screen, "tokens_split": tok_split,
+            "tokens_groups": tok_groups, "splits": splits,
+            "seconds": {"finder": round(t_find, 1), "screen": round(t_screen, 1), "split": round(t_split, 1),
+                        "groups": round(t_groups, 1),
                         "total": round(time.time() - t0, 1)},
             "struct": struct, "boxes": boxes, "kept_ids": [b["id"] for b in kept], "score": score}
     return bp, info
