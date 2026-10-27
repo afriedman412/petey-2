@@ -1,7 +1,8 @@
 // Groups on the page: each group's hull in its color and its boxes, loose boxes dashed, text fields in teal (combined
 // ones in a hull); a click selects, Shift- / Cmd-click picks a box for "group selected", and boxes and hulls drag
-// onto each other. And the tab's definition for the frame (an area dragged across the page picks the boxes in it).
-import { Box } from '../../components/Box';
+// onto each other (a group by the tab on its corner, 2026-10-27: its boxes cover the rest of it). And the tab's
+// definition for the frame (an area dragged across the page picks the boxes in it).
+import { Box, GroupTab } from '../../components/Box';
 import { dragProps, dropProps } from '../../lib/dnd';
 import { hull } from '../../lib/util';
 import { useApp } from '../../state/app';
@@ -38,11 +39,14 @@ function Layer() {
   const place = (u: Unit) => {
     const c = colorOf(u, units, page), sel = u.uid === selected, its = u.items.map(item).filter(it => it.page === page), text = isText(u);
     if (isGroup(u)) {
+      const h = hull(its.map(i => i.rect)), pad = text ? 3 : 6;
       out.push(<Box key={'h' + u.uid} data-unit={u.name} className={'gh' + (text ? ' text' : '') + (sel ? ' sel' : '') + (u.confirmed ? ' ok' : '')}
-        rect={hull(its.map(i => i.rect))} pad={text ? 3 : 6} min={6} color={c}
+        rect={h} pad={pad} min={6} color={c}
         title={text ? `${u.name} (combined text, ${u.items.length} boxes)` : `${u.name} (${u.items.length} options)`}
         onClick={() => select(u.uid, false)}
         {...dragProps('unit', u.uid, !u.locked)} {...(u.locked ? {} : dropOn({ unit: u.uid }))} />);
+      if (!u.locked && !text) out.push(<GroupTab key={'t' + u.uid} at={[h[0] - pad, h[1] - pad]} color={c}
+        title={`drag ${u.name} onto another group or a box to combine them`} {...dragProps('unit', u.uid)} {...dropOn({ unit: u.uid })} />);
     }
     for (const it of its) out.push(<ItemBox key={'i' + it.id} it={it} u={u} c={c} sel={sel} picked={picked.has(it.id)} />);
   };
@@ -62,7 +66,7 @@ export const groups: ModeDef = {
     keys: [['g', 'group the selected boxes'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
       ['u', 'ungroup the selected group'], ['Shift+U', 'unconfirmed only on / off'], ['t', 'text fields on / off']],
     tips: ['Select boxes with Shift-click (or Cmd-click), or drag across an area of the page (Shift+drag adds an area); g or "group selected" makes them one group; Esc clears the selection.',
-      'Drag a box onto a group, onto another loose box, or onto the tray.', 'Teal text boxes combine the same way.'],
+      'Drag a box onto a group, onto another loose box, or onto the tray.', 'Drag a group by the tab on its corner onto another group or a loose box to combine them.', 'Teal text boxes combine the same way.'],
   },
   load,
   pages: () => useGroups.getState().BP?.pages || [],

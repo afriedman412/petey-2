@@ -499,6 +499,45 @@ export async function leave() {
   catch (e) { toast('Groups not applied: ' + (e as Error).message); }
 }
 
+// a checkbox or a group dragged on Review's page (Andrew, 2026-10-27: "can we add dragging bools to combine to the
+// review page? and add dragging groups to combine to both?"): Groups' data read fresh for the form, the move made as
+// a drag here makes it, and put into the working copy at once, as leaving Groups does. A move the plan refuses is
+// taken back. The name of the group the boxes are in after it, or null.
+export interface ReviewBox { field: string; opt: string | null }
+/** Review's box (a field and its option's on-state, null for a checkbox or the group as a whole) as Groups' item */
+export function itemOf(b: ReviewBox, items: Record<string, Item> = S().BP!.items) {
+  const its = Object.values(items).filter(it => it.field === b.field && it.kind !== 'text');
+  return b.opt === null ? its[0] : its.find(it => it.key === b.opt);
+}
+export async function combineFromReview(what: ReviewBox, whole: boolean, onto: ReviewBox): Promise<string | null> {
+  const bid = app().bid!;
+  let before: Unit[] | null = null;
+  try {
+    await load(bid);
+    const a = itemOf(what), t = itemOf(onto);
+    if (!a || !t) { toast('Only checkboxes and option groups combine.'); return null; }
+    const steps = S().undoStack.length;
+    before = S().units;
+    const src = unitOf(a.id);
+    if (whole && src) moveUnit(src.uid, { item: t.id }); else await moveItem(a.id, { item: t.id });
+    if (S().undoStack.length === steps) { toast(S().notes[0] || 'Nothing to combine.'); return null; }
+    const name = unitOf(t.id)?.name || null;
+    await save();
+    clearTimeout(planTimer);
+    const pl: Plan = await send('POST', mapi('groups', bid, '/plan'), { units: strip(S().units) });
+    if (pl.errors.length) { put({ units: before }); await save(); toast(`Not combined: ${pl.errors[0]}`); return null; }
+    const out = await send('POST', mapi('groups', bid, '/apply'));
+    updateEntry(out.entry);
+    await loadMode();
+    toast(`${name}: ${out.changes.length} change(s) went into the working copy.`);
+    return name;
+  } catch (e) {
+    if (before && S().BP?.id === bid) { put({ units: before }); await save(); }
+    toast('Not combined: ' + (e as Error).message);
+    return null;
+  }
+}
+
 // ------------------------------------------------------------------------------------------- loading and moving
 export async function load(bid: string) {
   const BP: GroupsData = await j(mapi('groups', bid));
