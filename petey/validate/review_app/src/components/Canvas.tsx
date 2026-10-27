@@ -2,7 +2,7 @@
 // dragged. A drag is the frame's: the tab says whether a mousedown starts one and gets the area when it ends.
 import { useEffect, useRef, useState } from 'react';
 import { pngUrl } from '../lib/api';
-import { GROUP_COLORS, grow, hull, type Rect } from '../lib/util';
+import { GROUP_COLORS, grow, hull, restoreScroll, type Rect } from '../lib/util';
 import { useApp } from '../state/app';
 import { MODES } from '../modes';
 import { Box, ScaleContext } from './Box';
@@ -79,7 +79,8 @@ function PageOf() {
   const p = ready ? d.pages().find(x => x.page === page) : undefined;
   return (
     <div id="canvas" ref={canvas} className={d.drawable ? 'drawable' : ''} onMouseDown={onMouseDown}>
-      {bid && p && <img id="img" alt="" src={pngUrl(bid, page)} style={{ width: p.w_pt * zoom }} draggable={false} />}
+      {bid && p && <img id="img" alt="" src={pngUrl(bid, page)} style={{ width: p.w_pt * zoom }} draggable={false}
+        onLoad={() => restoreScroll(page, true)} />}
       {bid && p && (
         <ScaleContext.Provider value={zoom}>
           <ShowLayer />

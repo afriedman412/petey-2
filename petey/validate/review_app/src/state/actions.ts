@@ -3,7 +3,7 @@
 import { j, mapi, send } from '../lib/api';
 import type { Entry, ModeId } from '../lib/types';
 import { MODE_IDS } from '../lib/types';
-import { holdsPickerFocus, store } from '../lib/util';
+import { afterPaint, holdScroll, holdsPickerFocus, restoreScroll, store } from '../lib/util';
 import { MODES } from '../modes';
 import { flushNote } from './notes';
 import { entryOf, get, set } from './app';
@@ -80,10 +80,12 @@ async function leaveTab() {
 export async function setMode(m: ModeId) {
   if (!MODES[m] || m === get().mode) return;
   await leaveTab();
+  holdScroll(get().page);
   set({ mode: m });
   store('br_mode', m);
   setHash();
   if (get().bid) await loadMode();
+  afterPaint(() => restoreScroll(get().page));
 }
 
 export async function showHome(on: boolean) {

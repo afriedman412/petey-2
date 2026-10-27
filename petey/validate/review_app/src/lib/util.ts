@@ -66,6 +66,29 @@ export const holdsPickerFocus = (el: { id?: string } | null | undefined) => !!el
 
 export const afterPaint = (fn: () => void) => requestAnimationFrame(() => requestAnimationFrame(fn));
 
+// the page keeps its scroll across a tab switch (Andrew, 2026-10-27: "when you change views, it reloads the top of the
+// page of the current file"): the image is gone while the new tab loads, so the stage falls back to the top; it is put
+// back once the image is laid out again, unless the new tab opened on another page
+export interface HeldScroll { page: number; top: number; left: number }
+export interface Scroller { scrollTop: number; scrollLeft: number; scrollHeight: number; clientHeight: number }
+let heldScroll: HeldScroll | null = null;
+export function holdScroll(page: number) {
+  const s = document.getElementById('stage');
+  heldScroll = s ? { page, top: s.scrollTop, left: s.scrollLeft } : null;
+}
+/** Put the held scroll back on `s`; true when it is done with (put back in full, or on another page). */
+export function putScrollBack(h: HeldScroll, page: number, s: Scroller) {
+  if (h.page !== page) return true;
+  s.scrollTop = h.top; s.scrollLeft = h.left;
+  return s.scrollHeight - s.clientHeight >= h.top;
+}
+/** After the tab has drawn (`final` once its image has loaded: nothing taller is coming). */
+export function restoreScroll(page: number, final = false) {
+  const h = heldScroll, s = document.getElementById('stage');
+  if (!h || !s) return;
+  if (putScrollBack(h, page, s) || final) heldScroll = null;
+}
+
 export function scrollToSel(selector: string, block: ScrollLogicalPosition = 'center') {
   afterPaint(() => {
     const el = document.querySelector(selector);

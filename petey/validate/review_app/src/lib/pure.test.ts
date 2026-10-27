@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { descKey, findDups, statusOf } from '../components/home-data';
 import type { Entry } from './types';
-import { holdsPickerFocus, overlap, stdPrint } from './util';
+import { holdsPickerFocus, overlap, putScrollBack, stdPrint } from './util';
 
 describe('stdPrint', () => {
   it('prints the parts in the standard order, empty parts left out', () => {
@@ -65,5 +65,22 @@ describe('holdsPickerFocus', () => {
   it('a field being edited keeps it', () => {
     expect(holdsPickerFocus({ id: 'eName' })).toBe(false);
     expect(holdsPickerFocus(null)).toBe(false);
+  });
+});
+
+describe('putScrollBack', () => {
+  const stage = (scrollHeight: number) => ({ scrollTop: 0, scrollLeft: 0, scrollHeight, clientHeight: 800 });
+  it('puts the scroll back on the same page, done once the page is tall enough', () => {
+    const s = stage(2400);
+    expect(putScrollBack({ page: 3, top: 900, left: 40 }, 3, s)).toBe(true);
+    expect([s.scrollTop, s.scrollLeft]).toEqual([900, 40]);
+  });
+  it('keeps waiting while the image is not laid out yet', () => {
+    expect(putScrollBack({ page: 3, top: 900, left: 0 }, 3, stage(800))).toBe(false);
+  });
+  it('leaves the top alone when the new tab opened on another page', () => {
+    const s = stage(2400);
+    expect(putScrollBack({ page: 3, top: 900, left: 0 }, 1, s)).toBe(true);
+    expect(s.scrollTop).toBe(0);
   });
 });
