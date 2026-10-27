@@ -29,8 +29,9 @@ export const add: ModeDef = {
   drawable: true,
   help: {
     keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['a / Enter', 'add what is proposed'], ['x', 'not a field'],
-      ['d', 'remove the clicked field / keep it'], ['Esc', 'cancel'], ['f', 'fields on / off'], ['s', 'suggestions on / off']],
-    tips: ['Drag over an area of the page, or click a box, to propose a field.', 'Click a purple field (one the blueprint has) to remove it.'],
+      ['d', 'remove the clicked field / keep it'], ['Esc', 'cancel all'], ['f', 'fields on / off'], ['s', 'suggestions on / off']],
+    tips: ['Drag over an area of the page, or click a box, to propose a field; each one you pick stays until you add it or cancel it ("cancel" on its card, Esc for all).',
+      'Click a purple field (one the blueprint has) to remove it.'],
   },
   load,
   pages: () => useAdd.getState().BP?.pages || [],

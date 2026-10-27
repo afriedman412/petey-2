@@ -19,6 +19,8 @@ export interface Proposal {
   caption?: string | null; page_class?: string | null; entity?: string | null; evidence: string[];
   /** the page's own key for a proposal (React's key; never sent to the server) */
   _k?: number;
+  /** the suggestion it came from, and whether n / p brought it (its card gives way to the next one's) */
+  _sid?: string; _nav?: boolean;
   [more: string]: unknown;
 }
 export type Added = Proposal & { when: string };
@@ -50,8 +52,8 @@ const S = useAdd.getState, put = useAdd.setState;
 
 const bid = () => app().bid!;
 let nextK = 1;
-const keyed = (ps: Proposal[]) => ps.map(p => ({ ...p, _k: nextK++ }));
-const bare = ({ _k: _, ...p }: Proposal): Proposal => p as Proposal;
+const keyed = (ps: Proposal[], sid?: string, nav = false) => ps.map(p => ({ ...p, _k: nextK++, ...(sid ? { _sid: sid, _nav: nav } : {}) }));
+const bare = ({ _k: _, _sid: _s, _nav: _n, ...p }: Proposal): Proposal => p as Proposal;
 
 export const isRemoved = (n: string | null) => !!n && S().removed.some(r => r.name === n);
 export const boxesOf = (p: Proposal) => p.kind === 'group' ? p.options.map(o => ({ page: o.page, rect: o.rect })) : [{ page: p.page, rect: (p.widget || p).rect }];
@@ -63,6 +65,16 @@ export function remaining(): Suggestion[] {
   return BP.suggestions.filter(s => !gone.has(s.sid) && (!s.copy || copies) && !covered(s));
 }
 export const NAME_RE = /^[a-z0-9][a-z0-9_]*$/;
+const sameBoxes = (p: Proposal, q: Proposal) =>
+  boxesOf(p).some(b => boxesOf(q).some(c => c.page === b.page && overlap(b.rect, c.rect) >= 0.5));
+/** The cards after a proposal (Andrew, 2026-10-27: "when you select a field to add, it stays added"; a second click
+ *  replaced the first): new cards join those waiting, n / p's card (`nav`) takes the place of the last one n / p
+ *  brought, and a box already waiting is not proposed twice (`dup`, the cards left out). */
+export function mergeProps(old: Proposal[], fresh: Proposal[], nav = false): { props: Proposal[]; dup: number } {
+  const keep = nav ? old.filter(p => !p._nav) : old;
+  const add = fresh.filter(p => !keep.some(q => sameBoxes(p, q)));
+  return { props: [...keep, ...add], dup: fresh.length - add.length };
+}
 
 // ------------------------------------------------------------------------------------------------------- loading
 export async function load(form: string) {
@@ -86,19 +98,24 @@ export async function gotoSuggestion(step: number) {
     const t = step > 0 ? by.find(s => before(at(s), k) > 0) || by[0] : [...by].reverse().find(s => before(at(s), k) < 0) || by[by.length - 1];
     i = list.indexOf(t);
   }
-  await proposeSid(list[i]);
+  await proposeSid(list[i], true);
 }
-export async function proposeSid(s: Suggestion) {
+export async function proposeSid(s: Suggestion, nav = false) {
   put({ curSid: s.sid }); curAt = s;
   if (s.page !== app().page) setApp({ page: s.page });
-  await propose({ page: s.page, sid: s.sid });
+  await propose({ page: s.page, sid: s.sid }, nav);
   scrollToSel('.ov.sug.cur');
 }
 let busy = false;
-async function propose(body: { page: number; sid?: string; rect?: Rect }) {
+async function propose(body: { page: number; sid?: string; rect?: Rect }, nav = false) {
   if (busy) return; busy = true; put({ picked: null });
-  try { const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken: S().added.map(a => a.name) }); put({ props: keyed(r.proposals), notes: r.notes }); }
-  catch (e) { put({ props: [], notes: ['proposal failed: ' + (e as Error).message] }); }
+  try {
+    const taken = [...S().added, ...S().props].map(a => a.name);
+    const r = await send('POST', mapi('add', bid(), '/propose'), { ...body, taken });
+    const { props, dup } = mergeProps(S().props, keyed(r.proposals, body.sid, nav), nav);
+    put({ props, notes: [...(r.notes || []), ...(dup ? ['that box is proposed already'] : [])] });
+  }
+  catch (e) { put({ notes: ['proposal failed: ' + (e as Error).message] }); }
   busy = false;
 }
 
@@ -108,7 +125,7 @@ export function dragEnd(rect: Rect | null, s: [number, number], target: EventTar
   if (rect) { curAt = null; put({ curSid: null, picked: null }); propose({ page, rect }); return; }
   const d = target instanceof HTMLElement ? target.dataset : undefined;
   if (d && d.sid) { const sg = S().BP!.suggestions.find(x => x.sid === d.sid); if (sg) { proposeSid(sg); return; } }
-  if (d && d.field) { curAt = null; put({ props: [], curSid: null, notes: [], picked: d.field }); return; }
+  if (d && d.field) { curAt = null; put({ curSid: null, notes: [], picked: d.field }); return; }
   if (d && d.added !== undefined) { put({ notes: [`${S().added[+d.added].name} is recorded to be added (remove it from the list below)`] }); return; }
   curAt = null; put({ curSid: null }); propose({ page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1] });
 }
@@ -180,10 +197,13 @@ export function addProps(idx: number[]) {
 }
 export function notAField() {
   const s = S().BP!.suggestions.find(x => x.sid === S().curSid); if (!s) return;
-  put({ dismissed: [...S().dismissed, { sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: localNow() }], props: [], notes: [] });
+  put({ dismissed: [...S().dismissed, { sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: localNow() }],
+    props: S().props.filter(p => p._sid !== s.sid), notes: [] });
   save().then(() => gotoSuggestion(1));
 }
 export const cancel = () => put({ props: [], notes: [], picked: null });
+/** the blueprint field picked to remove, put away; the cards waiting stay */
+export const closePicked = () => put({ picked: null });
 
 // ------------------------------------------------------------------------------------------------------ removing
 export function toggleRemove() {

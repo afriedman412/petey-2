@@ -2,7 +2,7 @@
 // remove), the notes, and the lists of what is to be added, removed, or is not a field; and its bar.
 import type { KeyboardEvent } from 'react';
 import {
-  addAll, addProps, askLabeler, cancel, dropOption, goto, isRemoved, keepRemoved, NAME_RE, notAField, pickName, pickRemoved,
+  addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, NAME_RE, notAField, pickName, pickRemoved,
   remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, switchKind, toggleRemove, unAdd, unDismiss, useAdd,
   gotoSuggestion, type Proposal,
 } from './store';
@@ -70,8 +70,8 @@ function Card({ p, i }: { p: Proposal; i: number }) {
       {p.kind === 'group' && <Options p={p} i={i} />}
       {p.page_class && <div className="help">classifier: {p.page_class}{p.entity ? ' for ' + p.entity : ''} (shown, not applied)</div>}
       <ul className="ev">{p.evidence.map((e, k) => <li key={k}>{e}</li>)}</ul>
-      <div className="arow"><button className="btn primary" onClick={() => addProps([i])}>add this field</button>
-        {props.length > 1 && <button className="btn" onClick={() => skipProp(i)}>leave out</button>}</div>
+      <div className="arow"><button className="btn primary" onClick={() => addProps([i])}>add this field</button>{' '}
+        <button className="btn" title="drop this one; the others stay" onClick={() => skipProp(i)}>cancel</button></div>
     </div>
   );
 }
@@ -86,7 +86,7 @@ function Picked({ name }: { name: string }) {
       {gone && <div className="rbanner">recorded for removal, not removed yet (see the list below)</div>}
       <div className="arow">{gone ? <button className="btn" id="aKeep" onClick={toggleRemove}>keep it</button>
         : <button className="btn warn" id="aRemove" onClick={toggleRemove}>remove this field</button>}{' '}
-        <button className="btn" id="cancel" onClick={cancel}>close</button></div></div>
+        <button className="btn" id="cancel" onClick={closePicked}>close</button></div></div>
   );
 }
 
@@ -120,6 +120,7 @@ export function Panel() {
         {BP.finder !== 'cached' && <> <button className="btn" id="runFinder" title="step2flat on this blank, local CPU, cached afterwards" disabled={finderRunning} onClick={runFinder}>{finderRunning ? 'running (local CPU)…' : 'run it'}</button></>} · classifier map: {BP.classifier}</div>
       <div><b>{left.length}</b> suggestion{left.length === 1 ? '' : 's'} left <span className="help">({left.filter(s => s.source === 'widget').length} widgets, {left.filter(s => s.source === 'finder').length} finder boxes{BP.suggestions.some(s => s.copy) && !copies ? '; repeated copies hidden' : ''})</span>{' '}
         <button className="btn" id="nextSug" onClick={() => gotoSuggestion(1)}>next suggestion</button></div>
+      {picked && <Picked name={picked} />}
       {props.length ? <>
         {/* several proposals: "add all" above them too, not only after the last card (Andrew, 2026-10-23) */}
         {props.length > 1 && <div className="arow"><button className="btn primary" onClick={addAll}>add all {props.length}</button></div>}
@@ -127,9 +128,8 @@ export function Panel() {
         <div className="arow">
           {props.length > 1 && <><button className="btn primary" onClick={addAll}>add all {props.length}</button>{' '}</>}
           {curSid && <><button className="btn warn" id="notField" title="record this suggestion as not a field" onClick={notAField}>not a field</button>{' '}</>}
-          <button className="btn" id="cancel" onClick={cancel}>cancel</button></div>
-      </> : picked ? <Picked name={picked} />
-        : <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click one to remove it). Green: fields you have added; red dashed: fields to remove.</p>}
+          <button className="btn" id="cancel" onClick={cancel}>{props.length > 1 ? 'cancel all' : 'cancel'}</button></div>
+      </> : !picked && <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click one to remove it). Green: fields you have added; red dashed: fields to remove.</p>}
       {notes.length > 0 && <div className="notes">{notes.map((n, k) => <div key={k}>{n}</div>)}</div>}
       <div><h4>To add ({added.length})</h4><div className="alist">{added.length ? added.map((x, i) => (
         <div key={i} onClick={() => goto(x.page)}><span>p{x.page} · {x.name} <span className="help">{x.kind === 'group' ? 'group' : x.type}</span></span>
