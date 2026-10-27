@@ -663,6 +663,19 @@ def remove_block(bid: str, bp: dict, code: str) -> dict:
     return {"said": said_}
 
 
+def remove_type(bid: str, tid: str) -> dict:
+    """A block type dismissed with all its blocks (Andrew, 2026-10-27: "a 'cancel' button to the block type (to dismiss
+    all blocks of a given type, behind a warning message)"): the fields stay as they are, names and verdicts. {said}."""
+    rec = gc.load_set(bid)
+    t = next((x for x in rec.get("types") or [] if x["id"] == tid), None)
+    if t is None:
+        raise ValueError(f"no block type {tid} (dropped since?)")
+    rec["types"].remove(t)
+    gc._save_set(bid, rec)
+    n = len(t["blocks"])
+    return {"said": [f"{tid} dismissed with its {n} block{'' if n == 1 else 's'}"]}
+
+
 def reattach(bid: str, bp: dict) -> dict:
     """Block positions whose field is gone pointed at the field now at that spot (Andrew, 2026-10-22: "groups should
     act independently from the block logic ... creating a group shouldn't pull those fields out of the block"; a new

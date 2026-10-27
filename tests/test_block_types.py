@@ -237,6 +237,21 @@ def test_a_block_that_is_no_longer_one(monkeypatch, tmp_path):
     assert gc.load_set("t13")["types"] == []
 
 
+def test_a_type_dismissed_with_all_its_blocks(monkeypatch, tmp_path):
+    use_tmp_records(monkeypatch, tmp_path)
+    bp = blueprint([[f"d_{b}_month", f"d_{b}_day", f"d_{b}_ind"] for b in (1, 2)])
+    for b in range(2):
+        bt.draw("t13b", bp, 1, area(b))
+    assert bt.remove_type("t13b", "BT1")["said"] == ["BT1 dismissed with its 2 blocks"]
+    assert gc.load_set("t13b")["types"] == []
+    assert sorted(bp["fields"]) == sorted(f"d_{b}_{k}" for b in (1, 2) for k in ("month", "day", "ind"))   # fields stay
+    try:
+        bt.remove_type("t13b", "BT1")
+        raise AssertionError("a type dismissed twice")
+    except ValueError as e:
+        assert "no block type" in str(e)
+
+
 def test_block_name_clashes(monkeypatch, tmp_path):
     """VA 21-686c BT7-5 / BT7-6 (2026-10-21): blocks whose names are swapped rename together; two blocks coming to one
     name get no renames until settled; a rename onto a name a field outside keeps is held."""

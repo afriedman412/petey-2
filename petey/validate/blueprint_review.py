@@ -414,6 +414,11 @@ class Blocks:
         from petey.validate import block_types
         return block_types.remove_block(bid, hand_review._load(self.app.working(bid)), code)
 
+    def type_out(self, bid: str, tid: str) -> dict:
+        """A block type dismissed with all its blocks ("cancel" on the type)."""
+        from petey.validate import block_types
+        return block_types.remove_type(bid, tid)
+
 
 def name_parts(bid: str, field: str, new: str) -> dict:
     """A proposed name read into its parts, as the form's other names are (Andrew, 2026-10-25: '"improve name" should
@@ -1030,6 +1035,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             return self._route(lambda: APP.blocks.block_draw(bid, int(body["page"]), body["rect"]), bid)
         if (mode, what) == ("blocks", "out"):           # a block that is no longer one
             return self._route(lambda: APP.blocks.block_out(bid, body["block"]), bid)
+        if (mode, what) == ("blocks", "tout"):          # a block type dismissed with all its blocks (2026-10-27)
+            return self._route(lambda: APP.blocks.type_out(bid, body["type"]), bid)
         if (mode, what) == ("blocks", "confirm"):       # a block type's positions confirmed: parts, or wordings
             return self._route(lambda: APP.blocks.type_confirm(bid, body["type"],
                                                                list(body.get("slots") or body.get("wordings") or [])), bid)

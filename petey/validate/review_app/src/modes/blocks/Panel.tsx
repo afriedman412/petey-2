@@ -8,7 +8,7 @@ import { useApp } from '../../state/app';
 import {
   blockAssign, blockDetect, blockFix, blockIdent, blockKeep, blockOut, blockParts, blockState, blockValidate, blocksHere,
   cancelNameEdit, editParts, resetNumbers, printIdent, PKEYS, ref, saveNameEdit, selectBlock, setHover, setSlot, shownSlots,
-  startNameEdit, typeAssign, typeAuto, typeConfirm, typeFix,
+  startNameEdit, typeAssign, typeAuto, typeConfirm, typeFix, typeOut,
   typeLabel, typeOff, typeSlots, typeValidate, useBlocks,
   type Block, type BType, type Slot,
 } from './store';
@@ -271,7 +271,9 @@ function TypeCard({ y, only }: { y: BType; only: boolean }) {
           title={`check & validate every block of ${y.id}: the cells of each block that follows these wordings accepted; the others said, nothing of theirs accepted`}>
           {busy ? 'checking…' : allVal ? 'all validated ✓ · check again' : `validate all ${y.blocks.length}`}</button></>}
         {y.confirmed && off > 0 && <> <button className="btn mini" onClick={e => { e.stopPropagation(); typeFix(y.id); }}
-          title={`every block of ${y.id} printed from these parts (each block's prefix and iteration; cancelled renames left), as Claude's renames, the parts stored on each field; nothing accepted`}>rename every block ({off})</button></>}</div>
+          title={`every block of ${y.id} printed from these parts (each block's prefix and iteration; cancelled renames left), as Claude's renames, the parts stored on each field; nothing accepted`}>rename every block ({off})</button></>}
+        {' '}<button className="btn mini warn" title={`dismiss ${y.id} with all its blocks (asks first); the fields stay as they are`}
+          onClick={e => { e.stopPropagation(); typeOut(y.id); }}>cancel</button></div>
       {(GD?.types || []).length > 1 && <div className="row"><select value="" onClick={stop} onKeyDown={stop} onChange={e => { if (e.target.value) typeAssign(y.id, e.target.value); }}
         title={`every block of ${y.id} given another type, each fitted by best fit (place, size, label); ${y.id} is then dropped`}>
         <option value="">assign {y.blocks.length === 1 ? 'its block' : `its ${y.blocks.length} blocks`} to…</option>

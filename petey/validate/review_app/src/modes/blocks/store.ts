@@ -355,6 +355,20 @@ export async function blockOut(code: string) {
   toast(out.said.join('; ') + '.');
 }
 
+// "cancel" on a type (Andrew, 2026-10-27: "a 'cancel' button to the block type (to dismiss all blocks of a given type,
+// behind a warning message)"): the type and its blocks go, the fields stay as they are
+export async function typeOut(tid: string) {
+  const y = (S().GD?.types || []).find(t => t.id === tid); if (!y) return;
+  const n = y.blocks.length;
+  if (!confirm(`Dismiss all ${n} block${n === 1 ? '' : 's'} of ${tid}${y.label ? ` (${y.label})` : ''}?\n\nThe type and its blocks go; the fields stay, with the names they have now. This cannot be undone.`)) return;
+  let out;
+  try { out = await send('POST', mapi('blocks', bid(), '/tout'), { type: tid }); }
+  catch (e) { alert((e as Error).message); return; }
+  if (y.blocks.some(b => b.code === S().selBlock)) put({ selBlock: null });
+  await loadMode();
+  toast(out.said.join('; ') + '.');
+}
+
 export async function blockDraw(rect: Rect) {
   let out;
   try { out = await send('POST', mapi('blocks', bid(), '/draw'), { page: app().page, rect }); }
