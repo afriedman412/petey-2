@@ -69,9 +69,15 @@ with sync_playwright() as p:
         sent.clear(); dialogs.clear()
         pg.goto(f"http://review.test/next/#blocks/{form}/BT1-1")
         pg.wait_for_selector(".btopen .btnames code.ed")
-        pg.locator(".btopen .btnames tr").first.hover()
+        pg.mouse.move(0, 0)      # off the row first: the next form's row sits where this one was, and a hover with no
+        pg.locator(".btopen .btnames tr").first.hover()      # move sent no new hover event (lit 0, 2026-10-28)
+        try:                     # the hover's highlight drawn first (counted at once it was 0 now and then, 2026-10-28)
+            pg.wait_for_selector("#canvas .gcell.hl", timeout=3000)
+        except Exception:
+            pass
         lit = pg.locator("#canvas .gcell.hl").count()
         pg.locator(".btopen .btnames code.ed").first.click()
+        pg.wait_for_selector(".btpe")
         warn = pg.locator(".btpe .warn").count()
         pg.locator(".btpe input").first.fill("kid")
         preview = pg.inner_text(".btpe > div:nth-child(2)")
@@ -181,9 +187,15 @@ def test_reset_numbers_saves_the_parts_numbered_from_1_then_renames():
     api = {"api/blueprints": [{"id": "one", "form": "one", "fields": 4, "accepted": 0, "flagged": 0, "source": "lib"}],
            "api/blocks/one": data, "png": PNG}
     script = RUN.replace('for form in ("two", "one"):', 'for form in ("one",):').replace(
-        '''        pg.locator(".btopen .btnames tr").first.hover()
+        '''        pg.mouse.move(0, 0)      # off the row first: the next form's row sits where this one was, and a hover with no
+        pg.locator(".btopen .btnames tr").first.hover()      # move sent no new hover event (lit 0, 2026-10-28)
+        try:                     # the hover's highlight drawn first (counted at once it was 0 now and then, 2026-10-28)
+            pg.wait_for_selector("#canvas .gcell.hl", timeout=3000)
+        except Exception:
+            pass
         lit = pg.locator("#canvas .gcell.hl").count()
         pg.locator(".btopen .btnames code.ed").first.click()
+        pg.wait_for_selector(".btpe")
         warn = pg.locator(".btpe .warn").count()
         pg.locator(".btpe input").first.fill("kid")
         preview = pg.inner_text(".btpe > div:nth-child(2)")
