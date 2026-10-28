@@ -13,6 +13,8 @@ export interface Item {
   id: string; field: string; key: string | null; kind?: 'text'; page: number; rect: Rect;
   caption?: string | null; on_state?: string | null; path?: string | null; widget_type?: string | null;
   appearances?: number | null; type?: string | null; semantic_type?: string | null; description?: string | null;
+  /** a text field's name as a checkbox (its suffix made _ind, or _ind added; group_review.ind_name) */
+  ind_name?: string | null;
 }
 /** A group, a loose box (a group of one boolean), or a combined text field (`kind: text`). */
 export interface Unit {
@@ -65,7 +67,15 @@ export const item = (id: string) => S().BP!.items[id];
 export const unitOf = (id: string, us = S().units) => us.find(u => u.items.includes(id));
 export const unitByUid = (uid: number | null | undefined, us = S().units) => us.find(u => u.uid === uid);
 export const isText = (u?: Unit | null) => !!u && u.kind === 'text';
-export const isTextItem = (id: string) => item(id).kind === 'text';
+/** a text field still text: in no unit, or in a combined text field; one in an option unit is being made a checkbox */
+export const textIn = (id: string, us: Unit[], items: Record<string, Item>) => {
+  if (items[id]?.kind !== 'text') return false;
+  const u = us.find(x => x.items.includes(id));
+  return !u || u.kind === 'text';
+};
+export const isTextItem = (id: string, us = S().units) => textIn(id, us, S().BP!.items);
+/** a text field made a checkbox here (converting is applied with the regrouping) */
+export const isConverted = (id: string, us = S().units) => item(id).kind === 'text' && !isTextItem(id, us);
 export const optUnits = (us = S().units) => us.filter(u => !isText(u));
 export const isGroup = (u: Unit) => isText(u) || u.items.length > 1 || u.type !== 'boolean';
 const orderKey = (it: Item) => [it.page, Math.round(it.rect[1] / 6), it.rect[0]];
@@ -78,7 +88,8 @@ function sortUnits(us: Unit[], items = S().BP!.items) {
 export const onPage = (u: Unit, p = app().page) => u.items.some(id => item(id).page === p);
 export const label = (id: string, us = S().units) => {
   const it = item(id), u = unitOf(id, us), c = u && u.captions && u.captions[id];
-  return it.kind === 'text' ? it.field : (c || it.caption || (it.key ?? it.field));
+  if (it.kind === 'text') return textIn(id, us, S().BP!.items) ? it.field : (c || it.ind_name || it.field);   // converted: its _ind name
+  return c || it.caption || (it.key ?? it.field);
 };
 export const looseText = (p = app().page, us = S().units) =>
   Object.values(S().BP!.items).filter(it => it.kind === 'text' && it.page === p && !unitOf(it.id, us));
@@ -162,27 +173,36 @@ function detach(us: Unit[], id: string) {
 // or g makes them one group. They leave the units they were in; a unit emptied that way hands its name and place
 // to the new group. Option boxes only (text combining stays drag-and-drop).
 export function togglePick(id: string) {
-  if (isTextItem(id)) return note('Only option boxes can be selected for grouping.');
+  if (isTextItem(id) && unitOf(id)) return note('That text field is part of a combined field; take it out first to make it a checkbox.');
   const p = new Set(S().picked);
   if (p.has(id)) p.delete(id); else p.add(id);
   put({ picked: p });
+}
+/** a loose text field clicked: it alone is picked, for "convert to bool" (Andrew, 2026-10-27) */
+export function pickText(id: string) {
+  if (unitOf(id)) return note('That text field is part of a combined field; take it out first to make it a checkbox.');
+  put({ picked: new Set([id]) });
 }
 export const clearPicked = () => put({ picked: new Set() });
 // an option hovered anywhere in the sidebar lights its box on the page (Andrew, 2026-10-27: "rolling over a group
 // option anywhere in the groups tab highlights the corresponding field")
 export const setHover = (id: string | null) => { if (S().hover !== id) put({ hover: id }); };
 export const hoverProps = (id: string) => ({ onMouseEnter: () => setHover(id), onMouseLeave: () => setHover(null) });
+// an area: the option boxes in it; an area with none, the loose text fields in it (when text fields are shown)
 export function selectArea(r: Rect, add: boolean) {
   const p = add ? new Set(S().picked) : new Set<string>(), page = app().page;
-  for (const it of Object.values(S().BP!.items)) {
-    const cx = (it.rect[0] + it.rect[2]) / 2, cy = (it.rect[1] + it.rect[3]) / 2;
-    if (it.page === page && it.kind !== 'text' && cx >= r[0] && cx <= r[2] && cy >= r[1] && cy <= r[3]) p.add(it.id);
-  }
+  const inside = (it: Item) => { const cx = (it.rect[0] + it.rect[2]) / 2, cy = (it.rect[1] + it.rect[3]) / 2; return it.page === page && cx >= r[0] && cx <= r[2] && cy >= r[1] && cy <= r[3]; };
+  const all = Object.values(S().BP!.items).filter(inside);
+  let got = all.filter(it => !isTextItem(it.id));
+  if (!got.length && S().showText) got = all.filter(it => isTextItem(it.id) && !unitOf(it.id));
+  for (const it of got) p.add(it.id);
   put({ picked: p });
-  toast(`${p.size} box${p.size === 1 ? '' : 'es'} selected${p.size > 1 ? ': g groups them, Esc clears' : ''}`);
+  const text = [...p].some(id => isTextItem(id));
+  toast(`${p.size} ${text ? 'field' : 'box'}${p.size === 1 ? '' : (text ? 's' : 'es')} selected${text ? ': "convert to bool" makes them checkboxes' : p.size > 1 ? ': g groups them, Esc clears' : ''}`);
 }
 export function groupPicked() {
   const ids = [...S().picked].filter(id => S().BP!.items[id]);
+  if (ids.some(id => isTextItem(id))) return note('Text fields are selected: "convert to bool" makes them checkboxes first, then g groups them.');
   if (ids.length < 2) return note('Select two or more boxes first (Shift-click, or drag across an area).');
   const us = draft();
   if (ids.some(id => unitOf(id, us)?.locked)) return note('A selected box belongs to a locked group.');
@@ -200,6 +220,34 @@ export function groupPicked() {
   us.push(g); put({ picked: new Set() });
   afterEdit(us, g.uid);
   toast(`${ids.length} boxes grouped: ${g.name} (z undoes)`);
+}
+
+// text fields made checkboxes (Andrew, 2026-10-27: "click or select a text field(s) ... a button that says 'convert to
+// bool'"): each a loose checkbox under its name with the suffix _ind (group_review.ind_name), in an option unit, which
+// is what makes group_review.plan convert it; they stay picked, so g makes them one group
+export function toBool(ids = [...S().picked]) {
+  const us = draft();
+  const conv = ids.filter(id => S().BP!.items[id] && textIn(id, us, S().BP!.items) && !unitOf(id, us));
+  if (!conv.length) return note('Select one or more loose text fields first (click one, Shift-click for more).');
+  snapshot();
+  const made: Unit[] = [];
+  for (const id of conv) {
+    const it = item(id), base = it.ind_name || `${it.field}_ind`;
+    const taken = takenNames(us, null); taken.delete(it.field);          // its own text name is about to go
+    let n = base, k = 2; while (taken.has(n)) n = `${base}_${k++}`;
+    const u: Unit = { uid: nextUid++, name: n, type: 'boolean', items: [id], origin: id, confirmed: false };
+    us.push(u); made.push(u);
+  }
+  put({ picked: new Set(conv) });
+  afterEdit(us, made[0].uid);
+  toast(`${made.length} text field${made.length === 1 ? '' : 's'} made checkbox${made.length === 1 ? '' : 'es'}: ${made.map(u => u.name).join(', ')}${made.length > 1 ? ' (g groups them' : ' ('}${made.length > 1 ? ', ' : ''}z undoes)`);
+}
+/** a converted box back to a text field (before the change is applied) */
+export function toText(uid: number) {
+  const us = draft(), u = unitByUid(uid, us);
+  if (!u || u.items.length !== 1 || !isConverted(u.items[0], us)) return;
+  snapshot(); drop(us, u);
+  afterEdit(us, optUnits(us).length ? optUnits(us)[0].uid : null);
 }
 
 const MIX = 'text boxes combine only with text boxes; option boxes group only with option boxes';
@@ -275,7 +323,7 @@ export async function notGroup(i: number) {
 function looseOf(us: Unit[], src: Unit, id: string): Unit {
   const it = item(id), own = it.key === null;
   return {
-    uid: nextUid++, name: own ? it.field : uniqueName(us, `${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
+    uid: nextUid++, name: own ? (it.kind === 'text' ? uniqueName(us, it.ind_name || `${it.field}_ind`, null) : it.field) : uniqueName(us, `${src.name}_${String(it.key).toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'option'}`, null),
     type: 'boolean', items: [id], origin: own ? it.field : null, confirmed: false,
   };
 }

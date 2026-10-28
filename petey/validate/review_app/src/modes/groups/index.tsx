@@ -1,5 +1,6 @@
 // Groups on the page: each group's hull in its color and its boxes, loose boxes dashed, text fields in teal (combined
-// ones in a hull); a click selects, Shift- / Cmd-click picks a box for "group selected", and boxes and hulls drag
+// ones in a hull); a click selects (a loose text field: picked, for "convert to bool"), Shift- / Cmd-click picks a box
+// for "group selected", and boxes and hulls drag
 // onto each other (a group by the tab on its corner, 2026-10-27: its boxes cover the rest of it). And the tab's
 // definition for the frame (an area dragged across the page picks the boxes in it).
 import { Box, GroupTab } from '../../components/Box';
@@ -9,15 +10,15 @@ import { useApp } from '../../state/app';
 import type { ModeDef } from '../types';
 import { Bar, Panel } from './Panel';
 import {
-  colorOf, dropped, firstItem, focus, isGroup, isText, item, key, label, leave, load, looseText, note, onPage, optUnits,
-  pickOnPage, select, selectArea, togglePick, useGroups, type Item, type Target, type Unit,
+  colorOf, dropped, firstItem, focus, isGroup, isText, isTextItem, item, key, label, leave, load, looseText, onPage,
+  optUnits, pickOnPage, pickText, select, selectArea, togglePick, useGroups, type Item, type Target, type Unit,
 } from './store';
 
 const dropOn = (target: Target) => dropProps(['item', 'unit'], (kind, v) => dropped(kind, v, target));
 
 function ItemBox({ it, u, c, sel, picked }: { it: Item; u: Unit | null; c: string; sel: boolean; picked: boolean }) {
   const hl = useGroups(s => s.hover === it.id);
-  const cls = 'gi' + (it.kind === 'text' ? ' text' : '') + (u ? '' : ' loose') + (u && !isGroup(u) ? ' orphan' : '') + (sel ? ' sel' : '')
+  const cls = 'gi' + (isTextItem(it.id) ? ' text' : '') + (u ? '' : ' loose') + (u && !isGroup(u) ? ' orphan' : '') + (sel ? ' sel' : '')
     + (u && u.locked ? ' locked' : '') + (picked ? ' picked' : '') + (hl ? ' hl' : '');
   const title = u ? `${u.name}${isGroup(u) ? ' · ' + label(it.id) : ''}${u.locked ? ' (locked: ' + u.locked + ')' : ''}` : `${it.field} (text field)`;
   const live = !(u && u.locked);
@@ -26,7 +27,7 @@ function ItemBox({ it, u, c, sel, picked }: { it: Item; u: Unit | null; c: strin
       onClick={e => {
         e.stopPropagation();
         if (e.shiftKey || e.metaKey || e.ctrlKey) return togglePick(it.id);
-        if (u) select(u.uid, false); else note(`${it.field}: a text field; drag it onto another text field to combine them`);
+        if (u) select(u.uid, false); else pickText(it.id);
       }}
       {...dragProps('item', it.id, live)} {...(live ? dropOn({ item: it.id }) : {})} />
   );
@@ -67,6 +68,7 @@ export const groups: ModeDef = {
     keys: [['g', 'group the selected boxes'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
       ['u', 'ungroup the selected group'], ['Shift+U', 'unconfirmed only on / off'], ['Shift+T', 'text fields on / off']],
     tips: ['Select boxes with Shift-click (or Cmd-click), or drag across an area of the page (Shift+drag adds an area); g or "group selected" makes them one group; Esc clears the selection.',
+      'Click a teal text box (Shift-click for more, or drag across an area holding only text boxes): "convert to bool" makes them checkboxes named _ind; g then groups them.',
       'Drag a box onto a group, onto another loose box, or onto the tray.', 'Drag a group by the tab on its corner onto another group or a loose box to combine them.', 'Teal text boxes combine the same way.'],
   },
   load,

@@ -126,7 +126,8 @@ def option_items(bp: dict) -> tuple[dict, list[dict]]:
 
 
 def text_items(bp: dict) -> dict[str, dict]:
-    """Every field with one text widget, as an item that can be combined (`kind: text`, id = field name)."""
+    """Every field with one text widget, as an item that can be combined (`kind: text`, id = field name), or made a
+    checkbox (`ind_name`: its name as one)."""
     out = {}
     for name, spec in (bp.get("fields") or {}).items():
         if not isinstance(spec, dict) or spec.get("widgets") or _is_xbox(spec):
@@ -136,8 +137,44 @@ def text_items(bp: dict) -> dict[str, dict]:
             out[name] = {"id": name, "field": name, "key": None, "kind": "text", "page": int(w["page"]),
                          "rect": [float(c) for c in w["rect"]], "path": w.get("path"), "widget_type": "text",
                          "type": spec.get("type"), "semantic_type": spec.get("semantic_type"),
-                         "caption": None, "description": spec.get("description")}
+                         "caption": None, "description": spec.get("description"), "ind_name": ind_name(name, spec)}
     return out
+
+
+def ind_name(name: str, spec: Optional[dict] = None) -> str:
+    """A text field's name as a checkbox (Andrew, 2026-10-27: "change the suffix and add it if it isn't there"): its
+    parts with the suffix `ind` (docs/NAMING.md: a single checkbox), so day_txt -> day_ind, phone_nbr_2 ->
+    phone_ind_2, p1_f12 -> p1_f12_ind; a name ending in _ind stays."""
+    from petey import naming
+    st = (spec or {}).get(naming.KEY)
+    parts = st if isinstance(st, dict) and naming.print_name(st) == name else naming.parts_for(name, spec)
+    parts = {k: v for k, v in parts.items() if k in naming.ORDER}
+    if not parts.get("subject") and not parts.get("block_prefix"):
+        return name if name.endswith("_ind") else f"{name}_ind"
+    return naming.print_name({**parts, "suffix": "ind"})
+
+
+def converted(bp: dict, units: list[dict], now: str) -> tuple[dict, list[str], dict[str, str]]:
+    """(`bp` with each text field that a unit holds as an option made a checkbox, what changed, {field: its name as a
+    checkbox}: the key it takes as an option of a group). The field becomes a
+    boolean `indicator` on its own text widget (`_is_xbox`: extraction reads an X typed in it as a mark), its
+    pattern and values dropped, what it was kept in `x_petey_converted` (Andrew, 2026-10-27: "convert fields from
+    text to bool/ind in groups"). Then it is an orphan like any checkbox, and the units group or rename it."""
+    texts = text_items(bp)
+    ids = sorted({i for u in units if u.get("kind") != "text" for i in u.get("items") or [] if i in texts})
+    if not ids:
+        return bp, [], {}
+    fields = dict(bp.get("fields") or {})
+    for f in ids:
+        spec = copy.deepcopy(fields[f])
+        was = {k: spec.get(k) for k in ("type", "semantic_type", "pattern") if spec.get(k) is not None}
+        for k in ("pattern", "values", "format"):
+            spec.pop(k, None)
+        spec["type"], spec["semantic_type"] = "boolean", "indicator"
+        spec["x_petey_converted"] = {"source": "group_review", "when": now, "from": was}
+        fields[f] = spec
+    return ({**bp, "fields": fields}, [f"{f}: text field made a checkbox (boolean indicator)" for f in ids],
+            {f: texts[f]["ind_name"] for f in ids})
 
 
 def _order_key(items: dict, u: dict) -> tuple:
@@ -424,11 +461,13 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
     numbers or the next question's first word)."""
     text_units = [u for u in units if u.get("kind") == "text"]
     units = [u for u in units if u.get("kind") != "text"]
+    now = time.strftime("%Y-%m-%d %H:%M:%S")
+    bp, changes, as_ind = converted(bp, units, now)  # text fields made checkboxes first: then options like any other
     items, base = option_items(bp)
     fields = bp.get("fields") or {}
     base_by_origin = {u["origin"]: u for u in base}
     option_fields = {it["field"] for it in items.values()}
-    errors, changes = [], []
+    errors: list[str] = []
 
     def unchanged(u: dict) -> bool:
         b = base_by_origin.get(u.get("origin"))
@@ -454,7 +493,6 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
     if missing:
         errors.append(f"{len(missing)} option(s) belong to no unit: {', '.join(sorted(missing)[:5])}")
 
-    now = time.strftime("%Y-%m-%d %H:%M:%S")
     on_states = _blank_on_states(blank, [items[i] for u in units if not unchanged(u) and len(u["items"]) > 1
                                          for i in u["items"]])
     emitted: dict[str, list[tuple[str, dict]]] = {}
@@ -488,7 +526,7 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
                     key, block = it["key"], copy.deepcopy(fields[it["field"]]["widgets"][it["key"]])
                 else:
                     src = fields[it["field"]]
-                    key, block = it["field"], copy.deepcopy(src["widget"])
+                    key, block = as_ind.get(it["field"], it["field"]), copy.deepcopy(src["widget"])
                     if iid in on_states:
                         block["on_state"] = on_states[iid]
                     # a short tooltip is the option's caption; a sentence ('Check the box (if applicable): Indicates

@@ -6,10 +6,10 @@ import { fileStem } from '../../lib/util';
 import { toast } from '../../state/actions';
 import { useApp } from '../../state/app';
 import {
-  applyPlan, askLabeler, baseOf, busyOn, colorOf, confirmUnit, dropped, groupPicked, groupSuggested, hoverProps, isGroup, isText,
-  item, label, looseText, mergeInto, moveItem, nameCheck, notGroup, onPage, optUnits, rename, rereadCaptions, rescanPage,
-  revert, select, separate, setDesc, setShowText, setType, setUnconfOnly, status, undo, ungroup, unitOf, useGroups,
-  type Target, type Unit,
+  applyPlan, askLabeler, baseOf, busyOn, clearPicked, colorOf, confirmUnit, dropped, groupPicked, groupSuggested, hoverProps, isConverted,
+  isGroup, isText, isTextItem, item, label, looseText, mergeInto, moveItem, nameCheck, notGroup, onPage, optUnits, rename,
+  rereadCaptions, rescanPage, revert, select, separate, setDesc, setShowText, setType, setUnconfOnly, status, toBool, toText,
+  undo, ungroup, unitOf, useGroups, type Target, type Unit,
 } from './store';
 
 const dropOn = (target: Target) => dropProps(['item', 'unit'], (kind, v) => dropped(kind, v, target));
@@ -53,6 +53,27 @@ function TextCard({ u }: { u: Unit }) {
   );
 }
 
+// text fields picked (a click, Shift-click, an area): made checkboxes with one button (Andrew, 2026-10-27: "bring
+// them up in the side panel (either as a group or solo) and provide a button that says 'convert to bool'")
+function PickedText() {
+  const picked = useGroups(s => s.picked), units = useGroups(s => s.units);
+  const ids = [...picked].filter(id => isTextItem(id, units));
+  if (!ids.length) return null;
+  const one = ids.length === 1;
+  return (
+    <div className="fcard sect gcur" id="gPickedText">
+      <h4>Selected text field{one ? '' : 's'} <span className="help">{ids.length}</span></h4>
+      <ul>{ids.map(id => { const it = item(id);
+        return <li key={id} {...hoverProps(id)}><code>{it.field}</code> <span className="help">→ {it.ind_name || it.field + '_ind'}{it.type ? ` · now ${it.type}${it.semantic_type ? '/' + it.semantic_type : ''}` : ''}</span></li>; })}</ul>
+      <div className="frow">
+        <button className="btn ok" id="gToBool" onClick={() => toBool(ids)}>convert to bool</button>
+        <button className="btn" onClick={clearPicked}>clear</button>
+      </div>
+      <div className="help">Each becomes a checkbox (boolean, indicator) on its own box, its suffix made _ind. {one ? '' : 'They stay selected: g makes them one group. '}It goes into the working copy with the regrouping; z undoes.</div>
+    </div>
+  );
+}
+
 // laid out as Review's selected-field card, without the field data (Andrew, 2026-10-24: "group panel should
 // basically be the same as the review panel but without the field data"; "group panel needs the full field id too")
 function Current({ u }: { u?: Unit }) {
@@ -91,14 +112,16 @@ function Current({ u }: { u?: Unit }) {
           </span>
         </> : <>
           <span className="lbl">Box</span>
-          <span className="help">a {first.widget_type} field of its own{first.appearances ? `, drawn in ${first.appearances} places` : ''}. Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</span>
+          <span className="help">{isConverted(first.id, units) ? <>the text field <code>{first.field}</code> made a checkbox; it changes when the regrouping is applied. </>
+            : <>a {first.widget_type} field of its own{first.appearances ? `, drawn in ${first.appearances} places` : ''}. </>}
+            Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</span>
         </>}
         {group && <>
           <span className="lbl">Options<br /><span className="help">key · caption</span></span>
           <span className="otable">{u.items.map(id => { const it = item(id);
             return (
               <span key={id} className="orow" {...hoverProps(id)}>
-                <input className="okey" value={it.key !== null ? it.key : it.field} readOnly
+                <input className="okey" value={it.key !== null ? it.key : it.kind === 'text' ? (it.ind_name || it.field) : it.field} readOnly
                   title={`the value extraction returns for this box${it.on_state ? '; the PDF stores ' + it.on_state : ''}${it.page !== page ? ' (page ' + it.page + ')' : ''}`} />
                 <input className="ocap" value={label(id, units)} readOnly placeholder="no caption" title="the text printed at this box" />
               </span>);
@@ -110,6 +133,7 @@ function Current({ u }: { u?: Unit }) {
         {group && !u.locked && <button className="btn" id="gCaps" disabled={reading} onClick={() => rereadCaptions(u.uid)}
           title="read each box's printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF's form data or set by hand stay">{reading ? 'reading…' : 're-read captions'}</button>}
         {b && status(u) !== 'as blueprint' && <button className="btn" id="gRevert" title="put this unit back as the blueprint has it" onClick={() => revert(u.uid)}>back to blueprint</button>}
+        {!group && isConverted(first.id, units) && <button className="btn" id="gToText" title="make it a text field again (before the change is applied)" onClick={() => toText(u.uid)}>back to text</button>}
         {group && !isText(u) && !u.locked && <button className="btn" id="gUngroup" title="every box of this group loose again (u); the finder will not group these boxes again; z undoes" onClick={ungroup}>ungroup</button>}
         {group && !u.locked && (
           <select id="gMergeTo" value="" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"
@@ -200,6 +224,7 @@ export function Panel() {
     <>
       <div className="help">{BP.path}{BP.info.stale && <> <span className="stale">· the saved grouping predates this file; rebased onto it</span></>}{BP.info.applied && ` · last applied ${BP.info.applied.when}`}</div>
       {notes.length > 0 && <div className="warn">{notes.map((n, i) => <span key={i}>{i ? <br /> : null}{n}</span>)}</div>}
+      <PickedText />
       <Current u={u} />
       <Suggestions />
       <div><h4>Groups on page {page} ({groups.length}) · drop a box on a group to add it</h4>
