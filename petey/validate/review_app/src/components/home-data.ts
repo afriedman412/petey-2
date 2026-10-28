@@ -1,10 +1,10 @@
 // The home list's sections, stages and possible duplicates (pure: tested in home-data.test.ts).
 import type { Entry } from '../lib/types';
 
+// the benchmark forms first (Andrew, 2026-10-27: "promote the 'passed the business cut' forms to their own section, at the top")
 export const SECTIONS: Record<string, string> = {
-  focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
+  bm: 'flat-structure benchmark (passed the business cut)', focus: 'name-check follow-up (flags to confirm)', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4',
   rerun: 'fresh runs of library forms (new code)', lib: 'library', je: 'judge-eval side copies', rl: 'relabels', fl: 'flat forms',
-  bm: 'flat-structure benchmark',
 };
 export const SECTION_SHORT: Record<string, string> = {
   focus: 'review queue', t1: 'launch T1', t2: 'launch T2', t3: 'launch T3', t4: 'launch T4', rerun: 'fresh run',

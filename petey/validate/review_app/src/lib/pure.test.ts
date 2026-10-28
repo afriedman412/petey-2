@@ -1,6 +1,6 @@
 // The page's pure helpers: the naming standard's printing, the home list's stages and duplicates.
 import { describe, expect, it } from 'vitest';
-import { descKey, findDups, statusOf } from '../components/home-data';
+import { descKey, findDups, SECTION_ORDER, sectionOf, statusOf } from '../components/home-data';
 import type { Entry } from './types';
 import { holdsPickerFocus, overlap, putScrollBack, stdPrint } from './util';
 
@@ -82,5 +82,14 @@ describe('putScrollBack', () => {
     const s = stage(2400);
     expect(putScrollBack({ page: 3, top: 900, left: 0 }, 1, s)).toBe(true);
     expect(s.scrollTop).toBe(0);
+  });
+});
+
+describe('home sections', () => {
+  it('lists the benchmark forms first (2026-10-27)', () => {
+    const bm = sectionOf(entry({ source: 'bm' })), lib = sectionOf(entry({ source: 'lib' }));
+    expect(SECTION_ORDER[bm]).toBe(0);
+    expect(SECTION_ORDER[bm]).toBeLessThan(SECTION_ORDER[sectionOf(entry({ focus: 1 }))]);
+    expect(SECTION_ORDER[bm]).toBeLessThan(SECTION_ORDER[lib]);
   });
 });
