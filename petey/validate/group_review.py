@@ -210,12 +210,13 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
     fields = bp.get("fields") or {}
     if blank is None or not item_ids:
         return {}
-    ws, key_of = {}, {}
+    ws, key_of, added = {}, {}, False
     for iid in item_ids:
         it = items.get(iid)
         if it is None:
             continue
         src = fields[it["field"]]
+        added = added or bool(src.get("x_petey_added"))
         block = dict(src["widgets"][it["key"]]) if it["key"] is not None else dict(src.get("widget") or {})
         if it["key"] is None and not block.get("caption") and _is_orphan(src):
             block["caption"] = src.get("description")
@@ -224,7 +225,10 @@ def suggest_captions(bp: dict, blank: Optional[Path], name: str, item_ids: list[
             k, n = f"{k}_{n}", n + 1
         ws[k], key_of[k] = block, iid
     best, source, answered = {}, "chooser", False
-    if page_confirms(blank, ws):                        # every caption is printed beside its box: stands, no call
+    # every caption printed beside its box: stands, no call; not for a box from Add / remove, whose caption is the
+    # words beside it, so the check always passed (Andrew, 2026-10-27: "re-reading captions doesn't seem to work on
+    # fields added with add/remove"; I-864 p7 kept the header's "For", "Household", "Size" for printed 1-9)
+    if not added and page_confirms(blank, ws):
         return {iid: {"caption": ws[k].get("caption"), "current": ws[k].get("caption"),
                       "locked": ws[k].get("x_petey_caption_source") in ("xfa", "hand"), "source": "page text"}
                 for k, iid in key_of.items()}
