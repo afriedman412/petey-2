@@ -4,8 +4,18 @@ import { useEffect, useRef, useState, type KeyboardEvent as RKeyboardEvent } fro
 import type { ModeId } from '../lib/types';
 import { store } from '../lib/util';
 import { gotoPage, setMode, setZoom, toggleWide } from '../state/actions';
-import { set, useApp, type ShowKey } from '../state/app';
+import { copyText } from '../lib/dnd';
+import { set, useApp, useEntry, type ShowKey } from '../state/app';
 import { MODES } from '../modes';
+
+// the page's reference (file_p3) before the tab's counts, on every tab: click to copy it (Andrew, 2026-10-27)
+function PageRef() {
+  const { bid, page } = useApp();
+  const form = useEntry()?.form || (bid || '').split('__').pop();
+  if (!form) return null;
+  const ref = `${form}_p${page}`;
+  return <code className="fid" id="pageref" style={{ cursor: 'pointer' }} title="click to copy the page reference (file_page)" onClick={() => copyText(ref)}>{ref}</code>;
+}
 
 export function ModeBar() {
   const { mode, bid, loaded } = useApp();
@@ -13,7 +23,7 @@ export function ModeBar() {
   const ready = !!bid && loaded?.mode === mode && loaded.bid === bid;
   return (
     <div id="modebarRow">
-      <div id="modebar">{ready ? <d.Bar /> : <span className="progress" id="progress" />}</div>
+      <div id="modebar"><PageRef />{ready ? <d.Bar /> : <span className="progress" id="progress" />}</div>
       <span className="tabs" id="tabs">
         {(Object.keys(MODES) as ModeId[]).map((m, i) => (
           <button key={m} className={m === mode ? 'on' : ''} title={`Shift+${i + 1}`} onClick={() => setMode(m)}>{MODES[m].name}</button>
