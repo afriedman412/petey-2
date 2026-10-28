@@ -6,6 +6,7 @@ import type { Checked, PageInfo } from '../../lib/types';
 import { fileStem, localNow, PART_KEYS, scrollToSel, stdPrint, store, type PartKey, type Parts, type Rect } from '../../lib/util';
 import { loadMode, syncSha, toast, updateEntry } from '../../state/actions';
 import { entryOf, get as app, set as setApp, useApp } from '../../state/app';
+import { groupFromReview, ungroupFromReview } from '../groups/store';
 
 export type Tier = 'contested' | 'unknown' | 'single' | 'settled';
 export interface Why { kind: 'error' | 'suggestion'; text: string; fix?: { name?: string; type?: string; pattern?: string; options?: OptEdits } }
@@ -57,6 +58,8 @@ interface State {
   unrevOnly: boolean; flagOnly: boolean; claudeOnly: boolean; order: string; clashOn: boolean; idsOpen: boolean;
   boxes: Boxes | null; boxesBase: string; note: string; noteBase: string;
   busy: Record<string, boolean>; justChecked: boolean;
+  /** checkboxes and group boxes Shift-clicked on the page, for g (`field\u0001on-state`) */
+  picks: string[];
 }
 
 let order0 = store('hr_order') || 'risk', claude0 = store('hr_claude') === '1';
@@ -66,7 +69,7 @@ export const useReview = create<State>(() => ({
   BP: null, bpFor: null, removed: [], selected: null, selOpt: null,
   unrevOnly: false, flagOnly: false, claudeOnly: claude0, order: order0, clashOn: false,
   idsOpen: store('ids_open') !== '0',
-  boxes: null, boxesBase: '', note: '', noteBase: '', busy: {}, justChecked: false,
+  boxes: null, boxesBase: '', note: '', noteBase: '', busy: {}, justChecked: false, picks: [],
 }));
 const S = useReview.getState, put = useReview.setState;
 
@@ -478,9 +481,33 @@ export function useHeaderCounts() {
   };
 }
 
+// g and u as in Groups (Andrew, 2026-10-28: "can we make u/g for ungroup/group work on the review tab?"): Shift-click
+// checkboxes or a group's boxes to pick them, g groups them; u takes the selected group apart. Each goes into the
+// working copy at once, as a drag does (groups/store.fromReview); z in Groups undoes.
+const SEP = '\u0001';
+export const pickKey = (field: string, opt: string | null) => field + SEP + (opt || '');
+export function togglePick(field: string, opt: string | null) {
+  const k = pickKey(field, opt), ps = S().picks;
+  put({ picks: ps.includes(k) ? ps.filter(x => x !== k) : [...ps, k] });
+}
+async function groupPicks() {
+  const ps = S().picks;
+  if (ps.length < 2) { toast('Shift-click two or more checkboxes (or boxes of a group) first, then g.'); return; }
+  const name = await groupFromReview(ps.map(k => { const [field, opt] = k.split(SEP); return { field, opt: opt || null }; }));
+  if (name) { put({ picks: [] }); select(name, false); }
+}
+async function ungroupSelected() {
+  const f = S().BP?.fields.find(x => x.name === S().selected);
+  if (!f || f.options.length < 2) { toast('Select a group first, then u.'); return; }
+  await ungroupFromReview(f.name);
+}
+
 // ---------------------------------------------------------------------------------------------------------- keys
 export function key(e: KeyboardEvent): boolean {
   const { selected } = S();
+  if (e.key === 'g') { groupPicks(); return true; }
+  if (e.key === 'u') { ungroupSelected(); return true; }
+  if (e.key === 'Escape' && S().picks.length) { put({ picks: [] }); return true; }
   if (e.key === 'a') setVerdict('accept');
   else if (e.key === 'f') setVerdict('flag');
   else if (e.key === 'e') { const el = document.getElementById('eName') as HTMLInputElement | null; if (el) { el.focus(); el.select(); } }
@@ -488,7 +515,7 @@ export function key(e: KeyboardEvent): boolean {
   else if (e.key === 'd') { if (isRemoved(selected)) keepField(); else removeField(); }
   else if (e.key === 'n' || e.key === 'ArrowRight') next(1);
   else if (e.key === 'p' || e.key === 'ArrowLeft') back();
-  else if (e.key === 'u') setFilter({ unrevOnly: !S().unrevOnly });
+  else if (e.key === 'U') setFilter({ unrevOnly: !S().unrevOnly });     // u ungroups since 2026-10-28
   else return false;
   return true;
 }

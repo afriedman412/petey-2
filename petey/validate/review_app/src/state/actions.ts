@@ -135,7 +135,8 @@ export function toggleWide() {
 export async function saveDraft() {
   await leaveTab();
   const d = entryOf(get().bid)?.draft; if (!d) return;
-  if (!confirm(`Write ${d.changes} change(s) into the blueprint?\n\n${d.log.slice(0, 40).join('\n')}${d.log.length > 40 ? `\n… ${d.log.length - 40} more` : ''}`)) return;
+  // no "write N changes?" question (Andrew, 2026-10-28: "can you get rid of the 'are you sure' gate for the save
+  // button?"); the one for a blueprint changed on disk meanwhile stays
   const bid = get().bid!;
   let out;
   try { out = await send('POST', mapi('draft', bid, '/save')); }

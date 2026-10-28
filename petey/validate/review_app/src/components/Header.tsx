@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { Entry } from '../lib/types';
 import { store } from '../lib/util';
 import { discardDraft, openBlueprint, reboot, saveDraft, setMode, showHome } from '../state/actions';
-import { set, useApp, useEntry } from '../state/app';
+import { set, setTabsHidden, useApp, useEntry } from '../state/app';
 import { reviewActions, useHeaderCounts } from '../modes/review/store';
 import { runFinders } from '../modes/blocks/actions';
 import { SECTIONS, sectionOf } from './home-data';
@@ -65,10 +65,9 @@ export function Header() {
   const counts = useHeaderCounts();
   const [rebootLabel, setRebootLabel] = useState<string | null>(null);
   const [finding, setFinding] = useState(false);
-  // the tabs on the page (groups' grab tabs, grid ids, block labels, added fields' names) hidden when they cover printed
-  // text (Andrew, 2026-10-27: "sometimes the tabs ... cover important text"); remembered across reloads
-  const [tabsHidden, setTabsHidden] = useState(() => store('br_hidetabs') === '1');
-  useEffect(() => { document.body.classList.toggle('notabs', tabsHidden); store('br_hidetabs', tabsHidden ? '1' : '0'); }, [tabsHidden]);
+  // the tabs on the page hidden (state/app.setTabsHidden; t does the same)
+  const tabsHidden = useApp(s => s.tabsHidden);
+  useEffect(() => { document.body.classList.toggle('notabs', tabsHidden); }, [tabsHidden]);
   const inReview = mode === 'review' && counts.loaded;
   return (
     <header>

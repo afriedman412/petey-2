@@ -2,8 +2,8 @@
 // remove), the notes, and the lists of what is to be added, removed, or is not a field; and its bar.
 import type { KeyboardEvent } from 'react';
 import {
-  addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, NAME_RE, notAField, pickName, pickRemoved,
-  remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, switchKind, toggleRemove, unAdd, unDismiss, useAdd,
+  addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, NAME_RE, pickName, pickRemoved,
+  remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, switchKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
   gotoSuggestion, type Proposal,
 } from './store';
 
@@ -90,6 +90,30 @@ function Picked({ name }: { name: string }) {
   );
 }
 
+/** add all / remove all / cancel all, above the cards and below them */
+function AllButtons({ top = false }: { top?: boolean }) {
+  const { props, rmPicks } = useAdd(), n = props.length + rmPicks.length;
+  return (
+    <div className="arow">
+      {props.length > 1 && <><button className="btn primary" onClick={addAll}>add all {props.length}</button>{' '}</>}
+      {rmPicks.length > 0 && <><button className="btn warn" id={top ? 'rmAllTop' : 'rmAll'} onClick={() => removeAll()}>{rmPicks.length > 1 ? `remove all ${rmPicks.length}` : 'remove it'}</button>{' '}</>}
+      <button className="btn" id={top ? 'cancelTop' : 'cancel'} onClick={cancel}>{n > 1 ? 'cancel all' : 'cancel'}</button>
+    </div>
+  );
+}
+
+/** a field of the blueprint collected to remove; clicked again on the page, or "cancel", it leaves the collection */
+function RmCard({ name }: { name: string }) {
+  const BP = useAdd(s => s.BP)!;
+  const f = (BP.field_specs || {})[name] || {}, at = BP.fields.find(x => x.name === name);
+  return (
+    <div className="acard rmcard"><h3>{f.x_petey_id && <><code className="fid">{f.x_petey_id}</code> </>}{name} <span className="help">· to remove{at ? ` · p${at.page}` : ''}</span></h3>
+      <div className="help">{f.type || ''}{f.semantic_type ? '/' + f.semantic_type : ''}{f.description ? ' · ' + f.description : ''}</div>
+      <div className="arow"><button className="btn warn" onClick={() => removeAll([name])}>remove this field</button>{' '}
+        <button className="btn" onClick={() => toggleRmPick(name)}>cancel</button></div></div>
+  );
+}
+
 function Changes() {
   const { PLAN, added, removed } = useAdd();
   if (!PLAN || (!added.length && !removed.length)) return <div className="changes" id="aChanges" />;
@@ -110,7 +134,7 @@ function Changes() {
 async function applyAdds() { await save(); }
 
 export function Panel() {
-  const { BP, props, notes, picked, curSid, added, removed, dismissed, copies, finderRunning } = useAdd();
+  const { BP, props, notes, picked, rmPicks, added, removed, dismissed, copies, finderRunning } = useAdd();
   if (!BP) return null;
   const left = remaining();
   return (
@@ -121,15 +145,15 @@ export function Panel() {
       <div><b>{left.length}</b> suggestion{left.length === 1 ? '' : 's'} left <span className="help">({left.filter(s => s.source === 'widget').length} widgets, {left.filter(s => s.source === 'finder').length} finder boxes{BP.suggestions.some(s => s.copy) && !copies ? '; repeated copies hidden' : ''})</span>{' '}
         <button className="btn" id="nextSug" onClick={() => gotoSuggestion(1)}>next suggestion</button></div>
       {picked && <Picked name={picked} />}
-      {props.length ? <>
-        {/* several proposals: "add all" above them too, not only after the last card (Andrew, 2026-10-23) */}
-        {props.length > 1 && <div className="arow"><button className="btn primary" onClick={addAll}>add all {props.length}</button></div>}
+      {props.length + rmPicks.length ? <>
+        {/* several proposals or fields to remove: the buttons above them too, not only after the last card (Andrew,
+            2026-10-23; 2026-10-28: "let's have the 'cancel all' button at the top and the bottom"; removals collected
+            as additions are, "with the same buttons") */}
+        {props.length + rmPicks.length > 1 && <AllButtons top />}
         {props.map((p, i) => <Card key={p._k} p={p} i={i} />)}
-        <div className="arow">
-          {props.length > 1 && <><button className="btn primary" onClick={addAll}>add all {props.length}</button>{' '}</>}
-          {curSid && <><button className="btn warn" id="notField" title="record this suggestion as not a field" onClick={notAField}>not a field</button>{' '}</>}
-          <button className="btn" id="cancel" onClick={cancel}>{props.length > 1 ? 'cancel all' : 'cancel'}</button></div>
-      </> : !picked && <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click one to remove it). Green: fields you have added; red dashed: fields to remove.</p>}
+        {rmPicks.map(n => <RmCard key={'r' + n} name={n} />)}
+        <AllButtons />
+      </> : !picked && <p className="help">Drag a box over an area of the page, click a box, or go to the next suggestion. Orange: suggestions (solid: an unclaimed widget; dashed: a finder box). Purple: fields the blueprint has (hover for the name; click to collect them for removal). Green: fields you have added; red dashed: fields to remove.</p>}
       {notes.length > 0 && <div className="notes">{notes.map((n, k) => <div key={k}>{n}</div>)}</div>}
       <div><h4>To add ({added.length})</h4><div className="alist">{added.length ? added.map((x, i) => (
         <div key={i} onClick={() => goto(x.page)}><span>p{x.page} · {x.name} <span className="help">{x.kind === 'group' ? 'group' : x.type}</span></span>

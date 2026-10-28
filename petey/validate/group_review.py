@@ -48,7 +48,7 @@ import yaml
 from petey.paths import RUNS
 from petey.label.captions import text_rects
 from petey.validate import field_ids
-from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path
+from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "group_review"
@@ -692,20 +692,13 @@ class State:
             self.index()
         return list(self._index.values())
 
-    def detail(self, bid: str) -> Optional[dict]:
+    def detail(self, bid: str, auto: bool = True) -> Optional[dict]:
         p = self.path(bid)
         if p is None:
             return None
         bp = _load(p)
         blank = resolve_blank(bp)
-        pages = []
-        if blank and blank.exists():
-            import pymupdf
-            doc = pymupdf.open(str(blank))
-            try:
-                pages = [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, 1)]
-            finally:
-                doc.close()
+        pages = page_sizes(bp, blank)
         sha = _sha(p)
         items, units, info = current_units(bid, bp, sha)
         opt_items, base = option_items(bp)
@@ -713,8 +706,10 @@ class State:
         # groups among the loose checkboxes (group_finder, 2026-10-25), made as the tab loads (Andrew: "let's have the
         # finder groups group automatically, easy to ungroup them"): written into the record as "group them" made
         # them, applied with the rest when Groups is left; an ungrouped one is recorded as not a group and stays apart
+        # not for Review's g / u / drags (`auto` False, 2026-10-28): those put only their own change into the working
+        # copy, and the finder's groups wait for the Groups tab
         from petey.validate import group_finder
-        loose = {u["items"][0]: items[u["items"][0]] for u in units if len(u.get("items") or []) == 1
+        loose = {} if not auto else {u["items"][0]: items[u["items"][0]] for u in units if len(u.get("items") or []) == 1
                  and u.get("kind") != "text" and not u.get("locked") and u.get("type") == "boolean"
                  and items.get(u["items"][0], {}).get("widget_type") in ("checkbox", "radiobutton")}
         try:

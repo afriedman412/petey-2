@@ -23,7 +23,9 @@ export function ModeBar() {
   );
 }
 
-// p7 (not validated / total) of what the tab works on (Andrew, 2026-10-22); a page with nothing left in green.
+// p7 (not validated / total) of what the tab works on (Andrew, 2026-10-22); a page with nothing left in green. Every
+// page on every tab, a page with no field at all greyed (Andrew, 2026-10-27: "instead of only showing the pages that
+// have the relevant fields, can you show all the pages? and can you color the pages that have NO fields differently").
 // Drawn anew for each tab: each tab's useData calls its own hooks, and React wants the same hooks on every draw.
 export function Pages() {
   const mode = useApp(s => s.mode);
@@ -37,9 +39,10 @@ function PagesOf() {
   return (
     <div className="pages" id="pages">
       {d.pages().map(p => {
-        const lab = d.pageLabel(p.page); if (!lab) return null;
-        const done = typeof lab !== 'string' && lab.done;
-        return <button key={p.page} className={(p.page === page ? 'on' : '') + (done ? ' done' : '')} onClick={() => gotoPage(p.page)}>{typeof lab === 'string' ? lab : lab.text}</button>;
+        const lab = d.pageLabel(p.page) || `p${p.page}`;
+        const done = typeof lab !== 'string' && lab.done, empty = p.fields === 0;
+        return <button key={p.page} className={(p.page === page ? 'on' : '') + (done ? ' done' : '') + (empty ? ' empty' : '')}
+          title={empty ? 'no fields on this page' : undefined} onClick={() => gotoPage(p.page)}>{typeof lab === 'string' ? lab : lab.text}</button>;
       })}
     </div>
   );
@@ -127,7 +130,7 @@ export function Sidebar() {
 }
 
 // the help menu (2026-10-07): every key hint lives here, not in the bars and buttons; the current tab first
-const GLOBAL_KEYS: [string, string][] = [['Shift+1 / 2 / 3 / 4 / 5 / 6', 'Review / Groups / Add / remove / Grids / Blocks / Audit'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['?', 'this help']];
+const GLOBAL_KEYS: [string, string][] = [['Shift+1 / 2 / 3 / 4 / 5 / 6', 'Review / Groups / Add / remove / Grids / Blocks / Audit'], ['1-9', 'go to that page'], ['+ / -', 'zoom in / out'], ['t', 'hide / show the tabs on the page'], ['?', 'this help']];
 function Keys({ rows }: { rows: [string, string][] }) {
   return <table><tbody>{rows.map(([k, d]) => (
     <tr key={k}><td>{k.split(' / ').map((x, i) => <span key={i}>{i ? ' / ' : ''}<kbd>{x}</kbd></span>)}</td><td>{d}</td></tr>))}</tbody></table>;

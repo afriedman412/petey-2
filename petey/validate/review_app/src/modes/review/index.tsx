@@ -7,7 +7,7 @@ import { useApp } from '../../state/app';
 import type { ModeDef } from '../types';
 import { combineFromReview } from '../groups/store';
 import { Bar, Panel } from './Panel';
-import { clashGroups, focus, isRemoved, key, load, select, useReview, verdictOf, type RField } from './store';
+import { clashGroups, focus, isRemoved, key, load, pickKey, select, togglePick, useReview, verdictOf, type RField } from './store';
 
 // checkboxes and groups combine by dragging, as in Groups (Andrew, 2026-10-27: "can we add dragging bools to combine to
 // the review page? and add dragging groups to combine to both?"): a checkbox onto a checkbox makes a group, onto a
@@ -22,7 +22,7 @@ const dropOnto = (f: RField, opt: string | null) => dropProps(['rvbox', 'rvgroup
 
 function Layer() {
   const page = useApp(s => s.page), showGroups = useApp(s => s.show.groups);
-  const { BP, selected, selOpt, clashOn, removed } = useReview();
+  const { BP, selected, selOpt, clashOn, removed, picks } = useReview();
   if (!BP) return null;
   const cl = clashOn ? clashGroups(BP, removed) : {};
   const out: React.ReactNode[] = [];
@@ -45,11 +45,12 @@ function Layer() {
     const opt = f.options.length && f.options[i] ? f.options[i].on_state : null;
     const sel = selected === f.name, c = cl[f.name];
     const cls = 'rv ' + verdictOf(f.name) + (f.tier === 'contested' ? ' contested' : '') + (isRemoved(f.name) ? ' removed' : '')
-      + (sel ? ' sel pulse' : '') + (sel && opt && opt === selOpt ? ' optsel' : '') + (c ? ' clash' : '');
+      + (sel ? ' sel pulse' : '') + (sel && opt && opt === selOpt ? ' optsel' : '') + (c ? ' clash' : '')
+      + (picks.includes(pickKey(f.name, opt)) ? ' picked' : '');
     const title = `${f.id ? f.id + ' · ' : ''}${f.name}${f.options.length && f.options[i] ? ' · ' + (f.options[i].caption || f.options[i].on_state) : ''}${c ? ` · clashes on ${c.to}` : ''}`;
     // a box of a group: its key / caption row lights up
     out.push(<Box key={`${f.name}#${i}`} className={cls} rect={r.rect} title={title} vars={c ? { '--cc': c.color } : undefined}
-      data-f={f.name} data-o={opt || ''} onClick={() => select(f.name, false, opt)}
+      data-f={f.name} data-o={opt || ''} onClick={e => (e.shiftKey && isOption(f) ? togglePick(f.name, opt) : select(f.name, false, opt))}
       {...(isOption(f) ? { ...dragProps('rvbox', f.name, isBool(f)), ...dropOnto(f, opt) } : {})} />);
   });
   return <>{out}</>;
@@ -62,7 +63,8 @@ export const review: ModeDef = {
   help: {
     keys: [['a', 'accept, then the next field'], ['f', 'flag, then the next field'], ['c', 'clear the verdict'],
       ['d', 'remove the field / keep it'], ['e', 'edit the field name'], ['n / →', 'next field'], ['p / ←', 'back to the field you were on before'],
-      ['u', 'unreviewed only on / off']],
+      ['Shift+click', 'pick checkboxes / a group\'s boxes'], ['g', 'group the picked boxes'], ['u', 'ungroup the selected group'],
+      ['Esc', 'clear the picks'], ['Shift+U', 'unreviewed only on / off']],
     tips: ['Edit the field\'s name, type, semantic type, pattern or option captions in place: Enter, "save correction" or accept saves the changes; Esc undoes them. Empty a semantic type or pattern box to clear it.',
       'Saving a correction accepts the field and puts it into the working copy; "save" in the header writes the working copy into the blueprint.',
       'Flag a field you cannot or do not want to fix yourself, with a note saying what is wrong: "review edits" sends flags with notes to the agent.',

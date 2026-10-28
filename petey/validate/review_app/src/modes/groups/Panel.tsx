@@ -208,7 +208,7 @@ export function Panel() {
         <div className="gchips">{loose.map(o => <Chip key={o.uid} id={o.items[0]} u={o} />)}</div></div>
       <div><h4>Combined text fields on page {page} ({combos.length})</h4>
         {combos.map(g => <UnitCard key={g.uid} g={g} />)}
-        <p className="help">{showText ? `Drag a teal text box onto another to combine them into one bigger text field (${nLoose} text fields on this page).` : 'Text fields are hidden; press t to show them.'}</p></div>
+        <p className="help">{showText ? `Drag a teal text box onto another to combine them into one bigger text field (${nLoose} text fields on this page).` : 'Text fields are hidden; press Shift+T to show them.'}</p></div>
       <Changes />
     </>
   );

@@ -510,37 +510,66 @@ export function itemOf(b: ReviewBox, items: Record<string, Item> = S().BP!.items
   return b.opt === null ? its[0] : its.find(it => it.key === b.opt);
 }
 export async function combineFromReview(what: ReviewBox, whole: boolean, onto: ReviewBox): Promise<string | null> {
+  return fromReview(async () => {
+    const a = itemOf(what), t = itemOf(onto);
+    if (!a || !t) { toast('Only checkboxes and option groups combine.'); return undefined; }
+    const src = unitOf(a.id);
+    if (whole && src) moveUnit(src.uid, { item: t.id }); else await moveItem(a.id, { item: t.id });
+    return t.id;
+  }, 'Nothing to combine.', 'combined');
+}
+// g and u on Review's page (Andrew, 2026-10-28: "can we make u/g for ungroup/group work on the review tab?"): the boxes
+// Shift-clicked there grouped, or the selected group taken apart (recorded as not a group), as g and u do here
+export async function groupFromReview(boxes: ReviewBox[]): Promise<string | null> {
+  return fromReview(() => {
+    const ids = boxes.map(b => itemOf(b)?.id).filter((x): x is string => !!x);
+    if (ids.length < boxes.length) { toast('Only checkboxes and option groups group.'); return undefined; }
+    put({ picked: new Set(ids) });
+    groupPicked();
+    return ids[0];
+  }, 'Nothing to group.', 'grouped');
+}
+export async function ungroupFromReview(field: string): Promise<string | null> {
+  return fromReview(() => {
+    const it = itemOf({ field, opt: null }), u = it && unitOf(it.id);
+    if (!u) { toast('Only option groups ungroup.'); return undefined; }
+    put({ selected: u.uid });
+    ungroup();
+    return null;
+  }, 'Nothing to ungroup.', 'ungrouped');
+}
+/** Groups' data read fresh, `edit` made as here, and put into the working copy at once, as leaving Groups does; taken
+ *  back when the plan refuses it. `edit` gives the box whose group's name to report (null: none), undefined to stop. */
+async function fromReview(edit: () => Promise<string | null | undefined> | string | null | undefined, nothing: string, done: string): Promise<string | null> {
   const bid = app().bid!;
   let before: Unit[] | null = null;
   try {
-    await load(bid);
-    const a = itemOf(what), t = itemOf(onto);
-    if (!a || !t) { toast('Only checkboxes and option groups combine.'); return null; }
+    await load(bid, false);                    // without the finder's groups: only this change goes in (2026-10-28)
     const steps = S().undoStack.length;
     before = S().units;
-    const src = unitOf(a.id);
-    if (whole && src) moveUnit(src.uid, { item: t.id }); else await moveItem(a.id, { item: t.id });
-    if (S().undoStack.length === steps) { toast(S().notes[0] || 'Nothing to combine.'); return null; }
-    const name = unitOf(t.id)?.name || null;
+    const at = await edit();
+    if (at === undefined) return null;
+    if (S().undoStack.length === steps) { toast(S().notes[0] || nothing); return null; }
+    const name = at ? unitOf(at)?.name || null : null;
     await save();
     clearTimeout(planTimer);
     const pl: Plan = await send('POST', mapi('groups', bid, '/plan'), { units: strip(S().units) });
-    if (pl.errors.length) { put({ units: before }); await save(); toast(`Not combined: ${pl.errors[0]}`); return null; }
+    if (pl.errors.length) { put({ units: before }); await save(); toast(`Not ${done}: ${pl.errors[0]}`); return null; }
     const out = await send('POST', mapi('groups', bid, '/apply'));
     updateEntry(out.entry);
     await loadMode();
-    toast(`${name}: ${out.changes.length} change(s) went into the working copy.`);
+    toast(`${name ? name + ': ' : ''}${out.changes.length} change(s) went into the working copy.`);
     return name;
   } catch (e) {
     if (before && S().BP?.id === bid) { put({ units: before }); await save(); }
-    toast('Not combined: ' + (e as Error).message);
+    toast(`Not ${done}: ` + (e as Error).message);
     return null;
   }
 }
 
 // ------------------------------------------------------------------------------------------- loading and moving
-export async function load(bid: string) {
-  const BP: GroupsData = await j(mapi('groups', bid));
+export async function load(bid: string, auto = true) {
+  const BP: GroupsData = await j(mapi('groups', bid) + (auto ? '' : '?auto=0'));   // auto: the finder's groups made
   const units: Unit[] = BP.units.map(u => ({ ...u, uid: nextUid++ }));
   let notes: string[] = [];
   const ag = BP.auto_grouped || [];
@@ -597,7 +626,7 @@ export function key(e: KeyboardEvent): boolean {
   else if (e.key === 'z') undo();
   else if (e.key === 'u') ungroup();
   else if (e.key === 'U') setUnconfOnly(!S().unconfOnly);
-  else if (e.key === 't') setShowText(!S().showText);
+  else if (e.key === 'T') setShowText(!S().showText);
   else return false;
   return true;
 }

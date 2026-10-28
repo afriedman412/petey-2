@@ -98,3 +98,18 @@ export function scrollToSel(selector: string, block: ScrollLogicalPosition = 'ce
 
 // one palette for the things drawn around boxes: option groups (Review, Groups) and tables / block groups (Grids, Blocks)
 export const GROUP_COLORS = ['#4fc3f7', '#ba68c8', '#81c784', '#ffb74d', '#f06292', '#4db6ac', '#9575cd', '#dce775'];
+
+// a block type's colour (Andrew, 2026-10-28: "every block type is a diff color ... most importantly it needs to be a
+// diff color than the 'unvalidated' outline"): none of the colours that already mean something on the page (orange
+// not yet accepted, green accepted, red flagged, grey in no block), each dark enough for the white page. By the type's
+// place among the form's types that have blocks, in number order (BT1, BT2, BT6, ...): one colour per type on every
+// page and tab. A form with more types than colours (6 of 709 forms with blocks) ranks the page's types instead, so
+// no page repeats a colour.
+export const BLOCK_COLORS = ['#0288d1', '#8e24aa', '#00897b', '#d81b60', '#3949ab', '#00acc1', '#37474f', '#795548'];
+const typeNum = (t: string) => { const m = /(\d+)$/.exec(t); return m ? +m[1] : Infinity; };
+const ranked = (ts: string[]) => [...new Set(ts)].sort((a, b) => typeNum(a) - typeNum(b) || a.localeCompare(b));
+export function blockColor(type: string, formTypes: string[], pageTypes: string[] = []): string {
+  let order = ranked(formTypes);
+  if (order.length > BLOCK_COLORS.length && pageTypes.length) order = ranked(pageTypes);
+  return BLOCK_COLORS[Math.max(0, order.indexOf(type)) % BLOCK_COLORS.length];
+}

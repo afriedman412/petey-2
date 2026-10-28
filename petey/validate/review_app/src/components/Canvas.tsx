@@ -2,7 +2,7 @@
 // dragged. A drag is the frame's: the tab says whether a mousedown starts one and gets the area when it ends.
 import { useEffect, useRef, useState } from 'react';
 import { pngUrl } from '../lib/api';
-import { GROUP_COLORS, grow, hull, restoreScroll, type Rect } from '../lib/util';
+import { blockColor, GROUP_COLORS, grow, hull, restoreScroll, type Rect } from '../lib/util';
 import { useApp } from '../state/app';
 import { MODES } from '../modes';
 import { Box, ScaleContext } from './Box';
@@ -24,8 +24,10 @@ function ShowLayer() {
   }
   if (on('grids')) o.grids.forEach(g => g.page === page && out.push(
     <Box key={`t${g.id}`} className={'ovl grid' + (g.validated ? ' ok' : '')} rect={grow(g.bbox, 5)} color="#4fc3f7"><span>{g.id}{g.validated ? ' ✓' : ''}</span></Box>));
+  const typeOf = (id: string) => id.replace(/-\d+$/, ''), types = o.blocks.map(b => typeOf(b.id));
+  const onPage = o.blocks.filter(b => b.page === page).map(b => typeOf(b.id));
   if (on('blocks')) o.blocks.forEach(b => b.page === page && out.push(
-    <Box key={`b${b.id}`} className={'ovl blk' + (b.validated ? ' ok' : '')} rect={grow(b.bbox, 3)}><span>{b.id}{b.label ? ' ' + b.label : ''}{b.validated ? ' ✓' : ''}</span></Box>));
+    <Box key={`b${b.id}`} className={'ovl blk' + (b.validated ? ' ok' : '')} rect={grow(b.bbox, 3)} color={blockColor(typeOf(b.id), types, onPage)}><span>{b.id}{b.label ? ' ' + b.label : ''}{b.validated ? ' ✓' : ''}</span></Box>));
   return <>{out}</>;
 }
 

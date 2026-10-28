@@ -34,7 +34,7 @@ export interface Entry {
   note?: { text: string; updated: string } | null;
 }
 
-export interface PageInfo { page: number; w_pt: number; h_pt?: number }
+export interface PageInfo { page: number; w_pt: number; h_pt?: number; /** fields with a box on the page (0: none, the button greyed) */ fields?: number }
 
 /** `/api/overlay/<form>`: what every tab draws besides its own. */
 export interface Overlay {

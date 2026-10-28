@@ -9,11 +9,11 @@ import { boxesOf, dragEnd, isRemoved, key, load, remaining, useAdd } from './sto
 
 function Layer() {
   const page = useApp(s => s.page);
-  const { BP, picked, curSid, added, props, showFields, showSug } = useAdd();
+  const { BP, picked, rmPicks, curSid, added, props, showFields, showSug } = useAdd();
   if (!BP) return null;
   const out: React.ReactNode[] = [];
   if (showFields) BP.fields.forEach((f, i) => f.page === page && out.push(
-    <Box key={`f${i}`} className={'ov field' + (isRemoved(f.name) ? ' removed' : '') + (picked === f.name ? ' picked' : '')} rect={f.rect} title={f.name} data-field={f.name} />));
+    <Box key={`f${i}`} className={'ov field' + (isRemoved(f.name) ? ' removed' : '') + (picked === f.name || rmPicks.includes(f.name) ? ' picked' : '')} rect={f.rect} title={f.name} data-field={f.name} />));
   if (showSug) for (const s of remaining()) if (s.page === page) out.push(
     <Box key={`s${s.sid}`} className={`ov sug ${s.source}${s.copy ? ' copy' : ''}${s.sid === curSid ? ' cur' : ''}`} rect={s.rect} title={s.what} data-sid={s.sid} />);
   added.forEach((a, i) => boxesOf(a).filter(b => b.page === page).forEach((b, k) => out.push(
@@ -28,8 +28,8 @@ export const add: ModeDef = {
   own: [],
   drawable: true,
   help: {
-    keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['a / Enter', 'add what is proposed'], ['x', 'not a field'],
-      ['d', 'remove the clicked field / keep it'], ['Esc', 'cancel all'], ['f', 'fields on / off'], ['s', 'suggestions on / off']],
+    keys: [['n', 'next suggestion'], ['p', 'previous suggestion'], ['a / Enter', 'add what is proposed'], ['click a picked box', 'drop it'],
+      ['click a field', 'collect it to remove (again: drop it)'], ['d', 'remove the collected fields (a red one clicked: keep it)'], ['Esc', 'cancel all (additions and removals)'], ['f', 'fields on / off'], ['s', 'suggestions on / off']],
     tips: ['Drag over an area of the page, or click a box, to propose a field; each one you pick stays until you add it or cancel it ("cancel" on its card, Esc for all).',
       'Click a purple field (one the blueprint has) to remove it.'],
   },

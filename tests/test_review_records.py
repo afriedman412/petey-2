@@ -75,3 +75,23 @@ def test_the_groups_tab_gets_each_fields_code(tmp_path, monkeypatch):
     monkeypatch.setattr(gr, "RECORDS", tmp_path, raising=False)
     out = gr.State().detail("t__f")
     assert out["codes"] == {"sex": "1_16", "name_nm": "1_2"}
+
+
+def test_reviews_group_edits_load_the_groups_without_the_finders(tmp_path, monkeypatch):
+    """Andrew (2026-10-28): g / u / drags on Review put only their own change into the working copy; the finder's
+    groups of loose checkboxes are made (and written) only when the Groups tab loads."""
+    import yaml
+    from petey.validate import group_finder, group_review as gr
+    bpt = tmp_path / "f.bpt"
+    bpt.write_text(yaml.safe_dump({"fields": {
+        n: {"type": "boolean", "widget": {"page": 1, "rect": [x, 0, x + 10, 10], "widget_type": "checkbox"}}
+        for n, x in (("a_ind", 0), ("b_ind", 20))}}))
+    monkeypatch.setattr(gr, "blueprint_paths", lambda: {"t__f": bpt})
+    monkeypatch.setattr(gr, "working_path", lambda bid, paths=None: bpt)
+    monkeypatch.setattr(gr, "resolve_blank", lambda bp: None)
+    monkeypatch.setattr(gr, "RECORDS", tmp_path, raising=False)
+    seen = []
+    monkeypatch.setattr(group_finder, "find", lambda bp, blank, loose, bid=None: seen.append(len(loose)) or [])
+    gr.State().detail("t__f")
+    gr.State().detail("t__f", auto=False)
+    assert seen == [2, 0]

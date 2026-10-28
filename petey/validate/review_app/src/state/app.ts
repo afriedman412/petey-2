@@ -29,6 +29,8 @@ export interface AppState {
   helpOpen: boolean;
   notesOpen: boolean;
   chatOpen: boolean;
+  /** the tabs drawn on the page hidden ("hide tabs" in the header, or t) */
+  tabsHidden: boolean;
   toast: { msg: string; n: number } | null;
 }
 
@@ -52,6 +54,7 @@ export const useApp = create<AppState>(() => ({
   helpOpen: false,
   notesOpen: false,
   chatOpen: false,
+  tabsHidden: store('br_hidetabs') === '1',
   toast: null,
 }));
 
@@ -66,4 +69,13 @@ export function setHome(patch: Partial<HomeState>) {
   set({ home });
   const { on: _on, ...keep } = home;
   store('br_home', JSON.stringify(keep));
+}
+
+// the tabs on the page (groups' grab tabs, grid ids, block labels, added fields' names) hidden when they cover printed
+// text (Andrew, 2026-10-27: "sometimes the tabs ... cover important text"), by the header's button or t (2026-10-28:
+// "can we set 't' to toggle tabs?"); remembered across reloads
+export function setTabsHidden(on: boolean) {
+  set({ tabsHidden: on });
+  document.body.classList.toggle('notabs', on);
+  store('br_hidetabs', on ? '1' : '0');
 }

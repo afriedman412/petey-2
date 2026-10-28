@@ -93,15 +93,7 @@ def until(fn, stopped, every: float = 0.2):
         ex.shutdown(wait=False)
 
 
-def page_sizes(bp: dict) -> list[dict]:
-    blank = resolve_blank(bp)
-    if not (blank and blank.exists()):
-        return []
-    doc = pymupdf.open(str(blank))
-    try:
-        return [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, start=1)]
-    finally:
-        doc.close()
+page_sizes = hand_review.page_sizes
 
 
 class Grids:
@@ -916,6 +908,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
         if len(parts) == 3 and parts[0] == "api" and parts[1] in MODES:
             mode, bid = parts[1], parts[2]
             state = getattr(APP, mode)
+            if mode == "groups" and "auto=0" in urlparse(self.path).query.split("&"):    # Review's g / u / drags
+                return self._route(lambda: state.detail(bid, auto=False), bid)
             return self._route(lambda: state.detail(bid), bid)
         self._send(b"not found", "text/plain", 404)
 

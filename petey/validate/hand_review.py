@@ -219,6 +219,27 @@ def load_verdicts(bid: str) -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def page_sizes(bp: dict, blank: Optional[Path] = None) -> list[dict]:
+    """Every page of the blank: its size, and how many fields have a box on it (a field counts on each page it has a
+    box on). Every tab shows every page, those with no field drawn apart (Andrew, 2026-10-27: "instead of only showing
+    the pages that have the relevant fields, can you show all the pages? and can you color the pages that have NO
+    fields differently")."""
+    blank = blank or resolve_blank(bp)
+    if not (blank and blank.exists()):
+        return []
+    import pymupdf
+    n: collections.Counter = collections.Counter()
+    for spec in (bp.get("fields") or {}).values():
+        if isinstance(spec, dict):
+            n.update({w["page"] for w in witness._widgets(spec) if w.get("page") and w.get("rect")})
+    doc = pymupdf.open(str(blank))
+    try:
+        return [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height, "fields": n[i]}
+                for i, pg in enumerate(doc, start=1)]
+    finally:
+        doc.close()
+
+
 def field_rows(bp: dict) -> list[dict]:
     rows = []
     for name, spec in (bp.get("fields") or {}).items():
@@ -483,15 +504,7 @@ class State:
         real = self.paths[bid]
         bp = _load(p)
         blank = resolve_blank(bp)
-        pages = []
-        if blank and blank.exists():
-            import pymupdf
-            doc = pymupdf.open(str(blank))
-            try:
-                for i, pg in enumerate(doc, start=1):
-                    pages.append({"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height})
-            finally:
-                doc.close()
+        pages = page_sizes(bp, blank)
         self.sizes[bid] = pages
         v = load_verdicts(bid)
         rows = field_rows(bp)

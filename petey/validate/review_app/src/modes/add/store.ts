@@ -39,13 +39,15 @@ interface State {
   props: Proposal[]; notes: string[]; curSid: string | null;
   added: Added[]; dismissed: Dismissed[]; removed: Removal[];
   picked: string | null; PLAN: Plan | null;
+  /** the blueprint's fields clicked to remove, collected as the additions are, until "remove all" */
+  rmPicks: string[];
   showFields: boolean; showSug: boolean; copies: boolean;
   /** the proposals whose "ask the labeler" is waiting (by _k), and the finder running */
   asking: Record<number, boolean>; finderRunning: boolean;
 }
 
 export const useAdd = create<State>(() => ({
-  BP: null, props: [], notes: [], curSid: null, added: [], dismissed: [], removed: [], picked: null, PLAN: null,
+  BP: null, props: [], notes: [], curSid: null, added: [], dismissed: [], removed: [], picked: null, PLAN: null, rmPicks: [],
   showFields: true, showSug: true, copies: false, asking: {}, finderRunning: false,
 }));
 const S = useAdd.getState, put = useAdd.setState;
@@ -56,6 +58,14 @@ const keyed = (ps: Proposal[], sid?: string, nav = false) => ps.map(p => ({ ...p
 const bare = ({ _k: _, _sid: _s, _nav: _n, ...p }: Proposal): Proposal => p as Proposal;
 
 export const isRemoved = (n: string | null) => !!n && S().removed.some(r => r.name === n);
+/** The picked box (card i, its box o) under a point on the page, if any. */
+export function pickedAt(props: Proposal[], page: number, [x, y]: [number, number]): { i: number; o: number } | null {
+  for (let i = 0; i < props.length; i++) {
+    const o = boxesOf(props[i]).findIndex(b => b.page === page && b.rect[0] <= x && x <= b.rect[2] && b.rect[1] <= y && y <= b.rect[3]);
+    if (o >= 0) return { i, o };
+  }
+  return null;
+}
 export const boxesOf = (p: Proposal) => p.kind === 'group' ? p.options.map(o => ({ page: o.page, rect: o.rect })) : [{ page: p.page, rect: (p.widget || p).rect }];
 const covered = (s: Suggestion) => S().added.some(a => boxesOf(a).some(b => b.page === s.page && overlap(b.rect, s.rect) >= 0.5));
 export function remaining(): Suggestion[] {
@@ -80,7 +90,7 @@ export function mergeProps(old: Proposal[], fresh: Proposal[], nav = false): { p
 export async function load(form: string) {
   const BP: AddData = await j(mapi('add', form));
   curAt = null;
-  put({ BP, added: BP.added, dismissed: BP.dismissed, removed: BP.removed || [], props: [], notes: [], curSid: null, picked: null, PLAN: BP.plan || null });
+  put({ BP, added: BP.added, dismissed: BP.dismissed, removed: BP.removed || [], props: [], notes: [], curSid: null, picked: null, rmPicks: [], PLAN: BP.plan || null });
 }
 
 // ------------------------------------------------------------------------------------------- moving and proposing
@@ -103,7 +113,8 @@ export async function gotoSuggestion(step: number) {
 export async function proposeSid(s: Suggestion, nav = false) {
   put({ curSid: s.sid }); curAt = s;
   if (s.page !== app().page) setApp({ page: s.page });
-  await propose({ page: s.page, sid: s.sid }, nav);
+  // a removed field's box with no widget or finder box behind it (field_add.with_removed): proposed as an area drawn
+  await propose(s.source === 'removed_box' ? { page: s.page, rect: s.rect } : { page: s.page, sid: s.sid }, nav);
   scrollToSel('.ov.sug.cur');
 }
 let busy = false;
@@ -123,9 +134,16 @@ async function propose(body: { page: number; sid?: string; rect?: Rect }, nav = 
 export function dragEnd(rect: Rect | null, s: [number, number], target: EventTarget | null) {
   const page = app().page;
   if (rect) { curAt = null; put({ curSid: null, picked: null }); propose({ page, rect }); return; }
+  // a click on a box already picked drops it (Andrew, 2026-10-28: "if you click a selected field it removes it"): a
+  // group's box leaves the group, the card goes with its last box
+  const hit = pickedAt(S().props, page, s);
+  if (hit) { if (S().props[hit.i].kind === 'group') dropOption(hit.i, hit.o); else skipProp(hit.i); put({ notes: [] }); return; }
   const d = target instanceof HTMLElement ? target.dataset : undefined;
   if (d && d.sid) { const sg = S().BP!.suggestions.find(x => x.sid === d.sid); if (sg) { proposeSid(sg); return; } }
-  if (d && d.field) { curAt = null; put({ curSid: null, notes: [], picked: d.field }); return; }
+  // a field of the blueprint: collected to remove, or dropped from the collection; one already recorded for removal
+  // opens on its own, to keep it (Andrew, 2026-10-28: "let's collect fields to remove the same way we collect fields
+  // to add (with the same buttons)")
+  if (d && d.field) { curAt = null; if (isRemoved(d.field)) put({ curSid: null, notes: [], picked: d.field }); else toggleRmPick(d.field); return; }
   if (d && d.added !== undefined) { put({ notes: [`${S().added[+d.added].name} is recorded to be added (remove it from the list below)`] }); return; }
   curAt = null; put({ curSid: null }); propose({ page, rect: [s[0] - 1, s[1] - 1, s[0] + 1, s[1] + 1] });
 }
@@ -195,17 +213,23 @@ export function addProps(idx: number[]) {
   if (!left.length) { put({ notes: [] }); save().then(() => { if (S().curSid && remaining().length) gotoSuggestion(1); else put({ curSid: null }); }); }
   else save();
 }
-export function notAField() {
-  const s = S().BP!.suggestions.find(x => x.sid === S().curSid); if (!s) return;
-  put({ dismissed: [...S().dismissed, { sid: s.sid, page: s.page, rect: s.rect, source: s.source, what: s.what, when: localNow() }],
-    props: S().props.filter(p => p._sid !== s.sid), notes: [] });
-  save().then(() => gotoSuggestion(1));
-}
-export const cancel = () => put({ props: [], notes: [], picked: null });
+export const cancel = () => put({ props: [], notes: [], picked: null, rmPicks: [] });
 /** the blueprint field picked to remove, put away; the cards waiting stay */
 export const closePicked = () => put({ picked: null });
 
 // ------------------------------------------------------------------------------------------------------ removing
+export function toggleRmPick(name: string) {
+  const ps = S().rmPicks;
+  put({ curSid: null, notes: [], picked: null, rmPicks: ps.includes(name) ? ps.filter(x => x !== name) : [...ps, name] });
+}
+/** the collected fields (or `names` of them, one card's "remove this field") recorded for removal, in one save */
+export function removeAll(names = S().rmPicks) {
+  const { rmPicks, BP, removed } = S(); if (!names.length) return;
+  const now = localNow(), add = names.map(n => BP!.fields.find(x => x.name === n)).filter(f => f && !isRemoved(f.name))
+    .map(f => ({ name: f!.name, page: f!.page, rect: f!.rect, when: now, from: 'add' }));
+  put({ removed: [...removed, ...add], rmPicks: rmPicks.filter(n => !names.includes(n)) });
+  save();
+}
 export function toggleRemove() {
   const { picked, BP, removed } = S();
   if (!picked) return;
@@ -255,12 +279,12 @@ export async function runFinder() {
 // ---------------------------------------------------------------------------------------------------------- keys
 export const setShow = (p: Partial<Pick<State, 'showFields' | 'showSug' | 'copies'>>) => put(p);
 export function key(e: KeyboardEvent): boolean {
-  const { props, curSid, picked, showFields, showSug } = S();
+  const { props, picked, showFields, showSug } = S();
   if (e.key === 'n') gotoSuggestion(1);
   else if (e.key === 'p') gotoSuggestion(-1);
   else if ((e.key === 'Enter' || e.key === 'a') && props.length) addAll();   // a: as Review's accept
-  else if (e.key === 'x' && curSid) notAField();
   else if (e.key === 'Escape') cancel();
+  else if (e.key === 'd' && S().rmPicks.length) removeAll();
   else if (e.key === 'd' && picked) toggleRemove();
   else if (e.key === 'f') put({ showFields: !showFields });
   else if (e.key === 's') put({ showSug: !showSug });

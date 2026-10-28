@@ -89,8 +89,8 @@ main { flex:1; display:flex; min-height:0; }
 .gttitle { font-weight:600; margin-bottom:3px; }
 .gtpos ol { margin:4px 0 0 18px; padding:0; font-size:12px; }
 .gtpos li { margin:2px 0; }
-.btb { position:absolute; z-index:2; border:2px dashed var(--accent); cursor:pointer; }      /* a block (block types): above the group outlines, below the layout editor's pickers */
-.btb.sel { border-width:3px; border-style:solid; background:color-mix(in srgb, var(--accent) 8%, transparent); }
+.btb { position:absolute; z-index:2; border:2px dashed var(--c, var(--accent)); cursor:pointer; }      /* a block (block types): above the group outlines, below the layout editor's pickers */
+.btb.sel { border-width:3px; border-style:solid; background:color-mix(in srgb, var(--c, var(--accent)) 8%, transparent); }
 .btlist { margin:8px 0; } .btrow { padding:4px 6px; border-left:3px solid transparent; cursor:pointer; }
 .btrow:hover { background:var(--hover, rgba(127,127,127,.08)); } .btrow.sel { border-left-color:var(--accent); background:var(--hover, rgba(127,127,127,.08)); }
 .btmore code.accd { color:var(--accept); }
@@ -113,7 +113,7 @@ main { flex:1; display:flex; min-height:0; }
 .btnames { border-collapse:collapse; font-size:11px; margin:4px 0 6px; } .btnames td { padding:1px 6px 1px 0; vertical-align:top; }
 .btnames code.accd { color:var(--accept); }
 .bttype { margin:4px 0; padding:4px 6px; border:1px solid var(--line, rgba(127,127,127,.3)); border-radius:4px; } .bttype input { width:95%; font:11px var(--mono, monospace); }
-.btb span { cursor:copy; position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:var(--accent); background:var(--bg); padding:1px 3px; white-space:nowrap; }
+.btb span { cursor:copy; position:absolute; left:4px; top:-14px; font:600 10px/1 var(--mono, monospace); color:#fff; background:var(--c, var(--accent)); padding:1px 3px; border-radius:2px; white-space:nowrap; }   /* a chip in its type's colour (2026-10-28) */
 /* a grid's columns and rows (2026-10-22): one line each, what its button would do under it */
 .gax { margin-top:8px; } .gax h4 { margin:0 0 3px; }
 .gax-i { padding:2px 0 2px 8px; border-left:3px solid transparent; font-size:12px; }
@@ -130,10 +130,13 @@ main { flex:1; display:flex; min-height:0; }
 .ovl.valid { background:rgba(30,142,62,.16); border:1px solid rgba(30,142,62,.55); }
 .ovl.group { border:1.5px dashed var(--c); border-radius:3px; }
 .ovl.grid { border:2px dotted var(--c); border-radius:4px; } .ovl.grid.ok, .ovl.blk.ok { border-style:solid; border-width:1.5px; }
-.ovl.blk { border:2px dashed #d8572a; }
+.ovl.blk { border:2px dashed var(--c, #d8572a); }   /* its block type's colour (blockColor) */
+.ovl.blk span { color:#fff; background:var(--c, #d8572a); border-radius:2px; opacity:1; }
 .ovl span { position:absolute; left:2px; top:-12px; font:600 9px/1 var(--mono, monospace); color:var(--c, #d8572a); background:var(--bg); padding:1px 2px; white-space:nowrap; opacity:.85; }
 #showctl label { text-transform:none; letter-spacing:0; font-weight:500; color:var(--text-dim); cursor:pointer; }
 .pages button.done { color:var(--green); }
+.pages button.empty { background:transparent; border-style:dashed; color:var(--text-dim); opacity:.55; }  /* a page with no fields */
+.pages button.empty.on { opacity:1; }
 
 /* home (2026-10-15): every blueprint in one sortable table; the landing view, and the brand goes back to it */
 .brand { cursor:pointer; }
@@ -392,3 +395,6 @@ details.raw { font-size:12px; } details.raw summary { cursor:pointer; color:var(
 .gh.dragging, .ghtab.dragging { opacity:.4; }
 /* "hide tabs" in the header (2026-10-27): the labels and grab tabs on the page, not the boxes */
 body.notabs .ghtab, body.notabs .gtab .gtid, body.notabs .btb span, body.notabs .ov.added .tag { display:none; }
+
+/* a box Shift-clicked on Review's page, for g (2026-10-28) */
+.rv.picked { box-shadow:0 0 0 2px var(--sel), 0 0 8px 2px color-mix(in srgb, var(--sel) 60%, transparent); }

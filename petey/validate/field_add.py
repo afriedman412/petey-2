@@ -1,6 +1,6 @@
 """Field add (and remove): the Add / remove mode of the blueprint review page, for adding the fields a blueprint
 missed and removing the ones it should not have. Removing is recorded from this mode (click a field) or from Review
-(`removed` in the record); `--apply` drops those fields, and their boxes stay out of the suggestions afterwards.
+(`removed` in the record); `--apply` drops those fields, and their boxes are suggestions again afterwards (2026-10-28).
 
 Adding: draw a box over an area of the blank (or click a
 suggestion) and the page proposes the field(s) under it, with everything the documents already say about them:
@@ -55,7 +55,7 @@ from petey.semantic_types import enrich_field, registered_names
 from petey.synth.boxes import CACHE_DIR as BOX_CACHE, FINDER_VERSION, find_boxes, overlap
 from petey.synth.classify import classify_form
 from petey.validate import field_ids
-from petey.validate.hand_review import _load, _sha, blueprint_paths, working_path
+from petey.validate.hand_review import _load, _sha, blueprint_paths, page_sizes, working_path
 from petey.validate.retype import resolve_blank
 
 OUT = RUNS / "field_add"
@@ -240,9 +240,9 @@ class Context:
         self._words: dict[int, list] = {}
         if not self.blank or not self.blank.exists():
             return
+        self.pages = page_sizes(self.bp, self.blank)
         doc = pymupdf.open(str(self.blank))
         try:
-            self.pages = [{"page": i, "w_pt": pg.rect.width, "h_pt": pg.rect.height} for i, pg in enumerate(doc, 1)]
             maxlen: dict[tuple, int] = {}
             for i, pg in enumerate(doc, 1):
                 for w in pg.widgets() or []:
@@ -888,7 +888,7 @@ def apply(bid: str) -> dict:
     now = time.strftime("%Y-%m-%d %H:%M:%S")
     rec.setdefault("applied", []).append({"when": now, "sha_before": rec.get("blueprint_sha"), "sha_after": _sha(p),
                                           "changes": pl["changes"], "skipped": pl["skipped"]})
-    rec["removed_applied"] = (rec.get("removed_applied") or []) + removed    # their boxes stay out of the suggestions
+    rec["removed_applied"] = (rec.get("removed_applied") or []) + removed    # their boxes are suggestions again (with_removed)
     rec["added"], rec["removed"], rec["blueprint_sha"], rec["updated"] = [], [], _sha(p), now
     record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
     print(f"{bid}: wrote {p}")
@@ -898,6 +898,27 @@ def apply(bid: str) -> dict:
 
 
 # ---------------------------------------------------------------- server
+
+
+def with_removed(sugg: list[dict], fields: list[dict], rec: dict) -> list[dict]:
+    """The suggestions with removed fields' boxes back in them once the removal is in the working copy (Andrew,
+    2026-10-28: "when you remove a field, it should revert to orange instead of disappearing entirely"): a widget or
+    finder box there is a suggestion again of itself; where none is (screened out, or a box drawn by hand) the removed
+    field's own box is one (`source` "removed_box", proposed as a drawn area). A removal not yet applied keeps its box
+    out: the field is still there, drawn to be removed."""
+    pending = [r for r in rec.get("removed") or [] if r.get("rect")]
+    out = [x for x in sugg if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in pending)]
+    for i, r in enumerate(rec.get("removed_applied") or []):
+        if not r.get("rect") or not r.get("page"):
+            continue
+        taken = [x for x in out if x["page"] == r["page"]] + [f for f in fields if f.get("page") == r["page"] and f.get("rect")]
+        if any(overlap(r["rect"], x["rect"]) >= CLAIM for x in taken):
+            continue
+        out.append({"sid": f"r{i}", "source": "removed_box", "page": r["page"], "rect": r["rect"],
+                    "what": f"the box of {r.get('name') or 'a removed field'} (removed)"})
+    out.sort(key=lambda x: _order(x["page"], x["rect"]))
+    return out
+
 
 class State:
     def __init__(self) -> None:
@@ -925,9 +946,7 @@ class State:
     def detail(self, bid: str) -> dict:
         c = self.ctx(bid)
         rec = load_record(bid)
-        gone = [r for r in (rec.get("removed") or []) + (rec.get("removed_applied") or []) if r.get("rect")]
-        sugg = [x for x in c.suggestions()                  # a removed field's box is not a missing field
-                if not any(r["page"] == x["page"] and overlap(r["rect"], x["rect"]) >= CLAIM for r in gone)]
+        sugg = with_removed(c.suggestions(), c.fields, rec)
         return {"id": bid, "path": str(self.paths[bid]), "blank": str(c.blank) if c.blank else None, "sha": c.sha,
                 "pages": c.pages, "fields": c.fields, "suggestions": sugg,
                 "field_specs": {k: {x: v.get(x) for x in ("type", "semantic_type", "description", "x_petey_id") if v.get(x)}

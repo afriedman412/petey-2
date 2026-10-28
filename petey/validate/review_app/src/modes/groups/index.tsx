@@ -64,7 +64,7 @@ export const groups: ModeDef = {
   own: ['groups'],
   help: {
     keys: [['g', 'group the selected boxes'], ['Esc', 'clear the selection'], ['a', 'confirm the group'], ['n / →', 'next group'], ['p / ←', 'previous group'], ['z', 'undo'],
-      ['u', 'ungroup the selected group'], ['Shift+U', 'unconfirmed only on / off'], ['t', 'text fields on / off']],
+      ['u', 'ungroup the selected group'], ['Shift+U', 'unconfirmed only on / off'], ['Shift+T', 'text fields on / off']],
     tips: ['Select boxes with Shift-click (or Cmd-click), or drag across an area of the page (Shift+drag adds an area); g or "group selected" makes them one group; Esc clears the selection.',
       'Drag a box onto a group, onto another loose box, or onto the tray.', 'Drag a group by the tab on its corner onto another group or a loose box to combine them.', 'Teal text boxes combine the same way.'],
   },
