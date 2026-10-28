@@ -42,6 +42,22 @@ def tol(want: list[dict]) -> float:
     return max(TOL, GROW * height)
 
 
+CHOICE = ("checkbox", "radiobutton", "radio")
+
+
+def kind_key(kind: str) -> str:
+    """A box's kind as the block finders compare it: a checkbox and a radio button (a group one of or any of) are
+    one kind, `choicex<n>` (Andrew, 2026-10-27: "there's no distinction between these two on the front end, any of
+    these can be check or radio, and any can be multi category or not. so SIA shoudln't discriminate between the
+    two"). Kinds saved in older records (radiobuttonx2) read the same way."""
+    what, _, n = kind.rpartition("x")
+    return f"choicex{n}" if what in CHOICE else kind
+
+
+def same_kind(a: str, b: str) -> bool:
+    return kind_key(a) == kind_key(b)
+
+
 def _boxes(bp: dict) -> list[dict]:
     """Every field with one page as a box: {name, code, page, rect, kind}. An option group's box is the one around its
     boxes, and its kind counts them (a Yes / No pair is not a lone checkbox)."""
@@ -54,7 +70,10 @@ def _boxes(bp: dict) -> list[dict]:
         r = gc._rect(bp, n)
         if not r or len(pages) != 1:
             continue
-        kind = f"{ws[0].get('widget_type') or 'text'}x{len(ws)}"
+        wt = ws[0].get("widget_type") or "text"
+        if s.get("type") == "boolean" and wt == "text":
+            wt = "checkbox"                 # a checkbox typed in a text box (group_review._is_xbox, a converted field)
+        kind = kind_key(f"{wt}x{len(ws)}")
         out.append({"name": n, "code": str(s["x_petey_id"]), "page": pages.pop(), "rect": [float(x) for x in r],
                     "kind": kind})
     return out
@@ -79,7 +98,7 @@ def template(bp: dict, page: int, rect) -> dict:
 
 def _fits(b: dict, t: dict, x0: float, y0: float) -> bool:
     r = b["rect"]
-    return (b["kind"] == t["kind"] and abs(r[0] - x0 - t["dx"]) <= TOL and abs(r[1] - y0 - t["dy"]) <= TOL
+    return (same_kind(b["kind"], t["kind"]) and abs(r[0] - x0 - t["dx"]) <= TOL and abs(r[1] - y0 - t["dy"]) <= TOL
             and abs(r[2] - r[0] - t["w"]) <= TOL and abs(r[3] - r[1] - t["h"]) <= TOL)
 
 
@@ -94,7 +113,7 @@ def find(bp: dict, tpl: dict) -> list[dict]:
     first, rest = tpl["boxes"][0], tpl["boxes"][1:]
     used, out = set(), []
     for a in boxes:
-        if a["name"] in used or a["kind"] != first["kind"] or abs(a["rect"][2] - a["rect"][0] - first["w"]) > TOL \
+        if a["name"] in used or not same_kind(a["kind"], first["kind"]) or abs(a["rect"][2] - a["rect"][0] - first["w"]) > TOL \
                 or abs(a["rect"][3] - a["rect"][1] - first["h"]) > TOL:
             continue
         x0, y0 = a["rect"][0], a["rect"][1]
@@ -119,9 +138,9 @@ def _new_type_id(rec: dict) -> str:
 
 
 def said(kind: str) -> str:
-    """textx1 -> a text box; checkboxx3 -> a group of 3 checkboxes."""
-    what, _, n = kind.rpartition("x")
-    what = {"text": "text box", "radiobutton": "radio button", "combobox": "dropdown"}.get(what, what)
+    """textx1 -> a text box; choicex3 -> a group of 3 checkboxes."""
+    what, _, n = kind_key(kind).rpartition("x")
+    what = {"text": "text box", "choice": "checkbox", "combobox": "dropdown"}.get(what, what)
     return f"a {what}" if n == "1" else f"a group of {n} {what}es" if what.endswith("x") else f"a group of {n} {what}s"
 
 
@@ -143,7 +162,7 @@ def align(got: list[dict], want: list[dict]) -> tuple[Optional[list[int]], list[
     used, pair, out = set(), [], []
     for k, w in enumerate(want):
         cands = [(abs(rg[i][0] - rw[k][0]) + abs(rg[i][1] - rw[k][1]), i) for i, g in enumerate(got)
-                 if i not in used and g["kind"] == w["kind"]]
+                 if i not in used and same_kind(g["kind"], w["kind"])]
         fit = [(d, i) for d, i in cands if abs(rg[i][0] - rw[k][0]) <= T and abs(rg[i][1] - rw[k][1]) <= T
                and abs(got[i]["w"] - w["w"]) <= T and abs(got[i]["h"] - w["h"]) <= T]
         if fit:
@@ -252,7 +271,7 @@ def copies_in(boxes: list[dict], t: dict) -> list[list[str]]:
     used, out = set(), []
     for a in sorted(boxes, key=lambda b: (b["page"], b["rect"][1], b["rect"][0])):
         w0 = want[k0]
-        if a["code"] in used or a["kind"] != w0["kind"] or abs(a["rect"][2] - a["rect"][0] - w0["w"]) > T \
+        if a["code"] in used or not same_kind(a["kind"], w0["kind"]) or abs(a["rect"][2] - a["rect"][0] - w0["w"]) > T \
                 or abs(a["rect"][3] - a["rect"][1] - w0["h"]) > T:
             continue
         ox, oy = a["rect"][0] - rw[k0][0], a["rect"][1] - rw[k0][1]
@@ -262,7 +281,7 @@ def copies_in(boxes: list[dict], t: dict) -> list[list[str]]:
                 got.append(a["code"])
                 continue
             fit = [(abs(b["rect"][0] - ox - rw[k][0]) + abs(b["rect"][1] - oy - rw[k][1]), b["code"]) for b in boxes
-                   if b["code"] not in used and b["code"] not in taken and b["page"] == a["page"] and b["kind"] == w["kind"]
+                   if b["code"] not in used and b["code"] not in taken and b["page"] == a["page"] and same_kind(b["kind"], w["kind"])
                    and abs(b["rect"][0] - ox - rw[k][0]) <= T and abs(b["rect"][1] - oy - rw[k][1]) <= T
                    and abs(b["rect"][2] - b["rect"][0] - w["w"]) <= T and abs(b["rect"][3] - b["rect"][1] - w["h"]) <= T]
             if not fit:
@@ -448,7 +467,7 @@ def label_copies(t: dict, lines: list[tuple], boxes: list[dict], labs: list[tupl
         cand = [b for b in boxes if b["code"] not in used]
         if not cand:
             break
-        cost = [[abs(b["rect"][0] - ox - w["dx"]) + abs(b["rect"][1] - oy - w["dy"]) if b["kind"] == w["kind"] else 1e6
+        cost = [[abs(b["rect"][0] - ox - w["dx"]) + abs(b["rect"][1] - oy - w["dy"]) if same_kind(b["kind"], w["kind"]) else 1e6
                  for w in want] for b in cand]
         codes: list[Optional[str]] = [None] * len(want)
         for i, k in zip(*linear_sum_assignment(cost)):
@@ -459,6 +478,109 @@ def label_copies(t: dict, lines: list[tuple], boxes: list[dict], labs: list[tupl
             out.append(codes)
             used |= {c for c in codes if c}
     return out
+
+
+MODEL_MOST = 0.75          # a copy found by the "same kind of box" model has this share of the template's positions
+MODEL_WIN = (60.0, 30.0)   # pt across, down: a position's candidates sit this close to where the frame puts it
+ANCHOR_SHARE = 0.25        # a copy's top-left box is its width within this share of the template's (or 8 pt)
+
+
+def _model_match(tpl: list[str], at: dict, cands: list[dict], dx: float, dy: float, height: float, width: float,
+                 pw) -> list[Optional[str]]:
+    """Each template box's most likely candidate at a frame (dx, dy) from it, one box per position (best pairs
+    first)."""
+    from petey.validate import same_box
+    scored = []
+    for k, a in enumerate(tpl):
+        ra = at[a]["rect"]
+        for c in cands:
+            if abs(c["rect"][0] - ra[0] - dx) <= MODEL_WIN[0] and abs(c["rect"][1] - ra[1] - dy) <= MODEL_WIN[1]:
+                p = pw.score(at[a], c, dx, dy, height, width)
+                if p >= same_box.KEEP:
+                    scored.append((p, k, c["code"]))
+    got: list[Optional[str]] = [None] * len(tpl)
+    used = set()
+    for p, k, c in sorted(scored, reverse=True):
+        if got[k] is None and c not in used:
+            got[k] = c
+            used.add(c)
+    return got
+
+
+def model_copies(t: dict, boxes: list[dict], at: dict, pw) -> list[list[Optional[str]]]:
+    """The type's copies among `boxes` decided by the "same kind of box" model (`same_box`; Andrew, 2026-10-27: "this
+    is the reason we should be using a model and not rules"): each box like the template block's top-left one anchors
+    a frame, every position takes the box the model finds most likely there, the frame is set again from the boxes
+    matched (the median) and the positions matched again; a copy has `MODEL_MOST` of the positions and overlaps no other
+    copy. Finds a copy set tighter than the others, its lower lines higher (bm__sd_3856391 p4's second reference, its
+    address 11.6 pt up: past `tol` and the labels' `LABEL_TOL_Y`). Measured 2026-10-27 on 149 forms, each saved copy
+    held out and looked for after layout and labels: exact 694 -> 726 of 751, missed 45 -> 9, wrong fields in copies
+    found 8 -> 13; 24 more copies among fields in no saved block, about half real (fl_142's debts, cms_10269's dates).
+    Each copy's codes in the template's order, None where it lacks a position."""
+    import statistics
+    tpl_codes = [x["code"] for x in t["boxes"]]
+    own = next((b for b in t["blocks"] if b == tpl_codes), None) \
+        or max(t["blocks"], key=lambda b: sum(1 for c in b if c and c in at), default=None)
+    if not own:
+        return []
+    keys = [k for k, c in enumerate(own) if c and c in at]
+    tpl = [own[k] for k in keys]
+    if len(tpl) < 2:
+        return []
+    rs = [at[c]["rect"] for c in tpl]
+    height, width = max(r[3] for r in rs) - min(r[1] for r in rs), max(r[2] for r in rs) - min(r[0] for r in rs)
+    a0 = at[min(tpl, key=lambda c: (round(at[c]["rect"][1] / 2), at[c]["rect"][0]))]
+    w0 = a0["rect"][2] - a0["rect"][0]
+    by_page = collections.defaultdict(list)
+    for b in boxes:
+        by_page[b["page"]].append(b)
+    ours = [b for b in t["blocks"] if any(c and c in at for c in b)]
+    blocked = [_model_bbox(b, at) for b in ours]
+    used = {c for b in t["blocks"] for c in b if c}
+    out = []
+    for c in sorted(boxes, key=lambda b: (b["page"], b["rect"][1], b["rect"][0])):
+        if c["code"] in used or not same_kind(c["kind"], a0["kind"]) \
+                or abs(c["rect"][2] - c["rect"][0] - w0) > max(ANCHOR_SHARE * w0, 8.0):
+            continue
+        dx, dy = c["rect"][0] - a0["rect"][0], c["rect"][1] - a0["rect"][1]
+        cands = [b for b in by_page[c["page"]] if b["code"] not in used]
+        got = _model_match(tpl, at, cands, dx, dy, height, width, pw)
+        for _ in range(2):                           # the frame from the boxes matched, not the anchor alone
+            d = [(at[g]["rect"][0] - at[a]["rect"][0], at[g]["rect"][1] - at[a]["rect"][1]) for a, g in zip(tpl, got) if g]
+            if len(d) < 2:
+                break
+            dx, dy = statistics.median(x for x, _ in d), statistics.median(y for _, y in d)
+            got = _model_match(tpl, at, cands, dx, dy, height, width, pw)
+        if sum(1 for g in got if g) < max(2, MODEL_MOST * len(tpl)):
+            continue
+        # a block whose captions say something else is no copy (2026-10-22, "Employer telephone / Gross wages" laid
+        # out as "Spouse's first name / date of birth"): two or more positions captioned in both, none sharing a word.
+        # Weaker than SIA's caption check, which lost fl_142's debt rows here (2026-10-27: -2 copies, -4 extra)
+        capped = [(pw.caption(at[a]), pw.caption(at[g])) for a, g in zip(tpl, got) if g]
+        capped = [(x, y) for x, y in capped if x and y]
+        if len(capped) >= 2 and not any(x & y for x, y in capped):
+            continue
+        bb = _model_bbox(got, at)
+        if any(_model_overlap(bb, x) for x in blocked):
+            continue
+        codes: list[Optional[str]] = [None] * len(t["boxes"])
+        for k, g in zip(keys, got):
+            if k < len(codes):
+                codes[k] = g
+        out.append(codes)
+        blocked.append(bb)
+        used |= {g for g in got if g}
+    return out
+
+
+def _model_bbox(codes: list, at: dict) -> tuple:
+    rs = [at[c]["rect"] for c in codes if c and c in at]
+    page = next(at[c]["page"] for c in codes if c and c in at)
+    return page, min(r[0] for r in rs), min(r[1] for r in rs), max(r[2] for r in rs), max(r[3] for r in rs)
+
+
+def _model_overlap(a: tuple, b: tuple) -> bool:
+    return a[0] == b[0] and min(a[3], b[3]) > max(a[1], b[1]) + 1 and min(a[4], b[4]) > max(a[2], b[2]) + 1
 
 
 def detect(bid: str, bp: dict, page: int) -> dict:
@@ -494,9 +616,28 @@ def detect(bid: str, bp: dict, page: int) -> dict:
                 for n, f in zip(nums, fresh):
                     if None in f:
                         empty[f"{t['id']}-{n}"] = f.count(None)
+    # last, the "same kind of box" model among the boxes still left (`model_copies`): a copy whose layout and labels
+    # both drifted past their limits
+    from petey.validate import same_box
+    pw = same_box.PageWords(bp)
+    at = {b["code"]: b for b in boxes}
+    by_model = {}
+    for t in rec.get("types") or []:
+        free = [x for x in boxes if x["page"] == page and x["code"] not in held]
+        fresh = model_copies(t, free, at, pw)
+        if fresh:
+            held |= {c for f in fresh for c in f if c}
+            t["blocks"] = _sorted_blocks(bp, t["blocks"] + fresh)
+            nums = [next(i for i, b in enumerate(t["blocks"], 1) if b == f) for f in fresh]
+            by_model[t["id"]] = nums
+            found.setdefault(t["id"], []).extend(nums)
+            for n, f in zip(nums, fresh):
+                if None in f:
+                    empty[f"{t['id']}-{n}"] = f.count(None)
     if found:
         gc._save_set(bid, rec)
-    return {"found": found, "n": sum(len(v) for v in found.values()), "by_labels": by_labels, "empty": empty}
+    return {"found": found, "n": sum(len(v) for v in found.values()), "by_labels": by_labels, "by_model": by_model,
+            "empty": empty}
 
 
 FIT_MAX = 1.5            # a pair scoring above this is no pair (`fit`)
@@ -540,10 +681,10 @@ def fit(bp: dict, t: dict, bs: list[dict], labels: bool = False) -> tuple[list[O
         n = names.get(b["code"]) or ""
         # a name that shares no word with any of the type's wordings says nothing: place and size decide (VA 21-686c
         # BT35, 2026-10-21: a date's month / day / year boxes named school_3_dt, _2_dt, _1_dt against day, month, yr)
-        says = labels and any(label(n, k) < 1 for k in range(len(want)) if b["kind"] == want[k]["kind"] and content(k))
+        says = labels and any(label(n, k) < 1 for k in range(len(want)) if same_kind(b["kind"], want[k]["kind"]) and content(k))
         row = []
         for k, w in enumerate(want):
-            if b["kind"] != w["kind"]:
+            if not same_kind(b["kind"], w["kind"]):
                 row.append(big)
                 continue
             place = (abs(b["rect"][0] - x0 - rw[k][0]) + abs(b["rect"][1] - y0 - rw[k][1])) / (4 * T)
@@ -921,7 +1062,7 @@ def add_field(bid: str, bp: dict, code: str, field: str, grow: bool = False) -> 
     w_, h_ = f["rect"][2] - f["rect"][0], f["rect"][3] - f["rect"][1]
     free = [(abs(f["rect"][0] - ox - want[k]["dx"]) + abs(f["rect"][1] - oy - want[k]["dy"])
              + abs(w_ - want[k]["w"]) + abs(h_ - want[k]["h"]), k)
-            for k, c in enumerate(b) if c is None and want[k]["kind"] == f["kind"]]
+            for k, c in enumerate(b) if c is None and same_kind(want[k]["kind"], f["kind"])]
     if not free and not grow:
         empty = [k + 1 for k, c in enumerate(b) if c is None]
         why = (f"no empty position for {said(f['kind'])}" + (f" (empty: {', '.join(map(str, empty))}, other kinds)"
@@ -1004,7 +1145,7 @@ def grow_type(bp: dict, rec: dict, t: dict, page: int) -> list[str]:
                 if b2 is b:
                     row[id(b2)] = f["code"]
                     continue
-                cands = [x for x in free if x["page"] == pg2 and x["code"] not in held and x["kind"] == f["kind"]
+                cands = [x for x in free if x["page"] == pg2 and x["code"] not in held and same_kind(x["kind"], f["kind"])
                          and abs(x["rect"][0] - ox2 - dx) <= tl and abs(x["rect"][1] - oy2 - dy) <= tl
                          and abs(x["rect"][2] - x["rect"][0] - w) <= SIZE_TOL and abs(x["rect"][3] - x["rect"][1] - h) <= SIZE_TOL]
                 if not cands:
@@ -1035,7 +1176,11 @@ def fill_blocks(bp: dict, rec: dict) -> dict:
     """Each block's empty positions filled with the free field at its place (Andrew, 2026-10-23: B 106D p2's claims 3-5
     without their city / state / zip, held by a grid when the claims were found): the field in no block, of the
     position's kind, within `tol` of where the position sits in the block's frame and its size within `SIZE_TOL`; a
-    field in a grid counts as free (blocks first, the grid then gives way: grid_check.listing). {"BT1-3": [names]}."""
+    field in a grid counts as free (blocks first, the grid then gives way: grid_check.listing). Where none is, the free
+    field the "same kind of box" model finds most likely (`same_box`, 2026-10-27: fl__sd_6863766 BT9-2's "Was rent up to
+    date?" 23 pt along its line, its caption alike). {"BT1-3": [names]}."""
+    from petey.validate import same_box
+    pw = same_box.PageWords(bp)
     at = {x["code"]: x for x in _boxes(bp)}
     names = _names(bp)
     held = {c for y in rec.get("types") or [] for b in y["blocks"] for c in b if c}
@@ -1054,13 +1199,26 @@ def fill_blocks(bp: dict, rec: dict) -> dict:
             for k, want in enumerate(t["boxes"]):
                 if b[k]:
                     continue
-                cands = [x for x in at.values() if x["page"] == pg and x["code"] not in held and x["kind"] == want["kind"]
+                cands = [x for x in at.values() if x["page"] == pg and x["code"] not in held and same_kind(x["kind"], want["kind"])
                          and abs(x["rect"][0] - ox - want["dx"]) <= tl and abs(x["rect"][1] - oy - want["dy"]) <= tl
                          and abs(x["rect"][2] - x["rect"][0] - want["w"]) <= SIZE_TOL
                          and abs(x["rect"][3] - x["rect"][1] - want["h"]) <= SIZE_TOL]
-                if not cands:
-                    continue
-                f = min(cands, key=lambda x: abs(x["rect"][0] - ox - want["dx"]) + abs(x["rect"][1] - oy - want["dy"]))
+                if cands:
+                    f = min(cands, key=lambda x: abs(x["rect"][0] - ox - want["dx"]) + abs(x["rect"][1] - oy - want["dy"]))
+                else:
+                    a = at.get(want.get("code"))
+                    if a is None:
+                        continue
+                    dx, dy = ox + want["dx"] - a["rect"][0], oy + want["dy"] - a["rect"][1]
+                    near = [x for x in at.values() if x["page"] == pg and x["code"] not in held
+                            and abs(x["rect"][0] - a["rect"][0] - dx) <= 60 and abs(x["rect"][1] - a["rect"][1] - dy) <= 30]
+                    rel = _rel(t["boxes"])
+                    height = max(r[1] + w["h"] for r, w in zip(rel, t["boxes"])) - min(r[1] for r in rel)
+                    width = max(r[0] + w["w"] for r, w in zip(rel, t["boxes"])) - min(r[0] for r in rel)
+                    hit = same_box.best(a, near, dx, dy, height, width, pw)
+                    if hit is None:
+                        continue
+                    f = hit[1]
                 was = _bid(b)
                 b[k] = f["code"]
                 held.add(f["code"])

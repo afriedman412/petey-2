@@ -1,6 +1,6 @@
 """Block discovery: repeated blocks found with no template drawn (Andrew, 2026-10-22: can block finding be automated
-with an existing mathematical method; then "write SIA into the production finder"). Pure geometry and the page's
-printed text; no model.
+with an existing mathematical method; then "write SIA into the production finder"). Geometry and the page's printed
+text; the last pass a ten-number "same kind of box" model (`same_box`), local, no API.
 
 SIA (Meredith, Lemstrom & Wiggins 2002), as for repeated themes in music: the points are a form's boxes, each with its
 kind and size. Every pair of alike boxes (same kind, size within `SIZE`) votes for the translation between them; the
@@ -20,7 +20,10 @@ equivalence class, `block_types.copies_in`), then grown box by box where most co
 
 Then larger blocks first (Andrew: "try larger blocks first, then pick up what's left with smaller"): patterns by
 boxes per copy, most first, each taking its copies among the fields not yet taken; a pattern made of copies of a
-smaller, more numerous one glued together gives way to it.
+smaller, more numerous one glued together gives way to it. Two patterns whose copies move together, side by side
+further apart than `GAP`, are one (`lockstep`: a party's two columns). Last, each pattern kept grows by the boxes its copies have
+that are the same kind of box though not quite alike (`same_box`, 2026-10-27: a copy's box a few points shorter, a
+question set further along its line), its copies as they are, fields of other patterns left alone (`grow_more`).
 
 Measured 2026-10-22 per field on the 119 forms with saved block types (21,662 fields; a field in copy 2+ named from
 copy 1: right when the saved types put the two at one position of one type): 2,702 right, 290 wrong (most of them
@@ -46,7 +49,9 @@ NEAR_GROW = 30.0      # pt: boxes tried for growing sit this close to the first 
 GROW_TOL = 8.0        # pt: ... at the offset within this
 CAPTION_SAME, CAPTION_SHARE = 0.8, 0.6     # a slot's caption repeats in this share of copies; this share of the
                                            # slots with captions repeat
-TICK = ("checkbox", "radiobutton", "radio")
+TICK = ("checkbox", "radiobutton", "radio", "choice")
+REPEAT_CAPTION = 0.6       # grow_more: a box this alike in caption to one copy 1 has is a repeat (another copy's)
+LOCKSTEP_TOL = 12.0        # pt: two patterns' copies at shifts this alike move together (`lockstep`)
 
 
 def _gap(a: dict, b: dict) -> float:
@@ -55,7 +60,7 @@ def _gap(a: dict, b: dict) -> float:
 
 
 def _alike(a: dict, b: dict) -> bool:
-    return (a["kind"] == b["kind"] and abs((a["rect"][2] - a["rect"][0]) - (b["rect"][2] - b["rect"][0])) <= SIZE
+    return (bt.same_kind(a["kind"], b["kind"]) and abs((a["rect"][2] - a["rect"][0]) - (b["rect"][2] - b["rect"][0])) <= SIZE
             and abs((a["rect"][3] - a["rect"][1]) - (b["rect"][3] - b["rect"][1])) <= SIZE)
 
 
@@ -64,7 +69,7 @@ def mtps(boxes: list[dict]) -> dict[tuple, list[dict]]:
     out: dict[tuple, list[dict]] = collections.defaultdict(list)
     by_kind = collections.defaultdict(list)
     for b in boxes:
-        by_kind[b["kind"]].append(b)
+        by_kind[bt.kind_key(b["kind"])].append(b)
     for bs in by_kind.values():
         bs = sorted(bs, key=lambda b: (b["page"], b["rect"][1], b["rect"][0]))
         for i, a in enumerate(bs):
@@ -267,7 +272,108 @@ def find(bp: dict) -> list[dict]:
             continue
         ok.append(occ)
     found = cover(ok, [[{c for c in o if c} for o in occ] for occ in ok])
-    return _more_by_labels(bp, found, boxes, at)
+    found = _more_by_labels(bp, found, boxes, at)
+    found = lockstep(found, at)
+    from petey.validate.same_box import PageWords
+    pw = PageWords(bp)
+    for f in found:
+        held = {c for g in found if g is not f for o in g["slots"] for c in o if c}
+        f["slots"] = grow_more(f["slots"], boxes, at, pw, held)
+    return found
+
+
+def _reading(o: list, at: dict) -> tuple:
+    bb = _bbox([c for c in o if c], at)
+    return bb[0], round(bb[2] / 2), bb[1]
+
+
+def _apart(a: tuple, b: tuple) -> float:
+    """The gap between two copies' boxes (edge to edge), endless across pages."""
+    if a[0] != b[0]:
+        return float("inf")
+    return max(0.0, max(a[1], b[1]) - min(a[3], b[3]), max(a[2], b[2]) - min(a[4], b[4]))
+
+
+def lockstep(found: list[dict], at: dict) -> list[dict]:
+    """Two patterns whose copies move together are one block (2026-10-27, bm__sd_3867602 p2: each party's name /
+    address / email / signature and company / phone / invoices / date, two columns 38.7 pt apart, past `GAP`, found
+    as two patterns): as many copies, copy i of one at the shift from its copy 1 that copy i of the other is at
+    (within `LOCKSTEP_TOL`, same page), and each copy nearer its partner than its own nearest copy (two lists side by
+    side that repeat alike are not glued). Copies of one block side by side are one pattern already, never two.
+    Measured on 151 forms with saved types: +12 right fields (gsa_sf_1199a, cra_t4a_nr), no wrong one."""
+    found = [dict(f, slots=[list(o) for o in f["slots"]]) for f in found]
+    merged = True
+    while merged:
+        merged = False
+        for i, j in itertools.combinations(range(len(found)), 2):
+            P = sorted(found[i]["slots"], key=lambda o: _reading(o, at))
+            Q = sorted(found[j]["slots"], key=lambda o: _reading(o, at))
+            if len(P) != len(Q) or len(P) < 2:
+                continue
+            bP, bQ = [_bbox([c for c in o if c], at) for o in P], [_bbox([c for c in o if c], at) for o in Q]
+            if any(p[0] != q[0] for p, q in zip(bP, bQ)):
+                continue
+            if any(abs((p[1] - bP[0][1]) - (q[1] - bQ[0][1])) > LOCKSTEP_TOL
+                   or abs((p[2] - bP[0][2]) - (q[2] - bQ[0][2])) > LOCKSTEP_TOL for p, q in zip(bP, bQ)):
+                continue
+            if any(_apart(bP[k], bQ[k]) >= min(_apart(bP[k], bP[m]) for m in range(len(P)) if m != k)
+                   for k in range(len(P))):
+                continue
+            slots = [p + q for p, q in zip(P, Q)]
+            if any(_overlap(x, y) for x, y in itertools.combinations([_bbox([c for c in o if c], at) for o in slots], 2)):
+                continue
+            found[i] = {"boxes": max(sum(1 for c in o if c) for o in slots), "slots": slots}
+            del found[j]
+            merged = True
+            break
+    return found
+
+
+def grow_more(occ: list[list], boxes: list[dict], at: dict, pw, held: set = frozenset()) -> list[list[Optional[str]]]:
+    """A pattern SIA kept, grown by the "same kind of box" model (`same_box`): a box near copy 1 joins when most other
+    copies (`MOST`) have a box of the same kind most likely to be it, where their frames put it, none of them a repeat of
+    a box copy 1 already has; a copy without one gets an empty position. The copies stay the ones SIA chose (inside
+    SIA's own growing this glued neighbouring copies: je__acord_80), and fields in `held` (other patterns) stay theirs."""
+    from petey.validate import same_box
+    occ = [list(o) for o in occ]
+    full = [k for k in range(len(occ[0])) if all(k < len(o) and o[k] for o in occ)]
+    if not full:
+        return occ
+    sh = _shift([[o[k] for k in full] for o in occ], at)
+    taken = {c for o in occ for c in o if c} | set(held)
+    by_page = collections.defaultdict(list)
+    for b in boxes:
+        by_page[b["page"]].append(b)
+    p0 = sh[0][0]
+    changed = True
+    while changed:
+        changed = False
+        bb0 = _bbox([c for c in occ[0] if c], at)
+        height, width = max(bb0[4] - bb0[2], 1.0), max(bb0[3] - bb0[1], 1.0)
+        for b in by_page[p0]:
+            r = b["rect"]
+            if b["code"] in taken or max(bb0[1] - r[2], r[0] - bb0[3], bb0[2] - r[3], r[1] - bb0[4]) > NEAR_GROW:
+                continue
+            cb = pw.caption(b)
+            if any(_alike(b, at[c]) and len(cb & pw.caption(at[c])) >= REPEAT_CAPTION * max(len(cb | pw.caption(at[c])), 1)
+                   for c in occ[0] if c):
+                continue                         # a repeat of a box copy 1 has: another copy's, not a new position
+            col = [b["code"]]
+            for pg, dx, dy in sh[1:]:
+                cands = [c for c in by_page[pg] if c["code"] not in taken and c["code"] not in col
+                         and abs(c["rect"][0] - r[0] - dx) <= 60 and abs(c["rect"][1] - r[1] - dy) <= 30]
+                hit = same_box.best(b, cands, dx, dy, height, width, pw)
+                col.append(hit[1]["code"] if hit else None)
+            if sum(c is not None for c in col[1:]) < MOST * (len(occ) - 1):
+                continue
+            trial = [o + [c] for o, c in zip(occ, col)]
+            bbs = [_bbox([c for c in o if c], at) for o in trial]
+            if any(_overlap(x, y) for x, y in itertools.combinations(bbs, 2)):
+                continue
+            occ = trial
+            taken |= {c for c in col if c}
+            changed = True
+    return occ
 
 
 def _more_by_labels(bp: dict, found: list[dict], boxes: list[dict], at: dict) -> list[dict]:

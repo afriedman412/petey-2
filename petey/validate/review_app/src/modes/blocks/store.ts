@@ -286,10 +286,12 @@ export async function blockDetect() {
   catch (e) { alert((e as Error).message); return; }
   await loadMode();
   const lab = Object.entries(out.by_labels || {}).flatMap(([t, ns]) => (ns as number[]).map(n => `${t}-${n}`)), emp = Object.entries(out.empty || {});
+  const mod = Object.entries(out.by_model || {}).flatMap(([t, ns]) => (ns as number[]).map(n => `${t}-${n}`));
   const grew = Object.entries(out.grew || {}).map(([t, v]) => { const ns = v as string[];
     return `${t} took in ${ns.length} field${ns.length === 1 ? '' : 's'} repeating in all its blocks (${ns.slice(0, 4).join(', ')}${ns.length > 4 ? ', …' : ''})`; });
   toast((grew.length ? grew.join('; ') + '. ' : '') + (out.n ? 'Found ' + Object.entries(out.found).map(([t, ns]) => (ns as number[]).map(n => `${t}-${n}`).join(', ')).join('; ') + '.'
     + (lab.length ? ` By their printed labels: ${lab.join(', ')}.` : '')
+    + (mod.length ? ` By the box model (layout drifted): ${mod.join(', ')}.` : '')
     + (emp.length ? ` With empty positions (drag the missing fields onto them): ${emp.map(([b, k]) => `${b} (${k})`).join(', ')}.` : '')
     : 'No new copies of a block type on this page.'));
 }

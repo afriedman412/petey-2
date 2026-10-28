@@ -143,7 +143,9 @@ def test_a_page_is_searched_for_block_types_and_a_block_reassigned(monkeypatch, 
     bp["fields"]["d_4_day"]["widget"]["rect"][2] += 20                  # the fourth a near copy
     bt.draw("t8", bp, 1, area(0))
     out = bt.detect("t8", bp, 1)
-    assert out["found"] == {"BT1": [2, 3]}                             # blocks 2 and 3; 4 is not a copy
+    assert out["found"] == {"BT1": [2, 3, 4]}                          # blocks 2 and 3 by layout; 4, its box 20 pt
+    assert out["by_model"] == {"BT1": [4]}                             # wider, by the box model (2026-10-27)
+    bt.remove_block("t8", bp, "1_10")
     near = bt.draw("t8", bp, 1, area(3))
     assert near["new"] and near["type"] == "BT2"
     moved = bt.assign("t8", bp, "1_10", "BT1")
@@ -644,7 +646,7 @@ def test_a_group_in_every_block_becomes_one_position(monkeypatch, tmp_path):
         bp["fields"][f"child_{b}_status"] = {"type": "category", "x_petey_id": code, "widgets": {"a": w1, "b": w2}}
     assert bt.reattach("t9", bp) == {"moved": 4, "left": 0, "merged": 1}
     (t,) = gc.load_set("t9")["types"]
-    assert len(t["boxes"]) == 3 and t["boxes"][2]["kind"] == "checkboxx2"
+    assert len(t["boxes"]) == 3 and t["boxes"][2]["kind"] == "choicex2"       # checkbox or radio: one kind (2026-10-27)
     assert t["blocks"] == [["1_1", "1_2", "1_9"], ["1_5", "1_6", "1_10"]]
     assert bt.wordings(bp, t)[2] == "status"
     bp["fields"]["child_2_state"] = bp["fields"].pop("child_2_status")      # renamed in Groups: the block sees it
@@ -854,3 +856,38 @@ def test_a_position_left_blank_is_named_by_its_block(monkeypatch, tmp_path):
     assert out["wordings"] == ["page_nbr", "part_nbr", "item_nbr", ""]
     for code in ("8_1", "8_5"):
         assert bt.validate_block("t42", bp, code)["ok"]
+
+
+def test_a_checkbox_and_a_radio_are_one_kind_for_blocks():
+    # Andrew, 2026-10-27: "any of these can be check or radio, and any can be multi category or not. so SIA shoudln't
+    # discriminate between the two" (fl__sd_6863766: a hand-added checkbox pair missed a radio pair's slot in BT9-2)
+    assert bt.same_kind("checkboxx2", "radiobuttonx2") and bt.same_kind("choicex1", "checkboxx1")
+    assert not bt.same_kind("checkboxx2", "radiobuttonx3") and not bt.same_kind("textx1", "checkboxx1")
+    assert bt.said("radiobuttonx2") == "a group of 2 checkboxes" and bt.said("textx1") == "a text box"
+
+
+def test_a_checkbox_typed_in_a_text_box_is_a_choice_box():
+    w = {"page": 1, "rect": [10, 10, 20, 20], "path": None}
+    bp = {"fields": {"day_ind": {"type": "boolean", "x_petey_id": "1", "widget": {**w, "widget_type": "text"}},
+                     "notes": {"type": "string", "x_petey_id": "2", "widget": {**w, "rect": [30, 10, 90, 20], "widget_type": "text"}}}}
+    kinds = {b["name"]: b["kind"] for b in bt._boxes(bp)}
+    assert kinds == {"day_ind": "choicex1", "notes": "textx1"}
+
+
+def test_a_copy_set_tighter_is_found_by_the_box_model(monkeypatch, tmp_path):
+    """bm__sd_3856391 p4 (Andrew, 2026-10-27: BT2 "found BT2-1 and BT2-3 but not BT2-2"; "this is the reason we should
+    be using a model and not rules"): the second reference's address line sits 12 pt higher, past the layout's
+    tolerance, with no printed labels to go by; the "same kind of box" model finds it."""
+    use_tmp_records(monkeypatch, tmp_path)
+    fields, i = {}, 0
+    for y, addr in ((100, 150), (220, 258)):
+        for x, dy, w in ((50, 0, 210), (270, 0, 130), (410, 0, 110), (50, addr - y, 450)):
+            i += 1
+            fields[f"f{i}"] = {"type": "string", "x_petey_id": f"1_{i}",
+                               "widget": {"page": 1, "widget_type": "text", "rect": [x, y + dy, x + w, y + dy + 22]}}
+    bp = {"fields": fields}
+    bt.draw("t43", bp, 1, [40, 90, 530, 180])
+    assert bt.copies_in(bt._boxes(bp), gc.load_set("t43")["types"][0]) == [["1_1", "1_2", "1_3", "1_4"]]
+    out = bt.detect("t43", bp, 1)
+    assert out["by_model"] == {"BT1": [2]} and not out["empty"]
+    assert gc.load_set("t43")["types"][0]["blocks"][1] == ["1_5", "1_6", "1_7", "1_8"]

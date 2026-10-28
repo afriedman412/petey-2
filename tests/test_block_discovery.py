@@ -103,3 +103,38 @@ def test_run_finders_makes_no_blocks_inside_a_grid(tmp_path, monkeypatch):
         out = bt.discover("t2", bp)
         assert out["types"] == [] and out["superseded"] == [] and len(out["grids"]) == 1
     assert not gc.load_set("t2").get("types")
+
+
+def _columns(tmp_path, right_x, step):
+    """Two parties down page 1, `step` pt apart, each three stacked boxes on the left (Name / Address / Email) and three
+    at `right_x` (Company / Phone / Date), narrower, captions over each box (bm__sd_3867602 p2, 2026-10-27)."""
+    pdf = tmp_path / "blank.pdf"
+    doc = pymupdf.open()
+    pg = doc.new_page(width=612, height=792)
+    fields, i = {}, 0
+    for b in range(2):
+        for x, w, caps in ((50, 150, ("Name", "Address", "Email")), (right_x, 110, ("Company", "Phone", "Date"))):
+            for r, cap in enumerate(caps):
+                i += 1
+                y = 100 + step * b + 22 * r
+                pg.insert_text((x, y - 4), cap, fontsize=8)
+                fields[f"f{i}"] = {"type": "string", "x_petey_id": f"1_{i}",
+                                   "widget": {"page": 1, "widget_type": "text", "rect": [x, y, x + w, y + 14]}}
+    doc.save(str(pdf))
+    doc.close()
+    return {"source_pdf": str(pdf), "fields": fields}
+
+
+def test_two_columns_that_move_together_are_one_block(tmp_path):
+    """bm__sd_3867602 p2 (Andrew, 2026-10-27): each party's two columns 40 pt apart, past GAP, were two block types;
+    each copy's columns sit at the same shift, nearer each other than the next party: one block of six."""
+    (p,) = D.find(_columns(tmp_path, 240, 120))
+    assert p["boxes"] == 6 and sorted(map(sorted, p["slots"])) == [["1_1", "1_2", "1_3", "1_4", "1_5", "1_6"],
+                                                                  ["1_10", "1_11", "1_12", "1_7", "1_8", "1_9"]]
+
+
+def test_two_lists_side_by_side_stay_apart(tmp_path):
+    """The same columns 200 pt apart, the parties 90 pt apart: each column nearer its own next copy than the other
+    column, two lists that repeat alike, not one block."""
+    found = D.find(_columns(tmp_path, 400, 90))
+    assert len(found) == 2 and all(p["boxes"] == 3 for p in found)

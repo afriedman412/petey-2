@@ -372,7 +372,7 @@ class Blocks:
         have = hand_review.load_verdicts(bid).get("verdicts") or {}
         ok, off, acc = [], [], []
         for i, b in enumerate(t["blocks"], 1):
-            res = block_types.validate_block(bid, bp, b[0])
+            res = block_types.validate_block(bid, bp, block_types._bid(b))   # its first box there (lib__i864 BT1-2's is empty)
             if res["ok"]:
                 ok.append(f"{tid}-{i}")
                 acc += [n for n in res["names"] if not (have.get(n) or {}).get("verdict")]

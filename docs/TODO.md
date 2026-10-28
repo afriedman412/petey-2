@@ -3,6 +3,13 @@
 Edited in place; the history is `git log --follow -- docs/TODO.md`. Priorities are Andrew's; the ordering is a
 proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`; terms: `docs/GLOSSARY.md`.
 
+## Structure errors: collect, then one design (2026-10-27, Andrew: "lets start accumulating these errors and fixes and see if we can't do something more cohesive when we have them all")
+
+The cases found while reviewing the benchmark forms (option groups, grids, blocks) go into `docs/STRUCTURE_ERRORS.md`,
+logged, not fixed one at a time. Two fixes went in before the log started: detect's box-model copy search
+(`block_types.model_copies`) and the finder's column merge (`block_discovery.lockstep`). The sd_522176 caption guard
+for the growing step is measured and logged as open, not in the code.
+
 ## Flat-structure benchmark: what a block is (2026-10-27, open)
 
 Raised on fl__sd_2420367 (IPMA-HR award nomination): page 1's nominated agency and page 2's person submitting share an
