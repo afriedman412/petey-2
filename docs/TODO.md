@@ -3,6 +3,11 @@
 Edited in place; the history is `git log --follow -- docs/TODO.md`. Priorities are Andrew's; the ordering is a
 proposal. Numbers and context: `docs/RESULTS.md`, `petey/validate/defect_taxonomy.py`; terms: `docs/GLOSSARY.md`.
 
+## Flat-structure benchmark: open judgement calls
+
+Moved to `docs/BENCHMARK_JUDGEMENT_QS.md` (2026-10-27): what a block is, what a grid is (grids by geometry), one line
+holding several fields, fields with no widget, combs, anchoring, near-duplicates, novelty, the forms that failed the cut.
+
 ## Structure errors: collect, then one design (2026-10-27, Andrew: "lets start accumulating these errors and fixes and see if we can't do something more cohesive when we have them all")
 
 The cases found while reviewing the benchmark forms (option groups, grids, blocks) go into `docs/STRUCTURE_ERRORS.md`,
@@ -10,40 +15,38 @@ logged, not fixed one at a time. Two fixes went in before the log started: detec
 (`block_types.model_copies`) and the finder's column merge (`block_discovery.lockstep`). The sd_522176 caption guard
 for the growing step is measured and logged as open, not in the code.
 
-## Flat-structure benchmark: what a block is (2026-10-27, open)
+## Tiny pale-edged circles not detectable as fields (2026-10-27, Andrew: "very tiny circles for 'please mail' and 'please fax' need to be detectible as possible fields")
 
-Raised on fl__sd_2420367 (IPMA-HR award nomination): page 1's nominated agency and page 2's person submitting share an
-eight-row layout (Address, City, State / Zip, Phone / Fax, Email under three rows whose labels differ: Agency, Contact
-Name, Title vs Name, Title, Employed by). BT1 as found holds rows 4-8 only, and misses Zip on both pages (page 2's Zip
-line starts 4 pt further left). Andrew is undecided on how the benchmark should set this. Proposal, not decided:
+bm__sd_311861 p1 (Kirkwood record request), "Please Mail" / "Please Fax": two printed radio circles, about 8.6 pt
+across, drawn as four arcs, dark top-left and pale grey (grey 200-235) bottom-right. The original has no widget there,
+so the staged blueprint has no field; nothing else finds them either:
 
-- **Single pages:** a block counts only when two or more of its copies are on the same page (this form adds no block
-  pairs: one copy a page).
-- **Same copy** (fields describing one thing) from structure: the repeated section under one heading, all of it, the
-  top three rows included.
-- **Same slot** (one question asked of each copy) only where the printed label repeats (Address, City, State, Zip,
-  Phone, Fax, Email); fields whose labels differ (Agency / Name, Contact Name / Title) are members of their copy with
-  no slot partner.
-- **Second case, size not label (bm__sd_1242044, Axeon credit application):** billing and shipping address are BT2 (City,
-  State, Zip, Country, two copies); the Address line above each is left out because shipping's is 178 pt wide against
-  billing's 264 (shortened for its "Same as above" checkbox) and the finder matches boxes within 3 pt. Andrew: the blocks
-  should probably include the top field. Possible fix: when growing a block, take a box at the offset whose printed
-  label matches copy 1's even when its size differs.
+- **Add / remove's click** (`field_add.enclosed_box`): the fill stops only at ink darker than `INK` = 200, so it leaks
+  out through the pale half and proposes nothing. Read-only check: at 230 or 240 both circles close, as
+  [381.25, 499.25, 390.5, 508.75] and [471.25, 499.25, 480.5, 508.75]. Proposed fix: when the fill gets out at 200,
+  try once more counting grey below ~235 as ink and use that box only if it closes (a click that works now gives the
+  same box; shaded cells, which a lighter threshold would read as ink, keep working). Re-run the 450-field corpus check
+  of 071b1e2 (97 / 109 checkboxes, 150 / 341 text fields) before and after. A test with a pale-edged circle.
+- **The finder** (step2flat + `finder_addons`): 12 boxes on the page, none near the circles. Small pale circles as
+  candidates belong with the finder add-ons (the "Underline text field detection" chat's uncommitted work as of
+  2026-10-27); after that lands.
 
-## Grids by geometry (2026-10-27, parked: more validated data first)
+## Check boxes that are just underlines (2026-10-27, Andrew: "there are check boxes that are just underlines that need to be figured out")
 
-Andrew: grids are defined partly by geometry: each column's boxes share a width and each row's a height (columns and
-rows may differ from each other), reasonably uniform spacing, a field in most slots (not every one), and labels
-consistent down each column (one header, or the same caption repeated under every row, as bm__sd_1115475's unruled
-sections A-C; labels changing row to row are separate questions). The name test (`grid_naming.iterated`) stays a
-second way in.
+bm__sd_5228297 p1 (Cornerstone Wellness release of information). Two kinds, both short underlines doing a checkbox's
+job:
 
-Measured read-only on validated lib / je forms against the Grids-tab records (scratchpad `geo_grids.py`): of 731 grids
-kept the geometric draft accepts 351 (48%), the name test 709 (97%); of 140 cancelled, 60 and 129, so the cancelled set is
-mostly grids redrawn or not wanted, not a clean negative set. The draft rejects mostly on its label reader (514: row labels
-of ledgers read as changing captions), then size (322), spacing and row heights (~180 each, ledgers' taller rows). It
-would add 62 candidates nobody has judged (ao040b p1 27 x 3, boat application 4 x 6, some doubtful 2 x 3s). Next, when
-Andrew has validated more: tune it on the kept grids, look at the 62, then decide whether library forms use it.
+- **"___ Coordination of Care  ___ Treatment Planning  ___ Transfer of Care  ___ Litigation  ___ Other: ____"**
+  (purposes, y ~284-300): a three-underscore run before each option. The original has no widget on any of the first
+  four (only Other's write-in line is a text widget), so the staged blueprint has no field for them.
+- **"Substance Abuse_____  Mental Health _____  HIV-related info _____"** (specific consent, y ~497): an underline after
+  each label; the publisher put small text widgets (22 x 17 pt) there, so the blueprint has them as text.
+
+To figure out: whether the benchmark counts such an underline as a choice (one of a set, ticked or initialled) or a
+text field, and so its kind and its partners (the four purposes one group?); then how they are found from the page
+(an underscore run or a short rule right before or after an option label, of about a word's width), by the finder,
+Add / remove's click (`field_add.enclosed_box` proposes nothing on an open underline) or both. Related: the benchmark
+judgement calls in `docs/BENCHMARK_JUDGEMENT_QS.md` (fields with no widget).
 
 ## Open after the name and caption work (2026-10-10)
 
