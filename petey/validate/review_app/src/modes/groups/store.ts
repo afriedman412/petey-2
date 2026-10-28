@@ -48,11 +48,13 @@ interface State {
   notes: string[];
   /** "rescan page" running: the number of groups it rescans (0 when not) */
   rescanning: number;
+  /** the box hovered in the sidebar (an item id), lit on the page */
+  hover: string | null;
 }
 
 export const useGroups = create<State>(() => ({
   BP: null, units: [], selected: null, unconfOnly: false, showText: store('gr_text') !== '0',
-  undoStack: [], picked: new Set(), PLAN: null, busy: {}, notes: [], rescanning: 0,
+  undoStack: [], picked: new Set(), PLAN: null, busy: {}, notes: [], rescanning: 0, hover: null,
 }));
 const S = useGroups.getState, put = useGroups.setState;
 
@@ -166,6 +168,10 @@ export function togglePick(id: string) {
   put({ picked: p });
 }
 export const clearPicked = () => put({ picked: new Set() });
+// an option hovered anywhere in the sidebar lights its box on the page (Andrew, 2026-10-27: "rolling over a group
+// option anywhere in the groups tab highlights the corresponding field")
+export const setHover = (id: string | null) => { if (S().hover !== id) put({ hover: id }); };
+export const hoverProps = (id: string) => ({ onMouseEnter: () => setHover(id), onMouseLeave: () => setHover(null) });
 export function selectArea(r: Rect, add: boolean) {
   const p = add ? new Set(S().picked) : new Set<string>(), page = app().page;
   for (const it of Object.values(S().BP!.items)) {
@@ -581,7 +587,7 @@ export async function load(bid: string, auto = true) {
   const keep = same ? unitByUid(was.selected, was.units) : undefined;
   const sel = (keep && ou.find(u => u.name === keep.name)) || ou.find(u => u.items.some(id => BP.items[id]?.page === app().page)) || ou[0];
   const picked = new Set(same ? [...was.picked].filter(id => BP.items[id]) : []);
-  put({ BP, units, undoStack: [], PLAN: null, notes, picked, selected: sel ? sel.uid : null });
+  put({ BP, units, undoStack: [], PLAN: null, notes, picked, selected: sel ? sel.uid : null, hover: null });
   schedulePlan();
 }
 

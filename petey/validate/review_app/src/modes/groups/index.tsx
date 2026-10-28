@@ -16,8 +16,9 @@ import {
 const dropOn = (target: Target) => dropProps(['item', 'unit'], (kind, v) => dropped(kind, v, target));
 
 function ItemBox({ it, u, c, sel, picked }: { it: Item; u: Unit | null; c: string; sel: boolean; picked: boolean }) {
+  const hl = useGroups(s => s.hover === it.id);
   const cls = 'gi' + (it.kind === 'text' ? ' text' : '') + (u ? '' : ' loose') + (u && !isGroup(u) ? ' orphan' : '') + (sel ? ' sel' : '')
-    + (u && u.locked ? ' locked' : '') + (picked ? ' picked' : '');
+    + (u && u.locked ? ' locked' : '') + (picked ? ' picked' : '') + (hl ? ' hl' : '');
   const title = u ? `${u.name}${isGroup(u) ? ' · ' + label(it.id) : ''}${u.locked ? ' (locked: ' + u.locked + ')' : ''}` : `${it.field} (text field)`;
   const live = !(u && u.locked);
   return (

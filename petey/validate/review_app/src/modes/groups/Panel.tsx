@@ -6,7 +6,7 @@ import { fileStem } from '../../lib/util';
 import { toast } from '../../state/actions';
 import { useApp } from '../../state/app';
 import {
-  applyPlan, askLabeler, baseOf, busyOn, colorOf, confirmUnit, dropped, groupPicked, groupSuggested, isGroup, isText,
+  applyPlan, askLabeler, baseOf, busyOn, colorOf, confirmUnit, dropped, groupPicked, groupSuggested, hoverProps, isGroup, isText,
   item, label, looseText, mergeInto, moveItem, nameCheck, notGroup, onPage, optUnits, rename, rereadCaptions, rescanPage,
   revert, select, separate, setDesc, setShowText, setType, setUnconfOnly, status, undo, ungroup, unitOf, useGroups,
   type Target, type Unit,
@@ -46,7 +46,7 @@ function TextCard({ u }: { u: Unit }) {
       {bad && <div className="warn">{bad}</div>}
       <DescBox key={u.uid + '\n' + (u.description || '')} u={u} />
       <ol>{u.items.map(id => { const it = item(id);
-        return <li key={id}>{it.field} <span className="help">{it.type || ''}{it.semantic_type ? '/' + it.semantic_type : ''}{it.path ? ' · ' + it.path.split('.').pop() : ''}</span></li>; })}</ol>
+        return <li key={id} {...hoverProps(id)}>{it.field} <span className="help">{it.type || ''}{it.semantic_type ? '/' + it.semantic_type : ''}{it.path ? ' · ' + it.path.split('.').pop() : ''}</span></li>; })}</ol>
       <div className="help">One text field over the union of these boxes, in place of the first. No path: the reader clips the page text, the filler splits over the widgets.</div>
       <div className="row"><button className="btn" id="gSplit" onClick={() => separate(u.uid)}>separate again</button></div>
     </div>
@@ -97,7 +97,7 @@ function Current({ u }: { u?: Unit }) {
           <span className="lbl">Options<br /><span className="help">key · caption</span></span>
           <span className="otable">{u.items.map(id => { const it = item(id);
             return (
-              <span key={id} className="orow">
+              <span key={id} className="orow" {...hoverProps(id)}>
                 <input className="okey" value={it.key !== null ? it.key : it.field} readOnly
                   title={`the value extraction returns for this box${it.on_state ? '; the PDF stores ' + it.on_state : ''}${it.page !== page ? ' (page ' + it.page + ')' : ''}`} />
                 <input className="ocap" value={label(id, units)} readOnly placeholder="no caption" title="the text printed at this box" />
@@ -131,7 +131,7 @@ function Chip({ id, u }: { id: string; u: Unit }) {
   return (
     <span className={'gchip' + (orphan ? ' orphan' : '') + (u.uid === selected ? ' sel' : '')} data-item={id}
       title={`${it.field}${it.key !== null ? ' · ' + it.key : ''}${it.on_state ? ' · on ' + it.on_state : ''}`}
-      onClick={() => select(cu.uid)} {...dragProps('item', id, !u.locked)} {...drop}>
+      onClick={() => select(cu.uid)} {...hoverProps(id)} {...dragProps('item', id, !u.locked)} {...drop}>
       <span className="gl">{orphan ? u.name : label(id, units)}{it.page !== page && <> <span className="help">p{it.page}</span></>}</span>
       {!orphan && !u.locked && <span className="x" title={isText(u) ? 'take it out of the combined field' : 'take it out of the group'}
         onClick={e => { e.stopPropagation(); moveItem(id, { tray: true }); }}>×</span>}
@@ -163,7 +163,7 @@ function Suggestions() {
     <div className="gsugg"><h4>Suggested groups on page {page} ({sugg.length})</h4>
       {sugg.map(x => (
         <div key={x.i} className="gcard"><div className="help">{x.why}{x.name && <> · <code>{x.name}</code></>}</div>
-          <div className="gchips">{x.items.map((id, k) => <span key={id} className="gchip">{(x.captions || [])[k] || item(id).field} <span className="help">{item(id).field}</span></span>)}</div>
+          <div className="gchips">{x.items.map((id, k) => <span key={id} className="gchip" {...hoverProps(id)}>{(x.captions || [])[k] || item(id).field} <span className="help">{item(id).field}</span></span>)}</div>
           <div className="row">
             <button className="btn ok mini" onClick={() => groupSuggested(BP.suggested![x.i])}>group them</button>
             <button className="btn mini" title="these boxes are not one question: the suggestion stays away" onClick={() => notGroup(x.i)}>not a group</button>
