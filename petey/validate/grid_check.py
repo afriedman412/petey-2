@@ -153,8 +153,21 @@ def found(bp: dict, held: list[set] = ()) -> list[list[dict]]:
     (`geometric`, 2026-10-27, tentative) say are tables, less those mostly inside one block (`held`: each block type's
     blocks, as field names). 2026-10-22, in place of the block-group finder that hid them before: of the 173 grids it
     hid on 63 forms, 164 sit in block types' blocks."""
-    return [g for g in G.grids(bp, blocks=False) if found_by(bp, g)
-            and not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in held)]
+    return [g for g, _by in found_pairs(bp, held)]
+
+
+def found_pairs(bp: dict, held: list[set] = ()) -> list[tuple[list[dict], str]]:
+    """`found`, each grid with the test that found it (`found_by`). A table cut into tables side by side (`side_by_side`)
+    keeps the test that found the whole."""
+    out = []
+    for whole in G.grids(bp, blocks=False):
+        by = found_by(bp, whole)
+        if not by:
+            continue
+        for g in side_by_side(bp, whole):
+            if not any(len({c["name"] for c in g} & ns) >= 0.5 * len(g) for ns in held):
+                out.append((g, by))
+    return out
 
 
 def found_by(bp: dict, g: list[dict]) -> Optional[str]:
@@ -187,14 +200,17 @@ def listing(bid: str, bp: dict) -> list[dict]:
     def at(g):                                  # top, then left: new ids are given in reading order
         rs = [r for r in (_rect(bp, c["name"]) for c in g) if r]
         return (g[0]["page"], min((r[1] for r in rs), default=0), min((r[0] for r in rs), default=0))
-    for g in sorted(found(bp, _blocks_held(rec, name)), key=at):
+    for g, by in sorted(found_pairs(bp, _blocks_held(rec, name)), key=lambda p: at(p[0])):
         page = g[0]["page"]
         codes = [code.get(c["name"], c["name"]) for c in g]
         e = next((e for e in rec["grids"] if e["source"] == "finder" and e["page"] == page and id(e) not in claimed
                   and _same([c[0] for c in e["cells"]], codes)), None)
         if e is None:
+            # a piece of a grid the person cancelled (`side_by_side`, 2026-10-27) starts cancelled too
+            gone = any(x["source"] == "finder" and x["page"] == page and x.get("status") == "cancelled"
+                       and set(codes) <= {str(c[0]) for c in x.get("cells") or []} for x in rec["grids"])
             e = {"id": _new_id(rec, page), "kind": "table", "page": page, "source": "finder",
-                 "status": "cancelled" if dismissed(legacy, page, [c["name"] for c in g]) else "active",
+                 "status": "cancelled" if gone or dismissed(legacy, page, [c["name"] for c in g]) else "active",
                  "when": time.strftime("%Y-%m-%d %H:%M:%S")}
             rec["grids"].append(e)
             changed = True
@@ -203,7 +219,7 @@ def listing(bid: str, bp: dict) -> list[dict]:
             changed = True
         claimed.add(id(e))
         out.append({**{k: e.get(k) for k in ("id", "kind", "page", "source", "status", "from", "into", "when", "kept")},
-                    "by": (by := found_by(bp, g)),
+                    "by": by,
                     "jev": jev_scores().get(bid, {}).get(grid_key(bp, g)) if by == "geometry" else None,
                     "grid": [dict(c) for c in g]})
     for e in rec["grids"]:
@@ -688,6 +704,119 @@ def geometric(bp: dict, g: list[dict]) -> bool:
             labs.append(_geo_label(r, max(prev) if prev else (0 if i else r[0]), ws))
         same += collections.Counter(labs).most_common(1)[0][1] >= GEO_SAME * len(labs)
     return same >= GEO_COLS * nc
+
+
+# Tables side by side (Andrew, 2026-10-27, bm__sd_1034080 p4-G1: two Amount / Begin Date / End Date tables found as one
+# 6-column grid; "the heuristic is every row is a single data point, and every column relates to that data point
+# alone"; "we can start with splitting on a whole set of printed labels and repeated columns as a sign of a second
+# grid"). A row label applies to the fields after it, up to the next one. So when the rows are labelled at the grid's
+# left edge, it is cut where a second set of row labels is printed between two columns (2+ columns each side); and
+# when they are not, where its column headings start over (Amount, Begin, End, Amount, Begin, End). A set: a label of
+# words in most rows, not one caption repeated ("$" or "to" between two boxes, a box letter, are no row labels).
+# Neither alone: a person's label mid-row with no labels at the left (je__ircc_imm_5645, Applicant / Spouse) is one
+# data point, and headings repeated under Original / 1st Copy with the categories at the left (lib__ao044) are
+# columns of one row. A piece narrower than 2 columns or shorter than 2 rows is no grid.
+SPLIT_ROWS = 0.5         # share of the rows with a label, for a set
+SPLIT_HEAD = 16          # pt above a column's top field read as its heading
+SPLIT_LEFT = 150         # pt left of a row's first field read as its label
+
+
+def _letters(ws: list, keep) -> str:
+    import re
+    t = " ".join(w[4] for w in sorted(ws, key=lambda w: w[0]) if keep(w))
+    return re.sub(r"[^a-z]+", " ", t.lower()).strip()
+
+
+def _a_set(labels: list[str], rows: int) -> bool:
+    """Row labels: words (3+ letters) in most rows, and not all alike."""
+    import re
+    labs = [t for t in labels if re.search(r"[a-z]{3}", t)]
+    return (len(labs) >= max(2, SPLIT_ROWS * rows) and len(set(labs)) >= 2
+            and collections.Counter(labs).most_common(1)[0][1] < GEO_SAME * len(labs))
+
+
+def _band(cs: list[dict], rect: dict) -> tuple[float, float]:
+    return min(rect[c["name"]][1] for c in cs) - 1, max(rect[c["name"]][3] for c in cs) + 1
+
+
+def split_points(bp: dict, g: list[dict]) -> dict[int, str]:
+    """{i: why} for each place the grid is cut: before its i-th column (left to right)."""
+    import statistics
+    rect = {c["name"]: _rect(bp, c["name"]) for c in g}
+    if any(r is None for r in rect.values()):
+        return {}
+    rows, cols = collections.defaultdict(list), collections.defaultdict(list)
+    for c in g:
+        rows[c["row"]].append(c)
+        cols[c["col"]].append(c)
+    if len(cols) < 4:
+        return {}
+    blank = resolve_blank(bp)
+    if not blank or not blank.exists():
+        return {}
+    ws = _geo_words(blank, g[0]["page"])
+    order = sorted(cols, key=lambda k: statistics.median(rect[c["name"]][0] for c in cols[k]))
+    at = {k: i for i, k in enumerate(order)}
+    left = []
+    for cs in rows.values():
+        x = min(rect[c["name"]][0] for c in cs)
+        y0, y1 = _band(cs, rect)
+        left.append(_letters(ws, lambda w: w[2] <= x + 1 and w[0] >= x - SPLIT_LEFT and y0 <= (w[1] + w[3]) / 2 <= y1))
+    cut: dict[int, str] = {}
+    if _a_set(left, len(rows)):
+        for i in range(2, len(order) - 1):
+            x0 = max(rect[c["name"]][2] for c in cols[order[i - 1]])
+            x1 = min(rect[c["name"]][0] for c in cols[order[i]])
+            if x1 - x0 < 6:
+                continue
+            both = [cs for cs in rows.values() if {at[c["col"]] < i for c in cs} == {True, False}]
+            labs = []
+            for cs in both:                          # the rows with fields on both sides of the gap
+                y0, y1 = _band(cs, rect)
+                labs.append(_letters(ws, lambda w: x0 - 1 <= w[0] and w[2] <= x1 + 1 and y0 <= (w[1] + w[3]) / 2 <= y1))
+            if _a_set(labs, len(both)):
+                cut[i] = f"row labels between columns {i} and {i + 1}"
+        return cut
+    heads = []
+    for k in order:
+        x0, x1 = min(rect[c["name"]][0] for c in cols[k]), max(rect[c["name"]][2] for c in cols[k])
+        top = min(rect[c["name"]][1] for c in cols[k])
+        heads.append(_letters(ws, lambda w: x0 - 2 <= (w[0] + w[2]) / 2 <= x1 + 2 and top - SPLIT_HEAD <= w[3] <= top + 1))
+    for p in range(2, len(heads) // 2 + 1):       # the shortest run of headings that starts over, at each repeat
+        if all(heads[:p]) and heads[p:2 * p] == heads[:p] and len(set(heads[:p])) == p:
+            for k in range(p, len(heads) - 1, p):
+                if heads[k:k + p] == heads[:p][:len(heads[k:k + p])]:
+                    cut[k] = f"headings repeat from column {k + 1}"
+            break
+    return cut
+
+
+def side_by_side(bp: dict, g: list[dict]) -> list[list[dict]]:
+    """The grid as the tables side by side it holds (`split_points`); just the grid when it is one. Each piece's
+    columns and rows are numbered from 0."""
+    try:
+        cut = split_points(bp, g)
+    except Exception:                      # no blank, a page that will not open: as found
+        return [g]
+    if not cut:
+        return [g]
+    import statistics
+    cols = collections.defaultdict(list)
+    for c in g:
+        cols[c["col"]].append(c)
+    order = sorted(cols, key=lambda k: statistics.median(_rect(bp, c["name"])[0] for c in cols[k]))
+    bounds = [0, *sorted(cut), len(order)]
+    out = []
+    for a, b in zip(bounds, bounds[1:]):
+        cs = [c for k in order[a:b] for c in cols[k]]
+        rs = sorted({c["row"] for c in cs})
+        if b - a < 2 or len(rs) < 2:
+            continue
+        col = {k: j for j, k in enumerate(order[a:b])}
+        row = {r: j for j, r in enumerate(rs)}
+        out.append(sorted(({**c, "row": row[c["row"]], "col": col[c["col"]]} for c in cs),
+                          key=lambda c: (c["row"], c["col"])))
+    return out
 
 
 # Jev's second opinion on a grid only the geometric test found (2026-10-27, Andrew: "can we get a jev 'is this or is
