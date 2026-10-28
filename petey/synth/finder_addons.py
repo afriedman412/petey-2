@@ -23,6 +23,22 @@ for the screens that follow, not verdicts.
   underlines         horizontal strokes and typed underscore runs: the raster reader drops a line that "separates two
                      regions" (one end touching a rule or a printed '/'), and a run fused to its label (`Name:____`)
                      scores as printed text; the box is the open band above the line
+
+Minor 3 (2026-10-27; Andrew: "update the finder to detect the circle fields on bm__sd_394533 p1", "missed a number of
+fields (square this time) here as well: bm__sd_395088 p7"). Both draw options in a beveled style at 17 pt.
+  size               circles and squares up to MARK_MAX (20 pt), was 16
+  same box           a circle or square is the finder's already only when an option box (checkbox / radio) of about
+                     its size sits on it (SAME_BOX_RATIO), or a comb box over it (a comb's cells, not checkboxes); a
+                     box on its middle (a ring's white inside read as text, a stray small square) or one text strip
+                     over the whole row no longer keeps it out
+  printed default    a ring with a dot is kept when an empty ring of its size sits in line with it (an answer printed
+                     already marked); a dotted ring on its own is still a printed marker (CA 540)
+  nested squares     a square inside another counts once, as the outer one (a beveled box draws its inner edge)
+  comb cells         three or more squares of one size side by side with almost no room between them are a comb's
+                     cells, not checkboxes (the 20 pt limit lets in cells taller than 16 pt, e.g. 15 x 16.7)
+On the 427 benchmark forms (their pages, the originals' widgets as truth), against minor 2: option fields found
+12,666 -> 13,031 of 14,315, as a checkbox / radio 11,621 -> 12,156; no field lost on any form; added circles and
+squares on no field 223 -> 310 (51 of the new ones real circles bm__sd_394533's answer key leaves out).
 """
 from __future__ import annotations
 
@@ -34,6 +50,12 @@ import numpy as np
 import pymupdf
 
 CLAIM = 0.5                    # an added box overlapping a finder box this much is the finder's already
+SAME_BOX_RATIO = 3.0           # an option box within this factor of a mark's area, either way, is the same box
+                               # (eval/finder_vs_widgets.py's SIZE_RATIO)
+MARK_MAX = 20.0                # pt: the largest circle or square taken as a checkbox / radio
+COMB_GAP = 0.2                 # of a width: squares this close side by side, COMB_RUN or more in a row, are a comb's
+COMB_RUN = 3                   # cells (on the 427 benchmark forms 2 of 954 added squares on a real checkbox were this
+                               # close, a touching pair; 491 of 600 on no field)
 SYMBOL_FONTS = ("ding", "wingding", "webding", "symbol")
 LINE_BAND = 14.0               # pt: the tallest band above an underline taken as its field
 LINE_MIN_W = 18.0              # pt: a shorter stroke is not a line to write on
@@ -45,17 +67,19 @@ def circle_rects(page) -> list[pymupdf.Rect]:
     dots = [pymupdf.Rect(d["rect"]) for d in drawings
             if d.get("fill") is not None and "f" in (d.get("type") or "") and sum(d["fill"][:3]) / 3 < 0.5
             and pymupdf.Rect(d["rect"]).width < 12]
-    rs = []
+    rings = []
     for d in drawings:
         items = d.get("items") or []
         if not (4 <= len(items) <= 8) or any(it[0] != "c" for it in items) or "s" not in (d.get("type") or ""):
             continue
         r = pymupdf.Rect(d["rect"])
-        if not (5 <= r.width <= 16 and 5 <= r.height <= 16 and abs(r.width - r.height) <= 1.5):
+        if not (5 <= r.width <= MARK_MAX and 5 <= r.height <= MARK_MAX and abs(r.width - r.height) <= 1.5):
             continue
-        if any(r.contains(x) and x.width < 0.8 * r.width for x in dots):
-            continue
-        rs.append(r)
+        rings.append((r, any(r.contains(x) and x.width < 0.8 * r.width for x in dots)))
+    empty = [r for r, dotted in rings if not dotted]
+    rs = [r for r, dotted in rings          # a dotted ring counts when an empty one of its size is next to it in line
+          if not dotted or any(abs(e.width - r.width) <= 1 and abs((e.y0 + e.y1) - (r.y0 + r.y1)) / 2 <= 0.3 * r.width
+                               and 1 < abs(e.x0 - r.x0) <= 3 * r.width for e in empty)]
     rs.sort(key=lambda r: -r.width * r.height)
     out: list[pymupdf.Rect] = []
     for r in rs:                   # a circle inside another (a ring with its dot) counts once, as the outer one
@@ -108,8 +132,9 @@ def glyph_square_rects(page) -> list[pymupdf.Rect]:
 
 
 def square_rects(page) -> list[pymupdf.Rect]:
-    """Square rect paths of checkbox size, stroked or lightly filled; a dark fill with no stroke is a bullet."""
-    out = []
+    """Square rect paths of checkbox size, stroked or lightly filled; a dark fill with no stroke is a bullet. A square
+    inside another counts once, as the outer one."""
+    rs = []
     for d in page.get_drawings():
         f = d.get("fill")
         stroked = d.get("color") is not None and "s" in (d.get("type") or "")
@@ -119,9 +144,35 @@ def square_rects(page) -> list[pymupdf.Rect]:
             if it[0] != "re":
                 continue
             r = pymupdf.Rect(it[1])
-            if 3.5 <= r.width <= 16 and 3.5 <= r.height <= 16 and abs(r.width - r.height) <= 2:
-                out.append(r)
-    return out
+            if 3.5 <= r.width <= MARK_MAX and 3.5 <= r.height <= MARK_MAX and abs(r.width - r.height) <= 2:
+                rs.append(r)
+    rs.sort(key=lambda r: -r.width * r.height)
+    out: list[pymupdf.Rect] = []
+    for r in rs:
+        if not any(o.contains(r) for o in out):
+            out.append(r)
+    comb = set()
+    for run in _runs(out):
+        if len(run) >= COMB_RUN:
+            comb.update(id(r) for r in run)
+    return [r for r in out if id(r) not in comb]
+
+
+def _runs(rs: list[pymupdf.Rect]) -> list[list[pymupdf.Rect]]:
+    """Squares chained left to right, each the same size as the next, in line with it and closer than COMB_GAP of a
+    width."""
+    rs = sorted(rs, key=lambda r: (r.x0, r.y0))
+    runs: list[list[pymupdf.Rect]] = []
+    for r in rs:
+        for run in runs:
+            a = run[-1]
+            if abs(a.width - r.width) <= 1 and abs(a.height - r.height) <= 1 and abs(a.y0 - r.y0) <= 1.5 \
+                    and -1 <= r.x0 - a.x1 <= COMB_GAP * r.width:
+                run.append(r)
+                break
+        else:
+            runs.append([r])
+    return runs
 
 
 def _h_strokes(page) -> list[list[float]]:
@@ -190,6 +241,11 @@ def underline_rects(page) -> list[pymupdf.Rect]:
 # (rule, finder kind, conf) in the order they claim space: a mark before the line it may sit on
 RULES = (("circles", circle_rects, "radio", 0.85), ("glyphs", glyph_square_rects, "checkbox", 0.75),
          ("squares", square_rects, "checkbox", 0.8), ("underlines", underline_rects, "text", 0.6))
+MARK_KINDS = ("checkbox", "radio")
+
+
+def _area(r) -> float:
+    return max((r[2] - r[0]) * (r[3] - r[1]), 1e-6)
 
 
 def _overlap(a, b) -> float:
@@ -198,7 +254,18 @@ def _overlap(a, b) -> float:
     i = ix * iy
     if i <= 0:
         return 0.0
-    return i / max(min((a[2] - a[0]) * (a[3] - a[1]), (b[2] - b[0]) * (b[3] - b[1])), 1e-6)
+    return i / max(min(_area(a), _area(b)), 1e-6)
+
+
+def _claimed(rect, kind: str, have: list[dict]) -> bool:
+    """Whether a box already on the page covers this one. A line is covered by anything overlapping it; a circle or
+    square by an option box of about its size or a comb over it (minor 3)."""
+    if kind not in MARK_KINDS:
+        return any(_overlap(rect, h["rect"]) >= CLAIM for h in have)
+    return any(_overlap(rect, h["rect"]) >= CLAIM and (
+        h["kind"] == "comb" or h["kind"] in MARK_KINDS
+        and max(_area(rect), _area(h["rect"])) <= SAME_BOX_RATIO * min(_area(rect), _area(h["rect"])))
+        for h in have)
 
 
 def added_boxes(pdf_path: str | Path, boxes: list[dict], rect_key) -> list[dict]:
@@ -213,15 +280,16 @@ def added_boxes(pdf_path: str | Path, boxes: list[dict], rect_key) -> list[dict]
         doc = pymupdf.open(flat)
         try:
             for i, pg in enumerate(doc, start=1):
-                have = [b["rect"] for b in boxes if b["page"] == i]
+                have = [b for b in boxes if b["page"] == i]
                 for rule, find, kind, conf in RULES:
                     for r in find(pg):
                         rect = [round(float(c), 2) for c in r]
-                        if any(_overlap(rect, h) >= CLAIM for h in have):
+                        if _claimed(rect, kind, have):
                             continue
-                        out.append({"id": str(nxt), "page": i, "rect": rect, "kind": kind, "key": rect_key(i, rect),
-                                    "conf": conf, "addon": rule})
-                        have.append(rect)
+                        box = {"id": str(nxt), "page": i, "rect": rect, "kind": kind, "key": rect_key(i, rect),
+                               "conf": conf, "addon": rule}
+                        out.append(box)
+                        have.append(box)
                         nxt += 1
         finally:
             doc.close()

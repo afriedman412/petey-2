@@ -43,9 +43,10 @@ FINDER_CODE_SHA = "93d5efe257db"
 FINDER_ENV = "pymupdf 1.28.2; tesseract 5.5.3"
 # Minor versions (2026-10-15): additive rules applied on top of the finder's output (`finder_addons`), so cached
 # finder runs and class maps keep their key; added boxes are numbered after the finder's. 1: radio circles drawn as
-# curves. 2: hollow glyph squares, small drawn squares, underlines and underscore runs (2026-10-27). A rule that
-# changes or drops the finder's own boxes is a FINDER_LABEL bump instead.
-FINDER_MINOR = 2
+# curves. 2: hollow glyph squares, small drawn squares, underlines and underscore runs (2026-10-27). 3: circles and
+# squares up to 20 pt, kept out only by an option box of their size, dotted rings beside empty ones (2026-10-27). A
+# rule that changes or drops the finder's own boxes is a FINDER_LABEL bump instead.
+FINDER_MINOR = 3
 
 
 def _code_sha() -> str:
