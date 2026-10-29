@@ -138,3 +138,22 @@ def test_two_lists_side_by_side_stay_apart(tmp_path):
     column, two lists that repeat alike, not one block."""
     found = D.find(_columns(tmp_path, 400, 90))
     assert len(found) == 2 and all(p["boxes"] == 3 for p in found)
+
+
+def test_run_finders_leaves_out_a_position_the_persons_blocks_hold_in_every_copy(tmp_path, monkeypatch):
+    """bm__sd_497870 (2026-10-28): a block drawn by hand over one position of every copy of a repeat SIA finds; run
+    finders crashed building the new type ("'NoneType' object is not iterable"). The type is made of the rest."""
+    from petey.validate import block_types as bt, grid_check as gc
+    monkeypatch.setattr(gc, "SETS", tmp_path / "sets")
+    monkeypatch.setattr(gc, "_set_path", lambda bid: tmp_path / "sets" / f"{bid}.json")
+    monkeypatch.setattr(gc, "geometric", lambda *a, **k: False)
+    monkeypatch.setattr(bt, "fill_blocks", lambda bp, rec: {})          # the person's block stays as drawn
+    monkeypatch.setattr(bt, "rescan", lambda bid, bp, page: {})
+    caps = [[f"Child {b + 1} name", "Date of birth", "City of birth", "School"] for b in range(3)]
+    bp = _form(tmp_path, 3, ["text", "text", "text", "text"], caps, x0=20)
+    gc._save_set("t9", {"types": [{"id": "BT1", "page": 1, "rect": [0, 0, 1, 1], "boxes": [],
+                                   "blocks": [["1_4"], ["1_8"], ["1_12"]]}], "grids": [], "next": {"BT": 2}})
+    out = bt.discover("t9", bp)
+    assert out["types"] == ["BT2"]
+    t = next(t for t in gc.load_set("t9")["types"] if t["id"] == "BT2")
+    assert len(t["boxes"]) == 3 and t["blocks"] == [["1_1", "1_2", "1_3"], ["1_5", "1_6", "1_7"], ["1_9", "1_10", "1_11"]]

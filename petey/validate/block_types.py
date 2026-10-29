@@ -965,6 +965,11 @@ def discover(bid: str, bp: dict) -> dict:
         copies = [[c if c and c not in held and c in at else None for c in o] for o in p["slots"]]
         copies = [o for o in copies if sum(1 for c in o if c) >= block_discovery.MIN_BOXES
                   and sum(1 for c in o if c in gridded) <= 0.5 * sum(1 for c in o if c)]
+        # a position no copy has any more (its fields in the person's blocks in every copy) is no position of the new
+        # type (bm__sd_497870, 2026-10-28: BT3 drawn over three of a found pattern's positions; "'NoneType' object is not
+        # iterable" building the template)
+        keep = [k for k in range(max(map(len, copies), default=0)) if any(k < len(o) and o[k] for o in copies)]
+        copies = [[o[k] if k < len(o) else None for k in keep] for o in copies]
         if len(copies) < 2:
             continue
         tpl = max(copies, key=lambda o: sum(1 for c in o if c))
