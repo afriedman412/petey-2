@@ -4,7 +4,7 @@ import type { KeyboardEvent } from 'react';
 import {
   addAll, addProps, askLabeler, cancel, closePicked, dropOption, goto, isRemoved, keepRemoved, NAME_RE, pickName, pickRemoved,
   remaining, runFinder, save, setOptField, setPropField, setShow, skipProp, switchKind, toggleRemove, toggleRmPick, removeAll, unAdd, unDismiss, useAdd,
-  gotoSuggestion, type Proposal,
+  gotoSuggestion, nameClash, type Proposal,
 } from './store';
 
 const TYPES = ['string', 'number', 'integer', 'date', 'boolean', 'category', 'multi_category'];
@@ -34,15 +34,16 @@ function Options({ p, i }: { p: Proposal; i: number }) {
 }
 
 function Card({ p, i }: { p: Proposal; i: number }) {
-  const { BP, added, props, asking } = useAdd();
+  const { BP, added, props, removed, asking } = useAdd();
   const sem = ['', ...BP!.semantic_types];
   const what = p.kind === 'group' ? `group of ${p.options.length} options` : p.kind === 'option' ? `${p.widget?.widget_type}` : 'text box';
-  const clash = added.some(a => a.name === p.name) || props.some((q, k) => k !== i && q.name === p.name);
+  const clash = nameClash(p.name || '', i, { BP, added, props, removed });
   return (
     <div className="acard">
       <h3>{what} on p{p.page} <span className="help">· {p.geometry} geometry</span></h3>
       <input type="text" value={p.name || ''} onChange={e => setPropField(i, 'name', e.target.value)} onKeyDown={cardKeys} />
       {!NAME_RE.test(p.name || '') ? <div className="err help">not a field name (lower case, digits, underscores)</div>
+        : clash === 'blueprint' ? <div className="err help">the blueprint already has a field named {p.name}; pick another name</div>
         : clash ? <div className="err help">another field has this name</div> : null}
       <div className="achips">
         {p.name_options.map((o, k) => (

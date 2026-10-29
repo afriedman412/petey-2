@@ -34,7 +34,7 @@ export interface AddData {
   semantic_types: string[]; added: Added[]; dismissed: Dismissed[]; removed?: Removal[]; plan?: Plan | null;
 }
 
-interface State {
+export interface State {
   BP: AddData | null;
   props: Proposal[]; notes: string[]; curSid: string | null;
   added: Added[]; dismissed: Dismissed[]; removed: Removal[];
@@ -51,6 +51,18 @@ export const useAdd = create<State>(() => ({
   showFields: true, showSug: true, copies: false, asking: {}, finderRunning: false,
 }));
 const S = useAdd.getState, put = useAdd.setState;
+
+/** why proposal `i` cannot take `name`: a field of the blueprint has it ('blueprint'; one recorded for removal frees it),
+ *  or another addition does ('pending'); else null. The save refuses both ("'x' is already a field in the blueprint"),
+ *  so the card says so before "add this field" (Andrew, 2026-10-29: fin__pb_358ecead701f's third sort-code field took
+ *  the caption's name, sort_code, the first one's) */
+export function nameClash(name: string, i: number, st: Pick<State, 'BP' | 'added' | 'props' | 'removed'>): 'blueprint' | 'pending' | null {
+  if (!name) return null;
+  if (st.added.some(a => a.name === name) || st.props.some((q, k) => k !== i && q.name === name)) return 'pending';
+  const gone = new Set(st.removed.map(r => r.name));
+  const has = (st.BP?.fields || []).some(f => f.name === name) || Object.prototype.hasOwnProperty.call(st.BP?.field_specs || {}, name);
+  return has && !gone.has(name) ? 'blueprint' : null;
+}
 
 const bid = () => app().bid!;
 let nextK = 1;

@@ -112,7 +112,7 @@ function Current({ u }: { u?: Unit }) {
           </span>
         </> : <>
           <span className="lbl">Box</span>
-          <span className="help">{isConverted(first.id, units) ? <>the text field <code>{first.field}</code> made a checkbox; it changes when the regrouping is applied. </>
+          <span className="help">{isConverted(first.id, units) ? <>the text field <code>{first.field}</code> made a checkbox{first.converted ? ' (applied)' : '; it changes when the regrouping is applied'}. </>
             : <>a {first.widget_type} field of its own{first.appearances ? `, drawn in ${first.appearances} places` : ''}. </>}
             Confirm it if it stands alone; drag it onto its group or onto another loose box if not.</span>
         </>}
@@ -133,7 +133,7 @@ function Current({ u }: { u?: Unit }) {
         {group && !u.locked && <button className="btn" id="gCaps" disabled={reading} onClick={() => rereadCaptions(u.uid)}
           title="read each box's printed caption again (one call to the review agent with the page image, a few seconds); captions from the PDF's form data or set by hand stay">{reading ? 'reading…' : 're-read captions'}</button>}
         {b && status(u) !== 'as blueprint' && <button className="btn" id="gRevert" title="put this unit back as the blueprint has it" onClick={() => revert(u.uid)}>back to blueprint</button>}
-        {!group && isConverted(first.id, units) && <button className="btn" id="gToText" title="make it a text field again (before the change is applied)" onClick={() => toText(u.uid)}>back to text</button>}
+        {!group && isConverted(first.id, units) && <button className="btn" id="gToText" title="make it a text field again" onClick={() => toText(u.uid)}>back to text</button>}
         {group && !isText(u) && !u.locked && <button className="btn" id="gUngroup" title="every box of this group loose again (u); the finder will not group these boxes again; z undoes" onClick={ungroup}>ungroup</button>}
         {group && !u.locked && (
           <select id="gMergeTo" value="" title="move this group's boxes into another group, on any page (a question that runs onto the next page)"

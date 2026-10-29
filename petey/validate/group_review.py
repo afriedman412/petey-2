@@ -177,6 +177,41 @@ def converted(bp: dict, units: list[dict], now: str) -> tuple[dict, list[str], d
             {f: texts[f]["ind_name"] for f in ids})
 
 
+def _is_converted(spec: dict) -> bool:
+    """A text field made a checkbox here and applied (`converted`), still a loose box on its own text widget."""
+    return isinstance(spec, dict) and bool(spec.get("x_petey_converted")) and _is_orphan(spec) and _is_xbox(spec)
+
+
+def as_converted_items(bp: dict, items: dict[str, dict]) -> dict[str, dict]:
+    """`items` with each applied conversion shown as a text field that a unit holds as an option, the way one not yet
+    applied is (`kind: text`, `converted`): the card's "back to text" then takes it out of its unit, as before applying
+    (Andrew, 2026-10-29, fin__pb_358ecead701f's sort-code fields: "having a nightmare trying to recode ... to text")."""
+    fields = bp.get("fields") or {}
+    return {i: (dict(it, kind="text", converted=True, ind_name=i) if it.get("key") is None and _is_converted(fields.get(i))
+                else it) for i, it in items.items()}
+
+
+def unconverted(bp: dict, units: list[dict], now: str) -> tuple[dict, list[str]]:
+    """(`bp` with each applied conversion that no option unit holds a text field again, what changed): its type,
+    semantic type and pattern as `x_petey_converted` kept them; the conversion stays on it as `x_petey_back_to_text`.
+    Its name stays (a rename is Review's)."""
+    held = {i for u in units if u.get("kind") != "text" for i in u.get("items") or []}
+    fields = dict(bp.get("fields") or {})
+    back = [f for f, s in fields.items() if f not in held and _is_converted(s)]
+    for f in back:
+        spec = copy.deepcopy(fields[f])
+        conv = spec.pop("x_petey_converted")
+        for k in ("type", "semantic_type", "pattern"):
+            spec.pop(k, None)
+        spec = {**{k: v for k, v in (conv.get("from") or {}).items() if k in ("type", "semantic_type", "pattern")},
+                **spec}
+        spec.setdefault("type", "string")
+        spec["x_petey_back_to_text"] = {"source": "group_review", "when": now, "converted": conv}
+        fields[f] = spec
+    return ({**bp, "fields": fields} if back else bp), [f"{f}: checkbox made a text field again" for f in back]
+
+
+
 def _order_key(items: dict, u: dict) -> tuple:
     first = min((items[i] for i in u["items"]), key=lambda it: (it["page"], round(it["rect"][1] / 6), it["rect"][0]))
     return first["page"], round(first["rect"][1] / 6), first["rect"][0]
@@ -353,7 +388,7 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
     (`_rebase`), units keep the items that still exist, items it never saw stay where the blueprint has them, and
     it is reported stale."""
     items, base = option_items(bp)
-    items = {**items, **text_items(bp)}
+    items = {**as_converted_items(bp, items), **text_items(bp)}
     rec = load_record(bid)
     info = {"stale": bool(rec) and rec.get("blueprint_sha") != sha, "updated": rec.get("updated"),
             "applied": rec.get("applied")}
@@ -390,6 +425,8 @@ def current_units(bid: str, bp: dict, sha: str) -> tuple[dict, list[dict], dict]
                 if (he.get("to") or {}).get("type") != (he.get("from") or {}).get("type"):
                     unit["type"] = spec.get("type")
             units.append(unit)
+        # applied conversions taken back on the page ("back to text"): in no unit, so the plan makes them text again
+        seen.update(moved.get(i, i) for i in rec.get("to_text") or [])
         for u in base:                                   # items the record never saw
             ids = [i for i in u["items"] if i not in seen]
             if ids:
@@ -462,7 +499,9 @@ def plan(bp: dict, units: list[dict], blank: Optional[Path] = None, page_caption
     text_units = [u for u in units if u.get("kind") == "text"]
     units = [u for u in units if u.get("kind") != "text"]
     now = time.strftime("%Y-%m-%d %H:%M:%S")
+    bp, back = unconverted(bp, units, now)           # conversions taken back ("back to text"): text fields again
     bp, changes, as_ind = converted(bp, units, now)  # text fields made checkboxes first: then options like any other
+    changes = back + changes
     items, base = option_items(bp)
     fields = bp.get("fields") or {}
     base_by_origin = {u["origin"]: u for u in base}
@@ -806,9 +845,13 @@ class State:
         for u in units:
             u["items"] = [i for i in u.get("items") or [] if i in items]
         units = [u for u in units if u["items"]]
+        held = {i for u in units for i in u["items"]}
+        old = load_record(bid)
+        back = [i for i in incoming.get("to_text", old.get("to_text")) or []
+                if i not in held and _is_converted((bp.get("fields") or {}).get(i))]
         rec = {"blueprint": str(self.paths[bid]), "form": p.stem, "blueprint_sha": _sha(p),
-               "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "applied": load_record(bid).get("applied"),
-               "units": units, "boxes": item_boxes(items, units)}
+               "updated": time.strftime("%Y-%m-%d %H:%M:%S"), "applied": old.get("applied"),
+               "units": units, "boxes": item_boxes(items, units), **({"to_text": back} if back else {})}
         OUT.mkdir(parents=True, exist_ok=True)
         record_path(bid).write_text(json.dumps(rec, indent=1, ensure_ascii=False), encoding="utf-8")
         e = self._entry(bid)

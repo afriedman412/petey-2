@@ -15,6 +15,9 @@ export interface Item {
   appearances?: number | null; type?: string | null; semantic_type?: string | null; description?: string | null;
   /** a text field's name as a checkbox (its suffix made _ind, or _ind added; group_review.ind_name) */
   ind_name?: string | null;
+  /** a text field made a checkbox and applied (x_petey_converted): shown as one not applied yet, so "back to text"
+   *  takes it back the same way (group_review.as_converted_items) */
+  converted?: boolean;
 }
 /** A group, a loose box (a group of one boolean), or a combined text field (`kind: text`). */
 export interface Unit {
@@ -138,6 +141,9 @@ export function note(msg: string) { put({ notes: [msg] }); }
 const draft = (): Unit[] => JSON.parse(JSON.stringify(S().units));
 const drop = (us: Unit[], u: Unit) => { const i = us.indexOf(u); if (i >= 0) us.splice(i, 1); };
 const strip = (us: Unit[]) => us.map(({ uid: _uid, ...u }) => u);
+/** the applied conversions taken back on the page, kept with the record so a reload shows them as text */
+export const toTextIds = (us: Unit[], items: Record<string, Item>) =>
+  Object.values(items).filter(it => it.converted && textIn(it.id, us, items)).map(it => it.id);
 
 // a step undone: the units before it, and the boxes it recorded as not a group (an ungroup), so the undo takes that
 // record back too (Andrew, 2026-10-26: else the finder never suggested the group again)
@@ -242,7 +248,8 @@ export function toBool(ids = [...S().picked]) {
   afterEdit(us, made[0].uid);
   toast(`${made.length} text field${made.length === 1 ? '' : 's'} made checkbox${made.length === 1 ? '' : 'es'}: ${made.map(u => u.name).join(', ')}${made.length > 1 ? ' (g groups them' : ' ('}${made.length > 1 ? ', ' : ''}z undoes)`);
 }
-/** a converted box back to a text field (before the change is applied) */
+/** a converted box back to a text field: before the change is applied, or after (an applied one in no unit is made
+ *  text by the plan: group_review.unconverted) */
 export function toText(uid: number) {
   const us = draft(), u = unitByUid(uid, us);
   if (!u || u.items.length !== 1 || !isConverted(u.items[0], us)) return;
@@ -507,7 +514,7 @@ export function revert(uid: number) {
 // one save at a time, in order: each PUT waits for the one before
 let saving: Promise<void> = Promise.resolve();
 function save() {
-  const body = { units: strip(S().units) }, bid = app().bid!;
+  const body = { units: strip(S().units), to_text: toTextIds(S().units, S().BP!.items) }, bid = app().bid!;
   saving = saving.then(async () => {
     try {
       const out = await send('PUT', mapi('groups', bid, '/units'), body);
