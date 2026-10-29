@@ -9,7 +9,8 @@ From the raw (flat) PDF alone:
                 (no model), or at its captions when Jev says several answers go along it (an API call; off with
                 build(split_jev=False))
   3. groups     Yes / No pairs and checkbox rows by layout (`yes_no_groups`, `cell_groups`), plus Jev's joins of
-                neighbouring marks over `cheap_groups.CUT`
+                neighbouring marks over `cheap_groups.CUT`; a group whose options repeat an answer (Yes twice) split
+                into its questions (`repeated_captions`, 2026-10-28), the publisher's groups too
   4. structure  tables (geometry) and repeated blocks (geometry + printed captions), `structure.find` as the
                 labeler uses it
   5. names      by position, in reading order: a table cell p1_g1_r5c6, a block slot p2_b1_c3_s4 (block 1, copy 3,
@@ -48,6 +49,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import cheap_groups  # noqa: E402
 import line_split  # noqa: E402
+import repeated_captions  # noqa: E402
 from finder_vs_widgets import classify_match, widget_rects  # noqa: E402
 from flat_calibration import structure as box_structure  # noqa: E402
 
@@ -132,9 +134,15 @@ def groups(raw: Path, stub: dict, workers: int, preset: list[set[str]] = ()) -> 
     p, tokens = _ask_all(jobs, workers)
     joins = [pair for pair, v in p.items() if v > cheap_groups.CUT]
     pairs = joins + [(a, b) for g in code for a, b in zip(sorted(g), sorted(g)[1:])]
+    # a group whose options repeat an answer is several questions (`repeated_captions`, 2026-10-28): the publisher's
+    # split before the joins, so the boxes it frees can still pair (a Yes with the No on its line), and every group after
+    boxes = {n: (stub["fields"][n]["widget"]["page"], stub["fields"][n]["widget"]["rect"]) for n in marks}
+    doc = pymupdf.open(str(raw))
+    words = {pg: doc[pg - 1].get_text("words") for pg in {b[0] for b in boxes.values()} if 1 <= pg <= len(doc)}
     if not preset:
-        return cheap_groups.union(pairs, marks), tokens
-    return _union_keeping(preset, pairs, marks), tokens
+        return repeated_captions.split_groups(cheap_groups.union(pairs, marks), boxes, words), tokens
+    preset = repeated_captions.split_groups(list(preset), boxes, words)
+    return repeated_captions.split_groups(_union_keeping(preset, pairs, marks), boxes, words), tokens
 
 
 def _union_keeping(preset: list[set[str]], pairs: list[tuple[str, str]], marks: list[str]) -> list[set[str]]:
@@ -291,6 +299,8 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
             elif pl:
                 name = f"p{page}_b{pl[2]}_c{pl[3]}_s{pl[4]}"
             else:
+                name = None
+            while name is None or name in fields:    # a place's name already taken: the next plain one, never over it
                 count[page] += 1
                 name = f"p{page}_f{count[page]}"
             w = dict(sf[n]["widget"])
@@ -313,6 +323,10 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
             p0 = pls[0]
             name, keys = f"p{page}_b{p0[2]}_c{p0[3]}", [f"s{p[4]}" for p in pls]
         else:
+            name = None
+        # two groups in one block copy or table row came to one name, the second written over the first
+        # (bm__mu_0d8e9867024f p3, 2026-10-29: 14 of 20 YES / NO boxes lost): the next plain group name instead
+        while name is None or name in fields:
             count[("o", page)] += 1
             name, keys = f"p{page}_o{count[('o', page)]}", [f"opt{k}" for k in range(1, len(ms) + 1)]
         if len(set(keys)) < len(keys):
@@ -332,7 +346,7 @@ def build(raw: Path, form_id: str, *, workers: int = 6, boxes: list[dict] | None
           "source_pages": sorted({b["page"] for b in boxes}), "description": "", "instructions": "",
           "authoring": {"method": "flat_light", "geometry": "widgets" if given else "finder",
                         "finder": None if given else B.FINDER_VERSION, "finder_patch": None if given else PATCH,
-                        "screen": {"model": MODEL, "keep": KEEP}, "groups": "yes_no + cell_groups + Jev joins",
+                        "screen": {"model": MODEL, "keep": KEEP}, "groups": "yes_no + cell_groups + Jev joins, repeated answers split",
                         "line_splits": None if given else {"column_rules": True, "captions": (
                             {"model": MODEL, "keep": line_split.JEV_SPLIT} if split_jev else None)},
                         "names": "position", "when": time.strftime("%Y-%m-%d %H:%M:%S")},

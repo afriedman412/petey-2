@@ -131,3 +131,21 @@ def test_signature_widgets_are_text_fields(tmp_path):
     doc.save(p)
     boxes, _ = SS.widget_boxes(p)
     assert [b["kind"] for b in boxes] == ["text", "text"]
+
+
+def test_two_groups_in_one_block_copy_both_kept(tmp_path, monkeypatch):
+    # bm__mu_0d8e9867024f p3 (2026-10-29): YES / NO pairs in one block copy were all named p3_b1_c1, each written over
+    # the one before (14 of the page's 20 boxes lost); now the second takes the next plain group name
+    pdf = tmp_path / "blank.pdf"
+    doc = pymupdf.open()
+    doc.new_page(width=612, height=792)
+    doc.save(str(pdf))
+    boxes = [{"id": str(i), "page": 1, "rect": [100 + 40 * (i % 2), 100 + 30 * (i // 2), 110 + 40 * (i % 2), 110 + 30 * (i // 2)],
+              "kind": "checkbox"} for i in range(4)]
+    monkeypatch.setattr(FL, "groups", lambda raw, stub, workers, preset=(): ([{"f0", "f1"}, {"f2", "f3"}], 0))
+    block = {"cells": [{"id": i, "block": 0, "slot": i} for i in range(4)]}
+    monkeypatch.setattr(FL.S, "find", lambda raw, entries: {1: {"tables": [], "blocks": [block]}})
+    bp, _ = FL.build(pdf, "t", boxes=boxes)
+    got = {n: sorted(w["rect"][1] for w in s["widgets"].values()) for n, s in bp["fields"].items()}
+    assert sum(len(s["widgets"]) for s in bp["fields"].values()) == 4
+    assert sorted(got.values()) == [[100, 100], [130, 130]] and "p1_b1_c1" in got
